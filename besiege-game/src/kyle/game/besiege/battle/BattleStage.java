@@ -47,7 +47,7 @@ public class BattleStage extends Group {
 	private MapScreen mapScreen;
 	private Kingdom kingdom;
 	//		private Party player;
-	private BattleMap battlemap;
+	public BattleMap battlemap;
 
 	private boolean mouseOver; // is mouse over Battle screen?
 	private boolean paused;
@@ -117,7 +117,7 @@ public class BattleStage extends Group {
 
 			while (map[pos_y][pos_x] != null || closed[pos_y][pos_x]) {
 				pos_x = (int) (Math.random()*size_x);
-				pos_y = (int) (Math.random()*size_y);
+				//pos_y = (int) (Math.random()*size_y);
 			}
 
 			Unit unit = new Unit(this, pos_x, pos_y, team, s, player);
@@ -131,7 +131,7 @@ public class BattleStage extends Group {
 
 			while (map[pos_y][pos_x] != null || closed[pos_y][pos_x]) {
 				pos_x = (int) (Math.random()*size_x);
-				pos_y = (int) (Math.random()*size_y);
+				//pos_y = (int) (Math.random()*size_y);
 			}
 
 			Unit unit = new Unit(this, pos_x, pos_y, team, s, enemy);

@@ -32,6 +32,7 @@ public class Unit extends Group {
 	public Soldier soldier;
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;
+
 	public int quiver;
 
 	//	public int baseAtk;

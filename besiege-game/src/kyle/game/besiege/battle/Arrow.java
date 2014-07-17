@@ -12,11 +12,14 @@ public class Arrow extends Actor {
 	public BattleStage stage;	
 	private TextureRegion texture;
 	private final float SCALE = 3;
-	private final float THRESHOLD = .5f;
-	private final float COLLISION_HEIGHT = .5f;
-	private final float GRAVITY = 1;
+//	private final float THRESHOLD = .5f;
+	private final float UNIT_HEIGHT = .1f;
+	private final float OBSTACLE_HEIGHT = .2f;
+	private final float GRAVITY = -1;
 	
 	private final float ACCURACY_FACTOR = .06f;
+	
+	private final float INITIAL_HEIGHT = .25f;
 	
 	private boolean stopped;
 	private Unit stuck;
@@ -113,7 +116,20 @@ public class Arrow extends Actor {
 				
 		// given dist to target and initial horizontal velocity (speed), calculate necessary vertical velocity?
 		float time_to_collision = dist_to_target/velocity.len();
-		vz = time_to_collision*GRAVITY/2;
+		
+		// goal is to find vertical velocity needed to get to goal
+		// object must hit ground after the amount of time (d = 0)
+					
+		// using d = vi*t + 1/2 * a*t^2
+			
+		float accel_distance = 1.0f/2.0f*GRAVITY*time_to_collision*time_to_collision;
+		vz = (-INITIAL_HEIGHT - accel_distance)/time_to_collision;
+	
+		// add a bit so it goes a bit further
+		vz += .03f;
+		
+		//vz = time_to_collision*GRAVITY/2;
+		height = INITIAL_HEIGHT;
 								
 		rotation = velocity.angle()+270;
 		this.setRotation(rotation);
@@ -124,7 +140,7 @@ public class Arrow extends Actor {
 		if (this.stopped) return;
 		time_since_shot += delta;
 		// update height based on time
-		vz -= GRAVITY*delta;
+		vz += GRAVITY*delta;
 		height += vz*delta;
 		
 		// move towards target;
@@ -140,12 +156,15 @@ public class Arrow extends Actor {
 		pos_y_int = (int) (pos_y);
 		
 		// check for collision
-		if (this.height < COLLISION_HEIGHT && inMap() && stage.map[pos_y_int][pos_x_int] != null && stage.map[pos_y_int][pos_x_int].team != this.team)
+		if (this.height < UNIT_HEIGHT && inMap() && stage.map[pos_y_int][pos_x_int] != null && stage.map[pos_y_int][pos_x_int].team != this.team)
 			collision(stage.map[pos_y_int][pos_x_int]);
 		
 //		if (Math.abs(pos_x-this.dest_x) < THRESHOLD && Math.abs(pos_y-this.dest_y) < THRESHOLD)
 //			this.stopped = true;
-		if (height < -.1 || (inMap() && stage.closed[pos_y_int][pos_x_int])) this.stopped = true;
+		if (height < -.0f 
+			|| (inMap() && stage.closed[pos_y_int][pos_x_int])
+			|| (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && height < OBSTACLE_HEIGHT))
+			this.stopped = true;
 	}
 	
 	

@@ -33,7 +33,7 @@ public class BattleMap extends Actor {
 	}
 
 	private GroundType[][] ground;
-	private Object[][] object;
+	public Object[][] objects;
 
 	private TextureRegion grass, flowers, flowers2, dirt, sand, darkgrass, mud, water, tree, lightgrass, rock, snow, lightsnow, lightsand, wallV, wallH;
 
@@ -41,15 +41,15 @@ public class BattleMap extends Actor {
 	public BattleMap(BattleStage mainmap) {
 		this.stage = mainmap;
 		
-		this.maptype = randomMapType();
-//		this.maptype = MapType.MEADOW;
+//		this.maptype = randomMapType();
+		this.maptype = MapType.MEADOW;
 
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
 
 		ground = new GroundType[total_height][total_width];
-		object = new Object[mainmap.size_y][mainmap.size_x];
+		objects = new Object[mainmap.size_y][mainmap.size_x];
 
 		grass = 	new TextureRegion(new Texture(Gdx.files.internal("ground/grass.png"))); 
 		dirt =		new TextureRegion(new Texture(Gdx.files.internal("ground/dirt.png"))); 
@@ -108,7 +108,7 @@ public class BattleMap extends Actor {
 				}
 			}
 			addTrees(.00);
-			addWalls(5);
+			addWalls(15);
 		}
 		if (maptype == MapType.BEACH) {
 			double slope = Math.random()*3+3;
@@ -159,7 +159,7 @@ public class BattleMap extends Actor {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				if (Math.random() < probability) {
-					object[j][i] = Object.TREE;
+					objects[j][i] = Object.TREE;
 					stage.closed[j][i] = true;
 //					mainmap.closed[i][j] = true;
 				}	
@@ -180,11 +180,11 @@ public class BattleMap extends Actor {
 			for (int i = 0; i < wall_length; i++) {
 				if (Math.random() < .9) {
 					if (vertical) {
-						object[wall_start_y+i][wall_start_x] = Object.WALL_V;
+						objects[wall_start_y+i][wall_start_x] = Object.WALL_V;
 						stage.slow[wall_start_y+i][wall_start_x] = .5;
 					}
 					else {
-						object[wall_start_y][wall_start_x+i] = Object.WALL_H;
+						objects[wall_start_y][wall_start_x+i] = Object.WALL_H;
 						stage.slow[wall_start_y][wall_start_x+i] = .5;
 					}
 				}
@@ -237,11 +237,11 @@ public class BattleMap extends Actor {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
-				if (object[i][j] == Object.TREE) 
+				if (objects[i][j] == Object.TREE) 
 					texture = tree;
-				else if (object[i][j] == Object.WALL_V) 
+				else if (objects[i][j] == Object.WALL_V) 
 					texture = wallV;
-				else if (object[i][j] == Object.WALL_H) 
+				else if (objects[i][j] == Object.WALL_H) 
 					texture = wallH;
 				
 				if (texture != null) batch.draw(texture, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);

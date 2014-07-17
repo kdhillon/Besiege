@@ -24,7 +24,8 @@ public class WeaponDraw extends Actor {
 	private int offset_x = 12;
 	private int offset_y = 4;
 	private TextureRegion white;
-	private TextureRegion toDraw;
+	private TextureRegion weaponMelee;
+	private TextureRegion weaponRanged;
 	
 	private Animation horseWalk;
 //	private Animation hors
@@ -32,8 +33,23 @@ public class WeaponDraw extends Actor {
 	public WeaponDraw(Unit unit) {
 		this.unit = unit;
 		
-		String filename = "";
+		mapWeaponTextures();
 		
+//		this.toDraw = new TextureRegion(new Texture(Gdx.files.internal("weapons/axe")));
+		white = new TextureRegion(new Texture("whitepixel.png"));
+		
+		if (unit.soldier.horse != null) {
+			this.HORSE_SCALE = 5;
+			Texture walkSheet2 = new Texture(Gdx.files.internal("equipment/horse_brown_walk.png")); 
+			TextureRegion[][] textureArray2 = TextureRegion.split(walkSheet2, walkSheet2.getWidth()/2, walkSheet2.getHeight()/1);
+			horseWalk = new Animation((float)Math.random()*.05f+.25f, textureArray2[0]);
+			horseWalk.setPlayMode(Animation.LOOP);
+		}
+	}
+	
+	private void mapWeaponTextures() {
+		String filename = "";
+		String rangedFilename = "";
 		switch(unit.weapon) {
 		case PITCHFORK :
 			filename = "pitchfork";
@@ -115,41 +131,40 @@ public class WeaponDraw extends Actor {
 			
 		// ranged
 		case SHORTBOW :
-			filename = "shortbow";
+			filename = "shortsword";
+			rangedFilename = "shortbow";
 			break;
 			
 		case CROSSBOW :
-			filename = "crossbow";
+			filename = "shortsword";
+			rangedFilename = "crossbow";
 			break;
 		case RECURVE :
-			filename = "recurve";
+			filename = "shortsword";
+			rangedFilename = "recurve";
 			break;
 		case LONGBOW :
-			filename = "longbow";
+			filename = "shortsword";
+			rangedFilename = "longbow";
 			break;
 			
 		case ADV_CROSSBOW :
-			filename = "crossbow";
+			filename = "longsword";
+			rangedFilename = "crossbow";
 			break;
 		case ADV_RECURVE :
-			filename = "recurve";
+			filename = "longsword";
+			rangedFilename = "recurve";
 			break;
 		case ADV_LONGBOW :
-			filename = "longbow";
+			filename = "longsword";
+			rangedFilename = "longbow";
 			break;
 		}
 		
-		this.toDraw = Assets.weapons.findRegion(filename);
-//		this.toDraw = new TextureRegion(new Texture(Gdx.files.internal("weapons/axe")));
-		white = new TextureRegion(new Texture("whitepixel.png"));
-		
-		if (unit.soldier.horse != null) {
-			this.HORSE_SCALE = 5;
-			Texture walkSheet2 = new Texture(Gdx.files.internal("equipment/horse_brown_walk.png")); 
-			TextureRegion[][] textureArray2 = TextureRegion.split(walkSheet2, walkSheet2.getWidth()/2, walkSheet2.getHeight()/1);
-			horseWalk = new Animation((float)Math.random()*.05f+.25f, textureArray2[0]);
-			horseWalk.setPlayMode(Animation.LOOP);
-		}
+		if (rangedFilename != "") 
+			this.weaponRanged = Assets.weapons.findRegion(rangedFilename);		
+		this.weaponMelee = Assets.weapons.findRegion(filename);
 	}
 	
 	@Override
@@ -172,7 +187,7 @@ public class WeaponDraw extends Actor {
 			float time = unit.stateTime;
 			if (!unit.moveSmooth) time = .3f;
 			TextureRegion region = horseWalk.getKeyFrame(time, false);
-			batch.draw(region, HORSE_OFFSET_X*unit.stage.scale, HORSE_OFFSET_Y*unit.stage.scale, 0, 0, toDraw.getRegionWidth(), toDraw.getRegionHeight(), unit.stage.scale*HORSE_SCALE, unit.stage.scale*HORSE_SCALE, 0);		
+			batch.draw(region, HORSE_OFFSET_X*unit.stage.scale, HORSE_OFFSET_Y*unit.stage.scale, 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), unit.stage.scale*HORSE_SCALE, unit.stage.scale*HORSE_SCALE, 0);		
 			batch.setColor(c);
 		}
 		
@@ -195,6 +210,8 @@ public class WeaponDraw extends Actor {
 				man_offset_y = FIRST_OFFSET;
 		}
 		
-		batch.draw(toDraw, offset_x*unit.stage.scale, (offset_y+man_offset_y/1.5f)*unit.stage.scale, 0, 0, toDraw.getRegionWidth(), toDraw.getRegionHeight(), unit.stage.scale*scale_x, unit.stage.scale*scale_y, man_rotation);		
+		TextureRegion toDraw = weaponMelee;
+		if (unit.isRanged() && unit.quiver > 0 && unit.attacking == null) toDraw = weaponRanged;
+		batch.draw(toDraw, offset_x*unit.stage.scale, (offset_y+man_offset_y/1.5f)*unit.stage.scale, 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), unit.stage.scale*scale_x, unit.stage.scale*scale_y, man_rotation);		
 	}
 }
