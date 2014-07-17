@@ -45,128 +45,135 @@ crossbow
   orig: 3, 12
   offset: 0, 0
   index: -1
-falchion
+dagger
   rotate: false
   xy: 32, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-guisarme
+falchion
   rotate: false
   xy: 37, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-halberd
+guisarme
   rotate: false
   xy: 42, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-lance
+halberd
   rotate: false
   xy: 47, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-longbow
+lance
   rotate: false
   xy: 52, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-longsword
+longbow
   rotate: false
   xy: 57, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-mace
+longsword
   rotate: false
   xy: 62, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-maul
+mace
   rotate: false
   xy: 67, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-militaryfork
+maul
   rotate: false
   xy: 72, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-morningstar
+militaryfork
   rotate: false
   xy: 77, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-pike
+morningstar
   rotate: false
   xy: 82, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-pitchfork
+pike
   rotate: false
   xy: 87, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-recurve
+pitchfork
   rotate: false
   xy: 92, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-shortbow
+recurve
   rotate: false
   xy: 97, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-shortsword
+shortbow
   rotate: false
   xy: 102, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-spear
+shortsword
   rotate: false
   xy: 107, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-voulge
+spear
   rotate: false
   xy: 112, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-warhammer
+voulge
   rotate: false
   xy: 117, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+warhammer
+  rotate: false
+  xy: 122, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0

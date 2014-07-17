@@ -16,9 +16,9 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	private final static int[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
 	public final static boolean[] ATK_TIER = {true, false, false, true, false, true, false, false, true, false};
 	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, false, true, false, false};
-	public final static boolean[] SPD_TIER = {true, true, false, false, false, false, true, false, false, true};
+	public final static boolean[] SPD_TIER = {true, false, false, false, false, false, true, false, false, true};
 	private static final float LEVEL_FACTOR = 1.1f; // exp needed for next level each time;
-	private static final int INITIAL_NEXT = 100;
+	private static final int INITIAL_NEXT = 20;
 	private static final float HEAL_TIME = 120; // seconds
 	private static final int MAX_LEVEL = 30;
 	private static final String VETERAN = ""; // "Veteran" or maybe invisible
@@ -53,17 +53,15 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;
 	public Array<Equipment> equipment;
-	// shouldn't be used that much, mostly for drawing horses in battles
-	public Equipment horse;
+
 	
 	// NOTE THAT THERE ARE 2 CONSTRUCTORS
 	public Soldier(Weapon weapon, Party party) {
 		this.weapon = weapon;
 		this.rangedWeapon = Weapon.getRanged(weapon);
 		this.equipment = Equipment.getBaseEquipment(weapon);
-		this.horse = getHorse();
 		
-		if (rangedWeapon != null) System.out.println(rangedWeapon.name);
+//		if (rangedWeapon != null) System.out.println(rangedWeapon.name);
 
 		this.party = party;
 
@@ -83,7 +81,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		
 		baseAtk = 0;
 		baseDef = 0;
-		baseSpd = 0;
+		baseSpd = 2;
 		for (int i = 0; i <= tier; i++) {
 			if (ATK_TIER[i]) baseAtk++;
 			if (DEF_TIER[i]) baseDef++;
@@ -101,45 +99,45 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		calcStats();
 	}
 	
-	public Soldier(Array<Weapon> weapons, Party party) {
-		this.weapon = weapons.random();
-		this.rangedWeapon = Weapon.getRanged(weapon);
-		this.equipment = Equipment.getBaseEquipment(weapon);
-
-		this.party = party;
-		
-		if (Math.random() > 0.5)
-			tier = weapon.tier;
-		else tier = weapon.tier + 1;
-		this.nextUpgrade = LEVEL_TIER[tier+1];
-		
-		if (tier % 2 == 0)
-			this.name = weapon.troopName;
-		else this.name = VETERAN + weapon.troopName;
-		
-		this.level = LEVEL_TIER[tier] + (int) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier]));
-		this.exp = 0;
-		this.next = (int) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
-		
-		baseAtk = 0;
-		baseDef = 0;
-		baseSpd = 0;
-		for (int i = 0; i <= tier; i++) {
-			if (ATK_TIER[i]) baseAtk++;
-			if (DEF_TIER[i]) baseDef++;
-			if (SPD_TIER[i]) baseSpd++;
-		}
-		
-		wounded = false;
-		timeWounded = 0;
-		
-//		this.equipment = new Array<Equipment>();
-//		while (equipment.size > 0)
-//			this.equipment.add(equipment.pop());
-		
-		calcBonus();
-		calcStats();
-	}
+//	public Soldier(Array<Weapon> weapons, Party party) {
+//		this.weapon = weapons.random();
+//		this.rangedWeapon = Weapon.getRanged(weapon);
+//		this.equipment = Equipment.getBaseEquipment(weapon);
+//
+//		this.party = party;
+//		
+//		if (Math.random() > 0.5)
+//			tier = weapon.tier;
+//		else tier = weapon.tier + 1;
+//		this.nextUpgrade = LEVEL_TIER[tier+1];
+//		
+//		if (tier % 2 == 0)
+//			this.name = weapon.troopName;
+//		else this.name = VETERAN + weapon.troopName;
+//		
+//		this.level = LEVEL_TIER[tier] + (int) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier]));
+//		this.exp = 0;
+//		this.next = (int) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
+//		
+//		baseAtk = 0;
+//		baseDef = 0;
+//		baseSpd = 2;
+//		for (int i = 0; i <= tier; i++) {
+//			if (ATK_TIER[i]) baseAtk++;
+//			if (DEF_TIER[i]) baseDef++;
+//			if (SPD_TIER[i]) baseSpd++;
+//		}
+//		
+//		wounded = false;
+//		timeWounded = 0;
+//		
+////		this.equipment = new Array<Equipment>();
+////		while (equipment.size > 0)
+////			this.equipment.add(equipment.pop());
+//		
+//		calcBonus();
+//		calcStats();
+//	}
 	
 //	public Soldier(Soldier template) {
 //		this.level = 1;
@@ -251,6 +249,10 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		}
 	}
 	
+	public int getExpForKill() {
+		return level;
+	}
+	
 	public boolean isHealed() {
 		if (Kingdom.clock - timeWounded >= HEAL_TIME)
 			return true;
@@ -285,6 +287,14 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	public Equipment getHorse() {
 		for (Equipment e : equipment) {
 			if (e.type == Equipment.Type.HORSE) 
+				return e;
+		}
+		return null;
+	}
+	
+	public Equipment getShield() {
+		for (Equipment e : equipment) {
+			if (e.type == Equipment.Type.SHIELD) 
 				return e;
 		}
 		return null;

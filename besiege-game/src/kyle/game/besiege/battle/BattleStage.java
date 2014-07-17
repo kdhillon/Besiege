@@ -23,9 +23,11 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 
 public class BattleStage extends Group {
-	private Battle battle;
+	public Battle battle;
 	private PanelBattle pb;
 	public float scale = 1.5f;
+	public float MIN_SIZE = 5;
+	public float SIZE_FACTOR = 1f; // how much does the size of the parties affect the size of battlefield?
 
 	public static boolean drawCrests = true;
 
@@ -82,11 +84,13 @@ public class BattleStage extends Group {
 		
 		//int size = Math.max(this.player.getHealthySize(), this.enemy.getHealthySize());
 		int size = this.player.getHealthySize() + this.enemy.getHealthySize();
-		size *= 2;
+		size *= SIZE_FACTOR;
+		size += MIN_SIZE;
 		this.size_x = size;
 		this.size_y = size;
 		
 		this.battle = new Battle(mapScreen.getKingdom(), this.player.army, this.enemy.army);
+		battle.calcBalancePlayer();
 		
 		// try this
 		pb = new PanelBattle(mapScreen.getSidePanel(), battle);
@@ -194,7 +198,7 @@ public class BattleStage extends Group {
 			selectedUnit = u;
 			setPanelTo(u);
 			mouseOver(mouse);
-			System.out.println("unit at mouse is " + u.soldier.name);
+//			System.out.println("unit at mouse is " + u.soldier.name);
 		}
 		else {
 			selectedUnit = null;
@@ -308,6 +312,8 @@ public class BattleStage extends Group {
 		//			batch.setColor(kingdom.currentDarkness, kingdom.currentDarkness, kingdom.currentDarkness, 1f);
 		super.draw(batch, parentAlpha);
 
+		battlemap.drawTrees(batch); // will probably be above arrows for now
+		
 //		System.out.println("bs drawing");
 		if (drawCrests) {
 
@@ -363,6 +369,4 @@ public class BattleStage extends Group {
 	public static double sqDistBetween(Destination d1, Destination d2) {
 		return (d1.getCenterX()-d2.getCenterX())*(d1.getCenterX()-d2.getCenterX())+(d1.getCenterY()-d2.getCenterY())*(d1.getCenterY()-d2.getCenterY());
 	}
-
-
 }

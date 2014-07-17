@@ -48,12 +48,13 @@ public class PanelUnit extends Panel {
 //	private Label nameS;
 	private Label levelS;
 	private Label hpS;
-	private Label nextS;
+	private Label expS;
 	private Label atkS;
 	private Label defS;
 	private Label spdS;
 	private Label weaponS;
 	private Label equipmentS;
+	private Label actionS;
 	
 //	private Table soldierTable;
 //	private ScrollPane soldierPane;
@@ -83,7 +84,7 @@ public class PanelUnit extends Panel {
 		
 		Label levelSC = 	new Label("Level:", ls);
 		Label hpSC = 		new Label("HP:",ls);
-		Label nextSC =		new Label("Next:",ls);
+		Label expSC =		new Label("Exp:",ls);
 		Label atkSC =		new Label("Atk:", ls);
 		Label defSC = 		new Label("Def:", ls);
 		Label spdSC = 		new Label("Spd:", ls); 
@@ -112,7 +113,7 @@ public class PanelUnit extends Panel {
 		
 		levelS = new Label("" + soldier.level, ls);
 		hpS = new Label("" + unit.hp, ls);
-		nextS = new Label("" + soldier.next, ls);
+		expS = new Label("" + soldier.next, ls);
 		atkS = new Label("" + soldier.getAtk(), ls);
 		defS = new Label("" + soldier.getDef(), ls);
 		spdS = new Label("" + soldier.getSpd(), ls);
@@ -121,7 +122,9 @@ public class PanelUnit extends Panel {
 		weaponS.setAlignment(0,0);
 		
 		equipmentS = new Label("", ls);
-
+		actionS = new Label("" + unit.getStatus(), ls);
+		actionS.setAlignment(0,0);
+		
 		health = new Table();
 		red = new Table();
 		red.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(redPatch), r,r,r,r)));
@@ -152,6 +155,8 @@ public class PanelUnit extends Panel {
 		text.row();
 		text.add(health).colspan(4).padTop(MINI_PAD).padBottom(MINI_PAD);
 		text.row();
+		text.add(actionS).colspan(4).fillX().expandX();
+		text.row();
 		text.add(weaponS).colspan(4).fillX().expandX();
 		text.row();
 		text.add(atkSC).padLeft(MINI_PAD);
@@ -166,8 +171,8 @@ public class PanelUnit extends Panel {
 		text.row();
 		text.add(spdSC).padLeft(MINI_PAD);
 		text.add(spdS);
-		text.add(nextSC).padLeft(PAD);
-		text.add(nextS);
+		text.add(expSC).padLeft(PAD);
+		text.add(expS);
 
 		text.row();
 
@@ -179,12 +184,14 @@ public class PanelUnit extends Panel {
 	public void act(float delta) {	
 		levelS.setText("" + soldier.level);
 		hpS.setText("" + unit.hp);
-		nextS.setText("" + soldier.next);
-		atkS.setText("" + soldier.getAtk());
-		defS.setText("" + soldier.getDef());
-		spdS.setText("" + soldier.getSpd());
-		if (unit.isRanged()) weaponS.setText(soldier.rangedWeapon.name + " (" + unit.quiver + ")");
-
+		expS.setText("" + soldier.exp);
+		atkS.setText("" + unit.atk);
+		defS.setText("" + unit.def);
+		spdS.setText("" + (int) unit.spd);
+		if (unit.isRanged() && unit.attacking == null && unit.quiver > 0) weaponS.setText(soldier.rangedWeapon.name + " (" + unit.quiver + ")");
+		else weaponS.setText(soldier.weapon.name);
+		actionS.setText(unit.getStatus());
+		
 		health.clear();
 		float totalWidth = SidePanel.WIDTH - PAD;
 

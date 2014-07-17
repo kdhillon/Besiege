@@ -8,27 +8,31 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.utils.Array;
 
 public enum Equipment {
-	SHIELD ("Shield", Type.OFFHAND, 0, 1, -1),
-	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2),
-	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0),
-	WAR_HORSE ("Warhorse", Type.HORSE, 0, 3, 10);
+	WOOD_SHIELD ("Wood Shield", Type.SHIELD, 0, 1, -1, 12),
+	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 20),
+	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
+	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 999999),
+	WAR_HORSE ("Warhorse", Type.HORSE, 0, 3, 5, 50);
 	
 	public final String name;
 	public final Type type;
+	public final int hp;
 	public final int atkMod;
 	public final int defMod;
 	public final int spdMod;
 	public enum Type {
-		OFFHAND, CHEST, HEAD, LEGS, ARMS, HORSE
+		SHIELD, CHEST, HEAD, LEGS, ARMS, HORSE
 	}
 	
-	private Equipment(String name, Type type, int atkMod, int defMod, int spdMod) {
+	private Equipment(String name, Type type, int atkMod, int defMod, int spdMod, int hp) {
+		this.hp = hp;
 		this.name = name;
 		this.type = type;
 		this.atkMod = atkMod;
 		this.defMod = defMod;
 		this.spdMod = spdMod;
 	}
+	
 	@Override
 	public String toString() {
 		return name;
@@ -39,6 +43,10 @@ public enum Equipment {
 	public static Array<Equipment> getBaseEquipment(Weapon weapon) {
 		Array<Equipment> equip = new Array<Equipment>();
 		
+		// add shields
+		if (weapon.oneHand && weapon != Weapon.SHORTBOW) equip.add(IRON_SHIELD);
+		
+		// add horse
 		switch (weapon) {
 		case CAVALRY_SPEAR :
 			equip.add(WAR_HORSE);

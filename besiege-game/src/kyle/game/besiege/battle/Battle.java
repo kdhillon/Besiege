@@ -429,8 +429,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 		boolean killed = army.getParty().casualty(random);
 
 		if (a)
-			expD += random.level;
-		else expA += random.level;
+			expD += random.getExpForKill();
+		else expA += random.getExpForKill();
 		
 		if (playerInD || playerInA) {
 			String status = random.name;
@@ -627,5 +627,27 @@ public class Battle extends Actor implements Destination { // new battle system 
 		double balanceSecond = secondAtk*secondAdvantage + secondSize;
 		double total = balanceFirst + balanceSecond;
 		return balanceFirst / total; // balanceA + balanceD = 1
+	}
+	
+	// used in battle stage
+	public void calcBalancePlayer() {
+		int firstAtk = 0;
+		int firstSize = 0;
+		
+		for (Army a : aArmies) {
+			firstAtk += a.getParty().getAtk();
+			firstSize += a.getParty().getHealthySize();
+		}
+		int secondAtk = 0;
+		int secondSize = 0;
+		for (Army a : dArmies) {
+			secondAtk += a.getParty().getAtk();
+			secondSize += a.getParty().getHealthySize();
+		}
+		double balanceFirst = firstAtk + firstSize; // method for computing balance
+		double balanceSecond = secondAtk + secondSize;
+		double total = balanceFirst + balanceSecond;
+		balanceA = balanceFirst / total; // balanceA + balanceD = 1
+		balanceD = 1-balanceA;
 	}
 }

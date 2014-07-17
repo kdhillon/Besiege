@@ -13,29 +13,32 @@ public class Arrow extends Actor {
 	private TextureRegion texture;
 	private final float SCALE = 3;
 //	private final float THRESHOLD = .5f;
-	private final float UNIT_HEIGHT = .1f;
-	private final float OBSTACLE_HEIGHT = .2f;
+//	private final float UNIT_HEIGHT = .1f;
 	private final float GRAVITY = -1;
 	
 	private final float ACCURACY_FACTOR = .06f;
+	private final float DISTANCE_EXP_FACTOR = .1f;
+	private final float UNIT_COVER_DIST_CHANGE = .5f; // amount to multiply damage by to add to the near cover dist of a unit hit
 	
-	private final float INITIAL_HEIGHT = .25f;
+	public static final float INITIAL_HEIGHT = .25f;
+	private final float DAMAGE_FACTOR = 10f;
 	
 	private boolean stopped;
 	private Unit stuck;
+	private Unit firing;
 	
 	private float temp_offset_x;
 	private float temp_offset_y;
 	private float rotation_offset;
 	
 	public int damage;
+	public float distanceToTravel;
 	
 	public float speed = 25f;
 //	public float speed = 10f;
 	
 	public Vector2 velocity;
 	public float rotation;
-	public int team;
 
 	public float pos_x;
 	public float pos_y;
@@ -54,9 +57,9 @@ public class Arrow extends Actor {
 	public Arrow(Unit firing, Unit target) {
 		texture = new TextureRegion(new Texture("arrow.png"));
 
-		// set up initial values
+		this.firing = firing;
+		
 		this.stage = firing.stage;
-		this.team = firing.team;
 		
 		this.time_since_shot = 0;
 		
@@ -74,10 +77,10 @@ public class Arrow extends Actor {
 		
 		
 		// calculate damage
-		this.damage = firing.atk;
+		this.damage = firing.rangedWeapon.atkMod;
 		
 		// modified to make arrows stronger
-		this.damage *= 2;
+		this.damage *= DAMAGE_FACTOR;
 		
 		// calculate destination (based on accuracy) -- try to overshoot target
 		dest_x = target.pos_x + .5f;
@@ -94,7 +97,8 @@ public class Arrow extends Actor {
 //			System.out.println("misfire");
 //		}
 		// different from dist to target
-		float dist_to_closest = (float) firing.distanceTo(target);
+		distanceToTravel = (float) firing.distanceTo(target);
+		float dist_to_closest = distanceToTravel;
 		
 		
 		float random_x = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + dist_to_closest)) * ACCURACY_FACTOR;
@@ -123,7 +127,8 @@ public class Arrow extends Actor {
 		// using d = vi*t + 1/2 * a*t^2
 			
 		float accel_distance = 1.0f/2.0f*GRAVITY*time_to_collision*time_to_collision;
-		vz = (-INITIAL_HEIGHT - accel_distance)/time_to_collision;
+		// aim for halfway up the unit's body
+		vz = ((-INITIAL_HEIGHT+Unit.UNIT_HEIGHT_GROUND*.75f) - accel_distance)/time_to_collision;
 	
 		// add a bit so it goes a bit further
 		vz += .03f;
@@ -156,14 +161,16 @@ public class Arrow extends Actor {
 		pos_y_int = (int) (pos_y);
 		
 		// check for collision
-		if (this.height < UNIT_HEIGHT && inMap() && stage.map[pos_y_int][pos_x_int] != null && stage.map[pos_y_int][pos_x_int].team != this.team)
-			collision(stage.map[pos_y_int][pos_x_int]);
+		Unit collided = null; 
+		if (inMap()) {
+			collided = stage.map[pos_y_int][pos_x_int];
+			if (collided != null && collided.team != firing.team && this.height < collided.getZHeight())
+				collision(stage.map[pos_y_int][pos_x_int]);
+		}
 		
-//		if (Math.abs(pos_x-this.dest_x) < THRESHOLD && Math.abs(pos_y-this.dest_y) < THRESHOLD)
-//			this.stopped = true;
-		if (height < -.0f 
-			|| (inMap() && stage.closed[pos_y_int][pos_x_int])
-			|| (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && height < OBSTACLE_HEIGHT))
+
+		if (height < -.0f
+			|| (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && height < stage.battlemap.objects[pos_y_int][pos_x_int].height))
 			this.stopped = true;
 	}
 	
@@ -197,37 +204,39 @@ public class Arrow extends Actor {
 	}
 	
 	public void collision(Unit that) {
-		that.hurt(Math.max(0, damage - that.def*Math.random()), null);
-		
-		// stick in target, don't destroy TODO
-		this.stopped = true;
-		this.stuck = that;
-		
-		this.temp_offset_x = (float) Math.random() - .5f;
-		this.temp_offset_y = (float) Math.random() - .5f;
+		// test killing horses
+		if (that.shieldUp() && that.orientation == getOppositeOrientation()) {
+			that.shield_hp -= damage;
+			if (that.shield_hp <= 0) that.destroyShield();
+			this.destroy();
+			System.out.println("shield destroyed");
+		}
+		else {
+			that.hurt(Math.max(0, damage - that.def*Math.random()), null);
 
-//		this.temp_offset_x = that.getX() - this.getX();
-//		this.temp_offset_y = that.getY() - this.getY();
-//		
-//		if (that.orientation == Orientation.LEFT) {
-//			this.temp_offset_x = that.getY() - this.getY();
-//			this.temp_offset_y = -(that.getX() - this.getX());
-//		} 
-//		else if (that.orientation == Orientation.RIGHT){
-//			this.temp_offset_x = -(that.getY() - this.getY());
-//			this.temp_offset_y = that.getX() - this.getX();
-//		} 
-//		else if (that.orientation == Orientation.DOWN) {
-//			this.temp_offset_x = -(that.getX() - this.getX());
-//		}
-//		
-		this.temp_offset_x *= 3;
-		this.temp_offset_y *= 3;
-		
-		this.rotation_offset = that.getRotation() - this.getRotation();
-		this.remove();
-		that.addActor(this);
-	//	this.destroy();
+			// get a bit of EXP for hitting someone based on distance
+			firing.soldier.addExp((int) (distanceToTravel * DISTANCE_EXP_FACTOR));
+
+			// get more exp for killing someone based on their level
+			if (that.isDying) {
+				firing.soldier.addExp(that.soldier.getExpForKill());
+			}
+
+			that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
+
+			this.stopped = true;
+			this.stuck = that;
+
+			this.temp_offset_x = (float) Math.random() - .5f;
+			this.temp_offset_y = (float) Math.random() - .5f;
+			//		
+			this.temp_offset_x *= 3;
+			this.temp_offset_y *= 3;
+
+			this.rotation_offset = that.getRotation() - this.getRotation();
+			this.remove();
+			that.addActor(this);
+		}
 	}
 	
 	public void destroy() {
@@ -237,7 +246,15 @@ public class Arrow extends Actor {
 	private boolean inMap() {
 		return pos_x_int < stage.size_x &&
 				pos_y_int < stage.size_y && 
-				pos_x_int > 0 && 
-				pos_y_int > 0;
+				pos_x_int >= 0 && 
+				pos_y_int >= 0;
+	}
+	
+	public Orientation getOppositeOrientation() {
+		float rot = getRotation() % 360;
+		if (rot < 90) return Orientation.LEFT;
+		if (rot < 180) return Orientation.DOWN;
+		if (rot < 270) return Orientation.RIGHT;
+		else return Orientation.DOWN;
 	}
 }

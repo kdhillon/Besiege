@@ -8,11 +8,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
 
 
 public class BattleMap extends Actor {
 	boolean raining;
 	private TextureRegion white;
+	private static final int TREE_X_OFFSET = 1;
+	private static final int TREE_Y_OFFSET = 1;
+	private static final int TREE_WIDTH = 3;
+	private static final int TREE_HEIGHT = 3;
 
 	private enum MapType {
 		FOREST, BEACH, GRASSLAND, DESERT, ALPINE, MEADOW
@@ -27,11 +32,17 @@ public class BattleMap extends Actor {
 	private enum GroundType {
 		GRASS, DIRT, SAND, DARKGRASS, MUD, WATER, LIGHTGRASS, SNOW, ROCK, LIGHTSAND, LIGHTSNOW, FLOWERS, FLOWERS2
 	}
-	
-	private enum Object {
-		TREE, WALL_V, WALL_H
-	}
 
+	public enum Object {
+		TREE (.5f), WALL_V(.1f), WALL_H(.1f);
+		float height;
+		private Object(float height) {
+			this.height = height;
+		}
+	}
+	
+	
+	public Array<Point> cover; // points with protection
 	private GroundType[][] ground;
 	public Object[][] objects;
 
@@ -40,17 +51,17 @@ public class BattleMap extends Actor {
 
 	public BattleMap(BattleStage mainmap) {
 		this.stage = mainmap;
-		
-//		this.maptype = randomMapType();
-		this.maptype = MapType.MEADOW;
 
+		//		this.maptype = randomMapType();
+		this.maptype = MapType.MEADOW;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
 
 		ground = new GroundType[total_height][total_width];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
-
+		cover = new Array<Point>();
+		
 		grass = 	new TextureRegion(new Texture(Gdx.files.internal("ground/grass.png"))); 
 		dirt =		new TextureRegion(new Texture(Gdx.files.internal("ground/dirt.png"))); 
 		sand = 		new TextureRegion(new Texture(Gdx.files.internal("ground/sand.png"))); 
@@ -64,13 +75,13 @@ public class BattleMap extends Actor {
 		snow = 		new TextureRegion(new Texture(Gdx.files.internal("ground/snow.png")));
 		lightsnow = new TextureRegion(new Texture(Gdx.files.internal("ground/lightsnow.png")));
 		lightsand = new TextureRegion(new Texture(Gdx.files.internal("ground/sandlight.png")));
-		tree = 		new TextureRegion(new Texture(Gdx.files.internal("ground/tree.png")));
+		tree = 		new TextureRegion(new Texture(Gdx.files.internal("tree_3_3 alt.png")));
 		wallV = 	new TextureRegion(new Texture(Gdx.files.internal("stone_fence_v.png")));
 		wallH = 	new TextureRegion(new Texture(Gdx.files.internal("stone_fence.png")));
 		// generate random map
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
-		
+
 		if (maptype == MapType.FOREST) {
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
@@ -82,7 +93,7 @@ public class BattleMap extends Actor {
 			}
 			// add walls
 			addWalls(5);
-			addTrees(.05);
+			addTrees(.1);
 		}
 		if (maptype == MapType.GRASSLAND) {
 			for (int i = 0; i < ground.length; i++) {
@@ -114,14 +125,14 @@ public class BattleMap extends Actor {
 			double slope = Math.random()*3+3;
 			double slope2 = Math.random()*1;
 			double thresh = Math.random()*40/SIZE+60/SIZE;
-			
+
 			// determine if ocean on right or left of line?
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
 					ground[i][j] = GroundType.SAND;
 					if (Math.random() < .01) ground[i][j] = GroundType.MUD;
 					double leftSide = slope*i + slope2*j;
-					
+
 					if (leftSide < thresh || (leftSide - thresh < 4 && Math.random() < .5)) {
 						ground[i][j] = GroundType.WATER;
 						// set as closed
@@ -154,39 +165,64 @@ public class BattleMap extends Actor {
 			}
 		}
 	}
-	
+
 	private void addTrees(double probability) {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				if (Math.random() < probability) {
 					objects[j][i] = Object.TREE;
 					stage.closed[j][i] = true;
-//					mainmap.closed[i][j] = true;
+					//					mainmap.closed[i][j] = true;
 				}	
 			}
 		}
 	}
-	
+
 	private void addWalls(int maxWalls) {
 		int number_walls = (int)(Math.random()*maxWalls + .5);
 		for (int count = 0; count < number_walls; count++) {
 			int wall_length = (int) (10*Math.random()+5);
 			int wall_start_x = (int) ((stage.size_x-wall_length)*Math.random());
 			int wall_start_y =  (int) ((stage.size_y-wall_length)*Math.random());
-			
+
 			boolean vertical = true;
 			if (Math.random() < .5) vertical = false;
-			
+
 			for (int i = 0; i < wall_length; i++) {
 				if (Math.random() < .9) {
 					if (vertical) {
 						objects[wall_start_y+i][wall_start_x] = Object.WALL_V;
 						stage.slow[wall_start_y+i][wall_start_x] = .5;
+						
+						// add cover 
+						Point cover_right = new Point(wall_start_x+1, wall_start_y+i);
+						cover_right.orientation = Orientation.LEFT;
+						if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null) cover.add(cover_right);
+						
+						Point cover_left = new Point(wall_start_x-1, wall_start_y+i);
+						cover_left.orientation = Orientation.RIGHT;
+						if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null) cover.add(cover_left);
 					}
 					else {
 						objects[wall_start_y][wall_start_x+i] = Object.WALL_H;
 						stage.slow[wall_start_y][wall_start_x+i] = .5;
+						
+						// add cover 
+						Point cover_up = new Point(wall_start_x+i, wall_start_y+1);
+						if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null) cover.add(cover_up);
+						cover_up.orientation = Orientation.DOWN;
+
+						Point cover_down = new Point(wall_start_x+i, wall_start_y-1);
+						if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null) cover.add(cover_down);
+						cover_down.orientation = Orientation.UP;
 					}
+				}
+			}
+			
+			// remove cover on top of objects
+			for (Point p : cover) {
+				if (objects[p.pos_y][p.pos_x] != null) {
+					cover.removeValue(p, true);
 				}
 			}
 		}
@@ -195,7 +231,7 @@ public class BattleMap extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		TextureRegion texture;
-		
+
 		this.toBack();
 
 		// draw base layer textures
@@ -209,89 +245,137 @@ public class BattleMap extends Actor {
 
 		boolean blend = true;
 		if (blend) {
-		// then draw blend textures
-		for (int i = 0; i < ground[0].length; i++) {
-			for (int j = 0; j < ground.length; j++) {
-				texture = getTexture(ground[j][i]);
+			// then draw blend textures
+			for (int i = 0; i < ground[0].length; i++) {
+				for (int j = 0; j < ground.length; j++) {
+					texture = getTexture(ground[j][i]);
 
-				int half_width = (int) (stage.unit_width*stage.scale*SIZE/2);
-				int half_height = (int) (stage.unit_height*stage.scale*SIZE/2);
-
-
-				Color c = batch.getColor();
-				Color mycolor = new Color(1, 1, 1, .3f);
-				batch.setColor(mycolor);
-				// draw four extra squares at corners with alpha
-				batch.draw(texture, j*stage.unit_width*stage.scale*SIZE + half_width, i*stage.unit_height*stage.scale*SIZE + half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
-				batch.draw(texture, j*stage.unit_width*stage.scale*SIZE + half_width, i*stage.unit_height*stage.scale*SIZE - half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
-				batch.draw(texture, j*stage.unit_width*stage.scale*SIZE - half_width, i*stage.unit_height*stage.scale*SIZE + half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
-				batch.draw(texture, j*stage.unit_width*stage.scale*SIZE - half_width, i*stage.unit_height*stage.scale*SIZE - half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
+					int half_width = (int) (stage.unit_width*stage.scale*SIZE/2);
+					int half_height = (int) (stage.unit_height*stage.scale*SIZE/2);
 
 
-				batch.setColor(c);
+					Color c = batch.getColor();
+					Color mycolor = new Color(1, 1, 1, .3f);
+					batch.setColor(mycolor);
+					// draw four extra squares at corners with alpha
+					batch.draw(texture, j*stage.unit_width*stage.scale*SIZE + half_width, i*stage.unit_height*stage.scale*SIZE + half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
+					batch.draw(texture, j*stage.unit_width*stage.scale*SIZE + half_width, i*stage.unit_height*stage.scale*SIZE - half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
+					batch.draw(texture, j*stage.unit_width*stage.scale*SIZE - half_width, i*stage.unit_height*stage.scale*SIZE + half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
+					batch.draw(texture, j*stage.unit_width*stage.scale*SIZE - half_width, i*stage.unit_height*stage.scale*SIZE - half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);
+
+
+					batch.setColor(c);
+				}
 			}
 		}
+
+		// draw obstacles
+		for (int i = 0; i < stage.size_y; i++) {
+			for (int j = 0; j < stage.size_x; j++) {
+				texture = null;
+				// Don't draw trees here
+				if (objects[i][j] == Object.WALL_V) 
+					texture = wallV;
+				else if (objects[i][j] == Object.WALL_H) 
+					texture = wallH;
+
+				if (texture != null) batch.draw(texture, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+			}
+		}
+
+		boolean drawAll = false;
+		//if (stage.selectedUnit != null) drawAll = true;
+		
+		// draw range of selected unit
+		if (!drawAll && stage.currentPanel != null) {
+			Unit drawRange = stage.currentPanel;
+			drawRange(drawRange, batch);
+		}
+		else if (drawAll && stage.currentPanel != null) {
+			if (stage.currentPanel.team == 0) {
+				for (Unit drawRange : stage.allies) 
+					drawRange(drawRange, batch);
+			}
+			else if (stage.currentPanel.team == 1) {
+				for (Unit drawRange : stage.enemies)
+					drawRange(drawRange, batch);
+			}
 		}
 		
-		// draw obstacles
+		
+		// draw cover
+		boolean drawCover = false;
+		if (drawCover) {
+
+			Color c = batch.getColor();
+			Color mycolor = new Color(1, 1, 0, .5f);
+			batch.setColor(mycolor);
+			
+			for (Point p : cover)
+				batch.draw(white, (p.pos_x*stage.unit_width*stage.scale), (p.pos_y*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+			
+			batch.setColor(c);
+		}
+		
+	}
+
+	// used to draw trees after units have been drawn
+	public void drawTrees(SpriteBatch batch) {
+		TextureRegion texture;
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
 				if (objects[i][j] == Object.TREE) 
 					texture = tree;
-				else if (objects[i][j] == Object.WALL_V) 
-					texture = wallV;
-				else if (objects[i][j] == Object.WALL_H) 
-					texture = wallH;
-				
-				if (texture != null) batch.draw(texture, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width*stage.scale), ((i-TREE_Y_OFFSET)*stage.unit_height*stage.scale), TREE_WIDTH*stage.unit_width*stage.scale, TREE_HEIGHT*stage.unit_height*stage.scale);
 			}
-		}
-		
-		// draw range of selected unit
-		if (stage.currentPanel != null && stage.currentPanel.isRanged()) {
-
-			Color c = batch.getColor();
-			Color mycolor = new Color(1, 0, 0, .3f);
-			batch.setColor(mycolor);
-			
-			int center_x = stage.currentPanel.pos_x;
-			int center_y = stage.currentPanel.pos_y;
-			
-			int range = stage.currentPanel.rangedWeapon.range;
-			for (int i = -range; i < range; i++) {
-				for (int j = -range; j < range; j++) {
-					if (i == 0 && j == 0) continue;
-					if (i*i + j*j < range*range) {
-						if (stage.currentPanel.orientation == Orientation.UP) {
-							if (Math.abs(i) < Math.abs(j) && j > 0) {
-								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
-							}
-						}
-						if (stage.currentPanel.orientation == Orientation.DOWN) {
-							if (Math.abs(i) < Math.abs(j) && j < 0) {
-								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
-							}
-						}
-						if (stage.currentPanel.orientation == Orientation.LEFT) {
-							if (Math.abs(i) > Math.abs(j) && i < 0) {
-								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
-							}
-						}
-						if (stage.currentPanel.orientation == Orientation.RIGHT) {
-							if (Math.abs(i) > Math.abs(j) && i > 0) {
-								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
-							}
-						}
-					}
-				}
-			}
-			
-			
-			batch.setColor(c);
 		}
 	}
 	
+	
+
+	private void drawRange(Unit drawRange, SpriteBatch batch) {
+		if (drawRange.bowOut() && !drawRange.retreating) {
+			Color c = batch.getColor();
+			Color mycolor = new Color(1, 0, 0, .15f);
+			
+			float max_alpha = .3f;
+			float base_alpha = .1f;
+			
+			batch.setColor(mycolor);
+
+			int center_x = drawRange.pos_x;
+			int center_y = drawRange.pos_y;
+
+			int range = drawRange.rangedWeapon.range;
+			for (int i = -range; i < range; i++) {
+				for (int j = -range; j < range; j++) {
+					if (i == 0 && j == 0) continue;
+					if (i*i + j*j < range*range && center_x+i >= 0 && center_y+j >= 0 && center_x+i < stage.size_x && center_y+j < stage.size_y) {
+						// calculate distance as fraction of range
+						float alpha_factor = (float)(Math.sqrt(i*i+j*j)/range);
+						mycolor.a = (1-alpha_factor) * max_alpha + base_alpha;
+						batch.setColor(mycolor);
+						
+						if (drawRange.orientation == Orientation.UP)
+							if (Math.abs(i) < Math.abs(j) && j > 0) 
+								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+						if (drawRange.orientation == Orientation.DOWN) 
+							if (Math.abs(i) < Math.abs(j) && j < 0) 
+								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+						if (drawRange.orientation == Orientation.LEFT)
+							if (Math.abs(i) > Math.abs(j) && i < 0) 
+								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+						if (drawRange.orientation == Orientation.RIGHT)
+							if (Math.abs(i) > Math.abs(j) && i > 0) 
+								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
+					}
+				}
+			}
+			batch.setColor(c);
+		}
+	}
+
 	private TextureRegion getTexture(GroundType ground) {
 		TextureRegion texture;
 		if (ground == GroundType.GRASS) texture = grass;
@@ -307,16 +391,16 @@ public class BattleMap extends Actor {
 		else if (ground == GroundType.FLOWERS) texture = flowers;
 		else if (ground == GroundType.FLOWERS2) texture = flowers2;
 		else texture = dirt;
-		
+
 		return texture;
 	}
-	
+
 	private MapType randomMapType() {
 		int count = MapType.values().length;
 		int index = (int) (Math.random() * count);
 		return MapType.values()[index];
 	}
-	
+
 	// close a spot of ground SIZE by SIZE
 	private void closeGround(int y, int x) {
 		for (int k = 0; k < SIZE; k++) {
@@ -329,5 +413,13 @@ public class BattleMap extends Actor {
 	@Override
 	public void act(float delta) {
 
+	}
+	
+	public boolean inMap(Point p) {
+		if (p == null) return false;
+		return p.pos_x < stage.size_x &&
+				p.pos_y < stage.size_y && 
+				p.pos_x >= 0 && 
+				p.pos_y >= 0;
 	}
 }

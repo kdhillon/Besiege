@@ -12,22 +12,29 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class WeaponDraw extends Actor {
 	private float DEFAULT_OFFSET = 0;
-	private float FIRST_OFFSET = 4;
+	private float FIRST_OFFSET = 2;
 	private float ATTACK_ROTATION = 30;
-	private float ATTACK_OFFSET = 4;
-	private float HORSE_OFFSET_X = .2f;
-	private float HORSE_OFFSET_Y = -26;
-	private float HORSE_SCALE;
+	private float ATTACK_OFFSET = 2;
+	private float HORSE_OFFSET_X = -2f;
+	private float HORSE_OFFSET_Y = -25;
+	private float HORSE_SCALE = 2.5f;
+	private float SHIELD_SCALE = 2.0f;
+	private float SHIELD_OFFSET_X = -2;
+	private float SHIELD_OFFSET_Y = 8;
 	private float scale_x = 1.6f;
 	private float scale_y = 2.5f;
 	private Unit unit;
 	private int offset_x = 12;
 	private int offset_y = 4;
+	
+	private float offset_x_ranged = 14;
+	private float offset_y_ranged = -.5f;
 	private TextureRegion white;
 	private TextureRegion weaponMelee;
 	private TextureRegion weaponRanged;
 	
-	private Animation horseWalk;
+	public Animation horseWalk;
+	public TextureRegion shield;
 //	private Animation hors
 	
 	public WeaponDraw(Unit unit) {
@@ -38,12 +45,14 @@ public class WeaponDraw extends Actor {
 //		this.toDraw = new TextureRegion(new Texture(Gdx.files.internal("weapons/axe")));
 		white = new TextureRegion(new Texture("whitepixel.png"));
 		
-		if (unit.soldier.horse != null) {
-			this.HORSE_SCALE = 5;
+		if (unit.horse != null) {
 			Texture walkSheet2 = new Texture(Gdx.files.internal("equipment/horse_brown_walk.png")); 
 			TextureRegion[][] textureArray2 = TextureRegion.split(walkSheet2, walkSheet2.getWidth()/2, walkSheet2.getHeight()/1);
 			horseWalk = new Animation((float)Math.random()*.05f+.25f, textureArray2[0]);
 			horseWalk.setPlayMode(Animation.LOOP);
+		}
+		if (unit.shield != null) {
+			shield = new TextureRegion(new Texture(Gdx.files.internal("equipment/iron_shield.png"))); 
 		}
 	}
 	
@@ -131,20 +140,20 @@ public class WeaponDraw extends Actor {
 			
 		// ranged
 		case SHORTBOW :
-			filename = "shortsword";
+			filename = "dagger";
 			rangedFilename = "shortbow";
 			break;
 			
 		case CROSSBOW :
-			filename = "shortsword";
+			filename = "dagger";
 			rangedFilename = "crossbow";
 			break;
 		case RECURVE :
-			filename = "shortsword";
+			filename = "dagger";
 			rangedFilename = "recurve";
 			break;
 		case LONGBOW :
-			filename = "shortsword";
+			filename = "dagger";
 			rangedFilename = "longbow";
 			break;
 			
@@ -187,8 +196,7 @@ public class WeaponDraw extends Actor {
 			float time = unit.stateTime;
 			if (!unit.moveSmooth) time = .3f;
 			TextureRegion region = horseWalk.getKeyFrame(time, false);
-			batch.draw(region, HORSE_OFFSET_X*unit.stage.scale, HORSE_OFFSET_Y*unit.stage.scale, 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), unit.stage.scale*HORSE_SCALE, unit.stage.scale*HORSE_SCALE, 0);		
-			batch.setColor(c);
+			batch.draw(region, HORSE_OFFSET_X*unit.stage.scale, HORSE_OFFSET_Y*unit.stage.scale, region.getRegionWidth()*unit.stage.scale*HORSE_SCALE, region.getRegionHeight()* unit.stage.scale*HORSE_SCALE);
 		}
 		
 		// manual offset
@@ -210,8 +218,23 @@ public class WeaponDraw extends Actor {
 				man_offset_y = FIRST_OFFSET;
 		}
 		
+		// draw shield
+		if (shield != null && !unit.bowOut()) {
+			float offset_to_use = FIRST_OFFSET;
+			if (unit.animationWalk.getKeyFrameIndex(unit.stateTime) == 1) offset_to_use = DEFAULT_OFFSET;
+			batch.draw(shield, SHIELD_OFFSET_X*unit.stage.scale, (SHIELD_OFFSET_Y+offset_to_use)*unit.stage.scale, shield.getRegionWidth()*unit.stage.scale*SHIELD_SCALE, shield.getRegionHeight()*unit.stage.scale*SHIELD_SCALE);		
+		}
+		
+		float offset_x_to_use = offset_x;
+		float offset_y_to_use = offset_y;
 		TextureRegion toDraw = weaponMelee;
-		if (unit.isRanged() && unit.quiver > 0 && unit.attacking == null) toDraw = weaponRanged;
-		batch.draw(toDraw, offset_x*unit.stage.scale, (offset_y+man_offset_y/1.5f)*unit.stage.scale, 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), unit.stage.scale*scale_x, unit.stage.scale*scale_y, man_rotation);		
+		if (unit.bowOut()) {
+			toDraw = weaponRanged;
+			offset_x_to_use = offset_x_ranged;
+			offset_y_to_use = offset_y_ranged;
+			// don't draw if firing
+			if (!unit.moveSmooth) return;
+		}
+		batch.draw(toDraw, offset_x_to_use*unit.stage.scale, (offset_y_to_use+man_offset_y/1.5f)*unit.stage.scale, 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), unit.stage.scale*scale_x, unit.stage.scale*scale_y, man_rotation);		
 	}
 }
