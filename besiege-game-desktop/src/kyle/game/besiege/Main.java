@@ -1,0 +1,23 @@
+package kyle.game.besiege;
+
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+
+public class Main {
+	public static void main(String[] args) {
+		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+		cfg.title = "Besiege";
+		cfg.useGL20 = true;
+		
+		// prevents lag from swapbuffers
+	//	cfg.fullscreen = true;
+//		cfg.width = 900;
+//		cfg.height = 650;
+		
+		cfg.addIcon("data/icon.png", FileType.Internal);
+		cfg.width = 1280;
+		cfg.height = 800;
+		new LwjglApplication(new BesiegeMain(), cfg);
+	}
+}

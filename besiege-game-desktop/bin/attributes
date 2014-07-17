@@ -1,0 +1,15 @@
+
+
+Chracter Attributes     Description
+
+Training                Increases exp gained by party by 10%
+Bargaining              Decreases equipment upgrade cost by 5%
+Commanding              Increases base party size by 5%
+Recruiting              Decreases recruitment cost by 5%
+Inspiring               Increases base party morale by 5%
+Spotting                Increases line of sight by 5%
+Marching                Increases party map movement speed by 2%
+Tracking                Increases party speed when chasing enemies by 4%
+Defending               Decreases chance to suffer casualties in battle by 4%
+Attacking               Increases chance to inflict casualties in battle by 4% 
+Retreating              Increases speed of retreating in battle by 10%

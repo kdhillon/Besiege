@@ -1,0 +1,264 @@
+
+atlas1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+Bandit
+  rotate: false
+  xy: 104, 73
+  size: 9, 9
+  orig: 9, 9
+  offset: 0, 0
+  index: -1
+Castle
+  rotate: false
+  xy: 2, 28
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+City
+  rotate: false
+  xy: 2, 62
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+Farmer
+  rotate: false
+  xy: 92, 19
+  size: 9, 9
+  orig: 9, 9
+  offset: 0, 0
+  index: -1
+KnightHorse
+  rotate: false
+  xy: 72, 30
+  size: 27, 10
+  orig: 27, 10
+  offset: 0, 0
+  index: -1
+Merchant
+  rotate: false
+  xy: 65, 2
+  size: 16, 14
+  orig: 16, 14
+  offset: 0, 0
+  index: -1
+Player
+  rotate: false
+  xy: 38, 2
+  size: 25, 8
+  orig: 25, 8
+  offset: 0, 0
+  index: -1
+Raider
+  rotate: false
+  xy: 101, 32
+  size: 25, 8
+  orig: 25, 8
+  offset: 0, 0
+  index: -1
+Village
+  rotate: false
+  xy: 68, 94
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+battle
+  rotate: false
+  xy: 104, 84
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+black9
+  rotate: false
+  xy: 83, 8
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+fog
+  rotate: false
+  xy: 83, 8
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+crestBandits
+  rotate: false
+  xy: 2, 2
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestBlank
+  rotate: false
+  xy: 20, 2
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestBlueRose
+  rotate: false
+  xy: 68, 68
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestGreenStripe
+  rotate: false
+  xy: 102, 102
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestGreenTree
+  rotate: false
+  xy: 36, 36
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestOrangeCross
+  rotate: false
+  xy: 86, 68
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestRedCross
+  rotate: false
+  xy: 54, 36
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestWhiteLion
+  rotate: false
+  xy: 72, 42
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+crestYellowStar
+  rotate: false
+  xy: 90, 42
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+green9
+  rotate: false
+  xy: 93, 9
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-d9
+  rotate: false
+  xy: 103, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-dm9
+  rotate: false
+  xy: 103, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-light
+  rotate: false
+  xy: 123, 27
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-lm
+  rotate: false
+  xy: 123, 22
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-lm9
+  rotate: false
+  xy: 103, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-md9
+  rotate: false
+  xy: 113, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-med
+  rotate: false
+  xy: 123, 17
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-med9
+  rotate: false
+  xy: 113, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-xl
+  rotate: false
+  xy: 123, 12
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+knightFlail
+  rotate: false
+  xy: 38, 24
+  size: 25, 10
+  orig: 25, 10
+  offset: 0, 0
+  index: -1
+knightLance
+  rotate: false
+  xy: 38, 12
+  size: 25, 10
+  orig: 25, 10
+  offset: 0, 0
+  index: -1
+knightSword
+  rotate: false
+  xy: 65, 18
+  size: 25, 10
+  orig: 25, 10
+  offset: 0, 0
+  index: -1
+lightFog
+  rotate: false
+  xy: 113, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+panelBG
+  rotate: false
+  xy: 68, 65
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+red9
+  rotate: false
+  xy: 115, 74
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
