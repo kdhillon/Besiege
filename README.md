@@ -92,6 +92,7 @@ Day 67: integrated battlestage into game
 Day 68: added additional features to battlestage
 Day 69: added different battle environments to battlemap
 Day 70: added horses and archers to battlestage
+Day 71: added cover, firing animation, shields to battlestage
 
 
 now (mostly engine issues):
