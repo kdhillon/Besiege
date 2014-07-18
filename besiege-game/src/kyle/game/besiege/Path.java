@@ -318,7 +318,7 @@ public class Path {
 //		if (dStack.isEmpty()) System.out.println("problem");
 		
 		// cleans out shit destinations, maybe fixes bug
-		while (Kingdom.distBetween(army, dStack.peek()) < GOAL_DIST && dStack.size() > 1) {
+		while (dStack.size() > 1 && Kingdom.distBetween(army, dStack.peek()) < GOAL_DIST) {
 //			System.out.println("cleaning!");
 			dStack.pop();
 		}

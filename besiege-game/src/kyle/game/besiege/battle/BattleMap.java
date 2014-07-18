@@ -20,7 +20,7 @@ public class BattleMap extends Actor {
 	private static final int TREE_HEIGHT = 3;
 
 	private enum MapType {
-		FOREST, BEACH, GRASSLAND, DESERT, ALPINE, MEADOW
+		FOREST, BEACH, GRASSLAND, DESERT, ALPINE, MEADOW, CRAG, RIVER
 	}
 	private MapType maptype;
 
@@ -30,11 +30,11 @@ public class BattleMap extends Actor {
 	private int total_width;
 
 	private enum GroundType {
-		GRASS, DIRT, SAND, DARKGRASS, MUD, WATER, LIGHTGRASS, SNOW, ROCK, LIGHTSAND, LIGHTSNOW, FLOWERS, FLOWERS2
+		GRASS, DIRT, SAND, DARKGRASS, MUD, WATER, LIGHTGRASS, SNOW, ROCK, DARKROCK, LIGHTSAND, LIGHTSNOW, FLOWERS, FLOWERS2
 	}
 
 	public enum Object {
-		TREE (.5f), WALL_V(.1f), WALL_H(.1f);
+		TREE(.5f), STUMP(.1f), WALL_V(.1f), WALL_H(.1f);
 		float height;
 		private Object(float height) {
 			this.height = height;
@@ -46,14 +46,14 @@ public class BattleMap extends Actor {
 	private GroundType[][] ground;
 	public Object[][] objects;
 
-	private TextureRegion grass, flowers, flowers2, dirt, sand, darkgrass, mud, water, tree, lightgrass, rock, snow, lightsnow, lightsand, wallV, wallH;
+	private TextureRegion grass, flowers, flowers2, dirt, sand, darkgrass, mud, water, tree, stump, lightgrass, rock, darkrock, snow, lightsnow, lightsand, wallV, wallH;
 
 
 	public BattleMap(BattleStage mainmap) {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-		this.maptype = MapType.MEADOW;
+		this.maptype = MapType.CRAG;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -72,16 +72,21 @@ public class BattleMap extends Actor {
 		flowers = 	new TextureRegion(new Texture(Gdx.files.internal("ground/flowers.png")));
 		flowers2 = 	new TextureRegion(new Texture(Gdx.files.internal("ground/flowers2.png")));
 		rock = 		new TextureRegion(new Texture(Gdx.files.internal("ground/rock.png")));
+		darkrock = 	new TextureRegion(new Texture(Gdx.files.internal("ground/darkrock.png")));
 		snow = 		new TextureRegion(new Texture(Gdx.files.internal("ground/snow.png")));
 		lightsnow = new TextureRegion(new Texture(Gdx.files.internal("ground/lightsnow.png")));
 		lightsand = new TextureRegion(new Texture(Gdx.files.internal("ground/sandlight.png")));
+		
+		
 		tree = 		new TextureRegion(new Texture(Gdx.files.internal("tree_3_3 alt.png")));
+		stump = 	new TextureRegion(new Texture(Gdx.files.internal("stump.png")));
 		wallV = 	new TextureRegion(new Texture(Gdx.files.internal("stone_fence_v.png")));
 		wallH = 	new TextureRegion(new Texture(Gdx.files.internal("stone_fence.png")));
-		// generate random map
+		
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
-
+	
+		// generate random map
 		if (maptype == MapType.FOREST) {
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
@@ -164,15 +169,63 @@ public class BattleMap extends Actor {
 				}
 			}
 		}
+		if (maptype == MapType.CRAG) {
+			for (int i = 0; i < ground.length; i++) {
+				for (int j = 0; j < ground[0].length; j++) {
+					double random = Math.random();
+					if (random < .7) ground[i][j] = GroundType.DARKROCK;
+					else if (random < .9) ground[i][j] = GroundType.MUD;
+					else if (random < 1) ground[i][j] = GroundType.ROCK;
+				}
+			}
+			
+			addStumps(.01);
+		}
+		
+		
+		// remove cover on top of objects
+		for (Point p : cover) {
+			if (objects[p.pos_y][p.pos_x] != null) {
+				cover.removeValue(p, true);
+			}
+		}
 	}
 
 	private void addTrees(double probability) {
-		for (int i = 0; i < stage.size_y; i++) {
-			for (int j = 0; j < stage.size_x; j++) {
+		for (int i = 0; i < stage.size_x; i++) {
+			for (int j = 0; j < stage.size_y; j++) {
 				if (Math.random() < probability) {
 					objects[j][i] = Object.TREE;
 					stage.closed[j][i] = true;
 					//					mainmap.closed[i][j] = true;
+				}	
+			}
+		}
+	}
+	
+	private void addStumps(double probability) {
+		for (int i = 0; i < stage.size_x; i++) {
+			for (int j = 0; j < stage.size_y; j++) {
+				if (Math.random() < probability) {
+					objects[j][i] = Object.STUMP;
+					stage.closed[j][i] = true;
+					
+					// add cover 
+					Point cover_right = new Point(i+1, j);
+					cover_right.orientation = Orientation.LEFT;
+					if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null) cover.add(cover_right);
+					
+					Point cover_left = new Point(i-1, j);
+					cover_left.orientation = Orientation.RIGHT;
+					if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null) cover.add(cover_left);
+
+					Point cover_up = new Point(i, j+1);
+					if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null) cover.add(cover_up);
+					cover_up.orientation = Orientation.DOWN;
+
+					Point cover_down = new Point(i, j-1);
+					if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null) cover.add(cover_down);
+					cover_down.orientation = Orientation.UP;
 				}	
 			}
 		}
@@ -216,13 +269,6 @@ public class BattleMap extends Actor {
 						if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null) cover.add(cover_down);
 						cover_down.orientation = Orientation.UP;
 					}
-				}
-			}
-			
-			// remove cover on top of objects
-			for (Point p : cover) {
-				if (objects[p.pos_y][p.pos_x] != null) {
-					cover.removeValue(p, true);
 				}
 			}
 		}
@@ -278,6 +324,8 @@ public class BattleMap extends Actor {
 					texture = wallV;
 				else if (objects[i][j] == Object.WALL_H) 
 					texture = wallH;
+				else if (objects[i][j] == Object.STUMP) 
+					texture = stump;
 
 				if (texture != null) batch.draw(texture, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
 			}
@@ -385,6 +433,7 @@ public class BattleMap extends Actor {
 		else if (ground == GroundType.WATER) texture = water;
 		else if (ground == GroundType.MUD) texture = mud;
 		else if (ground == GroundType.ROCK) texture = rock;
+		else if (ground == GroundType.DARKROCK) texture = darkrock;
 		else if (ground == GroundType.SNOW) texture = snow;
 		else if (ground == GroundType.LIGHTSAND) texture = lightsand;
 		else if (ground == GroundType.LIGHTSNOW) texture = lightsnow;

@@ -43,6 +43,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private SidePanel panel;
 	private Battle battle;
 	
+	private boolean shouldUpdate;
+	
 	private Label title;
 	
 	private Table text;
@@ -303,6 +305,10 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		this.addTopTable(text);
 		
 		this.setButton(1, "Retreat!");
+		
+		// try to fix weird text bug
+//		updateSoldierTable();
+		shouldUpdate = true;
 	}
 	
 	// TODO this is extremely memory inefficient. like, it's really bad.
@@ -335,7 +341,6 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			balance.add(green).width((float) (totalWidth*battle.balanceD));
 		}
 		else {
-			boolean shouldUpdate = false;
 			for (Army army : battle.aArmies)
 				if (army.getParty().updated) {
 					shouldUpdate = true;
@@ -360,7 +365,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 						army.getParty().updated = false;
 					}
 			if (shouldUpdate) {
-//				System.out.println("updated soldier table");
+				System.out.println("updated soldier table");
+				shouldUpdate = false;
 				updateTopTable();
 				updateSoldierTable();
 			}
@@ -478,7 +484,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			for (Array<Soldier> as : consolHealthy) {
 				Label name = new Label(as.first().name, lsSmall);
 				
-				name.setWrap(true);
+//				name.setWrap(true);
 //				name.addListener(new ClickListener() {
 //					public void enter(InputEvent event, float x,
 //							float y, int pointer, Actor fromActor) {
@@ -500,7 +506,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			for (Array<Soldier> as : consolWounded) {
 				Label name = new Label(as.first().name, lsSmallG);
 				
-				name.setWrap(true);
+//				name.setWrap(true);
 //				name.addListener(new ClickListener() {
 //					public void enter(InputEvent event, float x,
 //							float y, int pointer, Actor fromActor) {

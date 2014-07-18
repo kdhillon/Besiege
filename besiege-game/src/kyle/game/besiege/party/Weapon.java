@@ -42,9 +42,9 @@ public enum Weapon {
 	MACE (6, "Mace", "Maceman", 				2, 1, 0, true, true),
 	
 	// Tier 6 Ranged
-	CROSSBOW (6, "Dagger", "Crossbow", 	0, -1, 0, true, false),
-	RECURVE (6, "Dagger", "Recurve", 		0, -1, 0, true, false),  
-	LONGBOW (6, "Dagger", "Longbow", 	0, -1, 0, true, false), 
+	CROSSBOW (6, "Dagger", "Crossbowman", 	0, -1, 0, true, false),
+	RECURVE (6, "Dagger", "Bowman", 		0, -1, 0, true, false),  
+	LONGBOW (6, "Dagger", "Longbowman", 	0, -1, 0, true, false), 
 
 	// Tier 8 Mounted (Tier '7') 
 	LANCE (8, "Lance", "Lancer", 				4, 1, -1, false, false),
@@ -54,16 +54,16 @@ public enum Weapon {
 	// Tier 8 (Best total = 4)
 	GUISARME (8, "Guisarme", "Pikemaster", 			3, 3, -2, false, false),
 	VOULGE (8, "Voulge", "Blademaster", 			4, 2, -2, false, false),
-	GREATSWORD (8, "Greatsword", "Swordmaster", 	3, 2, -1, false, false),
+	GREATSWORD (8, "Claymore", "Swordmaster", 		3, 2, -1, false, false),
 	GLAIVE (8, "Glaive", "Axemaster", 				4, 1, -1, false, false),
 	FALCHION (8, "Falchion", "Sabermaster", 		3, 1, 0, true, false),
 	MAUL (8, "Maul", "Hammermaster", 				4, 1, -1, false, true),
 	MORNINGSTAR (8, "Morningstar", "Macemaster", 	3, 1, 0, true, true), 
 	
 	// Tier 8 Ranged
-	ADV_CROSSBOW (8, "Shortsword", "Crossbow Master", 	1, 0, 0, true, false), 
-	ADV_RECURVE  (8, "Shortsword", "Bowmaster",    		1, 0, 0, true, false),  
-	ADV_LONGBOW  (8, "Shortsword", "Longbow Master",  	1, 0, 0, true, false); 
+	ADV_CROSSBOW (8, "Shortsword", "Crossbow Master", 	-1, -2, 0, true, false), 
+	ADV_RECURVE  (8, "Shortsword", "Bowmaster",    		-1, -2, 0, true, false),  
+	ADV_LONGBOW  (8, "Shortsword", "Longbow Master",  	-1, -2, 0, true, false); 
 
 									 	// 0  1, 2,  3,  4,  5,  6,  7,  8,  9 
 	public static final int[] TIER_COST = {5, 5, 15, 15, 30, 30, 50, 50, 75, 75};

@@ -158,15 +158,15 @@ public class WeaponDraw extends Actor {
 			break;
 			
 		case ADV_CROSSBOW :
-			filename = "longsword";
+			filename = "shortsword";
 			rangedFilename = "crossbow";
 			break;
 		case ADV_RECURVE :
-			filename = "longsword";
+			filename = "shortsword";
 			rangedFilename = "recurve";
 			break;
 		case ADV_LONGBOW :
-			filename = "longsword";
+			filename = "shortsword";
 			rangedFilename = "longbow";
 			break;
 		}
@@ -221,7 +221,7 @@ public class WeaponDraw extends Actor {
 		// draw shield
 		if (shield != null && !unit.bowOut()) {
 			float offset_to_use = FIRST_OFFSET;
-			if (unit.animationWalk.getKeyFrameIndex(unit.stateTime) == 1) offset_to_use = DEFAULT_OFFSET;
+			if (unit.animationWalk.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver) offset_to_use = DEFAULT_OFFSET;
 			batch.draw(shield, SHIELD_OFFSET_X*unit.stage.scale, (SHIELD_OFFSET_Y+offset_to_use)*unit.stage.scale, shield.getRegionWidth()*unit.stage.scale*SHIELD_SCALE, shield.getRegionHeight()*unit.stage.scale*SHIELD_SCALE);		
 		}
 		

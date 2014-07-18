@@ -25,7 +25,7 @@ public class Unit extends Group {
 
 	final int RETREAT_THRESHOLD = 2;
 	
-	public float NEAR_COVER_DISTANCE = 6;
+	public float NEAR_COVER_DISTANCE = 3;
 
 	final float DEATH_TIME = 300;
 	final float BASE_SPEED = .2f;
@@ -33,7 +33,7 @@ public class Unit extends Group {
 	static final float UNIT_HEIGHT_GROUND = .1f;
 	static final float UNIT_HEIGHT_HORSE = .2f;
 	
-	final float POLARM_BONUS = 3;
+	final float POLARM_BONUS = 3.5f;
 
 	public BattleStage stage;	
 	public Unit attacking;
@@ -100,6 +100,7 @@ public class Unit extends Group {
 	public Equipment horse;
 	public Equipment shield;
 	public int shield_hp;
+	public int horse_hp;
 
 	public boolean moveSmooth; // use this to do animation so it's smoother
 	private boolean moveToggle; // only set to true for the frame that moving is set to false;
@@ -130,6 +131,7 @@ public class Unit extends Group {
 		this.horse = soldier.getHorse();
 		this.shield = soldier.getShield();
 		if (shield != null) shield_hp = shield.hp;
+		if (horse != null) horse_hp = horse.hp;
 
 		quiver = soldier.level; // number of arrows this unit gets
 
@@ -295,7 +297,7 @@ public class Unit extends Group {
 		if (this.attacking != null) 	return "Attacking " + attacking.soldier.name;
 		if (this.moveSmooth && 
 				cover != null) 			return "Moving to cover";
-		if (this.moveSmooth) 			return "Moving";
+		if (this.moveSmooth) 			return "Charging";
 		if (this.isRanged() && 
 				this.reloading > 0 && 
 				inCover) 				return "Firing from cover";
@@ -312,6 +314,7 @@ public class Unit extends Group {
 
 		if (isDying) {
 			drawAnimation(batch, animationDie, timeSinceDeath, false);
+			super.draw(batch,  parentAlpha);
 		}
 		else {
 			super.draw(batch, parentAlpha);
@@ -338,6 +341,8 @@ public class Unit extends Group {
 
 
 			else if (attacking != null) {
+				// maybe remove later
+				this.face(attacking);
 				drawAnimation(batch, animationAttack, stateTime, true);
 				//			drawAnimation(batch, swordAttack, stateTime);
 			}
@@ -581,6 +586,13 @@ public class Unit extends Group {
 			damage /= 2.0;
 			if (shield_hp <= 0) destroyShield();
 		}
+		
+		if (this.isMounted()) {
+			this.horse_hp -= damage/2.0;
+			damage /= 2.0;
+			if (horse_hp <= 0) killHorse();
+		}
+		
 		this.hp -= (int) (damage + .5);
 
 		this.isHit = true;
@@ -589,9 +601,9 @@ public class Unit extends Group {
 			this.kill();
 			//			this.destroy();
 			if (attacker != null) {
-				attacker.attacking = null;
+				if (attacker.attacking == this) attacker.attacking = null;
 				// usually full level, but spread some out to party
-				attacker.soldier.exp += this.soldier.level;
+				attacker.soldier.addExp(this.soldier.getExpForKill());;
 			}
 		}
 		//		System.out.println(this.hp);
@@ -790,6 +802,7 @@ public class Unit extends Group {
 		this.pos_y = -100;
 		if (this.team == 0) stage.allies.removeValue(this, true);
 		if (this.team == 1) stage.enemies.removeValue(this, true);
+		this.removeActor(weaponDraw);
 
 		//		System.out.println("DESTROYED");
 		party.casualty(soldier);

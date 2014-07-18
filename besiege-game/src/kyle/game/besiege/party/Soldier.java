@@ -12,7 +12,11 @@ import kyle.game.besiege.Character;
 import com.badlogic.gdx.utils.Array;
 
 public class Soldier implements Comparable { // should create a heal-factor, so garrisonning will heal faster
-									// Tier  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
+	public enum SoldierType {
+		INFANTRY, ARCHER, CAVALRY
+	}
+	
+	// Tier  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
 	private final static int[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
 	public final static boolean[] ATK_TIER = {true, false, false, true, false, true, false, false, true, false};
 	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, false, true, false, false};
@@ -320,5 +324,11 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 //		if (this.name != that.level)
 //			return that.level - this.level;
 //		else return this.name.compareTo(that.name);
+	}
+	
+	public SoldierType getType() {
+		if (this.getHorse() != null) return SoldierType.CAVALRY;
+		if (this.rangedWeapon != null) return SoldierType.ARCHER;
+		else return SoldierType.INFANTRY;
 	}
 }

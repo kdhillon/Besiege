@@ -10,6 +10,7 @@ import java.util.Iterator;
 import kyle.game.besiege.Character;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.party.Soldier.SoldierType;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -113,6 +114,7 @@ public class Party {
 			return false;
 		}
 		else kill(soldier);
+		updated = true;
 		return true;
 	}
 	public void kill(Soldier soldier) {
@@ -133,6 +135,7 @@ public class Party {
 		this.addSoldier(soldier);
 		if (player) BottomPanel.log(soldier.name + " healed", "blue");
 		healthy.sort();
+		updated = true;
 	}
 	public Array<Soldier> getUpgradable() {
 		upgradable.clear();
@@ -181,6 +184,30 @@ public class Party {
 	public int getTotalSize() {
 		return getHealthySize() + getWoundedSize();
 	}
+	
+	// used for placing troops
+	public Array<Soldier> getHealthyInfantry() {
+		Array<Soldier> roReturn = new Array<Soldier>();
+		for (Soldier s : healthy) {
+			if (s.getType() == SoldierType.INFANTRY) roReturn.add(s);
+		}
+		return roReturn;
+	}
+	public Array<Soldier> getHealthyArchers() {
+		Array<Soldier> toReturn = new Array<Soldier>();
+		for (Soldier s : healthy) {
+			if (s.getType() == SoldierType.ARCHER) toReturn.add(s);
+		}
+		return toReturn;
+	}
+	public Array<Soldier> getHealthyCavalry() {
+		Array<Soldier> toReturn = new Array<Soldier>();
+		for (Soldier s : healthy) {
+			if (s.getType() == SoldierType.CAVALRY) toReturn.add(s);
+		}
+		return toReturn;
+	}
+	
 	public Array<Soldier> getHealthy() {
 		return healthy;
 	}

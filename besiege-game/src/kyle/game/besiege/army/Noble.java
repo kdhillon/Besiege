@@ -32,7 +32,7 @@ public class Noble extends Army {
 
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
-		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.BANDIT);
+		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.MACE_TEST2);
 		this.home = home;
 		this.setDefaultTarget((City) home);
 		// set up initial party, rank, etc
