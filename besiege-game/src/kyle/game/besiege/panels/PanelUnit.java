@@ -84,7 +84,7 @@ public class PanelUnit extends Panel {
 		
 		Label levelSC = 	new Label("Level:", ls);
 		Label hpSC = 		new Label("HP:",ls);
-		Label expSC =		new Label("Exp:",ls);
+		Label expSC =		new Label("Height:",ls);
 		Label atkSC =		new Label("Atk:", ls);
 		Label defSC = 		new Label("Def:", ls);
 		Label spdSC = 		new Label("Spd:", ls); 
@@ -184,7 +184,8 @@ public class PanelUnit extends Panel {
 	public void act(float delta) {	
 		levelS.setText("" + soldier.level);
 		hpS.setText("" + unit.hp);
-		expS.setText("" + soldier.exp);
+//		expS.setText("" + soldier.exp);
+		expS.setText("" + unit.getFloorHeight());
 		atkS.setText("" + unit.atk);
 		defS.setText("" + unit.def);
 		spdS.setText("" + (int) unit.spd);

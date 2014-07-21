@@ -46,7 +46,7 @@ public class ArmyPlayer extends Army {
 //		initializeBox();
 //		System.out.println("player origin = " + this.getOriginX() + " y: " + this.getOriginY());
 //		System.out.println("player width = " + this.getWidth() + " height: " + this.getHeight());
-		
+
 //		target = null;
 		setStopped(true);
 		setWaiting(false);
@@ -249,10 +249,10 @@ public class ArmyPlayer extends Army {
 	}
 	
 	// create a battle involving the player
-	public void createPlayerBattleWith(Army army) {
+	public void createPlayerBattleWith(Army army, boolean defending, Location siegeOf) {
 		System.out.println("switching to battle view");
 		// first create battle stage with appropriate stuff
-		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), this.getParty(), army.getParty());
+		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), this.getParty(), army.getParty(), defending, siegeOf);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);
 	}
 	

@@ -12,6 +12,7 @@ import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
@@ -42,6 +43,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private final String greenPatch = "green9";
 	private SidePanel panel;
 	private Battle battle;
+	
+	public BattleStage battleStage;
 	
 	private boolean shouldUpdate;
 	
@@ -365,7 +368,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 						army.getParty().updated = false;
 					}
 			if (shouldUpdate) {
-				System.out.println("updated soldier table");
+//				System.out.println("updated soldier table");
 				shouldUpdate = false;
 				updateTopTable();
 				updateSoldierTable();
@@ -601,7 +604,11 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	public void button1() {
 		//retreat button
 		if (getButton(1).isVisible()) {
-			battle.retreat(panel.getKingdom().getPlayer());
+			
+			if (battleStage == null) 
+				battle.retreat(panel.getKingdom().getPlayer());
+			else battleStage.retreatAll(true);
+			
 			getButton(1).setVisible(false);
 		}
 	}

@@ -93,10 +93,16 @@ Day 68: added additional features to battlestage
 Day 69: added different battle environments to battlemap
 Day 70: added horses and archers to battlestage
 Day 71: added cover, firing animation, shields to battlestage
+Day 72: added additional maptypes and formations to battlestage
+Day 73: added walls and ladders to battlestage
 
 
-now (mostly engine issues):
-add archers to game!
+
+todo:
+now:
+make sieges more realistic (make walls not flat, add towers, add roads, catapults)
+make battlestage have same EXP, gold, and morale rewards as regular battles.
+
 
 mostly solved!
 big problem: heap is growing very fast with objects, then being garbage collected so all the objects go away. try to prevent this somehow. This isn't soldiers, because they're not created and destroyed. Must be some other problem. Pathfinding maybe. Growing up to using 200mb at max use. should be much lower. Shit ton of memory leaks beacuse garbage collection gets rid of a billion things.
@@ -113,7 +119,6 @@ make bandits not seige (?)
 
 
 later:
-
 
 make a realistic world:
 nobles are not besieging for some reason. figure out why. also allow besieging of castles.

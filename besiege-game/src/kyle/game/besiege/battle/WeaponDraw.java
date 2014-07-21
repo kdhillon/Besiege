@@ -192,7 +192,7 @@ public class WeaponDraw extends Actor {
 		batch.setColor(c);
 		
 		// draw horse
-		if (horseWalk != null) {
+		if (unit.isMounted()) {
 			float time = unit.stateTime;
 			if (!unit.moveSmooth) time = .3f;
 			TextureRegion region = horseWalk.getKeyFrame(time, false);

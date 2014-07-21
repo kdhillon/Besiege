@@ -44,7 +44,7 @@ public class Simulation extends Game {
 		
 //		mapScreen.resize(width, height);
 		// create fake battlestage
-		bs = new BattleStage(mapScreen, null, null); 
+		bs = new BattleStage(mapScreen, null, null, true, null); 
 		mapScreen.switchToBattleView(bs);
 		
 //		mapTest = new MapTest();

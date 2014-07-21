@@ -44,7 +44,7 @@ public enum Equipment {
 		Array<Equipment> equip = new Array<Equipment>();
 		
 		// add shields
-		if (weapon.oneHand && weapon != Weapon.SHORTBOW) equip.add(IRON_SHIELD);
+//		if (weapon.oneHand && weapon != Weapon.SHORTBOW) equip.add(IRON_SHIELD);
 		
 		// add horse
 		switch (weapon) {

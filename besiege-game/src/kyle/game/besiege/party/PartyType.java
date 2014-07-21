@@ -24,8 +24,8 @@ public enum PartyType { // todo add ability for max party size
 	NOBLE_TEST(new Weapon[]{HATCHET}, new int[]{40}, new int[]{60}, 25, 25),
 	
 	// min 40, max 82
-	NOBLE_DEFAULT_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD}, 
-			new int[]{5, 5, 5, 4, 4, 5, 5, 5, 5, 5}, new int[] {8, 8, 8, 5, 5, 8, 8, 8, 12, 12}, 100, 300), // best
+	NOBLE_DEFAULT_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD, LONGBOW, CROSSBOW, RECURVE}, 
+			new int[]{5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 2, 0, 0}, new int[] {8, 8, 8, 5, 5, 8, 8, 8, 12, 12, 15, 5, 5}, 100, 300), // best
 			// min 40, max 82w
 //	NOBLE_DEFAULT_2(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD}, 
 //			new int[]{5, 5, 5, 4, 4, 5, 5, 5, 5, 5}, new int[] {8, 8, 8, 5, 5, 8, 8, 8, 12, 12}, 0, 0),
@@ -45,8 +45,8 @@ public enum PartyType { // todo add ability for max party size
 	CITY_GARR_1(new Weapon[]{SPEAR, PIKE, HALBERD, LONGSWORD}, new int[]{10, 10, 10, 10}, new int[]{20, 20, 20, 20}, 0, 0),
 //	CITY_GARR_1(new Weapon[]{SPEAR, PIKE, HALBERD, LONGSWORD}, new int[]{1, 1, 1, 1}, new int[]{20, 20, 20, 20}, 0, 0),
 	
-	MACE_TEST2(new Weapon[]{LONGBOW}, new int[]{10}, new int[]{10}, 0, 0),
-	MACE_TEST(new Weapon[]{LONGSWORD, CAVALRY_SPEAR, LONGBOW}, new int[]{5, 5, 5}, new int[]{10, 6, 5}, 0, 0);
+	MACE_TEST2(new Weapon[]{LONGBOW, CAVALRY_SPEAR, SHORTSWORD}, new int[]{8, 8, 8}, new int[]{0, 0, 0}, 0, 0),
+	MACE_TEST(new Weapon[]{LONGBOW, CAVALRY_SPEAR, SHORTSWORD}, new int[]{8, 8, 8}, new int[]{0, 0, 0}, 0, 0);
 //	VILLAGE_HIRE_1(new Weapon[]{}, new int[]{}, new int[]{}, 0, 0);
 
 	//RANGED_TEST(new Weapon[]{SHORTBOW, CROSSBOW, RECURVE, LONGBOW}, new int[]{20, 0, 00, 0}, new int[]{20, 0, 00, 00}, 0, 0);
@@ -74,7 +74,7 @@ public enum PartyType { // todo add ability for max party size
 	public Party generate() {
 		Party party = new Party();
 		for (int i = 0; i < troopTypes.length; i++) {
-			int randomCount = MathUtils.random(minCount[i], maxCount[i]);
+			int randomCount = MathUtils.random(minCount[i], Math.max(minCount[i], maxCount[i]));
 			for (int j = 0; j < randomCount; j++)
 				party.addSoldier(new Soldier(troopTypes[i], party));
 		}

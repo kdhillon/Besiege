@@ -16,6 +16,9 @@ public class Arrow extends Actor {
 	//	private final float THRESHOLD = .5f;
 	//	private final float UNIT_HEIGHT = .1f;
 	private final float GRAVITY = -1;
+	
+	private final float SCALE_X = .3f;
+	private final float MAX_DRAW_HEIGHT = 3;
 
 	private final float ACCURACY_FACTOR = .06f;
 	private final float DISTANCE_EXP_FACTOR = .1f;
@@ -38,11 +41,11 @@ public class Arrow extends Actor {
 	public float distanceToTravel;
 
 	public float speed = 25f;
-	//	public float speed = 10f;
+//		public float speed = 1f; // this is hilarious
 
 	public Vector2 velocity;
 	public float rotation;
-	
+
 	public Orientation orientation;
 
 	public float pos_x;
@@ -60,8 +63,8 @@ public class Arrow extends Actor {
 
 	// create new arrow with target
 	public Arrow(Unit firing, Unit target) {
-		texture = new TextureRegion(new Texture("arrow.png"));
-		halfArrow = new TextureRegion(new Texture("half_arrow.png"));
+		texture = new TextureRegion(new Texture("objects/arrow.png"));
+		halfArrow = new TextureRegion(new Texture("objects/half_arrow.png"));
 		this.firing = firing;
 		this.orientation = firing.orientation;
 		this.stage = firing.stage;
@@ -88,59 +91,60 @@ public class Arrow extends Actor {
 		// modified to make arrows stronger
 		this.damage *= DAMAGE_FACTOR;
 
-		// calculate destination (based on accuracy) -- try to overshoot target
+		// calculate destination (based on accuracy) 
 		dest_x = target.pos_x + .5f;
 		dest_y = target.pos_y + .5f;
 
-		//		// just add this to make it shoot a bit further?
-		//		dest_x += velocity.x;
-		//		dest_y += velocity.y;
+
+		distanceToTravel = (float) firing.distanceTo(target);
+		float time_to_collision = distanceToTravel/speed;
+		
+		boolean shouldLead = true;
+		// lead the enemy unit a bit based on distance?
+		if (target.moveSmooth && shouldLead) {
+			float leadBy = target.getSpeed() * time_to_collision;
+		
+			//	System.out.println(leadBy);
+			if (target.orientation == Orientation.DOWN)
+				dest_y -= leadBy;
+			if (target.orientation == Orientation.UP)
+				dest_y += leadBy;
+			if (target.orientation == Orientation.RIGHT)
+				dest_x += leadBy;
+			if (target.orientation == Orientation.LEFT)
+				dest_x -= leadBy;
+		}
 
 		// add a bit of randomness based on accuracy
-		//		if (Math.random()*10 < firing.rangedWeapon.accuracy) {
-		//			dest_x += Math.random()*firing.distanceTo(target)/2;
-		//			dest_y += Math.random()*firing.distanceTo(target)/2;
-		//			System.out.println("misfire");
-		//		}
-		// different from dist to target
-		distanceToTravel = (float) firing.distanceTo(target);
-		float dist_to_closest = distanceToTravel;
-
-
-		float random_x = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + dist_to_closest)) * ACCURACY_FACTOR;
-		float random_y = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + dist_to_closest)) * ACCURACY_FACTOR;	
+		float random_x = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;
+		float random_y = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;	
 		this.dest_x += random_x;
 		this.dest_y += random_y;
 
-		// maybe add something to account for edge cases?
-
-		//		System.out.println(random_x + " " + random_y);
-
 		// calculate velocity vector
 		velocity = new Vector2(dest_x - pos_x, dest_y - pos_y);
-		float dist_to_target = velocity.len();
+		float dist_to_closest = velocity.len();
+		time_to_collision = dist_to_closest/speed;
 
 		velocity.nor();
-		velocity.scl((float)(speed)); //(Math.random()-.5)*speed/2));
-
-
-		// given dist to target and initial horizontal velocity (speed), calculate necessary vertical velocity?
-		float time_to_collision = dist_to_target/velocity.len();
+		velocity.scl(speed); //(Math.random()-.5)*speed/2));
 
 		// goal is to find vertical velocity needed to get to goal
 		// object must hit ground after the amount of time (d = 0)
 
 		// using d = vi*t + 1/2 * a*t^2
 
+		float initialHeight = INITIAL_HEIGHT + firing.getFloorHeight();
+
 		float accel_distance = 1.0f/2.0f*GRAVITY*time_to_collision*time_to_collision;
 		// aim for halfway up the unit's body
-		vz = ((-INITIAL_HEIGHT+Unit.UNIT_HEIGHT_GROUND*.75f) - accel_distance)/time_to_collision;
+		vz = ((-initialHeight+(target.getZHeight()-Unit.UNIT_HEIGHT_GROUND*.1f)) - accel_distance)/time_to_collision;
 
 		// add a bit so it goes a bit further
-		vz += .03f;
+		//vz += .02f; // .02
 
 		//vz = time_to_collision*GRAVITY/2;
-		height = INITIAL_HEIGHT;
+		height = initialHeight;
 
 		rotation = velocity.angle()+270;
 		this.setRotation(rotation);
@@ -149,10 +153,14 @@ public class Arrow extends Actor {
 	@Override
 	public void act(float delta) {
 		if (this.stopped) return;
+		
 		time_since_shot += delta;
 		// update height based on time
 		vz += GRAVITY*delta;
+		
+//		System.out.println(vz);
 		height += vz*delta;
+//		System.out.println(height);
 
 		// move towards target;
 
@@ -170,14 +178,21 @@ public class Arrow extends Actor {
 		Unit collided = null; 
 		if (inMap()) {
 			collided = stage.map[pos_y_int][pos_x_int];
-			if (collided != null && collided.team != firing.team && this.height < collided.getZHeight())
+			if (collided != null && collided.team != firing.team && this.height < collided.getZHeight() && this.height > collided.getZHeight() - Unit.UNIT_HEIGHT_GROUND)
 				collision(stage.map[pos_y_int][pos_x_int]);
 		}
-
-
-		if (height < -.0f
-				|| (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && height < stage.battlemap.objects[pos_y_int][pos_x_int].height)) {
+		
+		// if standing above 0, don't intersect with anything at that height... dicey but works, kind of OP can fix later TODO
+		if (inMap() && (stage.heights[pos_y_int][pos_x_int] != firing.getFloorHeight() || firing.getFloorHeight() == 0f) && 
+				(height < stage.heights[pos_y_int][pos_x_int]
+				|| (stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
+				height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]))) {
 			this.stopped = true;
+
+			// move forward a bit if stuck in an object
+			this.pos_x += velocity.x*.2f*delta;
+			this.pos_y += velocity.y*.2f*delta;
+
 			if (Math.random() < .8) this.broken = true;
 		}
 	}
@@ -191,12 +206,16 @@ public class Arrow extends Actor {
 		this.setX(stage.scale * pos_x * stage.unit_width);
 		this.setY(stage.scale * pos_y * stage.unit_height);
 
-		this.setScaleX((1+height)*stage.scale/2);
-		this.setScaleY((1+height)*stage.scale);
+		float stoppedScale = .8f;
+		if (stopped || stuck != null) stoppedScale = .4f;
+		
+		float drawHeight = Math.min(height, MAX_DRAW_HEIGHT);
+	
+		if (height < 0) drawHeight = 0;
+		this.setScaleX((1+drawHeight*stage.scale) * SCALE_X);
+		this.setScaleY(1+drawHeight*stage.scale * stoppedScale);
 
-		if (stopped) this.setScaleY((1+height)*stage.scale*.8f);
-
-
+		
 		//change scale based on how high arrow is! TODO
 		//		System.out.println("height: " + this.height);
 
@@ -206,7 +225,7 @@ public class Arrow extends Actor {
 			batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
 		}
 		else if (!stuck.isDying || stuck.timeSinceDeath > .75f){
-			if (!stuck.isDying) this.setScaleY(((1+height)*stage.scale)*1.2f);
+//			setScaleY(getScaleY()*1f);
 			setX(stuck.getOriginX() + temp_offset_x);
 			setY(stuck.getOriginY() + temp_offset_y);
 			this.setRotation(-rotation_offset);

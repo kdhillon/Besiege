@@ -40,6 +40,7 @@ public class Army extends Actor implements Destination {
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames
 	protected final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
 	private static final float SCALE_FACTOR = 600f; // smaller is bigger
+	private static final float PARTY_SPEED_FACTOR = .5f; // smaller is bigger
 	private static final float BASE_SPEED = 1;
 	private static final float WAIT = 3; // 3 second wait after garrisoning
 	private static final float scale = .6f;
@@ -406,13 +407,13 @@ public class Army extends Actor implements Destination {
 		//		System.out.println(this.getName() + " creating battle");
 		if (this == kingdom.getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
-			getKingdom().getPlayer().createPlayerBattleWith(targetArmy);
+			getKingdom().getPlayer().createPlayerBattleWith(targetArmy, false, null);
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else if (targetArmy == kingdom.getPlayer()) {
 			BottomPanel.log("Attacked by " + this.getName() + "!");
-			getKingdom().getPlayer().createPlayerBattleWith(this);
+			getKingdom().getPlayer().createPlayerBattleWith(this, true, null);
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
@@ -846,7 +847,7 @@ public class Army extends Actor implements Destination {
 	}
 	public float calcSpeed() {
 		// make speed related to party's speed, morale, and army's unique speed factor, 
-		return (BASE_SPEED + morale/30 + party.getAvgSpd() - party.getTotalSize()*SIZE_FACTOR)*speedFactor;
+		return (BASE_SPEED + morale/30 + party.getAvgSpd()*PARTY_SPEED_FACTOR - party.getTotalSize()*SIZE_FACTOR)*speedFactor;
 	}
 	public float getScale() {
 		return scale;

@@ -1,6 +1,5 @@
 package kyle.game.besiege.battle;
 
-import kyle.game.besiege.battle.Point;
 import kyle.game.besiege.party.Equipment;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.RangedWeapon;
@@ -24,15 +23,18 @@ public class Unit extends Group {
 	final int ATTACK_EVERY = 1;
 
 	final int RETREAT_THRESHOLD = 2;
-	
+
 	public float NEAR_COVER_DISTANCE = 3;
+	public float HEIGHT_RANGE_FACTOR = 6;
 
 	final float DEATH_TIME = 300;
 	final float BASE_SPEED = .2f;
-	
+
 	static final float UNIT_HEIGHT_GROUND = .1f;
 	static final float UNIT_HEIGHT_HORSE = .2f;
-	
+
+	static final float CLIMB_HEIGHT = .1f; // how high can units climb
+
 	final float POLARM_BONUS = 3.5f;
 
 	public BattleStage stage;	
@@ -42,11 +44,13 @@ public class Unit extends Group {
 	public Soldier soldier;
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;
-	
+
+	public boolean isMounted = true;
 	private boolean inCover;
 	private Point cover;
 
 	public int quiver;
+	//	public int height; // height off the ground
 
 	//	public int baseAtk;
 	//	public int baseDef;
@@ -60,7 +64,7 @@ public class Unit extends Group {
 	float reloading = 0f;
 	public int hp;
 
-//	public float speed = .35f;
+	//	public float speed = .35f;
 	public float speed = .35f;
 
 	public float currentSpeed = 0;
@@ -76,6 +80,7 @@ public class Unit extends Group {
 	public int prev_x; 
 	public int prev_y;
 	public boolean moving;
+	float ladder_height;
 
 	public float percentComplete; // between 0 and 1, used for moving?
 	public enum Orientation {LEFT, UP, RIGHT, DOWN};
@@ -87,7 +92,7 @@ public class Unit extends Group {
 	public WeaponDraw weaponDraw;
 
 	public float rotation;
-	public boolean retreating = false;
+	public boolean retreating;
 
 	float stateTime;
 	float firingStateTime;
@@ -95,7 +100,7 @@ public class Unit extends Group {
 	public Animation animationAttack;
 	public Animation animationDie;
 	public Animation animationFiring;
-	
+
 	// shouldn't be used that much, mostly for drawing horses in battles
 	public Equipment horse;
 	public Equipment shield;
@@ -127,7 +132,7 @@ public class Unit extends Group {
 
 		this.setOriginX(this.getWidth()/2);
 		this.setOriginY(this.getHeight()/2);
-		
+
 		this.horse = soldier.getHorse();
 		this.shield = soldier.getShield();
 		if (shield != null) shield_hp = shield.hp;
@@ -135,6 +140,7 @@ public class Unit extends Group {
 
 		quiver = soldier.level; // number of arrows this unit gets
 
+		ladder_height = 0;
 
 		this.pos_x = pos_x;
 		this.pos_y = pos_y;
@@ -151,6 +157,13 @@ public class Unit extends Group {
 		//		if (rangedWeapon != null) 
 		//			this.stance = Stance.DEFENSIVE;
 
+		// check if in cover
+		for (Point p : stage.battlemap.cover) {
+			if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
+				this.inCover = true;
+				this.cover = p;
+			}
+		}
 
 		this.soldier.retreated = false;
 
@@ -196,15 +209,26 @@ public class Unit extends Group {
 		animationDie.setPlayMode(Animation.NORMAL);
 		animationFiring = createAnimation(firingFile, 2, 2f);
 		animationFiring.setPlayMode(Animation.NORMAL);
-		
+
 		firingStateTime = 0f;
 		stateTime = 0f;
 		if (rangedWeapon != null) reloading = rangedWeapon.rate/2; // initial reload time
 
+		//		this.height = 0;
+
 		this.weaponDraw = new WeaponDraw(this);
 		this.addActor(weaponDraw);
+
+
+		// mounted by default
+		if (this.horse != null) {
+			isMounted = true;
+		}
+		//
+		//		// TODO REMOVE
+		//		if (this.team == 0) this.retreating = true;
 	}
-	
+
 	// create animation with speed .25f assuming one row, loops by default
 	private Animation createAnimation(String filename, int columns, float time) {
 		Texture walkSheet = new Texture(Gdx.files.internal("units/"+filename)); 
@@ -246,7 +270,8 @@ public class Unit extends Group {
 		}
 		else if (this.moving) {
 			//System.out.println("moving");
-			this.percentComplete += currentSpeed * spd * delta;
+			this.percentComplete += getSpeed() * delta;				
+
 			if (percentComplete > 1) {
 				moveToggle = true;
 				moving = false;
@@ -262,9 +287,9 @@ public class Unit extends Group {
 			inCover = false;
 			if (cover != null) 
 				if (this.pos_x == cover.pos_x && this.pos_y == cover.pos_y) inCover = true;
-			
-			
-			if (stance == Stance.AGGRESSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.rangedWeapon.range) || this.quiver <= 0)) {
+
+
+			if (stance == Stance.AGGRESSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {
 				moveToEnemy();
 			}
 			else { // either defensive stance or aggressive but ranged within range
@@ -274,20 +299,34 @@ public class Unit extends Group {
 					moveToEnemy();
 				else if (this.reloading > 0) {
 					boolean check = false;
-//					if (reloading > .25f) check = true;
+					//					if (reloading > .25f) check = true;
 					reloading -= delta;
 					if (reloading < 0f)
 						firingStateTime = 0;
 				}
 				// if ranged, fire weapon
-				else if (this.isRanged() && nearestEnemy != null) {
-					if (nearestEnemy.distanceTo(this) < this.rangedWeapon.range) {
-						if (!shouldMove())
-							fireAtEnemy();
+				else {
+					Unit nearestTarget = getNearestTarget();
+
+					if (this.bowOut() && nearestTarget != null) {
+						if (nearestTarget.distanceTo(this) < this.getCurrentRange()) {
+							if (!shouldMove())
+								fireAtEnemy();
+						}
 					}
 				}
 			}
 		}
+	}
+
+	public float getSpeed() {
+		return currentSpeed * spd;
+	}
+
+	public float getCurrentRange() {
+		if (this.rangedWeapon == null) return -1;
+		//		System.out.println(this.rangedWeapon.range + this.getFloorHeight()*HEIGHT_RANGE_FACTOR);
+		return this.rangedWeapon.range + this.getFloorHeight()*HEIGHT_RANGE_FACTOR;
 	}
 
 
@@ -301,8 +340,8 @@ public class Unit extends Group {
 		if (this.isRanged() && 
 				this.reloading > 0 && 
 				inCover) 				return "Firing from cover";
-		if (this.isRanged() && 
-			this.reloading > 0) 		return "Firing";
+		if (this.bowOut() && 
+				this.reloading > 0) 		return "Firing";
 		else return "Idle";
 	}
 
@@ -317,6 +356,7 @@ public class Unit extends Group {
 			super.draw(batch,  parentAlpha);
 		}
 		else {
+			this.setScale(1+this.getFloorHeight()/5f);
 			super.draw(batch, parentAlpha);
 			//TESTING
 			//			if (stateTime > 5 && this.team == 1) retreating = true;
@@ -369,6 +409,8 @@ public class Unit extends Group {
 	}
 
 	public int calcHP() {
+		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
+		//		else 
 		return 15 + this.def*3;
 	}
 	private void moveToEnemy() {
@@ -396,7 +438,7 @@ public class Unit extends Group {
 			}
 		}
 	}
-	
+
 	private void retreat() {
 		cover = null;
 		moveToPoint(getNearestExit());
@@ -417,20 +459,20 @@ public class Unit extends Group {
 		if (facing == null) return false; // facing off stage
 		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
 
-		if (object != null && object.height > Arrow.INITIAL_HEIGHT) {
+		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Arrow.INITIAL_HEIGHT+this.getFloorHeight())) {
 			System.out.println("should move");
 			this.startMove(getRandomDirection());
 			return true;
 		}
-		
-		
+
+
 		if (!inCover) {
 			// check to see if should move to cover
 			Point closest = null;
 			float closestDistance = Float.MAX_VALUE;
 
 			for (Point p : stage.battlemap.cover) {
-				if (p.orientation == this.orientation && nearestEnemy.distanceTo(p) < rangedWeapon.range) {
+				if (p.orientation == this.orientation && nearestEnemy.distanceTo(p) < rangedWeapon.range && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
 					if (Math.abs(this.pos_x - p.pos_x) < NEAR_COVER_DISTANCE && Math.abs(this.pos_y - p.pos_y) < NEAR_COVER_DISTANCE) {
 						float dist = (float) distanceTo(p);
 						if (dist < closestDistance && stage.map[p.pos_y][p.pos_x] == null) {
@@ -466,9 +508,10 @@ public class Unit extends Group {
 
 	private void fireAtEnemy() {
 		this.quiver -= 1;
-		faceEnemy();
+
 		this.reloading = rangedWeapon.rate;
-		Unit enemy = nearestEnemy;
+		Unit enemy = getNearestTarget();
+		face(enemy);
 		Arrow arrow = new Arrow(this, enemy);
 
 		stage.addActor(arrow);
@@ -495,6 +538,35 @@ public class Unit extends Group {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
 			if (dist < closestDistance) {
+				if (that.retreating) 
+					closestRetreating = that;
+				else {
+					closest = that;
+					closestDistance = dist;
+				}
+			}
+		}
+		if (closest != null) {
+			nearestEnemy = closest;
+			return closest;
+		}
+		else {
+			nearestEnemy = closestRetreating;
+			return closestRetreating;
+		}
+	}
+
+	// returns nearest enemy that's a certain distance away
+	private Unit getNearestTarget() {
+		Unit closest = null;
+		Unit closestRetreating = null;
+		double closestDistance = 9999999;
+		double MIN_DIST = 0f; // arbitrary
+
+		for (Unit that : enemyArray) {
+			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
+			double dist = this.distanceTo(that);
+			if (dist < closestDistance && dist > MIN_DIST) {
 				if (that.retreating) 
 					closestRetreating = that;
 				else {
@@ -541,14 +613,35 @@ public class Unit extends Group {
 
 		Point closest = new Point(point_x, point_y);
 
+		// assume on wall
+//		if (this.onWall()) {
+//			float closestDistance = 999999;
+//			// get closest ladder
+//			for (int i = 0; i < stage.size_y; i++) {
+//				for (int j = 0; j < stage.size_x; j++) {
+//					if (stage.ladderAt(j, i)) {
+//						Point ladderPoint = new Point(j, i);
+//						double dist = this.distanceTo(ladderPoint);
+//						if (dist < closestDistance) {
+//							closest = ladderPoint;
+//						}
+//					}
+//				}
+//			}
+//		}
+
 		return closest;
+	}
+
+	public boolean onWall() {
+		return this.getFloorHeight() > 0;
 	}
 
 	public double distanceTo(Unit that) {
 		if (that == null) return Double.POSITIVE_INFINITY;
 		return Math.sqrt((that.pos_x-this.pos_x)*(that.pos_x-this.pos_x) + (that.pos_y-this.pos_y)*(that.pos_y-this.pos_y));
 	}
-	
+
 	public double distanceTo(Point that) {
 		if (that == null) return Double.POSITIVE_INFINITY;
 		return Math.sqrt((that.pos_x-this.pos_x)*(that.pos_x-this.pos_x) + (that.pos_y-this.pos_y)*(that.pos_y-this.pos_y));
@@ -562,18 +655,18 @@ public class Unit extends Group {
 		//System.out.println("attack phase: " + attacking.hp);
 		this.face(attacking);
 		attacking.face(this);
-		
+
 		double damage = this.atk-Math.random()*attacking.def;
-		
+
 		// calculate bonus damage
 		double bonusDamage = 0;
-		
+
 		// polearm against cavalry
 		if (!weapon.oneHand && attacking.isMounted()) {
 			bonusDamage += POLARM_BONUS;
 		}
-		
-		
+
+
 		attacking.hurt(damage + bonusDamage, this);
 	}
 
@@ -586,13 +679,13 @@ public class Unit extends Group {
 			damage /= 2.0;
 			if (shield_hp <= 0) destroyShield();
 		}
-		
+
 		if (this.isMounted()) {
 			this.horse_hp -= damage/2.0;
 			damage /= 2.0;
 			if (horse_hp <= 0) killHorse();
 		}
-		
+
 		this.hp -= (int) (damage + .5);
 
 		this.isHit = true;
@@ -615,20 +708,31 @@ public class Unit extends Group {
 			stage.removeUnit(this);
 		}
 	}
-	
+
 	public boolean shieldUp() {
 		if (this.shield != null && !this.bowOut()) return true;
 		return false;
 	}
-	
+
 	// shield on back
 	public boolean shieldDown() {
 		if (this.shield != null && this.bowOut()) return true;
 		return false;
 	}
-	
+
 	public boolean isMounted() {
-		return this.horse != null;
+		return this.horse != null && isMounted;
+	}
+
+	public void dismount() {
+		System.out.println("dismounting");
+//		this.mounted = false;
+		this.calcStats();
+	}
+
+	public boolean hasHorseButDismounted() {
+		if (this.horse != null) System.out.println("mounted: " + isMounted);
+		return (this.horse != null && !isMounted);
 	}
 
 	public static Orientation getRandomDirection() {
@@ -651,7 +755,7 @@ public class Unit extends Group {
 		if (orientation == Orientation.RIGHT) rotation = 270;
 		this.setRotation(rotation);
 	}
-	
+
 	public Orientation getOppositeOrientation() {
 		if (this.orientation == Orientation.UP) return Orientation.DOWN;
 		if (this.orientation == Orientation.DOWN) return Orientation.UP;
@@ -683,7 +787,7 @@ public class Unit extends Group {
 		prev_x = pos_x;
 		prev_y = pos_y;
 		if (direction == Orientation.DOWN) {
-			if (pos_y == 0 || stage.closed[pos_y-1][pos_x]) return false;
+			if (!canMove(pos_x, pos_y-1)) return false;
 			if (stage.map[pos_y-1][pos_x] != null) {
 				this.orientation = direction;
 				return collision(stage.map[pos_y-1][pos_x]);
@@ -692,7 +796,7 @@ public class Unit extends Group {
 			pos_y -= 1;
 		}
 		else if (direction == Orientation.UP) {
-			if (pos_y == stage.size_y-1 || stage.closed[pos_y+1][pos_x]) return false;
+			if (!canMove(pos_x, pos_y+1)) return false;
 			if (stage.map[pos_y+1][pos_x] != null) {
 				this.orientation = direction;
 				return collision(stage.map[pos_y+1][pos_x]);
@@ -701,7 +805,7 @@ public class Unit extends Group {
 			pos_y += 1;
 		}
 		else if (direction == Orientation.LEFT) {
-			if (pos_x == 0 || stage.closed[pos_y][pos_x-1]) return false;
+			if (!canMove(pos_x-1, pos_y)) return false;
 			if (stage.map[pos_y][pos_x-1] != null) {
 				this.orientation = direction;
 				return collision(stage.map[pos_y][pos_x-1]);
@@ -710,7 +814,7 @@ public class Unit extends Group {
 			pos_x -= 1;
 		}
 		else if (direction == Orientation.RIGHT) {
-			if (pos_x == stage.size_x-1 || stage.closed[pos_y][pos_x+1]) return false;
+			if (!canMove(pos_x+1, pos_y)) return false;
 			if (stage.map[pos_y][pos_x+1] != null) { 
 				this.orientation = direction;
 				return collision(stage.map[pos_y][pos_x+1]);
@@ -729,6 +833,13 @@ public class Unit extends Group {
 		if (prev_y != pos_y && prev_x != pos_x) System.out.println("error!");
 
 		this.orientation = direction;
+		return true;
+	}
+
+	private boolean canMove(int pos_x, int pos_y) {
+		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_x) return false;
+		if (stage.closed[pos_y][pos_x]) return false;
+		if (Math.abs(this.getFloorHeight() - stage.heights[pos_y][pos_x]) > Unit.CLIMB_HEIGHT && (!stage.ladderAt(pos_x, pos_y) || this.isMounted())) return false;
 		return true;
 	}
 
@@ -751,7 +862,7 @@ public class Unit extends Group {
 		// change this later
 		that.attacking = this;
 	}
-	
+
 	public void destroyShield() {
 		soldier.equipment.removeValue(shield, true);
 		this.shield = null;
@@ -760,7 +871,7 @@ public class Unit extends Group {
 		soldier.calcBonus();
 		calcStats();
 	}
-	
+
 	public void killHorse() {
 		soldier.equipment.removeValue(horse, true);
 		this.horse = null;
@@ -769,7 +880,7 @@ public class Unit extends Group {
 		soldier.calcBonus();
 		calcStats();
 	}
-	
+
 	private void calcStats() {
 		this.atk = soldier.getAtk();
 		this.def = soldier.getDef();
@@ -778,10 +889,15 @@ public class Unit extends Group {
 		if (shieldDown())  {
 			this.spd -= shield.spdMod;
 			this.def -= shield.defMod;
+		} 
+		if (hasHorseButDismounted()) {
+			this.spd -= horse.spdMod;
+			this.def -= horse.defMod;
+			this.atk -= horse.atkMod;
 		}
 		this.hp = calcHP();
 	}
-	
+
 	public boolean bowOut() {
 		return isRanged() && quiver > 0 && attacking == null;
 	}
@@ -894,21 +1010,58 @@ public class Unit extends Group {
 		else if (x_dif > 0) this.orientation = Orientation.RIGHT;
 		else this.orientation = Orientation.LEFT;
 	}
-	
+
 	public float getZHeight() {
-		if (horse != null) return UNIT_HEIGHT_HORSE;
-		else return UNIT_HEIGHT_GROUND;
+		if (horse != null) return UNIT_HEIGHT_HORSE + getFloorHeight();
+		else return UNIT_HEIGHT_GROUND + getFloorHeight();
 	}
 
-	public boolean isRanged() {
-		return this.rangedWeapon != null || this.quiver <= 0;
+	public float getFloorHeight() {
+		if (!this.inMap()) return 0;
+
+		if (stage.ladderAt(pos_x, pos_y)) {
+			// moving up
+			if (!stage.wallAt(prev_x, prev_y)) {
+//				System.out.println("moving up");
+
+				if (moving)
+					ladder_height = BattleMap.CASTLE_WALL_HEIGHT_DEFAULT * this.percentComplete;
+				else if (ladder_height > .5f) ladder_height =  BattleMap.CASTLE_WALL_HEIGHT_DEFAULT;
+				else if (ladder_height < .5f) ladder_height =  0;
+
+//				else ladder_height = BattleMap.CASTLE_WALL_HEIGHT_DEFAULT;
+			}
+			// moving down
+			else {
+//				System.out.println("moving down");
+				if (moving)
+					ladder_height = BattleMap.CASTLE_WALL_HEIGHT_DEFAULT * (1-this.percentComplete);
+				else if (ladder_height < .5f) ladder_height =  0;
+				else if (ladder_height > .5f) ladder_height =  BattleMap.CASTLE_WALL_HEIGHT_DEFAULT;
+
+//				else ladder_height = 0;
+			}
+		} else ladder_height = 0;
+		
+		return stage.heights[pos_y][pos_x] + ladder_height;
 	}
 
-	public float getCenterX() {
-		return getX() + getOriginX();
-	}
-	public float getCenterY() {
-		return getY() + getOriginY();
-	}
 
-}
+		public boolean isRanged() {
+			return this.rangedWeapon != null || this.quiver <= 0;
+		}
+
+		public float getCenterX() {
+			return getX() + getOriginX();
+		}
+		public float getCenterY() {
+			return getY() + getOriginY();
+		}
+
+		private boolean inMap() {
+			return pos_x < stage.size_x &&
+					pos_y < stage.size_y && 
+					pos_x >= 0 && 
+					pos_y >= 0;
+		}
+	}
