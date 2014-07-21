@@ -185,7 +185,7 @@ public class PanelUnit extends Panel {
 		levelS.setText("" + soldier.level);
 		hpS.setText("" + unit.hp);
 //		expS.setText("" + soldier.exp);
-		expS.setText("" + unit.getFloorHeight());
+		expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
 		atkS.setText("" + unit.atk);
 		defS.setText("" + unit.def);
 		spdS.setText("" + (int) unit.spd);

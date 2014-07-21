@@ -114,10 +114,16 @@ public class Arrow extends Actor {
 			if (target.orientation == Orientation.LEFT)
 				dest_x -= leadBy;
 		}
+		
+		int accuracy_factor = firing.rangedWeapon.accuracy;
+		if (firing.onWall()) accuracy_factor += 1;
+//		if (stage.isRaining) accuracy_factor -= 1;
+		
+		accuracy_factor = 10 - accuracy_factor;
 
 		// add a bit of randomness based on accuracy
-		float random_x = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;
-		float random_y = (float) ((10-firing.rangedWeapon.accuracy) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;	
+		float random_x = (float) ((accuracy_factor) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;
+		float random_y = (float) ((accuracy_factor) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;	
 		this.dest_x += random_x;
 		this.dest_y += random_y;
 

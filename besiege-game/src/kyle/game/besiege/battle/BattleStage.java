@@ -80,12 +80,13 @@ public class BattleStage extends Group {
 	private Formation enemyFormationChoice;
 	
 	private enum Formation {
-		LINE, DEFENSIVE_LINE, WEDGE, VEE, FLANKING
+		LINE, DEFENSIVE_LINE, WEDGE, VEE, FLANKING, SPREAD_LINE
 	}
 
 	// take in battle object containing arrays of armies and stuff
 	public BattleStage(MapScreen mapScreen, Party player, Party enemy, boolean playerDefending, Location siegeOf) {
 		this.mapScreen = mapScreen;
+		
 
 		mouse = new Point(0, 0);
 
@@ -97,7 +98,7 @@ public class BattleStage extends Group {
 		this.playerDefending = playerDefending;
 //		this.playerDefending = false;
 		
-		boolean forceSiege = false;
+		boolean forceSiege = true;
 		if (siegeOf != null || forceSiege) {
 			siegeDefense = playerDefending;
 		}
@@ -142,9 +143,15 @@ public class BattleStage extends Group {
 		this.battlemap = new BattleMap(this);
 		this.addActor(battlemap);
 		
-		playerFormationChoice = Formation.FLANKING;
+		if (playerDefending) {
+			enemyFormationChoice = Formation.FLANKING;
+			playerFormationChoice = Formation.DEFENSIVE_LINE;
+		}
+		else {
+			enemyFormationChoice = Formation.DEFENSIVE_LINE;
+			playerFormationChoice = Formation.FLANKING;
+		}
 		if (siegeDefense) playerFormationChoice = Formation.LINE;
-		enemyFormationChoice = Formation.DEFENSIVE_LINE;
 
 		addUnits();
 	}
@@ -155,6 +162,12 @@ public class BattleStage extends Group {
 		do {
 			enemy = kingdom.getArmies().random().getParty();
 		} while (enemy == player);
+	}
+	
+	public void centerCamera() {
+		// translate to center of screen?
+
+		mapScreen.getCamera().translate(new Vector2((this.size_x-13)*this.unit_width/2, (this.size_y-10)*this.unit_height/2));
 	}
 
 	// for now, put them randomly on the field
@@ -198,7 +211,7 @@ public class BattleStage extends Group {
 		region_width = formation[0].length;
 		
 		int enemy_base_x = size_x/2 - region_width/2;
-		int enemy_base_y = size_y - formation[0].length;
+		int enemy_base_y = size_y - formation.length;
 		
 		for (int i = 0; i < region_height; i++) {
 			for (int j = 0; j < region_width; j++) {
@@ -269,6 +282,46 @@ public class BattleStage extends Group {
 				formation[0][i + infantry_right + aCount + infantry_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
 			}
 		} 
+		// Spread Line:   C C C C I I I I A A A A A I I I I C C C C
+		else if (formationChoice == Formation.SPREAD_LINE) {
+			int formation_width = (iCount*2-1 + aCount*2-1 + cCount*2-1);
+			int formation_height = 1;
+			
+			formation = new Soldier.SoldierType[formation_height][formation_width];
+			
+			int cavalry_left = (int) (cCount/2.0)*2;
+			int cavalry_right = cCount*2 - cavalry_left;
+			int infantry_right = (int) (iCount/2.0)*2;
+			int infantry_left = iCount*2 - infantry_right;
+			
+			boolean skip = false;
+			
+			for (int i = 0; i < cavalry_left; i++) {
+				skip = !skip;
+				if (skip == true) continue;
+				formation[0][i] = Soldier.SoldierType.CAVALRY;
+			}
+			for (int i = 0; i < infantry_left; i++) {
+				skip = !skip;
+				if (skip == true) continue;
+				formation[0][i + cavalry_left] = Soldier.SoldierType.INFANTRY;
+			}
+			for (int i = 0; i < aCount; i++) {
+				skip = !skip;
+				if (skip == true) continue;
+				formation[0][i + infantry_left + cavalry_left] = Soldier.SoldierType.ARCHER;
+			}
+			for (int i = 0; i < infantry_right; i++) {
+				skip = !skip;
+				if (skip == true) continue;
+				formation[0][i + aCount + infantry_left + cavalry_left] = Soldier.SoldierType.INFANTRY;
+			}
+			for (int i = 0; i < cavalry_right; i++) {
+				skip = !skip;
+				if (skip == true) continue;
+				formation[0][i + infantry_right + aCount + infantry_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
+			}
+		} 
 		//    Defensive Line
 		// CCCCC IIIII CCCCC
 		//
@@ -282,7 +335,7 @@ public class BattleStage extends Group {
 			int top_start_left = Math.max(0, bottom_row - top_row)/2;
 			
 			int formation_width = Math.max(top_row, bottom_row);
-			int formation_height = 5;
+			int formation_height = 2;
 			
 			formation = new Soldier.SoldierType[formation_height][formation_width];
 			
@@ -370,7 +423,7 @@ public class BattleStage extends Group {
 		//  CCCCC            IIIIIII              CCCCC
 		//                   AAAAAAA
 		else if (formationChoice == Formation.FLANKING) {
-			int cavalry_separation = iCount * 4;
+			int cavalry_separation = size_x/2 - 2*cCount;
 			
 			int top_row = iCount + cCount + 2*cavalry_separation;
 			int bottom_row = aCount;
@@ -584,7 +637,7 @@ public class BattleStage extends Group {
 	}
 	
 	public boolean ladderAt(int pos_x, int pos_y) {
-		return battlemap.objects[pos_y][pos_x] == BattleMap.Object.LADDER;
+		return battlemap.ladderAt(pos_x, pos_y);
 	}
 	
 	public boolean wallAt(int pos_x, int pos_y) {

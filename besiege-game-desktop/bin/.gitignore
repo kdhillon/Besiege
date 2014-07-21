@@ -1,44 +1,20 @@
-/ground
-/knightAttack.png
-/knightWalk.png
-/lionBig.png
-/map.txt
-/map40.txt
-/mapSmall.txt
-/menuBlueprint.txt
-/soldierTrees.txt
-/stone_fence.png
-/stone_fence_v.png
-/table.txt
 /textures
 /todo.txt
 /units
-/villages60.txt
-/weapons
-/weapons.atlas
-/weapons.png
-/whitepixel.png
-/Knight Horse.png
-/NoisyEdges.as
-/armyTypeList.txt
-/armyTypes.txt
-/arrow.png
-/atlas1.atlas
-/atlas1.png
-/attributes
-/backup junk code.txt
-/castles20.txt
-/cityList1.txt
 /data
 /englandCities.txt
 /equipment
-/gras.jpg
-/kyle
-/tree_3_3 alt.png
-/tree_3_3.png
-/tree_3_3 alt.pdn
-/half_arrow.png
-/tree.png
-/stump.png
+/ground
+/map.txt
+/map40.txt
 /objects
 /old
+/table.txt
+/NoisyEdges.as
+/armyTypeList.txt
+/armyTypes.txt
+/atlas1.atlas
+/atlas1.png
+/attributes
+/castles20.txt
+/kyle

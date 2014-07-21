@@ -286,7 +286,7 @@ public class MapScreen implements Screen {
 		if (currentCamera == kingdomCamera)
 			currentCamera.translate(new Vector2(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y));
 		else if (currentCamera == battleCamera) {
-			currentCamera.translate(0, 0);
+			if (battle != null) battle.centerCamera();
 		}
 	}
 	public void handleInput() {

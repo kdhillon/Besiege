@@ -1,5 +1,6 @@
 package kyle.game.besiege.battle;
 
+import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Equipment;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.RangedWeapon;
@@ -19,7 +20,7 @@ public class Unit extends Group {
 	final int FRAME_COLS = 2;
 	final int FRAME_ROWS = 1;
 
-	final int DEFENSE_DISTANCE = 3;
+	final int DEFENSE_DISTANCE = 5;
 	final int ATTACK_EVERY = 1;
 
 	final int RETREAT_THRESHOLD = 2;
@@ -60,8 +61,9 @@ public class Unit extends Group {
 	public int def;
 	public float spd;
 
-	float timer = 0;
+	float timer = ATTACK_EVERY;
 	float reloading = 0f;
+	//float lastFace = 0f;
 	public int hp;
 
 	//	public float speed = .35f;
@@ -293,9 +295,14 @@ public class Unit extends Group {
 				moveToEnemy();
 			}
 			else { // either defensive stance or aggressive but ranged within range
-				faceEnemy();
+				// just use attack every for convenience
+				timer += delta;
+				if (timer > ATTACK_EVERY){
+					faceEnemy();
+					timer = 0;
+				}
 				// if enemy is within one unit and fighting, can move to them.
-				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null))
+				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
 					moveToEnemy();
 				else if (this.reloading > 0) {
 					boolean check = false;
@@ -417,13 +424,29 @@ public class Unit extends Group {
 		cover = null;
 		if (enemyArray.size == 0) return;
 		this.faceEnemy();
+		
+		if (this.onWall() != nearestEnemy.onWall()) {
+			this.moveToPoint(getNearestLadder());
+			return;
+		}
+		
+
+		Orientation original = this.orientation;
+		
 		if (!this.moveForward()) {
 			// move in a different direction
 			faceEnemyAlt();
 			if (!this.moveForward()) {
-				// try a random direction as a last resort
-				this.orientation = getRandomDirection();
-				this.moveForward();
+				
+				// try the last two directions as a last resort
+				this.orientation = getOppositeOrientation(this.orientation);
+				if (!this.moveForward()) {
+					this.orientation = getOppositeOrientation(original);
+					if (!this.moveForward()) {
+						// this actually seems to work!
+						//System.out.println("stuck!");
+					}
+				}
 			}
 		}
 	}
@@ -460,7 +483,7 @@ public class Unit extends Group {
 		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
 
 		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Arrow.INITIAL_HEIGHT+this.getFloorHeight())) {
-			System.out.println("should move");
+//			System.out.println("should move");
 			this.startMove(getRandomDirection());
 			return true;
 		}
@@ -538,7 +561,7 @@ public class Unit extends Group {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
 			if (dist < closestDistance) {
-				if (that.retreating) 
+				if (that.retreating)
 					closestRetreating = that;
 				else {
 					closest = that;
@@ -560,24 +583,38 @@ public class Unit extends Group {
 	private Unit getNearestTarget() {
 		Unit closest = null;
 		Unit closestRetreating = null;
+		Unit closestNormal = null; // prioritize archers
+		
 		double closestDistance = 9999999;
+		double closestNormalDistance = 999999;
 		double MIN_DIST = 0f; // arbitrary
 
 		for (Unit that : enemyArray) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
-			if (dist < closestDistance && dist > MIN_DIST) {
-				if (that.retreating) 
-					closestRetreating = that;
-				else {
-					closest = that;
-					closestDistance = dist;
+			if (dist > MIN_DIST) {
+				if (dist < closestDistance && dist > MIN_DIST) {
+					if (that.retreating) 
+						closestRetreating = that;
+					else if (!that.bowOut()) {
+						closestNormalDistance = dist;
+						closestNormal = that;
+					}
+					else {
+						closest = that;
+						closestDistance = dist;
+					}
 				}
 			}
 		}
 		if (closest != null) {
 			nearestEnemy = closest;
 			return closest;
+		}
+		else if (closestNormal != null) {
+			//System.out.println("returning normal!");
+			nearestEnemy = closestNormal;
+			return closestNormal;
 		}
 		else {
 			nearestEnemy = closestRetreating;
@@ -613,23 +650,31 @@ public class Unit extends Group {
 
 		Point closest = new Point(point_x, point_y);
 
-		// assume on wall
-//		if (this.onWall()) {
-//			float closestDistance = 999999;
-//			// get closest ladder
-//			for (int i = 0; i < stage.size_y; i++) {
-//				for (int j = 0; j < stage.size_x; j++) {
-//					if (stage.ladderAt(j, i)) {
-//						Point ladderPoint = new Point(j, i);
-//						double dist = this.distanceTo(ladderPoint);
-//						if (dist < closestDistance) {
-//							closest = ladderPoint;
-//						}
-//					}
-//				}
-//			}
-//		}
+		if (this.onWall()) {
+			closest = getNearestLadder();
+		}
 
+		return closest;
+	}
+	
+	
+	public Point getNearestLadder() {
+		Point closest = null;
+		
+		double closestDistance = 999999;
+		// get closest ladder
+		for (int i = 0; i < stage.size_y; i++) {
+			for (int j = 0; j < stage.size_x; j++) {
+				if (stage.ladderAt(j, i)) {
+					Point ladderPoint = new Point(j, i);
+					double dist = this.distanceTo(ladderPoint);
+					if (dist < closestDistance) {
+						closest = ladderPoint;
+						closestDistance = dist;
+					}
+				}
+			}
+		}
 		return closest;
 	}
 
@@ -725,13 +770,13 @@ public class Unit extends Group {
 	}
 
 	public void dismount() {
-		System.out.println("dismounting");
-//		this.mounted = false;
+//		System.out.println("dismounting");
+		this.isMounted = false;
 		this.calcStats();
 	}
 
 	public boolean hasHorseButDismounted() {
-		if (this.horse != null) System.out.println("mounted: " + isMounted);
+//		if (this.horse != null) System.out.println("mounted: " + isMounted);
 		return (this.horse != null && !isMounted);
 	}
 
@@ -756,11 +801,15 @@ public class Unit extends Group {
 		this.setRotation(rotation);
 	}
 
-	public Orientation getOppositeOrientation() {
-		if (this.orientation == Orientation.UP) return Orientation.DOWN;
-		if (this.orientation == Orientation.DOWN) return Orientation.UP;
-		if (this.orientation == Orientation.LEFT) return Orientation.RIGHT;
+	public Orientation getOppositeOrientation(Orientation orientation) {
+		if (orientation == Orientation.UP) return Orientation.DOWN;
+		if (orientation == Orientation.DOWN) return Orientation.UP;
+		if (orientation == Orientation.LEFT) return Orientation.RIGHT;
 		else return Orientation.LEFT;
+	}
+	
+	public Orientation getOppositeOrientation() {
+		return getOppositeOrientation(this.orientation);
 	}
 
 	public void drawAnimation(SpriteBatch batch, Animation animation, float stateTime, boolean loop) {
@@ -922,6 +971,23 @@ public class Unit extends Group {
 
 		//		System.out.println("DESTROYED");
 		party.casualty(soldier);
+		
+		String status = soldier.name;
+		String color = "white";
+		
+		boolean killed = !soldier.isWounded();
+		
+		if (!killed) status += " was wounded!";
+		else status += " was killed!";
+		
+		if (party == stage.player) {
+			if (killed) color = "red";
+			else color = "orange";
+		}
+		else  { // if (dArmies.contains(army, true)) {
+			color = "cyan";
+		}
+		BottomPanel.log(status, color);
 	}
 
 	// call this when a soldier retreats

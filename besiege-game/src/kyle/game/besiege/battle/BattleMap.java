@@ -17,6 +17,7 @@ public class BattleMap extends Actor {
 	private TextureRegion white;
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
+	
 
 	private static final int TREE_X_OFFSET = 1;
 	private static final int TREE_Y_OFFSET = 1;
@@ -33,19 +34,26 @@ public class BattleMap extends Actor {
 	public static final int SIZE = 4;
 	private int total_height;
 	private int total_width;
+	
+	private Array<Ladder> ladders;
 
 	private enum GroundType {
 		GRASS, DIRT, SAND, DARKGRASS, MUD, WATER, LIGHTGRASS, SNOW, ROCK, DARKROCK, LIGHTSAND, LIGHTSNOW, FLOWERS, FLOWERS2
 	}
 
 	public enum Object {
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.058f), CASTLE_WALL_FLOOR(0f), LADDER(0); 
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.058f), CASTLE_WALL_FLOOR(0f);
 		float height;
 		Orientation orientation; // for ladders
 		private Object(float height) {
 			this.orientation = Orientation.UP;
 			this.height = height;
 		}
+	}
+	
+	private class Ladder {
+		int pos_x, pos_y;
+		Orientation orientation;
 	}
 	
 	
@@ -68,6 +76,7 @@ public class BattleMap extends Actor {
 
 		ground = new GroundType[total_height][total_width];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
+		ladders = new Array<Ladder>();
 		cover = new Array<Point>();
 		
 		grass = 	new TextureRegion(new Texture(Gdx.files.internal("ground/grass.png"))); 
@@ -114,7 +123,7 @@ public class BattleMap extends Actor {
 			if (stage.siegeDefense)
 				addWall((int)(stage.size_y*.2f));
 			
-			addWalls(5);
+			addFences(5);
 			addTrees(.05*Math.random() + .03);
 		}
 		if (maptype == MapType.GRASSLAND) {
@@ -131,7 +140,7 @@ public class BattleMap extends Actor {
 				addWall((int)(stage.size_y*.2f));
 			
 			addTrees(.001);
-			addWalls(1);
+			addFences(1);
 		}
 		if (maptype == MapType.MEADOW) {
 			for (int i = 0; i < ground.length; i++) {
@@ -149,7 +158,7 @@ public class BattleMap extends Actor {
 				addWall((int)(stage.size_y*.2f));
 			
 			addTrees(.00);
-			addWalls(15);
+			addFences(15);
 		}
 		if (maptype == MapType.BEACH) {
 			double slope = Math.random()*3+3;
@@ -256,14 +265,12 @@ public class BattleMap extends Actor {
 	private void addWall(int y_position) {
 		
 		// add ladders
-		if (addObject(stage.size_x/2, y_position+1, Object.LADDER)) {
-			stage.slow[y_position+1][stage.size_x/2] = LADDER_SLOW;
-			stage.closed[y_position+1][stage.size_x/2] = false;
-		}
+		this.addLadder(stage.size_x/2, y_position+2, Orientation.DOWN);
 		
 		for (int i = 0; i < stage.size_x; i++) {
 			if (addObject(i, y_position, Object.CASTLE_WALL_FLOOR)) {
 				stage.heights[y_position][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
+				
 				Point coverPoint = new Point(i, y_position);
 				coverPoint.orientation = Orientation.UP;
 				if (inMap(coverPoint)) cover.add(coverPoint);
@@ -275,18 +282,85 @@ public class BattleMap extends Actor {
 				stage.heights[y_position-1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 		}
 		for (int i = 0; i < stage.size_x; i++) {
-			if (addObject(i, y_position+1, Object.CASTLE_WALL)) {
-				stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
-				stage.closed[y_position+1][i] = true;
+			if (i != stage.size_x/2) {
+				if (addObject(i, y_position+1, Object.CASTLE_WALL)) {
+					stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
+					stage.closed[y_position+1][i] = true;
+				}
+			} else {
+				if (addObject(i, y_position+1, Object.CASTLE_WALL_FLOOR)) {
+					stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; 
+				}
 			}
 		}
 		
-		// add ladders
-		if (addObject(stage.size_x/2, y_position-2, Object.LADDER))
-			stage.slow[y_position-2][stage.size_x/2] = LADDER_SLOW;
 		
+		this.addLadder(stage.size_x/2, y_position-2, Orientation.UP);
+
+		
+	//	this.addLadder(stage.size_x/2, y_position+1, Orientation.DOWN);
+
+		// add ladders
+		//if (addObject(stage.size_x/2-1, y_position-2, Object.LADDER))
+		//	stage.slow[y_position-2][stage.size_x/2-1] = LADDER_SLOW;
+		// add ladders
+	//	if (addObject(stage.size_x/2+1, y_position-2, Object.LADDER))
+	//			stage.slow[y_position-2][stage.size_x/2+1] = LADDER_SLOW;
 	
 	}
+	
+	private void addLadder(int pos_x, int pos_y, Orientation orientation) {
+		Ladder l = new Ladder();
+		l.pos_x = pos_x;
+		l.pos_y = pos_y;
+		l.orientation = orientation;
+		this.ladders.add(l);
+		stage.slow[l.pos_y][l.pos_x] = LADDER_SLOW;
+	}
+	
+	public boolean ladderAt(int pos_x, int pos_y) {
+		for (Ladder l : ladders) {
+			if (l.pos_x == pos_x && l.pos_y == pos_y) return true;
+		}
+		return false;
+	}
+	
+//	private void addTower(int y_position) {
+//		
+//		// add ladders
+//		if (addObject(stage.size_x/2, y_position+1, Object.LADDER)) {
+//			stage.slow[y_position+1][stage.size_x/2] = LADDER_SLOW;
+//			stage.closed[y_position+1][stage.size_x/2] = false;
+//		}
+//		
+//		for (int i = 0; i < stage.size_x; i++) {
+//			if (addObject(i, y_position, Object.CASTLE_WALL_FLOOR)) {
+//				stage.heights[y_position][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
+//				Point coverPoint = new Point(i, y_position);
+//				coverPoint.orientation = Orientation.UP;
+//				if (inMap(coverPoint)) cover.add(coverPoint);
+//			}
+//		}
+//
+//		for (int i = 0; i < stage.size_x; i++) {
+//			if (addObject(i, y_position-1, Object.CASTLE_WALL_FLOOR))
+//				stage.heights[y_position-1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
+//		}
+//		for (int i = 0; i < stage.size_x; i++) {
+//			if (addObject(i, y_position+1, Object.CASTLE_WALL)) {
+//				stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
+//				stage.closed[y_position+1][i] = true;
+//			}
+//		}
+//		
+//		// add ladders
+//		if (addObject(stage.size_x/2-1, y_position-2, Object.LADDER))
+//			stage.slow[y_position-2][stage.size_x/2-1] = LADDER_SLOW;
+//		// add ladders
+//		if (addObject(stage.size_x/2+1, y_position-2, Object.LADDER))
+//				stage.slow[y_position-2][stage.size_x/2+1] = LADDER_SLOW;
+//	
+//	}
 
 	private void addTrees(double probability) {
 		for (int i = 0; i < stage.size_x; i++) {
@@ -327,8 +401,16 @@ public class BattleMap extends Actor {
 			}
 		}
 	}
+	
+	
+	// first draw wall, then floor, then
+	private void addSingleWall(int pos_x, int pos_y, int width, Orientation orientation) {
+		if (orientation == Orientation.UP) {
+			
+		}
+	}
 
-	private void addWalls(int maxWalls) {
+	private void addFences(int maxWalls) {
 		int number_walls = (int)(Math.random()*maxWalls + .5);
 		for (int count = 0; count < number_walls; count++) {
 			int wall_length = (int) (10*Math.random()+5);
@@ -435,23 +517,25 @@ public class BattleMap extends Actor {
 					texture = castleWall;
 				else if (objects[i][j] == Object.CASTLE_WALL_FLOOR)
 					texture = castleWallFloor;
-				else if (objects[i][j] == Object.LADDER)
-					texture = ladder;
 				
 				if (texture != null) batch.draw(texture, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), texture.getRegionWidth()*stage.unit_width/8*stage.scale, texture.getRegionHeight()*stage.unit_height/8*stage.scale);
 			}
 		}
 		
-		// draw second round of obstacles
-		for (int i = 0; i < stage.size_y; i++) {
-			for (int j = 0; j < stage.size_x; j++) {
-				texture = null;
-				// Don't draw trees here
-				if (objects[i][j] == Object.LADDER)
-					texture = ladder;
+		// draw ladders
+		for (Ladder l : ladders) {
+				texture = ladder;
+				float rotation = getOrientationRotation(l.orientation);
+				//setRotation(rotation);
+				//atch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
+
+				float x = l.pos_x*stage.unit_width*stage.scale;
+				float y = l.pos_y*stage.unit_height*stage.scale;
 				
-				if (texture != null) batch.draw(texture, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), texture.getRegionWidth()*stage.unit_width/8*stage.scale, texture.getRegionHeight()*stage.unit_height/8*stage.scale);
-			}
+				float width = texture.getRegionWidth()*stage.unit_width/8*stage.scale;
+				float height = texture.getRegionHeight()*stage.unit_height/8*stage.scale;
+				
+				batch.draw(texture, x, y, width/2, height/4, width, height, 1, 1, rotation);
 		}
 		
 
@@ -494,16 +578,27 @@ public class BattleMap extends Actor {
 		boolean drawClosed = false;
 //		boolean drawClosed = true;
 		if (drawClosed) {
-
 			Color c = batch.getColor();
 			Color mycolor = new Color(1, 0, 0, .5f);
 			batch.setColor(mycolor);
-
 			for (int i = 0; i < stage.closed.length; i++) {
 				for (int j = 0; j < stage.closed[0].length; j++) {
 					if (stage.closed[i][j])
 						batch.draw(white, (j*stage.unit_width*stage.scale), (i*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
 				}
+			}
+			batch.setColor(c);
+		}
+		
+		// draw closed
+		boolean drawLadders = false;
+		//				boolean drawClosed = true;
+		if (drawLadders) {
+			Color c = batch.getColor();
+			Color mycolor = new Color(0, 0, 1, .5f);
+			batch.setColor(mycolor);
+			for (Ladder l : ladders) {
+				batch.draw(white, (l.pos_x*stage.unit_width*stage.scale), (l.pos_y*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
 			}
 			batch.setColor(c);
 		}
@@ -608,6 +703,13 @@ public class BattleMap extends Actor {
 				stage.closed[y*SIZE + k][x*SIZE + l] = true;
 			}
 		}
+	}
+	
+	private float getOrientationRotation(Orientation orientation) {
+		if (orientation == Orientation.UP) return 0;
+		if (orientation == Orientation.LEFT) return 90;
+		if (orientation == Orientation.DOWN) return 180;
+		else return 270;
 	}
 
 	@Override
