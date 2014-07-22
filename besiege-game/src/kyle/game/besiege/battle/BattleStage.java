@@ -61,7 +61,7 @@ public class BattleStage extends Group {
 	// private Party player;
 	public BattleMap battlemap;
 	
-	private boolean playerDefending = false;
+	public boolean playerDefending = false;
 
 	private boolean mouseOver; // is mouse over Battle screen?
 	private boolean paused;
@@ -176,49 +176,35 @@ public class BattleStage extends Group {
 
 	// for now, put them randomly on the field
 	public void addUnits() {
+		addParty(player);
+		addParty(enemy);
+	}
+	
+	private void addParty(Party party) {
+		Formation choice;
+		if (party == player) choice = playerFormationChoice; 
+		else choice = enemyFormationChoice;
 		
-		Array<Soldier> infantry = player.getHealthyInfantry();
-		Array<Soldier> cavalry = player.getHealthyCavalry();
-		Array<Soldier> archers = player.getHealthyArchers();
-		Soldier.SoldierType[][] formation = getFormation(player, playerFormationChoice);
+		boolean defending = playerDefending == (party == player);
+		
+		Array<Soldier> infantry = party.getHealthyInfantry();
+		Array<Soldier> cavalry = party.getHealthyCavalry();
+		Array<Soldier> archers = party.getHealthyArchers();
+		Soldier.SoldierType[][] formation = getFormation(party, choice);
+		if (party != player) formation = flipVertical(formation);
+
 		
 		int region_height = formation.length;
 		int region_width = formation[0].length;
 		
-		int player_base_x = size_x/2 - region_width/2;
-		int player_base_y = (int)(size_y*.2f);
-		
-		for (int i = 0; i < region_height; i++) {
-			for (int j = 0; j < region_width; j++) {
-				if (formation[i][j] != null) {
-					Soldier toAdd;
-					if (formation[i][j] == Soldier.SoldierType.INFANTRY) toAdd = infantry.pop();
-					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = archers.pop();
-					else toAdd = cavalry.pop();
-					
-					if (inMap(new kyle.game.besiege.battle.Point(player_base_x + j, player_base_y + i))) {
-						Unit unit = new Unit(this, player_base_x + j, player_base_y + i, 0, toAdd, player);
-						if (playerDefending) unit.stance = Unit.Stance.DEFENSIVE;
-						if (siegeDefense) unit.dismount();
-						addUnit(unit);
-					}
-				}
-			}
+		int base_x = size_x/2 - region_width/2;
+		int base_y = (int)(size_y*.2f);
+		int team = 0;
+		if (party != player) {
+			base_x = size_x/2 - region_width/2;
+			base_y = size_y - formation.length;
+			team = 1;
 		}
-
-		// next, do same thing but rotate array around 180 degrees
-		infantry = enemy.getHealthyInfantry();
-		cavalry = enemy.getHealthyCavalry();
-		archers = enemy.getHealthyArchers();
-		formation = getFormation(enemy, enemyFormationChoice);
-		
-		formation = flipVertical(formation);
-		
-		region_height = formation.length;
-		region_width = formation[0].length;
-		
-		int enemy_base_x = size_x/2 - region_width/2;
-		int enemy_base_y = size_y - formation.length;
 		
 		for (int i = 0; i < region_height; i++) {
 			for (int j = 0; j < region_width; j++) {
@@ -228,10 +214,10 @@ public class BattleStage extends Group {
 					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = archers.pop();
 					else toAdd = cavalry.pop();
 					
-					if (inMap(new kyle.game.besiege.battle.Point(enemy_base_x + j, enemy_base_y + i))) {
-						Unit unit = new Unit(this, enemy_base_x + j, enemy_base_y + i, 1, toAdd, enemy);
-						if (!playerDefending) unit.stance = Unit.Stance.DEFENSIVE;
-						if (siegeDefense) unit.dismount();
+					if (canPlaceUnit(base_x + j, base_y + i)) {
+						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, party);
+						if (defending) unit.stance = Unit.Stance.DEFENSIVE;
+						if (party == player && siegeDefense) unit.dismount();
 						addUnit(unit);
 					}
 				}
@@ -742,5 +728,12 @@ public class BattleStage extends Group {
 				* (d1.getCenterX() - d2.getCenterX())
 				+ (d1.getCenterY() - d2.getCenterY())
 				* (d1.getCenterY() - d2.getCenterY());
+	}
+	
+	public boolean canPlaceUnit(int pos_x, int pos_y) {
+		if (pos_x < 0 || pos_y < 0 || pos_x >= size_x || pos_y >= size_x) return false;
+		if (closed[pos_y][pos_x]) return false;
+		if (units[pos_y][pos_x] != null) return false;
+		return true;
 	}
 }

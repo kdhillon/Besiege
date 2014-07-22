@@ -20,7 +20,7 @@ public class Unit extends Group {
 	final int FRAME_COLS = 2;
 	final int FRAME_ROWS = 1;
 
-	final int DEFENSE_DISTANCE = 10;
+	final int DEFENSE_DISTANCE = 5;
 	final int ATTACK_EVERY = 1;
 
 	final int RETREAT_THRESHOLD = 2;
@@ -57,6 +57,10 @@ public class Unit extends Group {
 	//	public int baseDef;
 	//	public int baseSpd;
 
+	public int original_x;
+	public int original_y;
+	
+	
 	public int atk;
 	public int def;
 	public float spd;
@@ -125,6 +129,9 @@ public class Unit extends Group {
 		if (this.team == 0) enemyArray = stage.enemies;
 		else enemyArray = stage.allies;
 
+		
+		this.original_x = pos_x;
+		this.original_y = pos_y;
 		this.setX(pos_x);
 		this.setY(pos_y);
 
@@ -318,6 +325,9 @@ public class Unit extends Group {
 							if (!shouldMove())
 								fireAtEnemy();
 						}
+					}
+					else if (!this.bowOut() && this.stance == Stance.DEFENSIVE) {
+						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new Point(original_x, original_y));
 					}
 				}
 			}
@@ -609,7 +619,7 @@ public class Unit extends Group {
 
 		
 		// IF false then prioritize closest
-		boolean PRIORITIZE_ARCHERS = false;
+		boolean PRIORITIZE_ARCHERS = this.onWall();
 		
 		if (PRIORITIZE_ARCHERS || closestDistance < closestNormalDistance){
 			if (closest != null) {
@@ -904,7 +914,7 @@ public class Unit extends Group {
 		return true;
 	}
 
-	private boolean canMove(int pos_x, int pos_y) {
+	 boolean canMove(int pos_x, int pos_y) {
 		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_x) return false;
 		if (stage.closed[pos_y][pos_x]) return false;
 		if (Math.abs(this.getFloorHeight() - stage.heights[pos_y][pos_x]) > Unit.CLIMB_HEIGHT && (!stage.ladderAt(pos_x, pos_y) || this.isMounted())) return false;
@@ -987,26 +997,11 @@ public class Unit extends Group {
 		if (this.team == 0) stage.allies.removeValue(this, true);
 		if (this.team == 1) stage.enemies.removeValue(this, true);
 		this.removeActor(weaponDraw);
+		
+		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 
 		//		System.out.println("DESTROYED");
-		party.casualty(soldier);
-
-		String status = soldier.name;
-		String color = "white";
-
-		boolean killed = !soldier.isWounded();
-
-		if (!killed) status += " was wounded!";
-		else status += " was killed!";
-
-		if (party == stage.player) {
-			if (killed) color = "red";
-			else color = "orange";
-		}
-		else  { // if (dArmies.contains(army, true)) {
-			color = "cyan";
-		}
-		BottomPanel.log(status, color);
+		//party.casualty(soldier);
 	}
 
 	// call this when a soldier retreats

@@ -523,6 +523,8 @@ public class Location extends Actor implements Destination {
 		if (this.population > POP_MAX) this.population = POP_MAX;
 	}
 	
+	
+	// TODO fix for battlestage
 	public void siegeAttack(Array<Army> attackers, Location location) {
 //		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
 //		garrisonArmy.setParty(garrison);

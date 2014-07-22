@@ -465,7 +465,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 
 			String color = "white";
 			// determines color of logged text (yellow if wounded, orange if killed, blue if enemy killed)
-			if (playerInD && atkKill) {
+			if (playerInD == atkKill) {
 				if (killed) color = "red";
 				else color = "orange";
 			}
@@ -474,7 +474,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //					color = "cyan";
 //				else color = "purple";
 //			}
-			else if (playerInA && atkKill)
+			else if (playerInA == atkKill)
 				color = "cyan";
 			//	else color = "purple";
 			

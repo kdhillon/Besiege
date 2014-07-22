@@ -61,18 +61,22 @@ public class Noble extends Army {
 
 	@Override
 	public void uniqueAct() {
-		if (getKingdom().currentPanel == this) System.out.println(getName() + " unique act");
 
 		// nobles do: 
 		// travel between their own cities (by default)
 		// or are sent to besiege other cities (by faction)
 		if (this.hasSpecialTarget() && !this.isGarrisonedIn(specialTarget)) {
+			if (getKingdom().currentPanel == this) System.out.println(getName() + " has special target");
+
 			//			System.out.println(getName() + " managing special target " + this.specialTarget.getName());
 			// go to city to besiege/raid
+
 			if (this.isGarrisoned()) this.eject();
 			manageSpecialTarget();
 		}
 		else if (getFaction().cities.size > 1) {
+			if (getKingdom().currentPanel == this) System.out.println(getName() + " wandering between cities");
+
 			wanderBetweenCities();
 		}
 		else {
