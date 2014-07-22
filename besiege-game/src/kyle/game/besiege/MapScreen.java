@@ -271,8 +271,10 @@ public class MapScreen implements Screen {
 			currentCamera.zoom += factor;
 	}
 	public void letRun() {
-		kingdom.setPaused(false);
-		kingdom.getPlayer().setWaiting(true);	
+		if (battle == null) {
+			kingdom.setPaused(false);
+			kingdom.getPlayer().setWaiting(true);	
+		}
 	}
 	public void endRun() {
 		kingdom.getPlayer().setWaiting(false);
@@ -350,7 +352,7 @@ public class MapScreen implements Screen {
 //				System.out.println(kingdom.getPlayer().isWaiting());
 			}
 			else if (!kingdom.getPlayer().forceWait && kingdom.getPlayer().isWaiting()) {
-				System.out.println("ending run");
+//				System.out.println("ending run");
 				endRun();
 			}
 			if ((Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)|| Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) && speedFactor != FAST_FORWARD_FACTOR)
@@ -508,10 +510,15 @@ public class MapScreen implements Screen {
 	public void switchToKingdomView() {
 		//this.battle = null;
 		this.battleStage.clear();
+		this.battle = null;
 		currentStage = kingdomStage;
 		this.currentCamera = kingdomCamera;
 		center();
 		currentStage = kingdomStage;
+	}
+	
+	public void playerDeath() {
+		
 	}
 	
 	@Override

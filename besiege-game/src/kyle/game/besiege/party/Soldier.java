@@ -51,8 +51,6 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	private boolean wounded;
 	private float timeWounded;
 	public boolean canUpgrade;
-
-	public boolean retreated;
 	
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;

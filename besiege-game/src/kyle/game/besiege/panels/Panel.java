@@ -260,6 +260,9 @@ public class Panel extends Group {
 	public TextureRegion getCrest() {
 		return Assets.atlas.findRegion("crestBlank");
 	}
+	public TextureRegion getSecondCrest() {
+		return null;
+	}
 	public static String format(final String input, final int cutoff) {
 	    char[] split = input.toCharArray();//in your case "%d" as delimeter
 	    final StringBuffer buffer = new StringBuffer();

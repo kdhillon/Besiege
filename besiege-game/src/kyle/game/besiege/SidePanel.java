@@ -215,4 +215,7 @@ public class SidePanel extends Group {
 	public TextureRegion getActiveCrest() {
 		return activePanel.getCrest();
 	}
+	public TextureRegion getSecondCrest() {
+		return activePanel.getSecondCrest();
+	}
 }

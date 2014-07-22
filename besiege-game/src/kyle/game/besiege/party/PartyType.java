@@ -46,7 +46,7 @@ public enum PartyType { // todo add ability for max party size
 //	CITY_GARR_1(new Weapon[]{SPEAR, PIKE, HALBERD, LONGSWORD}, new int[]{1, 1, 1, 1}, new int[]{20, 20, 20, 20}, 0, 0),
 	
 	MACE_TEST2(new Weapon[]{LONGBOW, CAVALRY_SPEAR, SHORTSWORD}, new int[]{0, 18, 8}, new int[]{0, 0, 0}, 0, 0),
-	MACE_TEST(new Weapon[]{LONGBOW, CAVALRY_SPEAR, SHORTSWORD}, new int[]{20, 5, 8}, new int[]{0, 0, 0}, 0, 0);
+	MACE_TEST(new Weapon[]{ADV_LONGBOW, CAVALRY_SPEAR, GLAIVE}, new int[]{20, 0, 30}, new int[]{0, 0, 0}, 0, 0);
 //	VILLAGE_HIRE_1(new Weapon[]{}, new int[]{}, new int[]{}, 0, 0);
 
 	//RANGED_TEST(new Weapon[]{SHORTBOW, CROSSBOW, RECURVE, LONGBOW}, new int[]{20, 0, 00, 0}, new int[]{20, 0, 00, 00}, 0, 0);

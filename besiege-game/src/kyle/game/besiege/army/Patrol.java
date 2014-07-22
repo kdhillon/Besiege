@@ -71,7 +71,7 @@ public class Patrol extends Army {
 				float dy = (float) ((Math.random()*2-1)*patrolDist);
 				newTarget = new Point(center_x + dx, center_y + dy);
 			} while (getKingdom().getMap().isInWater(newTarget)); 
-			if (!setTarget(newTarget)) System.out.println(" patrol set bad water targe");;
+			setTarget(newTarget);// System.out.println(" patrol set bad water targe");;
 		}
 //		else 
 //			System.out.println(getName() + " has target so not patrolling");

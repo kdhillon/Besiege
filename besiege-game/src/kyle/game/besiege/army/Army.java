@@ -311,6 +311,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void drawCrest(SpriteBatch batch) {
+		if (this.isInBattle()) return;
 		float size_factor = .4f;
 
 		size_factor +=  .005*this.party.getTotalSize();
@@ -681,7 +682,7 @@ public class Army extends Actor implements Destination {
 	public void wait(float delta) {
 		if (kingdom.clock() >= waitUntil) {
 			//			if (type == ArmyType.MERCHANT) System.out.println(getName() + "stopping wait");
-			System.out.println("stopping wait");
+//			System.out.println("stopping wait");
 			normalWaiting = false;
 			waitUntil = 0;
 			if (forceWait) { 

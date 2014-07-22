@@ -68,7 +68,7 @@ public class Kingdom extends Group {
 
 	public int banditCount;
 
-	private Destination currentPanel;
+	public Destination currentPanel;
 
 	private boolean mouseOver; // is mouse over Kingdom screen?
 	private boolean paused;

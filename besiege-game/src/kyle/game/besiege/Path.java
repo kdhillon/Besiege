@@ -193,7 +193,7 @@ public class Path {
 		
 		int loops = 0;
 		
-		System.out.println(army.getName() + " A* started to " + endDest.getName());
+//		System.out.println(army.getName() + " A* started to " + endDest.getName());
 		
 		while (!pq.isEmpty() && pq.peek().curr != goal && loops < 1000) {// && !notVisited.isEmpty()) {
 			min = pq.remove();

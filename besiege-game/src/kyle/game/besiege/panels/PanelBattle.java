@@ -19,6 +19,7 @@ import kyle.game.besiege.party.SoldierLabel;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -626,5 +627,17 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			panel.setDefault();
 //		else 
 //			panel.returnToPrevious();
+	}
+	
+	@Override
+	public TextureRegion getCrest() {
+		if (battle != null && battle.aArmies != null && battle.aArmies.size > 0)
+			return battle.aArmies.first().getFaction().crest;
+		return null;
+	}
+	@Override
+	public TextureRegion getSecondCrest() {
+		
+		return battle.halfCrest;
 	}
 }

@@ -49,7 +49,8 @@ public class BattleStage extends Group {
 	
 	public boolean closed[][]; // open or closed?
 	public double slow[][]; // 0 is normal speed, 1 is very slow.
-	public Unit[][] map; // units on map
+	public Unit[][] units; // units on map
+	public Array<Unit> retreated; // units that have retreated
 	public float heights[][]; // ground floor levels
 
 	public int size_x = 128;
@@ -98,14 +99,13 @@ public class BattleStage extends Group {
 		this.playerDefending = playerDefending;
 //		this.playerDefending = false;
 		
-		boolean forceSiege = true;
+		boolean forceSiege = false;
 		if (siegeOf != null || forceSiege) {
 			siegeDefense = playerDefending;
 		}
 		
 		if (player == null)
 			createFakeBattle();
-
 
 		this.player.army.updatePolygon();
 		this.biome = this.player.army.containing.biome;
@@ -124,14 +124,16 @@ public class BattleStage extends Group {
 		this.size_y += (BattleMap.SIZE - this.size_y % BattleMap.SIZE);
 
 		closed = new boolean[size_y][size_x];
-		map = new Unit[size_y][size_x];
+		units = new Unit[size_y][size_x];
+		retreated = new Array<Unit>();
 		slow = new double[size_y][size_x];
 		heights = new float[size_y][size_x];
 
-		this.battle = new Battle(mapScreen.getKingdom(), this.player.army,
-				this.enemy.army);
+		if (playerDefending)
+			this.battle = new Battle(mapScreen.getKingdom(), this.enemy.army, this.player.army);
+		else 
+			this.battle = new Battle(mapScreen.getKingdom(), this.player.army, this.enemy.army);
 		battle.calcBalancePlayer();
-		
 
 		// try this
 		pb = new PanelBattle(mapScreen.getSidePanel(), battle);
@@ -166,8 +168,10 @@ public class BattleStage extends Group {
 	
 	public void centerCamera() {
 		// translate to center of screen?
+		mapScreen.getCamera().translate((this.size_x*this.scale)*this.unit_width/2 - mapScreen.getCamera().position.x, (this.scale*this.size_y*.4f)*this.unit_height - mapScreen.getCamera().position.y);
+//		mapScreen.getCamera().translate(6, 0);
 
-		mapScreen.getCamera().translate(new Vector2((this.size_x-13)*this.unit_width/2, (this.size_y-10)*this.unit_height/2));
+		//mapScreen.getCamera().translate(new Vector2((this.size_x)*this.unit_width/2, (this.size_y)*this.unit_height/2));
 	}
 
 	// for now, put them randomly on the field
@@ -191,10 +195,13 @@ public class BattleStage extends Group {
 					if (formation[i][j] == Soldier.SoldierType.INFANTRY) toAdd = infantry.pop();
 					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = archers.pop();
 					else toAdd = cavalry.pop();
-					Unit unit = new Unit(this, player_base_x + j, player_base_y + i, 0, toAdd, player);
-					if (playerDefending) unit.stance = Unit.Stance.DEFENSIVE;
-					if (siegeDefense) unit.dismount();
-					addUnit(unit);
+					
+					if (inMap(new kyle.game.besiege.battle.Point(player_base_x + j, player_base_y + i))) {
+						Unit unit = new Unit(this, player_base_x + j, player_base_y + i, 0, toAdd, player);
+						if (playerDefending) unit.stance = Unit.Stance.DEFENSIVE;
+						if (siegeDefense) unit.dismount();
+						addUnit(unit);
+					}
 				}
 			}
 		}
@@ -220,13 +227,23 @@ public class BattleStage extends Group {
 					if (formation[i][j] == Soldier.SoldierType.INFANTRY) toAdd = infantry.pop();
 					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = archers.pop();
 					else toAdd = cavalry.pop();
-					Unit unit = new Unit(this, enemy_base_x + j, enemy_base_y + i, 1, toAdd, enemy);
-					if (!playerDefending) unit.stance = Unit.Stance.DEFENSIVE;
-					if (siegeDefense) unit.dismount();
-					addUnit(unit);
+					
+					if (inMap(new kyle.game.besiege.battle.Point(enemy_base_x + j, enemy_base_y + i))) {
+						Unit unit = new Unit(this, enemy_base_x + j, enemy_base_y + i, 1, toAdd, enemy);
+						if (!playerDefending) unit.stance = Unit.Stance.DEFENSIVE;
+						if (siegeDefense) unit.dismount();
+						addUnit(unit);
+					}
 				}
 			}
 		}
+	}
+	
+	private boolean inMap(kyle.game.besiege.battle.Point p) {
+		return p.pos_x < size_x &&
+				p.pos_y < size_y && 
+				p.pos_x >= 0 && 
+				p.pos_y >= 0;
 	}
 	
 	public void retreatAll(boolean player) {
@@ -487,9 +504,9 @@ public class BattleStage extends Group {
 
 		super.act(delta);
 		if (allies.size == 0) {
-			enemyVictory();
+			victory(enemy.army, player.army);
 		} else if (enemies.size == 0) {
-			playerVictory();
+			victory(player.army, enemy.army);
 		}
 		if (leftClicked)
 			leftClicked = false;
@@ -550,67 +567,65 @@ public class BattleStage extends Group {
 		else if (pointer == 4)
 			writeUnit();
 	}
-
-	public void playerVictory() {
+	
+	public void victory(Army winner, Army loser) {
 		this.isOver = true;
 		
-//		System.out.println("Player wins!");
-//		if (this.mapScreen != null)
-//			victory(kingdom.getPlayer());
-	}
-
-	public void enemyVictory() {
-		this.isOver = true;
-		// destroy player TODO
-		// System.out.println("Enemy wins!");
-	}
-
-	public void victory(Army army) {
-		army.endBattle();
-		army.setStopped(false);
-		army.forceWait(Battle.WAIT);
-		if (army.getParty().player) {
+		
+		boolean didAtkWin;
+		if (winner.getParty().player) {
+			if (!playerDefending) didAtkWin = true;
+			else didAtkWin = false;
+		} else {
+			if (playerDefending) didAtkWin = true;
+			else didAtkWin = false;
+		}
+		
+		winner.endBattle();
+		winner.setStopped(false);
+		winner.forceWait(Battle.WAIT);
+		if (winner.getParty().player) {
 			kingdom.getMapScreen().getSidePanel().setStay(false);
 			kingdom.getMapScreen().getSidePanel().setDefault();
 		}
 
 		// log(army.getName() + " has won a battle", "cyan");
-		if (!army.isGarrisoned())
-			army.setVisible(true);
+		
+		// heal retreated soldiers
+		for (Unit u : retreated) 
+			u.soldier.party.heal(u.soldier);
+		
+		boolean loserDestroyed = false;
+		
+		// figure out if totally destroyed or if units retreated
+		if (loser.getParty().getHealthySize() <= 0) {
+			battle.increaseSpoilsForKill(loser);
+			loserDestroyed = true;
+			loser.destroy();
+		} else battle.increaseSpoilsForRetreat(loser);
+
+		
+		if (!winner.isGarrisoned())
+			winner.setVisible(true);
+		if (!loser.isGarrisoned() && !loserDestroyed) 
+			loser.setVisible(true);
 		// army.nextTarget(); //
 
-		if (army.getParty().player) {
-			// army.setStopped(true);
-			army.setTarget(null);
-		}
-
-		double contribution = 1;
-
-		/*
-		 * int reward = (int) (contribution*spoils); int expReward; int
-		 * moraleReward; if (victor == aArmies) { expReward = (int)
-		 * (contribution*expA); moraleReward = (int)
-		 * (initBalanceA*baseMoraleReward); } else { expReward = (int)
-		 * (contribution*expD); moraleReward = (int)
-		 * (initBalanceD*baseMoraleReward); } expReward *= EXP_FACTOR; // just
-		 * to beef it up log(victor.get(i).getName() + " receives " +
-		 * moraleReward + " morale, " + reward + " gold and " + expReward +
-		 * " experience!", "green"); victor.get(i).getParty().wealth += reward;
-		 * victor.get(i).getParty().distributeExp(expReward);
-		 * victor.get(i).setMomentum(victor.get(i).getMomentum()+moraleReward);
-		 */
-
-		// just make sure no "retreating" soldiers
-		for (Unit u : this.allies) {
-			if (u.soldier.retreated)
-				u.soldier.party.heal(u.soldier);
-			u.soldier.retreated = false;
-		}
-		for (Unit u : this.enemies) {
-			if (u.soldier.retreated)
-				u.soldier.party.heal(u.soldier);
-			u.soldier.retreated = false;
-		}
+//		if (winner.getParty().player) {
+//			// army.setStopped(true);
+			winner.setTarget(null);
+			loser.setTarget(null);
+//		}
+		
+		
+		battle.distributeRewards(winner, 1, didAtkWin);
+		battle.destroy();
+		
+		// free up some memory
+		this.battlemap = null;
+		
+		// see if player died
+		if (loserDestroyed && didAtkWin == playerDefending) mapScreen.playerDeath();
 
 		mapScreen.switchToKingdomView();
 	}

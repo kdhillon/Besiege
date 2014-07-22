@@ -183,9 +183,9 @@ public class Arrow extends Actor {
 		// check for collision
 		Unit collided = null; 
 		if (inMap()) {
-			collided = stage.map[pos_y_int][pos_x_int];
+			collided = stage.units[pos_y_int][pos_x_int];
 			if (collided != null && collided.team != firing.team && this.height < collided.getZHeight() && this.height > collided.getZHeight() - Unit.UNIT_HEIGHT_GROUND)
-				collision(stage.map[pos_y_int][pos_x_int]);
+				collision(stage.units[pos_y_int][pos_x_int]);
 		}
 		
 		// if standing above 0, don't intersect with anything at that height... dicey but works, kind of OP can fix later TODO

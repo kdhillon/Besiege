@@ -34,6 +34,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	private final int baseMoraleReward = 25;
 	private final String REGION = "battle";
 	private TextureRegion region;
+	public TextureRegion halfCrest;
 	private String name;
 	private Kingdom kingdom;
 	public Array<Army> aArmies;
@@ -118,6 +119,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 		this.setWidth(region.getRegionWidth()*getScaleX());
 		this.setHeight(region.getRegionHeight()*getScaleY());
 		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
+		
+		TextureRegion[][] split = dArmies.first().getFaction().crest.split(dArmies.first().getFaction().crest.getRegionWidth()/2, dArmies.first().getFaction().crest.getRegionHeight());
+		this.halfCrest = split[0][1];
 	}
 	
 	@Override
@@ -137,8 +141,17 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
+		
+		// draw crests too?
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), 1, 1, getRotation());
+		
+//		if (aArmies.first() != null)
+//			batch.draw(this.aArmies.first().getFaction().crest, getX()+getWidth()/2, getY() + getHeight(), getOriginX(), getOriginY(),
+//				getWidth(), getHeight(), 1, 1, getRotation());
+//		if (dArmies.first() != null)
+//			batch.draw(this.halfCrest, getX(), getY() + getHeight(), getOriginX(), getOriginY(),
+//				getWidth()/2, getHeight(), 1, 1, getRotation());
 		super.draw(batch, parentAlpha);
 	}
 	
@@ -260,8 +273,18 @@ public class Battle extends Actor implements Destination { // new battle system 
 			remove(army);
 		}
 		else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
-		spoils += army.getParty().wealth;
+		increaseSpoilsForKill(army);
 		army.destroy();
+	}
+	
+	public void increaseSpoilsForKill(Army army) {
+		spoils += army.getParty().wealth;
+	}
+	
+	public void increaseSpoilsForRetreat(Army army) {
+		int wealthChange = (int) (army.getParty().wealth * RETREAT_WEALTH_FACTOR);
+		army.getParty().wealth -= wealthChange;
+		spoils += wealthChange;
 	}
 	
 	public void retreat(Army army) {
@@ -276,11 +299,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			dArmiesRet.add(army);
 			log(army.getName() + " is retreating!", "yellow");
 		}
-		
-		// decrease wealth of retreating army and give to other party
-		int wealthChange = (int) (army.getParty().wealth * RETREAT_WEALTH_FACTOR);
-		army.getParty().wealth -= wealthChange;
-		spoils += wealthChange;
+		increaseSpoilsForRetreat(army);
 	}
 	
 	// returns false if there's been a victory so the next phase can be skipped
@@ -405,7 +424,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
-	public void killOne(Army army, boolean a) { // kills/wounds one troop in this army, weighted by the troop's defense
+	public void killOne(Army army, boolean atkKill) { // kills/wounds one troop in this army, weighted by the troop's defense
 		// Compute the total weight of all soldier's defenses together
 		double totalWeight = 0.0d;
 		for (Soldier s : army.getParty().getHealthy())
@@ -426,35 +445,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		    }
 		}
 		Soldier random = army.getParty().getHealthy().get(randomIndex);
-		boolean killed = army.getParty().casualty(random);
-
-		if (a)
-			expD += random.getExpForKill();
-		else expA += random.getExpForKill();
-		
-		if (playerInD || playerInA) {
-			String status = random.name;
-			if (killed) status += " was killed!";
-			else status += " was wounded!";
-
-			String color = "white";
-			// determines color of logged text (yellow if wounded, orange if killed, blue if enemy killed)
-			if (army == kingdom.getPlayer()) {
-				if (killed) color = "red";
-				else color = "orange";
-			}
-			else if (aArmies.contains(army, true)) {
-				if (playerInD)
-					color = "cyan";
-				else color = "purple";
-			}
-			else  { // if (dArmies.contains(army, true)) {
-				if (playerInA)
-					color = "cyan";
-				else color = "purple";
-			}
-			log(status, color);
-		}
+		casualty(random, atkKill);
 		
 		if (army.getParty().getHealthySize() <= 0) {
 		//	log(army.getName() + " lost all troops and was removed from battle");
@@ -462,11 +453,42 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
+	public void casualty(Soldier soldier, boolean atkKill) {
+		boolean killed = soldier.party.casualty(soldier);
+		if (atkKill) expD += soldier.getExpForKill();
+		else expA += soldier.getExpForKill();
+		
+		if (playerInD || playerInA) {
+			String status = soldier.name;
+			if (killed) status += " was killed!";
+			else status += " was wounded!";
+
+			String color = "white";
+			// determines color of logged text (yellow if wounded, orange if killed, blue if enemy killed)
+			if (playerInD && atkKill) {
+				if (killed) color = "red";
+				else color = "orange";
+			}
+//			else if (aArmies.contains(army, true)) {
+//				if (playerInD)
+//					color = "cyan";
+//				else color = "purple";
+//			}
+			else if (playerInA && atkKill)
+				color = "cyan";
+			//	else color = "purple";
+			
+			log(status, color);
+		}
+	}
+	
 	public void victory(Array<Army> victor) {
 //		System.out.println("victory in " + name);
 //		System.out.println("battle over");
-		if (isOver) System.out.println(getName() + " ENDING BATTLE TWICE!!!?!");
-		isOver = true;
+//		if (isOver) System.out.println(getName() + " ENDING BATTLE TWICE!!!?!");
+//		isOver = true;
+		
+		
 		if (victor == aArmies) didAtkWin = true;
 		else if (victor == dArmies) didAtkWin = false;
 		
@@ -476,24 +498,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 		victor.shrink();
 
 		// change faction of city if siege
-		if (didAtkWin && siegeOf != null) {
-			Faction newOwner;
-			if (siegeOf.getSiege() == null) {
-//				System.out.println("ERROR: no siege!");
-				newOwner = aArmies.first().getFaction();
-			}
-			else newOwner = siegeOf.getSiege().besieging;
-			siegeOf.changeFaction(newOwner);
-		}
-		if (!didAtkWin && siegeOf != null) {
-			if (siegeOf.getSiege() != null) {
-				siegeOf.getSiege().destroy();
-				System.out.println("destroying siege of " + siegeOf.getName());
-			}
-			else System.out.println("getSiege() == null");
-		}
+		if (siegeOf != null) manageSiege();
 		
-		// manage victorious armies and calculate total rewards
+		// manage victorious armies and calculate contributions
 		for (int i = 0; i < victor.size; i++) {
 			Army army = victor.get(i);
 			army.endBattle();
@@ -513,49 +520,69 @@ public class Battle extends Actor implements Destination { // new battle system 
 				army.setTarget(null);
 			}
 			
-			
 			victorContribution[i] = army.getParty().getAtk(); // for now just do atk.
 			totalContribution += victorContribution[i];
 		}
+		
 		// distribute rewards
 		for (int i = 0; i < victor.size; i++) {
 			double contribution = victorContribution[i]/1.0d/totalContribution;
-			int reward = (int) (contribution*spoils);
-			int expReward;
-			int moraleReward;
-			if (victor == aArmies) {
-				expReward = (int) (contribution*expA);
-				moraleReward = (int) (initBalanceA*baseMoraleReward);
-			}
-			else {
-				expReward = (int) (contribution*expD);
-				moraleReward = (int) (initBalanceD*baseMoraleReward);
-			}
-			expReward *= EXP_FACTOR; // just to beef it up
-			log(victor.get(i).getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");
-			victor.get(i).getParty().wealth += reward;
-			victor.get(i).getParty().distributeExp(expReward);
-			victor.get(i).setMomentum(victor.get(i).getMomentum()+moraleReward);
+			this.distributeRewards(victor.get(i), contribution, didAtkWin);
 		}
 		
-		// TESTING
-		if (victor == aArmies) {
-			for (Army leftOver : dArmies) {
-				System.out.println("***** " + leftOver.getName() + " is still in battle!?!");
-			}
-		}
-		else if (victor == dArmies) {
-			for (Army leftOver : aArmies) {
-				System.out.println("***** " + leftOver.getName() + " is still in battle!?!");
-			}
-		}
+//		// TESTING
+//		if (victor == aArmies) {
+//			for (Army leftOver : dArmies) {
+//				System.out.println("***** " + leftOver.getName() + " is still in battle!?!");
+//			}
+//		}
+//		else if (victor == dArmies) {
+//			for (Army leftOver : aArmies) {
+//				System.out.println("***** " + leftOver.getName() + " is still in battle!?!");
+//			}
+//		}
 	
 		//	log("battle ended");
 		
+		destroy();
+	}
+	
+	public void destroy() {
+		if (playerInA || playerInD)
+			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
+		
 		aArmies.clear();
 		dArmies.clear();
-		kingdom.removeBattle(this);
 		this.remove();
+	}
+	
+	public void distributeRewards(Army army, double contribution, boolean attackVictory) {
+		int reward = (int) (contribution*spoils);
+		int expReward;
+		int moraleReward;
+		if (attackVictory) {
+			expReward = (int) (contribution*expA);
+			moraleReward = (int) (initBalanceA*baseMoraleReward);
+		}
+		else {
+			expReward = (int) (contribution*expD);
+			moraleReward = (int) (initBalanceD*baseMoraleReward);
+		}
+		expReward *= EXP_FACTOR; // just to beef it up
+		log(army.getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");
+		army.getParty().wealth += reward;
+		army.getParty().distributeExp(expReward);
+		army.setMomentum(army.getMomentum()+moraleReward);
+	}
+	
+	public void manageSiege() {
+		if (didAtkWin) {
+			Faction newOwner;
+			if (siegeOf.getSiege() == null) newOwner = aArmies.first().getFaction();
+			else newOwner = siegeOf.getSiege().besieging;
+			siegeOf.changeFaction(newOwner);
+		}
+		else if (siegeOf.getSiege() != null) siegeOf.getSiege().destroy();
 	}
 	
 	public void rangedPhase() {

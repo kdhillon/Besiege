@@ -32,7 +32,7 @@ public class Noble extends Army {
 
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
-		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.MACE_TEST2);
+		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.NOBLE_DEFAULT_1);
 		this.home = home;
 		this.setDefaultTarget((City) home);
 		// set up initial party, rank, etc
@@ -61,7 +61,8 @@ public class Noble extends Army {
 
 	@Override
 	public void uniqueAct() {
-		//		System.out.println(getName() + " unique act");
+		if (getKingdom().currentPanel == this) System.out.println(getName() + " unique act");
+
 		// nobles do: 
 		// travel between their own cities (by default)
 		// or are sent to besiege other cities (by faction)
