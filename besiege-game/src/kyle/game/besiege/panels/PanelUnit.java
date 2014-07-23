@@ -191,7 +191,10 @@ public class PanelUnit extends Panel {
 		spdS.setText("" + (int) unit.spd);
 		if (unit.isRanged() && unit.attacking == null && unit.quiver > 0) weaponS.setText(soldier.rangedWeapon.name + " (" + unit.quiver + ")");
 		else weaponS.setText(soldier.weapon.name);
-		actionS.setText(unit.getStatus());
+		
+		String mounted = "";
+		if (unit.isMounted()) mounted = " (Mounted)";
+		actionS.setText(unit.getStatus() + mounted);
 		
 		health.clear();
 		float totalWidth = SidePanel.WIDTH - PAD;

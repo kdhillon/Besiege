@@ -35,14 +35,15 @@ public class BattleMap extends Actor {
 	private int total_height;
 	private int total_width;
 	
-	private Array<Ladder> ladders;
+	public Array<Ladder> ladders;
+//	private Array<Object> walls;
 
 	private enum GroundType {
 		GRASS, DIRT, SAND, DARKGRASS, MUD, WATER, LIGHTGRASS, SNOW, ROCK, DARKROCK, LIGHTSAND, LIGHTSNOW, FLOWERS, FLOWERS2
 	}
 
-	public enum Object {
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.058f), CASTLE_WALL_FLOOR(0f);
+	public enum Object { //CASTLE_WALL(.058f)
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.12f), CASTLE_WALL_FLOOR(0f);
 		float height;
 		Orientation orientation; // for ladders
 		private Object(float height) {
@@ -51,7 +52,7 @@ public class BattleMap extends Actor {
 		}
 	}
 	
-	private class Ladder {
+	public class Ladder {
 		int pos_x, pos_y;
 		Orientation orientation;
 	}
@@ -269,10 +270,6 @@ public class BattleMap extends Actor {
 		for (int i = 0; i < stage.size_x; i++) {
 			if (addObject(i, y_position, Object.CASTLE_WALL_FLOOR)) {
 				stage.heights[y_position][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
-				
-				Point coverPoint = new Point(i, y_position);
-				coverPoint.orientation = Orientation.UP;
-				if (inMap(coverPoint)) cover.add(coverPoint);
 			}
 		}
 
@@ -281,14 +278,18 @@ public class BattleMap extends Actor {
 				stage.heights[y_position-1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 		}
 		for (int i = 0; i < stage.size_x; i++) {
-			if (i != stage.size_x/2) {
+			if (i != stage.size_x/2 && i % 3 == 0) {
 				if (addObject(i, y_position+1, Object.CASTLE_WALL)) {
 					stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 					stage.closed[y_position+1][i] = true;
+					
 				}
 			} else {
 				if (addObject(i, y_position+1, Object.CASTLE_WALL_FLOOR)) {
 					stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; 
+					Point coverPoint = new Point(i, y_position);
+					coverPoint.orientation = Orientation.UP;
+					if (inMap(coverPoint)) cover.add(coverPoint);
 				}
 			}
 		}
@@ -559,7 +560,7 @@ public class BattleMap extends Actor {
 		
 		
 		// draw cover
-		boolean drawCover = false;
+		boolean drawCover = true;
 //		boolean drawCover = true;
 		if (drawCover) {
 

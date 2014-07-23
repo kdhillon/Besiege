@@ -36,11 +36,11 @@ public enum RangedWeapon {
 	//public final int cost; // cost to purchase
 
 	// Range is squares on the map, accuracy is between 1 and 10, rate will hit at max range
-	private RangedWeapon(int tier, String name, String troopName, int atkMod, int range, int rate, int accuracy) {
+	private RangedWeapon(int tier, String name, String troopName, int damage, int range, int rate, int accuracy) {
 		this.tier = tier;
 		this.name = name;
 		this.troopName = troopName;
-		this.atkMod = atkMod;
+		this.atkMod = damage;
 		//this.defMod = defMod;
 		//this.spdMod = spdMod;
 		this.oneHand = false;

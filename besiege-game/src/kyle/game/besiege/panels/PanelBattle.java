@@ -13,6 +13,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
@@ -308,7 +309,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 
 		this.addTopTable(text);
 		
-		this.setButton(1, "Retreat!");
+		if (battle.playerInA || battle.playerInD) {
+			this.setButton(1, "Retreat!");
+		}
 		
 		// try to fix weird text bug
 //		updateSoldierTable();
@@ -375,6 +378,10 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 				updateSoldierTable();
 			}
 		}
+
+		if (battleStage != null && battleStage.playerStance == Stance.DEFENSIVE)
+			this.setButton(2, "Charge!");
+		
 		super.act(delta);
 	}
 	
@@ -615,6 +622,13 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	}
 	@Override
 	public void button2() {
+		if (getButton(2).isVisible()) {
+			
+			if (battleStage == null) BottomPanel.log("no battle stage to retreat!!");
+			else battleStage.chargeAll(true);
+			
+			getButton(2).setVisible(false);
+		}
 		BottomPanel.log("b2");
 	}
 	@Override

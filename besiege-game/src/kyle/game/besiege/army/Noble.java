@@ -15,8 +15,12 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Noble extends Army {
 	private static final String[] RANKS = {"Baron", "Earl", "Count", "Duke", "Prince", "Archduke", "King"};
-	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	250,		 300, 301}; 
-	private static final int BASE_PC = 35; // base party count
+	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	250,		 300, 301};
+	
+	// change for testing
+	private static final int BASE_PC = 350; // base party count
+
+//	private static final int BASE_PC = 35; // base party count
 	private static final float REKNOWN_PC_FACTOR = .5f;
 	private final float WAIT = 30;
 	//	private static final int MAX_LEVEL = 25;
@@ -32,7 +36,7 @@ public class Noble extends Army {
 
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
-		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.NOBLE_DEFAULT_1);
+		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.MACE_TEST2);
 		this.home = home;
 		this.setDefaultTarget((City) home);
 		// set up initial party, rank, etc
@@ -57,6 +61,8 @@ public class Noble extends Army {
 		//		System.out.println("creating noble");
 		kingdom.addArmy(this);
 		this.type = ArmyType.NOBLE;
+		
+		this.calcMaxPartySize();
 	}
 
 	@Override

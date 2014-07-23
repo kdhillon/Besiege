@@ -1,5 +1,6 @@
 package kyle.game.besiege.battle;
 
+import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Equipment;
 import kyle.game.besiege.party.Party;
@@ -27,6 +28,7 @@ public class Unit extends Group {
 
 	public float NEAR_COVER_DISTANCE = 3;
 	public float HEIGHT_RANGE_FACTOR = 6;
+	public float MAN_SIEGE_DISTANCE = 10;
 
 	final float DEATH_TIME = 300;
 	final float BASE_SPEED = .2f;
@@ -46,10 +48,11 @@ public class Unit extends Group {
 	public Soldier soldier;
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;
+	public SiegeUnit siegeUnit;
 
 	public boolean isMounted = true;
-	private boolean inCover;
-	private Point cover;
+//	private boolean inCover;
+	private Point nearestCover;
 
 	public int quiver;
 	//	public int height; // height off the ground
@@ -60,8 +63,7 @@ public class Unit extends Group {
 
 	public int original_x;
 	public int original_y;
-	
-	
+
 	public int atk;
 	public int def;
 	public float spd;
@@ -87,6 +89,7 @@ public class Unit extends Group {
 	public int prev_x; 
 	public int prev_y;
 	public boolean moving;
+	public boolean forceTwoMoves;
 	float ladder_height;
 
 	public float percentComplete; // between 0 and 1, used for moving?
@@ -130,7 +133,6 @@ public class Unit extends Group {
 		if (this.team == 0) enemyArray = stage.enemies;
 		else enemyArray = stage.allies;
 
-		
 		this.original_x = pos_x;
 		this.original_y = pos_y;
 		this.setX(pos_x);
@@ -169,12 +171,8 @@ public class Unit extends Group {
 		//			this.stance = Stance.DEFENSIVE;
 
 		// check if in cover
-		for (Point p : stage.battlemap.cover) {
-			if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
-				this.inCover = true;
-				this.cover = p;
-			}
-		}
+		checkIfInCover();
+		
 
 		calcStats();
 
@@ -250,6 +248,8 @@ public class Unit extends Group {
 	@Override
 	public void act(float delta) {
 
+		if (nearestEnemy == null) this.getNearestEnemy();
+		
 		// flip flop logic kind of
 		if (moveToggle) {
 			moveSmooth = false;
@@ -287,18 +287,30 @@ public class Unit extends Group {
 				percentComplete = 1;
 			}
 		}
+		else if (forceTwoMoves) {
+			this.moveForward();
+			this.forceTwoMoves = false;
+		}
 		else if (this.retreating) {
 			retreat();
 		}
+		else if (this.siegeUnit != null) {
+			// check if manning
+			if (!siegeUnit.adjacent(this)) {
+				Point nearSiegePoint = siegeUnit.getOperatorPoint(this);
+				if (nearSiegePoint != null) {
+					this.moveToPoint(nearSiegePoint);
+				}
+			}
+			else this.orientation = siegeUnit.orientation; // do nothing
+		}
 		else {
-			//			System.out.println("moving2");
+			checkIfShouldManSiege();
+//						System.out.println("moving2");
 			//			getRandomDirection(delta);
-			inCover = false;
-			if (cover != null) 
-				if (this.pos_x == cover.pos_x && this.pos_y == cover.pos_y) inCover = true;
+			
 
-
-			if (stance == Stance.AGGRESSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {
+			if (stance == Stance.AGGRESSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {				
 				moveToEnemy();
 			}
 			else { // either defensive stance or aggressive but ranged within range
@@ -321,10 +333,11 @@ public class Unit extends Group {
 				else {
 					nearestTarget = getNearestTarget();
 
-					if (this.bowOut() && nearestTarget != null) {
-						if (nearestTarget.distanceTo(this) < this.getCurrentRange()) {
-							if (!shouldMove())
+					if (this.bowOut() && !shouldMove()) {
+						if (nearestTarget != null) {
+							if (nearestTarget.distanceTo(this) < this.getCurrentRange()) {
 								fireAtEnemy();
+							}
 						}
 					}
 					else if (!this.bowOut() && this.stance == Stance.DEFENSIVE) {
@@ -334,6 +347,50 @@ public class Unit extends Group {
 			}
 		}
 	}
+	
+	public void checkIfShouldManSiege() {
+		// for now, no defensive units should siege
+		if (this.bowOut() || this.isMounted() || (stage.siegeAttack && this.stance == Stance.DEFENSIVE)) return;
+		
+		for (SiegeUnit s : stage.siegeUnitsArray) {
+			if (!s.hasMen() && s.enemyTeam() != this.team) {
+				Point closest = s.getOperatorPoint(this);
+				if (this.distanceTo(closest) < MAN_SIEGE_DISTANCE) {
+					this.man(s);
+					
+					return;
+				}
+			}
+		}
+	}
+	
+	public void checkIfInCover() {
+		for (Point p : stage.battlemap.cover) {
+			if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
+				this.nearestCover = p;
+			}
+		}
+	}
+	
+	public boolean inCover() {
+		if (nearestCover == null) {
+			nearestCover = getNearestCover();
+			if (nearestCover == null) return false;
+		}
+		if (this.pos_x == nearestCover.pos_x && this.pos_y == nearestCover.pos_y) return true;
+		return false;
+		 
+	}
+	
+//	// if still in manning position, return true. if not, unman and return false;
+//	public boolean stillManning() {
+//		if (this.siegeUnit == null) return false;
+//		if (this.pos_x != siegeUnit.getOperatorPoint().pos_x || this.pos_y != siegeUnit.getOperatorPoint().pos_y) {
+//			unman();
+//			return false;
+//		}
+//		return true;
+//	}
 
 	public float getSpeed() {
 		return currentSpeed * spd;
@@ -348,14 +405,15 @@ public class Unit extends Group {
 
 	public String getStatus() {
 		if (this.isDying) 				return "Dying";
+		if (this.siegeUnit != null)		return "Manning " + siegeUnit.type.name;
 		if (this.retreating)		 	return "Retreating";
 		if (this.attacking != null) 	return "Attacking " + attacking.soldier.name;
 		if (this.moveSmooth && 
-				cover != null) 			return "Moving to cover";
+				nearestCover != null) 			return "Moving to cover";
 		if (this.moveSmooth) 			return "Charging";
 		if (this.isRanged() && 
 				this.reloading > 0 && 
-				inCover) 				return "Firing from cover";
+				inCover()) 				return "Firing from cover";
 		if (this.bowOut() && 
 				this.reloading > 0) 		return "Firing";
 		else return "Idle";
@@ -427,23 +485,26 @@ public class Unit extends Group {
 		return 15 + this.def*3;
 	}
 	private void moveToEnemy() {
-		cover = null;
+		nearestCover = null;
 		if (enemyArray.size == 0) return;
 		this.faceEnemy();
 
 		if (this.onWall() != nearestEnemy.onWall()) {
+			if (this.isMounted()) this.dismount();
 			this.moveToPoint(getNearestLadder());
 			return;
 		}
 
-
 		Orientation original = this.orientation;
 
 		if (!this.moveForward()) {
+			if (Math.random() > .5) this.forceTwoMoves = true;
+
 			// move in a different direction
 			faceEnemyAlt();
 			if (!this.moveForward()) {
 
+				
 				// try the last two directions as a last resort
 				this.orientation = getOppositeOrientation(this.orientation);
 				if (!this.moveForward()) {
@@ -459,17 +520,30 @@ public class Unit extends Group {
 
 	private void moveToPoint(Point point) {
 		this.face(point);
+		Orientation original = this.orientation;
+
 		if (!this.moveForward()) {
+			
+			if (Math.random() > .5) this.forceTwoMoves = true;
+
 			faceAlt(point);
-			if (!this.moveForward()) {
-				this.orientation = getRandomDirection();
-				this.moveForward();
+			if (!this.moveForward()) {					
+				// try the last two directions as a last resort
+				this.orientation = getOppositeOrientation(this.orientation);
+				if (!this.moveForward()) {
+					this.orientation = getOppositeOrientation(original);
+					if (!this.moveForward()) {
+						// this actually seems to work!
+						//System.out.println("stuck!");
+					}
+				}
 			}
 		}
 	}
 
 	private void retreat() {
-		cover = null;
+		nearestCover = null;
+		this.unman();
 		moveToPoint(getNearestExit());
 
 		// effectively wound soldier until after battle
@@ -487,34 +561,16 @@ public class Unit extends Group {
 		if (facing == null) return false; // facing off stage
 		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
 
+		// check if object in front is too heigh
 		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Projectile.INITIAL_HEIGHT+this.getFloorHeight())) {
-			//			System.out.println("should move");
+//			System.out.println("should move");
 			this.startMove(getRandomDirection());
 			return true;
 		}
 
-
-		if (!inCover) {
-			// check to see if should move to cover
-			Point closest = null;
-			float closestDistance = Float.MAX_VALUE;
-
-			for (Point p : stage.battlemap.cover) {
-				if (p.orientation == this.orientation && nearestEnemy.distanceTo(p) < rangedWeapon.range && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
-					if (Math.abs(this.pos_x - p.pos_x) < NEAR_COVER_DISTANCE && Math.abs(this.pos_y - p.pos_y) < NEAR_COVER_DISTANCE) {
-						float dist = (float) distanceTo(p);
-						if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
-							closest = p;
-							closestDistance = dist;
-						}
-					}
-				}
-			}
-
-			if (closest != null) {
-				cover = closest;
-				moveToPoint(closest);
-				return true;
+		if (!inCover() && nearestEnemy != null) {
+			if (this.nearestCover != null) {
+				moveToPoint(nearestCover);
 			}
 		}
 		return false;
@@ -555,6 +611,26 @@ public class Unit extends Group {
 		Unit nearest = this.getNearestEnemy();
 		if (nearest == null) return;
 		this.faceAlt(nearest);
+	}
+	
+	private Point getNearestCover() {
+		// check to see if should move to cover
+		Point closest = null;
+		float closestDistance = Float.MAX_VALUE;
+		
+		for (Point p : stage.battlemap.cover) { // && nearestEnemy.distanceTo(p) < rangedWeapon.range  ?
+			if (p.orientation == this.orientation && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
+				if (Math.abs(this.pos_x - p.pos_x) < NEAR_COVER_DISTANCE && Math.abs(this.pos_y - p.pos_y) < NEAR_COVER_DISTANCE) {
+					float dist = (float) distanceTo(p);
+					if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
+						closest = p;
+						closestDistance = dist;
+					}
+				}
+			}
+		}
+
+		return closest;
 	}
 
 	private Unit getNearestEnemy() {
@@ -615,10 +691,10 @@ public class Unit extends Group {
 			}
 		}
 
-		
+
 		// IF false then prioritize closest
 		boolean PRIORITIZE_ARCHERS = this.onWall();
-		
+
 		if (PRIORITIZE_ARCHERS || closestDistance < closestNormalDistance){
 			if (closest != null) {
 				nearestEnemy = closest;
@@ -690,19 +766,79 @@ public class Unit extends Group {
 
 		double closestDistance = 999999;
 		// get closest ladder
-		for (int i = 0; i < stage.size_y; i++) {
-			for (int j = 0; j < stage.size_x; j++) {
-				if (stage.ladderAt(j, i)) {
-					Point ladderPoint = new Point(j, i);
-					double dist = this.distanceTo(ladderPoint);
-					if (dist < closestDistance) {
-						closest = ladderPoint;
-						closestDistance = dist;
-					}
-				}
+		for (Ladder l : stage.battlemap.ladders) {
+			Point ladderPoint = new Point(l.pos_x, l.pos_y);
+			double dist = this.distanceTo(ladderPoint);
+			if (dist < closestDistance) {
+				closest = ladderPoint;
+				closestDistance = dist;
 			}
 		}
 		return closest;
+	}
+
+//	public Point getNearestSiegePoint() {
+//		if (stage.siegeUnitsArray.size == 0) return null;
+//
+//		Point closest = null;
+//
+//		double closestDistance = 99999;
+//		
+//		for (SiegeUnit s : stage.siegeUnitsArray) {
+//			if (s)
+//			Point point = s.getOperatorPoint();
+//			if (point == null) continue;
+//			
+//			double dist = this.distanceTo(point);
+//			if (dist < closestDistance) {
+//				closest = point;
+//				closestDistance = dist;
+//			}
+//		}
+//		
+////		if (closest == null) System.out.println("null closest");
+////		else System.out.println("closest not null");
+//		
+//		return closest;
+//	}
+	
+	// get closest siege unit that doesn't have enough men
+//	public SiegeUnit getNearestUnmannedSiegeUnit() {
+//		if (stage.siegeUnitsArray.size == 0) return null;
+//
+//		SiegeUnit closest = null;
+//
+//		double closestDistance = 999999;
+//		
+//		for (SiegeUnit s : stage.siegeUnitsArray) {
+//			if (s.hasMen()) continue;
+//			Point point = s.getOperatorPoint();
+//			if (point == null) continue;
+//			
+//			double dist = this.distanceTo(point);
+//			if (dist < closestDistance) {
+//				closest = s;
+//				closestDistance = dist;
+//			}
+//		}
+//		
+//		return closest;
+//	}
+	
+	public void man(SiegeUnit siegeUnit) {
+		if (siegeUnit.hasMen()) return;
+
+		siegeUnit.units.add(this);
+		this.siegeUnit = siegeUnit;
+	}
+	
+	public void unman() {
+		if (siegeUnit == null) {
+			return;
+		}
+		
+		siegeUnit.units.removeValue(this, true);
+		this.siegeUnit = null;
 	}
 
 	public boolean onWall() {
@@ -912,10 +1048,12 @@ public class Unit extends Group {
 		return true;
 	}
 
-	 boolean canMove(int pos_x, int pos_y) {
+	boolean canMove(int pos_x, int pos_y) {
 		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_y) return false;
 		if (stage.closed[pos_y][pos_x]) return false;
 		if (Math.abs(this.getFloorHeight() - stage.heights[pos_y][pos_x]) > Unit.CLIMB_HEIGHT && (!stage.ladderAt(pos_x, pos_y) || this.isMounted())) return false;
+		if (stage.ladderAt(pos_x, pos_y) && this.isMounted()) return false;
+		if (stage.siegeUnits[pos_y][pos_x] != null) return false;
 		return true;
 	}
 
@@ -989,13 +1127,15 @@ public class Unit extends Group {
 
 	// call this when a soldier dies from wounds
 	public void kill() {
+		this.unman();;
+
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
 		if (this.team == 0) stage.allies.removeValue(this, true);
 		if (this.team == 1) stage.enemies.removeValue(this, true);
 		this.removeActor(weaponDraw);
-		
+
 		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 
 		//		System.out.println("DESTROYED");

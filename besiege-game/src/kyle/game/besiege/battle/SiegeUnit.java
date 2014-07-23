@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.utils.Array;
 
 public class SiegeUnit extends Group {
 	final int FRAME_COLS = 2;
@@ -18,12 +19,16 @@ public class SiegeUnit extends Group {
 	
 	final int DEATH_TIME = 60;
 
-	final int size_x = 2; // 2x2 for realism?
-	final int size_y = 2;
+	final int size_x = 3; // 2x2 for realism?
+	final int size_y = 3;
 
 	final float SPEED_FACTOR = 1f;
+	final int OPERATORS_NEEDED = 2;
 
 	BattleStage stage;
+	
+	Array<Unit> units; // units who SHOULD be manning this engine
+//	boolean isManned = false; // is this currently being manned
 
 	int prev_x;
 	int prev_y;
@@ -31,6 +36,8 @@ public class SiegeUnit extends Group {
 	int pos_x; // bottom left corner of catapult
 	int pos_y; // bottom left corner
 
+//	int currentTeam;
+	
 	float currentSpeed;
 	float rotation;
 
@@ -60,22 +67,24 @@ public class SiegeUnit extends Group {
 	Point nearestTarget;
 
 
-	private enum SiegeType {
-		CATAPULT(5f, 50, 10, 15, "object/catapult.png", "object/catapult_firing.png", "Catapult");
+	public enum SiegeType {
+		CATAPULT(20f, 50, 10, 15, 6, "catapult.png", "catapult_firing.png", "Catapult");
 
 		float projectileSpeed;
 		int range; 
 		int damage;
 		int rate;
+		int accuracy;
 		String moveFile;
 		String firingFile;
 		String name;
 
-		private SiegeType(float projectileSpeed, int range, int damage, int rate, String moveFile, String firingFile, String name) {
+		private SiegeType(float projectileSpeed, int range, int damage, int rate, int accuracy, String moveFile, String firingFile, String name) {
 			this.projectileSpeed = projectileSpeed;
 			this.range = range;
 			this.damage = damage;
 			this.rate = rate;
+			this.accuracy = accuracy;
 			this.moveFile = moveFile;
 			this.firingFile = firingFile;
 			this.name = name;
@@ -89,8 +98,8 @@ public class SiegeUnit extends Group {
 		this.setX(pos_x);
 		this.setY(pos_y);
 
-		this.setWidth(stage.scale*stage.unit_width);
-		this.setHeight(stage.scale*stage.unit_height);
+		this.setWidth(stage.scale*stage.unit_width*size_x);
+		this.setHeight(stage.scale*stage.unit_height*size_y);
 		//		this.setWidth(texture.getRegionWidth());
 		//		this.setHeight(texture.getRegionHeight());
 
@@ -104,6 +113,8 @@ public class SiegeUnit extends Group {
 		this.prev_y = pos_y;
 
 		this.type = type;
+		
+		this.units = new Array<Unit>();
 
 		// TODO check if position already occupied before creating
 		this.updateArray();
@@ -117,18 +128,20 @@ public class SiegeUnit extends Group {
 		animationWalk = createAnimation(type.moveFile, 1, .25f);
 		//		animationDie = createAnimation(type., 4, .25f);
 		//		animationDie.setPlayMode(Animation.NORMAL);
-		animationFiring = createAnimation(type.firingFile, 4, type.rate/4f);
+		animationFiring = createAnimation(type.firingFile, 4, 1f);
 		animationFiring.setPlayMode(Animation.NORMAL);
 
 		firingStateTime = 0f;
 		stateTime = 0f;
 
 		reloading = type.rate/2; // initial reload time
+		
+		
 	}
 
 	// create animation with speed .25f assuming one row, loops by default
 	private Animation createAnimation(String filename, int columns, float time) {
-		Texture walkSheet = new Texture(Gdx.files.internal("units/"+filename)); 
+		Texture walkSheet = new Texture(Gdx.files.internal("objects/"+filename)); 
 		TextureRegion[][] textureArray = TextureRegion.split(walkSheet, walkSheet.getWidth()/columns, walkSheet.getHeight()/1);
 		Animation animation = new Animation(time, textureArray[0]);
 		animation.setPlayMode(Animation.LOOP);
@@ -162,15 +175,27 @@ public class SiegeUnit extends Group {
 			}
 		}
 		else {
+			if (this.isManned()) {
+				if (this.reloading > 0) {
+					if (nearestTarget != null) face(nearestTarget);
+					reloading -= delta;
+					if (reloading < 0f)
+						firingStateTime = 0;
+				}
+				else {
+					nearestTarget = getNearestTarget(this.getCurrentRange());
 
-			// if ranged, fire weapon
-			nearestTarget = getNearestTarget();
-
-			if (nearestTarget != null) {
-				if (this.distanceTo(nearestTarget) < this.getCurrentRange()) {
-					fireAtEnemy();
+					if (nearestTarget != null) {
+						if (this.distanceTo(nearestTarget) < this.getCurrentRange()) {
+							fireAtEnemy();
+						}
+					}
+					else {
+						moveToTarget();
+					}
 				}
 			}
+//			else System.out.println("Unmanned");
 		}
 	}
 
@@ -187,6 +212,135 @@ public class SiegeUnit extends Group {
 				stage.siegeUnits[pos_y+j][pos_x+i] = this;				
 			}
 		}
+	}
+	
+	// return the closer point to unit that's calling
+	public Point getOperatorPoint(Unit calling) {
+		if (isManned()) return null;
+		
+		int back_left_x, back_left_y, back_right_x, back_right_y; 
+		
+		if (orientation == Orientation.UP) {
+			back_left_x = pos_x - 1;
+			back_left_y = pos_y;
+			
+			back_right_x = pos_x + size_x;
+			back_right_y = pos_y;
+		}
+		else if (orientation == Orientation.DOWN) {
+			back_right_x = pos_x -1;
+			back_right_y = pos_y + size_y - 1;
+
+			back_left_x = pos_x + size_x;
+			back_left_y = pos_y + size_y - 1;
+		}
+		else if (orientation == Orientation.LEFT) {
+			back_left_x = pos_x + size_x - 1;
+			back_left_y = pos_y - 1;
+
+			back_right_x = pos_x + size_x - 1;
+			back_right_y = pos_y + size_y;
+		}
+		else {
+			back_left_x = pos_x;
+			back_left_y = pos_y + size_y;
+
+			back_right_x = pos_x;
+			back_right_y = pos_y - 1;
+		}
+		
+		boolean right_needed = true;
+		boolean left_needed = true;
+		
+		for (Unit unit : units) {
+			if (unit.pos_x == back_left_x && unit.pos_y == back_left_y) {
+				left_needed = false;
+			} else if (unit.pos_x == back_right_x && unit.pos_y == back_right_y) {
+				right_needed = false;
+			} else {
+//				System.out.println("unit not manning!");
+			}
+		}
+		// return the closer of the two if both vacant
+		if (right_needed && left_needed) {
+			Point right = new Point(back_right_x, back_right_y);
+			Point left = new Point(back_left_x, back_left_y);
+			double right_dist = calling.distanceTo(right);
+			double left_dist = calling.distanceTo(left);
+			if (right_dist > left_dist) return left;
+			else return right;
+		}
+		else if (right_needed) return new Point(back_right_x, back_right_y);
+		else if (left_needed) return new Point(back_left_x, back_left_y);
+		else return null;		
+	}
+	
+	public boolean adjacent(Unit unit) {
+		int back_left_x, back_left_y, back_right_x, back_right_y; 
+		
+		if (orientation == Orientation.UP) {
+			back_left_x = pos_x - 1;
+			back_left_y = pos_y;
+			
+			back_right_x = pos_x + size_x;
+			back_right_y = pos_y;
+		}
+		else if (orientation == Orientation.DOWN) {
+			back_right_x = pos_x -1;
+			back_right_y = pos_y + size_y - 1;
+
+			back_left_x = pos_x + size_x;
+			back_left_y = pos_y + size_y - 1;
+		}
+		else if (orientation == Orientation.LEFT) {
+			back_left_x = pos_x + size_x - 1;
+			back_left_y = pos_y - 1;
+
+			back_right_x = pos_x + size_x - 1;
+			back_right_y = pos_y + size_y;
+		}
+		else {
+			back_left_x = pos_x;
+			back_left_y = pos_y + size_y;
+
+			back_right_x = pos_x;
+			back_right_y = pos_y - 1;
+		}
+		if ((unit.pos_x == back_left_x && unit.pos_y == back_left_y) || (unit.pos_x == back_right_x && unit.pos_y == back_right_y))
+			return true;
+		return false;
+	}
+	
+	public int currentTeam() {
+		if (this.units.size > 0)
+			return units.first().team;
+		else return -1;
+	}
+	
+	// return 0 if enemy, 1 if player ,and -1 if neither
+	public int enemyTeam() {
+		if (this.units.size > 0) {
+			if (units.first().team == 0) return 1;
+			else return 0;
+		}
+		else return -1;
+	}
+	
+	// currently has men operating it
+	public boolean isManned() {
+		if (!hasMen()) return false;
+		
+		for (Unit unit: units) {
+			if (!this.adjacent(unit)) return false;
+		}
+		
+		return true;
+	}
+	
+	// are there units assigned to this guy
+	public boolean hasMen() {
+		if (this.units.size == this.OPERATORS_NEEDED) return true;
+		else return false;
 	}
 
 	public float getSpeed() {
@@ -252,7 +406,7 @@ public class SiegeUnit extends Group {
 			}
 		}
 	}
-
+	
 	public int calcHP() {
 		return this.hp;
 	}
@@ -285,10 +439,10 @@ public class SiegeUnit extends Group {
 	}
 
 	private void fireAtEnemy() {
-		//		this.quiver -= 1;
-
+//		//		this.quiver -= 1;
+//
 		this.reloading = type.rate;
-		Point target = getNearestTarget();
+		Point target = getNearestTarget(this.type.range);
 		face(target);
 		Projectile projectile = new Projectile(this, target);
 
@@ -296,7 +450,8 @@ public class SiegeUnit extends Group {
 	}
 
 	// returns nearest enemy that's a certain distance away
-	private Point getNearestTarget() {
+	// get nearest wall to start off
+	private Point getNearestTarget(float distance) {
 		Unit closest = null;
 		Unit closestRetreating = null;
 		Unit closestNormal = null; // prioritize archers
@@ -305,12 +460,18 @@ public class SiegeUnit extends Group {
 		double closestNormalDistance = 		9999999;
 		double closestRetreatingDistance = 	9999999;
 
-		double MIN_DIST = 0f; // arbitrary
+		double MIN_DIST = 10f; // arbitrary
 
-		for (Unit that : enemyArray) {
-			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
+		
+		Array<Unit> enemy;
+		if (this.currentTeam() == 0) enemy = stage.enemies;
+		else enemy = stage.allies;
+		
+		
+		// check for nearby units
+		for (Unit that : enemy) {
 			double dist = this.distanceTo(that);
-			if (dist > MIN_DIST && dist < this.getCurrentRange()) {
+			if (dist > MIN_DIST && dist < distance) {
 				if (!that.retreating && that.bowOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
@@ -326,37 +487,32 @@ public class SiegeUnit extends Group {
 			}
 		}
 
-
 		// IF false then prioritize closest
-		boolean PRIORITIZE_ARCHERS = this.onWall();
+		boolean PRIORITIZE_ARCHERS = false;
 
 		if (PRIORITIZE_ARCHERS || closestDistance < closestNormalDistance){
 			if (closest != null) {
-				nearestEnemy = closest;
-				return closest;
+				return new Point(closest);
 			}
 			else if (closestNormal != null) {
-				nearestEnemy = closestNormal;
-				return closestNormal;
+				return new Point(closestNormal);
 			}
-			else {
-				nearestEnemy = closestRetreating;
-				return closestRetreating;
+			else if (closestRetreating != null) {
+				return new Point(closestRetreating);
 			}
+			else return null;
 		}
 		else {
 			if (closestNormal != null) {
-				nearestEnemy = closestNormal;
-				return closestNormal;
+				return new Point(closestNormal);
 			}
 			if (closest != null) {
-				nearestEnemy = closest;
-				return closest;
+				return new Point(closest);
 			}
-			else {
-				nearestEnemy = closestRetreating;
-				return closestRetreating;
+			else if (closestRetreating != null){
+				return new Point(closestRetreating);
 			}
+			else return null;
 		}
 	}
 
@@ -395,7 +551,32 @@ public class SiegeUnit extends Group {
 //			stage.removeSiegeUnit(this);
 //		}
 //	}
+	
+	
+	private void moveToTarget() {
+		Point target = getNearestTarget(Float.MAX_VALUE);
+		this.face(target);
+		
+		Orientation original = this.orientation;
 
+		if (!this.moveForward()) {
+
+			// move in a different direction
+			faceAlt(target);
+			if (!this.moveForward()) {
+
+//				// try the last two directions as a last resort
+//				this.orientation = getOppositeOrientation(this.orientation);
+//				if (!this.moveForward()) {
+//					this.orientation = getOppositeOrientation(original);
+//					if (!this.moveForward()) {
+//						// this actually seems to work!
+//						//System.out.println("stuck!");
+//					}
+//				}
+			}
+		}
+	}
 
 	public static Orientation getRandomDirection() {
 		double random = Math.random();

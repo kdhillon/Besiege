@@ -12,26 +12,40 @@ public class Projectile extends Actor {
 	public BattleStage stage;	
 	private TextureRegion texture;
 	private TextureRegion halfArrow;
-	private final float SCALE = 3;
 	//	private final float THRESHOLD = .5f;
 	//	private final float UNIT_HEIGHT = .1f;
 	private final float GRAVITY = -1;
 	
-	private final float SCALE_X = .3f;
+	private final static boolean FRIENDLY_FIRE = false; // if true, arrows can hurt own team. note that siege hurts own team by default
+	
+	private float SCALE = 3;
+	private float SCALE_SIEGE = 4;
+	private final float ARROW_SCALE_X = .3f;
+	
+	private final float SPIN = 5;
+	
 	private final float MAX_DRAW_HEIGHT = 3;
+	private final float BASE_SCALE = 1.5f;
+	private final float HEIGHT_SCALE_FACTOR = .5f;
 
 	private final float ACCURACY_FACTOR = .06f;
 	private final float DISTANCE_EXP_FACTOR = .1f;
 	private final float UNIT_COVER_DIST_CHANGE = .5f; // amount to multiply damage by to add to the near cover dist of a unit hit
 
-	public static final float INITIAL_HEIGHT = .25f;
-	private final float DAMAGE_FACTOR = 10f;
+	public static final float INITIAL_HEIGHT = .075f;
+	private static final float SIEGE_INITIAL_HEIGHT = .25f;
+	private static final float SIEGE_TARGET_HEIGHT = 1.1f;
+	private static final float SPEED_SCALE_SIEGE = .4f; // how much does speed decrease when unit is hit.
+	
+	
+	private final float DAMAGE_FACTOR = 5f;
 	private final float STUCK_Y = -4f;
 
 	private boolean broken;
 	private boolean stopped;
 	private Unit stuck;
 	private Unit firing;
+	private SiegeUnit siegeFiring;
 
 	private float temp_offset_x;
 	private float temp_offset_y;
@@ -41,7 +55,7 @@ public class Projectile extends Actor {
 	public float distanceToTravel;
 
 	public float speed = 25f;
-//		public float speed = 1f; // this is hilarious
+	//		public float speed = 1f; // this is hilarious
 
 	public Vector2 velocity;
 	public float rotation;
@@ -66,44 +80,25 @@ public class Projectile extends Actor {
 		texture = new TextureRegion(new Texture("objects/arrow.png"));
 		halfArrow = new TextureRegion(new Texture("objects/half_arrow.png"));
 		this.firing = firing;
-		this.orientation = firing.orientation;
-		this.stage = firing.stage;
 
-		this.time_since_shot = 0;
-
-		// spawn in middle of square
-		this.pos_x = firing.pos_x + .5f;
-		this.pos_y = firing.pos_y + .5f;
-
-		setX(firing.getCenterX());
-		setY(firing.getCenterY());
-
-		this.setWidth(texture.getRegionWidth()*SCALE);
-		this.setHeight(texture.getRegionHeight()*SCALE);
-
-		this.setOriginX(this.getWidth()/2);
-		this.setOriginY(this.getHeight()/2);
-
+		initializePosition();
 
 		// calculate damage
 		this.damage = firing.rangedWeapon.atkMod;
-
-		// modified to make arrows stronger
 		this.damage *= DAMAGE_FACTOR;
 
 		// calculate destination (based on accuracy) 
 		dest_x = target.pos_x + .5f;
 		dest_y = target.pos_y + .5f;
 
-
 		distanceToTravel = (float) firing.distanceTo(target);
 		float time_to_collision = distanceToTravel/speed;
-		
+
 		boolean shouldLead = true;
 		// lead the enemy unit a bit based on distance?
 		if (target.moveSmooth && shouldLead) {
 			float leadBy = target.getSpeed() * time_to_collision;
-		
+
 			//	System.out.println(leadBy);
 			if (target.orientation == Orientation.DOWN)
 				dest_y -= leadBy;
@@ -116,11 +111,84 @@ public class Projectile extends Actor {
 		}
 		
 		int accuracy_factor = firing.rangedWeapon.accuracy;
-		if (firing.onWall()) accuracy_factor += 1;
-//		if (stage.isRaining) accuracy_factor -= 1;
+		float initialHeight = firing.getFloorHeight() + INITIAL_HEIGHT;
+		float targetHeight = target.getZHeight() - Unit.UNIT_HEIGHT_GROUND*.1f;
+		//		if (stage.isRaining) accuracy_factor -= 1;
+
+		accuracy_factor = 10 - accuracy_factor;
 		
+		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
+	}
+
+	// create new siege projectile with target
+	public Projectile(SiegeUnit siegeFiring, Point target) {
+		texture = new TextureRegion(new Texture("objects/rock.png"));
+		halfArrow = new TextureRegion(new Texture("objects/half_rock.png"));
+		
+		SCALE = SCALE_SIEGE;
+		
+		this.speed = siegeFiring.type.projectileSpeed;
+		
+		this.siegeFiring = siegeFiring;
+
+		initializePosition();
+
+		// calculate damage
+		this.damage = siegeFiring.type.damage;
+		this.damage *= DAMAGE_FACTOR;
+
+		// calculate destination (based on accuracy) 
+		dest_x = target.pos_x + .5f;
+		dest_y = target.pos_y + .5f;
+
+		distanceToTravel = (float) siegeFiring.distanceTo(target);
+		float time_to_collision = distanceToTravel/speed;
+
+		int accuracy_factor = siegeFiring.type.accuracy;
+		//		if (stage.isRaining) accuracy_factor -= 1;
+
 		accuracy_factor = 10 - accuracy_factor;
 
+		float initialHeight = SIEGE_INITIAL_HEIGHT;
+		float targetHeight = SIEGE_TARGET_HEIGHT;
+
+		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
+	}
+
+	private void initializePosition() {
+		boolean siege = this.siegeFiring != null;
+		if (!siege) {
+			this.orientation = firing.orientation;
+			this.stage = firing.stage;
+
+			// spawn in middle of square
+			this.pos_x = firing.pos_x + .5f;
+			this.pos_y = firing.pos_y + .5f;
+
+			setX(firing.getCenterX());
+			setY(firing.getCenterY());
+		}
+		else {
+			this.orientation = siegeFiring.orientation;
+			this.stage = siegeFiring.stage;
+
+			this.pos_x = siegeFiring.pos_x + siegeFiring.size_x/2;
+			this.pos_y = siegeFiring.pos_y + siegeFiring.size_y/2;
+
+			setX(siegeFiring.getCenterX());
+			setY(siegeFiring.getCenterY());
+		}		
+		
+		this.time_since_shot = 0;
+
+		this.setWidth(texture.getRegionWidth()*SCALE);
+		this.setHeight(texture.getRegionHeight()*SCALE);
+
+		this.setOriginX(this.getWidth()/2);
+		this.setOriginY(this.getHeight()/2);
+	}
+
+	private void initializeMovement(float accuracy_factor, float time_to_collision, float initialHeight, float targetHeight) {
 		// add a bit of randomness based on accuracy
 		float random_x = (float) ((accuracy_factor) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;
 		float random_y = (float) ((accuracy_factor) * (Math.random()-.5) * (10 + distanceToTravel)) * ACCURACY_FACTOR;	
@@ -136,15 +204,12 @@ public class Projectile extends Actor {
 		velocity.scl(speed); //(Math.random()-.5)*speed/2));
 
 		// goal is to find vertical velocity needed to get to goal
-		// object must hit ground after the amount of time (d = 0)
+		// object must be at target height after the amount of time (d = 0)
 
 		// using d = vi*t + 1/2 * a*t^2
-
-		float initialHeight = INITIAL_HEIGHT + firing.getFloorHeight();
-
 		float accel_distance = 1.0f/2.0f*GRAVITY*time_to_collision*time_to_collision;
 		// aim for halfway up the unit's body
-		vz = ((-initialHeight+(target.getZHeight()-Unit.UNIT_HEIGHT_GROUND*.1f)) - accel_distance)/time_to_collision;
+		vz = ((-initialHeight+(targetHeight)) - accel_distance)/time_to_collision;
 
 		// add a bit so it goes a bit further
 		//vz += .02f; // .02
@@ -159,14 +224,14 @@ public class Projectile extends Actor {
 	@Override
 	public void act(float delta) {
 		if (this.stopped) return;
-		
+
 		time_since_shot += delta;
 		// update height based on time
 		vz += GRAVITY*delta;
-		
-//		System.out.println(vz);
+
+		//		System.out.println(vz);
 		height += vz*delta;
-//		System.out.println(height);
+		//		System.out.println(height);
 
 		// move towards target;
 
@@ -184,15 +249,14 @@ public class Projectile extends Actor {
 		Unit collided = null; 
 		if (inMap()) {
 			collided = stage.units[pos_y_int][pos_x_int];
-			if (collided != null && collided.team != firing.team && this.height < collided.getZHeight() && this.height > collided.getZHeight() - Unit.UNIT_HEIGHT_GROUND)
+			if (collided != null && this.height < collided.getZHeight() && this.height > collided.getZHeight() - Unit.UNIT_HEIGHT_GROUND)
 				collision(stage.units[pos_y_int][pos_x_int]);
 		}
-		
-		// if standing above 0, don't intersect with anything at that height... dicey but works, kind of OP can fix later TODO
-		if (inMap() && (stage.heights[pos_y_int][pos_x_int] != firing.getFloorHeight() || firing.getFloorHeight() == 0f) && 
+
+		if (inMap() && (wallHeightCheck()) && 
 				(height < stage.heights[pos_y_int][pos_x_int]
-				|| (stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
-				height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]))) {
+						|| (stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
+						height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]))) {
 			this.stopped = true;
 
 			// move forward a bit if stuck in an object
@@ -202,26 +266,49 @@ public class Projectile extends Actor {
 			if (Math.random() < .8) this.broken = true;
 		}
 	}
+	
+	// if standing above 0, don't intersect with anything at that height... dicey but works, kind of OP can fix later TODO
+	private boolean wallHeightCheck() {
+		if (firing == null) return true;
+		return stage.heights[pos_y_int][pos_x_int] != firing.getFloorHeight() || firing.getFloorHeight() == 0f;
+	}
 
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {	
 		if (!this.inMap()) return;
-		//if (!this.stopped) this.toFront();
+		if (!this.stopped && this.stuck == null) this.toFront();
 
 		this.setX(stage.scale * pos_x * stage.unit_width);
 		this.setY(stage.scale * pos_y * stage.unit_height);
 
 		float stoppedScale = .8f;
 		if (stopped || stuck != null) stoppedScale = .4f;
-		
-		float drawHeight = Math.min(height, MAX_DRAW_HEIGHT);
-	
-		if (height < 0) drawHeight = 0;
-		this.setScaleX((1+drawHeight*stage.scale) * SCALE_X);
-		this.setScaleY(1+drawHeight*stage.scale * stoppedScale);
 
+		float drawHeight = Math.min(height, MAX_DRAW_HEIGHT);
+
+		if (height < 0) drawHeight = 0;
 		
+		
+		float scaleX = (BASE_SCALE+drawHeight*stage.scale*HEIGHT_SCALE_FACTOR);
+		float scaleY = (BASE_SCALE+drawHeight*stage.scale*HEIGHT_SCALE_FACTOR);
+		
+		if (this.isArrow()) {
+			scaleX *= ARROW_SCALE_X;
+			scaleY *= stoppedScale;
+		} else {
+//			scaleX*= stoppedScale;
+//			scaleY*= stoppedScale;
+			if (!stopped) {
+				setRotation(getRotation() + SPIN);
+			}
+		}
+		
+	
+		this.setScaleX(scaleX);
+		this.setScaleY(scaleY);
+
+
 		//change scale based on how high arrow is! TODO
 		//		System.out.println("height: " + this.height);
 
@@ -231,7 +318,7 @@ public class Projectile extends Actor {
 			batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
 		}
 		else if (!stuck.isDying || stuck.timeSinceDeath > .75f){
-//			setScaleY(getScaleY()*1f);
+			//			setScaleY(getScaleY()*1f);
 			setX(stuck.getOriginX() + temp_offset_x);
 			setY(stuck.getOriginY() + temp_offset_y);
 			this.setRotation(-rotation_offset);
@@ -241,44 +328,63 @@ public class Projectile extends Actor {
 	}
 
 	public void collision(Unit that) {
+		
+		if (this.isArrow()) {
+			if (!FRIENDLY_FIRE && that.team == firing.team) {
+				this.destroy();
+				return;
+			}
+		}
+		
+		if (this.isArrow()) {
 		// test killing horses
-		if (that.shieldUp() && that.getOppositeOrientation() == this.orientation) {
-			that.shield_hp -= damage;
-			if (that.shield_hp <= 0) that.destroyShield();
-			this.destroy();
+			if (that.shieldUp() && that.getOppositeOrientation() == this.orientation) {
+				that.shield_hp -= damage;
+				if (that.shield_hp <= 0) that.destroyShield();
+				this.destroy();
+			}
+			else {
+				that.hurt(Math.max(0, damage - that.def*Math.random()), firing);
+
+				// get a bit of EXP for hitting someone based on distance
+				firing.soldier.addExp((int) (distanceToTravel * DISTANCE_EXP_FACTOR));
+
+				// get more exp for killing someone based on their level
+				if (that.isDying) {
+					firing.soldier.addExp(that.soldier.getExpForKill());
+				}
+
+				that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
+
+				this.stopped = true;
+				this.stuck = that;
+
+				this.temp_offset_x = (float) Math.random() - .5f;
+				this.temp_offset_y = (float) Math.random() - .5f;
+				//		
+				this.temp_offset_x *= 5;
+				this.temp_offset_y *= 5;
+
+				this.temp_offset_y += STUCK_Y * stage.scale;
+
+				this.rotation_offset = that.getRotation() - this.getRotation();
+				this.remove();
+				that.addActor(this);
+			}
 		}
 		else {
-			that.hurt(Math.max(0, damage - that.def*Math.random()), firing);
-
-			// get a bit of EXP for hitting someone based on distance
-			firing.soldier.addExp((int) (distanceToTravel * DISTANCE_EXP_FACTOR));
-
-			// get more exp for killing someone based on their level
-			if (that.isDying) {
-				firing.soldier.addExp(that.soldier.getExpForKill());
-			}
-
-			that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
-
-			this.stopped = true;
-			this.stuck = that;
-
-			this.temp_offset_x = (float) Math.random() - .5f;
-			this.temp_offset_y = (float) Math.random() - .5f;
-			//		
-			this.temp_offset_x *= 5;
-			this.temp_offset_y *= 5;
-
-			this.temp_offset_y += STUCK_Y * stage.scale;
-
-			this.rotation_offset = that.getRotation() - this.getRotation();
-			this.remove();
-			that.addActor(this);
+			// slow down but keep going
+			this.velocity.scl(SPEED_SCALE_SIEGE);
+			that.hurt(Math.max(0, damage - that.def*Math.random()), null);
 		}
 	}
 
 	public void destroy() {
 		stage.removeActor(this);
+	}
+
+	public boolean isArrow() {
+		return this.firing != null;
 	}
 
 	private boolean inMap() {

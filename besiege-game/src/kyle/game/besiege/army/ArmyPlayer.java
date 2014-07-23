@@ -53,6 +53,7 @@ public class ArmyPlayer extends Army {
 		
 		// debugging
 		sr = new ShapeRenderer();
+		this.calcMaxPartySize();
 	}
 
 	@Override
@@ -304,5 +305,10 @@ public class ArmyPlayer extends Army {
 	}
 	public Character getCharacter() {
 		return character;
+	}
+	
+	public void calcMaxPartySize() {
+//		getParty().maxSize = (int) (character.famereknown * REKNOWN_PC_FACTOR + BASE_PC);
+		getParty().maxSize = 10000;
 	}
 }

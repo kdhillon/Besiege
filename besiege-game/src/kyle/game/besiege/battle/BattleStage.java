@@ -13,6 +13,7 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.Point;
 import kyle.game.besiege.army.Army;
+import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.Party;
@@ -37,10 +38,11 @@ public class BattleStage extends Group {
 
 	private final float MOUSE_DISTANCE = 15; // distance destination must be
 												// from mouse to register
-
 	public Array<Unit> allies;
 	public Array<Unit> enemies;
 
+	public Array<SiegeUnit> siegeUnitsArray;
+	
 	Party player;
 	Party enemy;
 
@@ -63,6 +65,9 @@ public class BattleStage extends Group {
 	public BattleMap battlemap;
 	
 	public boolean playerDefending = false;
+	
+	public Stance playerStance;
+	public Stance enemyStance;
 
 	private boolean mouseOver; // is mouse over Battle screen?
 	private boolean paused;
@@ -82,7 +87,7 @@ public class BattleStage extends Group {
 	private Formation enemyFormationChoice;
 	
 	private enum Formation {
-		LINE, DEFENSIVE_LINE, WEDGE, VEE, FLANKING, SPREAD_LINE
+		LINE, DEFENSIVE_LINE, WEDGE, VEE, FLANKING, SPREAD_LINE, WALL_LINE
 	}
 
 	// take in battle object containing arrays of armies and stuff
@@ -100,7 +105,18 @@ public class BattleStage extends Group {
 		this.playerDefending = playerDefending;
 //		this.playerDefending = false;
 		
-		boolean forceSiege = false;
+		if (playerDefending) {
+			playerStance = Stance.DEFENSIVE;
+			enemyStance = Stance.AGGRESSIVE;
+		}
+		else {
+			playerStance = Stance.AGGRESSIVE;
+			enemyStance = Stance.DEFENSIVE;
+		}
+		
+//		boolean forceSiege = false;
+		boolean forceSiege = true;
+
 		if (siegeOf != null || forceSiege) {
 			siegeDefense = playerDefending;
 		}
@@ -110,7 +126,6 @@ public class BattleStage extends Group {
 
 		this.player.army.updatePolygon();
 		this.biome = this.player.army.containing.biome;
-		
 
 		// int size = Math.max(this.player.getHealthySize(),
 		// this.enemy.getHealthySize());
@@ -127,6 +142,7 @@ public class BattleStage extends Group {
 		closed = new boolean[size_y][size_x];
 		units = new Unit[size_y][size_x];
 		siegeUnits = new SiegeUnit[size_y][size_x];
+		siegeUnitsArray = new Array<SiegeUnit>();
 		retreated = new Array<Unit>();
 		slow = new double[size_y][size_x];
 		heights = new float[size_y][size_x];
@@ -155,7 +171,7 @@ public class BattleStage extends Group {
 			enemyFormationChoice = Formation.DEFENSIVE_LINE;
 			playerFormationChoice = Formation.FLANKING;
 		}
-		if (siegeDefense) playerFormationChoice = Formation.LINE;
+		if (siegeDefense) playerFormationChoice = Formation.WALL_LINE;
 
 		addUnits();
 	}
@@ -180,6 +196,9 @@ public class BattleStage extends Group {
 	public void addUnits() {
 		addParty(player);
 		addParty(enemy);
+		if (siegeDefense) {
+			addSiegeUnits(enemy);
+		}
 	}
 	
 	private void addParty(Party party) {
@@ -187,7 +206,15 @@ public class BattleStage extends Group {
 		if (party == player) choice = playerFormationChoice; 
 		else choice = enemyFormationChoice;
 		
-		boolean defending = playerDefending == (party == player);
+		int REINFORCEMENT_DIST = 5;
+		
+		Stance partyStance;
+		if (party == player) {
+			partyStance = playerStance;
+			REINFORCEMENT_DIST = -REINFORCEMENT_DIST;
+		}
+		else partyStance = enemyStance;
+		
 		
 		Array<Soldier> infantry = party.getHealthyInfantry();
 		Array<Soldier> cavalry = party.getHealthyCavalry();
@@ -218,12 +245,31 @@ public class BattleStage extends Group {
 					
 					if (canPlaceUnit(base_x + j, base_y + i)) {
 						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, party);
-						if (defending) unit.stance = Unit.Stance.DEFENSIVE;
+						unit.stance = partyStance;
+						if (party == player && siegeDefense) unit.dismount();
+						addUnit(unit);
+					}
+					else if (canPlaceUnit(base_x + j, base_y + i + REINFORCEMENT_DIST)) {
+						Unit unit = new Unit(this, base_x + j, base_y + i + REINFORCEMENT_DIST, team, toAdd, party);
+						unit.stance = partyStance;
 						if (party == player && siegeDefense) unit.dismount();
 						addUnit(unit);
 					}
 				}
 			}
+		}
+	}
+	
+	private void addSiegeUnits(Party party) {
+		if (party == player) {
+			// add one catapult
+			
+		}
+		else {
+			int x = size_x/2;
+			int y = size_y-20;
+			SiegeUnit catapult = new SiegeUnit(this, SiegeUnit.SiegeType.CATAPULT, x, y);
+			addSiegeUnit(catapult);
 		}
 	}
 	
@@ -244,6 +290,19 @@ public class BattleStage extends Group {
 			for (Unit unit : enemies) {
 				unit.retreating = true;
 			}
+		} 
+	}
+
+	public void chargeAll(boolean player) {
+		if (player) {
+			playerStance = Stance.AGGRESSIVE;
+			for (Unit unit : allies) 
+				unit.stance = Stance.AGGRESSIVE;
+		} 
+		else{
+			enemyStance = Stance.AGGRESSIVE;
+			for (Unit unit : enemies) 
+				unit.stance = Stance.AGGRESSIVE;
 		} 
 	}
 	
@@ -285,6 +344,34 @@ public class BattleStage extends Group {
 			}
 			for (int i = 0; i < cavalry_right; i++) {
 				formation[0][i + infantry_right + aCount + infantry_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
+			}
+		} 
+		// Wall line - put archers on outside, infantry and cavalry in middle
+		else if (formationChoice == Formation.WALL_LINE) {
+			int formation_width = iCount + aCount + cCount;
+			int formation_height = 1;
+			
+			formation = new Soldier.SoldierType[formation_height][formation_width];
+			
+			int archers_left = (int) (aCount/2.0);
+			int archers_right = aCount - archers_left;
+			int cavalry_right = (int) (cCount/2.0);
+			int cavalry_left = cCount - cavalry_right;
+			
+			for (int i = 0; i < archers_left; i++) {
+				formation[0][i] = Soldier.SoldierType.ARCHER;
+			}
+			for (int i = 0; i < cavalry_left; i++) {
+				formation[0][i + archers_left] = Soldier.SoldierType.CAVALRY;
+			}
+			for (int i = 0; i < iCount; i++) {
+				formation[0][i + archers_left + cavalry_left] = Soldier.SoldierType.INFANTRY;
+			}
+			for (int i = 0; i < cavalry_right; i++) {
+				formation[0][i + iCount + archers_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
+			}
+			for (int i = 0; i < archers_right; i++) {
+				formation[0][i + cavalry_left + iCount + archers_left + cavalry_left] = Soldier.SoldierType.ARCHER;
 			}
 		} 
 		// Spread Line:   C C C C I I I I A A A A A I I I I C C C C
@@ -643,6 +730,11 @@ public class BattleStage extends Group {
 		return battlemap.ladderAt(pos_x, pos_y);
 	}
 	
+//	public boolean siegeUnitAdjacent(int pos_x, int pos_y) {
+//
+//		if (siegeUnits[pos_y][pos_x] != null) return false;
+//	}
+	
 	public boolean wallAt(int pos_x, int pos_y) {
 		return heights[pos_y][pos_x] > 0;
 	}
@@ -684,6 +776,11 @@ public class BattleStage extends Group {
 		this.removeActor(remove);
 	}
 
+	public void addSiegeUnit(SiegeUnit unit) {
+		this.siegeUnitsArray.add(unit);
+		this.addActor(unit);
+	}
+	
 	public void setPaused(boolean paused) {
 		this.paused = paused;
 	}

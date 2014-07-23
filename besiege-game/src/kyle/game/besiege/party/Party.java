@@ -47,7 +47,7 @@ public class Party {
 		spdTotal = 0;
 		calcStats();		
 
-		maxSize = 100;
+		maxSize = 10000;
 		wealth = 0;
 
 		woundChance = BASE_CHANCE;

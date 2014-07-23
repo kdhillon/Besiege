@@ -1,6 +1,7 @@
 package kyle.game.besiege.battle;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.party.RangedWeapon;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -230,8 +231,10 @@ public class WeaponDraw extends Actor {
 		TextureRegion toDraw = weaponMelee;
 		if (unit.bowOut()) {
 			toDraw = weaponRanged;
-			offset_x_to_use = offset_x_ranged;
-			offset_y_to_use = offset_y_ranged;
+			if (unit.rangedWeapon != RangedWeapon.ADV_CROSSBOW  && unit.rangedWeapon != RangedWeapon.CROSSBOW) {
+				offset_x_to_use = offset_x_ranged;
+				offset_y_to_use = offset_y_ranged;
+			}
 			// don't draw if firing
 			if (!unit.moveSmooth) return;
 		}

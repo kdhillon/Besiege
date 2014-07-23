@@ -11,4 +11,8 @@ public class Point {
 		this.pos_x = pos_x;
 		this.pos_y = pos_y;
 	}
+	public Point(Unit u) {
+		this.pos_x = u.pos_x;
+		this.pos_y = u.pos_y;
+	}
 }
