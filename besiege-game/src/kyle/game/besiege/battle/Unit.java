@@ -40,6 +40,7 @@ public class Unit extends Group {
 
 	public BattleStage stage;	
 	public Unit attacking;
+	public SiegeUnit attackingSiege;
 
 	public Party party;
 	public Soldier soldier;
@@ -373,9 +374,6 @@ public class Unit extends Group {
 		else {
 			this.setScale(1+this.getFloorHeight()/5f);
 			super.draw(batch, parentAlpha);
-			//TESTING
-			//			if (stateTime > 5 && this.team == 1) retreating = true;
-
 
 			this.toFront();
 			Color c = new Color(batch.getColor());
@@ -489,7 +487,7 @@ public class Unit extends Group {
 		if (facing == null) return false; // facing off stage
 		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
 
-		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Arrow.INITIAL_HEIGHT+this.getFloorHeight())) {
+		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Projectile.INITIAL_HEIGHT+this.getFloorHeight())) {
 			//			System.out.println("should move");
 			this.startMove(getRandomDirection());
 			return true;
@@ -542,9 +540,9 @@ public class Unit extends Group {
 		this.reloading = rangedWeapon.rate;
 		Unit enemy = getNearestTarget();
 		face(enemy);
-		Arrow arrow = new Arrow(this, enemy);
+		Projectile projectile = new Projectile(this, enemy);
 
-		stage.addActor(arrow);
+		stage.addActor(projectile);
 	}
 
 	private void faceEnemy() {
@@ -915,7 +913,7 @@ public class Unit extends Group {
 	}
 
 	 boolean canMove(int pos_x, int pos_y) {
-		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_x) return false;
+		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_y) return false;
 		if (stage.closed[pos_y][pos_x]) return false;
 		if (Math.abs(this.getFloorHeight() - stage.heights[pos_y][pos_x]) > Unit.CLIMB_HEIGHT && (!stage.ladderAt(pos_x, pos_y) || this.isMounted())) return false;
 		return true;

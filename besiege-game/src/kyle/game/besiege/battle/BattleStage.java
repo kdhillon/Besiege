@@ -50,6 +50,7 @@ public class BattleStage extends Group {
 	public boolean closed[][]; // open or closed?
 	public double slow[][]; // 0 is normal speed, 1 is very slow.
 	public Unit[][] units; // units on map
+	public SiegeUnit[][] siegeUnits;
 	public Array<Unit> retreated; // units that have retreated
 	public float heights[][]; // ground floor levels
 
@@ -125,6 +126,7 @@ public class BattleStage extends Group {
 
 		closed = new boolean[size_y][size_x];
 		units = new Unit[size_y][size_x];
+		siegeUnits = new SiegeUnit[size_y][size_x];
 		retreated = new Array<Unit>();
 		slow = new double[size_y][size_x];
 		heights = new float[size_y][size_x];

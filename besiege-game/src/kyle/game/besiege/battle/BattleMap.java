@@ -94,7 +94,6 @@ public class BattleMap extends Actor {
 		lightsnow = new TextureRegion(new Texture(Gdx.files.internal("ground/lightsnow.png")));
 		lightsand = new TextureRegion(new Texture(Gdx.files.internal("ground/sandlight.png")));
 		
-		
 		tree = 		new TextureRegion(new Texture(Gdx.files.internal("objects/tree_3_3 alt.png")));
 		stump = 	new TextureRegion(new Texture(Gdx.files.internal("objects/stump.png")));
 		wallV = 	new TextureRegion(new Texture(Gdx.files.internal("objects/stone_fence_v.png")));

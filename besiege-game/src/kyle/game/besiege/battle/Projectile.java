@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-public class Arrow extends Actor {
+public class Projectile extends Actor {
 	public BattleStage stage;	
 	private TextureRegion texture;
 	private TextureRegion halfArrow;
@@ -62,7 +62,7 @@ public class Arrow extends Actor {
 	public float dest_y;
 
 	// create new arrow with target
-	public Arrow(Unit firing, Unit target) {
+	public Projectile(Unit firing, Unit target) {
 		texture = new TextureRegion(new Texture("objects/arrow.png"));
 		halfArrow = new TextureRegion(new Texture("objects/half_arrow.png"));
 		this.firing = firing;
