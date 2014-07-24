@@ -23,7 +23,7 @@ public class BattleMap extends Actor {
 	private static final int TREE_Y_OFFSET = 1;
 	private static final int TREE_WIDTH = 3;
 	private static final int TREE_HEIGHT = 3;
-	public static final float CASTLE_WALL_HEIGHT_DEFAULT = 1f;
+	public static final float CASTLE_WALL_HEIGHT_DEFAULT = .5f;
 
 	private enum MapType {
 		FOREST, BEACH, GRASSLAND, DESERT, ALPINE, MEADOW, CRAG, RIVER
@@ -43,7 +43,7 @@ public class BattleMap extends Actor {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.12f), CASTLE_WALL_FLOOR(0f);
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.07f), CASTLE_WALL_FLOOR(0f);
 		float height;
 		Orientation orientation; // for ladders
 		private Object(float height) {
@@ -57,8 +57,7 @@ public class BattleMap extends Actor {
 		Orientation orientation;
 	}
 	
-	
-	public Array<Point> cover; // points with protection
+	public Array<BPoint> cover; // points with protection
 	private GroundType[][] ground;
 	public Object[][] objects;
 
@@ -70,7 +69,7 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.BEACH;
+//		this.maptype = MapType.FOREST;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -78,7 +77,7 @@ public class BattleMap extends Actor {
 		ground = new GroundType[total_height][total_width];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
 		ladders = new Array<Ladder>();
-		cover = new Array<Point>();
+		cover = new Array<BPoint>();
 		
 		grass = 	new TextureRegion(new Texture(Gdx.files.internal("ground/grass.png"))); 
 		dirt =		new TextureRegion(new Texture(Gdx.files.internal("ground/dirt.png"))); 
@@ -227,7 +226,7 @@ public class BattleMap extends Actor {
 		}
 		
 		// remove cover on top of objects
-		for (Point p : cover) {
+		for (BPoint p : cover) {
 			if (objects[p.pos_y][p.pos_x] != null || stage.closed[p.pos_y][p.pos_x]) {
 //				System.out.println("removing value from cover");
 //				cover.removeValue(p, true);
@@ -278,18 +277,17 @@ public class BattleMap extends Actor {
 				stage.heights[y_position-1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 		}
 		for (int i = 0; i < stage.size_x; i++) {
-			if (i != stage.size_x/2 && i % 3 == 0) {
+			if (i != stage.size_x/2) {
 				if (addObject(i, y_position+1, Object.CASTLE_WALL)) {
 					stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 					stage.closed[y_position+1][i] = true;
-					
+					BPoint coverPoint = new BPoint(i, y_position);
+					coverPoint.orientation = Orientation.UP;
+					if (inMap(coverPoint)) cover.add(coverPoint);
 				}
 			} else {
 				if (addObject(i, y_position+1, Object.CASTLE_WALL_FLOOR)) {
 					stage.heights[y_position+1][i] = CASTLE_WALL_HEIGHT_DEFAULT; 
-					Point coverPoint = new Point(i, y_position);
-					coverPoint.orientation = Orientation.UP;
-					if (inMap(coverPoint)) cover.add(coverPoint);
 				}
 			}
 		}
@@ -382,19 +380,19 @@ public class BattleMap extends Actor {
 					stage.closed[j][i] = true;
 					
 					// add cover 
-					Point cover_right = new Point(i+1, j);
+					BPoint cover_right = new BPoint(i+1, j);
 					cover_right.orientation = Orientation.LEFT;
 					if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null) cover.add(cover_right);
 					
-					Point cover_left = new Point(i-1, j);
+					BPoint cover_left = new BPoint(i-1, j);
 					cover_left.orientation = Orientation.RIGHT;
 					if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null) cover.add(cover_left);
 
-					Point cover_up = new Point(i, j+1);
+					BPoint cover_up = new BPoint(i, j+1);
 					if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null) cover.add(cover_up);
 					cover_up.orientation = Orientation.DOWN;
 
-					Point cover_down = new Point(i, j-1);
+					BPoint cover_down = new BPoint(i, j-1);
 					if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null) cover.add(cover_down);
 					cover_down.orientation = Orientation.UP;
 				}	
@@ -427,11 +425,11 @@ public class BattleMap extends Actor {
 						stage.slow[wall_start_y+i][wall_start_x] = WALL_SLOW;
 						
 						// add cover 
-						Point cover_right = new Point(wall_start_x+1, wall_start_y+i);
+						BPoint cover_right = new BPoint(wall_start_x+1, wall_start_y+i);
 						cover_right.orientation = Orientation.LEFT;
 						if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null) cover.add(cover_right);
 						
-						Point cover_left = new Point(wall_start_x-1, wall_start_y+i);
+						BPoint cover_left = new BPoint(wall_start_x-1, wall_start_y+i);
 						cover_left.orientation = Orientation.RIGHT;
 						if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null) cover.add(cover_left);
 					}
@@ -440,11 +438,11 @@ public class BattleMap extends Actor {
 						stage.slow[wall_start_y][wall_start_x+i] = WALL_SLOW;
 						
 						// add cover 
-						Point cover_up = new Point(wall_start_x+i, wall_start_y+1);
+						BPoint cover_up = new BPoint(wall_start_x+i, wall_start_y+1);
 						if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null) cover.add(cover_up);
 						cover_up.orientation = Orientation.DOWN;
 
-						Point cover_down = new Point(wall_start_x+i, wall_start_y-1);
+						BPoint cover_down = new BPoint(wall_start_x+i, wall_start_y-1);
 						if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null) cover.add(cover_down);
 						cover_down.orientation = Orientation.UP;
 					}
@@ -560,15 +558,15 @@ public class BattleMap extends Actor {
 		
 		
 		// draw cover
-		boolean drawCover = true;
 //		boolean drawCover = true;
+		boolean drawCover = false;
 		if (drawCover) {
 
 			Color c = batch.getColor();
 			Color mycolor = new Color(1, 1, 0, .5f);
 			batch.setColor(mycolor);
 			
-			for (Point p : cover)
+			for (BPoint p : cover)
 				batch.draw(white, (p.pos_x*stage.unit_width*stage.scale), (p.pos_y*stage.unit_height*stage.scale), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
 			
 			batch.setColor(c);
@@ -717,7 +715,7 @@ public class BattleMap extends Actor {
 
 	}
 	
-	public boolean inMap(Point p) {
+	public boolean inMap(BPoint p) {
 		if (p == null) return false;
 		return p.pos_x < stage.size_x &&
 				p.pos_y < stage.size_y && 

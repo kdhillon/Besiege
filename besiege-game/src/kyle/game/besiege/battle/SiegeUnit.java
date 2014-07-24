@@ -19,8 +19,8 @@ public class SiegeUnit extends Group {
 	
 	final int DEATH_TIME = 60;
 
-	final int size_x = 3; // 2x2 for realism?
-	final int size_y = 3;
+	static final int size_x = 3; // 2x2 for realism?
+	static final int size_y = 3;
 
 	final float SPEED_FACTOR = 1f;
 	final int OPERATORS_NEEDED = 2;
@@ -42,6 +42,7 @@ public class SiegeUnit extends Group {
 	float rotation;
 
 	boolean moving;
+	public boolean forceTwoMoves;
 	boolean moveToggle;
 	boolean moveSmooth;
 	boolean isDying;
@@ -64,7 +65,7 @@ public class SiegeUnit extends Group {
 	float reloading;
 	float timeSinceDeath;
 
-	Point nearestTarget;
+	BPoint nearestTarget;
 
 
 	public enum SiegeType {
@@ -174,6 +175,10 @@ public class SiegeUnit extends Group {
 				percentComplete = 1;
 			}
 		}
+		else if (forceTwoMoves) {
+			this.moveForward();
+			this.forceTwoMoves = false;
+		}
 		else {
 			if (this.isManned()) {
 				if (this.reloading > 0) {
@@ -215,7 +220,7 @@ public class SiegeUnit extends Group {
 	}
 	
 	// return the closer point to unit that's calling
-	public Point getOperatorPoint(Unit calling) {
+	public BPoint getOperatorPoint(Unit calling) {
 		if (isManned()) return null;
 		
 		int back_left_x, back_left_y, back_right_x, back_right_y; 
@@ -263,15 +268,15 @@ public class SiegeUnit extends Group {
 		}
 		// return the closer of the two if both vacant
 		if (right_needed && left_needed) {
-			Point right = new Point(back_right_x, back_right_y);
-			Point left = new Point(back_left_x, back_left_y);
+			BPoint right = new BPoint(back_right_x, back_right_y);
+			BPoint left = new BPoint(back_left_x, back_left_y);
 			double right_dist = calling.distanceTo(right);
 			double left_dist = calling.distanceTo(left);
 			if (right_dist > left_dist) return left;
 			else return right;
 		}
-		else if (right_needed) return new Point(back_right_x, back_right_y);
-		else if (left_needed) return new Point(back_left_x, back_left_y);
+		else if (right_needed) return new BPoint(back_right_x, back_right_y);
+		else if (left_needed) return new BPoint(back_left_x, back_left_y);
 		else return null;		
 	}
 	
@@ -412,28 +417,28 @@ public class SiegeUnit extends Group {
 	}
 
 
-	private void moveToPoint(Point point) {
-		this.face(point);
-		if (!this.moveForward()) {
-			faceAlt(point);
-			if (!this.moveForward()) {
-				this.orientation = getRandomDirection();
-				this.moveForward();
-			}
-		}
-	}
+//	private void moveToPoint(BPoint point) {
+//		this.face(point);
+//		if (!this.moveForward()) {
+//			faceAlt(point);
+//			if (!this.moveForward()) {
+//				this.orientation = getRandomDirection();
+//				this.moveForward();
+//			}
+//		}
+//	}
 
 
-	private Point getAdjacentPoint() {
-		Point point = null;
+	private BPoint getAdjacentPoint() {
+		BPoint point = null;
 		if (this.orientation == Orientation.LEFT)
-			point = new Point(this.pos_x-1, this.pos_y);
+			point = new BPoint(this.pos_x-1, this.pos_y);
 		if (this.orientation == Orientation.RIGHT)
-			point = new Point(this.pos_x+1, this.pos_y);
+			point = new BPoint(this.pos_x+1, this.pos_y);
 		if (this.orientation == Orientation.UP)
-			point = new Point(this.pos_x, this.pos_y+1);
+			point = new BPoint(this.pos_x, this.pos_y+1);
 		if (this.orientation == Orientation.DOWN)
-			point = new Point(this.pos_x, this.pos_y-1);
+			point = new BPoint(this.pos_x, this.pos_y-1);
 		if (point.pos_x < 0 || point.pos_x >= stage.size_x || point.pos_y < 0 || point.pos_y >= stage.size_y) point = null;
 		return point;
 	}
@@ -442,7 +447,7 @@ public class SiegeUnit extends Group {
 //		//		this.quiver -= 1;
 //
 		this.reloading = type.rate;
-		Point target = getNearestTarget(this.type.range);
+		BPoint target = getNearestTarget(this.type.range);
 		face(target);
 		Projectile projectile = new Projectile(this, target);
 
@@ -451,7 +456,7 @@ public class SiegeUnit extends Group {
 
 	// returns nearest enemy that's a certain distance away
 	// get nearest wall to start off
-	private Point getNearestTarget(float distance) {
+	private BPoint getNearestTarget(float distance) {
 		Unit closest = null;
 		Unit closestRetreating = null;
 		Unit closestNormal = null; // prioritize archers
@@ -492,25 +497,25 @@ public class SiegeUnit extends Group {
 
 		if (PRIORITIZE_ARCHERS || closestDistance < closestNormalDistance){
 			if (closest != null) {
-				return new Point(closest);
+				return new BPoint(closest);
 			}
 			else if (closestNormal != null) {
-				return new Point(closestNormal);
+				return new BPoint(closestNormal);
 			}
 			else if (closestRetreating != null) {
-				return new Point(closestRetreating);
+				return new BPoint(closestRetreating);
 			}
 			else return null;
 		}
 		else {
 			if (closestNormal != null) {
-				return new Point(closestNormal);
+				return new BPoint(closestNormal);
 			}
 			if (closest != null) {
-				return new Point(closest);
+				return new BPoint(closest);
 			}
 			else if (closestRetreating != null){
-				return new Point(closestRetreating);
+				return new BPoint(closestRetreating);
 			}
 			else return null;
 		}
@@ -521,7 +526,7 @@ public class SiegeUnit extends Group {
 		return Math.sqrt((that.pos_x-this.pos_x)*(that.pos_x-this.pos_x) + (that.pos_y-this.pos_y)*(that.pos_y-this.pos_y));
 	}
 
-	public double distanceTo(Point that) {
+	public double distanceTo(BPoint that) {
 		if (that == null) return Double.POSITIVE_INFINITY;
 		return Math.sqrt((that.pos_x-this.pos_x)*(that.pos_x-this.pos_x) + (that.pos_y-this.pos_y)*(that.pos_y-this.pos_y));
 	}
@@ -554,26 +559,32 @@ public class SiegeUnit extends Group {
 	
 	
 	private void moveToTarget() {
-		Point target = getNearestTarget(Float.MAX_VALUE);
+		System.out.println("moving to target");
+		BPoint target = getNearestTarget(Float.MAX_VALUE);
+		if (target == null) {
+			System.out.println("null target");
+			return;
+		}
 		this.face(target);
 		
 		Orientation original = this.orientation;
 
 		if (!this.moveForward()) {
+			if (Math.random() > .5) this.forceTwoMoves = true;
 
 			// move in a different direction
 			faceAlt(target);
 			if (!this.moveForward()) {
 
 //				// try the last two directions as a last resort
-//				this.orientation = getOppositeOrientation(this.orientation);
-//				if (!this.moveForward()) {
-//					this.orientation = getOppositeOrientation(original);
-//					if (!this.moveForward()) {
-//						// this actually seems to work!
-//						//System.out.println("stuck!");
-//					}
-//				}
+				this.orientation = Unit.getOppositeOrientation(this.orientation);
+				if (!this.moveForward()) {
+					this.orientation = Unit.getOppositeOrientation(original);
+					if (!this.moveForward()) {
+						// this actually seems to work!
+						System.out.println("stuck!");
+					}
+				}
 			}
 		}
 	}
@@ -650,15 +661,39 @@ public class SiegeUnit extends Group {
 		return true;
 	}
 
-	boolean canMove(int pos_x, int pos_y) {
+
+	public boolean canMove(int pos_x, int pos_y) {
 		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x-size_x || pos_y >= stage.size_y-size_y) return false;
-		for (int i = 0; i < this.size_x; i++) {
-			for (int j = 0; j < this.size_y; j++) {
+		
+		// surround with spacing to make sure units can fit
+		for (int i = -1; i < size_x+1; i++) {
+			for (int j = -1; j < size_y+1; j++) {
+				if (stage.units[pos_y + j][pos_x + i] != null && !this.units.contains(stage.units[pos_y + j][pos_x + i], true)) return false;
+				if (stage.siegeUnits[pos_y + j][pos_x + i] != null && stage.siegeUnits[pos_y + j][pos_x + i] != this) return false;
+			
+				if (pos_y + j < 0 || pos_x + i < 0 || pos_y + j >= stage.size_y || pos_x + i >= stage.size_x) return false;
 				if (stage.closed[pos_y + j][pos_x + i]) return false;
+				// right now 
+//				if (stage.units[pos_y + j][pos_x + i] != null) return false;
 			}
 		}
 		return true;
 	}
+	
+	public static boolean canPlace(BattleStage stage, int pos_x, int pos_y) {
+	// surround with spacing to make sure units can fit
+		for (int i = -1; i < size_x+1; i++) {
+			for (int j = -1; j < size_y+1; j++) {
+				if (pos_y + j < 0 || pos_x + i < 0 || pos_y + j >= stage.size_y || pos_x + i >= stage.size_x) return false;
+				if (stage.closed[pos_y + j][pos_x + i]) return false;
+				// right now 
+				if (stage.units[pos_y + j][pos_x + i] != null) return false;
+				if (stage.siegeUnits[pos_y + j][pos_x + i] != null) return false;
+			}
+		}
+		return true;
+	}
+
 
 //	public boolean isAdjacent(Unit that) {
 //		int distance_x = Math.abs(that.pos_x - this.pos_x);
@@ -684,7 +719,7 @@ public class SiegeUnit extends Group {
 
 
 	// same as above but with point
-	public void face(Point that) {
+	public void face(BPoint that) {
 		int x_dif = that.pos_x - this.pos_x;
 		int y_dif = that.pos_y - this.pos_y;
 
@@ -703,7 +738,7 @@ public class SiegeUnit extends Group {
 
 	// still tries to face the enemy, but in none of the same ways as the other face method
 
-	public void faceAlt(Point that) {
+	public void faceAlt(BPoint that) {
 		int x_dif = that.pos_x - this.pos_x;
 		int y_dif = that.pos_y - this.pos_y;
 

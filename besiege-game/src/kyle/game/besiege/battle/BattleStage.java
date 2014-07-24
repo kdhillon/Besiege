@@ -114,8 +114,8 @@ public class BattleStage extends Group {
 			enemyStance = Stance.DEFENSIVE;
 		}
 		
-//		boolean forceSiege = false;
-		boolean forceSiege = true;
+		boolean forceSiege = false;
+//		boolean forceSiege = true;
 
 		if (siegeOf != null || forceSiege) {
 			siegeDefense = playerDefending;
@@ -196,9 +196,9 @@ public class BattleStage extends Group {
 	public void addUnits() {
 		addParty(player);
 		addParty(enemy);
-		if (siegeDefense) {
+//		if (siegeDefense) {
 			addSiegeUnits(enemy);
-		}
+//		}
 	}
 	
 	private void addParty(Party party) {
@@ -266,14 +266,29 @@ public class BattleStage extends Group {
 			
 		}
 		else {
-			int x = size_x/2;
-			int y = size_y-20;
-			SiegeUnit catapult = new SiegeUnit(this, SiegeUnit.SiegeType.CATAPULT, x, y);
-			addSiegeUnit(catapult);
+			int siegeCount = 5;
+			int siegeZoneTop = 0;
+			int siegeZoneSize = 20; // 20 from the top
+			
+			for (int i = 0; i < siegeCount; i++) {
+
+				BPoint point; 
+				do {
+//					System.out.println("finding spot");
+					// generate random spot in siege zone 
+					int x = (int) (Math.random() * size_x);
+					int y = this.size_y - 1 -siegeZoneTop - (int) (Math.random() * siegeZoneSize);
+					point = new BPoint(x, y);
+				}
+				while (!SiegeUnit.canPlace(this, point.pos_x, point.pos_y));
+				
+				SiegeUnit catapult = new SiegeUnit(this, SiegeUnit.SiegeType.CATAPULT, point.pos_x, point.pos_y);
+				addSiegeUnit(catapult);
+			}
 		}
 	}
 	
-	private boolean inMap(kyle.game.besiege.battle.Point p) {
+	private boolean inMap(BPoint p) {
 		return p.pos_x < size_x &&
 				p.pos_y < size_y && 
 				p.pos_x >= 0 && 

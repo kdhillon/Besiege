@@ -34,10 +34,10 @@ public class Projectile extends Actor {
 
 	public static final float INITIAL_HEIGHT = .075f;
 	private static final float SIEGE_INITIAL_HEIGHT = .25f;
-	private static final float SIEGE_TARGET_HEIGHT = 1.1f;
+	private static final float SIEGE_TARGET_HEIGHT = .8f;
 	private static final float SPEED_SCALE_SIEGE = .4f; // how much does speed decrease when unit is hit.
 	
-	
+	private static int MAX_BOUNCES = 5;
 	private final float DAMAGE_FACTOR = 5f;
 	private final float STUCK_Y = -4f;
 
@@ -51,6 +51,7 @@ public class Projectile extends Actor {
 	private float temp_offset_y;
 	private float rotation_offset;
 
+	public int bounceCount;
 	public int damage;
 	public float distanceToTravel;
 
@@ -68,6 +69,8 @@ public class Projectile extends Actor {
 	public float time_since_shot;
 	public float height; // implement this somehow... time
 	public float vz; // initial vertical velocity
+	
+	public float spin;
 
 	public int pos_x_int;
 	public int pos_y_int;
@@ -121,7 +124,7 @@ public class Projectile extends Actor {
 	}
 
 	// create new siege projectile with target
-	public Projectile(SiegeUnit siegeFiring, Point target) {
+	public Projectile(SiegeUnit siegeFiring, BPoint target) {
 		texture = new TextureRegion(new Texture("objects/rock.png"));
 		halfArrow = new TextureRegion(new Texture("objects/half_rock.png"));
 		
@@ -150,9 +153,14 @@ public class Projectile extends Actor {
 		accuracy_factor = 10 - accuracy_factor;
 
 		float initialHeight = SIEGE_INITIAL_HEIGHT;
-		float targetHeight = SIEGE_TARGET_HEIGHT;
+		
+		float targetHeight = stage.heights[(int) dest_y][(int) dest_x];
+//		float targetHeight = SIEGE_TARGET_HEIGHT;
 
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
+		
+		this.bounceCount = (int) (Math.random() * MAX_BOUNCES) + 5;
+		this.spin = (float) (Math.random()) * SPIN;
 	}
 
 	private void initializePosition() {
@@ -257,13 +265,25 @@ public class Projectile extends Actor {
 				(height < stage.heights[pos_y_int][pos_x_int]
 						|| (stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
 						height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]))) {
-			this.stopped = true;
+			
+			if (this.isArrow() || this.bounceCount <= 0) {
+				this.stopped = true;
 
-			// move forward a bit if stuck in an object
-			this.pos_x += velocity.x*.2f*delta;
-			this.pos_y += velocity.y*.2f*delta;
+				// move forward a bit if stuck in an object
+				this.pos_x += velocity.x*.2f*delta;
+				this.pos_y += velocity.y*.2f*delta;
 
-			if (Math.random() < .8) this.broken = true;
+				if (Math.random() < .8) this.broken = true;
+			}
+			else {
+				float BOUNCE_DEPRECIATION = .4f;
+				//bounce
+				this.bounceCount--;
+				this.height = stage.heights[pos_y_int][pos_x_int] + .001f;
+				this.vz = vz*-BOUNCE_DEPRECIATION;
+				this.velocity.scl(BOUNCE_DEPRECIATION);
+				this.spin *= BOUNCE_DEPRECIATION;
+			}
 		}
 	}
 	
@@ -300,7 +320,7 @@ public class Projectile extends Actor {
 //			scaleX*= stoppedScale;
 //			scaleY*= stoppedScale;
 			if (!stopped) {
-				setRotation(getRotation() + SPIN);
+				setRotation(getRotation() + this.spin);
 			}
 		}
 		
