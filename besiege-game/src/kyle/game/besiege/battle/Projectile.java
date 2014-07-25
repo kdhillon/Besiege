@@ -41,6 +41,8 @@ public class Projectile extends Actor {
 	private final float DAMAGE_FACTOR = 5f;
 	private final float STUCK_Y = -4f;
 
+	float BOUNCE_DEPRECIATION = .4f; // can randomize for more fun
+
 	private boolean broken;
 	private boolean stopped;
 	private Unit stuck;
@@ -159,7 +161,7 @@ public class Projectile extends Actor {
 
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
 		
-		this.bounceCount = (int) (Math.random() * MAX_BOUNCES) + 5;
+		this.bounceCount = (int) (Math.random() * MAX_BOUNCES);
 		this.spin = (float) (Math.random()) * SPIN;
 	}
 
@@ -272,12 +274,13 @@ public class Projectile extends Actor {
 				// move forward a bit if stuck in an object
 				this.pos_x += velocity.x*.2f*delta;
 				this.pos_y += velocity.y*.2f*delta;
-
-				if (Math.random() < .8) this.broken = true;
+				if (Math.random() < .2) this.broken = true;
 			}
 			else {
-				float BOUNCE_DEPRECIATION = .4f;
+				if (Math.random() < .2) this.broken = true;
+
 				//bounce
+				this.damage *= BOUNCE_DEPRECIATION; // scale damage with speed
 				this.bounceCount--;
 				this.height = stage.heights[pos_y_int][pos_x_int] + .001f;
 				this.vz = vz*-BOUNCE_DEPRECIATION;
@@ -334,11 +337,11 @@ public class Projectile extends Actor {
 
 		if (this.stuck == null) {
 			TextureRegion toDraw = texture;
-			if (this.stopped && this.broken) toDraw = halfArrow;
+			if ((this.stopped && this.isArrow()) || this.broken) toDraw = halfArrow;
 			batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
 		}
 		else if (!stuck.isDying || stuck.timeSinceDeath > .75f){
-			//			setScaleY(getScaleY()*1f);
+						setScaleY(getScaleY()*2f);
 			setX(stuck.getOriginX() + temp_offset_x);
 			setY(stuck.getOriginY() + temp_offset_y);
 			this.setRotation(-rotation_offset);
@@ -351,7 +354,7 @@ public class Projectile extends Actor {
 		
 		if (this.isArrow()) {
 			if (!FRIENDLY_FIRE && that.team == firing.team) {
-				this.destroy();
+//				this.destroy();
 				return;
 			}
 		}

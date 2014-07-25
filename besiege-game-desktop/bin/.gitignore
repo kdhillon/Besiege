@@ -1,3 +1,8 @@
+/weapons
+/data
+/englandCities.txt
+/equipment
+/ground
 /map.txt
 /map40.txt
 /objects
@@ -6,10 +11,7 @@
 /textures
 /todo.txt
 /units
-/data
-/englandCities.txt
-/equipment
-/ground
+/villages60.txt
 /NoisyEdges.as
 /armyTypeList.txt
 /armyTypes.txt

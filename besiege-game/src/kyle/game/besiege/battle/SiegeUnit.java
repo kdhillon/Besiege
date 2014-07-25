@@ -132,7 +132,7 @@ public class SiegeUnit extends Group {
 		animationFiring = createAnimation(type.firingFile, 4, 1f);
 		animationFiring.setPlayMode(Animation.NORMAL);
 
-		firingStateTime = 0f;
+		firingStateTime = 5f; // don't want animation to start with reloading
 		stateTime = 0f;
 
 		reloading = type.rate/2; // initial reload time
@@ -151,6 +151,8 @@ public class SiegeUnit extends Group {
 
 	@Override
 	public void act(float delta) {
+		stateTime += delta;
+		firingStateTime += delta;
 
 		// flip flop logic kind of
 		if (moveToggle) {
@@ -365,9 +367,6 @@ public class SiegeUnit extends Group {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {		
-
-		stateTime += Gdx.graphics.getDeltaTime();
-		firingStateTime += Gdx.graphics.getDeltaTime();
 
 		if (isDying) {
 			drawAnimation(batch, animationDie, timeSinceDeath, false);

@@ -275,10 +275,18 @@ public class MapScreen implements Screen {
 			kingdom.setPaused(false);
 			kingdom.getPlayer().setWaiting(true);	
 		}
+		else {
+			battle.setPaused(false);
+		}
 	}
 	public void endRun() {
-		kingdom.getPlayer().setWaiting(false);
-		kingdom.setPaused(true);
+		if (battle == null) {
+			kingdom.getPlayer().setWaiting(false);
+			kingdom.setPaused(true);
+		}
+		else {
+			battle.setPaused(true);
+		}
 	}
 	public void click(int pointer) {
 		if (battle != null) battle.click(pointer);

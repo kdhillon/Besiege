@@ -43,6 +43,8 @@ public class BattleStage extends Group {
 
 	public Array<SiegeUnit> siegeUnitsArray;
 	
+	public boolean placementPhase;
+	
 	Party player;
 	Party enemy;
 
@@ -82,6 +84,7 @@ public class BattleStage extends Group {
 	private boolean leftClicked;
 	private boolean rightClicked;
 	private Point mouse;
+	private boolean dragging;
 	
 	private Formation playerFormationChoice;
 	private Formation enemyFormationChoice;
@@ -94,7 +97,6 @@ public class BattleStage extends Group {
 	public BattleStage(MapScreen mapScreen, Party player, Party enemy, boolean playerDefending, Location siegeOf) {
 		this.mapScreen = mapScreen;
 		
-
 		mouse = new Point(0, 0);
 
 		this.player = player;
@@ -163,6 +165,8 @@ public class BattleStage extends Group {
 		this.battlemap = new BattleMap(this);
 		this.addActor(battlemap);
 		
+		
+		// set up default formations
 		if (playerDefending) {
 			enemyFormationChoice = Formation.FLANKING;
 			playerFormationChoice = Formation.DEFENSIVE_LINE;
@@ -173,6 +177,11 @@ public class BattleStage extends Group {
 		}
 		if (siegeDefense) playerFormationChoice = Formation.WALL_LINE;
 
+		
+		this.placementPhase = true;
+
+		this.paused = true;
+		// only add enemy units to start?
 		addUnits();
 	}
 
@@ -591,12 +600,16 @@ public class BattleStage extends Group {
 			else if (BesiegeMain.appType != 1)
 				mouseOver(mouse);
 		}
-
-		super.act(delta);
-		if (allies.size == 0) {
-			victory(enemy.army, player.army);
-		} else if (enemies.size == 0) {
-			victory(player.army, enemy.army);
+		if (!paused) {
+			super.act(delta);
+			if (allies.size == 0) {
+				victory(enemy.army, player.army);
+			} else if (enemies.size == 0) {
+				victory(player.army, enemy.army);
+			}
+		}
+		else if (placementPhase) {
+			if (dragging) updateFormationLocation();
 		}
 		if (leftClicked)
 			leftClicked = false;
@@ -630,9 +643,24 @@ public class BattleStage extends Group {
 		// if (newPanel == null)
 
 	}
+	
+	// put formation in proper place
+	private void updateFormationLocation() {
+		
+	}
 
 	private void leftClick(Point mouse) {
-		Unit u = getUnitAt(mouse);
+		if (this.placementPhase) {
+			if (!dragging) {
+			Unit u = getUnitAt(mouse);
+
+			dragging = true;
+			updateFormationLocation();
+			}
+			else {
+				dragging = false;
+			}
+		}
 	}
 
 	private void rightClick(Point mouse) {

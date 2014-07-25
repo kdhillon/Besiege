@@ -123,7 +123,7 @@ public class BattleMap extends Actor {
 				addWall((int)(stage.size_y*.2f));
 			
 			addFences(5);
-			addTrees(.05*Math.random() + .03);
+			addTrees(.03*Math.random() + .01);
 		}
 		if (maptype == MapType.GRASSLAND) {
 			for (int i = 0; i < ground.length; i++) {

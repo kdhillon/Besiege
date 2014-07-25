@@ -247,6 +247,8 @@ public class Unit extends Group {
 
 	@Override
 	public void act(float delta) {
+		stateTime += delta;
+		firingStateTime += delta;
 
 		if (nearestEnemy == null) this.getNearestEnemy();
 
@@ -426,9 +428,6 @@ public class Unit extends Group {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {		
-
-		stateTime += Gdx.graphics.getDeltaTime();
-		firingStateTime += Gdx.graphics.getDeltaTime();
 
 		if (isDying) {
 			drawAnimation(batch, animationDie, timeSinceDeath, false);
