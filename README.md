@@ -109,9 +109,11 @@ make units easily spawn on walls
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
 make walls not flat
 add towers
+make siege units kill walls
 
 later:
 add villages and ruins
+add b
 
 MAP:
 
