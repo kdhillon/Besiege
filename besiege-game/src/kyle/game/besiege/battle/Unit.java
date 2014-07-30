@@ -556,7 +556,7 @@ public class Unit extends Group {
 				nearestEntrance = getNearestEntranceTo(point);
 			else nearestEntrance = getNearestEntranceTo(this.getPoint());
 			this.moveToPoint(nearestEntrance);
-			System.out.println("needs to move inside wall");
+//			System.out.println("needs to move inside wall");
 			return;
 		}
 		

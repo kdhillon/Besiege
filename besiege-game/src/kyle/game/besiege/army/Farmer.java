@@ -111,6 +111,8 @@ public class Farmer extends Army {
 	
 	public void setVillage(Village village) {
 		this.village = village;
+		if (getKingdom().night)
+			this.garrisonIn(village);
 	}
 	
 	// farmers can garrison in villages

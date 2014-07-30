@@ -313,7 +313,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void drawCrest(SpriteBatch batch) {
-		if (this.isInBattle()) return;
+		if (this.isInBattle() || this.isGarrisoned()) return;
 		float size_factor = .4f;
 
 		size_factor +=  .005*this.party.getTotalSize();

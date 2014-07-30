@@ -101,12 +101,20 @@ Day 76:
 
 
 todo:
+
+BATTLESTAGE:
+
 now:
-make sieges more realistic (make walls not flat, add towers, add roads, catapults)
+make units easily spawn on walls
+make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
+make walls not flat
+add towers
 
+later:
+add villages and ruins
 
-mostly solved!
-big problem: heap is growing very fast with objects, then being garbage collected so all the objects go away. try to prevent this somehow. This isn't soldiers, because they're not created and destroyed. Must be some other problem. Pathfinding maybe. Growing up to using 200mb at max use. should be much lower. Shit ton of memory leaks beacuse garbage collection gets rid of a billion things.
+MAP:
+
 
 
 are these actually problems:
@@ -135,13 +143,13 @@ change "back" button to use a stack
 add populations
 add partyCap for nobles and player
 fix " upgrade for flail not found!" (allow veteran upgrade)
-make farmers not spawn immediately!
 give names to each region (and village names will be the same), and castle names will be "____ castle" or "____ fortress" 
 add city garrison/wealth management
-fix "economy"
+
+fix "economy":
+ sample faction wealth over time and make sure it gradually increases, etc.
 
 
-where should I put these? could put them on corners or centers, if corners, how to make sure they don't share names with a city or castle? 
 use completely different names...? ok
 Belvoir Castle
 Belvoir Fortress

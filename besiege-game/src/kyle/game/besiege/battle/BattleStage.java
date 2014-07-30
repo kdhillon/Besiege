@@ -263,6 +263,7 @@ public class BattleStage extends Group {
 		//		}
 	}
 
+	// add on wall if there is a wall
 	private void addParty(Party party) {
 		Formation choice;
 		if (party == player) {

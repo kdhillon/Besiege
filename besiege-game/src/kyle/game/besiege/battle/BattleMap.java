@@ -131,7 +131,8 @@ public class BattleMap extends Actor {
 //		wallBottom = 10;
 //		wallRight = 60;
 		
-		wallBottom = 60;
+		if (stage.siegeAttack)
+			wallBottom = 60;
 
 		// create castle
 //		if (stage.siegeDefense)
@@ -168,7 +169,7 @@ public class BattleMap extends Actor {
 				}
 			}
 
-			if (stage.siegeDefense)
+			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 
 			addTrees(.001);
@@ -186,7 +187,7 @@ public class BattleMap extends Actor {
 				}
 			}
 
-			if (stage.siegeDefense)
+			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 
 			addTrees(.00);
@@ -213,7 +214,7 @@ public class BattleMap extends Actor {
 				} 
 			}
 
-			if (stage.siegeDefense)
+			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 		}
 		if (maptype == MapType.DESERT) {
@@ -226,7 +227,7 @@ public class BattleMap extends Actor {
 					else ground[i][j] = GroundType.MUD;
 				}
 			}
-			if (stage.siegeDefense)
+			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 		}
 		if (maptype == MapType.ALPINE) {
@@ -239,7 +240,7 @@ public class BattleMap extends Actor {
 					else ground[i][j] = GroundType.MUD;
 				}
 			}
-			if (stage.siegeDefense)
+			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 		}
 		if (maptype == MapType.CRAG) {
@@ -252,7 +253,7 @@ public class BattleMap extends Actor {
 				}
 			}
 
-			if (stage.siegeDefense)
+			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 
 			addStumps(.01);
@@ -307,6 +308,7 @@ public class BattleMap extends Actor {
 //		else {
 //			orientation = Orientation.DOWN;
 //		}
+		System.out.println("adding wall");
 		
 		if (wallTop != Integer.MAX_VALUE) {
 			for (int i = Math.max(0, wallLeft); i < Math.min(stage.size_x, wallRight); i++) {
