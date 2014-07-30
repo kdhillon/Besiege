@@ -26,7 +26,7 @@ public class Unit extends Group {
 
 	final int RETREAT_THRESHOLD = 2;
 
-	public float NEAR_COVER_DISTANCE = 3;
+	public float NEAR_COVER_DISTANCE = 5;
 	public float HEIGHT_RANGE_FACTOR = 6;
 	public float MAN_SIEGE_DISTANCE = 10;
 
@@ -38,7 +38,7 @@ public class Unit extends Group {
 
 	static final float CLIMB_HEIGHT = .1f; // how high can units climb
 
-	final float POLARM_BONUS = 3.5f;
+	final float POLARM_BONUS = 4f;
 
 	public BattleStage stage;	
 	public Unit attacking;
@@ -135,8 +135,8 @@ public class Unit extends Group {
 
 		this.original_x = pos_x;
 		this.original_y = pos_y;
-		this.setX(pos_x);
-		this.setY(pos_y);
+		this.setX(stage.scale * pos_x * stage.unit_width);
+		this.setY(stage.scale * pos_y * stage.unit_height);
 
 		this.setWidth(stage.scale*stage.unit_width);
 		this.setHeight(stage.scale*stage.unit_height);
@@ -162,6 +162,7 @@ public class Unit extends Group {
 		stage.units[pos_y][pos_x] = this;
 
 		this.orientation = Orientation.DOWN;
+		if (this.team == 0) this.orientation = Orientation.UP;
 		this.stance = Stance.AGGRESSIVE;
 
 		this.soldier = soldier;
@@ -191,7 +192,7 @@ public class Unit extends Group {
 			dieFile = "farmer_die.png";
 			firingFile = "bandit_firing.png";
 		}
-		else if (soldier.tier < 6) {
+		else if (soldier.tier < 6 || soldier.getType() == Soldier.SoldierType.ARCHER) {
 			walkFile = "bandit_walk.png";
 			attackFile = "bandit_walk.png";
 			dieFile = "bandit_die.png";
@@ -488,53 +489,90 @@ public class Unit extends Group {
 		//		else 
 		return 15 + this.def*3;
 	}
+	
 	private void moveToEnemy() {
-		nearestCover = null;
-		if (enemyArray.size == 0) return;
-		this.faceEnemy();
-
-		if (this.onWall() != nearestEnemy.onWall()) {
-			if (this.isMounted()) this.dismount();
-			this.moveToPoint(getNearestLadder());
-			return;
+		if (nearestEnemy != null && !nearestEnemy.inMap()) {
+			nearestEnemy = getNearestEnemy();
 		}
-
-		Orientation original = this.orientation;
-
-		if (!this.moveForward()) {
-			if (Math.random() > .5) this.forceTwoMoves = true;
-
-			// move in a different direction
-			faceEnemyAlt();
-			if (!this.moveForward()) {
-
-
-				// try the last two directions as a last resort
-				this.orientation = getOppositeOrientation(this.orientation);
-				if (!this.moveForward()) {
-					this.orientation = getOppositeOrientation(original);
-					if (!this.moveForward()) {
-						// this actually seems to work!
-						//System.out.println("stuck!");
-					}
-				}
-			}
+		if (nearestEnemy == null)  {
+			nearestEnemy = getNearestEnemy();
+			if (nearestEnemy == null) return;
 		}
+		moveToPoint(nearestEnemy.getPoint());
 	}
+	
+//	private void moveToEnemy() {
+//		nearestCover = null;
+//		if (enemyArray.size == 0) return;
+//		this.faceEnemy();
+//
+//		if (this.onWall() != nearestEnemy.onWall()) {
+//			if (this.isMounted()) this.dismount();
+//			this.moveToPoint(getNearestLadder());
+//			return;
+//		}
+//
+//		Orientation original = this.orientation;
+//
+//		if (!this.moveForward()) {
+//			if (Math.random() > .5) this.forceTwoMoves = true;
+//
+//			// move in a different direction
+//			faceEnemyAlt();
+//			if (!this.moveForward()) {
+//
+//
+//				// try the last two directions as a last resort
+//				this.orientation = getOppositeOrientation(this.orientation);
+//				if (!this.moveForward()) {
+//					this.orientation = getOppositeOrientation(original);
+//					if (!this.moveForward()) {
+//						// this actually seems to work!
+//						//System.out.println("stuck!");
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	private void moveToPoint(BPoint point) {
+		if (point == null) return;
+		// check if on same height
+		if (this.getFloorHeight() != stage.heights[point.pos_y][point.pos_x] && !stage.ladderAt(point.pos_x, point.pos_y)) {
+			if (this.isMounted()) this.dismount();
+			BPoint nearLadder;
+			if (this.onWall())
+				nearLadder = getNearestLadderTo(this.getPoint());
+			else nearLadder = getNearestLadderTo(point); // slightly better but not perfect - must guarantee that there are always ladders close enough
+
+//			if (!(point.pos_x == nearLadder.pos_x && point.pos_y == nearLadder.pos_y) && !stage.ladderAt(this.pos_x, this.pos_y))
+				this.moveToPoint(nearLadder);
+			return;
+		} 
+		// check if on same side of wall (also make sure to not check sides with entrances)
+		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y)) {
+			BPoint nearestEntrance;
+			if (stage.insideWall(this.pos_x, this.pos_y))
+				nearestEntrance = getNearestEntranceTo(point);
+			else nearestEntrance = getNearestEntranceTo(this.getPoint());
+			this.moveToPoint(nearestEntrance);
+			System.out.println("needs to move inside wall");
+			return;
+		}
+		
 		this.face(point);
+		
 		Orientation original = this.orientation;
 
-		if (!this.moveForward()) {
+		if (Math.random() < .01 || !this.moveForward()) {
 
 			if (Math.random() > .5) this.forceTwoMoves = true;
 
 			faceAlt(point);
-			if (!this.moveForward()) {					
+			if (Math.random() < .1 || !this.moveForward()) {					
 				// try the last two directions as a last resort
 				this.orientation = getOppositeOrientation(this.orientation);
-				if (!this.moveForward()) {
+				if (Math.random() < .1 || !this.moveForward()) {
 					this.orientation = getOppositeOrientation(original);
 					if (!this.moveForward()) {
 						// this actually seems to work!
@@ -565,7 +603,7 @@ public class Unit extends Group {
 		if (facing == null) return false; // facing off stage
 		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
 
-		// check if object in front is too heigh
+		// check if object in front is too height
 		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Projectile.INITIAL_HEIGHT+this.getFloorHeight())) {
 			//			System.out.println("should move");
 			this.startMove(getRandomDirection());
@@ -764,23 +802,37 @@ public class Unit extends Group {
 		BPoint closest = new BPoint(point_x, point_y);
 
 		if (this.onWall()) {
-			closest = getNearestLadder();
+			closest = getNearestLadderTo(this.getPoint());
 		}
 
 		return closest;
 	}
-
-
-	public BPoint getNearestLadder() {
+	
+	public BPoint getNearestLadderTo(BPoint p) {
 		BPoint closest = null;
 
 		double closestDistance = 999999;
 		// get closest ladder
 		for (Ladder l : stage.battlemap.ladders) {
 			BPoint ladderPoint = new BPoint(l.pos_x, l.pos_y);
-			double dist = this.distanceTo(ladderPoint);
+			double dist = p.distanceTo(ladderPoint);
 			if (dist < closestDistance) {
 				closest = ladderPoint;
+				closestDistance = dist;
+			}
+		}
+		return closest;
+	}
+	
+	public BPoint getNearestEntranceTo(BPoint that) {
+		BPoint closest = null;
+		double closestDistance = 999999;
+		// get closest ladder
+		for (BPoint p : stage.battlemap.entrances) {
+			BPoint point = new BPoint(p.pos_x, p.pos_y);
+			double dist = that.distanceTo(point);
+			if (dist < closestDistance) {
+				closest = point;
 				closestDistance = dist;
 			}
 		}
@@ -1145,7 +1197,7 @@ public class Unit extends Group {
 		if (this.team == 0) stage.allies.removeValue(this, true);
 		if (this.team == 1) stage.enemies.removeValue(this, true);
 		this.removeActor(weaponDraw);
-
+		
 		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 
 		//		System.out.println("DESTROYED");
@@ -1303,5 +1355,9 @@ public class Unit extends Group {
 				pos_y < stage.size_y && 
 				pos_x >= 0 && 
 				pos_y >= 0;
+	}
+	
+	public BPoint getPoint() {
+		return new BPoint(pos_x, pos_y);
 	}
 }

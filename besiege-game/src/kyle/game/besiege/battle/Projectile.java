@@ -57,7 +57,7 @@ public class Projectile extends Actor {
 	public int damage;
 	public float distanceToTravel;
 
-	public float speed = 25f;
+	public float SPEED = 25f;
 	//		public float speed = 1f; // this is hilarious
 
 	public Vector2 velocity;
@@ -97,7 +97,9 @@ public class Projectile extends Actor {
 		dest_y = target.pos_y + .5f;
 
 		distanceToTravel = (float) firing.distanceTo(target);
-		float time_to_collision = distanceToTravel/speed;
+		
+		SPEED += (float) (Math.random()*SPEED/5f);
+		float time_to_collision = distanceToTravel/SPEED;
 
 		boolean shouldLead = true;
 		// lead the enemy unit a bit based on distance?
@@ -132,7 +134,7 @@ public class Projectile extends Actor {
 		
 		SCALE = SCALE_SIEGE;
 		
-		this.speed = siegeFiring.type.projectileSpeed;
+		this.SPEED = siegeFiring.type.projectileSpeed;
 		
 		this.siegeFiring = siegeFiring;
 
@@ -147,7 +149,7 @@ public class Projectile extends Actor {
 		dest_y = target.pos_y + .5f;
 
 		distanceToTravel = (float) siegeFiring.distanceTo(target);
-		float time_to_collision = distanceToTravel/speed;
+		float time_to_collision = distanceToTravel/SPEED;
 
 		int accuracy_factor = siegeFiring.type.accuracy;
 		//		if (stage.isRaining) accuracy_factor -= 1;
@@ -208,10 +210,10 @@ public class Projectile extends Actor {
 		// calculate velocity vector
 		velocity = new Vector2(dest_x - pos_x, dest_y - pos_y);
 		float dist_to_closest = velocity.len();
-		time_to_collision = dist_to_closest/speed;
+		time_to_collision = dist_to_closest/SPEED;
 
 		velocity.nor();
-		velocity.scl(speed); //(Math.random()-.5)*speed/2));
+		velocity.scl(SPEED); //(Math.random()-.5)*speed/2));
 
 		// goal is to find vertical velocity needed to get to goal
 		// object must be at target height after the amount of time (d = 0)

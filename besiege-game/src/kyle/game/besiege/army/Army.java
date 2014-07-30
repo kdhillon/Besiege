@@ -40,14 +40,14 @@ public class Army extends Actor implements Destination {
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames
 	protected final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
 	private static final float SCALE_FACTOR = 600f; // smaller is bigger
-	private static final float PARTY_SPEED_FACTOR = .5f; // smaller is bigger
+	private static final float PARTY_SPEED_FACTOR = 3f; // smaller is bigger
 	private static final float BASE_SPEED = 1;
 	private static final float WAIT = 3; // 3 second wait after garrisoning
 	private static final float scale = .6f;
 	private static final float cityCollisionDistance = 25;
 	private static final float battleCollisionDistance = 15;
 	private static final float COLLISION_FACTOR = 10; // higher means must be closer
-	public static final float ORIGINAL_SPEED_FACTOR = .10f;
+	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 	public static final int A_STAR_FREQ = 20; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that party size detracts from total speed
 	private static final float BASE_LOS = 40;
@@ -197,7 +197,9 @@ public class Army extends Actor implements Destination {
 		
 		// simple army control flow
 		if (isForcedWaiting()) {
-//			if (this.type == ArmyType.FARMER) System.out.println("farmer forced wait");
+			if (getKingdom().currentPanel == this) System.out.println(getName() + " forced wait");
+
+			//if (get) System.out.println(this.getName() + "forced wait");
 			wait(delta);
 		}
 		else {

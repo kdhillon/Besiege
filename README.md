@@ -95,13 +95,14 @@ Day 70: added horses and archers to battlestage
 Day 71: added cover, firing animation, shields to battlestage
 Day 72: added additional maptypes and formations to battlestage
 Day 73: added walls and ladders to battlestage
-
+Day 74: added siege units and additional formations to battlestage
+Day 75: made battlestages have the same rewards as regular battles
+Day 76:
 
 
 todo:
 now:
 make sieges more realistic (make walls not flat, add towers, add roads, catapults)
-make battlestage have same EXP, gold, and morale rewards as regular battles.
 
 
 mostly solved!
@@ -121,7 +122,8 @@ make bandits not seige (?)
 later:
 
 make a realistic world:
-nobles are not besieging for some reason. figure out why. also allow besieging of castles.
+add besieging of castles
+
 
 gameplay:
 

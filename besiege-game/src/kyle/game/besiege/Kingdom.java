@@ -234,6 +234,10 @@ public class Kingdom extends Group {
 	private void leftClick(Point mouse) {
 		
 		Destination d = getDestAt(mouse);
+//		System.out.println("left click");
+		
+//		if (d == player) System.out.println("selected player");
+
 		if (d != player && !player.isInBattle()) {
 			paused = false;
 			player.setTarget(d);
@@ -242,7 +246,7 @@ public class Kingdom extends Group {
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}
 	}
-	private void rightClick(Point mouse) {
+	private void rightClick(Point mouse) {		
 		Destination d = getDestAt(mouse);
 		if (d.getType() == 1) {
 			Location location = (Location) d;

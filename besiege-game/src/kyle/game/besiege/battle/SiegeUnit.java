@@ -558,10 +558,10 @@ public class SiegeUnit extends Group {
 	
 	
 	private void moveToTarget() {
-		System.out.println("moving to target");
+//		System.out.println("moving to target");
 		BPoint target = getNearestTarget(Float.MAX_VALUE);
 		if (target == null) {
-			System.out.println("null target");
+//			System.out.println("null target");
 			return;
 		}
 		this.face(target);

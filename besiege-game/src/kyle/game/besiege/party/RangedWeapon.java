@@ -8,14 +8,14 @@ public enum RangedWeapon {
 	SHORTBOW (4, "Shortbow", "Archer", 1, 20, 8, 5),
 	
 	// Tier 6 Ranged
-	CROSSBOW (6, "Crossbow", "Crossbowman", 4, 20, 10, 8), // slower, less range, more accurate, more power
-	RECURVE (6, "Recurve Bow", "Bowman",    2, 25, 6, 4),  // faster, medium range, less accurate, medium power
-	LONGBOW (6, "Longbow", "Longbowman",    2, 40, 8, 5), // slower, more range, medium accurate, medium power
+	CROSSBOW (6, "Crossbow", "Crossbowman", 3, 20, 10, 8), // slower, less range, more accurate, more power
+	RECURVE (6, "Recurve Bow", "Bowman",    2, 30, 6, 4),  // faster, medium range, less accurate, medium power
+	LONGBOW (6, "Longbow", "Longbowman",    2, 50, 8, 5), // slower, more range, medium accurate, medium power
 	
 	// Tier 8 Ranged
-	ADV_CROSSBOW (8, "Crossbow", "Crossbow Master", 4, 20, 8, 9), // slower, less range, more accurate, more power
-	ADV_RECURVE  (8, "Recurve Bow", "Bowmaster", 3, 30, 4, 6),  // faster, medium range, less accurate, medium power
-	ADV_LONGBOW  (8, "Longbow", "Longbow Master", 3, 50, 6, 8);  // slower, more range, medium accurate, medium power
+	ADV_CROSSBOW (8, "Crossbow", "Crossbow Master", 4, 30, 8, 9), // slower, less range, more accurate, more power
+	ADV_RECURVE  (8, "Recurve Bow", "Bowmaster", 3, 40, 4, 6),  // faster, medium range, less accurate, medium power
+	ADV_LONGBOW  (8, "Longbow", "Longbow Master", 2, 60, 6, 7);  // slower, more range, medium accurate, medium power
 	
 	public final int tier;
 	public final String name;

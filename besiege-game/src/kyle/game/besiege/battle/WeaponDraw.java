@@ -179,6 +179,8 @@ public class WeaponDraw extends Actor {
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {	
+		if (!unit.inMap()) return;
+
 		//this.toFront();
 		this.toBack();
 		Color c = new Color(batch.getColor());

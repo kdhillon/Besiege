@@ -15,4 +15,8 @@ public class BPoint {
 		this.pos_x = u.pos_x;
 		this.pos_y = u.pos_y;
 	}
+	public double distanceTo(BPoint that) {
+		if (that == null) return Double.POSITIVE_INFINITY;
+		return Math.sqrt((that.pos_x-this.pos_x)*(that.pos_x-this.pos_x) + (that.pos_y-this.pos_y)*(that.pos_y-this.pos_y));
+	}
 }

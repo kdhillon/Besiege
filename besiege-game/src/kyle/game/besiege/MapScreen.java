@@ -8,11 +8,8 @@
 package kyle.game.besiege;
 
 
-import java.io.PrintWriter;
-
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.voronoi.VoronoiGraph;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
@@ -20,7 +17,6 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -86,6 +82,8 @@ public class MapScreen implements Screen {
 	private boolean armyCrestsToggle;
 	private boolean debugToggle;
 	
+	private boolean toggleNextFormation;
+	
 //	public PrintWriter out; // accessed by kingdom
 	
 	public MapScreen() {
@@ -138,6 +136,8 @@ public class MapScreen implements Screen {
 		losOn = true;
 		fogToggle = false;
 		losToggle = true;
+		
+		toggleNextFormation = false;
 		
 		startLog();
 	}
@@ -296,7 +296,7 @@ public class MapScreen implements Screen {
 		if (currentCamera == kingdomCamera)
 			currentCamera.translate(new Vector2(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y));
 		else if (currentCamera == battleCamera) {
-			if (battle != null) battle.centerCamera();
+			if (battle != null) battle.centerCameraOnPlayer();
 		}
 	}
 	public void handleInput() {
@@ -350,13 +350,14 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.E)) 
 				rotate(-.5f);
 			
-			if (Gdx.input.isKeyPressed(Keys.M))
-				zoom(.03f);
 			if (Gdx.input.isKeyPressed(Keys.N))
+				zoom(.03f);
+			if (Gdx.input.isKeyPressed(Keys.M))
 				zoom(-.03f);
 			
 			if (Gdx.input.isKeyPressed(Keys.SPACE) || (kingdom.getPlayer().isWaiting() && kingdom.getPlayer().forceWait) || kingdom.getPlayer().isInBattle() || (shouldLetRun && (kingdom.getPlayer().isGarrisoned() || kingdom.getPlayer().isInSiege()))) {
 				letRun();
+				if (battle != null) battle.placementPhase = false;
 //				System.out.println(kingdom.getPlayer().isWaiting());
 			}
 			else if (!kingdom.getPlayer().forceWait && kingdom.getPlayer().isWaiting()) {
@@ -380,6 +381,7 @@ public class MapScreen implements Screen {
 				if (!editOn) {
 					if (Gdx.input.isButtonPressed(0)) {
 						click(0);
+//						System.out.println("clicked");
 					}
 					else if (Gdx.input.isButtonPressed(1)) {
 						click(1);
@@ -457,6 +459,13 @@ public class MapScreen implements Screen {
 				Gdx.app.exit();
 			}
 			
+			if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+				if (battle != null && battle.placementPhase) {
+					toggleNextFormation = !toggleNextFormation;
+					if (toggleNextFormation) battle.toNextFormation();
+				}
+			}
+			
 			if (keydown != 0) {
 				if (keydown == 1) {
 					if (!Gdx.input.isKeyPressed(Keys.NUM_1)) {
@@ -510,7 +519,7 @@ public class MapScreen implements Screen {
 		this.battleStage.setCamera(battleCamera);
 		this.currentCamera = battleCamera;
 		center();
-		battleCamera.zoom = 2f;
+		battleCamera.zoom = 1f;
 		currentStage = battleStage;
 		System.out.println("switching to battle view");
 	}
@@ -523,10 +532,11 @@ public class MapScreen implements Screen {
 		this.currentCamera = kingdomCamera;
 		center();
 		currentStage = kingdomStage;
+		if (!kingdom.getPlayer().forceWait) kingdom.setPaused(true);
 	}
 	
 	public void playerDeath() {
-		
+		System.out.println("player died");
 	}
 	
 	@Override

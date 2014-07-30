@@ -45,8 +45,8 @@ public enum PartyType { // todo add ability for max party size
 	CITY_GARR_1(new Weapon[]{SPEAR, PIKE, HALBERD, LONGSWORD}, new int[]{10, 10, 10, 10}, new int[]{20, 20, 20, 20}, 0, 0),
 //	CITY_GARR_1(new Weapon[]{SPEAR, PIKE, HALBERD, LONGSWORD}, new int[]{1, 1, 1, 1}, new int[]{20, 20, 20, 20}, 0, 0),
 	
-	MACE_TEST2(new Weapon[]{LONGBOW, CAVALRY_SPEAR, SHORTSWORD}, new int[]{50, 20, 50}, new int[]{0, 0, 0}, 0, 0),
-	MACE_TEST(new Weapon[]{ADV_LONGBOW, CAVALRY_SPEAR, GUISARME}, new int[]{50, 0, 50}, new int[]{0, 0, 0}, 0, 0);
+	MACE_TEST2(new Weapon[]{ADV_LONGBOW, CAVALRY_SPEAR, SHORTSWORD}, new int[]{10, 20, 40}, new int[]{0, 0, 0}, 0, 0),
+	MACE_TEST(new Weapon[]{ADV_CROSSBOW, CAVALRY_AXE, GLAIVE}, new int[]{20, 10, 10}, new int[]{0, 0, 0}, 0, 0);
 //	VILLAGE_HIRE_1(new Weapon[]{}, new int[]{}, new int[]{}, 0, 0);s
 
 	//RANGED_TEST(new Weapon[]{SHORTBOW, CROSSBOW, RECURVE, LONGBOW}, new int[]{20, 0, 00, 0}, new int[]{20, 0, 00, 00}, 0, 0);
@@ -106,7 +106,8 @@ public enum PartyType { // todo add ability for max party size
 		return total;
 	}
 	public int getRandomSize() {
-		return MathUtils.random(getMinSize(), getMaxSize());
+		return (int) (Math.random() * (getMaxSize() - getMinSize()) + getMinSize());
+		//return MathUtils.random(getMinSize(), getMaxSize());
 	}
 	public Weapon randomSoldierType() {
 		// weighted based on soldier frequencies (in max):
