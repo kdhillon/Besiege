@@ -93,7 +93,7 @@ public class SiegeUnit extends Group {
 	}
 
 
-	public SiegeUnit(BattleStage parent, SiegeType type, int pos_x, int pos_y) {
+	public SiegeUnit(BattleStage parent, SiegeType type, int pos_x, int pos_y, Orientation orientation) {
 		stage = parent;
 
 		this.setX(pos_x);
@@ -120,7 +120,7 @@ public class SiegeUnit extends Group {
 		// TODO check if position already occupied before creating
 		this.updateArray();
 
-		this.orientation = Orientation.DOWN;
+		this.orientation = orientation;
 
 		//		if (this.team == 1)  stance = Stance.DEFENSIVE;
 

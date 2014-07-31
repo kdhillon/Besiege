@@ -28,7 +28,7 @@ public class Unit extends Group {
 
 	public float NEAR_COVER_DISTANCE = 5;
 	public float HEIGHT_RANGE_FACTOR = 6;
-	public float MAN_SIEGE_DISTANCE = 10;
+	public float MAN_SIEGE_DISTANCE = 40;
 
 	final float DEATH_TIME = 300;
 	final float BASE_SPEED = .2f;

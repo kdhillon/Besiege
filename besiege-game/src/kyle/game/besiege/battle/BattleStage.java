@@ -13,6 +13,7 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.Point;
 import kyle.game.besiege.army.Army;
+import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.PanelBattle;
@@ -259,7 +260,7 @@ public class BattleStage extends Group {
 		addParty(player);
 		addParty(enemy);
 		//		if (siegeDefense) {
-		//			addSiegeUnits(enemy);
+					addSiegeUnits(player);
 		//		}
 	}
 
@@ -419,8 +420,24 @@ public class BattleStage extends Group {
 
 	private void addSiegeUnits(Party party) {
 		if (party == player) {
-			// add one catapult
+			int siegeCount = 5;
+			int siegeZoneBottom = 15;
+			int siegeZoneSize = 20; // 20 from the top
 
+			for (int i = 0; i < siegeCount; i++) {
+
+				BPoint point; 
+				do {
+					// generate random spot in siege zone 
+					int x = (int) (Math.random() * size_x);
+					int y = siegeZoneBottom + (int) (Math.random() * siegeZoneSize);
+					point = new BPoint(x, y);
+				}
+				while (!SiegeUnit.canPlace(this, point.pos_x, point.pos_y));
+
+				SiegeUnit catapult = new SiegeUnit(this, SiegeUnit.SiegeType.CATAPULT, point.pos_x, point.pos_y, Orientation.UP);
+				addSiegeUnit(catapult);
+			}
 		}
 		else {
 			int siegeCount = 5;
@@ -439,7 +456,7 @@ public class BattleStage extends Group {
 				}
 				while (!SiegeUnit.canPlace(this, point.pos_x, point.pos_y));
 
-				SiegeUnit catapult = new SiegeUnit(this, SiegeUnit.SiegeType.CATAPULT, point.pos_x, point.pos_y);
+				SiegeUnit catapult = new SiegeUnit(this, SiegeUnit.SiegeType.CATAPULT, point.pos_x, point.pos_y, Orientation.DOWN);
 				addSiegeUnit(catapult);
 			}
 		}
@@ -763,6 +780,10 @@ public class BattleStage extends Group {
 			rightClicked = false;
 	}
 
+	public void damageWallAt(int pos_x, int pos_y, int damage) {
+		battlemap.damageWallAt(pos_x, pos_y, damage);
+	}
+	
 	private void mouseOver(Point mouse) {
 		Unit u = getUnitAt(mouse);
 		// if (d.getType() != 0)

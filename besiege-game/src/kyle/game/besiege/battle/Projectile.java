@@ -19,7 +19,8 @@ public class Projectile extends Actor {
 	private final static boolean FRIENDLY_FIRE = false; // if true, arrows can hurt own team. note that siege hurts own team by default
 	
 	private float SCALE = 3;
-	private float SCALE_SIEGE = 4;
+	private float SCALE_SIEGE = 3f;
+	private float SIEGE_STOPPED_SCALE = .7f;
 	private final float ARROW_SCALE_X = .3f;
 	
 	private final float SPIN = 5;
@@ -266,9 +267,7 @@ public class Projectile extends Actor {
 		}
 
 		if (inMap() && (wallHeightCheck()) && 
-				(height < stage.heights[pos_y_int][pos_x_int]
-						|| (stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
-						height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]))) {
+				(height < stage.heights[pos_y_int][pos_x_int]) && stage.battlemap.objects[pos_y_int][pos_x_int] == null) {
 			
 			if (this.isArrow() || this.bounceCount <= 0) {
 				this.stopped = true;
@@ -289,6 +288,32 @@ public class Projectile extends Actor {
 				this.velocity.scl(BOUNCE_DEPRECIATION);
 				this.spin *= BOUNCE_DEPRECIATION;
 			}
+		}
+		// collide with object
+		else if (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
+				height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]) {
+			
+			BattleMap.Object object = stage.battlemap.objects[pos_y_int][pos_x_int];
+			if (!this.isArrow()) {
+				if (object == BattleMap.Object.CASTLE_WALL || object == BattleMap.Object.CASTLE_WALL_FLOOR) {
+					stage.damageWallAt(pos_x_int, pos_y_int, damage);
+				}
+			}
+			this.stopped = true;
+//			this.destroy();
+			
+
+			// move forward a bit if stuck in an object
+			if (this.isArrow()) {
+				this.pos_x += velocity.x*-.51f*delta;
+				this.pos_y += velocity.y*-.5f*delta;
+			}
+			else { 
+				if (Math.random() < .3) this.destroy();
+				this.broken = true;
+				this.SCALE = SCALE_SIEGE / 2f;
+			}
+			if (Math.random() < .2) this.broken = true;
 		}
 	}
 	
@@ -321,13 +346,14 @@ public class Projectile extends Actor {
 		if (this.isArrow()) {
 			scaleX *= ARROW_SCALE_X;
 			scaleY *= stoppedScale;
-		} else {
-//			scaleX*= stoppedScale;
-//			scaleY*= stoppedScale;
-			if (!stopped) {
-				setRotation(getRotation() + this.spin);
-			}
+		} else if (stopped) {
+			scaleX *= SIEGE_STOPPED_SCALE;
+			scaleY *= SIEGE_STOPPED_SCALE;
 		}
+		else if (!stopped) {
+			setRotation(getRotation() + this.spin);
+		}
+		
 		
 	
 		this.setScaleX(scaleX);
