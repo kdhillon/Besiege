@@ -51,6 +51,7 @@ public class Unit extends Group {
 	public SiegeUnit siegeUnit;
 
 	public boolean isMounted = true;
+	public boolean canRetreat = true;
 	//	private boolean inCover;
 	private BPoint nearestCover;
 
@@ -232,6 +233,10 @@ public class Unit extends Group {
 		if (this.horse != null) {
 			isMounted = true;
 		}
+		
+		if (this.team == 0 && stage.siegeDefense) this.canRetreat = false;
+		if (this.team == 1 && stage.siegeAttack) this.canRetreat = false;
+		
 		//
 		//		// TODO REMOVE
 		//		if (this.team == 0) this.retreating = true;
@@ -266,7 +271,7 @@ public class Unit extends Group {
 			System.out.println("Still here not dying?");
 			return;
 		}
-		else if (this.hp <= RETREAT_THRESHOLD) {
+		else if (this.hp <= RETREAT_THRESHOLD && this.canRetreat) {
 			this.retreating = true;
 			this.attacking = null;
 			//System.out.println("unit retreating");
@@ -551,7 +556,7 @@ public class Unit extends Group {
 			return;
 		} 
 //		// check if on same side of wall (also make sure to not check sides with entrances)
-		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y)) {
+		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.bowOut()) {
 			BPoint nearestEntrance;
 			if (stage.insideWall(this.pos_x, this.pos_y))
 				nearestEntrance = getNearestEntranceTo(point);

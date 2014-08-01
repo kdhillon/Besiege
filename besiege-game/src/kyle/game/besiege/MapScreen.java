@@ -276,7 +276,7 @@ public class MapScreen implements Screen {
 			kingdom.getPlayer().setWaiting(true);	
 		}
 		else {
-			battle.setPaused(false);
+//			battle.setPaused(false);
 		}
 	}
 	public void endRun() {
@@ -284,9 +284,9 @@ public class MapScreen implements Screen {
 			kingdom.getPlayer().setWaiting(false);
 			kingdom.setPaused(true);
 		}
-		else {
-			battle.setPaused(true);
-		}
+//		else {
+//			battle.setPaused(true);
+//		}
 	}
 	public void click(int pointer) {
 		if (battle != null) battle.click(pointer);
@@ -357,7 +357,7 @@ public class MapScreen implements Screen {
 			
 			if (Gdx.input.isKeyPressed(Keys.SPACE) || (kingdom.getPlayer().isWaiting() && kingdom.getPlayer().forceWait) || kingdom.getPlayer().isInBattle() || (shouldLetRun && (kingdom.getPlayer().isGarrisoned() || kingdom.getPlayer().isInSiege()))) {
 				letRun();
-				if (battle != null) battle.placementPhase = false;
+				if (battle != null && Gdx.input.isKeyPressed(Keys.SPACE)) battle.placementPhase = false;
 //				System.out.println(kingdom.getPlayer().isWaiting());
 			}
 			else if (!kingdom.getPlayer().forceWait && kingdom.getPlayer().isWaiting()) {

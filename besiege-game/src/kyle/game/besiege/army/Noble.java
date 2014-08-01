@@ -107,16 +107,18 @@ public class Noble extends Army {
 			if (specialTarget != null && this.getTarget() != specialTarget) {
 				setTarget(specialTarget);
 				System.out.println(getName() + " setting special target " + specialTarget.getName());
-				path.travel();
+			//	path.travel();
 			}
 			else {
 				System.out.println(getName() + " special target is null");
-				path.travel();
+				//path.travel();
 			}
 		}
 		else {
 //			System.out.println(getName() + " path is not empty");
-			path.travel();
+			//path.travel();
+			// don't travel here. that's taken care of elsewhere
+			// never travel in Unique act!
 		}
 	}
 

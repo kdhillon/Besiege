@@ -8,6 +8,7 @@ package kyle.game.besiege.party;
 import java.util.Iterator;
 
 import kyle.game.besiege.Character;
+import kyle.game.besiege.Faction;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Soldier.SoldierType;
@@ -249,6 +250,16 @@ public class Party {
 			}
 		}
 		return consol;	
+	}
+	
+	public Faction getFaction() {
+		if (army != null) return army.getFaction();
+		else return null;
+	}
+	
+	public String getName() {
+		if (army != null) return army.getName();
+		return "";
 	}
 
 	@Override

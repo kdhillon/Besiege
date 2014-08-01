@@ -241,7 +241,7 @@ public class Kingdom extends Group {
 		if (d != player && !player.isInBattle()) {
 			paused = false;
 			player.setTarget(d);
-			mapScreen.shouldCenter = true;
+//			mapScreen.shouldCenter = true;
 			if (player.isGarrisoned()) player.eject();
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}

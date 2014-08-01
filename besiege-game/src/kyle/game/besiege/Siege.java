@@ -71,7 +71,7 @@ public class Siege extends Actor {
 	
 	public void attack() {
 		System.out.println("attack at " + location.getName());
-		location.siegeAttack(armies, location);
+		location.siegeAttack(armies);
 		// make sure siege is set
 		location.siege = this;
 		System.out.println("SETTING SIEGE");

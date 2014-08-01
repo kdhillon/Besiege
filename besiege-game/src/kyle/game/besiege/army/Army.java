@@ -27,6 +27,7 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Center;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -38,7 +39,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class Army extends Actor implements Destination {
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames
-	protected final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
+	public final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
 	private static final float SCALE_FACTOR = 600f; // smaller is bigger
 	private static final float PARTY_SPEED_FACTOR = 3f; // smaller is bigger
 	private static final float BASE_SPEED = 1;
@@ -57,7 +58,7 @@ public class Army extends Actor implements Destination {
 	private static final int offset = 30;
 	private static final String DEFAULT_TEXTURE = "Player";
 	private static final double REPAIR_FACTOR = .5; // if a party gets below this many troops it will go to repair itself.
-
+	private static final float RUN_EVERY = .5f;
 
 	private boolean mouseOver;
 	protected boolean passive; // passive if true (won't attack) aggressive if false;
@@ -110,6 +111,8 @@ public class Army extends Actor implements Destination {
 	public Center containing;
 	private Array<Army> closeArmies;
 	private Array<Center> closeCenters; 
+	
+	private float timeSinceRunFrom = 0;
 
 	Vector2 toTarget;
 
@@ -334,17 +337,17 @@ public class Army extends Actor implements Destination {
 		if (isInBattle()) return "In battle";
 		else if (forceWait) return "Regrouping (" + Panel.format(this.waitUntil-kingdom.clock() + "", 2) + ")";
 		else if (isWaiting()) return "Waiting";
-		else if (isRunning()) return "Running from " + getRunFrom().getName() + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
+		else if (isRunning()) return "Running from " + getRunFrom().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
 		//		else if (shouldRepair) return "SHOULD REPAIR";
 		else if (isInSiege()) return "Besieging " + siege.location.getName();
-		else if (getTarget() != null && getTarget().getType() == 1) return "Travelling to " + getTarget().getName() + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
-		else if (getTarget() != null && getTarget().getType() == 2) return "Following " + getTarget().getName() + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2) + ")";
+		else if (getTarget() != null && getTarget().getType() == 1) return "Travelling to " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
+		else if (getTarget() != null && getTarget().getType() == 2) return "Following " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2) + ")";
 		else return getUniqueAction();
 	}
 
 	public String getUniqueAction() {
 		//contained in extensions;
-		return "Travelling" + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2)+")";
+		return "Travelling"; // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2)+")";
 	}
 
 	public boolean detectCollision() {
@@ -388,7 +391,7 @@ public class Army extends Actor implements Destination {
 
 	public void enemyArmyCollision(Army targetArmy) {
 		if (targetArmy.getBattle() == null) {
-			createBattleWith(targetArmy);
+			createBattleWith(targetArmy, null);
 		}
 		else {
 			// join battle
@@ -406,17 +409,17 @@ public class Army extends Actor implements Destination {
 		//follow
 	}
 
-	public void createBattleWith(Army targetArmy) {
+	public void createBattleWith(Army targetArmy, Location siegeOf) {
 		//		System.out.println(this.getName() + " creating battle");
 		if (this == kingdom.getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
-			getKingdom().getPlayer().createPlayerBattleWith(targetArmy, false, null);
+			getKingdom().getPlayer().createPlayerBattleWith(targetArmy, false, siegeOf);
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else if (targetArmy == kingdom.getPlayer()) {
 			BottomPanel.log("Attacked by " + this.getName() + "!");
-			getKingdom().getPlayer().createPlayerBattleWith(this, true, null);
+			getKingdom().getPlayer().createPlayerBattleWith(this, true, siegeOf);
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
@@ -700,7 +703,9 @@ public class Army extends Actor implements Destination {
 	}
 	// should this army attack that army?
 	public boolean shouldAttack(Army that) {
-		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
+//		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
+//			return true; 
+		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 			return true; 
 		return false;
 	}
@@ -764,6 +769,15 @@ public class Army extends Actor implements Destination {
 	//	}
 
 	public void runFrom(Army runFrom) {
+		// only let armies run from a new army every .5 seconds
+		if (runFrom != null) {
+			if (timeSinceRunFrom < RUN_EVERY) {
+				timeSinceRunFrom += Gdx.graphics.getDeltaTime();
+				return;
+			}
+			else timeSinceRunFrom = 0;
+		}
+		
 		if (runFrom != null) setTarget(null);
 		this.runFrom = runFrom;
 	}
@@ -840,7 +854,7 @@ public class Army extends Actor implements Destination {
 		//System.out.println(this.name + " is raiding " + village.getName());
 		Militia militia = village.createMilitia();
 		kingdom.addArmy(militia);
-		createBattleWith(militia);
+		createBattleWith(militia, village);
 	}
 	public void setSpeed(float speed) {
 		this.speed = speed;
@@ -850,6 +864,8 @@ public class Army extends Actor implements Destination {
 	}
 	public float calcSpeed() {
 		// make speed related to party's speed, morale, and army's unique speed factor, 
+		// simplified version for testing
+		//return (BASE_SPEED + party.getAvgSpd()*PARTY_SPEED_FACTOR)*speedFactor;
 		return (BASE_SPEED + morale/30 + party.getAvgSpd()*PARTY_SPEED_FACTOR - party.getTotalSize()*SIZE_FACTOR)*speedFactor;
 	}
 	public float getScale() {
@@ -868,12 +884,29 @@ public class Army extends Actor implements Destination {
 	public void setMorale(int morale) {
 		this.morale = morale;
 	}
+	
+	
 	public int calcMorale() {
 		// 100 =  25     			  +  25      + 50;
-		return (100 - getTroopCount())/4 + momentum;
+		
+		int base = 0;
+		int party_bonus = Math.min(25, 100 - getTroopCount());
+		int free_bonus = 25;
+		int momentum_bonus = Math.min(50, momentum);
+		
+		return base + party_bonus + free_bonus + momentum_bonus;
+		// return (100 - getTroopCount())/4 + momentum;
 	}
 	public int getMorale() {
 		return morale;
+	}
+	public String getMoraleString() {
+		if (morale < 10) return "Pitiful";
+		if (morale < 35) return "Low";
+		if (morale < 50) return "Mediocre";
+		if (morale < 65) return "Good";
+		if (morale < 90) return "High";
+		else return "Excellent";
 	}
 	public void setMomentum(int momentum) {
 		if (momentum >= 50) {
@@ -1185,6 +1218,7 @@ public class Army extends Actor implements Destination {
 		return faction.name;
 	}
 	public void setParty(Party party) {
+		party.army = this;
 		this.party = party;
 	}
 	public Party getParty() {

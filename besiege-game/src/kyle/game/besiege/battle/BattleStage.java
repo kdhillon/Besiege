@@ -90,7 +90,7 @@ public class BattleStage extends Group {
 	public Stance enemyStance;
 
 	private boolean mouseOver; // is mouse over Battle screen?
-	private boolean paused;
+//	private boolean paused;
 	public boolean isOver; // is the battle over?
 
 	public int unit_width = 16;
@@ -140,7 +140,7 @@ public class BattleStage extends Group {
 		}
 
 //		boolean forceSiege = false;
-		boolean forceSiege = true;
+		boolean forceSiege = false;
 
 		if (siegeOf != null || forceSiege) {
 			siegeDefense = playerDefending;
@@ -178,7 +178,14 @@ public class BattleStage extends Group {
 			this.battle = new Battle(mapScreen.getKingdom(), this.enemy.army, this.player.army);
 		else 
 			this.battle = new Battle(mapScreen.getKingdom(), this.player.army, this.enemy.army);
+		
+		if (battle.siegeOf == null) this.battle.siegeOf = siegeOf;
+
+		else System.out.println("YES SIEGE");
+		
 		battle.calcBalancePlayer();
+		player.army.setBattle(this.battle);
+		enemy.army.setBattle(this.battle);
 
 		// try this
 		pb = new PanelBattle(mapScreen.getSidePanel(), battle);
@@ -210,7 +217,7 @@ public class BattleStage extends Group {
 
 		this.placementPhase = true;
 
-		this.paused = true;
+//		this.paused = true;
 
 		MIN_PLACE_X = SIDE_PAD;
 		MAX_PLACE_X = size_x - SIDE_PAD;
@@ -259,9 +266,10 @@ public class BattleStage extends Group {
 	public void addUnits() {
 		addParty(player);
 		addParty(enemy);
-		//		if (siegeDefense) {
-					addSiegeUnits(player);
-		//		}
+		if (siegeDefense)
+			addSiegeUnits(enemy);
+		else if (siegeAttack)
+			addSiegeUnits(player);
 	}
 
 	// add on wall if there is a wall
@@ -565,7 +573,7 @@ public class BattleStage extends Group {
 				formation[0][i + iCount + archers_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
 			}
 			for (int i = 0; i < archers_right; i++) {
-				formation[0][i + cavalry_left + iCount + archers_left + cavalry_left] = Soldier.SoldierType.ARCHER;
+				formation[0][i + cavalry_left + iCount + archers_left + cavalry_right] = Soldier.SoldierType.ARCHER;
 			}
 		} 
 		// Spread Line:   C C C C I I I I A A A A A I I I I C C C C
@@ -710,6 +718,7 @@ public class BattleStage extends Group {
 		//                   AAAAAAA
 		else if (formationChoice == Formation.FLANKING) {
 			int cavalry_separation = Math.max(0, size_x/2 - cCount);
+			cavalry_separation = 5;
 
 			int top_row = iCount + cCount + 2*cavalry_separation;
 			int bottom_row = aCount;
@@ -770,7 +779,7 @@ public class BattleStage extends Group {
 			else if (BesiegeMain.appType != 1)
 				mouseOver(mouse);
 		}
-		if (!paused) {
+		if (!placementPhase) {
 			super.act(delta);
 			if (allies.size == 0) {
 				victory(enemy.army, player.army);
@@ -943,7 +952,6 @@ public class BattleStage extends Group {
 	public void victory(Army winner, Army loser) {
 		this.isOver = true;
 
-
 		boolean didAtkWin;
 		if (winner.getParty().player) {
 			if (!playerDefending) didAtkWin = true;
@@ -952,7 +960,11 @@ public class BattleStage extends Group {
 			if (playerDefending) didAtkWin = true;
 			else didAtkWin = false;
 		}
+		
 
+		
+		this.battle.didAtkWin = didAtkWin;
+		
 		winner.endBattle();
 		winner.setStopped(false);
 		winner.forceWait(Battle.WAIT);
@@ -985,10 +997,22 @@ public class BattleStage extends Group {
 
 		//		if (winner.getParty().player) {
 		//			// army.setStopped(true);
+		loser.setStopped(false);
+		winner.setStopped(false);
+		
+		winner.forceWait(Battle.WAIT);
+		
+		winner.endBattle();
+		loser.endBattle();
+		
 		winner.setTarget(null);
 		loser.setTarget(null);
 		//		}
 
+		if (battle.siegeOf != null) {
+			System.out.println("managing siege");
+			battle.manageSiege();
+		}
 
 		battle.distributeRewards(winner, 1, didAtkWin);
 		battle.destroy();
@@ -1077,9 +1101,9 @@ public class BattleStage extends Group {
 		this.addActor(unit);
 	}
 
-	public void setPaused(boolean paused) {
-		this.paused = paused;
-	}
+//	public void setPaused(boolean paused) {
+//		this.paused = paused;
+//	}
 
 	public float getMouseX() {
 		return mouse.getX();
@@ -1105,9 +1129,9 @@ public class BattleStage extends Group {
 		mouseOver = b;
 	}
 
-	public boolean isPaused() {
-		return paused;
-	}
+//	public boolean isPaused() {
+//		return paused;
+//	}
 
 	public static double distBetween(Unit d1, Unit d2) {
 		// TODO optimize by computing getCenter only once per

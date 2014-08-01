@@ -293,12 +293,15 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		else faction.setText(army.getFactionName());
 		
 		action.setText(army.getAction());
-		morale.setText(army.getMorale() + "");
+		morale.setText(army.getMoraleString() + "");
 		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
 		money.setText("" + army.getParty().wealth);
 		atk.setText(""+ party.getAtk());
 		def.setText(Panel.format(""+party.getAvgDef(), 2));
-		spd.setText(Panel.format(""+party.getAvgSpd(), 2));
+		
+		// set speed to be current travel speed, not party speed
+		spd.setText(Panel.format(""+party.army.getSpeed()*Army.SPEED_DISPLAY_FACTOR, 2));
+		//spd.setText(Panel.format(""+party.getAvgSpd(), 2));
 		
 		// don't call this every frame.
 		if (party.updated) {

@@ -97,7 +97,8 @@ Day 72: added additional maptypes and formations to battlestage
 Day 73: added walls and ladders to battlestage
 Day 74: added siege units and additional formations to battlestage
 Day 75: made battlestages have the same rewards as regular battles
-Day 76:
+Day 76: made adding walls very easy, added destructable walls
+Day 77: fixed bugs with walls, integrated battlestage sieges into game
 
 
 todo:
@@ -105,11 +106,9 @@ todo:
 BATTLESTAGE:
 
 now:
-make units easily spawn on walls
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
 make walls not flat
 add towers
-make siege units kill walls
 
 later:
 add villages and ruins

@@ -245,7 +245,7 @@ public class ArmyPlayer extends Army {
 	}
 	
 	public void attack(Army army) {
-		createBattleWith(army);
+		createBattleWith(army, null);
 //		BottomPanel.log("Attacking " + getTarget().getName() + "!", "blue5");
 	}
 	

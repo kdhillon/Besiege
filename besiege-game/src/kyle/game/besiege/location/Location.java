@@ -525,7 +525,7 @@ public class Location extends Actor implements Destination {
 	
 	
 	// TODO fix for battlestage
-	public void siegeAttack(Array<Army> attackers, Location location) {
+	public void siegeAttack(Array<Army> attackers) {
 //		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
 //		garrisonArmy.setParty(garrison);
 //		if (this.location. == null) {
@@ -533,9 +533,11 @@ public class Location extends Actor implements Destination {
 //			return;
 //		}
 		
-		attackers.first().createBattleWith(garrison);
+		attackers.first().createBattleWith(garrison, this);
 		Battle b = garrison.getBattle();
-		b.siegeOf = location;
+		b.siegeOf = this;
+		
+		System.out.println("siegeOf = " + this.getName());
 		b.setPosition(this.getX()-b.getWidth()/2, this.getY()-b.getHeight()/2);
 		b.dAdvantage = this.getDefenseFactor();
 		for (Army a : attackers) {
