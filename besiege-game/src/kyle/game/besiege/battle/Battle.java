@@ -37,6 +37,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public TextureRegion halfCrest;
 	private String name;
 	private Kingdom kingdom;
+	
 	public Array<Army> aArmies;
 	public Array<Army> dArmies;
 	public Array<Army> aArmiesRet; 
@@ -133,6 +134,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //		}
 		
 		calcStats();
+//		rangedPhase();
 		meleePhase();
 		if (!isOver)
 			retreatPhase(delta);
@@ -583,9 +585,6 @@ public class Battle extends Actor implements Destination { // new battle system 
 			siegeOf.changeFaction(newOwner);
 		}
 		else if (siegeOf.getSiege() != null) siegeOf.getSiege().destroy();
-	}
-	
-	public void rangedPhase() {
 	}
 
 	@Override

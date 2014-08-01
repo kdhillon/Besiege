@@ -269,7 +269,7 @@ public class Projectile extends Actor {
 		if (inMap() && (wallHeightCheck()) && 
 				(height < stage.heights[pos_y_int][pos_x_int]) && stage.battlemap.objects[pos_y_int][pos_x_int] == null) {
 			
-			if (this.isArrow() || this.bounceCount <= 0) {
+			if (this.isArrow() || this.bounceCount <= 0 || this.stage.battlemap.objects[pos_y_int][pos_x_int] != null) {
 				this.stopped = true;
 
 				// move forward a bit if stuck in an object

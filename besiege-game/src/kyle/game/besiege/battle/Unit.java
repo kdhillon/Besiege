@@ -323,10 +323,10 @@ public class Unit extends Group {
 			else { // either defensive stance or aggressive but ranged within range
 				// just use attack every for convenience
 				timer += delta;
-				if (timer > ATTACK_EVERY){
-					faceEnemy();
-					timer = 0;
-				}
+//				if (timer > ATTACK_EVERY){
+//					faceEnemy();
+//					timer = 0;
+//				}
 				// if enemy is within one unit and fighting, can move to them.
 				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
 					moveToEnemy();
@@ -498,6 +498,7 @@ public class Unit extends Group {
 			nearestEnemy = getNearestEnemy();
 			if (nearestEnemy == null) return;
 		}
+		nearestEnemy = getNearestEnemy();
 		moveToPoint(nearestEnemy.getPoint());
 	}
 	
@@ -544,27 +545,30 @@ public class Unit extends Group {
 			if (this.onWall())
 				nearLadder = getNearestLadderTo(this.getPoint());
 			else nearLadder = getNearestLadderTo(point); // slightly better but not perfect - must guarantee that there are always ladders close enough
-
+			if (stage.selectedUnit == this) System.out.println("moving to ladder");
 //			if (!(point.pos_x == nearLadder.pos_x && point.pos_y == nearLadder.pos_y) && !stage.ladderAt(this.pos_x, this.pos_y))
 				this.moveToPoint(nearLadder);
 			return;
 		} 
-		// check if on same side of wall (also make sure to not check sides with entrances)
+//		// check if on same side of wall (also make sure to not check sides with entrances)
 		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y)) {
 			BPoint nearestEntrance;
 			if (stage.insideWall(this.pos_x, this.pos_y))
 				nearestEntrance = getNearestEntranceTo(point);
 			else nearestEntrance = getNearestEntranceTo(this.getPoint());
 			this.moveToPoint(nearestEntrance);
-//			System.out.println("needs to move inside wall");
+			// once it gets to nearestEntrance, it's not getting the right target...
+			if (stage.selectedUnit == this) System.out.println("needs to move inside wall");
 			return;
 		}
+		
+		if (stage.selectedUnit == this) if (stage.entranceAt(point.pos_x, point.pos_y)) System.out.println("target is entrance");
 		
 		this.face(point);
 		
 		Orientation original = this.orientation;
 
-		if (Math.random() < .01 || !this.moveForward()) {
+		if (!this.moveForward()) {
 
 			if (Math.random() > .5) this.forceTwoMoves = true;
 
@@ -644,17 +648,17 @@ public class Unit extends Group {
 		stage.addActor(projectile);
 	}
 
-	private void faceEnemy() {
-		Unit nearest = this.getNearestEnemy();
-		if (nearest == null) return;
-		this.face(nearest);
-	}
+//	private void faceEnemy() {
+//		Unit nearest = this.getNearestEnemy();
+//		if (nearest == null) return;
+//		this.face(nearest);
+//	}
 
-	private void faceEnemyAlt() {
-		Unit nearest = this.getNearestEnemy();
-		if (nearest == null) return;
-		this.faceAlt(nearest);
-	}
+//	private void faceEnemyAlt() {
+//		Unit nearest = this.getNearestEnemy();
+//		if (nearest == null) return;
+//		this.faceAlt(nearest);
+//	}
 
 	private BPoint getNearestCover() {
 		Orientation thisOrientation = Orientation.DOWN;
@@ -1110,11 +1114,11 @@ public class Unit extends Group {
 		return true;
 	}
 
-	boolean canMove(int pos_x, int pos_y) {
+	public boolean canMove(int pos_x, int pos_y) {
 		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_y) return false;
 		if (stage.closed[pos_y][pos_x]) return false;
 		if (Math.abs(this.getFloorHeight() - stage.heights[pos_y][pos_x]) > Unit.CLIMB_HEIGHT && (!stage.ladderAt(pos_x, pos_y) || this.isMounted())) return false;
-		if (stage.ladderAt(pos_x, pos_y) && this.isMounted()) return false;
+		if (stage.ladderAt(pos_x, pos_y) && (this.isMounted() || (this.retreating && this.getOppositeOrientation() != stage.battlemap.getLadderAt(pos_x, pos_y).orientation))) return false;
 		if (stage.siegeUnits[pos_y][pos_x] != null) return false;
 		return true;
 	}
@@ -1189,7 +1193,7 @@ public class Unit extends Group {
 
 	// call this when a soldier dies from wounds
 	public void kill() {
-		this.unman();;
+		this.unman();
 
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;

@@ -178,3 +178,363 @@ warhammer
   orig: 3, 12
   offset: 0, 0
   index: -1
+
+weapons.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+axe
+  rotate: false
+  xy: 2, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+bardiche
+  rotate: false
+  xy: 7, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+battleaxe
+  rotate: false
+  xy: 12, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+claymore
+  rotate: false
+  xy: 17, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+club
+  rotate: false
+  xy: 22, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+crossbow
+  rotate: false
+  xy: 27, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+dagger
+  rotate: false
+  xy: 32, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+falchion
+  rotate: false
+  xy: 37, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+guisarme
+  rotate: false
+  xy: 42, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+halberd
+  rotate: false
+  xy: 47, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+lance
+  rotate: false
+  xy: 52, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+longbow
+  rotate: false
+  xy: 57, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+longsword
+  rotate: false
+  xy: 62, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+mace
+  rotate: false
+  xy: 67, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+maul
+  rotate: false
+  xy: 72, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+militaryfork
+  rotate: false
+  xy: 77, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+morningstar
+  rotate: false
+  xy: 82, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+pike
+  rotate: false
+  xy: 87, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+pitchfork
+  rotate: false
+  xy: 92, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+recurve
+  rotate: false
+  xy: 97, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+shortbow
+  rotate: false
+  xy: 102, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+shortsword
+  rotate: false
+  xy: 107, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+spear
+  rotate: false
+  xy: 112, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+voulge
+  rotate: false
+  xy: 117, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+warhammer
+  rotate: false
+  xy: 122, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+
+weapons.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+axe
+  rotate: false
+  xy: 2, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+bardiche
+  rotate: false
+  xy: 7, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+battleaxe
+  rotate: false
+  xy: 12, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+claymore
+  rotate: false
+  xy: 17, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+club
+  rotate: false
+  xy: 22, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+crossbow
+  rotate: false
+  xy: 27, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+dagger
+  rotate: false
+  xy: 32, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+falchion
+  rotate: false
+  xy: 37, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+guisarme
+  rotate: false
+  xy: 42, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+halberd
+  rotate: false
+  xy: 47, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+lance
+  rotate: false
+  xy: 52, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+longbow
+  rotate: false
+  xy: 57, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+longsword
+  rotate: false
+  xy: 62, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+mace
+  rotate: false
+  xy: 67, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+maul
+  rotate: false
+  xy: 72, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+militaryfork
+  rotate: false
+  xy: 77, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+morningstar
+  rotate: false
+  xy: 82, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+pike
+  rotate: false
+  xy: 87, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+pitchfork
+  rotate: false
+  xy: 92, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+recurve
+  rotate: false
+  xy: 97, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+shortbow
+  rotate: false
+  xy: 102, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+shortsword
+  rotate: false
+  xy: 107, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+spear
+  rotate: false
+  xy: 112, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+voulge
+  rotate: false
+  xy: 117, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+warhammer
+  rotate: false
+  xy: 122, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1

@@ -43,16 +43,18 @@ public class BattleMap extends Actor {
 		int pos_y;
 		int hp;
 		boolean damaged;
+		Orientation orientation;
+		int size; // original thickness of wall
 	}
 	
 	public Array<Wall> walls;
 	
 	//	private Array<Object> walls;
 
-	private int wallTop; 
-	private int wallLeft;
-	private int wallRight;
-	private int wallBottom;
+	public int wallTop; 
+	public int wallLeft;
+	public int wallRight;
+	public int wallBottom;
 	
 	private boolean wallDamaged;
 
@@ -61,7 +63,7 @@ public class BattleMap extends Actor {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.07f, 40), CASTLE_WALL_FLOOR(0f, 40);
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.07f, 20), CASTLE_WALL_FLOOR(0f, 20);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -94,7 +96,7 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 				this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.FOREST;
+		this.maptype = MapType.DESERT;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -389,13 +391,24 @@ public class BattleMap extends Actor {
 		this.ladders.add(l);
 		stage.slow[l.pos_y][l.pos_x] = LADDER_SLOW;
 	}
-
-	public boolean ladderAt(int pos_x, int pos_y) {
+	
+	public void removeLadderAt(int pos_x, int pos_y) {
 		for (Ladder l : ladders) {
-			if (l.pos_x == pos_x && l.pos_y == pos_y) return true;
+			if (l.pos_x == pos_x && l.pos_y == pos_y) ladders.removeValue(l, true);
 		}
-		return false;
+		stage.slow[pos_y][pos_x] = 0;
 	}
+	
+	public boolean ladderAt(int pos_x, int pos_y) {
+		return getLadderAt(pos_x, pos_y) != null;
+	}
+	public Ladder getLadderAt(int pos_x, int pos_y) {
+		for (Ladder l : ladders) {
+			if (l.pos_x == pos_x && l.pos_y == pos_y) return l;
+		}
+		return null;
+	}
+	
 	public boolean entranceAt(int pos_x, int pos_y) {
 		for (BPoint l : entrances) {
 			if (l.pos_x == pos_x && l.pos_y == pos_y) return true;
@@ -482,7 +495,7 @@ public class BattleMap extends Actor {
 
 	// first draw wall at position, then floor, then
 	private void addSingleWall(int pos_x, int pos_y, int width, Orientation orientation, boolean withLadder) {
-		if (addObject(pos_x, pos_y, Object.CASTLE_WALL)) {
+		if (addObject(pos_x, pos_y, Object.CASTLE_WALL, orientation, width)) {
 			stage.heights[pos_y][pos_x] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 			stage.closed[pos_y][pos_x] = true;
 		}
@@ -497,7 +510,7 @@ public class BattleMap extends Actor {
 
 		// add floor behind wall
 		for (int i = 1; i < width; i++) {
-			if (addObject(pos_x + horFactor*i, pos_y + vertFactor*i, Object.CASTLE_WALL_FLOOR)) {
+			if (addObject(pos_x + horFactor*i, pos_y + vertFactor*i, Object.CASTLE_WALL_FLOOR, orientation, width)) {
 				stage.heights[pos_y + vertFactor*i][pos_x + horFactor*i] = CASTLE_WALL_HEIGHT_DEFAULT; 
 			}
 			if (i == 1) {
@@ -521,22 +534,70 @@ public class BattleMap extends Actor {
 				if (wall.hp <= 0) {
 					if (this.objects[pos_y][pos_x] == Object.CASTLE_WALL_FLOOR) floor = true;
 					this.objects[pos_y][pos_x] = null;
+					// delete entire wall?
 					stage.heights[pos_y][pos_x] = 0;
 					stage.closed[pos_y][pos_x] = false;
-					// decide if should put entrance
-					// should put entrance if connects outside castle to inside castle with no objects?
-					if (objects[pos_y - 1][pos_x] == null && !floor) {
-						BPoint entrance = new BPoint(pos_x, pos_y);
-						this.entrances.add(entrance);
-						System.out.println("adding entrance");
+					
+					//delete ladder;
+					if (wall.orientation == Orientation.DOWN || wall.orientation == Orientation.UP) {
+						if (ladderAt(pos_x, pos_y+1)) removeLadderAt(pos_x, pos_y+1);
+						if (ladderAt(pos_x, pos_y-1)) removeLadderAt(pos_x, pos_y-1);
+					}
+					else {
+						if (ladderAt(pos_x+1, pos_y)) removeLadderAt(pos_x+1, pos_y);
+						if (ladderAt(pos_x-1, pos_y)) removeLadderAt(pos_x-1, pos_y);
 					}
 					
-					System.out.println("wall destroyed");
+					// injure unit
+					if (stage.units[pos_y][pos_x] != null) {
+						stage.units[pos_y][pos_x].isDying = true;
+						stage.units[pos_y][pos_x].kill();
+					}
+					
+					checkForNewEntrance(wall);
 				}
 			}
 		}
 	}
 
+	private void checkForNewEntrance(Wall wall) {
+		// find the appropriate point to add entrance at
+		int entrance_x;
+		int entrance_y;
+		if (wall.orientation == Orientation.DOWN) {
+			entrance_x = wall.pos_x;
+			entrance_y = wallBottom;
+			// make sure no walls left
+			for (int i = 0; i < wall.size; i++)
+				if (objects[entrance_y+i][entrance_x] != null) return;
+		}
+		else if (wall.orientation == Orientation.UP) {
+			entrance_x = wall.pos_x;
+			entrance_y = wallTop;
+			// make sure no walls left
+			for (int i = 0; i < wall.size; i++)
+				if (objects[entrance_y-i][entrance_x] != null) return;
+		}
+		else if (wall.orientation == Orientation.LEFT) {
+			entrance_x = wallLeft;
+			entrance_y = wall.pos_y;
+			// make sure no walls left
+			for (int i = 0; i < wall.size; i++)
+				if (objects[entrance_y][entrance_x+i] != null) return;
+		}
+		else {
+			entrance_x = wallRight;
+			entrance_y = wall.pos_y;
+			// make sure no walls left
+			for (int i = 0; i < wall.size; i++)
+				if (objects[entrance_y][entrance_x-i] != null) return;
+		}
+		
+		// add entrance
+		BPoint entrance = new BPoint(entrance_x, entrance_y);
+		this.entrances.add(entrance);
+	}
+	
 	private void addFences(int maxWalls) {
 		int number_walls = (int)(Math.random()*maxWalls + .5);
 		for (int count = 0; count < number_walls; count++) {
@@ -784,7 +845,7 @@ public class BattleMap extends Actor {
 		}
 
 		// draw area inside walls
-		boolean drawInsideWalls = false;
+		boolean drawInsideWalls = true;
 		//				boolean drawClosed = true;
 
 		if (drawInsideWalls) {
@@ -858,17 +919,25 @@ public class BattleMap extends Actor {
 		}
 	}
 
-	private boolean addObject(int pos_x, int pos_y, Object object) {
+	private boolean addObject(int pos_x, int pos_y, Object object, Orientation orientation, int width) {
 		if (objects[pos_y][pos_x] == null && !stage.closed[pos_y][pos_x]) {
 			objects[pos_y][pos_x] = object;
 			if (object == Object.CASTLE_WALL || object == Object.CASTLE_WALL_FLOOR) {
 				Wall wall = new Wall();
-				wall.pos_x = pos_x; wall.pos_y = pos_y; wall.hp = object.hp;
+				wall.pos_x = pos_x; 
+				wall.pos_y = pos_y; 
+				wall.hp = object.hp;
+				wall.orientation = orientation;
+				wall.size = width;
 				walls.add(wall);
 			}
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean addObject(int pos_x, int pos_y, Object object) {
+		return addObject(pos_x, pos_y, object, null, 0);
 	}
 
 	private TextureRegion getTexture(GroundType ground) {
@@ -919,8 +988,8 @@ public class BattleMap extends Actor {
 	//	}
 
 	public boolean insideWalls(int pos_x, int pos_y) { 
-		if (pos_y < wallTop && pos_y > wallBottom)
-			if (pos_x < wallRight && pos_x > wallLeft) 
+		if (pos_y <= wallTop && pos_y >= wallBottom)
+			if (pos_x <= wallRight && pos_x >= wallLeft) 
 				return true;
 		return false;
 	}

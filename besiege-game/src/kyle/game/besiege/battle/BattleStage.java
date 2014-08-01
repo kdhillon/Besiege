@@ -306,6 +306,11 @@ public class BattleStage extends Group {
 			base_x = size_x/2 - region_width/2;
 			base_y = (int) (size_y * .8f) - region_height/2;
 			team = 1;
+			
+			
+			if (siegeAttack && battlemap.wallBottom > 0) {
+				base_y = battlemap.wallBottom + 1;
+			}
 		}
 
 		for (int i = 0; i < region_height; i++) {
@@ -319,13 +324,13 @@ public class BattleStage extends Group {
 					if (canPlaceUnit(base_x + j, base_y + i)) {
 						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, party);
 						unit.stance = partyStance;
-						if (party == player && siegeDefense) unit.dismount();
+						if (party == player && siegeDefense || unit.onWall()) unit.dismount();
 						addUnit(unit);
 					}
 					else if (canPlaceUnit(base_x + j, base_y + i + REINFORCEMENT_DIST)) {
 						Unit unit = new Unit(this, base_x + j, base_y + i + REINFORCEMENT_DIST, team, toAdd, party);
 						unit.stance = partyStance;
-						if (party == player && siegeDefense) unit.dismount();
+						if (party == player && siegeDefense || unit.onWall()) unit.dismount();
 						addUnit(unit);
 					}
 				}
@@ -704,7 +709,7 @@ public class BattleStage extends Group {
 		//  CCCCC            IIIIIII              CCCCC
 		//                   AAAAAAA
 		else if (formationChoice == Formation.FLANKING) {
-			int cavalry_separation = size_x/2 - 2*cCount;
+			int cavalry_separation = Math.max(0, size_x/2 - cCount);
 
 			int top_row = iCount + cCount + 2*cavalry_separation;
 			int bottom_row = aCount;
@@ -712,6 +717,8 @@ public class BattleStage extends Group {
 			int bottom_start_left = Math.max(0, top_row - bottom_row)/2;
 			int top_start_left = Math.max(0, bottom_row - top_row)/2;
 
+			System.out.println("top row: " + top_row);
+			
 			int formation_width = Math.max(top_row, bottom_row);
 			int formation_height = 3;
 
