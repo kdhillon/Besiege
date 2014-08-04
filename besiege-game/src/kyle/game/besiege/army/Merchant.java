@@ -59,6 +59,11 @@ public class Merchant extends Army {
 //	}
 	
 	@Override
+	public void garrisonAct(float delta) {
+		
+	}
+	
+	@Override
 	public void wait(float delta) {
 		if (getKingdom().clock() >= getWaitUntil()) {
 			if (isGarrisonedIn(goal)) {

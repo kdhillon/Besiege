@@ -58,6 +58,7 @@ public class Corner {
 		if (waterTouches == 1 && touches.size() == 3) {
 			for (Center center : touches) {
 				if (center.water) {
+					//System.out.println("PUSHING OUT");
 					// create vector pointing towards center of water
 					Vector2 vector = new Vector2((float)(center.loc.x-loc.x), (float)(center.loc.y-loc.y));// don't worry about "upside down map"
 					vector.scl(1/vector.len()); // unitize

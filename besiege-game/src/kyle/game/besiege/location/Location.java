@@ -603,7 +603,7 @@ public class Location extends Actor implements Destination {
 		System.out.println("location.startWait()");
 		playerWaiting = true;
 		getKingdom().getPlayer().setWaiting(true);
-		getKingdom().getMapScreen().shouldFastForward = true;
+//		getKingdom().getMapScreen().shouldFastForward = true;
 		getKingdom().getMapScreen().shouldLetRun = true;
 		getKingdom().setPaused(false);
 	}
@@ -612,7 +612,7 @@ public class Location extends Actor implements Destination {
 //		System.out.println("location.stopWait()");
 		playerWaiting = false;
 		getKingdom().getPlayer().setWaiting(false);
-		getKingdom().getMapScreen().shouldFastForward = false;
+//		getKingdom().getMapScreen().shouldFastForward = false;
 		getKingdom().getMapScreen().shouldLetRun = false;
 		getKingdom().setPaused(true);
 	}

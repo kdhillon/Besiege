@@ -26,10 +26,10 @@ import com.badlogic.gdx.utils.Array;
 public class Battle extends Actor implements Destination { // new battle system involving Party
 	private static final float SPEED = 2000; //lower is faster
 	private static final int EXP_FACTOR = 100; // how much more exp is given to winning party than total atk of enemies
-	private static final int BASE_EXP = 10;
+	private static final int BASE_EXP = 1;
 	private static final int BASE_RETREAT_TIME = 5;
 	private static final double RETREAT_WEALTH_FACTOR = .2; // this is how much of the retreating parties wealth will be lost
-	private static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
+	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
 	public static final int WAIT = 3; // time army must wait after winning a battle to give the retreater a head start? maybe a better way to do this.
 	private final int baseMoraleReward = 25;
 	private final String REGION = "battle";
@@ -556,6 +556,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		
 		aArmies.clear();
 		dArmies.clear();
+		this.kingdom.removeBattle(this);
 		this.remove();
 	}
 	
@@ -572,6 +573,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 			moraleReward = (int) (initBalanceD*baseMoraleReward);
 		}
 		expReward *= EXP_FACTOR; // just to beef it up
+		
+		if (army.getParty().player)
 		log(army.getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");
 		army.getParty().wealth += reward;
 		army.getParty().distributeExp(expReward);

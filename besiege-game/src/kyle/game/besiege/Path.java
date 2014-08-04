@@ -23,7 +23,7 @@ import kyle.game.besiege.voronoi.Edge;
 import com.badlogic.gdx.math.Vector2;
 
 public class Path {
-	private static final int GOAL_DIST = 5;
+	private static final int GOAL_DIST = 8;
 	private Map map;
 	private Army army;
 	public Destination finalGoal;

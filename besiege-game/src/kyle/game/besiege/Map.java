@@ -41,8 +41,8 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	public ShapeRenderer sr;
 
-	public static final int WIDTH = 3000;
-	public static final int HEIGHT = 3000;
+	public static final int WIDTH = 5000;
+	public static final int HEIGHT = 5000;
 	private static final int NUM_SITES = 1000;
 //	public static boolean debug = true;
 	public static boolean debug;

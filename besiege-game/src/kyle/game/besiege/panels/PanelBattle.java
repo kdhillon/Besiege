@@ -506,7 +506,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 //						clearStats();
 //					}
 //				});
-				table.add(name).width(table.getWidth()*3/4);
+				table.add(name).width(table.getWidth()*3/4).left();
 				Label count = new Label(as.size +"", lsSmall);
 				table.add(count).right();
 				table.row();
@@ -528,7 +528,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 //						clearStats();
 //					}
 //				});
-				table.add(name).width(table.getWidth()*3/4);
+				table.add(name).width(table.getWidth()*3/4).left();
 				Label count = new Label(as.size +"", lsSmallG);
 				table.add(count).right();
 				table.row();
@@ -613,9 +613,12 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		//retreat button
 		if (getButton(1).isVisible()) {
 			
-			if (battleStage == null) 
-				battle.retreat(panel.getKingdom().getPlayer());
-			else battleStage.retreatAll(true);
+			if (battleStage == null)
+				battle.retreat(panel.getKingdom().getPlayer());	
+			else {
+				battleStage.placementPhase = false;
+				battleStage.retreatAll(true);
+			}
 			
 			getButton(1).setVisible(false);
 		}
@@ -625,7 +628,10 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		if (getButton(2).isVisible()) {
 			
 			if (battleStage == null) BottomPanel.log("no battle stage to retreat!!");
-			else battleStage.chargeAll(true);
+			else {
+				battleStage.placementPhase = false;
+				battleStage.chargeAll(true);
+			}
 			
 			getButton(2).setVisible(false);
 		}

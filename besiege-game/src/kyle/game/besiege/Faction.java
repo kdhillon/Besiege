@@ -45,6 +45,9 @@ public class Faction {
 	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
 	private boolean hasChecked;
 
+	public int faction_center_x; // only used when initializing map to keep factions close together
+	public int faction_center_y; 
+	
 	private final int NOBLE_COUNT = 5; //TODO
 
 	public static final int MAX_RELATION = 100;
@@ -67,7 +70,6 @@ public class Faction {
 	public static final Color TEAL = new Color(57/256.0f, 170/256.0f, 115/256.0f, 1);
 	public static final Color GREEN = new Color(41/256.0f, 72/256.0f, 33/256.0f, 1);
 
-	
 	private  static int factionCount;
 
 	private static Array<Array<Integer>> factionRelations; // should break into multiple arrays
@@ -115,8 +117,8 @@ public class Faction {
 		createFaction("Selven", "crestGreenStripe", GREEN);
 		createFaction("Halmera", "crestBlueRose", BLUE);
 
-		createFaction("Fernel", "crestBlank", Color.LIGHT_GRAY);
-		createFaction("Draekal", "crestBlank", Color.MAGENTA);
+		createFaction("Fernel", "crestRedAxe", Color.LIGHT_GRAY);
+	//	createFaction("Draekal", "crestBlank", Color.BLACK);
 
 		for (Faction f : factions) {
 			f.kingdom = kingdom;
@@ -352,7 +354,7 @@ public class Faction {
 		locationsToAttack.add(location);
 		int noblesToOrder = Math.max((int) (unoccupiedNobles.size * ORDER_FACTOR), 1);
 		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles");
-		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles", "magenta");
+	//	BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles", "magenta");
 		while (noblesToOrder > 0) {
 			Noble randomNoble = unoccupiedNobles.random();
 			setTask(randomNoble, location);

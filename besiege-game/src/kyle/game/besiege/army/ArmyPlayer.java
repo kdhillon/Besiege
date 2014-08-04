@@ -37,7 +37,7 @@ public class ArmyPlayer extends Army {
 			int posX, int posY, int troopCount) {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
-		super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.MACE_TEST);
+		super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
 
 		this.character = character;
 		this.panel = getKingdom().getMapScreen().getSidePanel();
@@ -54,6 +54,10 @@ public class ArmyPlayer extends Army {
 		// debugging
 		sr = new ShapeRenderer();
 		this.calcMaxPartySize();
+		
+		
+		// debugging
+//		this.getParty().distributeExp(10000);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.RangedWeapon;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
 import kyle.game.besiege.party.Weapon;
@@ -361,15 +362,27 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			Weapon up1 = upgradeArr.get(0);
 			up1B.weapon = up1;
 			up1B.setVisible(true);
-			upgrade1S.setText(" " + up1.name + " ");
-			upgrade1StatsS.setText(statDif(s.weapon, up1));
+			if (s.rangedWeapon == null) {
+				upgrade1S.setText(" " + up1.name + " ");
+				upgrade1StatsS.setText(statDif(s.weapon, up1));
+			}
+			else {
+				upgrade1S.setText(" " + Weapon.getRanged(up1).name + " ");
+				upgrade1StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up1)));
+			}
 		}
 		if (upgradeArr.size >= 2) {
 			Weapon up2 = upgradeArr.get(1);
 			up2B.weapon = up2;
 			up2B.setVisible(true);
-			upgrade2S.setText(" " + up2.name + " ");
-			upgrade2StatsS.setText(statDif(s.weapon, up2));
+			if (s.rangedWeapon == null) {
+				upgrade2S.setText(" " + up2.name + " ");
+				upgrade2StatsS.setText(statDif(s.weapon, up2));
+			}
+			else {
+				upgrade2S.setText(" " + Weapon.getRanged(up2).name + " ");
+				upgrade2StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up2)));
+			}
 		}
 		else {
 			upgrade2S.setText("");
@@ -380,8 +393,14 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			Weapon up3 = upgradeArr.get(2);
 			up3B.weapon = up3;
 			up3B.setVisible(true);
-			upgrade3S.setText(" " + up3.name + " ");
-			upgrade3StatsS.setText(statDif(s.weapon, up3));
+			if (s.rangedWeapon == null) {
+				upgrade3S.setText(" " + up3.name + " ");
+				upgrade3StatsS.setText(statDif(s.weapon, up3));
+			}
+			else {
+				upgrade3S.setText(" " + Weapon.getRanged(up3).name + " ");
+				upgrade3StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up3)));
+			}
 		}
 		else {
 			upgrade3S.setText("");
@@ -434,6 +453,31 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			else stats += spdDif + "s";
 		}
 		if (atkDif == 0 && defDif == 0 && spdDif == 0)
+			stats += "no change";
+		return stats;
+	}
+	
+	private String statDif(RangedWeapon curr, RangedWeapon up) {
+		String stats = "";
+		int atkDif, rangeDif, accuracyDif;
+		atkDif = up.atkMod - curr.atkMod;
+		rangeDif = up.range - curr.range;
+		accuracyDif = up.accuracy - curr.accuracy;
+		if (atkDif != 0) {
+			if (atkDif > 0) stats +=  "+" + atkDif + "at";
+			else stats += atkDif + "at";
+		}
+		if (rangeDif != 0) {
+			if (atkDif != 0) stats += ", ";
+			if (rangeDif > 0) stats +=  "+" + rangeDif + "rg";
+			else stats += rangeDif + "rg";
+		}
+		if (accuracyDif != 0) {
+			if (atkDif != 0 || rangeDif != 0) stats += ", ";
+			if (accuracyDif > 0) stats +=  "+" + accuracyDif + "ac";
+			else stats += accuracyDif + "ac";
+		}
+		if (atkDif == 0 && rangeDif == 0 && accuracyDif == 0)
 			stats += "no change";
 		return stats;
 	}

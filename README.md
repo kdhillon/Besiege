@@ -99,7 +99,7 @@ Day 74: added siege units and additional formations to battlestage
 Day 75: made battlestages have the same rewards as regular battles
 Day 76: made adding walls very easy, added destructable walls
 Day 77: fixed bugs with walls, integrated battlestage sieges into game
-
+Day 78: fixed farmer bug, made factions group better, created version 0.2
 
 todo:
 
@@ -107,16 +107,22 @@ BATTLESTAGE:
 
 now:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
-make walls not flat
-add towers
+
+add retreat timer?
 
 later:
+make walls not flat
+add towers
 add villages and ruins
-add b
+add ballistas
+add safeguards against battles getting stuck
+add some randomness to which ladder is chosen
 
 MAP:
-
-
+now:
+merchants are leaving cities before they should and still waiting outside city.
+player still stuck after retreating
+make so each faction gets at least one city
 
 are these actually problems:
 implement army repairing based on wealth (?)
@@ -129,16 +135,12 @@ make bandits not seige (?)
 
 
 later:
-
-make a realistic world:
 add besieging of castles
+add menu screen with flame!
 
 
 gameplay:
 
-
-
-add resting - in cities and outside - for player and others.
 implement "honor" and baronage for player
 change "back" button to use a stack
 add populations

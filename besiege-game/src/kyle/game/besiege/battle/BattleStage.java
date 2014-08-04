@@ -31,8 +31,8 @@ public class BattleStage extends Group {
 	public Battle battle;
 	private PanelBattle pb;
 	public float scale = 1f;
-	public float MIN_SIZE = 55;
-	public float SIZE_FACTOR = .2f; // how much does the size of the parties
+	public float MIN_SIZE = 70;
+	public float SIZE_FACTOR = .3f; // how much does the size of the parties
 	// affect the size of battlefield?
 
 	public static boolean drawCrests = true;
@@ -41,7 +41,7 @@ public class BattleStage extends Group {
 
 	public static int SIDE_PAD = 5;
 	public static int BOTTOM_PAD = 5;
-	public static int PLACE_HEIGHT = 20;
+	public static int PLACE_HEIGHT = 30;
 
 
 	public int MIN_PLACE_X;
@@ -184,8 +184,8 @@ public class BattleStage extends Group {
 		else System.out.println("YES SIEGE");
 		
 		battle.calcBalancePlayer();
-		player.army.setBattle(this.battle);
-		enemy.army.setBattle(this.battle);
+		this.player.army.setBattle(this.battle);
+		this.enemy.army.setBattle(this.battle);
 
 		// try this
 		pb = new PanelBattle(mapScreen.getSidePanel(), battle);
@@ -226,7 +226,7 @@ public class BattleStage extends Group {
 		MAX_PLACE_Y = PLACE_HEIGHT + BOTTOM_PAD;
 
 		// set up orignal base points
-		originalPoint =  new BPoint(size_x/2, (int) (size_y * .2f) + 1);
+		originalPoint =  new BPoint(size_x/2, (int) (size_y * .3f) + 1);
 		placementPoint = originalPoint;
 
 		// only add enemy units to start?
@@ -312,7 +312,7 @@ public class BattleStage extends Group {
 		int team = 0;
 		if (party != player) {
 			base_x = size_x/2 - region_width/2;
-			base_y = (int) (size_y * .8f) - region_height/2;
+			base_y = (int) (size_y * .7f) - region_height/2;
 			team = 1;
 			
 			
@@ -433,8 +433,8 @@ public class BattleStage extends Group {
 
 	private void addSiegeUnits(Party party) {
 		if (party == player) {
-			int siegeCount = 5;
-			int siegeZoneBottom = 15;
+			int siegeCount = 3;
+			int siegeZoneBottom = 0;
 			int siegeZoneSize = 20; // 20 from the top
 
 			for (int i = 0; i < siegeCount; i++) {
@@ -672,7 +672,9 @@ public class BattleStage extends Group {
 			int top_start_left = Math.max(0, bottom_row - top_row)/2;
 
 			int formation_width = Math.max(top_row, bottom_row);
-			int formation_height = top_row / 4 + archer_separation;
+			System.out.println("width: " + formation_width);
+			int formation_height = top_row / 4 + archer_separation + 1;
+			System.out.println("height: " + formation_height);
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
 
@@ -726,7 +728,7 @@ public class BattleStage extends Group {
 			int bottom_start_left = Math.max(0, top_row - bottom_row)/2;
 			int top_start_left = Math.max(0, bottom_row - top_row)/2;
 
-			System.out.println("top row: " + top_row);
+//			System.out.println("top row: " + top_row);
 			
 			int formation_width = Math.max(top_row, bottom_row);
 			int formation_height = 3;
@@ -781,6 +783,10 @@ public class BattleStage extends Group {
 		}
 		if (!placementPhase) {
 			super.act(delta);
+			if ((playerDefending && battle.balanceA < Battle.RETREAT_THRESHOLD/2) || (!playerDefending && battle.balanceD < Battle.RETREAT_THRESHOLD/2)) {
+				retreatAll(false);
+			}
+			
 			if (allies.size == 0) {
 				victory(enemy.army, player.army);
 			} else if (enemies.size == 0) {
@@ -877,7 +883,7 @@ public class BattleStage extends Group {
 		if (center.pos_y + currentFormationHeight/2 >= MAX_PLACE_Y) 
 			mousePoint.pos_y = MAX_PLACE_Y - 1 - centerOffset.pos_y - currentFormationHeight/2;
 
-		System.out.println(center.pos_x + " " + center.pos_y);
+//		System.out.println(center.pos_x + " " + center.pos_y);
 
 		// set position
 
@@ -1000,6 +1006,7 @@ public class BattleStage extends Group {
 		loser.setStopped(false);
 		winner.setStopped(false);
 		
+		loser.waitFor(0);
 		winner.forceWait(Battle.WAIT);
 		
 		winner.endBattle();
@@ -1007,15 +1014,16 @@ public class BattleStage extends Group {
 		
 		winner.setTarget(null);
 		loser.setTarget(null);
-		//		}
 
-		if (battle.siegeOf != null) {
+		if (battle.siegeOf != null && !battle.siegeOf.isVillage()) {
 			System.out.println("managing siege");
 			battle.manageSiege();
 		}
 
 		battle.distributeRewards(winner, 1, didAtkWin);
 		battle.destroy();
+		
+		this.pb = null;
 
 		// free up some memory
 		this.battlemap = null;

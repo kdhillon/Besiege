@@ -452,12 +452,12 @@ public class MapScreen implements Screen {
 				armyCrestsToggle = false;
 			}
 			
-//			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-//				sidePanel.setActiveArmy(kingdom.getPlayer());
-//			}
 			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-				Gdx.app.exit();
+				sidePanel.setActiveArmy(kingdom.getPlayer());
 			}
+//			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+//				Gdx.app.exit();
+//			}
 			
 			if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
 				if (battle != null && battle.placementPhase) {
@@ -518,6 +518,7 @@ public class MapScreen implements Screen {
 		this.battleCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 		this.battleStage.setCamera(battleCamera);
 		this.currentCamera = battleCamera;
+		this.shouldCenter = false;
 		center();
 		battleCamera.zoom = 1f;
 		currentStage = battleStage;

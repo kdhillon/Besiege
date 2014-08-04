@@ -101,9 +101,12 @@ public class Kingdom extends Group {
 
 		Faction.initializeFactions(this);
 
+		assignFactionCenters();
+		
 		initializeCities();
 		initializeVillages();
 		initializeCastles();
+		
 		
 		Faction.initializeFactionCityInfo();
 
@@ -349,6 +352,13 @@ public class Kingdom extends Group {
 		addActor(newCity);
 	}
 
+	public void assignFactionCenters() {
+		for (Faction faction : Faction.factions) {
+			faction.faction_center_x = (int) (Math.random() * Map.WIDTH);
+			faction.faction_center_y = (int) (Math.random() * Map.HEIGHT);
+		}
+	}
+	
 	public void initializeCities() {	
 		Array<String> cityArray = Assets.cityArray;
 		//		Scanner scanner = Assets.cityList;
@@ -362,14 +372,17 @@ public class Kingdom extends Group {
 		//		while (scanner.hasNextLine() && (map.cityCorners.size > 0 && map.cityCenters.size > 0)) {
 		while (cityArray.size > 0 && (map.cityCorners.size > 0 && map.cityCenters.size > 0)) {
 			//			System.out.println("adding city");
-			City city;
+			City city = null;
 			int x, y;
 			boolean useCorner = true; // later allow to use center
 			if (Math.random() > .5)
 				useCorner = false; // later allow to use center
+			
+			Corner corner = null;
+			Center center = null;
+			
 			// make with corner
 			if (useCorner) {
-				Corner corner;
 				corner = map.cityCorners.random();
 				x = (int) corner.getLoc().x;
 				y = (int) corner.getLoc().y;
@@ -395,33 +408,9 @@ public class Kingdom extends Group {
 						map.availableCenters.removeValue(adj, true);
 					}
 				}
-				int index = -1;
-				// calculate the closest city
-				double closestDistance = 9999999;
-				City closestCity = null;
-				for (City c : cities) {
-					double distance = c.distTo(x, Map.HEIGHT-y);
-					if (distance < closestDistance) {
-						closestCity = c;
-						closestDistance = distance;
-					}	
-				}
-				Faction faction = null;
-				if (closestCity == null || closestCity.getFaction().cities.size > maxRepeats) {
-					int factionIndex = 2;
-					while (Faction.get(factionIndex).cities.size > maxRepeats)
-						factionIndex++;
-					faction = Faction.get(factionIndex);
-				}
-				else faction = closestCity.getFaction();
-				
-				city = new City(this, cityArray.pop(), index, faction, x, Map.HEIGHT-y, CITY_START_WEALTH);
-//				city = new City(this, cityArray.pop(), index, Faction.get(currentFaction), x, Map.HEIGHT-y, CITY_START_WEALTH);
-				city.setCorner(corner);
 			}
 			// make with center
 			else {
-				Center center;
 				center = map.cityCenters.random();
 				x = (int) center.loc.x;
 				y = (int) center.loc.y;
@@ -448,49 +437,32 @@ public class Kingdom extends Group {
 					}
 				}
 				int index = -1;
-				//				city = new City(this, scanner.next(), index, Faction.get(currentFaction), x, Map.HEIGHT-y, CITY_START_WEALTH);
-				
-				// calculate the closest city
-				double closestDistance = 9999999;
-				City closestCity = null;
-				for (City c : cities) {
-					double distance = c.distTo(x, Map.HEIGHT-y);
-					if (distance < closestDistance) {
-						closestCity = c;
-						closestDistance = distance;
-					}	
-				}
-				Faction faction = null;
-				if (closestCity == null || closestCity.getFaction().cities.size > maxRepeats) {
-					// TODO set faction to be lowest numbered faction without repeats
-					int factionIndex = 2;
-					while (Faction.get(factionIndex).cities.size > maxRepeats)
-						factionIndex++;
-					faction = Faction.get(factionIndex);
-				}
-				else faction = closestCity.getFaction();
-				
-				city = new City(this, cityArray.pop(), index, faction, x, Map.HEIGHT-y, CITY_START_WEALTH);
-//				city = new City(this, cityArray.pop(), index, Faction.get(currentFaction), x, Map.HEIGHT-y, CITY_START_WEALTH);
-
-				city.setCenter(center);
 			}
+			// calculate the closest faction center
+			double closestDistance = 99999999;
+			Faction closestFaction = null;
+			for (Faction f : Faction.factions) {
+				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
+				if (f == null) continue;
+				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, Map.HEIGHT-y));
+				if (distance < closestDistance) {
+					closestFaction = f;
+					closestDistance = distance;
+				}	
+			}
+			
+			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+			
+			city = new City(this, cityArray.pop(), -1, closestFaction, x, Map.HEIGHT-y, CITY_START_WEALTH);
+
+			if (center != null)
+				city.setCenter(center);
+			if (corner != null)
+				city.setCorner(corner);
 
 			addCity(city);
-//			factionRepeats++;
-//			if (factionRepeats > maxRepeats) {
-//				currentFaction++;
-//				factionRepeats = 0;
-//				maxRepeats = (int) (Math.random()*3) + 1;
-//			}
 		}
-		
-		// assign factions to cities
-//		for (City c : cities) {
-//			c.changeFaction(Faction.get(2));
-//		}
-		// best solution: calculate city locations in advance, then assign factions, then create cities.
-		
+
 		System.out.println("Number cities: " + cities.size);
 	}
 
@@ -529,19 +501,30 @@ public class Kingdom extends Group {
 				map.availableCorners.removeValue(corner, true);
 			} while (corner == null && map.availableCorners.size > 0);
 			
-			Castle castle = new Castle(this, castleArray.pop(), -1, Faction.get(currentFaction), (float) corner.loc.x, (float) (Map.HEIGHT-corner.loc.y), CASTLE_START_WEALTH);			
+			float x = (float) corner.getLoc().x;
+			float y = (float) (Map.HEIGHT-corner.getLoc().y);
+			
+			
+			double closestDistance = Double.MAX_VALUE;
+			Faction closestFaction = null;
+			for (Faction f : Faction.factions) {
+				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
+				if (f == null) continue;
+				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
+				if (distance < closestDistance) {
+					closestFaction = f;
+					closestDistance = distance;
+				}	
+			}
+			
+			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+			
+			Castle castle = new Castle(this, castleArray.pop(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
 			castles.add(castle);
 			castle.corner = corner;
 //			if (corner == null) 
 //				System.out.println("ADDING NULL CORNER");
 			addActor(castle);
-			
-			factionRepeats++;
-			if (factionRepeats > maxRepeats) {
-				currentFaction++;
-				factionRepeats = 0;
-				maxRepeats = (int) (Math.random()*3) + 1;
-			}
 		}
 		
 		System.out.println("Number castles: " + villages.size);

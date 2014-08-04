@@ -42,7 +42,7 @@ public class Army extends Actor implements Destination {
 	public final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
 	private static final float SCALE_FACTOR = 600f; // smaller is bigger
 	private static final float PARTY_SPEED_FACTOR = 3f; // smaller is bigger
-	private static final float BASE_SPEED = 1;
+	private static final float BASE_SPEED = 5;
 	private static final float WAIT = 3; // 3 second wait after garrisoning
 	private static final float scale = .6f;
 	private static final float cityCollisionDistance = 25;
@@ -443,7 +443,7 @@ public class Army extends Actor implements Destination {
 
 	public void joinBattle(Battle battle) {
 		if (this.party.player) {
-			BottomPanel.log("player joining battle!");
+			BottomPanel.log("sorry, joining battles has not been implemented yet");
 		}
 		else {
 			if (battle == null) {
@@ -533,7 +533,6 @@ public class Army extends Actor implements Destination {
 		party.checkUpgrades();
 		// if garrisoned and waiting, wait
 		if (isWaiting()) {
-			//					System.out.println(this.getName() + " waiting " + this.waitUntil);
 			wait(delta);
 		}
 		// if garrisoned and patrolling, check if coast is clear
@@ -548,17 +547,26 @@ public class Army extends Actor implements Destination {
 //						eject(); 
 //					}
 //				}
-//
 //			}
-//			else if (army == null || !shouldRunFrom(army)) {
-				if (shouldEject) {
-					eject();
-					setTarget(null);
-					//					System.out.println("ejecting " + this.getName() + " with no target");
-				}
-				uniqueAct();
-//			}
+			//			else if (army == null || !shouldRunFrom(army)) {
+			if (shouldStopRunning()) {
+				runFrom = null;
+				eject();
+				setTarget(null);
+				//					System.out.println("ejecting " + this.getName() + " with no target");
+			}
+			uniqueAct();
+			//			}
 		}
+	}
+	
+	protected boolean shouldStopRunning() {
+		if (this.runFrom == null) return true;
+		if (distToCenter(runFrom) >= this.getLineOfSight()) {
+			//stopRunning();
+			return true;
+		}
+		return false;
 	}
 
 	/** do this while sieging
@@ -794,19 +802,19 @@ public class Army extends Actor implements Destination {
 
 	public void run() { // for now, find a spot far away and set path there
 		if (normalWaiting) normalWaiting = false;
-		if (startedRunning && !this.path.isEmpty()) path.travel(); 
+		if (startedRunning && !this.path.isEmpty()) {
+			path.travel(); 
+		}
 		else {
 			Location goTo = detectNearbyFriendlyCity();
-			if (distToCenter(runFrom) >= this.getLineOfSight()) {
-				stopRunning();
-				//				System.out.println(this.getName() + " stopping running because out of line of sight");
-			}
+			if (shouldStopRunning()) stopRunning();
 			else if (goTo != null) {
 				//				System.out.println("detected City " + goTo.getName());
 				setTarget(goTo);
 				setSpeed(calcSpeed());   // update speed
 				path.travel();
 				startedRunning = true;
+			//	System.out.println(this.getName() + " is travelling to target");
 			}
 			// find new target an appropriate distance away, travel there.
 			else { //if (!this.hasTarget()) {

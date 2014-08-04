@@ -12,7 +12,7 @@ public enum Equipment {
 	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 20),
 	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
 	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 999999),
-	WAR_HORSE ("Warhorse", Type.HORSE, 0, 3, 7, 50);
+	WAR_HORSE ("Warhorse", Type.HORSE, 0, 3, 7, 30);
 	
 	public final String name;
 	public final Type type;

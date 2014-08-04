@@ -63,7 +63,7 @@ public class BattleMap extends Actor {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.07f), CASTLE_WALL(.07f, 20), CASTLE_WALL_FLOOR(0f, 20);
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.06f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -95,8 +95,8 @@ public class BattleMap extends Actor {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-				this.maptype = getMapTypeForBiome(mainmap.biome);
-		this.maptype = MapType.DESERT;
+		this.maptype = getMapTypeForBiome(mainmap.biome);
+//		this.maptype = MapType.DESERT;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -833,7 +833,7 @@ public class BattleMap extends Actor {
 			batch.setColor(c);
 		}
 		// draw entrances
-		boolean drawEntrances = true;
+		boolean drawEntrances = false;
 		if (drawEntrances) {
 			Color c = batch.getColor();
 			Color mycolor = new Color(1, 0, 0, .5f);
@@ -845,7 +845,7 @@ public class BattleMap extends Actor {
 		}
 
 		// draw area inside walls
-		boolean drawInsideWalls = true;
+		boolean drawInsideWalls = false;
 		//				boolean drawClosed = true;
 
 		if (drawInsideWalls) {

@@ -33,7 +33,7 @@ public class Farmer extends Army {
 		super(kingdom, name, faction, posX, posY, PartyType.FARMER);
 		setTextureRegion(textureRegion);
 		crops = 0;
-		this.shouldEject = false;
+//		this.shouldEject = false;
 		this.type = ArmyType.FARMER;
 		this.passive = true;
 	}
@@ -56,8 +56,9 @@ public class Farmer extends Army {
 
 	@Override
 	public void garrisonAct(float delta) {
-		if (farmTime() && !isRunning()) {
-//			System.out.println("ejecting farmer");
+		shouldStopRunning();
+		if (farmTime() && shouldStopRunning()) {
+			System.out.println("ejecting farmer");
 			eject();
 		}
 //		else System.out.println(runFrom.getName());
@@ -73,7 +74,7 @@ public class Farmer extends Army {
 	
 	public void farm() {
 		if (farmTime()) {
-			if (this.isGarrisoned() && this.shouldEject) eject();
+			if (this.isGarrisoned()) eject();
 			if (this.path.isEmpty()) {
 				if (waitToggle) {
 					this.waitFor(WAIT);

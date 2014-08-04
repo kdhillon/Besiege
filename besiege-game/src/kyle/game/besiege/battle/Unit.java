@@ -666,8 +666,7 @@ public class Unit extends Group {
 //	}
 
 	private BPoint getNearestCover() {
-		Orientation thisOrientation = Orientation.DOWN;
-
+		Orientation thisOrientation = this.orientation;
 
 		// check to see if should move to cover
 		BPoint closest = null;
