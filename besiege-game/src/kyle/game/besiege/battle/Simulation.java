@@ -2,8 +2,8 @@ package kyle.game.besiege.battle;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
-import kyle.game.besiege.MainMenuScreen;
 import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.title.MainMenuScreen;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
