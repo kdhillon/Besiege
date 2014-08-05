@@ -7,6 +7,8 @@
 
 package kyle.game.besiege;
 
+import kyle.game.besiege.title.MainMenuScreen;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -28,8 +30,8 @@ public class BesiegeMain extends Game {
 		
 //		mapTest = new MapTest();
 		
-		setScreen(mapScreen); // eventually make mainMenu
-//		setScreen(mainMenuScreen);
+//		setScreen(mapScreen); // eventually make mainMenu
+		setScreen(mainMenuScreen);
 		
 		// doesn't work!
 		switch (Gdx.app.getType()) {

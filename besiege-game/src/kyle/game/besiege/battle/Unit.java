@@ -1157,11 +1157,12 @@ public class Unit extends Group {
 	}
 
 	public void killHorse() {
-		soldier.equipment.removeValue(horse, true);
-		this.horse = null;
-		this.weaponDraw.horseWalk = null;
-		soldier.calcStats();
-		soldier.calcBonus();
+		//soldier.equipment.removeValue(horse, true);
+//		this.horse = null;
+		this.dismount();
+//		this.weaponDraw.horseWalk = null;
+//		soldier.calcStats();
+//		soldier.calcBonus();
 		calcStats();
 	}
 

@@ -3,8 +3,11 @@
  * by Kyle Dhillon
  * Source Code available under a read-only license. Do not copy, modify, or distribute.
  ******************************************************************************/
-package kyle.game.besiege;
+package kyle.game.besiege.title;
 
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.BesiegeMain;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
