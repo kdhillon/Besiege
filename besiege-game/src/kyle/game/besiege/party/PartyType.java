@@ -5,23 +5,21 @@
  ******************************************************************************/
 package kyle.game.besiege.party;
 import static kyle.game.besiege.party.Weapon.*;
-import com.badlogic.gdx.math.MathUtils;
-
-import com.badlogic.gdx.Gdx;
+import static kyle.game.besiege.party.UnitType.*;
 import com.badlogic.gdx.math.MathUtils;
 
 
 public enum PartyType { // todo add ability for max party size
 	// troop types, troop min counts, troop max counts, minWealth, maxWealth
-	FARMER(new Weapon[]{PITCHFORK, MILITARY_FORK}, new int[]{2, 1}, new int[]{5, 2}, 5, 10),
-	PATROL(new Weapon[]{MILITARY_FORK, SPEAR, HATCHET, CLUB, CAVALRY_SPEAR, CAVALRY_AXE, SHORTBOW}, new int[]{0, 3, 3, 0, 0, 0, 0}, new int[]{3, 6, 5, 3, 2, 2, 5}, 25, 35),
-	MERCHANT(new Weapon[]{CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK}, new int[]{5, 3, 3}, new int[]{6, 4, 4}, 35, 55),
-	MILITIA(new Weapon[]{PITCHFORK, MILITARY_FORK, SPEAR, HATCHET, CLUB, SHORTBOW}, new int[]{15, 10, 0, 0, 0, 5}, new int[]{20, 15, 5, 5, 5, 10}, 0, 0),
-	RAIDING_PARTY(new Weapon[]{HATCHET, BATTLE_AXE, WAR_HAMMER, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, SHORTBOW}, new int[]{0, 0, 0, 5, 5, 5, 0}, new int[]{4, 4, 4, 8, 8, 8, 5}, 35, 50),
+	FARMER(new UnitType[]{FARMERS}, new int[]{2}, new int[]{8}),
+	PATROL(new UnitType[]{LIGHT_BAD, MOUNTED_MED, RANGED_MED}, new int[]{8, 0, 0}, new int[]{15, 5, 5}),
+	MERCHANT(new UnitType[]{MOUNTED_MED}, new int[]{10}, new int[]{20}),
+	MILITIA(new UnitType[]{FARMERS, PEASANTS}, new int[]{20, 20}, new int[]{25, 30}),
+	RAIDING_PARTY(new UnitType[]{BANDITS, MOUNTED_MED}, new int[]{10, 10}, new int[]{15, 15}),
 	
-	BANDIT(new Weapon[]{MILITARY_FORK, HATCHET, CLUB, SPEAR, MACE, SHORTBOW, RECURVE, LONGBOW}, new int[]{0, 2, 2, 0, 0, 0, 0, 0}, new int[]{5, 4, 4, 4, 4, 5, 3, 3}, 5, 25), // btw 4 and 32
+	BANDIT(new UnitType[]{BANDITS}, new int[]{10}, new int[]{25}), // btw 4 and 32
 	
-	NOBLE_TEST(new Weapon[]{HATCHET}, new int[]{40}, new int[]{60}, 25, 25),
+//	NOBLE_TEST(new Weapon[]{HATCHET}, new int[]{40}, new int[]{60}, 25, 25),
 	
 	// min 40, max 82
 	NOBLE_DEFAULT_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD, LONGBOW, CROSSBOW, RECURVE}, 
@@ -54,6 +52,7 @@ public enum PartyType { // todo add ability for max party size
 
 	
 	private final Weapon[] troopTypes;
+	private final UnitType[] unitTypes;
 	private final int[] minCount;
 	private final int[] maxCount;
 	
@@ -68,16 +67,38 @@ public enum PartyType { // todo add ability for max party size
 		this.maxCount = maxCount;
 		this.minWealth = minWealth;
 		this.maxWealth = maxWealth;
+		this.unitTypes = null;
+	}
+	
+	private PartyType(UnitType[] unitTypes, int[] minCount, int[] maxCount) {
+		this.unitTypes = unitTypes;
+		this.minCount = minCount;
+		this.maxCount = maxCount;
+		this.minWealth = 0;
+		this.maxWealth = 0;
+		this.troopTypes = null;
 	}
 	
 	
 	public Party generate() {
 		Party party = new Party();
+		
+		if (troopTypes != null) {
 		for (int i = 0; i < troopTypes.length; i++) {
 			int randomCount = MathUtils.random(minCount[i], Math.max(minCount[i], maxCount[i]));
 			for (int j = 0; j < randomCount; j++)
 				party.addSoldier(new Soldier(troopTypes[i], party));
 		}
+		}
+		else {
+			for (int i = 0; i < unitTypes.length; i++) {
+				int randomCount = MathUtils.random(minCount[i], Math.max(minCount[i], maxCount[i]));
+				for (int j = 0; j < randomCount; j++) {
+					party.addSoldier(new Soldier(unitTypes[i].select(), party));
+				}
+			}
+		}
+		
 		int randomWealth = MathUtils.random(minWealth, maxWealth);
 		party.wealth = randomWealth;
 		return party;
