@@ -52,8 +52,8 @@ public class Point implements Destination {
 	}
 
 	@Override
-	public int getType() {
-		return 0;
+	public DestType getType() {
+		return Destination.DestType.POINT;
 	}
 
 //	@Override

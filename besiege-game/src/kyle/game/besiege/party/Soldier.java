@@ -25,6 +25,9 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	private static final int INITIAL_NEXT = 20;
 	private static final float HEAL_TIME = 120; // seconds
 	private static final int MAX_LEVEL = 30;
+	private static final double COST_FACTOR = 2; // 
+	private static final double UPGRADE_FACTOR = 2;
+
 	private static final String VETERAN = ""; // "Veteran" or maybe invisible
 	
 	public String name;
@@ -214,7 +217,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 
 	public boolean upgrade(Weapon upgrade) { // returns true if upgraded, false otherwise	
 		int cost;
-		if (upgrade != null) cost = Weapon.UPG_COST[upgrade.tier];
+		if (upgrade != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.tier];
 		else cost = 0;
 		
 		if (party.player) cost *= Character.getAttributeFactor("Bargaining");
@@ -300,6 +303,15 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 				return e;
 		}
 		return null;
+	}
+	
+	// square function
+	public int getBuyCost() {
+		return (int) (Math.pow(this.level, 1.2) * COST_FACTOR);
+	}
+	
+	public int getUpgradeCost() {
+		return (int) (this.level * UPGRADE_FACTOR);
 	}
 	
 //	public String equipmentList() {

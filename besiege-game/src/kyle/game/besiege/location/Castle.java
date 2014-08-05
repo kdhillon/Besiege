@@ -70,9 +70,13 @@ public class Castle extends Location {
 //		closestEnemyCities = new Array<Castle>();
 //		villages = new Array<Village>();
 		
-		this.merchantCost = PartyType.MERCHANT.maxWealth;
-		this.patrolCost = PartyType.PATROL.maxWealth;
-		this.raiderCost = PartyType.RAIDING_PARTY.maxWealth;
+//		this.merchantCost = PartyType.MERCHANT.maxWealth;
+//		this.patrolCost = PartyType.PATROL.maxWealth;
+//		this.raiderCost = PartyType.RAIDING_PARTY.maxWealth;
+		
+		this.merchantCost = 10;// Merchant.MAX_WEALTH; //PartyType.MERCHANT.maxWealth;
+		this.patrolCost = 10; // PartyType.PATROL.maxWealth;
+		this.raiderCost = 10; //
 		
 		setTextureRegion("Castle");
 		setScale(SCALE);

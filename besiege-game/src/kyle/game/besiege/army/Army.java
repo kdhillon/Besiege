@@ -12,7 +12,6 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Map;
 import kyle.game.besiege.Path;
 import kyle.game.besiege.Point;
 import kyle.game.besiege.Siege;
@@ -20,7 +19,6 @@ import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
-import kyle.game.besiege.location.Location.LocationType;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.party.Party;
@@ -31,8 +29,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
@@ -59,9 +55,12 @@ public class Army extends Actor implements Destination {
 	private static final String DEFAULT_TEXTURE = "Player";
 	private static final double REPAIR_FACTOR = .5; // if a party gets below this many troops it will go to repair itself.
 	private static final float RUN_EVERY = .5f;
+	private static final double WEALTH_FACTOR = .2;
 
 	private boolean mouseOver;
 	protected boolean passive; // passive if true (won't attack) aggressive if false;
+	
+	protected int wealthFactor = 1; // set in children
 
 	private Kingdom kingdom; // parent actor, kingdom
 	private String name;
@@ -163,7 +162,8 @@ public class Army extends Actor implements Destination {
 		setTextureRegion(DEFAULT_TEXTURE); // default texture
 
 		playerTouched = false;
-
+		
+		calcInitWealth();
 	}
 	private void initializeBox() {
 		this.setScale(calcScale());
@@ -340,8 +340,8 @@ public class Army extends Actor implements Destination {
 		else if (isRunning()) return "Running from " + getRunFrom().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
 		//		else if (shouldRepair) return "SHOULD REPAIR";
 		else if (isInSiege()) return "Besieging " + siege.location.getName();
-		else if (getTarget() != null && getTarget().getType() == 1) return "Travelling to " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
-		else if (getTarget() != null && getTarget().getType() == 2) return "Following " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2) + ")";
+		else if (getTarget() != null && getTarget().getType() == Destination.DestType.LOCATION) return "Travelling to " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
+		else if (getTarget() != null && getTarget().getType() == Destination.DestType.ARMY) return "Following " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2) + ")";
 		else return getUniqueAction();
 	}
 
@@ -353,13 +353,13 @@ public class Army extends Actor implements Destination {
 	public boolean detectCollision() {
 		//		if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
 		switch (target.getType()) {
-		case 0: // point reached
+		case POINT: // point reached
 			return detectPointCollision();
-		case 1: // location reached
+		case LOCATION: // location reached
 			return detectLocationCollision();
-		case 2: // army reached
+		case ARMY: // army reached
 			return detectArmyCollision();
-		case 4: // battle reached
+		case BATTLE: // battle reached
 			return detectBattleCollision();
 		default:
 			return false;
@@ -499,6 +499,10 @@ public class Army extends Actor implements Destination {
 			garrisonIn(targetLocation);
 	}
 
+//	public Location getGarrisonedIn() {
+//		return this.garrisonedIn;
+//	}
+	
 	public void garrisonIn(Location targetCity) {
 		//		System.out.println(getName() + " garrisoning");
 		if (targetCity == null) {
@@ -521,7 +525,7 @@ public class Army extends Actor implements Destination {
 			kingdom.setPaused(true);
 			this.setWaiting(false);
 		}
-		else if (type == ArmyType.MERCHANT) waitFor(Merchant.MERCHANT_WAIT);
+		else if (type == ArmyType.MERCHANT && ((Merchant) this).goal == targetCity) waitFor(Merchant.MERCHANT_WAIT);
 		else if (type != ArmyType.NOBLE) waitFor(WAIT); //arbitrary
 	}
 
@@ -549,7 +553,8 @@ public class Army extends Actor implements Destination {
 //				}
 //			}
 			//			else if (army == null || !shouldRunFrom(army)) {
-			if (shouldStopRunning()) {
+			if (this.isRunning() && shouldStopRunning()) {
+				System.out.println("player should stop running...");
 				runFrom = null;
 				eject();
 				setTarget(null);
@@ -578,6 +583,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void eject() {
+		
 		if (isGarrisoned())
 			garrisonedIn.eject(this);
 		else System.out.println("trying to eject from nothing");
@@ -737,7 +743,7 @@ public class Army extends Actor implements Destination {
 		}
 	}
 	public boolean targetLost() {
-		if (target != null && target.getType() == 2) {
+		if (target != null && target.getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) target;
 			if (distToCenter(target) > lineOfSight || !targetArmy.hasParent() || targetArmy.isGarrisoned())
 				return true;
@@ -864,6 +870,10 @@ public class Army extends Actor implements Destination {
 		kingdom.addArmy(militia);
 		createBattleWith(militia, village);
 	}
+	
+	public void calcInitWealth() {
+		this.party.wealth = (int) (this.wealthFactor * this.party.getAtk() * WEALTH_FACTOR);
+	}
 	public void setSpeed(float speed) {
 		this.speed = speed;
 	}
@@ -909,9 +919,9 @@ public class Army extends Actor implements Destination {
 		return morale;
 	}
 	public String getMoraleString() {
-		if (morale < 10) return "Pitiful";
+		if (morale < 10) return "Awful";
 		if (morale < 35) return "Low";
-		if (morale < 50) return "Mediocre";
+		if (morale < 50) return "Okay";
 		if (morale < 65) return "Good";
 		if (morale < 90) return "High";
 		else return "Excellent";
@@ -942,8 +952,8 @@ public class Army extends Actor implements Destination {
 	public void setFaction(Faction faction) {
 		this.faction = faction;
 	}
-	public int getType() {
-		return 2; // army type
+	public DestType getType() {
+		return Destination.DestType.ARMY; // army type
 	}
 	public void setBattle(Battle battle) {
 		this.battle = battle;
@@ -1001,7 +1011,7 @@ public class Army extends Actor implements Destination {
 			return false;
 		}	
 		// replace old targetof
-		if (getTarget() != null && getTarget().getType() == 2) {
+		if (getTarget() != null && getTarget().getType() == Destination.DestType.ARMY) {
 			((Army) getTarget()).targetOf.removeValue(this, true);
 		}
 
@@ -1012,11 +1022,11 @@ public class Army extends Actor implements Destination {
 
 
 		boolean isInWater = kingdom.getMap().isInWater(newTarget);
-		if (!isInWater && !(newTarget.getType() == 2 && ((Army) newTarget).isGarrisoned())) {
+		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
 			if (this.target != newTarget && this.lastPathCalc == 0) {
 
 				// don't add a bunch of useless point and army targets
-				if (this.target != null && this.target.getType() != 2 && this.target.getType() != 0 && targetStack.size() < MAX_STACK_SIZE) {
+				if (this.target != null && this.target.getType() != Destination.DestType.ARMY && this.target.getType() != Destination.DestType.POINT && targetStack.size() < MAX_STACK_SIZE) {
 					targetStack.push(this.target);
 					//					System.out.println(getName() + " pushing " + this.target.getName() + " stack size: " + this.targetStack.size() + " new target " + newTarget.getName());
 				}
@@ -1037,7 +1047,7 @@ public class Army extends Actor implements Destination {
 				//				System.out.println(getName() + "adding same target twice");
 				return false;
 			}
-			if (newTarget.getType() == 2) ((Army) newTarget).targetOf.add(this);
+			if (newTarget.getType() == Destination.DestType.ARMY) ((Army) newTarget).targetOf.add(this);
 			return true;
 		}
 		else if (defaultTarget != null &&
@@ -1062,7 +1072,7 @@ public class Army extends Actor implements Destination {
 	public void nextTarget() {
 		if (!targetStack.isEmpty()) {
 			if (targetStack.peek() == null || targetStack.peek() == target || 
-					(targetStack.peek().getType() == 2 && !kingdom.getArmies().contains((Army) getTarget(), true))) 
+					(targetStack.peek().getType() == Destination.DestType.ARMY && !kingdom.getArmies().contains((Army) getTarget(), true))) 
 				targetStack.pop(); // clean stack 
 			if (!targetStack.isEmpty() && targetStack.peek() != null) setTarget(targetStack.pop());
 			else findTarget();
@@ -1090,6 +1100,12 @@ public class Army extends Actor implements Destination {
 	}
 	public Kingdom getKingdom() {
 		return kingdom;
+	}
+	public int getWealth() {
+		return this.getParty().wealth;
+	}
+	public void changeWealth(int delta) {
+		this.getParty().wealth += delta;
 	}
 	public void setName(String name) {
 		this.name = name;
@@ -1192,7 +1208,7 @@ public class Army extends Actor implements Destination {
 			return true;
 		return false;
 	}
-	protected Location getGarrisonedIn() {
+	public Location getGarrisonedIn() {
 		return garrisonedIn;
 	}
 	public void setTextureRegion(String textureRegion) {

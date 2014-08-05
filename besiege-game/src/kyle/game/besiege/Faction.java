@@ -53,8 +53,8 @@ public class Faction {
 	public static final int MAX_RELATION = 100;
 	public static final int MIN_RELATION = -100;
 	public static final int INIT_WAR_RELATION = -40; //when war is declared, this is the relation you will have
-//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
-	private final static int WAR_THRESHOLD = 10; //cross this and you're at war
+	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
+//	private final static int WAR_THRESHOLD = 10; //cross this and you're at war
 
 	public static Array<Faction> factions;
 	public static final Faction BANDITS_FACTION = new Faction("Bandits", "crestBandits", Color.BLACK);
@@ -261,7 +261,7 @@ public class Faction {
 			}
 			for (Castle castle : faction.castles) {
 				double dist = Kingdom.distBetween(castle, centerPoint);
-				score += 0.8/dist;
+				score += 1/dist;
 			}
 			if (score > bestScore) {
 				bestScore = score;

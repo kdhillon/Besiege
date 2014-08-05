@@ -5,6 +5,7 @@
  ******************************************************************************/
 package kyle.game.besiege.army;
 
+import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.City;
@@ -86,7 +87,7 @@ public class Noble extends Army {
 			wanderBetweenCities();
 		}
 		else {
-			System.out.println(getName() + " only one city");
+			//System.out.println(getName() + " only one city");
 			// wait in city
 		}
 	}
@@ -141,7 +142,7 @@ public class Noble extends Army {
 		// make sure not going to enemy city - weird glitch
 		else {
 //			System.out.println(getName() + " has path");
-			if (this.path.nextGoal != null && this.path.nextGoal.getType() == 1 && Faction.isAtWar(this.path.nextGoal.getFaction(), this.getFaction()))
+			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && Faction.isAtWar(this.path.nextGoal.getFaction(), this.getFaction()))
 				goToNewTarget();
 		}
 	}

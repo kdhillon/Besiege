@@ -30,10 +30,10 @@ public class BesiegeMain extends Game {
 		
 //		mapTest = new MapTest();
 		
-//		setScreen(mapScreen); // eventually make mainMenu
-		setScreen(mainMenuScreen);
+		setScreen(mapScreen); // eventually make mainMenu
+//		setScreen(mainMenuScreen);
 		
-		// doesn't work!
+		// doesn't work!pppppppppp
 		switch (Gdx.app.getType()) {
 			case Desktop:
 				appType = 0; // CHANGE BACK

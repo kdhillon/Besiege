@@ -23,8 +23,12 @@ public enum UnitType {
 	LIGHT_MED(new Weapon[]{SHORTSWORD, MACE, WAR_HAMMER}),
 	LIGHT_GOOD(new Weapon[]{MORNINGSTAR, FALCHION}),
 	
-	INFANTRY_MED(new Weapon[]{LONGSWORD, BATTLE_AXE}),
-	INFANTRY_GOOD(new Weapon[]{GREATSWORD, MAUL, GLAIVE}); 
+	HEAVY_MED(new Weapon[]{LONGSWORD, BATTLE_AXE}),
+	HEAVY_GOOD(new Weapon[]{GREATSWORD, MAUL, GLAIVE}),
+	
+	INFANTRY_BAD(new Weapon[]{CLUB, HATCHET, SPEAR}),
+	INFANTRY_MED(new Weapon[]{PIKE, HALBERD, SHORTSWORD, MACE, WAR_HAMMER, LONGSWORD, BATTLE_AXE}),
+	INFANTRY_GOOD(new Weapon[]{VOULGE, GUISARME, MORNINGSTAR, FALCHION, GREATSWORD, MAUL, GLAIVE});
 	
 	private Array<Weapon> types; 
 	
@@ -32,7 +36,7 @@ public enum UnitType {
 		this.types = new Array<Weapon>(weapons);
 	}
 
-	public Weapon select() {
+	public Weapon random() {
 		return types.random();
 	}
 }

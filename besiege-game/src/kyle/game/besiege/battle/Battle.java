@@ -600,8 +600,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 
 	@Override
-	public int getType() {
-		return 4;
+	public DestType getType() {
+		return Destination.DestType.BATTLE;
 	}
 	
 	public String getName() {

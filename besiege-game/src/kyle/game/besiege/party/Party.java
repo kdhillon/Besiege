@@ -131,10 +131,13 @@ public class Party {
 		calcStats();
 	}
 	public void heal(Soldier soldier) {
+		healNoMessage(soldier);
+		if (player) BottomPanel.log(soldier.name + " healed", "blue");
+	}
+	public void healNoMessage(Soldier soldier) {
 		soldier.heal();
 		wounded.removeValue(soldier, true);
 		this.addSoldier(soldier);
-		if (player) BottomPanel.log(soldier.name + " healed", "blue");
 		healthy.sort();
 		updated = true;
 	}

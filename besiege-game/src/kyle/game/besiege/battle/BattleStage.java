@@ -136,7 +136,9 @@ public class BattleStage extends Group {
 		}
 		else {
 			playerStance = Stance.AGGRESSIVE;
-			enemyStance = Stance.DEFENSIVE;
+			if (Math.random() < .5) 
+				enemyStance = Stance.DEFENSIVE;
+			else enemyStance = Stance.AGGRESSIVE;
 		}
 
 //		boolean forceSiege = false;
@@ -983,7 +985,7 @@ public class BattleStage extends Group {
 
 		// heal retreated soldiers
 		for (Unit u : retreated) 
-			u.soldier.party.heal(u.soldier);
+			u.soldier.party.healNoMessage(u.soldier);
 
 		boolean loserDestroyed = false;
 

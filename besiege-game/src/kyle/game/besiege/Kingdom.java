@@ -228,7 +228,7 @@ public class Kingdom extends Group {
 	private void setPanelTo(Destination newPanel) {
 		//		if (currentPanel == null) System.out.println("currentPanel is null");
 		// makes sure not to set the same panel a lot, and makes sure not to return to previous for every single point
-		if (newPanel != currentPanel && (newPanel.getType() != 0 || currentPanel.getType() != 0)) {
+		if (newPanel != currentPanel && (newPanel.getType() != Destination.DestType.POINT || currentPanel.getType() != Destination.DestType.POINT)) {
 			mapScreen.getSidePanel().setActiveDestination(newPanel);
 			currentPanel = newPanel;
 		}
@@ -241,25 +241,52 @@ public class Kingdom extends Group {
 		
 //		if (d == player) System.out.println("selected player");
 
+		if (player.isGarrisoned() && d == player.getGarrisonedIn()) {
+			System.out.println("trying to go to city you're already in");
+			return;
+		}
+		
+		if (player.forceWait) {
+			System.out.println("player forced wait");return;
+		}
+		
 		if (d != player && !player.isInBattle()) {
+			if (!player.setTarget(d)) {
+				System.out.println("can't travel to dest");
+				return; 
+			}
 			paused = false;
-			player.setTarget(d);
+			player.setWaiting(false);
+//			player.setForceWait(false);
 //			mapScreen.shouldCenter = true;
-			if (player.isGarrisoned()) player.eject();
+			if (player.isGarrisoned()) {
+				if (d != player.getGarrisonedIn()) {
+			
+//				System.out.println("player getting new target and player garrisoned so ejecting");
+//				System.out.println(player.getGarrisonedIn().getName());
+					player.eject();
+				//paused = true;
+				}
+			}
+			
+			
+			if (d.getType() == Destination.DestType.POINT) {
+				mapScreen.getSidePanel().setActiveArmy(player);
+			}
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}
 	}
 	private void rightClick(Point mouse) {		
 		Destination d = getDestAt(mouse);
-		if (d.getType() == 1) {
+		if (d.getType() == Destination.DestType.LOCATION) {
 			Location location = (Location) d;
 			mapScreen.getSidePanel().setActiveLocation(location);
 		}
-		if (d.getType() == 2) { // army
+		if (d.getType() == Destination.DestType.ARMY) { // army
 			Army destinationArmy = (Army) d;
 			mapScreen.getSidePanel().setActiveArmy(destinationArmy);
 		}
-		if (d.getType() == 4) { //battle
+		if (d.getType() == Destination.DestType.BATTLE) { //battle
 			Battle battle = (Battle) d;
 			mapScreen.getSidePanel().setActiveBattle(battle);
 		}

@@ -14,14 +14,19 @@ import kyle.game.besiege.party.PartyType;
 
 
 public class Merchant extends Army {
-	public static int MERCHANT_WAIT = 30;
+//	public static int MIN_WEALTH = 10;
+//	public static int MAX_WEALTH = 30;
+	public static int MERCHANT_WAIT = 60;
+	public static int MERCHANT_WEALTH_FACTOR = 5; // this is how much more wealth merchants have than regular armies
 //	private final double waitTime = 10;
 	private final String textureRegion = "Merchant";
-	private City goal;
+	public City goal;
 
 	public Merchant(Kingdom kingdom,
 			City defaultTarget, City goal) {
 		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), PartyType.MERCHANT);
+		this.wealthFactor = 5;
+		this.calcInitWealth();
 		this.setGoal(goal);
 		this.setDefaultTarget(defaultTarget);
 		this.setTextureRegion(textureRegion);
@@ -60,7 +65,7 @@ public class Merchant extends Army {
 	
 	@Override
 	public void garrisonAct(float delta) {
-		
+		if (this.isWaiting()) this.wait(delta);
 	}
 	
 	@Override
@@ -82,8 +87,10 @@ public class Merchant extends Army {
 	
 	@Override
 	public void destroy() {
+		//System.out.println("removing merchant " + this.getName() + " from " + this.getGarrisonedIn().getName());
 		if (isGarrisoned())
 			goal.eject(this);
+		super.destroy();
 		getKingdom().removeArmy(this);
 		this.remove();
 		if (getDefaultTarget() != null) {

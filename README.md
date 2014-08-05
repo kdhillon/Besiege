@@ -100,6 +100,7 @@ Day 75: made battlestages have the same rewards as regular battles
 Day 76: made adding walls very easy, added destructable walls
 Day 77: fixed bugs with walls, integrated battlestage sieges into game
 Day 78: fixed farmer bug, made factions group better, created version 0.2
+Day 79: fixed "sticky player" bug and merchant bug
 
 todo:
 
@@ -117,22 +118,14 @@ add villages and ruins
 add ballistas
 add safeguards against battles getting stuck
 add some randomness to which ladder is chosen
+allow joining battles
 
 MAP:
 now:
-merchants are leaving cities before they should and still waiting outside city.
-player still stuck after retreating
+fix player regrouping bug
 make so each faction gets at least one city
 
-are these actually problems:
-implement army repairing based on wealth (?)
-allow joining battles (?)
-some armies just get "stuck" after battle - find out why (?)
-armies can't garrison in their own towns sometimes (?) 
-fix glitch where player can't move after winning battle (?)
 make bandits not seige (?)
-
-
 
 later:
 add besieging of castles

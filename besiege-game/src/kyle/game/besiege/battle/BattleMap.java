@@ -95,8 +95,8 @@ public class BattleMap extends Actor {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.DESERT;
+	//	this.maptype = getMapTypeForBiome(mainmap.biome);
+		this.maptype = MapType.FOREST;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -868,8 +868,10 @@ public class BattleMap extends Actor {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
-				if (objects[i][j] == Object.TREE) 
+				if (objects[i][j] == Object.TREE) {
+					System.out.println("drawing trees");
 					texture = tree;
+				}
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width*stage.scale), ((i-TREE_Y_OFFSET)*stage.unit_height*stage.scale), TREE_WIDTH*stage.unit_width*stage.scale, TREE_HEIGHT*stage.unit_height*stage.scale);
 			}
 		}
@@ -987,7 +989,8 @@ public class BattleMap extends Actor {
 	//
 	//	}
 
-	public boolean insideWalls(int pos_x, int pos_y) { 
+	public boolean insideWalls(int pos_x, int pos_y) {
+		if (wallTop > stage.size_y && wallRight > stage.size_x && wallBottom < 0 && wallLeft < 0) return false;
 		if (pos_y <= wallTop && pos_y >= wallBottom)
 			if (pos_x <= wallRight && pos_x >= wallLeft) 
 				return true;

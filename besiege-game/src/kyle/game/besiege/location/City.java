@@ -29,12 +29,13 @@ public class City extends Location {
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
 	private static int CITY_UPPER_VALUE = Assets.cityArray.size; // highest number of cities possible
+	private static double MERCHANT_COST_FACTOR = .5;
 
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
 	private final static double MERCHANT_GAIN = .008; // calculates merchant's wealth which goes to other cities.
-	private final int patrolCost;
-	private final int raiderCost;
-	private final int merchantCost;
+//	private final int patrolCost;
+//	private final int raiderCost;
+//	private final int merchantCost;
 	
 	private Array<Merchant> merchants;
 	public Array<Noble> nobles;
@@ -71,9 +72,9 @@ public class City extends Location {
 //		closestEnemyLocations = new Array<City>();
 //		villages = new Array<Village>();
 		
-		this.merchantCost = PartyType.MERCHANT.maxWealth;
-		this.patrolCost = PartyType.PATROL.maxWealth;
-		this.raiderCost = PartyType.RAIDING_PARTY.maxWealth;
+//		this.merchantCost = 10;// Merchant.MAX_WEALTH; //PartyType.MERCHANT.maxWealth;
+//		this.patrolCost = 10; // PartyType.PATROL.maxWealth;
+//		this.raiderCost = 10; //PartyType.RAIDING_PARTY.maxWealth;
 		
 		setTextureRegion("City");
 		setScale(SCALE);
@@ -88,17 +89,14 @@ public class City extends Location {
 	@Override
 	public void autoManage() {
 		// Organize patrols
-		int patrolCount = Math.min((int) (getParty().wealth/(patrolCost*10)), MAX_PATROLS);
+		int patrolCount = Math.min((int) (getParty().wealth/(50)), MAX_PATROLS);
 		if (getPatrols().size < patrolCount) {
-			this.loseWealth(patrolCost);
 			createPatrol();
 		}
 		// Organize merchants
 		for (City city : closestFriendlyCities) {
-			if (!merchantExists[closestFriendlyCities.indexOf(city, true)] && this.getParty().wealth >= merchantCost) {
-				this.loseWealth(merchantCost);
-				int merchantWealth = merchantCost + (int) (Kingdom.distBetween(this, city)*MERCHANT_GAIN) + 1;
-				createMerchant(merchantWealth, city);
+			if (!merchantExists[closestFriendlyCities.indexOf(city, true)]) {
+				createMerchant(city);
 			}
 		}
 		// do raiders later
@@ -121,9 +119,10 @@ public class City extends Location {
 		setContainerForArmy(patrol);
 	}
 	
-	public void createMerchant(int wealth, City goal) {
+	public void createMerchant(City goal) {
 		if (this != goal) {
 			Merchant merchant = new Merchant(getKingdom(), this, goal);
+			this.changeWealth((int) (-merchant.getWealth()*MERCHANT_COST_FACTOR));
 			getKingdom().addArmy(merchant);
 			merchants.add(merchant);
 			merchantExists[closestFriendlyCities.indexOf(goal, true)] = true;

@@ -58,7 +58,7 @@ public class Farmer extends Army {
 	public void garrisonAct(float delta) {
 		shouldStopRunning();
 		if (farmTime() && shouldStopRunning()) {
-			System.out.println("ejecting farmer");
+		//	System.out.println("ejecting farmer");
 			eject();
 		}
 //		else System.out.println(runFrom.getName());

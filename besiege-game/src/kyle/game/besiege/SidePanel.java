@@ -136,6 +136,7 @@ public class SidePanel extends Group {
 		return mapScreen;
 	}
 	public void setActive(Panel newActivePanel) {
+		if (this.activePanel == newActivePanel) return;
 		if (!stay) {
 			if (activePanel != null) {
 				setPreviousPanel(activePanel);
@@ -143,22 +144,24 @@ public class SidePanel extends Group {
 			}
 			this.activePanel = newActivePanel;
 
-			// the leak is here
 			this.addActor(activePanel);
 		}
 	}
 	public void setActiveDestination(Destination destination) {
-		int type = destination.getType();
-		if (type == 0) { returnToPrevious();
+		Destination.DestType type = destination.getType();
+		if (type == Destination.DestType.POINT) { returnToPrevious();
 //		System.out.println("trying to return to prev");
 		}
-		else if (type == 1) setActiveLocation((Location) destination);
-		else if (type == 2) setActiveArmy((Army) destination);
-		else if (type == 4) setActiveBattle((Battle) destination);
+		else if (type == Destination.DestType.LOCATION) setActiveLocation((Location) destination);
+		else if (type == Destination.DestType.ARMY) setActiveArmy((Army) destination);
+		else if (type == Destination.DestType.BATTLE) setActiveBattle((Battle) destination);
 	}
 	public void setActiveArmy(Army army) {
-		PanelParty pp = new PanelParty(this, army);
-		setActive(pp);
+		if (army.getParty().player) setActive(party);
+		else {
+			PanelParty pp = new PanelParty(this, army);
+			setActive(pp);
+		}
 	}
 	public void setActiveLocation(Location location) {
 		PanelLocation lp = new PanelLocation(this, location);

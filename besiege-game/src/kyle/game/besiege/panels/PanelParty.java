@@ -98,7 +98,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		
 		Label sizeC = new Label("Size:", ls);
 		Label moraleC = new Label("Morale:",ls);
-		Label moneyC = new Label("Money:",ls);
+		Label moneyC = new Label("Wealth:",ls);
 		Label atkC = new Label("Atk:", ls);
 		Label defC = new Label("Def:", ls);
 		Label spdC = new Label("Spd:", ls); 

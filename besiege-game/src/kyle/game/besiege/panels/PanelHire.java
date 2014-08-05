@@ -11,6 +11,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
+import kyle.game.besiege.party.Weapon;
 
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -287,15 +288,15 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
 		weaponS.setText(s.weapon.name);
 		hireLabel.soldier = s;
-//		int cost = Weapon.TIER_COST[s.tier];
-		int cost = (int) (s.level*COST_FACTOR);
+		int cost = s.getBuyCost();
+//		int cost = (int) (s.level*COST_FACTOR);
 		hireLabel.setText("Hire " + s.name + " (" + cost + ")");
 	}
 
 	public void deselect() {
 		this.selected = null;
 		stats.setVisible(false);
-	}
+	} 
 	
 	public void hireSelected() {
 		if (location.hire(panel.getKingdom().getPlayer().getParty(), selected)) { // only if successfully hires

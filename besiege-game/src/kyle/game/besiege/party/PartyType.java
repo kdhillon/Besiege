@@ -6,6 +6,8 @@
 package kyle.game.besiege.party;
 import static kyle.game.besiege.party.Weapon.*;
 import static kyle.game.besiege.party.UnitType.*;
+import kyle.game.besiege.party.Equipment.Type;
+
 import com.badlogic.gdx.math.MathUtils;
 
 
@@ -22,15 +24,19 @@ public enum PartyType { // todo add ability for max party size
 //	NOBLE_TEST(new Weapon[]{HATCHET}, new int[]{40}, new int[]{60}, 25, 25),
 	
 	// min 40, max 82
-	NOBLE_DEFAULT_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD, LONGBOW, CROSSBOW, RECURVE}, 
-			new int[]{5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 2, 0, 0}, new int[] {8, 8, 8, 5, 5, 8, 8, 8, 12, 12, 15, 5, 5}, 100, 300), // best
-			// min 40, max 82w
+	//NOBLE_DEFAULT_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD, LONGBOW, CROSSBOW, RECURVE}, 
+	//		new int[]{5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 2, 0, 0}, new int[] {8, 8, 8, 5, 5, 8, 8, 8, 12, 12, 15, 5, 5}, 100, 300), // best
+	NOBLE_DEFAULT_1(new UnitType[]{INFANTRY_MED, MOUNTED_MED, RANGED_MED}, new int[]{30, 10, 20}, new int[] {40, 20, 30}), // med
+//	NOBLE_DEFAULT_2(new UnitType[]{INFANTRY_MED, MOUNTED_MED, RANGED_MED}, new int[]{30, 10, 20}, new int[] {40, 20, 30}), // med
+//	NOBLE_DEFAULT_1(new UnitType[]{INFANTRY_MED, MOUNTED_MED, RANGED_MED}, new int[]{30, 10, 20}, new int[] {40, 20, 30}), // med
+
+	
 //	NOBLE_DEFAULT_2(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD}, 
 //			new int[]{5, 5, 5, 4, 4, 5, 5, 5, 5, 5}, new int[] {8, 8, 8, 5, 5, 8, 8, 8, 12, 12}, 0, 0),
 
-	CITY_HIRE_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD, SHORTBOW}, new int[]{0, 0, 0, 0, 0, 0}, new int[] {2, 2, 2, 1, 1, 2}, 0, 0), // best
-	CITY_HIRE_2(new Weapon[]{CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD, SHORTBOW}, new int[]{0, 0, 0, 0, 0, 0}, new int[] {2, 2, 2, 2, 2, 2}, 0, 0),
-	CITY_HIRE_3(new Weapon[]{MILITARY_FORK, SPEAR, HATCHET, CLUB}, new int[]{0, 0, 0, 0}, new int[] {2, 3, 3, 3}, 0, 0), // worst
+	CITY_HIRE_1(new UnitType[]{MOUNTED_MED, INFANTRY_GOOD, RANGED_GOOD}, new int[]{0, 0, 0}, new int[] {2, 2, 2}), // best
+	CITY_HIRE_2(new UnitType[]{MOUNTED_MED, INFANTRY_MED, RANGED_MED}, new int[]{0, 0, 0}, new int[] {2, 3, 3}),
+	CITY_HIRE_3(new UnitType[]{INFANTRY_BAD, RANGED_BAD}, new int[]{0, 0}, new int[] {5, 3}), // worst
 	
 //	CASTLE_HIRE_1(new Weapon[]{PIKE, HALBERD, LONGSWORD, LANCE, ARMING_SWORD}, new int[]{0, 0, 0, 0, 0}, new int[] {2, 2, 2, 1, 1}, 0, 0), // best
 //	CASTLE_HIRE_2(new Weapon[]{CAVALRY_SPEAR, CAVALRY_AXE, CAVALRY_PICK, MACE, SHORTSWORD}, new int[]{0, 0, 0, 0, 0}, new int[] {2, 2, 2, 2, 2}, 0, 0),
@@ -94,7 +100,7 @@ public enum PartyType { // todo add ability for max party size
 			for (int i = 0; i < unitTypes.length; i++) {
 				int randomCount = MathUtils.random(minCount[i], Math.max(minCount[i], maxCount[i]));
 				for (int j = 0; j < randomCount; j++) {
-					party.addSoldier(new Soldier(unitTypes[i].select(), party));
+					party.addSoldier(new Soldier(unitTypes[i].random(), party));
 				}
 			}
 		}
@@ -133,14 +139,26 @@ public enum PartyType { // todo add ability for max party size
 	public Weapon randomSoldierType() {
 		// weighted based on soldier frequencies (in max):
 		int index = 0;
-		Weapon currentWeapon = troopTypes[0];
-		double randomDouble = Math.random() * getMaxSize();
-		while (randomDouble > 0) {
-			currentWeapon = troopTypes[index];
-			randomDouble -= maxCount[index];
-			index++;
+		Weapon currentWeapon;
+		if (troopTypes != null) {
+			currentWeapon = troopTypes[0];
+			double randomDouble = Math.random() * getMaxSize();
+			while (randomDouble > 0) {
+				currentWeapon = troopTypes[index];
+				randomDouble -= maxCount[index];
+				index++;
+			}
+		}
+		else {
+			UnitType type = unitTypes[0];
+			double randomDouble = Math.random() * getMaxSize();
+			while (randomDouble > 0) {
+				type =  unitTypes[index];
+				randomDouble -= maxCount[index];
+				index++;
+			}
+			currentWeapon = type.random();
 		}
 		return currentWeapon;
 	}
-
 }

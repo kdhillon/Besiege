@@ -37,8 +37,9 @@ public class ArmyPlayer extends Army {
 			int posX, int posY, int troopCount) {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
+		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
 		super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-
+		
 		this.character = character;
 		this.panel = getKingdom().getMapScreen().getSidePanel();
 		
@@ -68,16 +69,19 @@ public class ArmyPlayer extends Army {
 //			System.out.println("is stopped and isn't waiting");
 			setPaused(true);
 		}
-		if (isWaiting())
+		if (isWaiting()) {
 			setStopped(true);
+			//this.wait(delta);
+			//System.out.println("setting stopped because waiting");
+		}
 		else if (this.getBattle() != null && isStopped())
 			setStopped(false);
-		if (!this.isWaiting() && this.isGarrisoned() && this.getTarget() != null) { // eject
-			System.out.println("ejecting player");
-			getGarrisonedIn().playerIn = false;
-			getGarrisonedIn().eject(this);
-			panel.setDefault();
-		}
+//		if (!this.isWaiting() && this.isGarrisoned() && this.getTarget() != null) { // eject
+//			System.out.println("ejecting player");
+//			getGarrisonedIn().playerIn = false;
+//			getGarrisonedIn().eject(this);
+//			panel.setDefault();
+//		}
 		if (this.isInSiege() && this.getTarget() != null) { //remove from siege?
 			if (getSiege().location.playerWaiting) {
 				this.setTarget(null);
@@ -128,6 +132,11 @@ public class ArmyPlayer extends Army {
 		}
 		getParty().act(delta);
 		momentumDecay();
+		
+		
+//		System.out.println("stopped: " + this.isStopped());
+//		System.out.println("waiting: " + this.isWaiting());
+		//System.out.println("");
 //		setMorale(100);
 //		this.faction.goRogue();
 		//getParty().distributeExp(40);
@@ -155,22 +164,6 @@ public class ArmyPlayer extends Army {
 			batch.begin();
 		}
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
-	}
-	
-	@Override
-	public boolean detectCollision() {
-		switch (getTarget().getType()) {
-		case 0: // point reached
-			return detectPointCollision();
-		case 1: // city reached
-			return detectLocationCollision();
-		case 2: // army reached
-			return detectArmyCollision();
-		case 4: // battle reached
-			return detectBattleCollision();
-		default:
-			return false;
-		}
 	}
 	
 	@Override
@@ -230,7 +223,7 @@ public class ArmyPlayer extends Army {
 
 	@Override
 	public boolean targetLost() {
-		if (hasTarget() && getTarget().getType() == 2) {
+		if (hasTarget() && getTarget().getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) getTarget();
 			if (!targetArmy.hasParent() || targetArmy.isGarrisoned()) {
 				return true;
@@ -271,7 +264,7 @@ public class ArmyPlayer extends Army {
 //		if (target != null)
 //			System.out.println("setting target " + target.getName());
 		boolean toReturn = super.setTarget(target);
-		setStopped(false);
+		if (toReturn) setStopped(false);
 		return toReturn;
 	}
 	

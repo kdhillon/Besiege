@@ -583,7 +583,7 @@ public class Location extends Actor implements Destination {
 		army.setPosition(this.getCenterX()-army.getOriginX(), getCenterY()-army.getOriginY());
 		
 		// attmepting this
-		kingdom.removeArmy(army);
+		//kingdom.removeArmy(army);
 	}
 	public void eject(Army army) {
 		garrisonedArmies.removeValue(army, true);
@@ -591,6 +591,7 @@ public class Location extends Actor implements Destination {
 		army.setVisible(true);
 		kingdom.addArmy(army);
 		if (army == getKingdom().getPlayer()) {
+			System.out.println("ejecting player");
 			if (playerWaiting)
 				stopWait();
 		}
@@ -674,8 +675,8 @@ public class Location extends Actor implements Destination {
 			Faction.updateFactionCityInfo();
 	}
 	@Override 
-	public int getType() {
-		return 1;
+	public DestType getType() {
+		return Destination.DestType.LOCATION;
 	}
 	public int getIndex() {
 		return index;
@@ -706,6 +707,12 @@ public class Location extends Actor implements Destination {
 				(this.getCenterX() - x)*(this.getCenterX() - x));
 	}
 	
+	public int getWealth() {
+		return this.getParty().wealth;
+	}
+	public void changeWealth(int delta) {
+		this.getParty().wealth += delta;
+	}
 //	public int getWealth() {
 //		return wealth;
 //	}

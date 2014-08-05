@@ -66,8 +66,8 @@ public enum Weapon {
 	ADV_LONGBOW  (8, "Shortsword", "Longbow Master",  	-1, -2, 0, true, false); 
 
 									 	// 0  1, 2,  3,  4,  5,  6,  7,  8,  9 
-	public static final int[] TIER_COST = {5, 5, 15, 15, 30, 30, 50, 50, 75, 75};
-	public static final int[] UPG_COST =  {0, 0,  5,  0, 10,  0, 15,  0, 25, 0};
+	public static final int[] TIER_COST = {0, 0, 5, 10, 15, 25, 40, 60, 80, 120};
+	//public static final int[] UPG_COST =  {0, 0,  5,  0, 10,  0, 15,  0, 25, 0};
 	
 	public final int tier;
 	public final String name;
@@ -110,6 +110,11 @@ public enum Weapon {
 		Weapon[] banditArray = {PITCHFORK, SPEAR, MACE, CLUB, HATCHET};
 		bandit = new Array<Weapon>(banditArray);
 	}
+	
+//	public static int getUpgradeCost(int tier) {
+//		if (tier == TIER_COST.length) return 999999;
+//		return (TIER_COST[tier]-TIER_COST[tier-1]);
+//	}
 	
 	public static Array<Weapon> upgrade(Weapon weapon) {
 		Array<Weapon> upgrades = new Array<Weapon>();
