@@ -56,10 +56,15 @@ public class Farmer extends Army {
 
 	@Override
 	public void garrisonAct(float delta) {
-		shouldStopRunning();
+//		shouldStopRunning();
+		detectNearby();
 		if (farmTime() && shouldStopRunning()) {
-		//	System.out.println("ejecting farmer");
-			eject();
+			System.out.println("ejecting " + this.getName());
+			// double check to see if fixes problem
+//			detectNearby();
+//			if (shouldStopRunning())
+				eject();
+				setNewFarmDest();
 		}
 //		else System.out.println(runFrom.getName());
 	}

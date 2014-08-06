@@ -255,41 +255,28 @@ public class Path {
 	}
 
 	public void travel() {
-		// very slow, not the best way to fix this
-//		if (finalGoal.getType() == 2) { // if following army (mobile)
-//			// if path is blocked
-//			if (map.openPath(army.getCenterX(), army.getCenterY(), finalGoal.getCenterX(), finalGoal.getCenterY()) != null) {
-//				this.calcPathTo(finalGoal);
-//			}
-//		}
-//		if (army.getParty().player) {
-//			System.out.println("player target: " + army.getTarget().getName());
-//			System.out.println("player travelling");
-//		}
-
+		
 		// make sure only doing detectCollision when close to goal
 		if (nextGoal != null) {
-//			System.out.println(army.getName() + " has goal and dstack size: " + dStack.size());
-			
-			
 			army.setRotation(calcRotation());
-//			rotateToggle = !rotateToggle;
-//			if (army.getParty().player) System.out.println("player rotation: " + army.getRotation());
-
 			updatePosition();
 			army.updatePolygon();
 
 			// only do collision detect when close to enemy
+			
+			
 			if (dStack.isEmpty() && army.hasTarget()) {
 //				if (army.getParty().player) System.out.println("player detecting collision");
 				// if detects collision, set nextGoal to null
 				if (army.detectCollision()) nextGoal = null;
-				if (army.runTo != null) army.runTo = null;
+//				if (army.runTo != null) army.runTo = null;
 			}
 			else {
 				this.detectPointCollision();
 			}
 		}
+		// try this to see if fixes garrison bug - nope
+		//else dStack.clear();
 	}
 
 	public float calcRotation() {

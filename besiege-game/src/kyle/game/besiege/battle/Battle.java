@@ -24,8 +24,9 @@ import com.badlogic.gdx.utils.Array;
 
 public class Battle extends Actor implements Destination { // new battle system involving Party
 	private static final float SPEED = 2000; //lower is faster
-	private static final int EXP_FACTOR = 100; // how much more exp is given to winning party than total atk of enemies
+	private static final int EXP_FACTOR = 47; // how much more exp is given to winning party than total atk of enemies
 	private static final int BASE_EXP = 1;
+	private static final int MIN_EXP = 500;
 	private static final int MIN_RETREAT_TIME = 3;
 	private static final int BASE_RETREAT_TIME = 5;
 	private static final double RETREAT_WEALTH_FACTOR = .2; // this is how much of the retreating parties wealth will be lost
@@ -590,6 +591,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			moraleReward = (int) (initBalanceD*baseMoraleReward);
 		}
 		expReward *= EXP_FACTOR; // just to beef it up
+		expReward += MIN_EXP;
 		
 		if (army.getParty().player)
 			log(army.getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");

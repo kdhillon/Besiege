@@ -105,7 +105,7 @@ public class Army extends Actor implements Destination {
 	protected Stack<Destination> targetStack;
 	public Path path;
 	protected Army runFrom;
-	public Destination runTo; // use for running
+//	public Destination runTo; // use for running
 	public Array<Army> targetOf; // armies that have this army as a target
 	public Center containing;
 	private Array<Army> closeArmies;
@@ -808,16 +808,20 @@ public class Army extends Actor implements Destination {
 
 	public void run() { // for now, find a spot far away and set path there
 		if (normalWaiting) normalWaiting = false;
-		if (startedRunning && !this.path.isEmpty()) {
+		
+		// this is the problem. path is not empty, but it's not getting empty;
+		if (startedRunning && this.hasTarget() && !this.path.isEmpty() ) {
+			//this.detectCollision();
+			//if (this.type == ArmyType.FARMER) System.out.println(this.getName() + " is running");
 			path.travel(); 
 		}
 		else {
 			Location goTo = detectNearbyFriendlyCity();
 			if (shouldStopRunning()) stopRunning();
 			else if (goTo != null) {
-				//				System.out.println("detected City " + goTo.getName());
 				setTarget(goTo);
 				setSpeed(calcSpeed());   // update speed
+			//	this.detectCollision();
 				path.travel();
 				startedRunning = true;
 			//	System.out.println(this.getName() + " is travelling to target");

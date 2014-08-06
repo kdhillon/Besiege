@@ -602,6 +602,8 @@ public class Kingdom extends Group {
 		
 		remove.remove();
 		this.removeActor(remove);
+		armies.removeValue(remove, true);
+		this.removeActor(remove);
 	}
 
 	public Array<Army> getArmies() {
