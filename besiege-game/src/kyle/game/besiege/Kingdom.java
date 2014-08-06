@@ -594,14 +594,14 @@ public class Kingdom extends Group {
 		banditCount++;
 	}
 	public void removeArmy(Army remove) {
-//		System.out.println("removing " + remove.getName());
+		System.out.println("removing " + remove.getName());
 //		if (remove.getParty().player) System.out.println("kingdom removing player");
 		armies.removeValue(remove, true);
 		if (remove.containing != null)
 			remove.containing.armies.removeValue(remove, true);
 		
-		// don't remove actor
-//		this.removeActor(remove);
+		remove.remove();
+		this.removeActor(remove);
 	}
 
 	public Array<Army> getArmies() {

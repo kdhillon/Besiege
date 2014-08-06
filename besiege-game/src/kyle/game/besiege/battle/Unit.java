@@ -789,19 +789,27 @@ public class Unit extends Group {
 		int dist_to_top = stage.size_y-pos_y;
 		int dist_to_left = pos_x;
 		int dist_to_bottom = pos_y;
+		
+		// don't allow to retreat into enemies (hacky)
+		if (team == 0) dist_to_top = Integer.MAX_VALUE;
+		if (team == 1) dist_to_bottom = Integer.MAX_VALUE;
 
+		// right
 		if (dist_to_right < dist_to_left && dist_to_right < dist_to_top && dist_to_right < dist_to_bottom) {
 			point_x = stage.size_x-1;
 			point_y = pos_y;
 		}
+		// left
 		else if (dist_to_left < dist_to_right && dist_to_left < dist_to_top && dist_to_left < dist_to_bottom) {
 			point_x = 0;
 			point_y = pos_y;
 		} 
+		// top
 		else if (dist_to_top < dist_to_left && dist_to_top < dist_to_right && dist_to_top < dist_to_bottom) {
 			point_x = pos_x;
 			point_y = stage.size_y-1;
 		}
+		// bottom
 		else {
 			point_x = pos_x;
 			point_y = 0;

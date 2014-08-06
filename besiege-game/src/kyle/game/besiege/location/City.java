@@ -29,7 +29,7 @@ public class City extends Location {
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
 	private static int CITY_UPPER_VALUE = Assets.cityArray.size; // highest number of cities possible
-	private static double MERCHANT_COST_FACTOR = .5;
+	private static double MERCHANT_COST_FACTOR = .98;
 
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
 	private final static double MERCHANT_GAIN = .008; // calculates merchant's wealth which goes to other cities.
@@ -89,7 +89,7 @@ public class City extends Location {
 	@Override
 	public void autoManage() {
 		// Organize patrols
-		int patrolCount = Math.min((int) (getParty().wealth/(50)), MAX_PATROLS);
+		int patrolCount = Math.min((int) (getParty().wealth/(500)), MAX_PATROLS);
 		if (getPatrols().size < patrolCount) {
 			createPatrol();
 		}

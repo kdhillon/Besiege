@@ -53,8 +53,8 @@ public class Faction {
 	public static final int MAX_RELATION = 100;
 	public static final int MIN_RELATION = -100;
 	public static final int INIT_WAR_RELATION = -40; //when war is declared, this is the relation you will have
-	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
-//	private final static int WAR_THRESHOLD = 10; //cross this and you're at war
+//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
+	private final static int WAR_THRESHOLD = 10; //cross this and you're at war
 
 	public static Array<Faction> factions;
 	public static final Faction BANDITS_FACTION = new Faction("Bandits", "crestBandits", Color.BLACK);
@@ -339,6 +339,7 @@ public class Faction {
 	public void manageSieges() {
 		if (locationsToAttack.size < 1 && unoccupiedNobles.size > 1 && closeEnemyCities.size > 1) {
 			Location randomLocation = closeEnemyCities.random();
+			if (randomLocation.underSiege()) return;
 			orderSiegeOf(randomLocation);
 		}
 		//		if (nobles.size > 1 && closeEnemyCities.size > 1) {
@@ -354,7 +355,7 @@ public class Faction {
 		locationsToAttack.add(location);
 		int noblesToOrder = Math.max((int) (unoccupiedNobles.size * ORDER_FACTOR), 1);
 		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles");
-	//	BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles", "magenta");
+		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles", "magenta");
 		while (noblesToOrder > 0) {
 			Noble randomNoble = unoccupiedNobles.random();
 			setTask(randomNoble, location);

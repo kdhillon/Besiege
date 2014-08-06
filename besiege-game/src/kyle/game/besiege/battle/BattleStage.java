@@ -41,15 +41,16 @@ public class BattleStage extends Group {
 
 	public static int SIDE_PAD = 5;
 	public static int BOTTOM_PAD = 5;
-	public static int PLACE_HEIGHT = 30;
+	public static int PLACE_HEIGHT = 15;
 
+	public static double RETREAT_TIME = 5; // have to wait 5 secs before can retreat
+	
 
 	public int MIN_PLACE_X;
 	public int MAX_PLACE_X;
 
 	public int MIN_PLACE_Y;
 	public int MAX_PLACE_Y;
-
 
 	// from mouse to register
 	public Array<Unit> allies;
@@ -92,6 +93,7 @@ public class BattleStage extends Group {
 	private boolean mouseOver; // is mouse over Battle screen?
 //	private boolean paused;
 	public boolean isOver; // is the battle over?
+	public double retreatTimer;
 
 	public int unit_width = 16;
 	public int unit_height = 16;
@@ -228,10 +230,11 @@ public class BattleStage extends Group {
 		MAX_PLACE_Y = PLACE_HEIGHT + BOTTOM_PAD;
 
 		// set up orignal base points
-		originalPoint =  new BPoint(size_x/2, (int) (size_y * .3f) + 1);
+		originalPoint =  new BPoint(size_x/2, BOTTOM_PAD + PLACE_HEIGHT/2);
 		placementPoint = originalPoint;
 
-		// only add enemy units to start?
+		this.retreatTimer = RETREAT_TIME;
+		
 		addUnits();
 	}
 
@@ -485,6 +488,8 @@ public class BattleStage extends Group {
 	}
 
 	public void retreatAll(boolean player) {
+		if (retreatTimer >= 0) return; // can't retreat unless proper time
+		
 		if (player) {
 			for (Unit unit : allies) {
 				unit.retreating = true;
@@ -785,6 +790,7 @@ public class BattleStage extends Group {
 		}
 		if (!placementPhase) {
 			super.act(delta);
+			this.retreatTimer -= delta;
 			if ((playerDefending && battle.balanceA < Battle.RETREAT_THRESHOLD/2) || (!playerDefending && battle.balanceD < Battle.RETREAT_THRESHOLD/2)) {
 				retreatAll(false);
 			}
@@ -962,6 +968,9 @@ public class BattleStage extends Group {
 
 		boolean didAtkWin;
 		if (winner.getParty().player) {
+			battle.logDefeat(loser);
+			kingdom.getMapScreen().getSidePanel().setStay(false);
+			kingdom.getMapScreen().getSidePanel().setActiveArmy(winner);
 			if (!playerDefending) didAtkWin = true;
 			else didAtkWin = false;
 		} else {
@@ -969,7 +978,6 @@ public class BattleStage extends Group {
 			else didAtkWin = false;
 		}
 		
-
 		
 		this.battle.didAtkWin = didAtkWin;
 		

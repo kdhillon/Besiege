@@ -13,6 +13,7 @@ import kyle.game.besiege.Point;
 import kyle.game.besiege.Siege;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
+import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.panels.BottomPanel;
@@ -52,7 +53,7 @@ public class Location extends Actor implements Destination {
 
 //	protected Array<Location> closestFriendlyLocations;
 //	protected Array<Location> closestEnemyLocations;
-	private Array<Patrol> patrols;
+	protected Array<Patrol> patrols;
 	
 	protected Array<City> closestFriendlyCities;
 	protected Array<Castle> closestFriendlyCastles;
@@ -657,6 +658,16 @@ public class Location extends Actor implements Destination {
 			this.faction.allocateNoblesFrom((City) this);
 			newFaction.allocateNoblesFor((City) this);
 			
+			for (Army army : kingdom.getArmies()) {
+				if (army.type == Army.ArmyType.MERCHANT) {
+					 Merchant merchant = ((Merchant) army);
+					if (merchant.goal == this) merchant.returnHome();
+				}
+			}
+			
+			for (Patrol patrol : this.patrols)
+				patrol.setFaction(newFaction);
+			
 			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.CASTLE) {
@@ -666,7 +677,7 @@ public class Location extends Actor implements Destination {
 		}
 		else if (this.type == LocationType.VILLAGE) {
 			for (Farmer f : ((Village) this).farmers) {
-				
+				f.setFaction(newFaction);
 			}
 		}
 		this.faction = newFaction;

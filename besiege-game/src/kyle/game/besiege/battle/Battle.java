@@ -10,7 +10,6 @@ import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.army.Army;
-import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
@@ -27,6 +26,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	private static final float SPEED = 2000; //lower is faster
 	private static final int EXP_FACTOR = 100; // how much more exp is given to winning party than total atk of enemies
 	private static final int BASE_EXP = 1;
+	private static final int MIN_RETREAT_TIME = 3;
 	private static final int BASE_RETREAT_TIME = 5;
 	private static final double RETREAT_WEALTH_FACTOR = .2; // this is how much of the retreating parties wealth will be lost
 	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
@@ -254,6 +254,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 			kingdom.getMapScreen().getSidePanel().setDefault();
 			this.act(.001f);// arbitrary time
 		}
+		
+		//if (army.getParty().getHealthySize() == 0) destroy(army);
 	}
 	
 	public void destroy(Army army) {
@@ -291,7 +293,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	public void retreat(Army army) {
-		army.retreatCounter = BASE_RETREAT_TIME / army.getParty().getAvgSpd(); // start countdown
+		army.retreatCounter = MIN_RETREAT_TIME + BASE_RETREAT_TIME / army.getParty().getAvgSpd(); // start countdown
 		if (aArmies.contains(army, true)) {
 			aArmies.removeValue(army, true); 
 			aArmiesRet.add(army);
@@ -371,7 +373,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 1 with counter " + army.retreatCounter);
-				remove(army);
+				if (army.getParty().getHealthySize() == 0) 
+					this.destroy(army);
+				else
+					remove(army);
 			}
 		}
 		for (Army army : dArmiesRet) {
@@ -379,7 +384,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 2 with counter " + army.retreatCounter);
-				remove(army);
+				if (army.getParty().getHealthySize() == 0) 
+					this.destroy(army);
+				else
+					remove(army);
 			}
 		}
 	}
@@ -485,12 +493,21 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
+	public void logDefeat(Army army) {
+		log(army.getName() + " was defeated!", "green");
+	}
+	
 	public void victory(Array<Army> victor) {
 //		System.out.println("victory in " + name);
 //		System.out.println("battle over");
 //		if (isOver) System.out.println(getName() + " ENDING BATTLE TWICE!!!?!");
 //		isOver = true;
 		
+		//if ()
+		 
+		if (kingdom.getMapScreen().getSidePanel().getActivePanel().getClass() == PanelBattle.class &&
+				((PanelBattle) (kingdom.getMapScreen().getSidePanel().getActivePanel())).battle == this) 
+			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
 		
 		if (victor == aArmies) didAtkWin = true;
 		else if (victor == dArmies) didAtkWin = false;
@@ -532,7 +549,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			double contribution = victorContribution[i]/1.0d/totalContribution;
 			this.distributeRewards(victor.get(i), contribution, didAtkWin);
 		}
-		
+				
 //		// TESTING
 //		if (victor == aArmies) {
 //			for (Army leftOver : dArmies) {
@@ -575,7 +592,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		expReward *= EXP_FACTOR; // just to beef it up
 		
 		if (army.getParty().player)
-		log(army.getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");
+			log(army.getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");
 		army.getParty().wealth += reward;
 		army.getParty().distributeExp(expReward);
 		army.setMomentum(army.getMomentum()+moraleReward);

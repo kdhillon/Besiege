@@ -107,6 +107,10 @@ public class Merchant extends Army {
 		this.goal = goal;
 		newTarget(goal);
 	}
+	public void returnHome() {
+		this.goal = (City) this.getDefaultTarget();
+		this.setTarget(this.getDefaultTarget());
+	}
 	public City getGoal() {
 		return goal;
 	}

@@ -44,11 +44,12 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private final String redPatch = "red9";
 	private final String greenPatch = "green9";
 	private SidePanel panel;
-	private Battle battle;
+	public Battle battle;
 	
 	public BattleStage battleStage;
 	
 	private boolean shouldUpdate;
+	private boolean retreatSet;
 	
 	private Label title;
 	
@@ -308,10 +309,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		text.add(stats).colspan(4).padTop(PAD);
 
 		this.addTopTable(text);
-		
-		if (battle.playerInA || battle.playerInD) {
-			this.setButton(1, "Retreat!");
-		}
+	
 		
 		// try to fix weird text bug
 //		updateSoldierTable();
@@ -321,6 +319,14 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	// TODO this is extremely memory inefficient. like, it's really bad.
 	@Override
 	public void act(float delta) {
+		
+		if (battleStage != null) {
+			if ((battle.playerInA || battle.playerInD) && battleStage.retreatTimer <= 0 && !retreatSet) {
+				retreatSet = true;
+				this.setButton(1, "Retreat!");
+			}
+		}
+		
 //		System.out.println("acting " + delta + " is over: " + battle.isOver);
 		title.setText("Battle!");
 		if (battle.isOver) {

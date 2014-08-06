@@ -95,7 +95,7 @@ public class Castle extends Location {
 	@Override
 	public void autoManage() {
 		// Organize patrols
-		int patrolCount = (int) (getParty().wealth/(patrolCost*2));
+		int patrolCount = (int) (getParty().wealth/(100));
 		if (getPatrols().size < patrolCount) {
 			this.loseWealth(patrolCost);
 			createScout();

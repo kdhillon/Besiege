@@ -107,11 +107,11 @@ public class Noble extends Army {
 		if (this.path.isEmpty()) {
 			if (specialTarget != null && this.getTarget() != specialTarget) {
 				setTarget(specialTarget);
-				System.out.println(getName() + " setting special target " + specialTarget.getName());
+				//System.out.println(getName() + " setting special target " + specialTarget.getName());
 			//	path.travel();
 			}
 			else {
-				System.out.println(getName() + " special target is null");
+				//System.out.println(getName() + " special target is null");
 				//path.travel();
 			}
 		}
@@ -137,7 +137,7 @@ public class Noble extends Army {
 			//			System.out.println("doesn't have target and is waiting? " + this.isWaiting() + " and is garrisoned? " + isGarrisoned());
 			//				System.out.println("starting to wait");
 
-			System.out.println(this.getName() + "getting new target");
+			//System.out.println(this.getName() + "getting new target");
 		}
 		// make sure not going to enemy city - weird glitch
 		else {

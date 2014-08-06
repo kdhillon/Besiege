@@ -316,7 +316,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void drawCrest(SpriteBatch batch) {
-		if (this.isInBattle() || this.isGarrisoned()) return;
+		if (this.isInBattle() || this.isGarrisoned() || !this.isVisible()) return;
 		float size_factor = .4f;
 
 		size_factor +=  .005*this.party.getTotalSize();
@@ -659,7 +659,7 @@ public class Army extends Actor implements Destination {
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
 
 			for (Army army : closeArmies) {
-				if (this.distToCenter(army) < lineOfSight) {
+				if (this.distToCenter(army) < lineOfSight && !army.isGarrisoned()) {
 					// hostile troop
 					if (isAtWar(army)) {
 						if (shouldRunFrom(army)) {
@@ -719,7 +719,7 @@ public class Army extends Actor implements Destination {
 	public boolean shouldAttack(Army that) {
 //		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 //			return true; 
-		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
+		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1) && (this.getTroopCount() <= that.getTroopCount()*2) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 			return true; 
 		return false;
 	}
@@ -923,8 +923,8 @@ public class Army extends Actor implements Destination {
 		if (morale < 35) return "Low";
 		if (morale < 50) return "Okay";
 		if (morale < 65) return "Good";
-		if (morale < 90) return "High";
-		else return "Excellent";
+		if (morale < 90) return "Great";
+		else return "Jolly";
 	}
 	public void setMomentum(int momentum) {
 		if (momentum >= 50) {
@@ -1007,7 +1007,7 @@ public class Army extends Actor implements Destination {
 			path.dStack.clear();
 			path.nextGoal = null;
 			// figure out how to reconcile this with path?
-			//			System.out.println(getName() + " has null target");
+			//System.out.println(getName() + " has null target");
 			return false;
 		}	
 		// replace old targetof
@@ -1023,7 +1023,7 @@ public class Army extends Actor implements Destination {
 
 		boolean isInWater = kingdom.getMap().isInWater(newTarget);
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
-			if (this.target != newTarget && this.lastPathCalc == 0) {
+			if (this.target != newTarget && (this.lastPathCalc == 0 || this.isPlayer())) {
 
 				// don't add a bunch of useless point and army targets
 				if (this.target != null && this.target.getType() != Destination.DestType.ARMY && this.target.getType() != Destination.DestType.POINT && targetStack.size() < MAX_STACK_SIZE) {
@@ -1141,6 +1141,10 @@ public class Army extends Actor implements Destination {
 	// laziness sake
 	protected double distToCenter(Destination d) {
 		return Kingdom.distBetween(this, d);
+	}
+	
+	private boolean isPlayer() {
+		return this.getParty().player;
 	}
 
 	//	@Override
