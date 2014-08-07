@@ -794,25 +794,31 @@ public class Unit extends Group {
 		if (team == 0) dist_to_top = Integer.MAX_VALUE;
 		if (team == 1) dist_to_bottom = Integer.MAX_VALUE;
 
+		boolean done = false;
+		
 		// right
 		if (dist_to_right < dist_to_left && dist_to_right < dist_to_top && dist_to_right < dist_to_bottom) {
 			point_x = stage.size_x-1;
 			point_y = pos_y;
+			if (canMove(point_x, point_y)) done = true;
 		}
 		// left
-		else if (dist_to_left < dist_to_right && dist_to_left < dist_to_top && dist_to_left < dist_to_bottom) {
+		if (!done && dist_to_left < dist_to_right && dist_to_left < dist_to_top && dist_to_left < dist_to_bottom) {
 			point_x = 0;
 			point_y = pos_y;
+			if (canMove(point_x, point_y)) done = true;
 		} 
 		// top
-		else if (dist_to_top < dist_to_left && dist_to_top < dist_to_right && dist_to_top < dist_to_bottom) {
+		if (!done && dist_to_top < dist_to_left && dist_to_top < dist_to_right && dist_to_top < dist_to_bottom) {
 			point_x = pos_x;
 			point_y = stage.size_y-1;
+			if (canMove(point_x, point_y)) done = true;
 		}
 		// bottom
-		else {
+		if (!done) {
 			point_x = pos_x;
 			point_y = 0;
+			if (canMove(point_x, point_y)) done = true;
 		}
 
 		BPoint closest = new BPoint(point_x, point_y);

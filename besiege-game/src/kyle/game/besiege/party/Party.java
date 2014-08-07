@@ -56,7 +56,8 @@ public class Party {
 
 	public void act(float delta) {
 		if (player) woundChance = BASE_CHANCE * Character.getAttributeFactor("Reviving");
-		checkHeal();
+		if (!this.army.isInBattle())
+			checkHeal();
 		calcStats();
 	}
 
@@ -168,6 +169,8 @@ public class Party {
 	public void givePrisoner(Soldier prisoner, Party recipient) {
 		if (this.wounded.contains(prisoner, true))
 			this.wounded.removeValue(prisoner, true);
+		else if (this.healthy.contains(prisoner, true))
+			this.healthy.removeValue(prisoner, true);
 		else BottomPanel.log("trying to add invalid prisoner", "red");
 		recipient.addPrisoner(prisoner);
 	}
@@ -223,6 +226,9 @@ public class Party {
 	}
 	public Array<Soldier> getPrisoners() {
 		return prisoners;
+	}
+	public void clearPrisoners() {
+		prisoners.clear();
 	}
 	public Array<Array<Soldier>> getConsolHealthy() {
 		return getConsol(healthy);

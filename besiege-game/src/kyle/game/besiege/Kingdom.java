@@ -501,6 +501,7 @@ public class Kingdom extends Group {
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
 		while (villageArray.size > 0 && map.availableCenters.size > 0) {
 			Center center = map.availableCenters.random();
+			map.availableCenters.removeValue(center, true);
 
 			//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
 			Village village = new Village(this, villageArray.pop(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
@@ -562,9 +563,22 @@ public class Kingdom extends Group {
 		addActor(add);
 	}
 	public void addPlayer() {
-		player = new ArmyPlayer(this, mapScreen.getCharacter(), Faction.PLAYER_FACTION, (int) map.reference.loc.x, (int) (Map.HEIGHT-map.reference.loc.y), 6);
+		Faction faction = Faction.factions.random();
+		Center center = map.reference;
+		
+		int pos_x = (int) map.reference.loc.x;
+		int pos_y = (int) (Map.HEIGHT-map.reference.loc.y);
+		
+		if (faction.centers.size > 0) {
+			center = faction.centers.random();
+			pos_x = (int) center.loc.x;
+			pos_y = (int) (Map.HEIGHT-center.loc.y);
+			System.out.println("player created in faction center");
+		} else System.out.println("no centers!");
+		
+		player = new ArmyPlayer(this, mapScreen.getCharacter(), faction, pos_x, pos_y, 6);
 		player.getParty().player = true;
-		player.containing = map.reference;
+		player.containing = center;
 		addArmy(player);
 		//		player.initializeBox(); // otherwise line of sight will be 0!
 		//mapScreen.center(); doesn't do anything bc of auto resize

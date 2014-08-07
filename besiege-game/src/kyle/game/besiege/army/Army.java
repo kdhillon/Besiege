@@ -29,7 +29,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 
@@ -329,7 +331,16 @@ public class Army extends Actor implements Destination {
 		clear_white.b = 1;	clear_white.r = 1;	clear_white.g = 1;
 		clear_white.a = .6f;
 		batch.setColor(clear_white);
-		batch.draw(this.getFaction().crest, getCenterX() - 14*zoom, getCenterY() + 5 + 5*zoom, 30*zoom, 45*zoom);
+		
+		Matrix4 mx4Font = new Matrix4();
+		mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
+		mx4Font.trn(getCenterX(), getCenterY(), 0);
+		Matrix4 tempMatrix = batch.getTransformMatrix();
+		batch.setTransformMatrix(mx4Font);
+		
+		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+		
+		batch.setTransformMatrix(tempMatrix);
 		batch.setColor(temp);
 	}
 

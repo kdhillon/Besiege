@@ -234,6 +234,7 @@ public class Faction {
 			Array<Array<Center>> aaCenters = Map.calcConnectedCenters(f.centers);				
 			for (Array<Center> centers : aaCenters) {
 				//				System.out.println("working");
+				
 				f.territory.add(Map.centersToPolygon(centers));
 			}
 		}
@@ -314,8 +315,10 @@ public class Faction {
 	
 	// reallocate nobles from this city if it's taken by an enemy
 	public void allocateNoblesFrom(City city) {
-		for (Noble noble : city.nobles) 
-			this.getRandomCity().addNoble(noble);
+		for (Noble noble : city.nobles) {
+			if (this.cities.size == 0) noble.destroy(); // kill noble for now
+			else this.getRandomCity().addNoble(noble);
+		}
 	}
 	
 	// create new nobles for this city

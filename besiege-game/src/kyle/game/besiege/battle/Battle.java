@@ -32,6 +32,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	private static final double RETREAT_WEALTH_FACTOR = .2; // this is how much of the retreating parties wealth will be lost
 	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
 	public static final int WAIT = 3; // time army must wait after winning a battle to give the retreater a head start? maybe a better way to do this.
+	public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
+	
 	private final int baseMoraleReward = 25;
 	private final String REGION = "battle";
 	private TextureRegion region;
@@ -459,8 +461,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 		Soldier random = army.getParty().getHealthy().get(randomIndex);
 		casualty(random, atkKill);
 		
-		if (army.getParty().getHealthySize() <= 0) {
-		//	log(army.getName() + " lost all troops and was removed from battle");
+		if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) {
+			log(army.getName() + " lost all troops and was removed from battle", "red");
 			this.destroy(army);
 		}
 	}

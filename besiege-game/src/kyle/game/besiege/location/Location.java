@@ -174,6 +174,8 @@ public class Location extends Actor implements Destination {
 	
 	@Override
 	public void act(float delta) {
+		this.garrison.act(delta);
+		
 		if (autoManage) {
 			autoManage();
 		}
@@ -219,7 +221,7 @@ public class Location extends Actor implements Destination {
 		if ((this.type == LocationType.VILLAGE))
 			size_factor = .5f * size_factor;
 		if ((this.type == LocationType.CASTLE))
-			size_factor = .7f * size_factor;
+			size_factor = .8f * size_factor;
 		
 		Color temp = batch.getColor();
 		float zoom = getKingdom().getMapScreen().getCamera().zoom;
@@ -229,7 +231,7 @@ public class Location extends Actor implements Destination {
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
 		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 1.5) && !(this.type == LocationType.CASTLE && zoom > 3)) {			
+		if (!(this.type == LocationType.VILLAGE && zoom > 1.5) && !(this.type == LocationType.CASTLE && zoom > 5)) {			
 			BitmapFont font;
 
 			if (zoom > 7) {
@@ -283,9 +285,17 @@ public class Location extends Actor implements Destination {
 			clear_white.b = 1;	clear_white.r = 1;	clear_white.g = 1;
 			clear_white.a = .6f;
 			batch.setColor(clear_white);
-			batch.draw(this.getFaction().crest, getCenterX() - 14*zoom, getCenterY() + 5 + 5*zoom, 30*zoom, 45*zoom);
+			
+			Matrix4 mx4Font = new Matrix4();
+			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
+			mx4Font.trn(getCenterX(), getCenterY(), 0);
+			Matrix4 tempMatrix = batch.getTransformMatrix();
+			batch.setTransformMatrix(mx4Font);
+			
+			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
 			batch.setColor(temp);
 			
+			batch.setTransformMatrix(tempMatrix);
 //			// draw text
 //			font.setColor(clear_white);
 //			String toDraw = getName();
@@ -299,7 +309,7 @@ public class Location extends Actor implements Destination {
 		if ((this.type == LocationType.VILLAGE))
 			size_factor = .5f * size_factor;
 		if ((this.type == LocationType.CASTLE))
-			size_factor = .7f * size_factor;
+			size_factor = .8f * size_factor;
 		
 		Color temp = batch.getColor();
 		float zoom = getKingdom().getMapScreen().getCamera().zoom;
@@ -310,7 +320,7 @@ public class Location extends Actor implements Destination {
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
 		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 1.5) && !(this.type == LocationType.CASTLE && zoom > 3)) {			
+		if (!(this.type == LocationType.VILLAGE && zoom > 1.5) && !(this.type == LocationType.CASTLE && zoom > 5)) {			
 			BitmapFont font;			
 			
 			if (zoom > 7) {
@@ -361,8 +371,8 @@ public class Location extends Actor implements Destination {
 			String toDraw = getName();
 
 			Matrix4 mx4Font = new Matrix4();
-			mx4Font.trn((getX() - (int) (4.3*toDraw.length())*zoom), (getY()-5-5*zoom), 0);
-			mx4Font.setToRotation(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
+			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
+			mx4Font.trn(getX(), getY(), 0);
 			Matrix4 tempMatrix = batch.getTransformMatrix();
 			batch.setTransformMatrix(mx4Font);
 			
@@ -376,7 +386,7 @@ public class Location extends Actor implements Destination {
 			
 			// draw text
 			font.setColor(clear_white);
-			font.draw(batch, toDraw, getX() - (int) (4.3*toDraw.length())*zoom, getY()-5-5*zoom);
+			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom, -8*zoom);
 			
 			batch.setTransformMatrix(tempMatrix);
 		}
@@ -649,8 +659,7 @@ public class Location extends Actor implements Destination {
 		this.faction = faction;
 	}
 	public void changeFaction(Faction newFaction) {
-		// TODO updateMerchants();
-		// TODO update villagers();
+
 		if (this.type == LocationType.CITY) {
 			this.faction.cities.removeValue((City) this, true);
 			newFaction.cities.add((City) this);
@@ -680,10 +689,25 @@ public class Location extends Actor implements Destination {
 				f.setFaction(newFaction);
 			}
 		}
+		
+		if (this.type != LocationType.VILLAGE) {
+			// swap captured and garrison
+			Array<Soldier> oldCaptured = new Array<Soldier>(garrison.getParty().getPrisoners());
+			garrison.getParty().clearPrisoners();
+			
+			for (Soldier newPrisoner : garrison.getParty().getWounded()) 
+				this.garrison.getParty().givePrisoner(newPrisoner, this.garrison.getParty());
+			for (Soldier newPrisoner : garrison.getParty().getHealthy())
+				this.garrison.getParty().givePrisoner(newPrisoner, this.garrison.getParty());
+			
+			for (Soldier newSoldier : oldCaptured) 
+				this.garrison.getParty().addPrisoner(newSoldier);
+				
+			Faction.updateFactionCityInfo();
+		}
+		
 		this.faction = newFaction;
 		// update friendly arrays, and everything (if this isn't a village)
-		if (this.type != LocationType.VILLAGE) 
-			Faction.updateFactionCityInfo();
 	}
 	@Override 
 	public DestType getType() {

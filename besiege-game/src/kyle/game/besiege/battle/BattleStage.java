@@ -43,7 +43,7 @@ public class BattleStage extends Group {
 	public static int BOTTOM_PAD = 5;
 	public static int PLACE_HEIGHT = 15;
 
-	public static double RETREAT_TIME = 5; // have to wait 5 secs before can retreat
+	public static double RETREAT_TIME = 10; // have to wait 5 secs before can retreat
 	
 
 	public int MIN_PLACE_X;
@@ -998,7 +998,7 @@ public class BattleStage extends Group {
 		boolean loserDestroyed = false;
 
 		// figure out if totally destroyed or if units retreated
-		if (loser.getParty().getHealthySize() <= 0) {
+		if (loser.getParty().getHealthySize() <= Battle.DESTROY_THRESHOLD) {
 			battle.increaseSpoilsForKill(loser);
 			loserDestroyed = true;
 			loser.destroy();
