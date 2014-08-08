@@ -29,7 +29,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	private static final int MIN_EXP = 500;
 	private static final int MIN_RETREAT_TIME = 3;
 	private static final int BASE_RETREAT_TIME = 5;
-	private static final double RETREAT_WEALTH_FACTOR = .2; // this is how much of the retreating parties wealth will be lost
+	private static final double RETREAT_WEALTH_FACTOR = .7; // this is how much of the retreating parties wealth will be lost
 	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
 	public static final int WAIT = 3; // time army must wait after winning a battle to give the retreater a head start? maybe a better way to do this.
 	public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
@@ -290,7 +290,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	public void increaseSpoilsForRetreat(Army army) {
-		int wealthChange = (int) (army.getParty().wealth * RETREAT_WEALTH_FACTOR);
+		
+		double wealthFactor = army.getParty().getWoundedSize()*1.0/army.getParty().getTotalSize();
+		
+		int wealthChange = (int) (army.getParty().wealth * wealthFactor);
 		army.getParty().wealth -= wealthChange;
 		spoils += wealthChange;
 	}
@@ -376,7 +379,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 1 with counter " + army.retreatCounter);
-				if (army.getParty().getHealthySize() == 0) 
+				if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) 
 					this.destroy(army);
 				else
 					remove(army);
@@ -387,7 +390,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 2 with counter " + army.retreatCounter);
-				if (army.getParty().getHealthySize() == 0) 
+				if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD) 
 					this.destroy(army);
 				else
 					remove(army);

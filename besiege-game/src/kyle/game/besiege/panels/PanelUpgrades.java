@@ -15,16 +15,15 @@ import kyle.game.besiege.party.SoldierLabel;
 import kyle.game.besiege.party.Weapon;
 import kyle.game.besiege.party.WeaponButton;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
@@ -43,7 +42,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private SidePanel panel;
 	private Army army;
 	private Party party;
-	
+
 	private Table text;
 	private Label title;
 	private Label faction;
@@ -53,7 +52,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private Label atk;
 	private Label def;
 	private Label spd;
-	
+
 	private Table upgrades;
 	private Label nameS;
 	private Label upgradeS;
@@ -69,38 +68,40 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private Label upgrade1StatsS;
 	private Label upgrade2StatsS;
 	private Label upgrade3StatsS;
-	
+
 	private Soldier selected;
-	
+
 	private Table soldierTable;
 	private ScrollPane soldierPane;
-	
+
 	private LabelStyle ls;
-	
+
+	private Array<Soldier> upgradable;
+
 	public PanelUpgrades(SidePanel panel, Army army) {
 		this.panel = panel;
 		this.army = army;
 		this.party = army.getParty();
 		this.addParentPanel(panel);
-		
+
 		LabelStyle lsBig = new LabelStyle();
 		lsBig.font = Assets.pixel24;
-		
+
 		LabelStyle lsMB = new LabelStyle();
 		lsMB.font = Assets.pixel22;
-		
+
 		LabelStyle lsMed = new LabelStyle();
 		lsMed.font = Assets.pixel18;
-		
+
 		LabelStyle lsSmall = new LabelStyle();
 		lsSmall.font = Assets.pixel14;
-		
+
 		LabelStyle lsMicro = new LabelStyle();
 		lsMicro.font = Assets.pixel14;
-		
+
 		ls = new LabelStyle();
 		ls.font = Assets.pixel16;
-		
+
 		Label sizeC = new Label("Size:", ls);
 		Label moraleC = new Label("Morale:",ls);
 		Label moneyC = new Label("Money:",ls);
@@ -120,12 +121,12 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		atk = new Label("" ,ls);
 		def = new Label("", ls);
 		spd = new Label("", ls);
-		
+
 		// Create text
 		text = new Table();
 		//text.debug();
 		text.defaults().padTop(NEG).left();
-		
+
 		text.add(title).colspan(4).fillX().expandX().padBottom(MINI_PAD);
 		text.row();
 		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
@@ -147,7 +148,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		text.add(money);
 		text.add(spdC).padLeft(PAD);
 		text.add(spd);
-		
+
 		soldierTable = new Table();
 		//soldierTable.debug();
 		soldierTable.defaults().padTop(NEG);
@@ -156,24 +157,26 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		text.row();
 		text.add().colspan(4).padBottom(PAD);
 		text.row();
-		
+
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);
 		text.add(soldierPane).colspan(4).top().padTop(0);
-		
+
 		text.row();
-		
+
+		upgradable = new Array<Soldier>(party.getUpgradable()); // use copy constructor to avoid problems later
+
 		// Soldier's stats
 		upgrades = new Table();
 		upgrades.setVisible(false);
 		upgrades.padLeft(MINI_PAD);
-		
+
 		Label equippedSC = new Label("Equipped with:", lsMed);
 		equippedSC.setAlignment(0,0);
 		Label upgradeSC = new Label("Upgrade with:",lsMed);
 		upgradeSC.setAlignment(0,0);
-		
+
 		nameS = new Label("", lsMB);
 		nameS.setAlignment(0,0);
 		upgradeS = new Label("", ls);
@@ -194,9 +197,9 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		upgrade1StatsS.setWrap(true);
 		upgrade2StatsS.setWrap(true);
 		upgrade3StatsS.setWrap(true);
-//		upgrade1StatsS.setAlignment(Align.right,Align.right);
-//		upgrade2StatsS.setAlignment(Align.right,Align.right);
-//		upgrade3StatsS.setAlignment(Align.right,Align.right);
+		//		upgrade1StatsS.setAlignment(Align.right,Align.right);
+		//		upgrade2StatsS.setAlignment(Align.right,Align.right);
+		//		upgrade3StatsS.setAlignment(Align.right,Align.right);
 
 		ButtonStyle bs = new ButtonStyle();
 		bs = new ButtonStyle();
@@ -204,7 +207,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		bs.down = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(downTexture), r,r,r,r));
 		bs.pressedOffsetX = OFFSET;
 		bs.pressedOffsetY = -OFFSET;
-		
+
 		up1B = new WeaponButton(upgrade1S, bs, null);
 		up1B.addListener(new ClickListener() {
 			public boolean touchDown(InputEvent event, float x,
@@ -241,15 +244,15 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		up1B.setVisible(false);
 		up2B.setVisible(false);
 		up3B.setVisible(false);
-		
+
 		upgrades.defaults().left();
 		upgrades.add(nameS).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX();
-//		upgrades.row();
-//		upgrades.add(equippedSC).fillX().expandX();
-//		upgrades.row();
-//		upgrades.add(equippedS).left();
-//		upgrades.row();
-//		upgrades.add(equippedStatsS).padTop(NEG);
+		//		upgrades.row();
+		//		upgrades.add(equippedSC).fillX().expandX();
+		//		upgrades.row();
+		//		upgrades.add(equippedS).left();
+		//		upgrades.row();
+		//		upgrades.add(equippedStatsS).padTop(NEG);
 		upgrades.row();
 		upgrades.add(upgradeS).padBottom(NEG).expandX().fillX().colspan(2);
 		upgrades.row();
@@ -265,33 +268,35 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		upgrades.row();
 		upgrades.add(up3B).padRight(MINI_PAD).fillX().padTop(MINI_PAD).padTop(MINI_PAD);
 		upgrades.add(upgrade3StatsS).fillX().expandX();
-		
+
 		//upgrades.debug();
-		
+
 		text.add(upgrades).colspan(4).padTop(PAD);
 
+		select(upgradable.first());
+		
 		this.addTopTable(text);
-	
-//		this.addButton(null);
-//		this.addButton(null);
-//
-//		this.addButton(null);
-		this.setButton(4, "Back");
+
+		//		this.addButton(null);
+		//		this.addButton(null);
+		//
+		//		this.addButton(null);
+		this.setButton(4, "Upgrade All");
 	}
-	
+
 	// use this for desktop
-//	@Override
-//	public void act(float delta) {
-//		morale.setText(army.getMorale() + "");
-//		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
-//		money.setText("" + army.getParty().wealth);
-//		atk.setText(""+ party.getAtk());
-//		def.setText(String.format("%.2f", party.getAvgDef()));
-//		spd.setText(String.format("%.2f", party.getAvgSpd()));
-//		updateSoldierTable();
-//		super.act(delta);
-//	}
-	
+	//	@Override
+	//	public void act(float delta) {
+	//		morale.setText(army.getMorale() + "");
+	//		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
+	//		money.setText("" + army.getParty().wealth);
+	//		atk.setText(""+ party.getAtk());
+	//		def.setText(String.format("%.2f", party.getAvgDef()));
+	//		spd.setText(String.format("%.2f", party.getAvgSpd()));
+	//		updateSoldierTable();
+	//		super.act(delta);
+	//	}
+
 	// use this for web
 	@Override
 	public void act(float delta) {
@@ -304,16 +309,20 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		updateSoldierTable();
 		super.act(delta);
 	}
-	
+
 	public void updateSoldierTable() {
 		soldierTable.clear();
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
-//		Label healthyC = new Label("Upgradable", ls);
-//		healthyC.setAlignment(0,0);
+		//		Label healthyC = new Label("Upgradable", ls);
+		//		healthyC.setAlignment(0,0);
 		soldierTable.add().colspan(2).width(SidePanel.WIDTH - PAD*2).padTop(0);
 		soldierTable.row();
-		for (Soldier s : party.getUpgradable()) {
+		for (Soldier s : upgradable) {
 			SoldierLabel name = new SoldierLabel(s.name, ls, s);
+
+			if (selected == s) name.setColor(Color.YELLOW);
+			//else name.setColor(Color.DARK_GRAY);
+
 			name.addListener(new ClickListener() {
 				@Override
 				public boolean touchDown(InputEvent event, float x,
@@ -330,9 +339,9 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			soldierTable.add(count).right();
 			soldierTable.row();
 		}
-		if (party.getUpgradable().size == 0) {
+		if (upgradable.size == 0) {
 			Label none = new Label("No troops are ready to upgrade!", ls);
-//			healthyC.setText("");
+			//			healthyC.setText("");
 			none.setWrap(true);
 			none.setAlignment(0,0);
 			soldierTable.add(none).colspan(2).width(SidePanel.WIDTH - PAD*6).padTop(PAD*4);
@@ -340,11 +349,12 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			soldierTable.row();
 		}
 	}
-	
+
 	public void select(Soldier s) {
 		this.selected = s;
-		
+
 		nameS.setText(s.name);
+
 		upgradeS.setText("Tier " + ((s.tier)/2) + "  ->  Tier " + ((s.tier + 1)/2));
 		String naturalUp = "";
 		if (Soldier.ATK_TIER[s.tier+1])
@@ -356,7 +366,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		naturalS.setText(naturalUp);
 		equippedS.setText(s.weapon.name);
 		equippedStatsS.setText(s.weapon.atkMod + " atk, " + s.weapon.defMod + " def, " + s.weapon.spdMod + " spd");
-		
+
 		Array<Weapon> upgradeArr = Weapon.upgrade(s.weapon);
 		if (upgradeArr.size >= 1) {
 			Weapon up1 = upgradeArr.get(0);
@@ -364,11 +374,13 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			up1B.setVisible(true);
 			if (s.rangedWeapon == null) {
 				upgrade1S.setText(" " + up1.name + " ");
-				upgrade1StatsS.setText(statDif(s.weapon, up1));
+				upgrade1StatsS.setText(s.getUpgradeCost() + "");
+				//upgrade1StatsS.setText(statDif(s.weapon, up1));
 			}
 			else {
 				upgrade1S.setText(" " + Weapon.getRanged(up1).name + " ");
-				upgrade1StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up1)));
+				upgrade1StatsS.setText(s.getUpgradeCost() + "");
+				//upgrade1StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up1)));
 			}
 		}
 		if (upgradeArr.size >= 2) {
@@ -377,11 +389,13 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			up2B.setVisible(true);
 			if (s.rangedWeapon == null) {
 				upgrade2S.setText(" " + up2.name + " ");
-				upgrade2StatsS.setText(statDif(s.weapon, up2));
+				upgrade2StatsS.setText(s.getUpgradeCost() + "");
+				//upgrade2StatsS.setText(statDif(s.weapon, up2));
 			}
 			else {
 				upgrade2S.setText(" " + Weapon.getRanged(up2).name + " ");
-				upgrade2StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up2)));
+				upgrade2StatsS.setText(s.getUpgradeCost() + "");
+				//upgrade2StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up2)));
 			}
 		}
 		else {
@@ -395,11 +409,13 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			up3B.setVisible(true);
 			if (s.rangedWeapon == null) {
 				upgrade3S.setText(" " + up3.name + " ");
-				upgrade3StatsS.setText(statDif(s.weapon, up3));
+				upgrade3StatsS.setText(s.getUpgradeCost() + "");
+				//upgrade3StatsS.setText(statDif(s.weapon, up3));
 			}
 			else {
 				upgrade3S.setText(" " + Weapon.getRanged(up3).name + " ");
-				upgrade3StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up3)));
+				upgrade3StatsS.setText(s.getUpgradeCost() + "");
+				//upgrade3StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up3)));
 			}
 		}
 		else {
@@ -417,21 +433,82 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		up3B.setVisible(false);
 	}
 
+	// select next unit after currently selected one
+	public void selectNext() {
+		if (selected == null) {
+			System.out.println("selected is null");
+			deselect();
+		}
+		//boolean select_was_prev = false;
+		if (upgradable.size > 1) {
+			int prev_index = getIndexOfSelected();
+			//System.out.println(prev_index);
+			int count = 0;
+			for (Soldier s : upgradable) {
+				if (prev_index + 1 == count) {
+					select(s);
+					break;
+				}
+				count++;
+				if (count == upgradable.size) deselect();
+			}
+			//			for (Soldier s : upgradable) {
+			//				if (select_was_prev && upgradable.contains(s, true)) {
+			//					System.out.println("selecting " + s.name);
+			//					select(s);
+			//					break;
+			//				}
+			//					//if (s == selected) select_was_prev = true;
+			//				System.out.println(s.name);
+			//			}
+			//			//upgradable.shrink();
+			//			//select(upgradable.random());
+		}
+		else {
+			System.out.println("none in upgradable");
+			deselect();
+		}
+	}
+
+	private int getIndexOfSelected() {
+		int index = 0;
+		for (Soldier s : upgradable) {
+			if (s == selected) return index;
+			index++;
+		}
+		return index;
+	}
+
 	private void upgradeCurrent(Weapon weapon) {
 		//int index = party.getUpgradable().indexOf(selected, true);
 		String first = selected.name;
 		if (selected.upgrade(weapon)) { // only if successfully upgrades
 			String next = selected.name;
 			BottomPanel.log(first + " upgraded to " + next);
-			deselect();
+			Soldier prev_selected = selected;
+			selectNext();
+			upgradable.removeValue(prev_selected, true);
 		}
-//		if (index > 0)
-//			selected = party.getUpgradable().get(index-1);
-//		else if (party.getUpgradable().size > 0)
-//			selected = party.getUpgradable().get(index);
+		//		if (index > 0)
+		//			selected = party.getUpgradable().get(index-1);
+		//		else if (party.getUpgradable().size > 0)
+		//			selected = party.getUpgradable().get(index);
 		//else
 	}
-	
+
+
+	private void upgradeAll() {
+		// can't remove them as you loop through... so start with first, keep selecting next
+		Array<Soldier> possibleToUpgrade = new Array<Soldier>(upgradable);
+
+		for (Soldier s : possibleToUpgrade) {
+			if (Weapon.upgrade(s.weapon).size == 1) {
+				select(s);
+				upgradeCurrent(Weapon.upgrade(s.weapon).first());
+			}
+		}
+	}
+
 	private String statDif(Weapon curr, Weapon up) {
 		String stats = "";
 		int atkDif, defDif, spdDif;
@@ -456,7 +533,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			stats += "no change";
 		return stats;
 	}
-	
+
 	private String statDif(RangedWeapon curr, RangedWeapon up) {
 		String stats = "";
 		int atkDif, rangeDif, accuracyDif;
@@ -481,32 +558,32 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			stats += "no change";
 		return stats;
 	}
-	
-//	public void setStats(Soldier s) {
-//		nameS.setText(s.name + "");
-//		levelS.setText(s.level + "");
-//		expS.setText(s.exp + "");
-//		nextS.setText(s.next + "");
-//		if (s.bonusAtk >= 0)
-//			atkS.setText(s.atk + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
-//		else 
-//			atkS.setText(s.atk + " (" + s.baseAtk + s.bonusAtk + ")");
-//		if (s.bonusDef >= 0)
-//			defS.setText(s.def + " (" + s.baseDef + "+" + s.bonusDef + ")");
-//		else 
-//			defS.setText(s.def + " (" + s.baseDef + s.bonusDef + ")");
-//		if (s.bonusSpd >= 0)
-//			spdS.setText(s.spd + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
-//		else 
-//			spdS.setText(s.spd + " (" + s.baseSpd + s.bonusSpd + ")");
-//		weaponS.setText(s.weapon.name);
-//		equipmentS.setText(s.equipmentList());
-//	}
-	
+
+	//	public void setStats(Soldier s) {
+	//		nameS.setText(s.name + "");
+	//		levelS.setText(s.level + "");
+	//		expS.setText(s.exp + "");
+	//		nextS.setText(s.next + "");
+	//		if (s.bonusAtk >= 0)
+	//			atkS.setText(s.atk + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
+	//		else 
+	//			atkS.setText(s.atk + " (" + s.baseAtk + s.bonusAtk + ")");
+	//		if (s.bonusDef >= 0)
+	//			defS.setText(s.def + " (" + s.baseDef + "+" + s.bonusDef + ")");
+	//		else 
+	//			defS.setText(s.def + " (" + s.baseDef + s.bonusDef + ")");
+	//		if (s.bonusSpd >= 0)
+	//			spdS.setText(s.spd + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
+	//		else 
+	//			spdS.setText(s.spd + " (" + s.baseSpd + s.bonusSpd + ")");
+	//		weaponS.setText(s.weapon.name);
+	//		equipmentS.setText(s.equipmentList());
+	//	}
+
 	public void clearStats() {
 		upgrades.setVisible(false);
 	}
-	
+
 	@Override
 	public void resize() { // problem with getting scroll bar to appear...
 		Cell cell = text.getCell(soldierPane);
@@ -519,7 +596,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		cell.setWidget(soldierPane);
 		super.resize();
 	}
-	
+
 	@Override
 	public void button1() {
 		if (up1B.isVisible())
@@ -539,6 +616,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	}
 	@Override
 	public void button4() {
-		panel.returnToPrevious();
+		upgradeAll();
+		//panel.returnToPrevious();
 	}
 }

@@ -30,7 +30,7 @@ public class Noble extends Army {
 	public int rank;
 	private int reknown;
 	private int nextRank;
-	private Location specialTarget;
+	public Location specialTarget;
 	private boolean toggleWait;
 
 	//	private int level;
@@ -205,6 +205,6 @@ public class Noble extends Army {
 	@Override 
 	public void leaveSiege() {
 		super.leaveSiege();
-		this.specialTarget = null;
+//		this.specialTarget = null;
 	}
 }

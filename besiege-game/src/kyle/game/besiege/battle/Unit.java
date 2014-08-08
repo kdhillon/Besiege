@@ -504,7 +504,12 @@ public class Unit extends Group {
 			if (nearestEnemy == null) return;
 		}
 		nearestEnemy = getNearestEnemy();
-		moveToPoint(nearestEnemy.getPoint());
+		
+		if (nearestEnemy.retreating && nearestEnemy.moveSmooth) {
+			moveToPoint(nearestEnemy.getAdjacentPoint());
+		}
+		else
+			moveToPoint(nearestEnemy.getPoint());
 	}
 	
 //	private void moveToEnemy() {

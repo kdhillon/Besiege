@@ -251,12 +251,13 @@ public class Kingdom extends Group {
 		}
 		
 		if (d != player && !player.isInBattle()) {
+			player.setWaiting(false);
+
 			if (!player.setTarget(d)) {
 				System.out.println("can't travel to dest");
 				return; 
 			}
 			paused = false;
-			player.setWaiting(false);
 //			player.setForceWait(false);
 //			mapScreen.shouldCenter = true;
 			if (player.isGarrisoned()) {
@@ -608,7 +609,7 @@ public class Kingdom extends Group {
 		banditCount++;
 	}
 	public void removeArmy(Army remove) {
-		System.out.println("removing " + remove.getName());
+//		System.out.println("removing " + remove.getName());
 //		if (remove.getParty().player) System.out.println("kingdom removing player");
 		armies.removeValue(remove, true);
 		if (remove.containing != null)

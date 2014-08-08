@@ -238,6 +238,7 @@ public class BattleStage extends Group {
 		addUnits();
 	}
 
+
 	public void createFakeBattle() {
 		// player = PartyType.MERCHANT.generate();
 		player = kingdom.getPlayer().getParty();

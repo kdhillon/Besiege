@@ -340,9 +340,21 @@ public class Faction {
 		// figure out whether or not to organize a siege or something!
 	}
 	public void manageSieges() {
+		for (Location l : locationsToAttack) {
+			if (l.getFaction() == this) cancelSiegeOf(l);
+		}
+		
 		if (locationsToAttack.size < 1 && unoccupiedNobles.size > 1 && closeEnemyCities.size > 1) {
-			Location randomLocation = closeEnemyCities.random();
+			Location randomLocation;
+			if (Math.random() < .5) randomLocation = closeEnemyCities.random();
+			else randomLocation = closeEnemyCastles.random();
+			if (randomLocation == null || randomLocation.getFaction() == this) return;
+			
 			if (randomLocation.underSiege()) return;
+			// check that no other factions are besieging it
+			for (Faction f : Faction.factions) {
+				if (f.locationsToAttack.contains(randomLocation, true)) return;
+			}
 			orderSiegeOf(randomLocation);
 		}
 		//		if (nobles.size > 1 && closeEnemyCities.size > 1) {
@@ -365,6 +377,16 @@ public class Faction {
 			noblesToOrder--;
 		}
 	}
+	public void cancelSiegeOf(Location location) {
+		locationsToAttack.removeValue(location, true);
+		BottomPanel.log(this.name + " is cancelling siege of " + location.getName(), "magenta");
+		for (Noble noble : this.nobles) {
+			if (noble.specialTarget == location) {
+				endTask(noble);
+			}
+		}
+	}
+	
 	public void setTask(Noble noble, Location location) {
 		noble.setSpecialTarget(location);
 		this.unoccupiedNobles.removeValue(noble, true);

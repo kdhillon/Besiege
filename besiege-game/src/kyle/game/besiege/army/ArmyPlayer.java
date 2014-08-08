@@ -58,7 +58,7 @@ public class ArmyPlayer extends Army {
 		
 		
 		// debugging
-//		this.getParty().distributeExp(10000);
+		this.getParty().distributeExp(100000);
 	}
 
 	@Override

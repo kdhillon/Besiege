@@ -1,0 +1,13 @@
+0 Blueville 0 2800 800 20
+1 Blueton 0 1180 2910 20
+2 Bluekel 0 900 1160 20
+3 Bluesive 0 3150 1000 20
+4 Pinkville 1 900 2610 20
+5 Pinkton 1 1260 1600 20
+6 Pinkkel 1 800 2420 20
+7 Pinkdale 1 3150 1940 20
+8 Orangedale 2 2200 2330 20
+9 Orangeton 2 1920 2350 20
+10 Greyville 3 3000 1400 20
+11 Greyston 3 1300 2300 20
+

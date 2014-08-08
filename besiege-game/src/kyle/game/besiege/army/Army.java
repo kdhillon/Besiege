@@ -57,7 +57,7 @@ public class Army extends Actor implements Destination {
 	private static final String DEFAULT_TEXTURE = "Player";
 	private static final double REPAIR_FACTOR = .5; // if a party gets below this many troops it will go to repair itself.
 	private static final float RUN_EVERY = .5f;
-	private static final double WEALTH_FACTOR = .2;
+	private static final double WEALTH_FACTOR = 2;
 
 	private boolean mouseOver;
 	protected boolean passive; // passive if true (won't attack) aggressive if false;
@@ -345,6 +345,10 @@ public class Army extends Actor implements Destination {
 	}
 
 	public String getAction() {
+		
+		// testing
+		//if (this.type == ArmyType.NOBLE && ((Noble) this).specialTarget != null) return "Special target: " + ((Noble) this).specialTarget.getName();
+		
 		if (isInBattle()) return "In battle";
 		else if (forceWait) return "Regrouping (" + Panel.format(this.waitUntil-kingdom.clock() + "", 2) + ")";
 		else if (isWaiting()) return "Waiting";
@@ -425,6 +429,9 @@ public class Army extends Actor implements Destination {
 		if (this == kingdom.getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
 			getKingdom().getPlayer().createPlayerBattleWith(targetArmy, false, siegeOf);
+			
+			// get nearby armies and make them join battle
+			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
@@ -441,6 +448,7 @@ public class Army extends Actor implements Destination {
 			kingdom.addBattle(b);
 			kingdom.addActor(b);
 		}
+		//shouldJoinBattle();
 	}
 
 	public boolean detectBattleCollision() {
@@ -730,6 +738,7 @@ public class Army extends Actor implements Destination {
 	public boolean shouldAttack(Army that) {
 //		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 //			return true; 
+		// TODO take into account nearby parties
 		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1) && (this.getTroopCount() <= that.getTroopCount()*2) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 			return true; 
 		return false;
@@ -758,9 +767,10 @@ public class Army extends Actor implements Destination {
 			Army targetArmy = (Army) target;
 			if (distToCenter(target) > lineOfSight || !targetArmy.hasParent() || targetArmy.isGarrisoned())
 				return true;
-			if (targetArmy.isInBattle())
+			if (targetArmy.isInBattle()) {
 				if (targetArmy.getBattle().shouldJoin(this) == 0) // shouldn't join
-					return true;		
+					return true;
+			}
 		}
 		//		if ()
 		return false;
@@ -1031,7 +1041,6 @@ public class Army extends Actor implements Destination {
 		}
 
 		//		if (this.type == ArmyType.FARMER)System.out.println("farmer in setTarget"); 
-
 		// don't add same target twice in a row... this is a problem.
 		//		if (newTarget.getType() == 2 && ((Army) newTarget).isGarrisoned()) System.out.println("***** TARGET GARRISONED! *****");
 
@@ -1040,6 +1049,8 @@ public class Army extends Actor implements Destination {
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
 			if (this.target != newTarget && (this.lastPathCalc == 0 || this.isPlayer())) {
 
+				if (!this.isWaiting() && this.isGarrisoned()) this.eject(); 
+				
 				// don't add a bunch of useless point and army targets
 				if (this.target != null && this.target.getType() != Destination.DestType.ARMY && this.target.getType() != Destination.DestType.POINT && targetStack.size() < MAX_STACK_SIZE) {
 					targetStack.push(this.target);

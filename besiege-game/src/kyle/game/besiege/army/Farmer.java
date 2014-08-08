@@ -59,7 +59,7 @@ public class Farmer extends Army {
 //		shouldStopRunning();
 		detectNearby();
 		if (farmTime() && shouldStopRunning()) {
-			System.out.println("ejecting " + this.getName());
+			//System.out.println("ejecting " + this.getName());
 			// double check to see if fixes problem
 //			detectNearby();
 //			if (shouldStopRunning())
