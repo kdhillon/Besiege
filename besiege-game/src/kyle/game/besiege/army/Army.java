@@ -989,7 +989,7 @@ public class Army extends Actor implements Destination {
 		else if (location.getSiege().besieging != this.faction) {
 			this.nextTarget();
 		}
-		else location.beginSiege(this);
+		else location.joinSiege(this);
 	}
 	public void setSiege(Siege siege) {
 		this.siege = siege;

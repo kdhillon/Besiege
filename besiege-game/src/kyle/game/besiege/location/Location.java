@@ -535,6 +535,7 @@ public class Location extends Actor implements Destination {
 	}
 	
 	
+	
 	// TODO fix for battlestage
 	public void siegeAttack(Array<Army> attackers) {
 //		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
@@ -549,7 +550,7 @@ public class Location extends Actor implements Destination {
 		b.siegeOf = this;
 		
 		System.out.println("siegeOf = " + this.getName());
-		b.setPosition(this.getX()-b.getWidth()/2, this.getY()-b.getHeight()/2);
+		b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
 		b.dAdvantage = this.getDefenseFactor();
 		for (Army a : attackers) {
 			if (a.getParty().player) ;
@@ -568,6 +569,13 @@ public class Location extends Actor implements Destination {
 		siege.add(army);
 		kingdom.addActor(siege);
 	}
+	public void joinSiege(Army army) {
+		// htis is never being called
+		System.out.println(army.getName() + " JOINING SIEGE");
+		siege.add(army);
+		if (garrison.getBattle() != null) garrison.getBattle().add(army);
+	}
+	
 	public void endSiege() {
 		kingdom.removeActor(siege);
 		siege = null;
