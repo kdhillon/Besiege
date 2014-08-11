@@ -63,7 +63,7 @@ public class BattleMap extends Actor {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.06f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20);
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.06f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -95,8 +95,8 @@ public class BattleMap extends Actor {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.FOREST;
+//		this.maptype = getMapTypeForBiome(mainmap.biome);
+		this.maptype = MapType.FOREST;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -123,7 +123,7 @@ public class BattleMap extends Actor {
 		lightsnow = new TextureRegion(new Texture(Gdx.files.internal("ground/lightsnow.png")));
 		lightsand = new TextureRegion(new Texture(Gdx.files.internal("ground/sandlight.png")));
 
-		tree = 		new TextureRegion(new Texture(Gdx.files.internal("objects/tree_3_3 alt.png")));
+		tree = 		new TextureRegion(new Texture(Gdx.files.internal("objects/tree2.png")));
 		stump = 	new TextureRegion(new Texture(Gdx.files.internal("objects/stump.png")));
 		wallV = 	new TextureRegion(new Texture(Gdx.files.internal("objects/stone_fence_v.png")));
 		wallH = 	new TextureRegion(new Texture(Gdx.files.internal("objects/stone_fence.png")));
@@ -301,7 +301,7 @@ public class BattleMap extends Actor {
 		case SUBTROPICAL_DESERT : 			return MapType.DESERT;
 		case SHRUBLAND : 					return MapType.MEADOW;
 		case ICE : 							return MapType.ALPINE;
-		case MARSH : 						return MapType.FOREST;
+		case MARSH : 						return MapType.MEADOW;
 		case TROPICAL_RAIN_FOREST : 		return MapType.FOREST;
 		case TROPICAL_SEASONAL_FOREST : 	return MapType.FOREST;
 		case COAST : 						return MapType.BEACH;
@@ -314,20 +314,13 @@ public class BattleMap extends Actor {
 		// figure out what kind of shape you want... 
 
 		// different types of sieges: ladder, catapult, or already broken
+		double percent_broken = .5;
 
-		// defensive or aggressive?
-		Orientation orientation;
-//		if (stage.playerDefending) {
-//			orientation = Orientation.UP;
-//		}
-//		else {
-//			orientation = Orientation.DOWN;
-//		}
 		System.out.println("adding wall");
 		
 		if (wallTop != Integer.MAX_VALUE) {
 			for (int i = Math.max(0, wallLeft); i < Math.min(stage.size_x, wallRight); i++) {
-				if (i != 30 && i != 31 && i != 32) {
+				if (Math.random() > percent_broken) {
 					boolean bool = false;
 					if (i % 10 == 7 || i % 10 == 5) bool = true;
 
@@ -341,21 +334,21 @@ public class BattleMap extends Actor {
 		}
 		if (wallBottom != Integer.MIN_VALUE) {
 			for (int i = Math.max(0, wallLeft); i < Math.min(stage.size_x, wallRight); i++) {
-//				if (i != 30 && i != 31 && i != 32) {
+				if (Math.random() > percent_broken) {
 					boolean bool = false;
 					if (i % 10 == 7 || i % 10 == 5) bool = true;
 
 					this.addSingleWall(i, wallBottom, 3, Orientation.DOWN, bool);
-//				}
-//				else {
-//					BPoint entrance = new BPoint(i, wallBottom);
-//					entrances.add(entrance);
-//				}
+				}
+				else {
+					BPoint entrance = new BPoint(i, wallBottom);
+					entrances.add(entrance);
+				}
 			} 
 		}
 		if (wallRight != Integer.MAX_VALUE) {
 			for (int i = Math.max(0, wallBottom); i < Math.min(stage.size_x, wallTop); i++) {
-				if (i != 30 && i != 31 && i != 32) {
+				if (Math.random() > percent_broken) {
 					boolean bool = false;
 					if (i % 10 == 7 || i % 10 == 5) bool = true;
 
@@ -369,7 +362,7 @@ public class BattleMap extends Actor {
 		}
 		if (wallLeft != Integer.MIN_VALUE) {
 			for (int i = Math.max(0, wallBottom); i < Math.min(stage.size_x, wallTop); i++) {
-				if (i != 30 && i != 31 && i != 32) {
+				if (Math.random() > percent_broken) {
 					boolean bool = false;
 					if (i % 10 == 7 || i % 10 == 5) bool = true;
 
@@ -408,13 +401,27 @@ public class BattleMap extends Actor {
 		}
 		return null;
 	}
-	
+
 	public boolean entranceAt(int pos_x, int pos_y) {
 		for (BPoint l : entrances) {
 			if (l.pos_x == pos_x && l.pos_y == pos_y) return true;
 		}
 		return false;
 	}	
+	
+	private void addCottage() { 
+		int MIN_SIZE = 5;
+		int MAX_SIZE = 10;
+		
+		int size_x, size_y;
+		size_x = size_y = (int) (Math.random() * (MAX_SIZE - MIN_SIZE) + MIN_SIZE);
+
+		// find clear region 
+		
+	
+	
+	}
+	
 	//	private void addTower(int y_position) {
 	//		
 	//		// add ladders

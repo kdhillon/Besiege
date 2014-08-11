@@ -169,7 +169,7 @@ public class Location extends Actor implements Destination {
 			corner.touches.get(0).armies.add(army);
 		}
 		else 
-			System.out.println("no corner or center!");
+			System.out.println(this.getName() + " no corner or center!");
 	}
 	
 	@Override

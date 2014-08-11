@@ -38,6 +38,8 @@ public class BattleStage extends Group {
 	public static boolean drawCrests = true;
 
 	private final float MOUSE_DISTANCE = 15; // distance destination must be
+	
+	private final double CHARGE_THRESHOLD = .5;
 
 	public static int SIDE_PAD = 5;
 	public static int BOTTOM_PAD = 5;
@@ -144,9 +146,9 @@ public class BattleStage extends Group {
 		}
 
 //		boolean forceSiege = false;
-		boolean forceSiege = false;
+		boolean forceSiege = true;
 
-		if (siegeOf != null || forceSiege) {
+		if ((siegeOf != null && !siegeOf.isVillage()) || forceSiege) {
 			siegeDefense = playerDefending;
 			siegeAttack = !siegeDefense;
 			//siegeAttack = true;
@@ -795,6 +797,9 @@ public class BattleStage extends Group {
 			if ((playerDefending && battle.balanceA < Battle.RETREAT_THRESHOLD/2) || (!playerDefending && battle.balanceD < Battle.RETREAT_THRESHOLD/2)) {
 				retreatAll(false);
 			}
+			if ((playerDefending && battle.balanceA > CHARGE_THRESHOLD) || (!playerDefending && battle.balanceD > CHARGE_THRESHOLD)) {
+				chargeAll(false);
+			}
 			
 			if (allies.size == 0) {
 				victory(enemy.army, player.army);
@@ -942,6 +947,13 @@ public class BattleStage extends Group {
 	}
 
 	private void rightClick(Point mouse) {
+		if (dragging) {
+			dragging = false;
+			centerOffset = new BPoint(0,0);
+			return;
+		}
+		
+		
 		Unit u = getUnitAt(mouse);
 
 		if (u != null) {
@@ -956,9 +968,16 @@ public class BattleStage extends Group {
 	}
 
 	public void click(int pointer) {
-		if (pointer == 0)
+//		if (pointer == 0)
+//			leftClicked = true;
+//		else if (pointer == 1)
+//			rightClicked = true;
+//		else if (pointer == 4)
+//			writeUnit();
+		// try switching
+		if (pointer == 1)
 			leftClicked = true;
-		else if (pointer == 1)
+		else if (pointer == 0)
 			rightClicked = true;
 		else if (pointer == 4)
 			writeUnit();

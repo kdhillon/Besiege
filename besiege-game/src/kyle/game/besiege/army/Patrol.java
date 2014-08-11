@@ -31,7 +31,7 @@ public class Patrol extends Army {
 		setTextureRegion(textureRegion);
 		this.type = ArmyType.PATROL;
 		patrolDist = this.getLineOfSight()*PATROL_TRAVEL_FACTOR;
-		System.out.println("Patrol dist is " + patrolDist);
+		//System.out.println("Patrol dist is " + patrolDist);
 	}
 	
 	@Override

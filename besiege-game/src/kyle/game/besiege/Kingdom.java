@@ -294,9 +294,16 @@ public class Kingdom extends Group {
 	}
 
 	public void click(int pointer) {
-		if (pointer == 0)
+//		if (pointer == 0)
+//			leftClicked = true;
+//		else if (pointer == 1) 
+//			rightClicked = true;
+//		else if (pointer == 4)
+//			writeCity();
+		// try switching them
+		if (pointer == 1)
 			leftClicked = true;
-		else if (pointer == 1) 
+		else if (pointer == 0) 
 			rightClicked = true;
 		else if (pointer == 4)
 			writeCity();
@@ -525,10 +532,15 @@ public class Kingdom extends Group {
 			
 			Corner corner;
 			do {
-				System.out.println(map.availableCorners.size);
+				//System.out.println(map.availableCorners.size);
 				corner = map.availableCorners.random();
 				map.availableCorners.removeValue(corner, true);
 			} while (corner == null && map.availableCorners.size > 0);
+			
+			if (corner == null) {
+				System.out.println("no corners left");
+				break;
+			}
 			
 			float x = (float) corner.getLoc().x;
 			float y = (float) (Map.HEIGHT-corner.getLoc().y);
@@ -551,8 +563,7 @@ public class Kingdom extends Group {
 			Castle castle = new Castle(this, castleArray.pop(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
 			castles.add(castle);
 			castle.corner = corner;
-//			if (corner == null) 
-//				System.out.println("ADDING NULL CORNER");
+			
 			addActor(castle);
 		}
 		
