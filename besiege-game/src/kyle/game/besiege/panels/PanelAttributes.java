@@ -112,6 +112,7 @@ public class PanelAttributes extends Panel {
 
 	@Override
 	public void act(float delta) {
+		this.character = panel.getMapScreen().getCharacter();
 		for (int i = 0; i < attributeValueLabels.size; i++) {
 			Label value = attributeValueLabels.get(i);
 			value.setText(""+character.attributeValues.get(i));

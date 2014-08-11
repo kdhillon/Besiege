@@ -71,6 +71,10 @@ public class Character {
 		initAttributes();
 	}
 	
+	public Character() {
+		
+	}
+	
 	public void initAttributes() {	
 		availablePoints = STARTING_PTS;
 		attributeValues = new Array<Integer>();

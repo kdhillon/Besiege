@@ -18,7 +18,6 @@ public class PanelCharacter extends Panel {
 	private final float PAD = 5;
 	private final float NEG = -5;
 	private SidePanel panel;
-	private Character character;
 	private ArmyPlayer player;
 	private Table text;
 	private Label name;
@@ -33,9 +32,7 @@ public class PanelCharacter extends Panel {
 		this.panel = panel;
 		this.player = panel.getPlayer();
 		this.addParentPanel(panel);
-		
-		this.character = player.getCharacter();
-		
+				
 		// Create text
 		text = new Table();
 		//text.debug();
@@ -98,11 +95,11 @@ public class PanelCharacter extends Panel {
 	public void act(float delta) {
 		level.setText(""+player.getLevel());
 		name.setText(player.getName());
-		exp.setText("" + character.exp);
-		nextLevel.setText(""+ character.nextLevel);
+		exp.setText("" + getCharacter().exp);
+		nextLevel.setText(""+ getCharacter().nextLevel);
 		faction.setText(player.getFactionName());
-		title.setText(character.title);
-		fame.setText(character.fame+"");
+		title.setText(getCharacter().title);
+		fame.setText(getCharacter().fame+"");
 		super.act(delta);
 	}
 	
@@ -121,5 +118,9 @@ public class PanelCharacter extends Panel {
 	@Override
 	public void button4() {
 		panel.setDefault();
+	}
+	
+	public Character getCharacter() {
+		return this.panel.getMapScreen().getCharacter();
 	}
 }
