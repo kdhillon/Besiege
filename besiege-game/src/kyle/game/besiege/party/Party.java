@@ -55,7 +55,7 @@ public class Party {
 	}
 
 	public void act(float delta) {
-		if (player) woundChance = BASE_CHANCE * Character.getAttributeFactor("Reviving");
+		if (player) woundChance = BASE_CHANCE * army.getCharacter().getAttributeFactor("Reviving");
 		if (!this.army.isInBattle())
 			checkHeal();
 		calcStats();

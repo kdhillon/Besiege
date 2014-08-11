@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Array;
 public class Character {
 	private static final int STARTING_PTS = 5;
 	private final int POINTS_PER_LEVEL = 1;
-	public MapScreen mapScreen;
 	public String name;
 	public int exp;
 	public int level;
@@ -21,7 +20,7 @@ public class Character {
 	public int fame;
 	public int maxTroops;
 	
-	public static int availablePoints; // for attributes
+	public int availablePoints; // for attributes
 	
 	public static final Array<String> attributeNames = new Array<String>(new String[] {
 		"Training",       // Increases exp gained by party by 10%
@@ -59,10 +58,9 @@ public class Character {
 		10, -5, 5, 5, 5, 5, 2, 4, 4, 4, 10, 10, 5
 	};
 	
-	public static Array<Integer> attributeValues;
+	public Array<Integer> attributeValues;
 	
-	public Character(MapScreen mapScreen, String name) {
-		this.mapScreen = mapScreen;
+	public Character(String name) {
 		this.name = name;
 		this.level = 0;
 		this.exp = 0;
@@ -73,7 +71,7 @@ public class Character {
 		initAttributes();
 	}
 	
-	public static void initAttributes() {	
+	public void initAttributes() {	
 		availablePoints = STARTING_PTS;
 		attributeValues = new Array<Integer>();
 		for (int i = 0; i < attributeNames.size; i++) 
@@ -88,22 +86,22 @@ public class Character {
 		return getDescription(attributeNames.indexOf(name.toString(), false));
 	}
 	
-	public static int getAttributeLevel(String name) {
+	public int getAttributeLevel(String name) {
 		return attributeValues.get(attributeNames.indexOf(name, false));
 	}
-	public static double getAttributeFactor(String name) {
+	public double getAttributeFactor(String name) {
 		int index = attributeNames.indexOf(name, false);
 		return getAttributeFactor(index);
 	}
-	public static double getAttributeFactor(int index) {
+	public double getAttributeFactor(int index) {
 		int percent = arrPercentages[index];
 		return Math.pow((percent/100.0) + 1, attributeValues.get(index));
 	}
-	public static void increaseAttribute(String name) {
+	public void increaseAttribute(String name) {
 		int index = attributeNames.indexOf(name, false);
 		increaseAttribute(index);
 	}
-	public static void increaseAttribute(int index) {
+	public void increaseAttribute(int index) {
 		if (availablePoints > 0) {
 			attributeValues.set(index, attributeValues.get(index) + 1);
 			availablePoints--;

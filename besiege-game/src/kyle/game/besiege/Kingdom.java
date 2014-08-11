@@ -588,7 +588,7 @@ public class Kingdom extends Group {
 			System.out.println("player created in faction center");
 		} else System.out.println("no centers!");
 		
-		player = new ArmyPlayer(this, mapScreen.getCharacter(), faction, pos_x, pos_y, 6);
+		player = new ArmyPlayer(this, faction, pos_x, pos_y, 6);
 		player.getParty().player = true;
 		player.containing = center;
 		addArmy(player);

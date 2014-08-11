@@ -1284,4 +1284,7 @@ public class Army extends Actor implements Destination {
 	public Point toPoint() {
 		return new Point(getCenterX(), getCenterY());
 	}
+	public kyle.game.besiege.Character getCharacter() {
+		return getKingdom().getMapScreen().getCharacter();
+	}
 }

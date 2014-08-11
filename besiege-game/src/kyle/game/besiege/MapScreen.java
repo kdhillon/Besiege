@@ -8,13 +8,19 @@
 package kyle.game.besiege;
 
 
+import java.util.Date;
+
+import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.party.Party;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -24,18 +30,26 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 public class MapScreen implements Screen {
-	private final float SCROLL_SPEED = 3f;
-	private final float FAST_FORWARD_FACTOR = 3f;
-	private final float ZOOM_MAX = 10;
-	private final float ZOOM_MIN = .05f;
+	private Kryo kryo;
+	
+	private static final float SCROLL_SPEED = 3f;
+	private static final float FAST_FORWARD_FACTOR = 3f;
+	private static final float ZOOM_MAX = 10;
+	private static final float ZOOM_MIN = .05f;
 //	private final Color background = new Color(0, 109.0f/255, 185.0f/255, 1);
 //	private final Color background = new Color(VoronoiGraph.OCEAN);
-	private final Color background = new Color(0x44447aff);
+	private static final Color background = new Color(0x44447aff);
 //	private final Color backgroundGrass = new Color(0x55aa44ff);
-	private final Color backgroundGrass = new Color(0x000000ff);
+	private static final Color backgroundGrass = new Color(0x000000ff);
 	private float speedFactor;
+	
 	private OrthographicCamera currentCamera;
 	private OrthographicCamera kingdomCamera;
 	private OrthographicCamera battleCamera;
@@ -87,6 +101,8 @@ public class MapScreen implements Screen {
 //	public PrintWriter out; // accessed by kingdom
 	
 	public MapScreen() {
+		character = new Character("Kyle");
+		
 		kingdomCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 		
 		// I don't know why but have to set this to 2*Width
@@ -124,7 +140,6 @@ public class MapScreen implements Screen {
 		mouseOverPanel = false;
 		keydown = 0;
 		
-		character = new Character(this, "Kyle");
 		kingdom.addPlayer();
 		sidePanel.initializePanels();
 		
@@ -411,12 +426,14 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.L))
 				losToggle = true;
 			else if (losToggle) {
+				load();
 				toggleLOS();
 				losToggle = false;
 			}
 			if (Gdx.input.isKeyPressed(Keys.E))
 				editToggle = true;
 			else if (editToggle) {
+				save();
 				toggleEdit();
 				editToggle = false;
 			}
@@ -580,9 +597,50 @@ public class MapScreen implements Screen {
 //		}
 	}
 	
-//	public void save() {
-//	
-//	}
+	public void save() {
+		kryo  = new Kryo();
+		
+		kryo.register(Character.class, 109);
+		kryo.register(MapScreen.class, 109);
+		kryo.register(Kingdom.class, 109);
+		kryo.register(Map.class, 109);
+		kryo.register(Army.class, 109);
+		kryo.register(Party.class, 109);
+		kryo.register(Location.class, 109);
+		kryo.register(Array.class, 110);
+
+		FileHandle file = Gdx.files.local("save.dat");
+		Output output = new Output(file.write(false));
+		
+		
+		kryo.writeObject(output, new Date());
+		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
+		
+		output.close();
+		
+		System.out.println("SAVE SUCCESSFUL");
+	}
+	
+	public void load() {
+		if (kryo == null) return;
+		
+		Input input = null;
+		try {
+			FileHandle file = Gdx.files.local("save.dat");
+			input = new Input(file.read());
+		}
+		catch (Exception e) {
+			
+		}
+		Date date = kryo.readObjectOrNull(input, Date.class);
+		
+		System.out.println(date.toString());
+		
+		this.character = null;
+		this.character = kryo.readObjectOrNull(input, Character.class);
+		
+		input.close();
+	}
 	
 	@Override
 	public void hide() {

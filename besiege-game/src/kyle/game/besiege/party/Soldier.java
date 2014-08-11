@@ -220,7 +220,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		if (upgrade != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.tier];
 		else cost = 0;
 		
-		if (party.player) cost *= Character.getAttributeFactor("Bargaining");
+		if (party.player) cost *= party.army.getCharacter().getAttributeFactor("Bargaining");
 		if (!(party.wealth - cost >= party.minWealth) && cost != 0) {
 			if (party.player)
 				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.name);

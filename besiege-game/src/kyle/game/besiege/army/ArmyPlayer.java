@@ -25,7 +25,6 @@ import com.badlogic.gdx.math.Vector2;
 public class ArmyPlayer extends Army {
 	private final String textureRegion = "Player";
 	
-	private Character character;
 	private SidePanel panel;
 	
 	// debugging
@@ -33,14 +32,13 @@ public class ArmyPlayer extends Army {
 	
 //	private Destination target;
 
-	public ArmyPlayer(Kingdom kingdom, Character character, Faction faction,
+	public ArmyPlayer(Kingdom kingdom, Faction faction,
 			int posX, int posY, int troopCount) {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, character.name, faction, posX, posY, PartyType.NOBLE_DEFAULT_1);
+		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.NOBLE_DEFAULT_1);
 		
-		this.character = character;
 		this.panel = getKingdom().getMapScreen().getSidePanel();
 		
 		setTextureRegion(textureRegion);
@@ -96,7 +94,7 @@ public class ArmyPlayer extends Army {
 		if (!getKingdom().isPaused() && !isInBattle())
 			panel.setStay(false);
 			
-		this.speedFactor = (float) (this.ORIGINAL_SPEED_FACTOR * Character.getAttributeFactor("Marching"));
+		this.speedFactor = (float) (this.ORIGINAL_SPEED_FACTOR * getCharacter().getAttributeFactor("Marching"));
 		setLOS(calcLOS());
 //		getKingdom().getMapScreen().getFog().updateFog((int) this.getCenterX(), (int) this.getCenterY(), (int) this.getLineOfSight());
 
@@ -256,7 +254,7 @@ public class ArmyPlayer extends Army {
 	
 	@Override
 	public float calcLOS() {
-		return ((float) (super.calcLOS()*Character.getAttributeFactor("Spotting")));
+		return ((float) (super.calcLOS()*getCharacter().getAttributeFactor("Spotting")));
 	}
 
 	@Override 
@@ -295,13 +293,13 @@ public class ArmyPlayer extends Army {
 	}
 	
 	public int getLevel() {
-		return character.level; // todo
+		return getCharacter().level; // todo
 	}
 	public String getPartyInfo() {
 		return getParty().getHealthySize() + "/" + getParty().getTotalSize();
 	}
 	public Character getCharacter() {
-		return character;
+		return getKingdom().getMapScreen().getCharacter();
 	}
 	
 	public void calcMaxPartySize() {
