@@ -434,7 +434,7 @@ public class MapScreen implements Screen {
 				editToggle = true;
 			else if (editToggle) {
 				save();
-				toggleEdit();
+//				toggleEdit();
 				editToggle = false;
 			}
 			if (Gdx.input.isKeyPressed(Keys.B))
@@ -601,13 +601,13 @@ public class MapScreen implements Screen {
 		kryo  = new Kryo();
 		
 		kryo.register(Character.class, 109);
-		kryo.register(MapScreen.class, 109);
-		kryo.register(Kingdom.class, 109);
-		kryo.register(Map.class, 109);
-		kryo.register(Army.class, 109);
-		kryo.register(Party.class, 109);
-		kryo.register(Location.class, 109);
-		kryo.register(Array.class, 110);
+		kryo.register(MapScreen.class, 110);
+		kryo.register(Kingdom.class, 111);
+		kryo.register(Map.class, 112);
+		kryo.register(Army.class, 113);
+		kryo.register(Party.class, 114);
+		kryo.register(Location.class, 115);
+		kryo.register(Array.class, 116);
 
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
