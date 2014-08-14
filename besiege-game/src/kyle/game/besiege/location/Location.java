@@ -754,7 +754,7 @@ public class Location extends Actor implements Destination {
 		return this.getParty().wealth;
 	}
 	public void changeWealth(int delta) {
-		this.getParty().wealth += delta;
+		if (this.getParty().wealth + delta > 0) this.getParty().wealth += delta;
 	}
 //	public int getWealth() {
 //		return wealth;

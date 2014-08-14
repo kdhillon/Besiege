@@ -95,8 +95,8 @@ public class BattleMap extends Actor {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-//		this.maptype = getMapTypeForBiome(mainmap.biome);
-		this.maptype = MapType.FOREST;
+		this.maptype = getMapTypeForBiome(mainmap.biome);
+//		this.maptype = MapType.FOREST;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;

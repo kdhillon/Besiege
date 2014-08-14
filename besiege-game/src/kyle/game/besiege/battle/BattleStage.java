@@ -145,8 +145,8 @@ public class BattleStage extends Group {
 			else enemyStance = Stance.AGGRESSIVE;
 		}
 
-//		boolean forceSiege = false;
-		boolean forceSiege = true;
+		boolean forceSiege = false;
+//		boolean forceSiege = true;
 
 		if ((siegeOf != null && !siegeOf.isVillage()) || forceSiege) {
 			siegeDefense = playerDefending;

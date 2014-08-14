@@ -247,8 +247,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 		
 		army.endBattle();
 		army.setStopped(false);
-//		if (army.type == ArmyType.PATROL) 
-		if (!army.isGarrisoned()) army.setVisible(true);
+
+		army.setVisible(false);
+		if (kingdom.getArmies().contains(army, true) && army.isGarrisoned()) this.setVisible(true);
 		
 		if (army == kingdom.getPlayer()) {
 			playerInA = false;
@@ -257,8 +258,6 @@ public class Battle extends Actor implements Destination { // new battle system 
 			kingdom.getMapScreen().getSidePanel().setDefault();
 			this.act(.001f);// arbitrary time
 		}
-		
-		//if (army.getParty().getHealthySize() == 0) destroy(army);
 	}
 	
 	public void destroy(Army army) {
@@ -384,6 +383,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 				else
 					remove(army);
 			}
+			if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) 
+				this.destroy(army);
 		}
 		for (Army army : dArmiesRet) {
 			army.retreatCounter -= delta;
@@ -395,6 +396,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 				else
 					remove(army);
 			}
+			if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD) 
+				this.destroy(army);
 		}
 	}
 	// when anyone in aArmies is retreating

@@ -39,6 +39,7 @@ import com.esotericsoftware.kryo.io.Output;
 public class MapScreen implements Screen {
 	private Kryo kryo;
 	
+	private static final boolean FORCERUN = true;
 	private static final float SCROLL_SPEED = 3f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
 	private static final float ZOOM_MAX = 10;
@@ -370,14 +371,20 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.M))
 				zoom(-.03f);
 			
-			if (Gdx.input.isKeyPressed(Keys.SPACE) || (kingdom.getPlayer().isWaiting() && kingdom.getPlayer().forceWait) || kingdom.getPlayer().isInBattle() || (shouldLetRun && (kingdom.getPlayer().isGarrisoned() || kingdom.getPlayer().isInSiege()))) {
+			if (FORCERUN) {
+				shouldSuperFastForward = true;
 				letRun();
-				if (battle != null && Gdx.input.isKeyPressed(Keys.SPACE)) battle.placementPhase = false;
-//				System.out.println(kingdom.getPlayer().isWaiting());
 			}
-			else if (!kingdom.getPlayer().forceWait && kingdom.getPlayer().isWaiting()) {
-//				System.out.println("ending run");
-				endRun();
+			else {
+				if (Gdx.input.isKeyPressed(Keys.SPACE) || (kingdom.getPlayer().isWaiting() && kingdom.getPlayer().forceWait) || kingdom.getPlayer().isInBattle() || (shouldLetRun && (kingdom.getPlayer().isGarrisoned() || kingdom.getPlayer().isInSiege()))) {
+					letRun();
+					if (battle != null && Gdx.input.isKeyPressed(Keys.SPACE)) battle.placementPhase = false;
+					//				System.out.println(kingdom.getPlayer().isWaiting());
+				}
+				else if (!kingdom.getPlayer().forceWait && kingdom.getPlayer().isWaiting()) {
+					//				System.out.println("ending run");
+					endRun();
+				}
 			}
 			if ((Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)|| Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) && speedFactor != FAST_FORWARD_FACTOR)
 				speedFactor = FAST_FORWARD_FACTOR;

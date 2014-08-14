@@ -20,4 +20,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>net.sourceforge.metrics.nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>assets</name>
+			<type>2</type>
+			<location>C:/Users/kdhillon3/Documents/java/besiege/besiege-game-android/assets</location>
+		</link>
+	</linkedResources>
 </projectDescription>
