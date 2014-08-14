@@ -791,6 +791,22 @@ public class Army extends Actor implements Destination {
 			getGarrisonedIn().eject(this);
 		}
 //		System.out.println("army destroyed");
+		
+		
+		if (this.type == ArmyType.NOBLE) {
+			// 50 percent chance to move to random city
+//			if (Math.random() < .5) {
+//				if (this.defaultTarget != null && this.defaultTarget.getType() == Destination.DestType.LOCATION && this.defaultTarget.getFaction() == this.getFaction()) {
+//					this.setPosition(this.defaultTarget.getCenterX(), this.defaultTarget.getCenterY());
+//					this.garrisonIn((Location) this.defaultTarget);
+//					return;
+//				}
+//			}
+	
+			// do a noble kill -- either escaped, ransomed, or executed! Allow execution of nobles D:
+			this.faction.removeNoble((Noble) this);
+		}
+		
 		getKingdom().removeArmy(this);
 		this.remove();
 	}

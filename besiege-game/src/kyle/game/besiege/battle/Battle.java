@@ -281,6 +281,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 		else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
 		increaseSpoilsForKill(army);
+		
 		army.destroy();
 	}
 	

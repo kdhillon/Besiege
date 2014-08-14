@@ -348,6 +348,11 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 
 			soldierTable.row();
 		}
+		// may be memory infeficienta
+//		if (upgradable.size == 0 || !upgradableRemaining()) {
+//			this.setButton(4, null);
+//		}
+//		else this.setButton(4, "Upgrade All");
 	}
 
 	public void select(Soldier s) {
@@ -496,6 +501,17 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		//else
 	}
 
+	
+	private boolean upgradableRemaining() {
+		Array<Soldier> possibleToUpgrade = new Array<Soldier>(upgradable);
+
+		for (Soldier s : possibleToUpgrade) {
+			if (Weapon.upgrade(s.weapon).size == 1) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private void upgradeAll() {
 		// can't remove them as you loop through... so start with first, keep selecting next

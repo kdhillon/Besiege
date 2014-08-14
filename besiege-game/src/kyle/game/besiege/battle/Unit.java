@@ -112,6 +112,7 @@ public class Unit extends Group {
 	public Animation animationAttack;
 	public Animation animationDie;
 	public Animation animationFiring;
+	private Color tintColor;
 
 	// shouldn't be used that much, mostly for drawing horses in battles
 	public Equipment horse;
@@ -175,6 +176,7 @@ public class Unit extends Group {
 		// check if in cover
 		checkIfInCover();
 
+		assignColor();
 
 		calcStats();
 
@@ -240,6 +242,10 @@ public class Unit extends Group {
 		//
 		//		// TODO REMOVE
 		//		if (this.team == 0) this.retreating = true;
+	}
+	
+	private void assignColor() {
+		this.tintColor = new Color((float) Math.random() * .2f + .6f, .7f, (float) Math.random() * .1f + .6f, 1f);
 	}
 
 	// create animation with speed .25f assuming one row, loops by default
@@ -457,10 +463,12 @@ public class Unit extends Group {
 				setY(stage.scale * pos_y * stage.unit_height);
 			}
 
+		
+			batch.setColor(this.tintColor);
+			
+			
 			if (this.isHit)
 				batch.setColor(1, 0, 0, 1); 
-
-
 			else if (attacking != null) {
 				// maybe remove later
 				this.face(attacking);
@@ -483,9 +491,10 @@ public class Unit extends Group {
 			//			batch.draw(texture, pos_x_world, pos_y_world, getWidth(), getHeight());
 
 			if (this.isHit){
-				batch.setColor(c);
 				this.isHit = false;
 			}
+			
+			batch.setColor(c);
 		}
 	}
 

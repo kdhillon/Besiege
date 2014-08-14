@@ -49,8 +49,8 @@ public class Map extends Actor {
 	public static boolean drawSpheres;
 	public VoronoiGraph vg;
 
-	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
-	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
+//	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
+//	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
 
 	public int testIndex;
 	public int totalVisibilityLines;
@@ -76,7 +76,7 @@ public class Map extends Actor {
 	// testing
 	public Array<Polygon> testPolygons = new Array<Polygon>();
 	public static Array<Corner> testCorners = new Array<Corner>();
-	private boolean toggle = true;
+	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
 	// contains code written by connor
@@ -85,7 +85,7 @@ public class Map extends Actor {
 		testIndex = 1;
 		totalVisibilityLines = 0;
 
-		final ArrayList<PointH> pointHs = new ArrayList();
+		final ArrayList<PointH> pointHs = new ArrayList<PointH>();
 		final long seed = (long) (Math.random()*1000000);
 		//final long see = System.nanoTime();
 		final MyRandom r = new MyRandom(seed);
