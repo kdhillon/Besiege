@@ -526,7 +526,7 @@ public class Location extends Actor implements Destination {
 	}
 
 	public void dailyWealthIncrease() {
-		this.addWealth((int) (DAILY_WEALTH_INCREASE_BASE * wealthFactor));
+		this.addWealth((int) (DAILY_WEALTH_INCREASE_BASE * wealthFactor * population/POP_MAX));
 	}
 	
 	public void dailyPopIncrease() {

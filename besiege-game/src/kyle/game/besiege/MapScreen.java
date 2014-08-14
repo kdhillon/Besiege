@@ -39,7 +39,7 @@ import com.esotericsoftware.kryo.io.Output;
 public class MapScreen implements Screen {
 	private Kryo kryo;
 	
-	private static final boolean FORCERUN = true;
+	private static final boolean FORCERUN = false;
 	private static final float SCROLL_SPEED = 3f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
 	private static final float ZOOM_MAX = 10;

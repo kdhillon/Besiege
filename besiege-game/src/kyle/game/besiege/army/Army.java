@@ -57,7 +57,7 @@ public class Army extends Actor implements Destination {
 	private static final String DEFAULT_TEXTURE = "Player";
 	private static final double REPAIR_FACTOR = .5; // if a party gets below this many troops it will go to repair itself.
 	private static final float RUN_EVERY = .5f;
-	private static final double WEALTH_FACTOR = 2;
+	protected static final double WEALTH_FACTOR = 2;
 
 	private boolean mouseOver;
 	protected boolean passive; // passive if true (won't attack) aggressive if false;
