@@ -34,19 +34,14 @@ public class Castle extends Location {
 	private final static double MERCHANT_GAIN = .008; // calculates merchant's wealth which goes to other cities.
 	private final int patrolCost;
 	private final int raiderCost;
-	private final int merchantCost;
 	
 //	private Array<Castle> closestFriendlyCities;
 //	private Array<Castle> closestEnemyCities;
 	
 	private Array<Patrol> scouts;
-	private Array<Merchant> merchants;
-	private boolean[] merchantExists;
 	private Array<RaidingParty> raiders;
 	private boolean[] raiderExists;
 	
-	public Corner corner;
-	public Center center;
 //	private Array<Village> villages;
 //	private Array<PointH> villageSpots;
 
@@ -74,7 +69,6 @@ public class Castle extends Location {
 //		this.patrolCost = PartyType.PATROL.maxWealth;
 //		this.raiderCost = PartyType.RAIDING_PARTY.maxWealth;
 		
-		this.merchantCost = 10;// Merchant.MAX_WEALTH; //PartyType.MERCHANT.maxWealth;
 		this.patrolCost = 10; // PartyType.PATROL.maxWealth;
 		this.raiderCost = 10; //
 		

@@ -12,7 +12,10 @@ import java.util.Date;
 
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.location.Castle;
+import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Party;
 
@@ -640,8 +643,19 @@ public class MapScreen implements Screen {
 		
 		kryo.writeObject(output, new Date());
 		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
-		kryo.writeObjectOrNull(output, this.kingdom.getPlayer(), this.kingdom.getPlayer().getClass());
-
+		
+		// saving all armies works, locations don't
+//		kryo.writeOb
+		for (Army toSave :  kingdom.getArmies()) {
+			System.out.println("saving " + toSave.getName());
+			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
+		}
+//		
+		for (Location city : locations) {
+			System.out.println("saving " + city.getName());
+			kryo.writeObjectOrNull(output, city, city.getClass());		
+		}
+		
 		output.close();
 		
 		for (Army army : kingdom.getArmies()) {

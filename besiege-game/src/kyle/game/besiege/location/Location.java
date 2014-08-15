@@ -46,7 +46,6 @@ public class Location extends Actor implements Destination {
 	protected int POP_MIN;
 	protected int POP_MAX;
 	
-	
 	private TextureRegion region;
 	public enum LocationType {CITY, CASTLE, VILLAGE};
 	public LocationType type;
@@ -65,10 +64,10 @@ public class Location extends Actor implements Destination {
 	
 	private boolean mouseOver;
 	
-	private Kingdom kingdom;
+	transient private Kingdom kingdom;
 	private String name;
 	private int index;
-	private Faction faction;
+	transient private Faction faction;
 	
 	protected double population;
 	
@@ -93,8 +92,8 @@ public class Location extends Actor implements Destination {
 	public boolean playerBesieging;
 	
 	public Point spawnPoint; // point where armies and farmers should spawn if on water
-	public Center center; // one of these will be null
-	public Corner corner;
+	transient public Center center; // one of these will be null
+	transient public Corner corner;
 	
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, Party garrison) {
