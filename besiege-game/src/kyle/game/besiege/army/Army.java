@@ -65,7 +65,7 @@ public class Army extends Actor implements Destination {
 	
 	protected int wealthFactor = 1; // set in children
 
-//	private Kingdom kingdom; // parent actor, kingdom
+	private Kingdom kingdom; // parent actor, kingdom
 	private String name;
 	private Faction faction;
 
@@ -122,7 +122,7 @@ public class Army extends Actor implements Destination {
 	public boolean playerTouched; // kinda parallel to location.playerIn
 
 	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType pt) {
-	//	this.kingdom = kingdom;
+		this.kingdom = kingdom;
 		this.name = name;
 		this.faction = faction;
 		this.partyType = pt;
@@ -157,6 +157,8 @@ public class Army extends Actor implements Destination {
 		this.closeArmies = new Array<Army>();
 		this.closeCenters = new Array<Center>();
 
+		this.path = new Path(this);
+		
 		this.setPosition(posX, posY);
 		this.setRotation(0);
 
@@ -170,7 +172,6 @@ public class Army extends Actor implements Destination {
 	}
 	// do this after added to kingdom
 	public void postAdd() {
-		this.path = new Path(this);
 	}
 	private void initializeBox() {
 		this.setScale(calcScale());
@@ -215,7 +216,7 @@ public class Army extends Actor implements Destination {
 		else {
 			if (!isInBattle()) {
 				if (isGarrisoned()) 
-					garrisonAct(delta);
+					garrisonAct(delta); 
 				else {
 					setSpeed(calcSpeed());
 					detectNearby();
@@ -725,7 +726,8 @@ public class Army extends Actor implements Destination {
 
 	public void waitFor(double seconds) {
 		normalWaiting = true;
-		this.waitUntil = seconds + getKingdom().clock();
+		if (getKingdom() != null)
+			this.waitUntil = seconds + getKingdom().clock();
 	}
 	public void wait(float delta) {
 		if (getKingdom().clock() >= waitUntil) {
@@ -1152,7 +1154,8 @@ public class Army extends Actor implements Destination {
 		return defaultTarget;
 	}
 	public Kingdom getKingdom() {
-		return (Kingdom) getParent();
+		return kingdom;
+		//return (Kingdom) getParent();
 	}
 	
 	public int getWealth() {

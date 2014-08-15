@@ -101,7 +101,8 @@ public class Merchant extends Army {
 		if (isGarrisoned())
 			goal.eject(this);
 		super.destroy();
-		getKingdom().removeArmy(this);
+		if (getKingdom() != null)
+			getKingdom().removeArmy(this);
 		this.remove();
 		if (getDefaultTarget() != null) {
 			((City) getDefaultTarget()).removeMerchant(this);

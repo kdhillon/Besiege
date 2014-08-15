@@ -689,6 +689,8 @@ public class Location extends Actor implements Destination {
 			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.CASTLE) {
+			for (Patrol patrol : this.patrols)
+				patrol.setFaction(newFaction);
 			this.faction.castles.removeValue((Castle) this, true);
 			newFaction.castles.add((Castle) this);
 			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());

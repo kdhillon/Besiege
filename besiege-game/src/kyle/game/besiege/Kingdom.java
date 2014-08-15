@@ -582,7 +582,7 @@ public class Kingdom extends Group {
 	public void addArmy(Army add) {
 		armies.add(add);
 		addActor(add);
-		add.postAdd();
+		//add.postAdd();
 	}
 	public void addPlayer() {
 		Faction faction = Faction.factions.random();
