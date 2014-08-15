@@ -229,7 +229,7 @@ public class Kingdom extends Group {
 		//		if (currentPanel == null) System.out.println("currentPanel is null");
 		// makes sure not to set the same panel a lot, and makes sure not to return to previous for every single point
 		if (newPanel != currentPanel && (newPanel.getType() != Destination.DestType.POINT || currentPanel.getType() != Destination.DestType.POINT)) {
-			mapScreen.getSidePanel().setActiveDestination(newPanel);
+			getMapScreen().getSidePanel().setActiveDestination(newPanel);
 			currentPanel = newPanel;
 		}
 	}
@@ -259,7 +259,7 @@ public class Kingdom extends Group {
 			}
 			paused = false;
 //			player.setForceWait(false);
-//			mapScreen.shouldCenter = true;
+//			getMapScreen().shouldCenter = true;
 			if (player.isGarrisoned()) {
 				if (d != player.getGarrisonedIn()) {
 			
@@ -272,7 +272,7 @@ public class Kingdom extends Group {
 			
 			
 			if (d.getType() == Destination.DestType.POINT) {
-				mapScreen.getSidePanel().setActiveArmy(player);
+				getMapScreen().getSidePanel().setActiveArmy(player);
 			}
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}
@@ -281,15 +281,15 @@ public class Kingdom extends Group {
 		Destination d = getDestAt(mouse);
 		if (d.getType() == Destination.DestType.LOCATION) {
 			Location location = (Location) d;
-			mapScreen.getSidePanel().setActiveLocation(location);
+			getMapScreen().getSidePanel().setActiveLocation(location);
 		}
 		if (d.getType() == Destination.DestType.ARMY) { // army
 			Army destinationArmy = (Army) d;
-			mapScreen.getSidePanel().setActiveArmy(destinationArmy);
+			getMapScreen().getSidePanel().setActiveArmy(destinationArmy);
 		}
 		if (d.getType() == Destination.DestType.BATTLE) { //battle
 			Battle battle = (Battle) d;
-			mapScreen.getSidePanel().setActiveBattle(battle);
+			getMapScreen().getSidePanel().setActiveBattle(battle);
 		}
 	}
 
@@ -312,7 +312,7 @@ public class Kingdom extends Group {
 	public void writeCity() {
 		float x = mouse.getCenterX();
 		float y = mouse.getCenterY();
-		//		mapScreen.out.println(x + " " + y);
+		//		getMapScreen().out.println(x + " " + y);
 	}
 
 	private Destination getDestAt(Point mouse) {
@@ -331,7 +331,7 @@ public class Kingdom extends Group {
 		}
 		for (Army army : armies) {
 			if (army.isVisible() && Kingdom.distBetween(army, mouse) <= MOUSE_DISTANCE)
-				if (mapScreen.losOn) {
+				if (getMapScreen().losOn) {
 					if (Kingdom.distBetween(army, player) <= player.getLineOfSight())
 						dest = army;
 				}
@@ -359,7 +359,7 @@ public class Kingdom extends Group {
 		// leak is not here
 		super.draw(batch, parentAlpha);
 		arial.setColor(Color.WHITE);
-		arial.setScale(2*(mapScreen.getCamera().zoom));
+		arial.setScale(2*(getMapScreen().getCamera().zoom));
 		
 		if (drawCrests) {
 			for (City c : cities)
@@ -581,6 +581,7 @@ public class Kingdom extends Group {
 	public void addArmy(Army add) {
 		armies.add(add);
 		addActor(add);
+		add.postAdd();
 	}
 	public void addPlayer() {
 		Faction faction = Faction.factions.random();
@@ -601,9 +602,9 @@ public class Kingdom extends Group {
 		player.containing = center;
 		addArmy(player);
 		//		player.initializeBox(); // otherwise line of sight will be 0!
-		//mapScreen.center(); doesn't do anything bc of auto resize
+		//getMapScreen().center(); doesn't do anything bc of auto resize
 		//player.getParty().wound(player.getParty().getHealthy().random());
-		//		mapScreen.getFog().updateFog();
+		//		getMapScreen().getFog().updateFog();
 	}
 	public void createBandit(City originCity) {
 		//get a good bandit location, out of player's LOS, away from other armies, etc.
@@ -671,6 +672,13 @@ public class Kingdom extends Group {
 	}
 	public MapScreen getMapScreen() {
 		return mapScreen;
+	}
+	public void setMapScreen(MapScreen mapScreen) {
+		this.mapScreen = mapScreen;
+	}
+	public void nullifyForSave() {
+		this.mapScreen = null;
+		this.map = null;
 	}
 
 	public float clock() {

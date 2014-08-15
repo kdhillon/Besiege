@@ -25,13 +25,19 @@ public class Merchant extends Army {
 	public Merchant(Kingdom kingdom,
 			City defaultTarget, City goal) {
 		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), PartyType.MERCHANT);
-		this.goal = goal;
-		this.calcMerchantWealth();
-		this.setGoal(goal);
-		this.setDefaultTarget(defaultTarget);
 		this.setTextureRegion(textureRegion);
 		this.type = ArmyType.MERCHANT;
 		this.passive = true;
+		
+		this.goal = goal;
+		this.calcMerchantWealth();
+		this.setDefaultTarget(defaultTarget);
+	}
+	
+	@Override
+	public void postAdd() {
+		super.postAdd();
+		this.setGoal(goal);
 	}
 
 //	@Override

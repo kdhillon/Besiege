@@ -620,11 +620,26 @@ public class MapScreen implements Screen {
 		Output output = new Output(file.write(false));
 		
 		
+		this.kingdom.removeActor(kingdom.getPlayer());
+		
+		Path tempPath = kingdom.getPlayer().path;
+		kingdom.getPlayer().path = null;
+		kingdom.getPlayer().targetOf = null;
+		kingdom.getPlayer().containing = null;
+		kingdom.getPlayer().closeArmies = null;
+		kingdom.getPlayer().closeCenters = null;
+//		kingdom.getPlayer().party = null;
+		kingdom.getPlayer().remove();
+		
 		kryo.writeObject(output, new Date());
 		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
-		
+		kryo.writeObjectOrNull(output, this.kingdom.getPlayer(), this.kingdom.getPlayer().getClass());
+
 		output.close();
-		
+
+		kingdom.addActor(kingdom.getPlayer());
+		kingdom.getPlayer().path = tempPath;
+
 		System.out.println("SAVE SUCCESSFUL");
 	}
 	

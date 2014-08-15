@@ -174,7 +174,8 @@ public class Location extends Actor implements Destination {
 	
 	@Override
 	public void act(float delta) {
-		this.garrison.act(delta);
+		if (this.garrison.getKingdom() != null)
+			this.garrison.act(delta);
 		
 		if (autoManage) {
 			autoManage();

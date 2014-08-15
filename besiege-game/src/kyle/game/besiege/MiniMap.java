@@ -16,7 +16,6 @@ public class MiniMap extends Actor {
 	
 	public MiniMap(SidePanel panel) {
 		this.panel = panel;
-		
 	}
 	
 	@Override

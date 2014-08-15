@@ -24,9 +24,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class ArmyPlayer extends Army {
 	private final String textureRegion = "Player";
-	
-	private SidePanel panel;
-	
+		
 	// debugging
 	private final ShapeRenderer sr;
 	
@@ -38,8 +36,6 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
 		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.NOBLE_DEFAULT_1);
-		
-		this.panel = getKingdom().getMapScreen().getSidePanel();
 		
 		setTextureRegion(textureRegion);
 //		initializeBox();
@@ -92,7 +88,7 @@ public class ArmyPlayer extends Army {
 //			System.out.println(getTarget().getName());
 		}
 		if (!getKingdom().isPaused() && !isInBattle())
-			panel.setStay(false);
+			getKingdom().getMapScreen().getSidePanel().setStay(false);
 			
 		this.speedFactor = (float) (this.ORIGINAL_SPEED_FACTOR * getCharacter().getAttributeFactor("Marching"));
 		setLOS(calcLOS());
@@ -117,7 +113,7 @@ public class ArmyPlayer extends Army {
 						setTarget(null);
 						getKingdom().setPaused(true);
 						BottomPanel.log("Target lost!", "yellow");
-						panel.setDefault();
+						getKingdom().getMapScreen().getSidePanel().setDefault();
 					}
 					else {
 						path.travel();
@@ -169,8 +165,8 @@ public class ArmyPlayer extends Army {
 		setPaused(true);
 		this.setTarget(null);
 		targetLocation.hostilePlayerTouched = true;
-		panel.setActiveLocation(targetLocation);
-		panel.setStay(true);
+		getKingdom().getMapScreen().getSidePanel().setActiveLocation(targetLocation);
+		getKingdom().getMapScreen().getSidePanel().setStay(true);
 	}
 	
 	@Override
@@ -178,7 +174,7 @@ public class ArmyPlayer extends Army {
 		this.garrisonIn(targetLocation);
 		targetLocation.playerIn = true;
 		this.setTarget(null);
-		panel.setActiveLocation(targetLocation);
+		getKingdom().getMapScreen().getSidePanel().setActiveLocation(targetLocation);
 	}
 	
 	@Override
@@ -203,8 +199,8 @@ public class ArmyPlayer extends Army {
 		setPaused(true);
 		if (!targetArmy.isInBattle() && !this.isInBattle() && targetArmy.getTarget() != this) {
 			targetArmy.playerTouched = true;
-			panel.setActiveArmy(targetArmy);
-			panel.setStay(true); // when an army is reached, force a user decision
+			getKingdom().getMapScreen().getSidePanel().setActiveArmy(targetArmy);
+			getKingdom().getMapScreen().getSidePanel().setStay(true); // when an army is reached, force a user decision
 		}
 		else if (targetArmy.isInBattle() && !this.isInBattle()){
 			// join battle?
@@ -254,6 +250,7 @@ public class ArmyPlayer extends Army {
 	
 	@Override
 	public float calcLOS() {
+		if (getCharacter() == null) return 0;
 		return ((float) (super.calcLOS()*getCharacter().getAttributeFactor("Spotting")));
 	}
 
@@ -299,6 +296,7 @@ public class ArmyPlayer extends Army {
 		return getParty().getHealthySize() + "/" + getParty().getTotalSize();
 	}
 	public Character getCharacter() {
+		if (getKingdom() == null) return null;
 		return getKingdom().getMapScreen().getCharacter();
 	}
 	

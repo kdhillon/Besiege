@@ -101,14 +101,16 @@ Day 76: made adding walls very easy, added destructable walls
 Day 77: fixed bugs with walls, integrated battlestage sieges into game
 Day 78: fixed farmer bug, made factions group better, created version 0.2
 Day 79: fixed "sticky player" bug and merchant bug
+Day 80: worked on researching how to save game state
+Day 81: fixed bug with crests not disappearing after losing
+Day 82: started process of simplifying references for eventual saving
+
 
 todo:
 
 BATTLESTAGE:
+add waves and reinforcements to battles
 add safeguards against battles getting stuck
-
-now:
-fix retreat timer?
 
 later:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
@@ -121,9 +123,9 @@ allow joining battles
 
 MAP:
 now:
+see if faction staticness is preventing saving
 add garrison repairing
 add cancelling and reforming of sieges
-make so each faction gets at least one city
 
 make bandits not seige (?)
 
@@ -136,8 +138,6 @@ gameplay:
 
 implement "honor" and baronage for player
 change "back" button to use a stack
-add populations
-add partyCap for nobles and player
 fix " upgrade for flail not found!" (allow veteran upgrade)
 give names to each region (and village names will be the same), and castle names will be "____ castle" or "____ fortress" 
 add city garrison/wealth management
@@ -163,7 +163,6 @@ improve battle mechanic! (don't just RNG every frame...)
 
 map improvements:
 fix visibility graph with penninsulas
-add castles
 add rivers (just more impassable edges--and check for in between corners)
 utilize map areas (farmland = more wealth, mountains make you slow, etc?)
 

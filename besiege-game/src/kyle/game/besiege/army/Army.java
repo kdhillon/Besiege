@@ -64,7 +64,7 @@ public class Army extends Actor implements Destination {
 	
 	protected int wealthFactor = 1; // set in children
 
-	private Kingdom kingdom; // parent actor, kingdom
+//	private Kingdom kingdom; // parent actor, kingdom
 	private String name;
 	private Faction faction;
 
@@ -75,7 +75,7 @@ public class Army extends Actor implements Destination {
 	private float lineOfSight;
 
 	private PartyType partyType;
-	private Party party;
+	public Party party;
 
 	private int morale;
 	private int momentum; //changes with recent events
@@ -110,8 +110,8 @@ public class Army extends Actor implements Destination {
 //	public Destination runTo; // use for running
 	public Array<Army> targetOf; // armies that have this army as a target
 	public Center containing;
-	private Array<Army> closeArmies;
-	private Array<Center> closeCenters; 
+	public Array<Army> closeArmies;
+	public Array<Center> closeCenters; 
 	
 	private float timeSinceRunFrom = 0;
 
@@ -121,7 +121,7 @@ public class Army extends Actor implements Destination {
 	public boolean playerTouched; // kinda parallel to location.playerIn
 
 	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType pt) {
-		this.kingdom = kingdom;
+	//	this.kingdom = kingdom;
 		this.name = name;
 		this.faction = faction;
 		this.partyType = pt;
@@ -136,7 +136,7 @@ public class Army extends Actor implements Destination {
 		this.lineOfSight = calcLOS();
 
 		this.morale = calcMorale();
-		this.currentHour = Kingdom.getTotalHour();
+		this.currentHour = getKingdom().getTotalHour();
 
 		this.stopped = true;
 		this.normalWaiting = false;
@@ -150,7 +150,7 @@ public class Army extends Actor implements Destination {
 
 		this.lastPathCalc = 0;
 		this.targetStack = new Stack<Destination>();
-		this.path = new Path(this);
+
 		this.targetOf = new Array<Army>();
 
 		this.closeArmies = new Array<Army>();
@@ -167,6 +167,10 @@ public class Army extends Actor implements Destination {
 		
 		calcInitWealth();
 	}
+	// do this after added to kingdom
+	public void postAdd() {
+		this.path = new Path(this);
+	}
 	private void initializeBox() {
 		this.setScale(calcScale());
 		this.setWidth(region.getRegionWidth()*getScaleX());
@@ -182,15 +186,15 @@ public class Army extends Actor implements Destination {
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
 		//		setLineOfSight();
 		// Player's Line of Sight:
-		if (kingdom.getMapScreen().losOn) {
-			if (Kingdom.distBetween(this, kingdom.getPlayer()) > kingdom.getPlayer().getLineOfSight())
+		if (losOn()) {
+			if (getKingdom().distBetween(this, getKingdom().getPlayer()) > getKingdom().getPlayer().getLineOfSight())
 				this.setVisible(false);
 			else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
 		}
 		else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
 
 
-		if (!kingdom.isPaused()) {
+		if (!getKingdom().isPaused()) {
 			playerTouched = false; // only can be selected when game is paused;
 		}
 
@@ -305,6 +309,11 @@ public class Army extends Actor implements Destination {
 		momentumDecay();
 		//party.distributeExp(60);
 	}
+	
+	private boolean losOn() {
+		if (getKingdom() == null) return false;
+		return getKingdom().getMapScreen().losOn;
+	}
 
 	public void uniqueAct() {
 		//actions contained in extensions
@@ -350,7 +359,7 @@ public class Army extends Actor implements Destination {
 		//if (this.type == ArmyType.NOBLE && ((Noble) this).specialTarget != null) return "Special target: " + ((Noble) this).specialTarget.getName();
 		
 		if (isInBattle()) return "In battle";
-		else if (forceWait) return "Regrouping (" + Panel.format(this.waitUntil-kingdom.clock() + "", 2) + ")";
+		else if (forceWait) return "Regrouping (" + Panel.format(this.waitUntil-getKingdom().clock() + "", 2) + ")";
 		else if (isWaiting()) return "Waiting";
 		else if (isRunning()) return "Running from " + getRunFrom().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
 		//		else if (shouldRepair) return "SHOULD REPAIR";
@@ -426,7 +435,7 @@ public class Army extends Actor implements Destination {
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
 		//		System.out.println(this.getName() + " creating battle");
-		if (this == kingdom.getPlayer()) {
+		if (this == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
 			getKingdom().getPlayer().createPlayerBattleWith(targetArmy, false, siegeOf);
 			
@@ -435,18 +444,18 @@ public class Army extends Actor implements Destination {
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
-		else if (targetArmy == kingdom.getPlayer()) {
+		else if (targetArmy == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacked by " + this.getName() + "!");
 			getKingdom().getPlayer().createPlayerBattleWith(this, true, siegeOf);
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else {
-			Battle b = new Battle(kingdom, this, targetArmy);
+			Battle b = new Battle(getKingdom(), this, targetArmy);
 			this.setBattle(b);
 			targetArmy.setBattle(b);
-			kingdom.addBattle(b);
-			kingdom.addActor(b);
+			getKingdom().addBattle(b);
+			getKingdom().addActor(b);
 		}
 		//shouldJoinBattle();
 	}
@@ -541,7 +550,7 @@ public class Army extends Actor implements Destination {
 
 		// wait/pause AFTER garrisoning!
 		if (party.player) {
-			kingdom.setPaused(true);
+			getKingdom().setPaused(true);
 			this.setWaiting(false);
 		}
 		else if (type == ArmyType.MERCHANT && ((Merchant) this).goal == targetCity) waitFor(Merchant.MERCHANT_WAIT);
@@ -674,7 +683,7 @@ public class Army extends Actor implements Destination {
 			for (Center containing: closeCenters)
 				if (containing.armies != null) closeArmies.addAll(containing.armies);
 
-			//			System.out.println("Total Armies length: " + kingdom.getArmies().size);
+			//			System.out.println("Total Armies length: " + getKingdom().getArmies().size);
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
 
 			for (Army army : closeArmies) {
@@ -707,7 +716,7 @@ public class Army extends Actor implements Destination {
 
 	public void updatePolygon() {
 		if (updatePolygon == UPDATE_POLYGON_FREQ) {
-			kingdom.updateArmyPolygon(this);
+			getKingdom().updateArmyPolygon(this);
 			updatePolygon = 0;
 		}
 		else updatePolygon++;
@@ -715,10 +724,10 @@ public class Army extends Actor implements Destination {
 
 	public void waitFor(double seconds) {
 		normalWaiting = true;
-		this.waitUntil = seconds + kingdom.clock();
+		this.waitUntil = seconds + getKingdom().clock();
 	}
 	public void wait(float delta) {
-		if (kingdom.clock() >= waitUntil) {
+		if (getKingdom().clock() >= waitUntil) {
 			//			if (type == ArmyType.MERCHANT) System.out.println(getName() + "stopping wait");
 //			System.out.println("stopping wait");
 			normalWaiting = false;
@@ -778,10 +787,10 @@ public class Army extends Actor implements Destination {
 
 	public void momentumDecay() {
 		if (momentum >= 1) {
-			//			System.out.println("total: " + Kingdom.getTotalHour() + " current: " + currentHour);
-			if (Kingdom.getTotalHour() - currentHour >= momentumDecay) {
+			//			System.out.println("total: " + getKingdom().getTotalHour() + " current: " + currentHour);
+			if (getKingdom().getTotalHour() - currentHour >= momentumDecay) {
 				momentum -= 1;
-				currentHour = Kingdom.getTotalHour();
+				currentHour = getKingdom().getTotalHour();
 			}
 		}
 	}
@@ -814,7 +823,7 @@ public class Army extends Actor implements Destination {
 	//	public void verifyTarget() {
 	//		if (getTarget().getType() == 2) { // army
 	//			Army targetArmy = (Army) getTarget();
-	//			if (!kingdom.getArmies().contains(targetArmy, true))
+	//			if (!getKingdom().getArmies().contains(targetArmy, true))
 	//				nextTarget();
 	//		}
 	//	}
@@ -908,7 +917,7 @@ public class Army extends Actor implements Destination {
 	public void raid(Village village) {
 		//System.out.println(this.name + " is raiding " + village.getName());
 		Militia militia = village.createMilitia();
-		kingdom.addArmy(militia);
+		getKingdom().addArmy(militia);
 		createBattleWith(militia, village);
 	}
 	
@@ -980,8 +989,9 @@ public class Army extends Actor implements Destination {
 		return momentum;
 	}
 	public float calcLOS() {
-		//		return BASE_LOS + LOS_FACTOR * this.getTroopCount(); // * kingdom.currentDarkness
-		return BASE_LOS + LOS_FACTOR * this.getTroopCount() * kingdom.currentDarkness;
+		if (getKingdom() == null) return 0;
+			//		return BASE_LOS + LOS_FACTOR * this.getTroopCount(); // * getKingdom().currentDarkness
+		return BASE_LOS + LOS_FACTOR * this.getTroopCount() * getKingdom().currentDarkness;
 	}
 	public void setLOS(float lineOfSight) {
 		this.lineOfSight = lineOfSight;
@@ -1061,7 +1071,7 @@ public class Army extends Actor implements Destination {
 		//		if (newTarget.getType() == 2 && ((Army) newTarget).isGarrisoned()) System.out.println("***** TARGET GARRISONED! *****");
 
 
-		boolean isInWater = kingdom.getMap().isInWater(newTarget);
+		boolean isInWater = getKingdom().getMap().isInWater(newTarget);
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
 			if (this.target != newTarget && (this.lastPathCalc == 0 || this.isPlayer())) {
 
@@ -1093,13 +1103,13 @@ public class Army extends Actor implements Destination {
 			return true;
 		}
 		else if (defaultTarget != null &&
-				!kingdom.getMap().isInWater(defaultTarget)){
+				!getKingdom().getMap().isInWater(defaultTarget)){
 			//			System.out.println(getName() + " trying to go to the water (setting target to center of land)");
 			setTarget(defaultTarget);
 			return true;
 		}
 		else if (!isInWater) {
-			setTarget(kingdom.getMap().referencePoint);
+			setTarget(getKingdom().getMap().referencePoint);
 			return true;
 		}
 		else return false;
@@ -1114,7 +1124,7 @@ public class Army extends Actor implements Destination {
 	public void nextTarget() {
 		if (!targetStack.isEmpty()) {
 			if (targetStack.peek() == null || targetStack.peek() == target || 
-					(targetStack.peek().getType() == Destination.DestType.ARMY && !kingdom.getArmies().contains((Army) getTarget(), true))) 
+					(targetStack.peek().getType() == Destination.DestType.ARMY && !getKingdom().getArmies().contains((Army) getTarget(), true))) 
 				targetStack.pop(); // clean stack 
 			if (!targetStack.isEmpty() && targetStack.peek() != null) setTarget(targetStack.pop());
 			else findTarget();
@@ -1141,8 +1151,9 @@ public class Army extends Actor implements Destination {
 		return defaultTarget;
 	}
 	public Kingdom getKingdom() {
-		return kingdom;
+		return (Kingdom) getParent();
 	}
+	
 	public int getWealth() {
 		return this.getParty().wealth;
 	}
@@ -1182,7 +1193,7 @@ public class Army extends Actor implements Destination {
 
 	// laziness sake
 	protected double distToCenter(Destination d) {
-		return Kingdom.distBetween(this, d);
+		return getKingdom().distBetween(this, d);
 	}
 	
 	private boolean isPlayer() {
@@ -1232,10 +1243,10 @@ public class Army extends Actor implements Destination {
 	public void setMouseOver(boolean mouseOver) {
 		if (this.mouseOver) {
 			if (!mouseOver)
-				kingdom.getMapScreen().getSidePanel().returnToPrevious();
+				getKingdom().getMapScreen().getSidePanel().returnToPrevious();
 		}
 		else if (mouseOver)
-			kingdom.getMapScreen().getSidePanel().setActiveArmy(this);
+			getKingdom().getMapScreen().getSidePanel().setActiveArmy(this);
 
 		this.mouseOver = mouseOver;
 	}

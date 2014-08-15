@@ -59,8 +59,8 @@ public class Village extends Location {
 
 	public void createFarmer() {
 		Farmer farmer = new Farmer(getKingdom(), getName() + " Farmers", getFaction(), getCenterX(), getCenterY());
-		farmer.setVillage(this);
 		getKingdom().addArmy(farmer);
+		farmer.setVillage(this);
 		farmers.add(farmer);
 		setContainerForArmy(farmer);
 	}
