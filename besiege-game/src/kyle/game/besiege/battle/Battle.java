@@ -480,7 +480,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		else expA += soldier.getExpForKill();
 		
 		if (playerInD || playerInA) {
-			String status = soldier.name;
+			String status = soldier.getName();
 			if (killed) status += " was killed!";
 			else status += " was wounded!";
 

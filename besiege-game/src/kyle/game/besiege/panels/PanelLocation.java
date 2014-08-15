@@ -407,22 +407,22 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
-		nameS.setText(s.name + "");
+		nameS.setText(s.getName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.bonusAtk >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
+		if (s.getBonusAtk() >= 0)
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
 		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
-		if (s.bonusDef >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+		if (s.getBonusDef() >= 0)
+			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
 		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
-		if (s.bonusSpd >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
+			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+		if (s.getBonusSpd() >= 0)
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
 		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.weapon.name);
 	}
 	

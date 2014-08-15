@@ -499,7 +499,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			Array<Array<Soldier>> consolHealthy = party.getConsolHealthy();
 			
 			for (Array<Soldier> as : consolHealthy) {
-				Label name = new Label(as.first().name, lsSmall);
+				Label name = new Label(as.first().getName(), lsSmall);
 				
 //				name.setWrap(true);
 //				name.addListener(new ClickListener() {
@@ -521,7 +521,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			Array<Array<Soldier>> consolWounded = party.getConsolWounded();
 			
 			for (Array<Soldier> as : consolWounded) {
-				Label name = new Label(as.first().name, lsSmallG);
+				Label name = new Label(as.first().getName(), lsSmallG);
 				
 //				name.setWrap(true);
 //				name.addListener(new ClickListener() {
@@ -577,22 +577,22 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	}
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
-		nameS.setText(s.name + "");
+		nameS.setText(s.getName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.bonusAtk >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
+		if (s.getBonusAtk() >= 0)
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
 		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
-		if (s.bonusDef >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+		if (s.getBonusDef() >= 0)
+			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
 		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
-		if (s.bonusSpd >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
+			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+		if (s.getBonusSpd() >= 0)
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
 		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.weapon.name);
 //		equipmentS.setText(s.equipmentList());
 	}

@@ -647,6 +647,8 @@ public class MapScreen implements Screen {
 		// saving all armies works, locations don't
 //		kryo.writeOb
 		
+		kryo.setReferences(true);
+		
 		//kryo.writeObjectOrNull(output, this.kingdom.getMap(), this.kingdom.getMap().getClass());
 		
 		for (Army toSave :  kingdom.getArmies()) {

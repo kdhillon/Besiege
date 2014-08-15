@@ -21,9 +21,9 @@ import com.badlogic.gdx.math.Vector2;
 public class Corner {
 	private final float PUSH_DIST = 5; //distance corners will be pushed away from convex corners
 
-	public ArrayList<Center> touches = new ArrayList(); //good
-	public ArrayList<Corner> adjacent = new ArrayList(); //good
-	public ArrayList<Edge> protrudes = new ArrayList();
+	transient public ArrayList<Center> touches = new ArrayList<Center>(); //good
+	transient public ArrayList<Corner> adjacent = new ArrayList<Corner>(); //good
+	transient public ArrayList<Edge> protrudes = new ArrayList<Edge>();
 	public ArrayList<Corner> visibleCorners;
 	// distance to bordercorner at index, if non-null/0 then it's visible.
 	//    public ArrayList<Double> visibleDistance;

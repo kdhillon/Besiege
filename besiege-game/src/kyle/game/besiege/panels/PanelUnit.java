@@ -92,7 +92,7 @@ public class PanelUnit extends Panel {
 		Label weaponSC = 	new Label("Weapon: ", ls);
 		Label equipmentSC = new Label("Armor: ", ls);
 		
-		title = new Label(soldier.name, lsBig);
+		title = new Label(soldier.getName(), lsBig);
 		title.setAlignment(0,0);
 //		title.setWrap(true); // wrapping messes up click listeners... WTF?
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);

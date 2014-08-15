@@ -39,7 +39,7 @@ import com.badlogic.gdx.utils.Array;
  */
 
 public class Map extends Actor {
-	public ShapeRenderer sr;
+	transient public ShapeRenderer sr;
 
 	public static final int WIDTH = 5000;
 	public static final int HEIGHT = 5000;
@@ -55,27 +55,27 @@ public class Map extends Actor {
 	public int testIndex;
 	public int totalVisibilityLines;
 
-	public Texture bg;
-	transient public Array<Corner> cityCorners;
-	transient public Array<Center> cityCenters;
+	transient public Texture bg;
+	public Array<Corner> cityCorners;
+	public Array<Center> cityCenters;
 //	public Array<PointH> availableLocationSites;
-	transient public Array<Corner> availableCorners;
-	transient public Array<Center> availableCenters;
+	public Array<Corner> availableCorners;
+	public Array<Center> availableCenters;
 	
-	transient public Array<Corner> borderCorners;
-	transient public Array<Edge> impassable;
-	transient public Array<Edge> impBorders;
-	transient public Array<Center> connected; // land centers connected to reference
+	public Array<Corner> borderCorners;
+	public Array<Edge> impassable;
+	public Array<Edge> impBorders;
+	public Array<Center> connected; // land centers connected to reference
 
-	transient public Center reference; // center on main map
-	transient public Point referencePoint;
+	public Center reference; // center on main map
+	public Point referencePoint;
 	
 	/** Borders between faction territory */
-	transient public Array<Edge> borderEdges; 
+	public Array<Edge> borderEdges; 
 	
 	// testing
-	transient public Array<Polygon> testPolygons = new Array<Polygon>();
-	transient public static Array<Corner> testCorners = new Array<Corner>();
+	public Array<Polygon> testPolygons = new Array<Polygon>();
+	public Array<Corner> testCorners = new Array<Corner>();
 	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
@@ -374,7 +374,7 @@ public class Map extends Actor {
 				}
 			}
 		}
-		testCorners.addAll(outside);
+//		testCorners.addAll(outside);
 		return outside;
 	}
 	

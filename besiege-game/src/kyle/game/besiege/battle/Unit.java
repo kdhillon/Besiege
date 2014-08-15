@@ -189,19 +189,19 @@ public class Unit extends Group {
 		String attackFile;
 		String dieFile;
 		String firingFile;
-		if (soldier.tier < 3) {
+		if (soldier.getTier() < 3) {
 			walkFile = "farmer_walk.png";
 			attackFile = "farmer_walk.png";
 			dieFile = "farmer_die.png";
 			firingFile = "bandit_firing.png";
 		}
-		else if (soldier.tier < 6 || soldier.getType() == Soldier.SoldierType.ARCHER) {
+		else if (soldier.getTier() < 6 || soldier.getType() == Soldier.SoldierType.ARCHER) {
 			walkFile = "bandit_walk.png";
 			attackFile = "bandit_walk.png";
 			dieFile = "bandit_die.png";
 			firingFile = "bandit_firing.png";
 		}
-		else if (soldier.tier < 8) {
+		else if (soldier.getTier() < 8) {
 			walkFile = "bandit_walk.png";
 			attackFile = "bandit_walk.png";
 			dieFile = "bandit_die.png";
@@ -426,7 +426,7 @@ public class Unit extends Group {
 		if (this.isDying) 				return "Dying";
 		if (this.siegeUnit != null)		return "Manning " + siegeUnit.type.name;
 		if (this.retreating)		 	return "Retreating";
-		if (this.attacking != null) 	return "Attacking " + attacking.soldier.name;
+		if (this.attacking != null) 	return "Attacking " + attacking.soldier.getName();
 		if (this.moveSmooth && 
 				nearestCover != null) 			return "Moving to cover";
 		if (this.moveSmooth) 			return "Charging";
@@ -1180,7 +1180,6 @@ public class Unit extends Group {
 		this.shield = null;
 		this.weaponDraw.shield = null;
 		soldier.calcStats();
-		soldier.calcBonus();
 		calcStats();
 	}
 
@@ -1253,7 +1252,7 @@ public class Unit extends Group {
 		stage.retreated.add(this);
 		stage.battle.calcBalancePlayer();
 
-		String status = soldier.name;
+		String status = soldier.getName();
 		String color = "white";
 
 		status += " retreated!";

@@ -13,11 +13,12 @@ import kyle.game.besiege.Character;
 import com.badlogic.gdx.utils.Array;
 
 public class Soldier implements Comparable { // should create a heal-factor, so garrisonning will heal faster
-	public enum SoldierType {
+	
+	public static enum SoldierType {
 		INFANTRY, ARCHER, CAVALRY
 	}
 	
-	// Tier  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
+	// getTier()  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
 	private final static int[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
 	public final static boolean[] ATK_TIER = {true, false, false, true, false, true, false, false, true, false};
 	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, false, true, false, false};
@@ -31,13 +32,12 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 
 	private static final String VETERAN = ""; // "Veteran" or maybe invisible
 	
-	public String name;
 	public Party party;
 	
 	public int level;
 	public int exp;
 	public int next;   // exp needed for level up
-	public int tier;  // goes up to tier 7 (aka 3.5) so used in arrays above 
+//	public int getTier();  // goes up to getTier() 7 (aka 3.5) so used in arrays above 
 	private int nextUpgrade; // next level at which soldier can be upgraded
 	
 //	public int atk; // total
@@ -48,17 +48,13 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	public int baseDef;
 	public int baseSpd;
 	
-	public int bonusAtk; // increases w/ equipment
-	public int bonusDef;
-	public int bonusSpd;
-	
 	private boolean wounded;
 	private float timeWounded;
 	public boolean canUpgrade;
 	
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;
-	public Array<Equipment> equipment;
+	transient public Array<Equipment> equipment;
 
 	
 	public Soldier(Weapon weapon, Party party) {
@@ -70,24 +66,21 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 
 		this.party = party;
 
-		if (Math.random() > 0.5)
-			tier = weapon.tier;
-		else tier = weapon.tier + 1;
+//		if (Math.random() > 0.5)
+//			getTier() = weapon.getTier();
+//		else getTier() = weapon.getTier() + 1;
 		
-		if (tier % 2 == 0)
-			this.name = weapon.troopName;
-		else this.name = VETERAN + weapon.troopName;
-		this.nextUpgrade = LEVEL_TIER[tier+1];
+		this.level = LEVEL_TIER[weapon.tier] + (int) (Math.random()*(LEVEL_TIER[weapon.tier + 1]-LEVEL_TIER[weapon.tier]));
 
+		this.nextUpgrade = LEVEL_TIER[getTier()+1];
 		
-		this.level = LEVEL_TIER[tier] + (int) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier]));
 		this.exp = 0;
 		this.next = (int) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
 		
 		baseAtk = 0;
 		baseDef = 0;
 		baseSpd = 2;
-		for (int i = 0; i <= tier; i++) {
+		for (int i = 0; i <= getTier(); i++) {
 			if (ATK_TIER[i]) baseAtk++;
 			if (DEF_TIER[i]) baseDef++;
 			if (SPD_TIER[i]) baseSpd++;
@@ -100,8 +93,26 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 //		while (equipment.size > 0)
 //			this.equipment.add(equipment.pop());
 		
-		calcBonus();
 		calcStats();
+	}
+	
+	public String getName() {
+		String name;
+		if (getTier() % 2 == 0)
+			name = weapon.troopName;
+		else name = VETERAN + weapon.troopName;
+		return name;
+	}
+	
+	public int getTier() {
+		int tier = 0;
+		for (int i = 0; i < LEVEL_TIER.length; i++) {
+			if (this.level < LEVEL_TIER[i]) {
+				tier = i;
+				break;
+			}
+		}
+		return tier;
 	}
 	
 //	public Soldier(Array<Weapon> weapons, Party party) {
@@ -112,22 +123,22 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 //		this.party = party;
 //		
 //		if (Math.random() > 0.5)
-//			tier = weapon.tier;
-//		else tier = weapon.tier + 1;
-//		this.nextUpgrade = LEVEL_TIER[tier+1];
+//			getTier() = weapon.getTier();
+//		else getTier() = weapon.getTier() + 1;
+//		this.nextUpgrade = LEVEL_TIER[getTier()+1];
 //		
-//		if (tier % 2 == 0)
+//		if (getTier() % 2 == 0)
 //			this.name = weapon.troopName;
 //		else this.name = VETERAN + weapon.troopName;
 //		
-//		this.level = LEVEL_TIER[tier] + (int) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier]));
+//		this.level = LEVEL_TIER[getTier()] + (int) (Math.random()*(LEVEL_TIER[getTier() + 1]-LEVEL_TIER[getTier()]));
 //		this.exp = 0;
 //		this.next = (int) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
 //		
 //		baseAtk = 0;
 //		baseDef = 0;
 //		baseSpd = 2;
-//		for (int i = 0; i <= tier; i++) {
+//		for (int i = 0; i <= getTier(); i++) {
 //			if (ATK_TIER[i]) baseAtk++;
 //			if (DEF_TIER[i]) baseDef++;
 //			if (SPD_TIER[i]) baseSpd++;
@@ -167,18 +178,31 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 //		calcStats();
 //	}
 	
-	public void calcBonus() {
-		bonusAtk = 0;
-		bonusDef = 0;
-		bonusSpd = 0;
+	public int getBonusAtk() {
+		int bonusAtk = 0;
 		bonusAtk += weapon.atkMod;
-		bonusDef += weapon.defMod;
-		bonusSpd += weapon.spdMod;
 		for (Equipment e : equipment) {
 			bonusAtk += e.atkMod;
-			bonusDef += e.defMod;
-			bonusSpd += e.spdMod;
 		}
+		return bonusAtk;
+	}
+	
+	public int getBonusDef() {
+		int bonusAtk = 0;
+		bonusAtk += weapon.atkMod;
+		for (Equipment e : equipment) {
+			bonusAtk += e.atkMod;
+		}
+		return bonusAtk;
+	}
+	
+	public int getBonusSpd() {
+		int bonusAtk = 0;
+		bonusAtk += weapon.atkMod;
+		for (Equipment e : equipment) {
+			bonusAtk += e.atkMod;
+		}
+		return bonusAtk;
 	}
 	
 	public void calcStats() {
@@ -203,52 +227,43 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		next = (int) (LEVEL_FACTOR*next);
 		
 		if (level >= nextUpgrade) {
-			if (this.tier % 2 != 0) {
+			if (this.getTier() % 2 != 0) {
 				if (level == nextUpgrade && party.player)
-					BottomPanel.log(this.name + " ready for upgrade!", "green");
+					BottomPanel.log(this.getName() + " ready for upgrade!", "green");
 				canUpgrade = true;
 			}
 			else upgrade(null);
 		}
 		
-		calcBonus();
 		calcStats();
 	}
 
 	public boolean upgrade(Weapon upgrade) { // returns true if upgraded, false otherwise	
 		int cost;
-		if (upgrade != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.tier];
+		if (upgrade != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.getTier()];
 		else cost = 0;
 		
 		if (party.player) cost *= party.army.getCharacter().getAttributeFactor("Bargaining");
 		if (!(party.wealth - cost >= party.minWealth) && cost != 0) {
 			if (party.player)
-				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.name);
+				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.getName());
 			return false;
 		}
 		else {
 			party.wealth -= cost;
-			tier++;
 
 			if (upgrade != null) {// only if not upgrading to veteran
 				this.weapon = upgrade;
 			}
-			if (tier % 2 == 0) {
-				this.name = weapon.troopName;
-			}
-			else {
-				this.name = VETERAN + weapon.troopName;
-			}
 
-			this.nextUpgrade = LEVEL_TIER[tier + 1];
+			this.nextUpgrade = LEVEL_TIER[getTier() + 1];
 
-			if (ATK_TIER[tier]) baseAtk++;
-			if (DEF_TIER[tier]) baseDef++;
-			if (SPD_TIER[tier]) baseSpd++;
+			if (ATK_TIER[getTier()]) baseAtk++;
+			if (DEF_TIER[getTier()]) baseDef++;
+			if (SPD_TIER[getTier()]) baseSpd++;
 
 			this.canUpgrade = false;
 
-			calcBonus();
 			calcStats();
 			return true;
 		}
@@ -280,13 +295,13 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		return wounded;
 	}
 	public int getAtk() {
-		return baseAtk + bonusAtk;	
+		return baseAtk + getBonusAtk();	
 	}
 	public int getDef() {
-		return baseDef + bonusDef;	
+		return baseDef + getBonusDef();	
 	}
 	public int getSpd() {
-		return baseSpd + bonusSpd;	
+		return baseSpd + getBonusSpd();	
 	}
 	
 	public Equipment getHorse() {
@@ -330,7 +345,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	@Override
 	public int compareTo(Object thatObject) {
 		Soldier that = (Soldier) thatObject;
-		return this.name.compareTo(that.name);		
+		return this.getName().compareTo(that.getName());		
 //		if (this.name != that.level)
 //			return that.level - this.level;
 //		else return this.name.compareTo(that.name);

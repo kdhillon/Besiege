@@ -133,7 +133,7 @@ public class Party {
 	}
 	public void heal(Soldier soldier) {
 		healNoMessage(soldier);
-		if (player) BottomPanel.log(soldier.name + " healed", "blue");
+		if (player) BottomPanel.log(soldier.getName() + " healed", "blue");
 	}
 	public void healNoMessage(Soldier soldier) {
 		soldier.heal();
@@ -159,9 +159,9 @@ public class Party {
 		defTotal = 0;
 		spdTotal = 0;
 		for (Soldier s : healthy) {
-			atkTotal += s.baseAtk + s.bonusAtk;
-			defTotal += s.baseDef + s.bonusDef;
-			spdTotal += s.baseSpd + s.bonusSpd;
+			atkTotal += s.baseAtk + s.getBonusAtk();
+			defTotal += s.baseDef + s.getBonusDef();
+			spdTotal += s.baseSpd + s.getBonusSpd();
 		}
 		if (!player) minWealth = (int) (MIN_WEALTH_FACTOR*getTotalSize());
 		else minWealth = 0;
@@ -248,14 +248,14 @@ public class Party {
 		Array<String> names = new Array<String>();
 		Array<Array<Soldier>> consol = new Array<Array<Soldier>>();
 		for (Soldier s : arrSoldier) {
-			if (!names.contains(s.name, false)) {
-				names.add(s.name);
+			if (!names.contains(s.getName(), false)) {
+				names.add(s.getName());
 				Array<Soldier> type = new Array<Soldier>();
 				type.add(s);
 				consol.add(type);
 			}
 			else {
-				consol.get(names.indexOf(s.name, false)).add(s);
+				consol.get(names.indexOf(s.getName(), false)).add(s);
 			}
 		}
 		return consol;	

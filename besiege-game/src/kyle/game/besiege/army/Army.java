@@ -69,14 +69,14 @@ public class Army extends Actor implements Destination {
 	private String name;
 	private Faction faction;
 
-	private TextureRegion region;
+	transient private TextureRegion region;
 
 	private float speed;
 	public float speedFactor;
 	private float lineOfSight;
 
 	private PartyType partyType;
-	public Party party;
+	transient public Party party;
 
 	private int morale;
 	private int momentum; //changes with recent events

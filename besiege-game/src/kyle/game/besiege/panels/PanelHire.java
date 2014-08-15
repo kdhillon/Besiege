@@ -238,7 +238,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		soldierTable.add().colspan(2).width(SidePanel.WIDTH - PAD*2).padTop(0);
 		soldierTable.row();
 		for (Soldier s : toHire.getHealthy()) {
-			SoldierLabel name = new SoldierLabel(s.name, ls, s);
+			SoldierLabel name = new SoldierLabel(s.getName(), ls, s);
 			name.addListener(new ClickListener() {
 				@Override
 				public boolean touchDown(InputEvent event, float x,
@@ -270,27 +270,27 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		this.selected = s;
 
 		stats.setVisible(true);
-		nameS.setText(s.name + "");
+		nameS.setText(s.getName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.bonusAtk >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
+		if (s.getBonusAtk() >= 0)
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
 		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
-		if (s.bonusDef >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+		if (s.getBonusDef() >= 0)
+			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
 		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
-		if (s.bonusSpd >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
+			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+		if (s.getBonusSpd() >= 0)
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
 		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.weapon.name);
 		hireLabel.soldier = s;
 		int cost = s.getBuyCost();
 //		int cost = (int) (s.level*COST_FACTOR);
-		hireLabel.setText("Hire " + s.name + " (" + cost + ")");
+		hireLabel.setText("Hire " + s.getName() + " (" + cost + ")");
 	}
 
 	public void deselect() {
@@ -300,11 +300,11 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 	
 	public void hireSelected() {
 		if (location.hire(panel.getKingdom().getPlayer().getParty(), selected)) { // only if successfully hires
-			String name = selected.name;
+			String name = selected.getName();
 			BottomPanel.log("Hired " + name);
 			deselect();
 		}
-		else BottomPanel.log("Can't afford " + selected.name);
+		else BottomPanel.log("Can't afford " + selected.getName());
 	}
 	
 	public void hireAll() { //Fixed iterator problem
@@ -313,11 +313,11 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		soldiers.reverse(); // cheapest first!
 		for (Soldier s : soldiers) {
 			if (location.hire(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
-				String name = s.name;
+				String name = s.getName();
 				BottomPanel.log("Hired " + name);
 			}
 			else {
-				BottomPanel.log("Can't afford " + s.name);
+				BottomPanel.log("Can't afford " + s.getName());
 				break;
 			}
 		}

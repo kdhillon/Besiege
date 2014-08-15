@@ -339,7 +339,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	// this method is evil don't call this frequently
 	public static void updateTableWithTypes(Table table, Array<Array<Soldier>> types, LabelStyle style) {
 		for (Array<Soldier> type : types) {
-			Label name = new Label(type.first().name, style);
+			Label name = new Label(type.first().getName(), style);
 			table.add(name).left();
 			Label count = new Label(type.size + "", style);
 			table.add(count).right();
@@ -349,7 +349,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	
 	public static void updateTableWithSoldiers(Table table, Array<Soldier> soldiers, LabelStyle style) {
 		for (Soldier s : soldiers) {
-			SoldierLabel name = new SoldierLabel(s.name, style, s);
+			SoldierLabel name = new SoldierLabel(s.getName(), style, s);
 			name.addListener(new ClickListener() {
 				public void enter(InputEvent event, float x,
 						float y, int pointer, Actor fromActor) {
@@ -369,22 +369,22 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
-		nameS.setText(s.name + "");
+		nameS.setText(s.getName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.bonusAtk >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
+		if (s.getBonusAtk() >= 0)
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
 		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
-		if (s.bonusDef >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
+			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+		if (s.getBonusDef() >= 0)
+			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
 		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
-		if (s.bonusSpd >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
+			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+		if (s.getBonusSpd() >= 0)
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
 		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
+			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.weapon.name);
 	}
 	

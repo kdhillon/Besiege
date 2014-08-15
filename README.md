@@ -123,7 +123,9 @@ allow joining battles
 
 MAP:
 now:
-see if faction staticness is preventing saving
+finish saving map
+use hacky saving where you actually only save armies near the player and only nobles
+try simple LOS speed up (if outside of los, don't do anything!)
 add garrison repairing
 add cancelling and reforming of sieges
 

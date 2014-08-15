@@ -24,9 +24,9 @@ public class Center {
 
     public int index;
     public PointH loc;
-    public ArrayList<Corner> corners = new ArrayList();//good
-    public ArrayList<Center> neighbors = new ArrayList();//good
-    public ArrayList<Edge> borders = new ArrayList();
+    public ArrayList<Corner> corners = new ArrayList<Corner>();//good
+    transient public ArrayList<Center> neighbors = new ArrayList<Center>();//good
+    transient public ArrayList<Edge> borders = new ArrayList<Edge>();
     public Array<Army> armies; // armies within this polygon
     public Polygon polygon;
     public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
@@ -36,7 +36,7 @@ public class Center {
     public double moisture;
     public Biomes biome;
     public double area;
-    transient public Faction faction; // controlling faction
+    public Faction faction; // controlling faction
     
     public Center() {
     	armies = new Array<Army>();

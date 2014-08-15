@@ -273,7 +273,8 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 
 		text.add(upgrades).colspan(4).padTop(PAD);
 
-		select(upgradable.first());
+		if (upgradable.size > 0)
+			select(upgradable.first());
 		
 		this.addTopTable(text);
 
@@ -318,7 +319,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		soldierTable.add().colspan(2).width(SidePanel.WIDTH - PAD*2).padTop(0);
 		soldierTable.row();
 		for (Soldier s : upgradable) {
-			SoldierLabel name = new SoldierLabel(s.name, ls, s);
+			SoldierLabel name = new SoldierLabel(s.getName(), ls, s);
 
 			if (selected == s) name.setColor(Color.YELLOW);
 			//else name.setColor(Color.DARK_GRAY);
@@ -358,15 +359,15 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	public void select(Soldier s) {
 		this.selected = s;
 
-		nameS.setText(s.name);
+		nameS.setText(s.getName());
 
-		upgradeS.setText("Tier " + ((s.tier)/2) + "  ->  Tier " + ((s.tier + 1)/2));
+		upgradeS.setText("Tier " + ((s.getTier())/2) + "  ->  Tier " + ((s.getTier() + 1)/2));
 		String naturalUp = "";
-		if (Soldier.ATK_TIER[s.tier+1])
+		if (Soldier.ATK_TIER[s.getTier()+1])
 			naturalUp += "+1 atk";
-		if (Soldier.DEF_TIER[s.tier+1])
+		if (Soldier.DEF_TIER[s.getTier()+1])
 			naturalUp += "+1 def";
-		if (Soldier.SPD_TIER[s.tier+1])
+		if (Soldier.SPD_TIER[s.getTier()+1])
 			naturalUp += "+1 spd";
 		naturalS.setText(naturalUp);
 		equippedS.setText(s.weapon.name);
@@ -486,9 +487,9 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 
 	private void upgradeCurrent(Weapon weapon) {
 		//int index = party.getUpgradable().indexOf(selected, true);
-		String first = selected.name;
+		String first = selected.getName();
 		if (selected.upgrade(weapon)) { // only if successfully upgrades
-			String next = selected.name;
+			String next = selected.getName();
 			BottomPanel.log(first + " upgraded to " + next);
 			Soldier prev_selected = selected;
 			selectNext();

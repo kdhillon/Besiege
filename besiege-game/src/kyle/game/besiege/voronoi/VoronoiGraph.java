@@ -41,9 +41,9 @@ public class VoronoiGraph {
 	private static final double LAND_FREQ = .43; // increase for overall land mass (sensitive) (~.4)
 	private static final double TURBULENCE = 4; // (~5)
 
-    final public ArrayList<Edge> edges = new ArrayList();
-    final public ArrayList<Corner> corners = new ArrayList();
-    final public ArrayList<Center> centers = new ArrayList();
+    final public ArrayList<Edge> edges = new ArrayList<Edge>();
+    final public ArrayList<Corner> corners = new ArrayList<Corner>();
+    final public ArrayList<Center> centers = new ArrayList<Center>();
     final public Rectangle bounds;
     final private MyRandom r;
     final private PerlinNoiseGenerator perlin;

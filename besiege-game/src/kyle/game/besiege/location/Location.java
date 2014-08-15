@@ -45,7 +45,7 @@ public class Location extends Actor implements Destination {
 	protected int POP_MIN;
 	protected int POP_MAX;
 	
-	private TextureRegion region;
+	transient private TextureRegion region;
 	public enum LocationType {CITY, CASTLE, VILLAGE};
 	public LocationType type;
 
@@ -637,8 +637,8 @@ public class Location extends Actor implements Destination {
 	}
 	public boolean hire(Party party, Soldier s) { // returns true if hired successfully, false if not (not enough money?)
 		if (toHire.getHealthy().contains(s, true)) {
-			if (party.wealth - Weapon.TIER_COST[s.tier] >= party.minWealth) {
-				party.wealth -= Weapon.TIER_COST[s.tier];
+			if (party.wealth - Weapon.TIER_COST[s.getTier()] >= party.minWealth) {
+				party.wealth -= Weapon.TIER_COST[s.getTier()];
 				toHire.removeSoldier(s);
 				party.addSoldier(s);
 				s.party = party;
