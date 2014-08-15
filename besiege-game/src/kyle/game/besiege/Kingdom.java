@@ -585,7 +585,7 @@ public class Kingdom extends Group {
 		//add.postAdd();
 	}
 	public void addPlayer() {
-		Faction faction = Faction.factions.random();
+		Faction faction = Faction.factions.get(2);
 		Center center = map.reference;
 		
 		int pos_x = (int) map.reference.loc.x;

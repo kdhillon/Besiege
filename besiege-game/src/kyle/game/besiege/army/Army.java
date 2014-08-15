@@ -65,9 +65,9 @@ public class Army extends Actor implements Destination {
 	
 	protected int wealthFactor = 1; // set in children
 
-	private Kingdom kingdom; // parent actor, kingdom
+	transient private Kingdom kingdom; // parent actor, kingdom
 	private String name;
-	private Faction faction;
+	transient private Faction faction;
 
 	private TextureRegion region;
 
@@ -106,13 +106,13 @@ public class Army extends Actor implements Destination {
 	private Destination defaultTarget;
 	//	private Location defaultTarget;
 	protected Stack<Destination> targetStack;
-	public Path path;
+	transient public Path path;
 	protected Army runFrom;
 //	public Destination runTo; // use for running
 	public Array<Army> targetOf; // armies that have this army as a target
-	public Center containing;
+	transient public Center containing;
 	public Array<Army> closeArmies;
-	public Array<Center> closeCenters; 
+	transient public Array<Center> closeCenters; 
 	
 	private float timeSinceRunFrom = 0;
 
@@ -1322,16 +1322,19 @@ public class Army extends Actor implements Destination {
 	public void nullify() {
 		this.remove();
 //		this.path.map = null;
-		
+//		this.kingdom = null;
 		//for now nullify path
-		this.path = null;
+//		this.path = null;
+		//this.faction = null;
 		
-		this.closeCenters.clear();
-		this.containing = null;
+//		this.closeCenters.clear();
+		//this.containing = null;
 	}
 	public void restore(Kingdom kingdom) {
 		kingdom.addActor(this);
-		this.path = new Path(this);
-		this.path.map = kingdom.getMap();
+//		this.kingdom = kingdom;
+//		this.path = new Path(this);
+//		this.path.map = kingdom.getMap();
+//		this.faction = Faction.BANDITS_FACTION;
 	}
 }
