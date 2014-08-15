@@ -95,6 +95,8 @@ public class Faction {
 		closeFriendlyLocations = new Array<Location>();
 		locationsToAttack = new Array<Location>();
 		timeSinceIncrease = 0;
+		faction_center_x = 0;
+		faction_center_y = 0;
 	}
 
 	public static void initializeFactions(Kingdom kingdom) {
@@ -311,6 +313,10 @@ public class Faction {
 			hasChecked = true;
 		}
 		else if (Kingdom.getTotalHour() % CHECK_FREQ != 0) hasChecked = false;
+	}
+	
+	public boolean hasNewCenter() {
+		return (this.faction_center_x != 0 || this.faction_center_y != 0);
 	}
 	
 	// reallocate nobles from this city if it's taken by an enemy

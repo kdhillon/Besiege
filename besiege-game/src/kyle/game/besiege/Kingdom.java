@@ -473,6 +473,14 @@ public class Kingdom extends Group {
 				}
 				int index = -1;
 			}
+			
+			for (Faction faction : Faction.factions) {
+				if (!faction.hasNewCenter()) {
+					faction.faction_center_x = x;
+					faction.faction_center_y = Map.HEIGHT-y;
+				}
+			}
+			
 			// calculate the closest faction center
 			double closestDistance = 99999999;
 			Faction closestFaction = null;
