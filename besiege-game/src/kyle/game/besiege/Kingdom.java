@@ -101,7 +101,7 @@ public class Kingdom extends Group {
 
 		Faction.initializeFactions(this);
 
-		assignFactionCenters();
+//		assignFactionCenters();
 		
 		initializeCities();
 		initializeVillages();
@@ -387,12 +387,12 @@ public class Kingdom extends Group {
 		addActor(newCity);
 	}
 
-	public void assignFactionCenters() {
-		for (Faction faction : Faction.factions) {
-			faction.faction_center_x = (int) (Math.random() * Map.WIDTH);
-			faction.faction_center_y = (int) (Math.random() * Map.HEIGHT);
-		}
-	}
+//	public void assignFactionCenters() {
+//		for (Faction faction : Faction.factions) {
+//			faction.faction_center_x = (int) (Math.random() * Map.WIDTH);
+//			faction.faction_center_y = (int) (Math.random() * Map.HEIGHT);
+//		}
+//	}
 	
 	public void initializeCities() {	
 		Array<String> cityArray = Assets.cityArray;
@@ -474,19 +474,20 @@ public class Kingdom extends Group {
 				int index = -1;
 			}
 			
-			for (Faction faction : Faction.factions) {
-				if (!faction.hasNewCenter()) {
-					faction.faction_center_x = x;
-					faction.faction_center_y = Map.HEIGHT-y;
-				}
-			}
-			
 			// calculate the closest faction center
 			double closestDistance = 99999999;
 			Faction closestFaction = null;
 			for (Faction f : Faction.factions) {
 				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
 				if (f == null) continue;
+				
+				if (!f.hasNewCenter()) {
+					f.faction_center_x = x;
+					f.faction_center_y = Map.HEIGHT-y;
+					closestFaction = f;
+					break;
+				}
+				
 				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, Map.HEIGHT-y));
 				if (distance < closestDistance) {
 					closestFaction = f;
