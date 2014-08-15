@@ -5,6 +5,7 @@
  ******************************************************************************/
 package kyle.game.besiege.party;
 
+import kyle.game.besiege.army.Army;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.Character;
