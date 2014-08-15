@@ -839,4 +839,17 @@ public class Location extends Actor implements Destination {
 	public float getDefenseFactor() {
 		return 1.5f; //TODO
 	}
+	// prepare this for saving (separate from map)
+	public void nullify() {
+		this.kingdom = null;
+		this.center = null;
+		this.corner = null;
+		this.remove();
+	}
+	public void restore(Kingdom kingdom) {
+		this.kingdom = kingdom;
+		this.center = null;
+		this.corner = null;
+		kingdom.addActor(this);
+	}
 }

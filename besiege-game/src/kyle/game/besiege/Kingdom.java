@@ -629,6 +629,15 @@ public class Kingdom extends Group {
 		this.addArmy(bandit);
 		banditCount++;
 	}
+	
+	public Array<Location> getAllLocationsCopy() {
+		Array<Location> locations = new Array<Location>();
+		locations.addAll(cities);
+		locations.addAll(castles);
+		locations.addAll(villages);
+		return locations;
+	}
+	
 	public void removeArmy(Army remove) {
 //		System.out.println("removing " + remove.getName());
 //		if (remove.getParty().player) System.out.println("kingdom removing player");

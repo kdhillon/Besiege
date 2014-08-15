@@ -12,6 +12,7 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.Path;
 import kyle.game.besiege.Point;
 import kyle.game.besiege.Siege;
@@ -1313,5 +1314,21 @@ public class Army extends Actor implements Destination {
 	}
 	public kyle.game.besiege.Character getCharacter() {
 		return getKingdom().getMapScreen().getCharacter();
+	}
+	// prepares this object for saving, removing unnecessary references
+	public void nullify() {
+		this.remove();
+//		this.path.map = null;
+		
+		//for now nullify path
+		this.path = null;
+		
+		this.closeCenters.clear();
+		this.containing = null;
+	}
+	public void restore(Kingdom kingdom) {
+		kingdom.addActor(this);
+		this.path = new Path(this);
+		this.path.map = kingdom.getMap();
 	}
 }

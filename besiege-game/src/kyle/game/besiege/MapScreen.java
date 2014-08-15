@@ -619,26 +619,41 @@ public class MapScreen implements Screen {
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
 		
+				
+//		Path tempPath = kingdom.getPlayer().path;
+//		kingdom.getPlayer().path = null;
+//		kingdom.getPlayer().targetOf = null;
+//		kingdom.getPlayer().containing = null;
+//		kingdom.getPlayer().closeArmies = null;
+//		kingdom.getPlayer().closeCenters = null;
+//		kingdom.getPlayer().remove();
 		
-		this.kingdom.removeActor(kingdom.getPlayer());
 		
-		Path tempPath = kingdom.getPlayer().path;
-		kingdom.getPlayer().path = null;
-		kingdom.getPlayer().targetOf = null;
-		kingdom.getPlayer().containing = null;
-		kingdom.getPlayer().closeArmies = null;
-		kingdom.getPlayer().closeCenters = null;
-//		kingdom.getPlayer().party = null;
-		kingdom.getPlayer().remove();
+		// try nullifying all map references from armies
+		for (Army army : kingdom.getArmies()) {
+			army.nullify();
+		}
+		Array<Location> locations = kingdom.getAllLocationsCopy();
+		for (Location location : locations) {
+			location.nullify();
+		}
 		
 		kryo.writeObject(output, new Date());
 		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
 		kryo.writeObjectOrNull(output, this.kingdom.getPlayer(), this.kingdom.getPlayer().getClass());
 
 		output.close();
+		
+		for (Army army : kingdom.getArmies()) {
+			army.restore(kingdom);
+		}
+		
+		for (Location location : locations) {
+			location.restore(kingdom);
+		}
 
-		kingdom.addActor(kingdom.getPlayer());
-		kingdom.getPlayer().path = tempPath;
+//		kingdom.addActor(kingdom.getPlayer());
+//		kingdom.getPlayer().path = tempPath;
 
 		System.out.println("SAVE SUCCESSFUL");
 	}
