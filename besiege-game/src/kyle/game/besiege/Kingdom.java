@@ -59,6 +59,10 @@ public class Kingdom extends Group {
 
 	private Map map;
 	private MapScreen mapScreen;
+	public Array<Faction> factions;
+	private int factionCount;
+	public Array<Array<Integer>> factionRelations; // should break into multiple arrays
+	
 	private Array<Army> armies;
 	public Array<City> cities;
 	public Array<Castle> castles;
@@ -99,7 +103,7 @@ public class Kingdom extends Group {
 		villages = new Array<Village>();
 		battles = new Array<Battle>();
 
-		Faction.initializeFactions(this);
+		initializeFactions(this);
 
 //		assignFactionCenters();
 		
@@ -108,7 +112,7 @@ public class Kingdom extends Group {
 		initializeCastles();
 		
 		
-		Faction.initializeFactionCityInfo();
+		initializeFactionCityInfo();
 
 		for (int i = 0; i < cities.size; i++)
 			cities.get(i).findCloseLocations();
@@ -132,7 +136,7 @@ public class Kingdom extends Group {
 			super.act(delta);
 
 			manageBandits();
-			Faction.factionAct(delta);
+			factionAct(delta);
 		}
 		if (leftClicked) leftClicked = false;
 		if (rightClicked) rightClicked = false;
@@ -380,6 +384,257 @@ public class Kingdom extends Group {
 			c.drawText(batch);
 	}
 
+	public void initializeFactions(Kingdom kingdom) {
+		factions = new Array<Faction>();
+
+		factionRelations = new Array<Array<Integer>>();
+		//		factionMilitaryAction = new Array<Array<Integer>>();
+
+		// add player faction (index 0) 
+		
+		Faction.BANDITS_FACTION = new Faction(this, "Bandits", "crestBandits", Color.BLACK);
+		Faction.PLAYER_FACTION = new Faction(this,"Rogue", "crestBlank", Color.WHITE);
+		
+		createFaction(Faction.PLAYER_FACTION);
+		// add bandits faction (index 1)
+		createFaction(Faction.BANDITS_FACTION);	
+
+		createFaction("Geinever", "crestWhiteLion", Color.DARK_GRAY);
+		createFaction("Weyvel", "crestGreenTree", Faction.OLIVE);
+		createFaction("Rolade", "crestOrangeCross", Faction.BROWN);
+		createFaction("Myrnfar", "crestYellowStar", Faction.TAN);
+		createFaction("Corson", "crestRedCross", Faction.RED);
+		createFaction("Selven", "crestGreenStripe", Faction.GREEN);
+		createFaction("Halmera", "crestBlueRose", Faction.BLUE);
+
+		createFaction("Fernel", "crestRedAxe", Color.LIGHT_GRAY);
+	//	createFaction("Draekal", "crestBlank", Color.BLACK);
+
+		for (Faction f : factions) {
+			f.kingdom = kingdom;
+		}
+
+		factions.get(2).declareWar(factions.get(3));
+
+		//		factionRelations = new int[factionCount][factionCount];
+		for (int i = 0; i < factionCount; i++) {
+			for (int j = 0; j < factionCount; j++) {
+				//				factionRelations[i][j] = -30;
+				factionRelations.get(i).set(j, -30);
+				factionRelations.get(j).set(i, -30);
+			}
+		}
+		for (int i = 0; i < factionCount; i++) {
+			//			factionRelations[i][i] = 100;
+			factionRelations.get(i).set(i, 100);
+		}
+	}
+	
+	public void factionAct(float delta) {
+		factions.shrink();
+		for (int i = 0; i < factions.size; i++)
+			factions.get(i).act(delta);
+	}
+	public void createFaction(String name, String textureRegion, Color color) {
+		Faction faction = new Faction(this, name, textureRegion, color);
+		factions.add(faction);
+		faction.index = factions.indexOf(faction, true);
+		for (int i = 0; i < factions.size; i++) {
+			//			factionRelations[faction.index][i] = 0; // resets faction relations
+			//			factionRelations[i][faction.index] = 0;
+			if (factionRelations.size <= faction.index)
+				factionRelations.add(new Array<Integer>());
+
+			if (factionRelations.get(i).size <= faction.index)
+				factionRelations.get(i).add(0);
+			else factionRelations.get(i).set(faction.index, 0);
+
+			if (factionRelations.get(faction.index).size <= i)
+				factionRelations.get(faction.index).add(0);
+			else factionRelations.get(faction.index).set(i, 0);
+		}
+		if (faction.index >= 1) {
+			faction.declareWar(Faction.BANDITS_FACTION);
+		}
+	}
+	public void createFaction(Faction faction) {
+		factions.add(faction);
+		faction.index = factions.indexOf(faction, true);
+		for (int i = 0; i < factions.size; i++) {
+			//			factionRelations[faction.index][i] = 0; // resets faction relations
+			//			factionRelations[i][faction.index] = 0;
+			if (factionRelations.size <= faction.index)
+				factionRelations.add(new Array<Integer>());
+
+			if (factionRelations.get(i).size <= faction.index)
+				factionRelations.get(i).add(0);
+			else factionRelations.get(i).set(faction.index, 0);
+
+			if (factionRelations.get(faction.index).size <= i)
+				factionRelations.get(faction.index).add(0);
+			else factionRelations.get(faction.index).set(i, 0);
+		}
+		if (faction.index >= 1) {
+			faction.declareWar(Faction.BANDITS_FACTION);
+		}
+	}
+	
+	
+	/** Initialize each faction's list of hostile cities, faction control map 
+	 *  of centers, and village control. 
+	 */
+	public void initializeFactionCityInfo() {
+		System.out.println("initializing faction city info");
+		for (Faction f : factions) { 
+			f.initializeCloseLocations();
+			f.centers.clear();
+		}
+		// update each faction's centers
+		updateFactionCenters();
+	}
+	/** Update each faction's list of hostile cities, faction control map 
+	 *  of centers, and village control. 
+	 */
+	public void updateFactionCityInfo() {
+		System.out.println("updating faction city info");
+		for (Faction f : factions) { 
+			f.updateCloseLocations();
+			f.centers.clear();
+		}
+		updateFactionCenters();
+	}
+	
+	/** updates faction centers and village factions
+	 */
+	private void updateFactionCenters() {
+		// update each faction's centers
+		for (Center c : getMap().connected) calcInfluence(c);
+		getMap().calcBorderEdges();
+		for (Faction f : factions) {
+			f.territory.clear();
+			Array<Array<Center>> aaCenters = Map.calcConnectedCenters(f.centers);				
+			for (Array<Center> centers : aaCenters) {
+				//				System.out.println("working");
+				
+				f.territory.add(Map.centersToPolygon(centers));
+			}
+		}
+		for (Village v : villages) {
+			v.changeFaction(getInfluenceAt(v.center));
+		}
+	}
+
+	/**
+	 * figures out which faction has the most influence on this center,
+	 * and adds it to that faction's "centers" array
+	 * @param center
+	 */
+	private void calcInfluence(Center center) {
+		Point centerPoint = new Point(center.loc.x, Map.HEIGHT - center.loc.y);
+		Faction bestFaction = null;
+		double bestScore = 0;
+
+		// go through factions and calc influence, saving it if it's the highest
+		for (Faction faction : factions) {
+			double score = 0; // score is inverse of city distance
+			for (City city : faction.cities) {
+				double dist = Kingdom.distBetween(city, centerPoint);
+				score += 1/dist;
+			}
+			for (Castle castle : faction.castles) {
+				double dist = Kingdom.distBetween(castle, centerPoint);
+				score += 1/dist;
+			}
+			if (score > bestScore) {
+				bestScore = score;
+				bestFaction = faction;
+			}
+		}
+
+		if (bestFaction != null) {
+			bestFaction.centers.add(center);
+			center.faction = bestFaction;
+		}
+	}
+
+	public Faction getInfluenceAt(Center center) {
+		for (Faction f : factions) {
+			if (f.centers.contains(center, true)) return f;
+		}
+
+		System.out.println("no one controls that center");
+		return null;
+	}
+
+	public int getRelations(Faction faction1, Faction faction2) {
+		return factionRelations.get(faction1.index).get(faction2.index);
+	}
+	
+	/** return whether or not these two factions are at war. 
+	 * note that the same faction can't be at war with itself.
+	 * @param faction1
+	 * @param faction2
+	 * @return
+	 */
+	public boolean isAtWar(Faction faction1, Faction faction2) {
+		if (faction1 == faction2) return false;
+		return (getRelations(faction1, faction2) < Faction.WAR_THRESHOLD);
+	}
+	public void setAtWar(Faction faction1, Faction faction2) {
+		//		factionRelations[faction1][faction2] = WAR_THRESHOLD-1;
+		//		factionRelations[faction2][faction1] = WAR_THRESHOLD-1;
+		factionRelations.get(faction1.index).set(faction2.index, Faction.INIT_WAR_RELATION);
+		factionRelations.get(faction2.index).set(faction1.index, Faction.INIT_WAR_RELATION);
+	}
+	public void setNeutral(Faction faction1, Faction faction2) {
+		factionRelations.get(faction1.index).set(faction2.index, 0);
+		factionRelations.get(faction2.index).set(faction1.index, 0);
+
+		//		factionRelations[faction1][faction2] = 0;
+		//		factionRelations[faction2][faction1] = 0;
+	}
+
+	public void makePeace(Faction faction1, Faction faction2) {
+		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have signed a peace agreement!", "magenta");
+		setNeutral(faction1, faction2);
+	}
+	public void declareWar(Faction faction1, Faction faction2) {
+		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
+		setAtWar(faction1, faction2);
+	}
+
+	public void changeRelation(Faction faction1, Faction faction2, int delta) {
+		int initialRelation = factionRelations.get(faction1.index).get(faction2.index);
+		int newRelation;
+		if (initialRelation + delta >= Faction.MAX_RELATION) newRelation = Faction.MAX_RELATION;
+		else if (initialRelation + delta <= Faction.MIN_RELATION) newRelation = Faction.MIN_RELATION;
+		else newRelation = initialRelation + delta;
+		if (initialRelation >= Faction.WAR_THRESHOLD && newRelation < Faction.WAR_THRESHOLD) ;
+		//			BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
+		else if (initialRelation < Faction.WAR_THRESHOLD && newRelation >= Faction.WAR_THRESHOLD) 
+			makePeace(faction1, faction2);
+		factionRelations.get(faction1.index).set(faction2.index, newRelation);
+	}
+
+	//	public static void calcAllRelations() {
+	//		for (Faction f : factions) { 
+	//			for (int i = 0; i < factions.size; i++) {
+	//				int base = 0;
+	////				base += factionMilitaryAction.get(f.index).get(i); // Military actions
+	//				base += f.getCloseCityEffect(factions.get(i));	   // Borders
+	//				base += factions.get(i).getCloseCityEffect(f);	   // (Borders is 2-way)
+	//				factionRelations.get(i).set(f.index, base); 	   // can make more efficient
+	//				factionRelations.get(f.index).set(i, base);
+	//			}
+	//		}
+	//	}
+
+	public Faction get(int index) {
+		return factions.get(index);
+	}
+	
+	
+	
 	public void addCity(City newCity) {
 		cities.add(newCity);
 		newCity.getFaction().createNobleAt(newCity);
@@ -477,7 +732,7 @@ public class Kingdom extends Group {
 			// calculate the closest faction center
 			double closestDistance = 99999999;
 			Faction closestFaction = null;
-			for (Faction f : Faction.factions) {
+			for (Faction f : factions) {
 				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
 				if (f == null) continue;
 				
@@ -557,7 +812,7 @@ public class Kingdom extends Group {
 			
 			double closestDistance = Double.MAX_VALUE;
 			Faction closestFaction = null;
-			for (Faction f : Faction.factions) {
+			for (Faction f : factions) {
 				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
 				if (f == null) continue;
 				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
@@ -585,7 +840,7 @@ public class Kingdom extends Group {
 		//add.postAdd();
 	}
 	public void addPlayer() {
-		Faction faction = Faction.factions.get(2);
+		Faction faction = factions.get(2);
 		Center center = map.reference;
 		
 		int pos_x = (int) map.reference.loc.x;

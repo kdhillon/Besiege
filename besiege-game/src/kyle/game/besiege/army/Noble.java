@@ -142,7 +142,7 @@ public class Noble extends Army {
 		// make sure not going to enemy city - weird glitch
 		else {
 //			System.out.println(getName() + " has path");
-			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && Faction.isAtWar(this.path.nextGoal.getFaction(), this.getFaction()))
+			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && getKingdom().isAtWar(this.path.nextGoal.getFaction(), this.getFaction()))
 				goToNewTarget();
 		}
 	}

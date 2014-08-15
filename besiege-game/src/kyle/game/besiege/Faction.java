@@ -22,9 +22,29 @@ import com.badlogic.gdx.utils.Array;
 public class Faction {
 	public static final int INCREASE_INTERVAL = 10; // every these seconds, relations will increase btw these factions
 	public static final int CLOSE_CITY_FACTOR = 10; // this times num of close cities of one faction will decrease the relation with that faction
-	public static Kingdom kingdom;
-	private final int CHECK_FREQ = 5; // how frequently this manages stuff
-	private final float ORDER_FACTOR = .9f; // what percent of nobles will be ordered to besiege a city
+	private static final int CHECK_FREQ = 5; // how frequently this manages stuff
+	private static final float ORDER_FACTOR = .9f; // what percent of nobles will be ordered to besiege a city
+	public static final int MAX_RELATION = 100;
+	public static final int MIN_RELATION = -100;
+	public static final int INIT_WAR_RELATION = -40; //when war is declared, this is the relation you will have
+//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
+	public static final int WAR_THRESHOLD = 10; //cross this and you're at war
+
+	public static Faction BANDITS_FACTION;
+	public static Faction PLAYER_FACTION;
+	
+	public static final Color BROWN = new Color(184/256.0f, 119/256.0f, 25/256.0f, 1);
+	public static final Color OLIVE = new Color(107/256.0f, 138/256.0f, 48/256.0f, 1);
+	public static final Color RED = new Color(148/256.0f, 34/256.0f, 22/256.0f, 1);
+	public static final Color MAGENTA = new Color(122/256.0f, 41/256.0f, 83/256.0f, 1);
+	public static final Color BLUE = new Color(53/256.0f, 128/256.0f, 144/256.0f, 1);
+	public static final Color TAN = new Color(176/256.0f, 169/256.0f, 57/256.0f, 1);
+	public static final Color PURPLE = new Color(73/256.0f, 54/256.0f, 158/256.0f, 1);
+	public static final Color TEAL = new Color(57/256.0f, 170/256.0f, 115/256.0f, 1);
+	public static final Color GREEN = new Color(41/256.0f, 72/256.0f, 33/256.0f, 1);
+	
+	transient public Kingdom kingdom;
+
 	public int index; // for keeping track of relations
 	public String name; 
 	public TextureRegion crest;
@@ -50,34 +70,12 @@ public class Faction {
 	
 	private final int NOBLE_COUNT = 5; //TODO
 
-	public static final int MAX_RELATION = 100;
-	public static final int MIN_RELATION = -100;
-	public static final int INIT_WAR_RELATION = -40; //when war is declared, this is the relation you will have
-//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
-	private final static int WAR_THRESHOLD = 10; //cross this and you're at war
-
-	public static Array<Faction> factions;
-	public static final Faction BANDITS_FACTION = new Faction("Bandits", "crestBandits", Color.BLACK);
-	public static final Faction PLAYER_FACTION = new Faction("Rogue", "crestBlank", Color.WHITE);
-	
-	public static final Color BROWN = new Color(184/256.0f, 119/256.0f, 25/256.0f, 1);
-	public static final Color OLIVE = new Color(107/256.0f, 138/256.0f, 48/256.0f, 1);
-	public static final Color RED = new Color(148/256.0f, 34/256.0f, 22/256.0f, 1);
-	public static final Color MAGENTA = new Color(122/256.0f, 41/256.0f, 83/256.0f, 1);
-	public static final Color BLUE = new Color(53/256.0f, 128/256.0f, 144/256.0f, 1);
-	public static final Color TAN = new Color(176/256.0f, 169/256.0f, 57/256.0f, 1);
-	public static final Color PURPLE = new Color(73/256.0f, 54/256.0f, 158/256.0f, 1);
-	public static final Color TEAL = new Color(57/256.0f, 170/256.0f, 115/256.0f, 1);
-	public static final Color GREEN = new Color(41/256.0f, 72/256.0f, 33/256.0f, 1);
-
-	private  static int factionCount;
-
-	private static Array<Array<Integer>> factionRelations; // should break into multiple arrays
 	//	private static Array<Array<Integer>> factionMilitaryAction; // is this worth it?
 	//	private static Array<Array<Integer>> factionNearbyCities; // not needed, calced in real time?
 	//	private static Array<Array<Integer>> factionTrade;
 
-	public Faction(String name, String textureRegion, Color color) {
+	public Faction(Kingdom kingdom, String name, String textureRegion, Color color) {
+		this.kingdom = kingdom;
 		this.name = name;
 		crest = Assets.atlas.findRegion(textureRegion);
 		this.color = color;
@@ -99,193 +97,14 @@ public class Faction {
 		faction_center_y = 0;
 	}
 
-	public static void initializeFactions(Kingdom kingdom) {
-		factions = new Array<Faction>();
-
-		factionRelations = new Array<Array<Integer>>();
-		//		factionMilitaryAction = new Array<Array<Integer>>();
-
-		// add player faction (index 0) 
-		createFaction(PLAYER_FACTION);
-
-		// add bandits faction (index 1)
-		createFaction(BANDITS_FACTION);	
-
-		createFaction("Geinever", "crestWhiteLion", Color.DARK_GRAY);
-		createFaction("Weyvel", "crestGreenTree", OLIVE);
-		createFaction("Rolade", "crestOrangeCross", BROWN);
-		createFaction("Myrnfar", "crestYellowStar", TAN);
-		createFaction("Corson", "crestRedCross", RED);
-		createFaction("Selven", "crestGreenStripe", GREEN);
-		createFaction("Halmera", "crestBlueRose", BLUE);
-
-		createFaction("Fernel", "crestRedAxe", Color.LIGHT_GRAY);
-	//	createFaction("Draekal", "crestBlank", Color.BLACK);
-
-		for (Faction f : factions) {
-			f.kingdom = kingdom;
-		}
-
-		factions.get(2).declareWar(factions.get(3));
-
-		//		factionRelations = new int[factionCount][factionCount];
-		for (int i = 0; i < factionCount; i++) {
-			for (int j = 0; j < factionCount; j++) {
-				//				factionRelations[i][j] = -30;
-				factionRelations.get(i).set(j, -30);
-				factionRelations.get(j).set(i, -30);
-			}
-		}
-		for (int i = 0; i < factionCount; i++) {
-			//			factionRelations[i][i] = 100;
-			factionRelations.get(i).set(i, 100);
-		}
-	}
-
-	public static void factionAct(float delta) {
-		factions.shrink();
-		for (int i = 0; i < factions.size; i++)
-			factions.get(i).act(delta);
-	}
-	public static void createFaction(String name, String textureRegion, Color color) {
-		Faction faction = new Faction(name, textureRegion, color);
-		factions.add(faction);
-		faction.index = factions.indexOf(faction, true);
-		for (int i = 0; i < factions.size; i++) {
-			//			factionRelations[faction.index][i] = 0; // resets faction relations
-			//			factionRelations[i][faction.index] = 0;
-			if (factionRelations.size <= faction.index)
-				factionRelations.add(new Array<Integer>());
-
-			if (factionRelations.get(i).size <= faction.index)
-				factionRelations.get(i).add(0);
-			else factionRelations.get(i).set(faction.index, 0);
-
-			if (factionRelations.get(faction.index).size <= i)
-				factionRelations.get(faction.index).add(0);
-			else factionRelations.get(faction.index).set(i, 0);
-		}
-		if (faction.index >= 1) {
-			faction.declareWar(BANDITS_FACTION);
-		}
-	}
-	public static void createFaction(Faction faction) {
-		factions.add(faction);
-		faction.index = factions.indexOf(faction, true);
-		for (int i = 0; i < factions.size; i++) {
-			//			factionRelations[faction.index][i] = 0; // resets faction relations
-			//			factionRelations[i][faction.index] = 0;
-			if (factionRelations.size <= faction.index)
-				factionRelations.add(new Array<Integer>());
-
-			if (factionRelations.get(i).size <= faction.index)
-				factionRelations.get(i).add(0);
-			else factionRelations.get(i).set(faction.index, 0);
-
-			if (factionRelations.get(faction.index).size <= i)
-				factionRelations.get(faction.index).add(0);
-			else factionRelations.get(faction.index).set(i, 0);
-		}
-		if (faction.index >= 1) {
-			faction.declareWar(BANDITS_FACTION);
-		}
-	}
-
 	public void removeFaction(Faction faction) {
-		factions.removeValue(faction, true);
-		for (int i = 0; i < factions.size; i++) {
+		kingdom.factions.removeValue(faction, true);
+		for (int i = 0; i < kingdom.factions.size; i++) {
 			//			factionRelations[faction.index][i] = -999; // 'deletes' faction relations
 			//			factionRelations[i][faction.index] = -999;
-			factionRelations.get(i).set(faction.index, null);
-			factionRelations.get(faction.index).set(i, null);
+			kingdom.factionRelations.get(i).set(faction.index, null);
+			kingdom.factionRelations.get(faction.index).set(i, null);
 		}
-	}
-	
-	/** Initialize each faction's list of hostile cities, faction control map 
-	 *  of centers, and village control. 
-	 */
-	public static void initializeFactionCityInfo() {
-		System.out.println("initializing faction city info");
-		for (Faction f : factions) { 
-			f.initializeCloseLocations();
-			f.centers.clear();
-		}
-		// update each faction's centers
-		updateFactionCenters();
-	}
-	/** Update each faction's list of hostile cities, faction control map 
-	 *  of centers, and village control. 
-	 */
-	public static void updateFactionCityInfo() {
-		System.out.println("updating faction city info");
-		for (Faction f : factions) { 
-			f.updateCloseLocations();
-			f.centers.clear();
-		}
-		updateFactionCenters();
-	}
-	
-	/** updates faction centers and village factions
-	 */
-	private static void updateFactionCenters() {
-		// update each faction's centers
-		for (Center c : kingdom.getMap().connected) calcInfluence(c);
-		kingdom.getMap().calcBorderEdges();
-		for (Faction f : factions) {
-			f.territory.clear();
-			Array<Array<Center>> aaCenters = Map.calcConnectedCenters(f.centers);				
-			for (Array<Center> centers : aaCenters) {
-				//				System.out.println("working");
-				
-				f.territory.add(Map.centersToPolygon(centers));
-			}
-		}
-		for (Village v : kingdom.villages) {
-			v.changeFaction(getInfluenceAt(v.center));
-		}
-	}
-
-	/**
-	 * figures out which faction has the most influence on this center,
-	 * and adds it to that faction's "centers" array
-	 * @param center
-	 */
-	private static void calcInfluence(Center center) {
-		Point centerPoint = new Point(center.loc.x, Map.HEIGHT - center.loc.y);
-		Faction bestFaction = null;
-		double bestScore = 0;
-
-		// go through factions and calc influence, saving it if it's the highest
-		for (Faction faction : factions) {
-			double score = 0; // score is inverse of city distance
-			for (City city : faction.cities) {
-				double dist = Kingdom.distBetween(city, centerPoint);
-				score += 1/dist;
-			}
-			for (Castle castle : faction.castles) {
-				double dist = Kingdom.distBetween(castle, centerPoint);
-				score += 1/dist;
-			}
-			if (score > bestScore) {
-				bestScore = score;
-				bestFaction = faction;
-			}
-		}
-
-		if (bestFaction != null) {
-			bestFaction.centers.add(center);
-			center.faction = bestFaction;
-		}
-	}
-
-	public static Faction getInfluenceAt(Center center) {
-		for (Faction f : factions) {
-			if (f.centers.contains(center, true)) return f;
-		}
-
-		System.out.println("no one controls that center");
-		return null;
-
 	}
 
 	public void act(float delta) {
@@ -296,8 +115,8 @@ public class Faction {
 
 		if (timeSinceIncrease >= INCREASE_INTERVAL) {
 			//			System.out.println(timeSinceIncrease);
-			for (Faction f : factions)
-				changeRelation(this, f, 0); // factor to increase relations by
+			for (Faction f : kingdom.factions)
+				kingdom.changeRelation(this, f, 0); // factor to increase relations by
 			timeSinceIncrease = 0;
 		}
 
@@ -358,7 +177,7 @@ public class Faction {
 			
 			if (randomLocation.underSiege()) return;
 			// check that no other factions are besieging it
-			for (Faction f : Faction.factions) {
+			for (Faction f : kingdom.factions) {
 				if (f.locationsToAttack.contains(randomLocation, true)) return;
 			}
 			orderSiegeOf(randomLocation);
@@ -566,17 +385,17 @@ public class Faction {
 //	}
 
 	public int getRelationsWith(Faction that) {
-		return getRelations(this, that);
+		return kingdom.getRelations(this, that);
 	}
 
 	public void declareWar(Faction that) {
-		if (!Faction.isAtWar(this,  that))
-			declareWar(this, that);
+		if (!kingdom.isAtWar(this,  that))
+			kingdom.declareWar(this, that);
 	}
 
 	public void goRogue() { // just for testing, declares war on all factions other than this one
-		for (int i = 0; i < factions.size; i++)
-			if (i != index) declareWar(this, factions.get(i));
+		for (int i = 0; i < kingdom.factions.size; i++)
+			if (i != index) kingdom.declareWar(this, kingdom.factions.get(i));
 	}
 
 	public int getTotalWealth() {
@@ -584,74 +403,6 @@ public class Faction {
 		for (City c : cities)
 			total += c.getParty().wealth;
 		return total;
-	}
-
-
-	public static int getRelations(Faction faction1, Faction faction2) {
-		return factionRelations.get(faction1.index).get(faction2.index);
-	}
-	
-	/** return whether or not these two factions are at war. 
-	 * note that the same faction can't be at war with itself.
-	 * @param faction1
-	 * @param faction2
-	 * @return
-	 */
-	public static boolean isAtWar(Faction faction1, Faction faction2) {
-		if (faction1 == faction2) return false;
-		return (getRelations(faction1, faction2) < WAR_THRESHOLD);
-	}
-	public static void setAtWar(Faction faction1, Faction faction2) {
-		//		factionRelations[faction1][faction2] = WAR_THRESHOLD-1;
-		//		factionRelations[faction2][faction1] = WAR_THRESHOLD-1;
-		factionRelations.get(faction1.index).set(faction2.index, INIT_WAR_RELATION);
-		factionRelations.get(faction2.index).set(faction1.index, INIT_WAR_RELATION);
-	}
-	public static void setNeutral(Faction faction1, Faction faction2) {
-		factionRelations.get(faction1.index).set(faction2.index, 0);
-		factionRelations.get(faction2.index).set(faction1.index, 0);
-
-		//		factionRelations[faction1][faction2] = 0;
-		//		factionRelations[faction2][faction1] = 0;
-	}
-
-	public static void makePeace(Faction faction1, Faction faction2) {
-		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have signed a peace agreement!", "magenta");
-		setNeutral(faction1, faction2);
-	}
-	public static void declareWar(Faction faction1, Faction faction2) {
-		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
-		setAtWar(faction1, faction2);
-	}
-
-	public static void changeRelation(Faction faction1, Faction faction2, int delta) {
-		int initialRelation = factionRelations.get(faction1.index).get(faction2.index);
-		int newRelation;
-		if (initialRelation + delta >= MAX_RELATION) newRelation = MAX_RELATION;
-		else if (initialRelation + delta <= MIN_RELATION) newRelation = MIN_RELATION;
-		else newRelation = initialRelation + delta;
-		if (initialRelation >= WAR_THRESHOLD && newRelation < WAR_THRESHOLD) ;
-		//			BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
-		else if (initialRelation < WAR_THRESHOLD && newRelation >= WAR_THRESHOLD) 
-			makePeace(faction1, faction2);
-		factionRelations.get(faction1.index).set(faction2.index, newRelation);
-	}
-
-	//	public static void calcAllRelations() {
-	//		for (Faction f : factions) { 
-	//			for (int i = 0; i < factions.size; i++) {
-	//				int base = 0;
-	////				base += factionMilitaryAction.get(f.index).get(i); // Military actions
-	//				base += f.getCloseCityEffect(factions.get(i));	   // Borders
-	//				base += factions.get(i).getCloseCityEffect(f);	   // (Borders is 2-way)
-	//				factionRelations.get(i).set(f.index, base); 	   // can make more efficient
-	//				factionRelations.get(f.index).set(i, base);
-	//			}
-	//		}
-	//	}
-
-	public static Faction get(int index) {
-		return factions.get(index);
 	}
 
 	public City getRandomCity() {

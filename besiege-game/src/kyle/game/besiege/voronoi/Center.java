@@ -36,7 +36,7 @@ public class Center {
     public double moisture;
     public Biomes biome;
     public double area;
-    public Faction faction; // controlling faction
+    transient public Faction faction; // controlling faction
     
     public Center() {
     	armies = new Array<Army>();

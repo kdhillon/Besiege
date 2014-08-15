@@ -356,7 +356,7 @@ public class PanelFaction extends Panel {
 		relations.row();
 		relations.add(new Label("Faction Relations:", ls)).colspan(2).center();
 		relations.row();
-		for (Faction f : Faction.factions) {
+		for (Faction f : faction.kingdom.factions) {
 			if (!(f == faction) && f.index != 0 && f.index != 1) {
 				ObjectLabel name = new ObjectLabel(f.name, ls, f);
 				name.addListener(new InputListener() {

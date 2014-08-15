@@ -40,7 +40,6 @@ public class Location extends Actor implements Destination {
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
 	
-	
 	protected int DAILY_WEALTH_INCREASE_BASE;
 	protected double DAILY_POP_INCREASE_BASE;
 	protected int POP_MIN;
@@ -67,7 +66,7 @@ public class Location extends Actor implements Destination {
 	transient private Kingdom kingdom;
 	private String name;
 	private int index;
-	transient private Faction faction;
+	private Faction faction;
 	
 	protected double population;
 	
@@ -412,14 +411,14 @@ public class Location extends Actor implements Destination {
 		
 		for (City that : getKingdom().getCities()) {
 			if (that != this && Kingdom.distBetween(this, that) < CLOSE_LOC_DISTANCE) {
-				if (!Faction.isAtWar(getFaction(), that.getFaction())) 
+				if (!kingdom.isAtWar(getFaction(), that.getFaction())) 
 					closestFriendlyCities.add(that);
 				else closestEnemyCities.add(that);
 			}
 		}
 		for (Castle castle : getKingdom().castles) {
 			if (castle != this && Kingdom.distBetween(this, castle) < CLOSE_LOC_DISTANCE) {
-				if (!Faction.isAtWar(getFaction(), castle.getFaction())) 
+				if (!kingdom.isAtWar(getFaction(), castle.getFaction())) 
 					closestFriendlyCastles.add(castle);
 				else closestEnemyCastles.add(castle);
 			}
@@ -443,7 +442,7 @@ public class Location extends Actor implements Destination {
 		
 		// cities
 		for (City c : closestEnemyCities) {
-			if (Faction.isAtWar(this.getFaction(), c.getFaction())) {
+			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
 				if (!newCloseEnemyCities.contains(c, true))
 					newCloseEnemyCities.add(c);
 			}
@@ -451,7 +450,7 @@ public class Location extends Actor implements Destination {
 				newCloseFriendlyCities.add(c);
 		}
 		for (City c : closestFriendlyCities) {
-			if (Faction.isAtWar(this.getFaction(), c.getFaction())) {
+			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
 				if (!newCloseEnemyCities.contains(c, true))
 					newCloseEnemyCities.add(c);
 			}
@@ -466,7 +465,7 @@ public class Location extends Actor implements Destination {
 		
 		// castles
 		for (Castle c : closestEnemyCastles) {
-			if (Faction.isAtWar(this.getFaction(), c.getFaction())) {
+			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
 				if (!newCloseEnemyCastles.contains(c, true))
 					newCloseEnemyCastles.add(c);
 			}
@@ -474,7 +473,7 @@ public class Location extends Actor implements Destination {
 				newCloseFriendlyCastles.add(c);
 		}
 		for (Castle c : closestFriendlyCastles) {
-			if (Faction.isAtWar(this.getFaction(), c.getFaction())) {
+			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
 				if (!newCloseEnemyCastles.contains(c, true))
 					newCloseEnemyCastles.add(c);
 			}
@@ -489,7 +488,7 @@ public class Location extends Actor implements Destination {
 		
 		// villages
 		for (Village v : closestEnemyVillages) {
-			if (Faction.isAtWar(this.getFaction(), v.getFaction())) {
+			if (kingdom.isAtWar(this.getFaction(), v.getFaction())) {
 				if (!newCloseEnemyVillages.contains(v, true))
 					newCloseEnemyVillages.add(v);
 			}
@@ -497,7 +496,7 @@ public class Location extends Actor implements Destination {
 				newCloseFriendlyVillages.add(v);
 		}
 		for (Village v : closestFriendlyVillages) {
-			if (Faction.isAtWar(this.getFaction(), v.getFaction())) {
+			if (kingdom.isAtWar(this.getFaction(), v.getFaction())) {
 				if (!newCloseEnemyVillages.contains(v, true))
 					newCloseEnemyVillages.add(v);
 			}
@@ -713,7 +712,7 @@ public class Location extends Actor implements Destination {
 			for (Soldier newSoldier : oldCaptured) 
 				this.garrison.getParty().addPrisoner(newSoldier);
 				
-			Faction.updateFactionCityInfo();
+			kingdom.updateFactionCityInfo();
 		}
 		
 		this.faction = newFaction;

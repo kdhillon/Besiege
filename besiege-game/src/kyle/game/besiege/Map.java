@@ -47,7 +47,7 @@ public class Map extends Actor {
 //	public static boolean debug = true;
 	public static boolean debug;
 	public static boolean drawSpheres;
-	public VoronoiGraph vg;
+	transient public VoronoiGraph vg;
 
 //	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 //	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
@@ -56,26 +56,26 @@ public class Map extends Actor {
 	public int totalVisibilityLines;
 
 	public Texture bg;
-	public Array<Corner> cityCorners;
-	public Array<Center> cityCenters;
+	transient public Array<Corner> cityCorners;
+	transient public Array<Center> cityCenters;
 //	public Array<PointH> availableLocationSites;
-	public Array<Corner> availableCorners;
-	public Array<Center> availableCenters;
+	transient public Array<Corner> availableCorners;
+	transient public Array<Center> availableCenters;
 	
-	public Array<Corner> borderCorners;
-	public Array<Edge> impassable;
-	public Array<Edge> impBorders;
-	public Array<Center> connected; // land centers connected to reference
+	transient public Array<Corner> borderCorners;
+	transient public Array<Edge> impassable;
+	transient public Array<Edge> impBorders;
+	transient public Array<Center> connected; // land centers connected to reference
 
-	public Center reference; // center on main map
-	public Point referencePoint;
+	transient public Center reference; // center on main map
+	transient public Point referencePoint;
 	
 	/** Borders between faction territory */
-	public Array<Edge> borderEdges; 
+	transient public Array<Edge> borderEdges; 
 	
 	// testing
-	public Array<Polygon> testPolygons = new Array<Polygon>();
-	public static Array<Corner> testCorners = new Array<Corner>();
+	transient public Array<Polygon> testPolygons = new Array<Polygon>();
+	transient public static Array<Corner> testCorners = new Array<Corner>();
 	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
@@ -879,15 +879,15 @@ public class Map extends Actor {
 			Gdx.gl.glEnable(GL20.GL_BLEND);			
 	
 			// draw spheres of influence
-			for (Faction f : Faction.factions) {
-				sr.setColor(f.color.r, f.color.g, f.color.b, .7f);
-				for (Center c : f.centers) {
-					for (float[] vertices : c.triangles) {
-						sr.triangle(vertices[0], vertices[1], vertices[2], 
-								vertices[3], vertices[4], vertices[5]);
-					}
-				}
-			}
+//			for (Faction f : Faction.factions) {
+//				sr.setColor(f.color.r, f.color.g, f.color.b, .7f);
+//				for (Center c : f.centers) {
+//					for (float[] vertices : c.triangles) {
+//						sr.triangle(vertices[0], vertices[1], vertices[2], 
+//								vertices[3], vertices[4], vertices[5]);
+//					}
+//				}
+//			}
 			
 			// draw thick black borders
 			sr.end();

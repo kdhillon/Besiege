@@ -67,7 +67,7 @@ public class Army extends Actor implements Destination {
 
 	transient private Kingdom kingdom; // parent actor, kingdom
 	private String name;
-	transient private Faction faction;
+	private Faction faction;
 
 	private TextureRegion region;
 
@@ -1192,7 +1192,7 @@ public class Army extends Actor implements Destination {
 	//		else this.money = money;
 	//	}
 	public boolean isAtWar(Destination destination) {
-		return Faction.isAtWar(faction, destination.getFaction());
+		return kingdom.isAtWar(faction, destination.getFaction());
 	}
 
 	// laziness sake
