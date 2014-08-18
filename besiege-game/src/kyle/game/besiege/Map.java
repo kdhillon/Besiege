@@ -41,21 +41,21 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	transient public ShapeRenderer sr;
 
-	public static final int WIDTH = 8000;
-	public static final int HEIGHT = 8000;
-	private static final int NUM_SITES = 1000;
+	transient public static final int WIDTH = 15000;
+	transient public static final int HEIGHT = 15000;
+	transient private static final int NUM_SITES = 2500;
 //	public static boolean debug = true;
-	public static boolean debug;
-	public static boolean drawSpheres;
-	public VoronoiGraph vg;
+	transient public static boolean debug;
+	transient public static boolean drawSpheres;
+	transient public VoronoiGraph vg;
 
 //	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 //	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
 
-	public int testIndex;
-	public int totalVisibilityLines;
+	transient public int testIndex;
+	transient public int totalVisibilityLines;
 
-	transient public Texture bg;
+	//transient public Texture bg;
 	transient public Array<Corner> cityCorners;
 	transient public Array<Center> cityCenters;
 //	public Array<PointH> availableLocationSites;
@@ -68,14 +68,14 @@ public class Map extends Actor {
 	transient public Array<Center> connected; // land centers connected to reference
 
 	transient public Center reference; // center on main map
-	public Point referencePoint;
+	transient public Point referencePoint;
 	
 	/** Borders between faction territory */
-	public Array<Edge> borderEdges; 
+	transient public Array<Edge> borderEdges; 
 	
 	// testing
-	public Array<Polygon> testPolygons = new Array<Polygon>();
-	public Array<Corner> testCorners = new Array<Corner>();
+	transient public Array<Polygon> testPolygons = new Array<Polygon>();
+	transient public Array<Corner> testCorners = new Array<Corner>();
 	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
@@ -112,9 +112,9 @@ public class Map extends Actor {
 		this.vg = new VoronoiGraph(v, 2, r);
 
 		// paint background
-		Pixmap pix = new Pixmap(WIDTH, HEIGHT, Pixmap.Format.RGB888);
-		vg.paint(pix);
-		this.bg = new Texture(pix);
+		//Pixmap pix = new Pixmap(WIDTH, HEIGHT, Pixmap.Format.RGB888);
+		//vg.paint(pix);
+	//	this.bg = new Texture(pix);
 
 		calcReference();
 		calcReferencePoint();
@@ -273,19 +273,19 @@ public class Map extends Actor {
 	 * @param index
 	 */
 	// recursively find and add adjacent vertex to vertices
-	private static void getNextVertex(Corner corner, Array<Corner> outsideCorners, Array<Corner> used, float[] vertices, int index) {
-		for (Corner next : corner.adjacent) {
-			if (outsideCorners.contains(next, true) && !used.contains(next, true)) {
-				used.add(next);
-				vertices[index] = (float) next.loc.x;
-				index++;
-				vertices[index] = (float) (Map.HEIGHT-next.loc.y);
-				index++;
-				getNextVertex(next, outsideCorners, used, vertices, index);
-				return;
-			}
-		}
-	}
+//	private static void getNextVertex(Corner corner, Array<Corner> outsideCorners, Array<Corner> used, float[] vertices, int index) {
+//		for (Corner next : corner.adjacent) {
+//			if (outsideCorners.contains(next, true) && !used.contains(next, true)) {
+//				used.add(next);
+//				vertices[index] = (float) next.loc.x;
+//				index++;
+//				vertices[index] = (float) (Map.HEIGHT-next.loc.y);
+//				index++;
+//				getNextVertex(next, outsideCorners, used, vertices, index);
+//				return;
+//			}
+//		}
+//	}
 	
 	private static Array<Edge> getBordersOfCenters(Array<Center> centers) {
 		Array<Edge> usedMoreThanOnce = new Array<Edge>();
@@ -354,29 +354,29 @@ public class Map extends Actor {
 		}
 	}
 	
-	/** naive approach to finding outside corners
-	 *  works :D
-	 *  
-	 * @param polygonCenters
-	 * @return 
-	 */
-	private static Array<Corner> findOutsideCorners(Array<Center> polygonCenters) {
-		Array<Corner> outside = new Array<Corner>();
-		for (Center center : polygonCenters) {
-			for (Corner corner : center.corners) {
-				if (!outside.contains(corner, true)) {
-					int containedCenters = 0;
-					for (int i = 0; i < corner.touches.size(); i++) {
-						if (polygonCenters.contains(corner.touches.get(i), true))
-							containedCenters++;
-					}
-					if (containedCenters <= 2) outside.add(corner);
-				}
-			}
-		}
-//		testCorners.addAll(outside);
-		return outside;
-	}
+//	/** naive approach to finding outside corners
+//	 *  works :D
+//	 *  
+//	 * @param polygonCenters
+//	 * @return 
+//	 */
+//	private static Array<Corner> findOutsideCorners(Array<Center> polygonCenters) {
+//		Array<Corner> outside = new Array<Corner>();
+//		for (Center center : polygonCenters) {
+//			for (Corner corner : center.corners) {
+//				if (!outside.contains(corner, true)) {
+//					int containedCenters = 0;
+//					for (int i = 0; i < corner.touches.size(); i++) {
+//						if (polygonCenters.contains(corner.touches.get(i), true))
+//							containedCenters++;
+//					}
+//					if (containedCenters <= 2) outside.add(corner);
+//				}
+//			}
+//		}
+////		testCorners.addAll(outside);
+//		return outside;
+//	}
 	
 	/** treat islands as water (aka can't build there can't travel there)
 	 */
@@ -759,12 +759,37 @@ public class Map extends Actor {
 			return false;
 		}
 	}
+	
+	private void drawCenter(Center center, SpriteBatch batch) {		
+		// try multiplying to blend colors?
+		Color cColor = vg.getColor(center);
+		Color blend = new Color(cColor.r * batch.getColor().r, cColor.g * batch.getColor().g, cColor.b * batch.getColor().b, 1f);
+		sr.setColor(blend);
+		
+		for (Edge edge : center.borders) {
+			if (edge.v0 == null || edge.v1 == null) continue;
+			sr.triangle((float) center.loc.x,(float) (HEIGHT- center.loc.y), 
+				(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
+				(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y));
+		}
+	}
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		batch.disableBlending();
-		batch.draw(bg, 0, 0);
+		//batch.draw(bg, 0, 0);
 		batch.enableBlending(); // should speed up
+		
+		batch.end();
+
+		// draw map using shaperenderer
+		sr.begin(ShapeType.Filled);
+		sr.setProjectionMatrix(batch.getProjectionMatrix());
+		for (Center center : this.vg.centers) {
+			drawCenter(center, batch);
+		}
+		sr.end();
+		
 		
 //		 for copying and pasting
 //		batch.end();
@@ -775,7 +800,6 @@ public class Map extends Actor {
 //		batch.begin();
 		
 		if (debug) {
-			batch.end();
 			sr.begin(ShapeType.Line);
 			sr.setProjectionMatrix(batch.getProjectionMatrix());
 			sr.setColor(0, 0, 0, 1);
@@ -869,9 +893,9 @@ public class Map extends Actor {
 			sr.setColor(.5f,.5f,0,1);
 			sr.line(0f, 0f, (float) reference.loc.x, (float)(HEIGHT-reference.loc.y));
 			sr.end();
-			batch.begin();
 		}	
-		
+		batch.begin();
+
 		if (drawSpheres) {
 			batch.end();
 			sr.begin(ShapeType.Filled);

@@ -149,6 +149,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		
 		// draw crests too?
+		if (kingdom.getMapScreen().losOn && Kingdom.distBetween(this, kingdom.getPlayer()) > kingdom.getPlayer().getLineOfSight()) return;
+		
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), 1, 1, getRotation());
 		

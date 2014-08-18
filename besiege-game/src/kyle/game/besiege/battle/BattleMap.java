@@ -314,7 +314,7 @@ public class BattleMap extends Actor {
 		// figure out what kind of shape you want... 
 
 		// different types of sieges: ladder, catapult, or already broken
-		double percent_broken = .5;
+		double percent_broken = .1;
 
 		System.out.println("adding wall");
 		

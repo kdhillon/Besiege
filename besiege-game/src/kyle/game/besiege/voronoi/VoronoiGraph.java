@@ -400,6 +400,64 @@ public class VoronoiGraph {
 //        g.drawRectangle((int) bounds.x, (int) bounds.y, (int) bounds.width, (int) bounds.height);
     }
 
+    public Color getColor(Center c) {
+    	Color color = new Color(OCEAN);
+    
+    	switch (c.biome) {
+    	case OCEAN:
+    		color = new Color(OCEAN);
+    		break;
+    	case LAKE:
+    		color = new Color(LAKE);
+    		break;
+    	case TUNDRA:
+    		color = new Color(TUNDRA);
+    		break;
+    	case TROPICAL_SEASONAL_FOREST:
+    		color = new Color(TROPICAL_SEASONAL_FOREST);
+    		break;
+    	case TROPICAL_RAIN_FOREST:
+    		color = new Color(TROPICAL_RAIN_FOREST);
+    		break;
+    	case SUBTROPICAL_DESERT:
+    		color = new Color(SUBTROPICAL_DESERT);
+    		break;
+    	case SNOW:
+    		color = new Color(SNOW);
+    		break;
+    	case SCORCHED:
+    		color = new Color(SCORCHED);
+    		break;
+    	case LAKESHORE:
+    		color = new Color(LAKESHORE);
+    		break;
+    	case ICE:
+    		color = new Color(SNOW);
+    		break;
+    	case BEACH:
+    		color = new Color(BEACH);
+    		break;
+    	case COAST:
+    		color = new Color(COAST);
+    		break;
+    	case BARE:
+    		color = new Color(BARE);
+    		break;
+    	case SHRUBLAND:
+    		color = new Color(SHRUBLAND);
+    		break;
+    	case TAIGA:
+    		color = new Color(TAIGA);
+    		break;
+    	case MARSH:
+    		color = new Color(MARSH);
+    		break;
+    	default:
+    		color = new Color(GRASSLAND);
+    	}
+    	return color;
+    }
+    
     private void buildGraph(Voronoi v) {
         final HashMap<PointH, Center> pointCenterMap = new HashMap();
         final ArrayList<PointH> pointHs = v.siteCoords();

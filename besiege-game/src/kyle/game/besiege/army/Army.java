@@ -185,7 +185,6 @@ public class Army extends Actor implements Destination {
 	@Override
 	public void act(float delta) {
 
-		if (OPTIMIZED_MODE && !withinActingRange()) return;
 
 //		System.out.println(this.getName() + " is acting");
 		
@@ -193,13 +192,14 @@ public class Army extends Actor implements Destination {
 		//		setLineOfSight();
 		// Player's Line of Sight:
 		if (losOn()) {
-			if (withinLOSRange())
+			if (!withinLOSRange())
 				this.setVisible(false);
 			else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
 		}
 		else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
 
-
+		if (OPTIMIZED_MODE && !withinActingRange()) return;
+		
 		if (!getKingdom().isPaused()) {
 			playerTouched = false; // only can be selected when game is paused;
 		}
@@ -1356,11 +1356,11 @@ public class Army extends Actor implements Destination {
 	}
 	
 	public boolean withinLOSRange() {
-		return (Kingdom.distBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().getLineOfSight());
+		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared);
 	}
 	
 	public boolean withinActingRange() {
 		if (this.isNoble()) return true;
-		return (Kingdom.distBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().getLineOfSight()*ACTING_RANGE_FACTOR);
+		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared*ACTING_RANGE_FACTOR);
 	}
 }

@@ -27,7 +27,7 @@ public class ArmyPlayer extends Army {
 		
 	// debugging
 	private final ShapeRenderer sr;
-	
+	public float losSquared;
 //	private Destination target;
 
 	public ArmyPlayer(Kingdom kingdom, Faction faction,
@@ -251,7 +251,9 @@ public class ArmyPlayer extends Army {
 	@Override
 	public float calcLOS() {
 		if (getCharacter() == null) return 0;
-		return ((float) (super.calcLOS()*getCharacter().getAttributeFactor("Spotting")));
+		float los = ((float) (super.calcLOS()*getCharacter().getAttributeFactor("Spotting")));
+		this.losSquared = los*los;
+		return los;
 	}
 
 	@Override 

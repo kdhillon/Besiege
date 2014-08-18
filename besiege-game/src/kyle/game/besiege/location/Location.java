@@ -230,7 +230,7 @@ public class Location extends Actor implements Destination {
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
 		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 1.5) && !(this.type == LocationType.CASTLE && zoom > 5)) {			
+		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !(this.type == LocationType.CASTLE && zoom > 9)) {			
 			BitmapFont font;
 
 			if (zoom > 7) {
@@ -319,7 +319,7 @@ public class Location extends Actor implements Destination {
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
 		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 1.5) && !(this.type == LocationType.CASTLE && zoom > 5)) {			
+		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !(this.type == LocationType.CASTLE && zoom > 9)) {			
 			BitmapFont font;			
 			
 			if (zoom > 7) {

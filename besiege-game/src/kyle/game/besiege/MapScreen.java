@@ -436,7 +436,7 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.L))
 				losToggle = true;
 			else if (losToggle) {
-				load();
+//				load();
 				toggleLOS();
 				losToggle = false;
 			}
@@ -647,19 +647,19 @@ public class MapScreen implements Screen {
 		// saving all armies works, locations don't
 //		kryo.writeOb
 		
-		kryo.setReferences(true);
+//		kryo.setReferences(true);
 		
 		kryo.writeObjectOrNull(output, this.kingdom.getMap(), this.kingdom.getMap().getClass());
 		
-		for (Army toSave :  kingdom.getArmies()) {
-			System.out.println("saving " + toSave.getName());
-			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
-		}
-//		
-		for (Location city : locations) {
-			System.out.println("saving " + city.getName());
-			kryo.writeObjectOrNull(output, city, city.getClass());		
-		}
+//		for (Army toSave :  kingdom.getArmies()) {
+//			System.out.println("saving " + toSave.getName());
+//			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
+//		}
+////		
+//		for (Location city : locations) {
+//			System.out.println("saving " + city.getName());
+//			kryo.writeObjectOrNull(output, city, city.getClass());		
+//		}
 		
 		output.close();
 		
