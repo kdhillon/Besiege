@@ -649,7 +649,7 @@ public class MapScreen implements Screen {
 		
 		kryo.setReferences(true);
 		
-		//kryo.writeObjectOrNull(output, this.kingdom.getMap(), this.kingdom.getMap().getClass());
+		kryo.writeObjectOrNull(output, this.kingdom.getMap(), this.kingdom.getMap().getClass());
 		
 		for (Army toSave :  kingdom.getArmies()) {
 			System.out.println("saving " + toSave.getName());

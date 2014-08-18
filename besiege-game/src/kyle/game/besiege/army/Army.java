@@ -37,6 +37,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 
 public class Army extends Actor implements Destination {
+	private static final boolean OPTIMIZED_MODE = true;
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames
 	public final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
 	private static final float SCALE_FACTOR = 600f; // smaller is bigger
@@ -59,7 +60,8 @@ public class Army extends Actor implements Destination {
 	private static final double REPAIR_FACTOR = .5; // if a party gets below this many troops it will go to repair itself.
 	private static final float RUN_EVERY = .5f;
 	protected static final double WEALTH_FACTOR = 2;
-
+	private static final double ACTING_RANGE_FACTOR = 2; // times player LOS, units within this range will act. otherwise they won't
+	
 	private boolean mouseOver;
 	protected boolean passive; // passive if true (won't attack) aggressive if false;
 	
@@ -183,13 +185,15 @@ public class Army extends Actor implements Destination {
 	@Override
 	public void act(float delta) {
 
+		if (OPTIMIZED_MODE && !withinActingRange()) return;
+
 //		System.out.println(this.getName() + " is acting");
 		
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
 		//		setLineOfSight();
 		// Player's Line of Sight:
 		if (losOn()) {
-			if (getKingdom().distBetween(this, getKingdom().getPlayer()) > getKingdom().getPlayer().getLineOfSight())
+			if (withinLOSRange())
 				this.setVisible(false);
 			else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
 		}
@@ -1336,5 +1340,27 @@ public class Army extends Actor implements Destination {
 //		this.path = new Path(this);
 //		this.path.map = kingdom.getMap();
 //		this.faction = Faction.BANDITS_FACTION;
+	}
+	
+	public boolean isNoble() {
+		return (this.type == ArmyType.NOBLE);
+	}
+	public boolean isFarmer() {
+		return (this.type == ArmyType.FARMER);
+	}
+	public boolean isMerchant() {
+		return (this.type == ArmyType.MERCHANT);
+	}
+	public boolean isPatrol() {
+		return (this.type == ArmyType.PATROL);
+	}
+	
+	public boolean withinLOSRange() {
+		return (Kingdom.distBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().getLineOfSight());
+	}
+	
+	public boolean withinActingRange() {
+		if (this.isNoble()) return true;
+		return (Kingdom.distBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().getLineOfSight()*ACTING_RANGE_FACTOR);
 	}
 }

@@ -104,13 +104,15 @@ Day 79: fixed "sticky player" bug and merchant bug
 Day 80: worked on researching how to save game state
 Day 81: fixed bug with crests not disappearing after losing
 Day 82: started process of simplifying references for eventual saving
-
+Day 83: added optional "optimized"
 
 todo:
+update my linkedin
 
 BATTLESTAGE:
 add waves and reinforcements to battles
 add safeguards against battles getting stuck
+get austin to start making cool art for additional units
 
 later:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
@@ -125,16 +127,14 @@ MAP:
 now:
 finish saving map
 use hacky saving where you actually only save armies near the player and only nobles
-try simple LOS speed up (if outside of los, don't do anything!)
-add garrison repairing
-add cancelling and reforming of sieges
-
-make bandits not seige (?)
+use shaperenderer to make shapes
 
 later:
 add besieging of castles
 add menu screen with flame!
-
+add garrison repairing
+add cancelling and reforming of sieges
+make bandits not seige (?)
 
 gameplay:
 

@@ -9,8 +9,6 @@ package kyle.game.besiege;
 
 //import java.util.Scanner;
 
-import kyle.game.besiege.party.Weapon;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -18,9 +16,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 
 public class Assets {
-	private static int cityCount = 20;
-	private static int castleCount = 40;
-	private static int villageCount = 50;
+	private static int cityCount = 40;
+	private static int castleCount = 50;
+	private static int villageCount = 80;
 	public static Array<String> cityArray;
 	public static Array<String> villageArray;
 	public static Array<String> castleArray;

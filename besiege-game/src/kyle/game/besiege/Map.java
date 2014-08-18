@@ -41,13 +41,13 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	transient public ShapeRenderer sr;
 
-	public static final int WIDTH = 5000;
-	public static final int HEIGHT = 5000;
+	public static final int WIDTH = 8000;
+	public static final int HEIGHT = 8000;
 	private static final int NUM_SITES = 1000;
 //	public static boolean debug = true;
 	public static boolean debug;
 	public static boolean drawSpheres;
-	transient public VoronoiGraph vg;
+	public VoronoiGraph vg;
 
 //	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 //	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
@@ -56,18 +56,18 @@ public class Map extends Actor {
 	public int totalVisibilityLines;
 
 	transient public Texture bg;
-	public Array<Corner> cityCorners;
-	public Array<Center> cityCenters;
+	transient public Array<Corner> cityCorners;
+	transient public Array<Center> cityCenters;
 //	public Array<PointH> availableLocationSites;
-	public Array<Corner> availableCorners;
-	public Array<Center> availableCenters;
+	transient public Array<Corner> availableCorners;
+	transient public Array<Center> availableCenters;
 	
-	public Array<Corner> borderCorners;
-	public Array<Edge> impassable;
-	public Array<Edge> impBorders;
-	public Array<Center> connected; // land centers connected to reference
+	transient public Array<Corner> borderCorners;
+	transient public Array<Edge> impassable;
+	transient public Array<Edge> impBorders;
+	transient public Array<Center> connected; // land centers connected to reference
 
-	public Center reference; // center on main map
+	transient public Center reference; // center on main map
 	public Point referencePoint;
 	
 	/** Borders between faction territory */
@@ -879,15 +879,15 @@ public class Map extends Actor {
 			Gdx.gl.glEnable(GL20.GL_BLEND);			
 	
 			// draw spheres of influence
-//			for (Faction f : Faction.factions) {
-//				sr.setColor(f.color.r, f.color.g, f.color.b, .7f);
-//				for (Center c : f.centers) {
-//					for (float[] vertices : c.triangles) {
-//						sr.triangle(vertices[0], vertices[1], vertices[2], 
-//								vertices[3], vertices[4], vertices[5]);
-//					}
-//				}
-//			}
+			for (Faction f : ((Kingdom) getParent()).factions) {
+				sr.setColor(f.color.r, f.color.g, f.color.b, .7f);
+				for (Center c : f.centers) {
+					for (float[] vertices : c.triangles) {
+						sr.triangle(vertices[0], vertices[1], vertices[2], 
+								vertices[3], vertices[4], vertices[5]);
+					}
+				}
+			}
 			
 			// draw thick black borders
 			sr.end();
