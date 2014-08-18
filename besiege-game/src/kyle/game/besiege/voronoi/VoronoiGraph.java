@@ -42,8 +42,8 @@ public class VoronoiGraph {
 	private static final double TURBULENCE = 4; // (~5)
 
     final public ArrayList<Edge> edges = new ArrayList<Edge>();
-    transient final public ArrayList<Corner> corners = new ArrayList<Corner>();
-    transient final public ArrayList<Center> centers = new ArrayList<Center>();
+    final public ArrayList<Corner> corners = new ArrayList<Corner>();
+    final public ArrayList<Center> centers = new ArrayList<Center>();
     final public Rectangle bounds;
     final private MyRandom r;
     final private PerlinNoiseGenerator perlin;

@@ -57,7 +57,7 @@ public class Kingdom extends Group {
 	public float currentDarkness; // can be used for LOS
 	private float targetDarkness; // for fading
 
-	private Map map;
+	public Map map;
 	private MapScreen mapScreen;
 	public Array<Faction> factions;
 	private int factionCount;
@@ -512,11 +512,11 @@ public class Kingdom extends Group {
 		getMap().calcBorderEdges();
 		for (Faction f : factions) {
 			f.territory.clear();
-			Array<Array<Center>> aaCenters = Map.calcConnectedCenters(f.centers);				
+			Array<Array<Center>> aaCenters = MapUtils.calcConnectedCenters(f.centers);				
 			for (Array<Center> centers : aaCenters) {
 				//				System.out.println("working");
 				
-				f.territory.add(Map.centersToPolygon(centers));
+				f.territory.add(MapUtils.centersToPolygon(centers));
 			}
 		}
 		for (Village v : villages) {

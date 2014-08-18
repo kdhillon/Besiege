@@ -24,12 +24,12 @@ public class Center {
 
     public int index;
     public PointH loc;
-    public ArrayList<Corner> corners = new ArrayList<Corner>();//good
+    transient public ArrayList<Corner> corners = new ArrayList<Corner>();//good
     transient public ArrayList<Center> neighbors = new ArrayList<Center>();//good
-    transient public ArrayList<Edge> borders = new ArrayList<Edge>();
-    public Array<Army> armies; // armies within this polygon
-    public Polygon polygon;
-    public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
+    public ArrayList<Edge> borders = new ArrayList<Edge>();
+    transient public Array<Army> armies; // armies within this polygon
+    transient public Polygon polygon;
+    transient public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
     
     public boolean border, ocean, water, coast;
     public double elevation;

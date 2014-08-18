@@ -18,13 +18,8 @@ import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Polygon;
@@ -41,41 +36,41 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	transient public ShapeRenderer sr;
 
-	transient public static final int WIDTH = 15000;
-	transient public static final int HEIGHT = 15000;
-	transient private static final int NUM_SITES = 2500;
+	public static final int WIDTH = 500;
+	public static final int HEIGHT = 500;
+	private static final int NUM_SITES = 250;
 //	public static boolean debug = true;
-	transient public static boolean debug;
-	transient public static boolean drawSpheres;
-	transient public VoronoiGraph vg;
+	public static boolean debug;
+	public static boolean drawSpheres;
+	public VoronoiGraph vg;
 
 //	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 //	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
 
-	transient public int testIndex;
-	transient public int totalVisibilityLines;
+	public int testIndex;
+	public int totalVisibilityLines;
 
 	//transient public Texture bg;
-	transient public Array<Corner> cityCorners;
-	transient public Array<Center> cityCenters;
+	public Array<Corner> cityCorners;
+	public Array<Center> cityCenters;
 //	public Array<PointH> availableLocationSites;
-	transient public Array<Corner> availableCorners;
-	transient public Array<Center> availableCenters;
+	public Array<Corner> availableCorners;
+	public Array<Center> availableCenters;
 	
-	transient public Array<Corner> borderCorners;
-	transient public Array<Edge> impassable;
-	transient public Array<Edge> impBorders;
-	transient public Array<Center> connected; // land centers connected to reference
+	public Array<Corner> borderCorners;
+	public Array<Edge> impassable;
+	public Array<Edge> impBorders;
+	public Array<Center> connected; // land centers connected to reference
 
-	transient public Center reference; // center on main map
-	transient public Point referencePoint;
+	public Center reference; // center on main map
+	public Point referencePoint;
 	
 	/** Borders between faction territory */
-	transient public Array<Edge> borderEdges; 
+	public Array<Edge> borderEdges; 
 	
 	// testing
-	transient public Array<Polygon> testPolygons = new Array<Polygon>();
-	transient public Array<Corner> testCorners = new Array<Corner>();
+//	transient public Array<Polygon> testPolygons = new Array<Polygon>();
+//	transient public Array<Corner> testCorners = new Array<Corner>();
 	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
@@ -211,148 +206,7 @@ public class Map extends Actor {
 		}
 	}
 	
-	/** reorganizes array disconnectedCenters into separate arrays of 
-	 *  connected centers
-	 * 
-	 * @param disconnectedCenters
-	 * @return
-	 */
-	public static Array<Array<Center>> calcConnectedCenters(Array<Center> original) {
-		Array<Center> disconnectedCenters = new Array<Center>();
-		for (Center c : original) {
-			disconnectedCenters.add(c);
-		}
-		Array<Array<Center>> aaCenters = new Array<Array<Center>>();
-		// start with random one, calc connected, remove all of those from disconnected, continue until disconnected is empty
-		
-		while (disconnectedCenters.size > 0) {
-			Array<Center> connectedToStart = new Array<Center>();
-			Center start = disconnectedCenters.random();
-			calcConnectedContained(start, connectedToStart, original);
-//			System.out.println("connected " + connectedToStart.size);
-			aaCenters.add(connectedToStart);
-			disconnectedCenters.removeAll(connectedToStart, true);
-		}
-//		System.out.println("number of separate polygons: " + aaCenters.size);
-		return aaCenters;
-	}
-	
-	// calc connected components, recursively
-	private static void calcConnectedContained(Center center, Array<Center> connected, Array<Center> container) {
-		connected.add(center);
-		for (Center neighbor : center.neighbors) {
-			if (container.contains(neighbor, true) && !connected.contains(neighbor, true)) {
-				calcConnectedContained(neighbor, connected, container);
-			}
-		}
-	}
-	/**
-	 * Converts array of centers to the largest polygon that can hold
-	 * all of them. returns that polygon.
-	 * 
-	 * Problem when there is a different polygon in the middle of all of them.
-	 *  
-	 * @param polygonCenters
-	 */
-	public static Polygon centersToPolygon(Array<Center> polygonCenters) {
-		return edgesToPolygon(getBordersOfCenters(polygonCenters));
-	}
-	
-	/** Doesn't work! problem is when there is only one shared edge 
-	 * and it doesn't know which corner to choose. Workaround: use
-	 * all edges of all centers, but don't use ones that are shared!
-	 * Won't yield 'Polygon' result but I'm sure there's a way to 
-	 * convert it... pretty easy way actually
-	 * How to paint a polygon? Paint it's triangles. Should I make a
-	 * method for painting triangles of a center or a polygon? Yes.
-	 * 
-	 * @param corner
-	 * @param outsideCorners
-	 * @param used
-	 * @param vertices
-	 * @param index
-	 */
-	// recursively find and add adjacent vertex to vertices
-//	private static void getNextVertex(Corner corner, Array<Corner> outsideCorners, Array<Corner> used, float[] vertices, int index) {
-//		for (Corner next : corner.adjacent) {
-//			if (outsideCorners.contains(next, true) && !used.contains(next, true)) {
-//				used.add(next);
-//				vertices[index] = (float) next.loc.x;
-//				index++;
-//				vertices[index] = (float) (Map.HEIGHT-next.loc.y);
-//				index++;
-//				getNextVertex(next, outsideCorners, used, vertices, index);
-//				return;
-//			}
-//		}
-//	}
-	
-	private static Array<Edge> getBordersOfCenters(Array<Center> centers) {
-		Array<Edge> usedMoreThanOnce = new Array<Edge>();
-		Array<Edge> usedOnce = new Array<Edge>();
-		for (Center center : centers) {
-			for (Edge edge : center.borders) {
-				if (usedOnce.contains(edge, true)) {
-					usedOnce.removeValue(edge, true);
-					usedMoreThanOnce.add(edge);
-				}
-				else if (!usedMoreThanOnce.contains(edge, true))
-					usedOnce.add(edge);
-			}
-		}
-		return usedOnce;
-	}
-	
-	/** Converts Array of connected edges into a Libgdx polygon
-	 * 
-	 */
-	private static Polygon edgesToPolygon(Array<Edge> edges) {
-		Array<Edge> used = new Array<Edge>();
-		int index = 0;
-		float[] vertices = new float[edges.size*2];
-		
-		vertices[index] = (float) edges.first().v0.loc.x;
-		index++;
-		vertices[index] = (float) (Map.HEIGHT- edges.first().v0.loc.y);
-		index++;
-		adjEdge(edges.first().v0, edges.first(), edges, used, index, vertices);
-		return new Polygon(vertices);
-	}
-	
-	/** Recursively finds adjacent edges in a polygon adding their corners
-	 *  to vertices.
-	 * 
-	 * @param startC
-	 * @param startE
-	 * @param allEdges
-	 * @param used
-	 * @param index
-	 * @param vertices
-	 */
-	private static void adjEdge(Corner startC, Edge startE, Array<Edge> allEdges, Array<Edge> used, int index, float[] vertices) {
-		used.add(startE);
-		for (Edge adj : startC.protrudes) {
-			if (allEdges.contains(adj, true) && !used.contains(adj, true)) {
-				if (adj.v0 != startC) {
-					vertices[index] = (float) adj.v0.loc.x;
-					index++;
-					vertices[index] = (float) (Map.HEIGHT - adj.v0.loc.y);
-					index++;
-					adjEdge(adj.v0, adj, allEdges, used, index, vertices);
-					return;
-				}
-				else if (adj.v1 != startC) {
-					vertices[index] = (float) adj.v1.loc.x;
-					index++;
-					vertices[index] = (float) (Map.HEIGHT - adj.v1.loc.y);
-					index++;
-					adjEdge(adj.v1, adj, allEdges, used, index, vertices);
-					return;
-				}
-				else System.out.println("adjEdge not following proper path");
-			}
-		}
-	}
+
 	
 //	/** naive approach to finding outside corners
 //	 *  works :D

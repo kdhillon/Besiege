@@ -38,6 +38,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.minlog.Log;
 
 public class MapScreen implements Screen {
 	private Kryo kryo;
@@ -610,14 +611,14 @@ public class MapScreen implements Screen {
 	public void save() {
 		kryo  = new Kryo();
 		
-		kryo.register(Character.class, 109);
-		kryo.register(MapScreen.class, 110);
-		kryo.register(Kingdom.class, 111);
-		kryo.register(Map.class, 112);
-		kryo.register(Army.class, 113);
-		kryo.register(Party.class, 114);
-		kryo.register(Location.class, 115);
-		kryo.register(Array.class, 116);
+//		kryo.register(Character.class, 109);
+//		kryo.register(MapScreen.class, 110);
+//		kryo.register(Kingdom.class, 111);
+////		kryo.register(Map.class, 112);
+//		kryo.register(Army.class, 113);
+//		kryo.register(Party.class, 114);
+//		kryo.register(Location.class, 115);
+//		kryo.register(Array.class, 116);
 
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
@@ -631,6 +632,7 @@ public class MapScreen implements Screen {
 //		kingdom.getPlayer().closeCenters = null;
 //		kingdom.getPlayer().remove();
 		
+		Log.DEBUG();
 		
 		// try nullifying all map references from armies
 		for (Army army : kingdom.getArmies()) {
@@ -649,17 +651,19 @@ public class MapScreen implements Screen {
 		
 //		kryo.setReferences(true);
 		
-		kryo.writeObjectOrNull(output, this.kingdom.getMap(), this.kingdom.getMap().getClass());
+		this.kingdom.map.remove();
+		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
+		this.kingdom.addActor(this.kingdom.map);
 		
-//		for (Army toSave :  kingdom.getArmies()) {
-//			System.out.println("saving " + toSave.getName());
-//			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
-//		}
-////		
-//		for (Location city : locations) {
-//			System.out.println("saving " + city.getName());
-//			kryo.writeObjectOrNull(output, city, city.getClass());		
-//		}
+		for (Army toSave :  kingdom.getArmies()) {
+			System.out.println("saving " + toSave.getName());
+			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
+		}
+//		
+		for (Location city : locations) {
+			System.out.println("saving " + city.getName());
+			kryo.writeObjectOrNull(output, city, city.getClass());		
+		}
 		
 		output.close();
 		
