@@ -146,14 +146,21 @@ public class ArmyPlayer extends Army {
 			sr.begin(ShapeType.Line);
 			sr.setProjectionMatrix(batch.getProjectionMatrix());
 			sr.setColor(1,0,0,1);
-			Destination prev;
-			prev = this; // do in reverse order (Stack!)
+			
+			Destination prev = this.path.finalGoal; // do in reverse order (Stack!)
 			for (Destination curr : path.dStack) {
 				if (prev != null && curr != null && prev != curr) {
 					sr.line((float) prev.getX(), (float)(prev.getY()), (float) curr.getX(), (float) (curr.getY()));
 				}
+				else continue;
 				prev = curr;
 			}
+			
+			if (path.nextGoal != null)
+				sr.line((float) this.getX(), (float)(this.getY()), (float) path.nextGoal.getX(), (float) (path.nextGoal.getY()));
+			if (!path.dStack.isEmpty())
+				sr.line((float) this.path.dStack.peek().getX(), (float)(this.path.dStack.peek().getY()), (float) path.nextGoal.getX(), (float) (path.nextGoal.getY()));
+			
 			sr.end();
 			batch.begin();
 		}

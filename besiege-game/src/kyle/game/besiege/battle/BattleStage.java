@@ -158,7 +158,7 @@ public class BattleStage extends Group {
 			createFakeBattle();
 
 		this.player.army.updatePolygon();
-		this.biome = this.player.army.containing.biome;
+		this.biome = this.player.army.getContaining().biome;
 
 		// int size = Math.max(this.player.getHealthySize(),
 		// this.enemy.getHealthySize());

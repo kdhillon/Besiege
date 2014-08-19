@@ -91,8 +91,8 @@ public class Location extends Actor implements Destination {
 	public boolean playerBesieging;
 	
 	public Point spawnPoint; // point where armies and farmers should spawn if on water
-	transient public Center center; // one of these will be null
-	transient public Corner corner;
+	public int center = -1; // one of these will be null
+	public int corner = -1;
 	
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, Party garrison) {
@@ -143,28 +143,36 @@ public class Location extends Actor implements Destination {
 		this.setOrigin(region.getRegionWidth()*SCALE/2, region.getRegionHeight()*SCALE/2);
 	}
 	public void setCorner(Corner corner) {
-		this.corner = corner;
+		this.corner = corner.index;
 	}
 	public void setCenter(Center center) {
-		this.center = center;
+		this.center = center.index;
+	}
+	public Center getCenter() {
+		if (this.center == -1) return null;
+		return kingdom.getMap().getCenter(center);
+	}
+	public Corner getCorner() {
+		if (this.corner == -1) return null;
+		return kingdom.getMap().getCorner(corner);
 	}
 	
 	/** Initialize containers for armies created at this site 
 	 * @param army Army to be created */
 	public void setContainerForArmy(Army army) {
-		if (this.center != null) {
-			army.containing = center;
-			center.armies.add(army);
+		if (this.getCenter() != null) {
+			army.containingCenter = center;
+			getCenter().armies.add(army);
 		}
-		else if (corner != null) {
+		else if (getCorner() != null) {
 //			assert(army != null);
 //			assert(army.containing != null);
 //			assert(corner.touches != null);
 //			assert(corner.touches.get(0) != null);
 //			assert(false);
-			if (corner == null) System.out.println("containing is null!");
-			army.containing = corner.touches.get(0);
-			corner.touches.get(0).armies.add(army);
+			if (getCorner() == null) System.out.println("containing is null!");
+			army.containingCenter = getCorner().touches.get(0).index;
+			getCorner().touches.get(0).armies.add(army);
 		}
 		else 
 			System.out.println(this.getName() + " no corner or center!");
@@ -842,14 +850,10 @@ public class Location extends Actor implements Destination {
 	// prepare this for saving (separate from map)
 	public void nullify() {
 		this.kingdom = null;
-		this.center = null;
-		this.corner = null;
 		this.remove();
 	}
 	public void restore(Kingdom kingdom) {
 		this.kingdom = kingdom;
-		this.center = null;
-		this.corner = null;
 		kingdom.addActor(this);
 	}
 }

@@ -791,4 +791,17 @@ public class Map extends Actor {
 			batch.begin();
 		}
 	}
+	
+	public Corner getCorner(int index) {
+		if (index < 0) return null;
+		return vg.corners.get(index);
+	}
+	public Center getCenter(int index) {
+		if (index < 0) return null;
+		return vg.centers.get(index);
+	}
+	public Edge getEdge(int index) {
+		if (index < 0) return null;
+		return vg.edges.get(index);
+	}
 }

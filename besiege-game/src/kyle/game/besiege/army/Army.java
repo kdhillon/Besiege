@@ -112,9 +112,9 @@ public class Army extends Actor implements Destination {
 	protected Army runFrom;
 //	public Destination runTo; // use for running
 	public Array<Army> targetOf; // armies that have this army as a target
-	transient public Center containing;
+	public int containingCenter;
 	public Array<Army> closeArmies;
-	transient public Array<Center> closeCenters; 
+	public Array<Integer> closeCenters; 
 	
 	private float timeSinceRunFrom = 0;
 
@@ -157,7 +157,7 @@ public class Army extends Actor implements Destination {
 		this.targetOf = new Array<Army>();
 
 		this.closeArmies = new Array<Army>();
-		this.closeCenters = new Array<Center>();
+		this.closeCenters = new Array<Integer>();
 
 		this.path = new Path(this);
 		
@@ -673,21 +673,24 @@ public class Army extends Actor implements Destination {
 		closeArmies.clear();
 		closeCenters.clear();
 
-		if (containing != null) {
+		if (kingdom.getMap().getCenter(containingCenter) != null) {
+			Center containing = kingdom.getMap().getCenter(containingCenter);
 			// central one
-			closeCenters.add(containing);
+			closeCenters.add(containingCenter);
 			for (Center levelOne : containing.neighbors) {
-				if (!closeCenters.contains(levelOne, true)) // level one
-					closeCenters.add(levelOne);
+				if (!closeCenters.contains(levelOne.index, false)) // level one
+					closeCenters.add(levelOne.index);
 				for (int i = 0; i < levelOne.neighbors.size(); i++) {
 					Center levelTwo = levelOne.neighbors.get(i);
-					if (!closeCenters.contains(levelTwo, true)) // level two
-						closeCenters.add(levelTwo);
+					if (!closeCenters.contains(levelTwo.index, false)) // level two
+						closeCenters.add(levelTwo.index);
 				}
 			}
 
-			for (Center containing: closeCenters)
-				if (containing.armies != null) closeArmies.addAll(containing.armies);
+			for (int index: closeCenters){ 
+				Center containing2 = getKingdom().getMap().getCenter(index);
+				if (containing2.armies != null) closeArmies.addAll(containing2.armies);
+			}
 
 			//			System.out.println("Total Armies length: " + getKingdom().getArmies().size);
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
@@ -1362,5 +1365,8 @@ public class Army extends Actor implements Destination {
 	public boolean withinActingRange() {
 		if (this.isNoble()) return true;
 		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared*ACTING_RANGE_FACTOR);
+	}
+	public Center getContaining() {
+		return kingdom.getMap().getCenter(containingCenter);
 	}
 }

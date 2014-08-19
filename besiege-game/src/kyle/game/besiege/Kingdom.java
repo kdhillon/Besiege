@@ -154,29 +154,29 @@ public class Kingdom extends Group {
 	
 	// just check adjacent centers!
 	public void updateArmyPolygon(Army army) {
-		if (army.containing != null) {
+		if (army.getContaining() != null) {
 
 			// first check if it's left it's previous polygon
 			// if not, return, if so, remove from previous container
-			if (army.containing.polygon != null && army.containing.polygon.contains(army.getCenterX(), army.getCenterY())) {
-				if (!army.containing.armies.contains(army, true)) army.containing.armies.add(army);
+			if (army.getContaining().polygon != null && army.getContaining().polygon.contains(army.getCenterX(), army.getCenterY())) {
+				if (!army.getContaining().armies.contains(army, true)) army.getContaining().armies.add(army);
 				return;
 			}
 
-			army.containing.armies.removeValue(army, true);
+			army.getContaining().armies.removeValue(army, true);
 
-			for (Center adjacent : army.containing.neighbors) {
+			for (Center adjacent : army.getContaining().neighbors) {
 				// checks if in connected (all connected have polygon)
 				if (adjacent.polygon != null) {
 					Polygon p = adjacent.polygon;
 					if (p.contains(army.getCenterX(), army.getCenterY())) {
 						adjacent.armies.add(army);
-						army.containing = adjacent;
+						army.containingCenter = adjacent.index;
 						return;
 					}
 				}
 			}
-			army.containing = null;
+			army.containingCenter = -1;
 			//			System.out.println("nothing adjacent found for " + army.getName());
 		}
 		// container is null (slow during initialization stages - plan is to initialize armies with accurate center)
@@ -184,7 +184,7 @@ public class Kingdom extends Group {
 			Polygon p = center.polygon;
 			if (p.contains(army.getCenterX(), army.getCenterY())) {
 				center.armies.add(army);
-				army.containing = center;
+				army.containingCenter = center.index;
 				//						System.out.println("completely differnt polygon");
 				return;
 			}
@@ -520,7 +520,7 @@ public class Kingdom extends Group {
 			}
 		}
 		for (Village v : villages) {
-			v.changeFaction(getInfluenceAt(v.center));
+			v.changeFaction(getInfluenceAt(v.getCenter()));
 		}
 	}
 
@@ -778,7 +778,7 @@ public class Kingdom extends Group {
 			//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
 			Village village = new Village(this, villageArray.pop(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
 			villages.add(village);
-			village.center = center;
+			village.center = center.index;
 			addActor(village);
 		}
 		System.out.println("Number villages: " + villages.size);
@@ -826,7 +826,7 @@ public class Kingdom extends Group {
 			
 			Castle castle = new Castle(this, castleArray.pop(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
 			castles.add(castle);
-			castle.corner = corner;
+			castle.corner = corner.index;
 			
 			addActor(castle);
 		}
@@ -855,7 +855,7 @@ public class Kingdom extends Group {
 		
 		player = new ArmyPlayer(this, faction, pos_x, pos_y, 6);
 		player.getParty().player = true;
-		player.containing = center;
+		player.containingCenter = center.index;
 		addArmy(player);
 		//		player.initializeBox(); // otherwise line of sight will be 0!
 		//getMapScreen().center(); doesn't do anything bc of auto resize
@@ -897,8 +897,8 @@ public class Kingdom extends Group {
 //		System.out.println("removing " + remove.getName());
 //		if (remove.getParty().player) System.out.println("kingdom removing player");
 		armies.removeValue(remove, true);
-		if (remove.containing != null)
-			remove.containing.armies.removeValue(remove, true);
+		if (remove.getContaining() != null)
+			remove.getContaining().armies.removeValue(remove, true);
 		
 		remove.remove();
 		this.removeActor(remove);
