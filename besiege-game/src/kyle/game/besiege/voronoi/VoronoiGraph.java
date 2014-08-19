@@ -41,9 +41,10 @@ public class VoronoiGraph {
 	private static final double LAND_FREQ = .43; // increase for overall land mass (sensitive) (~.4)
 	private static final double TURBULENCE = 4; // (~5)
 
-    final public ArrayList<Edge> edges = new ArrayList<Edge>();
     final public ArrayList<Corner> corners = new ArrayList<Corner>();
     final public ArrayList<Center> centers = new ArrayList<Center>();
+    final public ArrayList<Edge> edges = new ArrayList<Edge>();
+
     final public Rectangle bounds;
     final private MyRandom r;
     final private PerlinNoiseGenerator perlin;
@@ -486,22 +487,32 @@ public class VoronoiGraph {
             edges.add(edge);
 
             edge.v0 = makeCorner(pointCornerMap, vEdge.p0);
+            if (edge.v0 != null) edge.adjCorner0 = edge.v0.index;
             edge.v1 = makeCorner(pointCornerMap, vEdge.p1);
+            if (edge.v1 != null) edge.adjCorner1 = edge.v1.index;
             edge.d0 = pointCenterMap.get(dEdge.p0);
+            if (edge.d0 != null) edge.adjCenter0 = edge.d0.index;
             edge.d1 = pointCenterMap.get(dEdge.p1);
+            if (edge.d1 != null) edge.adjCenter1 = edge.d1.index;
 
+            System.out.println(edge.adjCenter0 + " " + edge.adjCenter1 + " " + edge.adjCorner0 + " " + edge.adjCorner1);
+            
             // Centers point to edges. Corners point to edges.
             if (edge.d0 != null) {
                 edge.d0.borders.add(edge);
+                edge.d0.adjEdges.add(edge.index);
             }
             if (edge.d1 != null) {
                 edge.d1.borders.add(edge);
+                edge.d1.adjEdges.add(edge.index);
             }
             if (edge.v0 != null) {
                 edge.v0.protrudes.add(edge);
+                edge.v0.adjEdges.add(edge.index);
             }
             if (edge.v1 != null) {
                 edge.v1.protrudes.add(edge);
+                edge.v1.adjEdges.add(edge.index);
             }
 
             // Centers point to centers.
@@ -986,5 +997,22 @@ public class VoronoiGraph {
     private static void addColor(String name, int color) {
         colorBiomeMap.put(color, name);
         biomeColorMap.put(name, color);
+    }
+    
+    
+    // call this after restoring the map to bridge the graph
+    public void restore() {
+    	for (Edge edge : edges) {
+    		edge.restoreFromVoronoi(this);
+    	}
+    	System.out.println("edges restored");
+    	for (Corner corner : corners) {
+    		corner.restoreFromVoronoi(this);
+    	}
+    	System.out.println("corners restored");
+    	for (Center center : centers) {
+    		center.restoreFromVoronoi(this);
+    	}
+    	System.out.println("centers restored");
     }
 }

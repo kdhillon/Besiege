@@ -60,7 +60,7 @@ public class Faction {
 	public Array<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
 	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
 	transient public Array<Center> centers; // centers under influence of this faction
-	transient public Array<Polygon> territory; // polygon of all centers
+	public Array<Polygon> territory; // polygon of all centers
 
 	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
 	private boolean hasChecked;

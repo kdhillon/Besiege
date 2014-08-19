@@ -24,19 +24,23 @@ public class Center {
 
     public int index;
     public PointH loc;
-    transient public ArrayList<Corner> corners = new ArrayList<Corner>();//good
-    transient public ArrayList<Center> neighbors = new ArrayList<Center>();//good
-    public ArrayList<Edge> borders = new ArrayList<Edge>();
+    
+    transient public ArrayList<Corner> corners = new ArrayList<Corner>(); // can be reconstructed from edges
+    transient public ArrayList<Center> neighbors = new ArrayList<Center>(); // can be reconstructed from edges
+    transient public ArrayList<Edge> borders = new ArrayList<Edge>();
     transient public Array<Army> armies; // armies within this polygon
-    transient public Polygon polygon;
-    transient public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
+    public Polygon polygon;
+    public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
+    
+    // used for serialization
+    public ArrayList<Integer> adjEdges = new ArrayList<Integer>();
     
     public boolean border, ocean, water, coast;
     public double elevation;
     public double moisture;
     public Biomes biome;
     public double area;
-    public Faction faction; // controlling faction
+    transient public Faction faction; // controlling faction - can be recalculated
     
     public Center() {
     	armies = new Array<Army>();
@@ -63,4 +67,29 @@ public class Center {
     public Center(PointH loc) {
         this.loc = loc;
     }
+    
+    public void restoreFromVoronoi(VoronoiGraph vg) {
+    	this.borders = new ArrayList<Edge>();
+		this.corners = new ArrayList<Corner>();
+		this.neighbors = new ArrayList<Center>();
+    	
+		// first restore adjacent edges
+		for (int index: this.adjEdges) {
+			if (index != -1)
+				this.borders.add(vg.edges.get(index));
+		}
+		// then restore adjacent faces and corners
+		for (Edge edge : borders) {
+			// add centers if they're not this one
+			if (edge.d0 != null && !this.neighbors.contains(edge.d0))
+				this.neighbors.add(edge.d0);
+			if (edge.d1 != null && !this.neighbors.contains(edge.d1))
+				this.neighbors.add(edge.d1);
+			
+			if (edge.v0 != null && !this.corners.contains(edge.v0))
+				this.corners.add(edge.v0);
+			if (edge.v1 != null && !this.corners.contains(edge.v1))
+				this.corners.add(edge.v1);
+		}
+	}
 }

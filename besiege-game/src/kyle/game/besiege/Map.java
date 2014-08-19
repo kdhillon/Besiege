@@ -36,17 +36,21 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	transient public ShapeRenderer sr;
 
-	public static final int WIDTH = 500;
-	public static final int HEIGHT = 500;
-	private static final int NUM_SITES = 250;
+	public static final int WIDTH = 11500;
+	public static final int HEIGHT = 11500;
+	
+	// max safe size for saving using expanded stack is ~1000
+	// using new int technique, can support infinite sites - tested up to 3200
+	private static final int NUM_SITES = 1200;
 //	public static boolean debug = true;
 	public static boolean debug;
 	public static boolean drawSpheres;
-	public VoronoiGraph vg;
 
 //	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 //	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
 
+	public VoronoiGraph vg;
+	
 	public int testIndex;
 	public int totalVisibilityLines;
 
@@ -61,7 +65,7 @@ public class Map extends Actor {
 	public Array<Edge> impassable;
 	public Array<Edge> impBorders;
 	public Array<Center> connected; // land centers connected to reference
-
+	
 	public Center reference; // center on main map
 	public Point referencePoint;
 	
@@ -334,10 +338,10 @@ public class Map extends Actor {
 			if (otherCorner.waterTouches != 2) {
 				for (Edge touching : currentCorner.protrudes) {
 					if ((!touching.d0.water || !touching.d1.water) && (touching.v0 == otherCorner || touching.v1 == otherCorner)) {
-						currentCorner.visibleCorners.add(otherCorner);
+						currentCorner.addVisible(otherCorner);
 						totalVisibilityLines++;
 						if (otherCorner.visibleCorners != null && !otherCorner.visibleCorners.contains(currentCorner))
-							otherCorner.visibleCorners.add(currentCorner);
+							otherCorner.addVisible(currentCorner);
 						continue;
 					}
 				}
@@ -352,10 +356,10 @@ public class Map extends Actor {
 					}
 					if (shouldAdd) {
 						if (!currentCorner.visibleCorners.contains(otherCorner))
-							currentCorner.visibleCorners.add(otherCorner);
+							currentCorner.addVisible(otherCorner);
 						totalVisibilityLines++;
 						if (otherCorner.visibleCorners != null && !otherCorner.visibleCorners.contains(currentCorner))
-							otherCorner.visibleCorners.add(currentCorner);
+							otherCorner.addVisible(currentCorner);
 						// can optimize a little later
 					}
 				}
@@ -413,10 +417,10 @@ public class Map extends Actor {
 				if (otherCorner.waterTouches != 2 && lineNeeded(currentCorner, otherCorner)) {
 					for (Edge touching : currentCorner.protrudes) {
 						if ((!touching.d0.water || !touching.d1.water) && (touching.v0 == otherCorner || touching.v1 == otherCorner)) {
-							currentCorner.visibleCorners.add(otherCorner);
+							currentCorner.addVisible(otherCorner);
 							totalVisibilityLines++;
 							if (otherCorner.visibleCorners != null && !otherCorner.visibleCorners.contains(currentCorner))
-								otherCorner.visibleCorners.add(currentCorner);
+								otherCorner.addVisible(currentCorner);
 							continue;
 						}
 					}
@@ -431,10 +435,10 @@ public class Map extends Actor {
 						}
 						if (shouldAdd) {
 							if (!currentCorner.visibleCorners.contains(otherCorner))
-								currentCorner.visibleCorners.add(otherCorner);
+								currentCorner.addVisible(otherCorner);
 							totalVisibilityLines++;
 							if (otherCorner.visibleCorners != null && !otherCorner.visibleCorners.contains(currentCorner))
-								otherCorner.visibleCorners.add(currentCorner);
+								otherCorner.addVisible(currentCorner);
 							// can optimize a little later
 						}
 					}

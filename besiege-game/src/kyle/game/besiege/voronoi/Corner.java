@@ -20,11 +20,15 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Corner {
 	private final float PUSH_DIST = 5; //distance corners will be pushed away from convex corners
-
-	public ArrayList<Center> touches = new ArrayList<Center>(); //good
-	public ArrayList<Corner> adjacent = new ArrayList<Corner>(); //good
-	public ArrayList<Edge> protrudes = new ArrayList<Edge>();
-	public ArrayList<Corner> visibleCorners;
+	
+	transient public ArrayList<Center> touches = new ArrayList<Center>(); // can be easily reconstructed from edge
+	transient public ArrayList<Corner> adjacent = new ArrayList<Corner>(); // can be easily reconstructed from edge
+	transient public ArrayList<Edge> protrudes = new ArrayList<Edge>();
+	transient public ArrayList<Corner> visibleCorners; // can be recalculated if necessary...
+	
+	// used for serialization
+	public ArrayList<Integer> adjEdges = new ArrayList<Integer>();
+	public ArrayList<Integer> visibleCornersIndices = new ArrayList<Integer>();
 	// distance to bordercorner at index, if non-null/0 then it's visible.
 	//    public ArrayList<Double> visibleDistance;
 	public PointH loc;
@@ -38,13 +42,18 @@ public class Corner {
 
 	public double elevation;
 	public boolean water, ocean, coast;
-	public Corner downslope;
+	transient public Corner downslope;
 	public int river;
 	public double moisture; 
 	
 	public void init() {
 		locPushed = new PointH(this.loc.x, this.loc.y);
 		locNew = new PointH(this.loc.x, Map.HEIGHT-this.loc.y);
+	}
+	
+	public void addVisible(Corner corner) {
+		this.visibleCorners.add(corner);
+		this.visibleCornersIndices.add(corner.index);
 	}
 
 	public void calcWaterTouches() {
@@ -89,5 +98,37 @@ public class Corner {
 	public PointH getLoc() {
 		if (locPushed != null) return locPushed;
 		else return loc;
+	}
+	
+	public void restoreFromVoronoi(VoronoiGraph vg) {
+		this.protrudes = new ArrayList<Edge>();
+		this.adjacent = new ArrayList<Corner>();
+		this.touches = new ArrayList<Center>();
+		this.visibleCorners = new ArrayList<Corner>();
+
+		// first restore adjacent edges
+		for (int index: this.adjEdges) {
+			if (index != -1)
+				this.protrudes.add(vg.edges.get(index));
+		}
+		// then restore adjacent faces and corners
+		for (Edge edge : protrudes) {
+			// add corners if they're not this one
+			if (edge.v0 != null && edge.v0 != this && !this.adjacent.contains(edge.v0))
+				this.adjacent.add(edge.v0);
+			if (edge.v1 != null && edge.v0 != this && !this.adjacent.contains(edge.v1))
+				this.adjacent.add(edge.v1);
+			
+			if (edge.d0 != null && !this.adjacent.contains(edge.d0))
+				this.touches.add(edge.d0);
+			if (edge.d1 != null && !this.adjacent.contains(edge.d1))
+				this.touches.add(edge.d1);
+		}
+		
+		// also restore visible corners
+		for (int index: this.visibleCornersIndices) {
+			if (index != -1)
+				this.visibleCorners.add(vg.corners.get(index));
+		}
 	}
 }

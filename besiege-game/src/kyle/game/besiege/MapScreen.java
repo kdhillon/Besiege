@@ -653,17 +653,18 @@ public class MapScreen implements Screen {
 		
 		this.kingdom.map.remove();
 		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
+		
 		this.kingdom.addActor(this.kingdom.map);
 		
-		for (Army toSave :  kingdom.getArmies()) {
-			System.out.println("saving " + toSave.getName());
-			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
-		}
-//		
-		for (Location city : locations) {
-			System.out.println("saving " + city.getName());
-			kryo.writeObjectOrNull(output, city, city.getClass());		
-		}
+//		for (Army toSave :  kingdom.getArmies()) {
+//			System.out.println("saving " + toSave.getName());
+//			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
+//		}
+////		
+//		for (Location city : locations) {
+//			System.out.println("saving " + city.getName());
+//			kryo.writeObjectOrNull(output, city, city.getClass());		
+//		}
 		
 		output.close();
 		
