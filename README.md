@@ -8,6 +8,8 @@ Besiege is a single-player real-time strategy and conquest game, written in Java
 Command a custom army in a fully automated procedurally generated world of rivaling factions and kingdoms.
 Win battles and earn glory, conquer cities and castles, and declare yourself ruler of your very own faction.
 
+Download and play the beta version here: http://princeton.edu/~kdhillon/besiege
+
 Map:
 Besiege's island map is procedurally generated for each playthrough, using Voronoi graphs, Delaunay triangulation,
 and Perlin noise functions, in a Java based off the methods described here:
@@ -104,7 +106,7 @@ Day 79: fixed "sticky player" bug and merchant bug
 Day 80: worked on researching how to save game state
 Day 81: fixed bug with crests not disappearing after losing
 Day 82: started process of simplifying references for eventual saving
-Day 83: added optional "optimized"
+Day 83: added optional "optimized" setting to map
 Day 84: continued working on serialization, changed graph to use indices
 Day 85: finished saving map and armies/locations
 Day 86: added basic saving and loading functionality using kryo
@@ -128,8 +130,7 @@ allow joining battles
 
 MAP:
 now:
-finish saving map
-use hacky saving where you actually only save armies near the player and only nobles
+use hacky saving where you actually only save parties near the player and only nobles
 use shaperenderer to make shapes
 
 later:
