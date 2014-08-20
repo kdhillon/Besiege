@@ -618,103 +618,35 @@ public class MapScreen implements Screen {
 	}
 	
 	public void save() {		
-//		kryo.register(Character.class, 109);
-//		kryo.register(MapScreen.class, 110);
-//		kryo.register(Kingdom.class, 111);
-////		kryo.register(Map.class, 112);
-//		kryo.register(Army.class, 113);
-//		kryo.register(Party.class, 114);
-//		kryo.register(Location.class, 115);
-//		kryo.register(Array.class, 116);
-
-		
-		
-		
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
 		
-				
-//		Path tempPath = kingdom.getPlayer().path;
-//		kingdom.getPlayer().path = null;
-//		kingdom.getPlayer().targetOf = null;
-//		kingdom.getPlayer().containing = null;
-//		kingdom.getPlayer().closeArmies = null;
-//		kingdom.getPlayer().closeCenters = null;
-//		kingdom.getPlayer().remove();
+//		Log.DEBUG();
 		
-		Log.DEBUG();
+		Date date = new Date();
+		kryo.writeObjectOrNull(output, date, date.getClass());
 		
 		kingdom.remove();
 		kryo.writeObjectOrNull(output, this.kingdom, this.kingdom.getClass());
 
-		
-		// try nullifying all map references from armies
-//		for (Army army : kingdom.getArmies()) {
-//			army.nullify();
-//		}
-//		for (Location location : locations) {
-//			location.nullify();
-//		}
-//		
-//		kryo.writeObject(output, new Date());
-//		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
-//		
-//		// saving all armies works, locations don't
-////		kryo.writeOb
-//		
-////		kryo.setReferences(true);
-//		
-//		this.kingdom.map.remove();
-//		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
-		//this.kingdom.addActor(this.kingdom.map);
-		
-////		for (Army toSave :  kingdom.getArmies()) {
-////			System.out.println("saving " + toSave.getName());
-////			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
-////		}
-//		
-//		kryo.writeObjectOrNull(output, kingdom.getArmies(), kingdom.getArmies().getClass());
-//		
-//		kryo.writeObjectOrNull(output, locations, locations.getClass());
-
-//		
-//		for (Location city : locations) {
-//			System.out.println("saving " + city.getName());
-//			kryo.writeObjectOrNull(output, city, city.getClass());		
-//		}
-		
 		output.close();
-		
-//		for (Army army : kingdom.getArmies()) {
-//			army.restore(kingdom);
-//		}
-//		
-//		Array<Location> locations = kingdom.getAllLocationsCopy();
-//		for (Location location : locations) {
-//			location.restore(kingdom);
-//		}
 		
 		this.kingdomStage.addActor(kingdom);
 
-//		kingdom.addActor(kingdom.getPlayer());
-//		kingdom.getPlayer().path = tempPath;
-
-		System.out.println("SAVE SUCCESSFUL");
+		System.out.println("Saved game!");
 	}
 	
 	public void load() {
 		if (kryo == null) return;
-//		
-		
-		
+
 		Input input = null;
 		try {
 			FileHandle file = Gdx.files.local("save.dat");
 			input = new Input(file.read());
 		}
-		catch (Exception e) {
-			
-		}
+		catch (Exception e) {}
+		
+		Date date = kryo.readObjectOrNull(input, Date.class);
 		
 		this.kingdom.remove();
 
@@ -724,7 +656,6 @@ public class MapScreen implements Screen {
 		Array<Location> locations = kingdom.getAllLocationsCopy();
 		for (Location location : locations) {
 			location.restoreTexture();
-			System.out.println(location.textureName);
 		}
 
 		kingdom.getMap().initialize();
@@ -732,51 +663,10 @@ public class MapScreen implements Screen {
 		this.kingdomStage.addActor(kingdom);
 		// restore faction crests()
 		kingdom.restoreFactionCrests();
-		this.sidePanel.clearChildren();
 		this.sidePanel.setActiveArmy(kingdom.getPlayer());
 		
-	
-//		Date date = kryo.readObjectOrNull(input, Date.class);
-//		
-//		System.out.println(date.toString());
-//		
-//		
-//		// delete everything
-//		this.character = null;
-//		this.character = kryo.readObjectOrNull(input, Character.class);
-//		
-//		this.kingdom.removeActor(kingdom.map);
-//		this.kingdom.map = null;
-//		
-//		for (Army army : kingdom.getArmies()) {
-//			army.nullify();
-//		}
-//		Array<Location> locations = kingdom.getAllLocationsCopy();
-//		for (Location location : locations) {
-//			location.nullify();
-//		}
-//		
-//		
-//		// start by reading in map
-//		this.kingdom.map = kryo.readObjectOrNull(input, Map.class);
-//		
-//		this.kingdom.setArmies(kryo.readObjectOrNull(input, Array.class)));
-//		this.kingdom.setLocations(kryo.readObjectOrNull(input, Array.class)));
-//		
-//		input.close();
-//
-//		this.kingdom.map.initialize();
-//		this.kingdom.addActor(kingdom.map);
-//		
-//		
-//		for (Army army : kingdom.getArmies()) {
-//			army.restore(kingdom);
-//		}
-//		
-//		for (Location location : locations) {
-//			location.restore(kingdom);
-//		}
-		
+
+		System.out.println("Loaded save from " + date.toString());
 	}
 	
 	@Override

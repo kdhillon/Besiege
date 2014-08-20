@@ -1009,14 +1009,14 @@ public class VoronoiGraph {
     	for (Edge edge : edges) {
     		edge.restoreFromVoronoi(this);
     	}
-    	System.out.println("edges restored");
+//    	System.out.println("edges restored");
     	for (Corner corner : corners) {
     		corner.restoreFromVoronoi(this);
     	}
-    	System.out.println("corners restored");
+//    	System.out.println("corners restored");
     	for (Center center : centers) {
     		center.restoreFromVoronoi(this);
     	}
-    	System.out.println("centers restored");
+//    	System.out.println("centers restored");
     }
 }

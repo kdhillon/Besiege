@@ -962,6 +962,11 @@ public class Army extends Actor implements Destination {
 	}
 	@Override
 	public void setScale(float scale) {
+		if (this.getTextureRegion() == null) {
+			this.setTextureRegion(textureName);
+			return;
+		}
+		
 		super.setScale(scale);
 		this.setWidth(region.getRegionWidth()*getScaleX());
 		this.setHeight(region.getRegionHeight()*getScaleY());
