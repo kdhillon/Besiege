@@ -105,6 +105,9 @@ Day 80: worked on researching how to save game state
 Day 81: fixed bug with crests not disappearing after losing
 Day 82: started process of simplifying references for eventual saving
 Day 83: added optional "optimized"
+Day 84: continued working on serialization, changed graph to use indices
+Day 85: finished saving map and armies/locations
+Day 86: added basic saving and loading functionality using kryo
 
 todo:
 update my linkedin
