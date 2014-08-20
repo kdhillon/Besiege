@@ -25,8 +25,10 @@ public class Village extends Location {
 
 	private final String textureRegion = "Village";
 		
-	public Array<Farmer> farmers;
+	transient public Array<Farmer> farmers;
 
+	public Village(){}
+	
 	public Village(Kingdom kingdom, String name, int index, Faction faction,
 			float posX, float posY, int wealth) {
 		super(kingdom, name, index, faction, posX, posY, new Party());

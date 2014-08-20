@@ -32,8 +32,8 @@ public class Castle extends Location {
 	private static int CASTLE_UPPER_LIMIT = Assets.castleArray.size; // highest number of cities possible
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
 	private final static double MERCHANT_GAIN = .008; // calculates merchant's wealth which goes to other cities.
-	private final int patrolCost;
-	private final int raiderCost;
+	private  int patrolCost;
+	private int raiderCost;
 	
 //	private Array<Castle> closestFriendlyCities;
 //	private Array<Castle> closestEnemyCities;
@@ -45,6 +45,8 @@ public class Castle extends Location {
 //	private Array<Village> villages;
 //	private Array<PointH> villageSpots;
 
+	public Castle(){}
+	
 	public Castle(Kingdom kingdom, String name, int index, Faction faction, float posX,
 			float posY, int wealth) {
 		super(kingdom, name, index, faction, posX, posY, PartyType.CITY_GARR_1.generate());

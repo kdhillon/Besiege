@@ -71,6 +71,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public boolean isOver;
 	public boolean didAtkWin;
 	
+	public Battle() {}
+	
 	public Battle (Kingdom kingdom, Army initAttacker, Army initDefender) {
 //		System.out.println("creating new battle");
 		this.kingdom = kingdom;

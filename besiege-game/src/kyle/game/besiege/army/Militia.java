@@ -15,6 +15,8 @@ public class Militia extends Army { // Revamp this :)
 
 	private Village village;
 	
+	public Militia() {}
+	
 	public Militia(Kingdom kingdom, String name, Faction faction, float posX,
 			float posY) {
 		super(kingdom, name, faction, posX, posY, PartyType.MILITIA);

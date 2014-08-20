@@ -57,6 +57,8 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	transient public Array<Equipment> equipment;
 
 	
+	public Soldier() {}
+	
 	public Soldier(Weapon weapon, Party party) {
 		this.weapon = weapon;
 		this.rangedWeapon = Weapon.getRanged(weapon);

@@ -27,6 +27,8 @@ public class Siege extends Actor {
 	
 	private boolean hasChecked;
 	
+	public Siege(){}
+	
 	public Siege(Location location, Faction besieging) {
 		System.out.println("creating new siege at " + location.getName());
 		this.location = location;

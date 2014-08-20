@@ -111,10 +111,10 @@ public class Army extends Actor implements Destination {
 	public Path path;
 	protected Army runFrom;
 //	public Destination runTo; // use for running
-	public Array<Army> targetOf; // armies that have this army as a target
+	transient public Array<Army> targetOf; // armies that have this army as a target
 	public int containingCenter;
-	public Array<Army> closeArmies;
-	public Array<Integer> closeCenters; 
+	transient public Array<Army> closeArmies;
+	transient public Array<Integer> closeCenters; 
 	
 	private float timeSinceRunFrom = 0;
 
@@ -123,6 +123,11 @@ public class Army extends Actor implements Destination {
 	private int currentHour; // used for decreasing momentum every hour
 	public boolean playerTouched; // kinda parallel to location.playerIn
 
+	public Army() {
+		//for loading
+		// restore kingdom, texture region, 
+	}
+	
 	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType pt) {
 		this.kingdom = kingdom;
 		this.name = name;

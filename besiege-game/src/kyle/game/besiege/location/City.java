@@ -43,6 +43,8 @@ public class City extends Location {
 	private Array<RaidingParty> raiders;
 	private boolean[] raiderExists;
 
+	public City() {}
+	
 	public City(Kingdom kingdom, String name, int index, Faction faction, float posX,
 			float posY, int wealth) {
 		super(kingdom, name, index, faction, posX, posY, PartyType.CITY_GARR_1.generate());

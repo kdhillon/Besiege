@@ -53,13 +53,13 @@ public class Location extends Actor implements Destination {
 //	protected Array<Location> closestEnemyLocations;
 	protected Array<Patrol> patrols;
 	
-	protected Array<City> closestFriendlyCities;
-	protected Array<Castle> closestFriendlyCastles;
-	protected Array<Village> closestFriendlyVillages;
+	transient protected Array<City> closestFriendlyCities;
+	transient protected Array<Castle> closestFriendlyCastles;
+	transient protected Array<Village> closestFriendlyVillages;
 	
-	public Array<City> closestEnemyCities;
-	public Array<Castle> closestEnemyCastles;
-	public Array<Village> closestEnemyVillages;
+	transient public Array<City> closestEnemyCities;
+	transient public Array<Castle> closestEnemyCastles;
+	transient public Array<Village> closestEnemyVillages;
 	
 	private boolean mouseOver;
 	
@@ -73,8 +73,8 @@ public class Location extends Actor implements Destination {
 	private double wealthFactor = 1;
 
 	private Array<Army> garrisonedArmies;
-	protected Party toHire;
-	protected Party nextHire; // prevents player from loading and quitting to get ideal choice of hire
+	transient protected Party toHire;
+	transient protected Party nextHire; // prevents player from loading and quitting to get ideal choice of hire
 	public Army garrison;
 	
 	private float timeSinceFreshHire;
@@ -94,6 +94,7 @@ public class Location extends Actor implements Destination {
 	public int center = -1; // one of these will be null
 	public int corner = -1;
 	
+	public Location(){}
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, Party garrison) {
 		this.kingdom = kingdom;
@@ -705,6 +706,8 @@ public class Location extends Actor implements Destination {
 			for (Farmer f : ((Village) this).farmers) {
 				f.setFaction(newFaction);
 			}
+//			((Village) this).farmers = new Array<Farmer>(((Village) this).farmers);
+			// TODO undo this
 		}
 		
 		if (this.type != LocationType.VILLAGE) {

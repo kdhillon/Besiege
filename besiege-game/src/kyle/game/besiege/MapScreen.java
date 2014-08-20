@@ -12,12 +12,8 @@ import java.util.Date;
 
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.location.Castle;
-import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.party.Party;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
@@ -34,6 +30,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Predicate;
+import com.badlogic.gdx.utils.Array.ArrayIterable;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
@@ -160,6 +158,8 @@ public class MapScreen implements Screen {
 		toggleNextFormation = false;
 		
 		startLog();
+		
+		this.kryo = new Kryo();
 	}
 	
 	private void startLog() {
@@ -437,7 +437,6 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.L))
 				losToggle = true;
 			else if (losToggle) {
-				load();
 				toggleLOS();
 				losToggle = false;
 			}
@@ -451,6 +450,8 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.B))
 				nightToggle = true;
 			else if (nightToggle) {
+				load();
+
 				kingdom.toggleNight();
 				nightToggle = false;
 			}
@@ -608,9 +609,7 @@ public class MapScreen implements Screen {
 //		}
 	}
 	
-	public void save() {
-		kryo  = new Kryo();
-		
+	public void save() {		
 //		kryo.register(Character.class, 109);
 //		kryo.register(MapScreen.class, 110);
 //		kryo.register(Kingdom.class, 111);
@@ -620,6 +619,16 @@ public class MapScreen implements Screen {
 //		kryo.register(Location.class, 115);
 //		kryo.register(Array.class, 116);
 
+		kryo.register(Array.ArrayIterable.class, new Serializer<Array.ArrayIterable>() {
+			public void write (Kryo kryo, Output output, Array.ArrayIterable object) {
+				
+			}
+			public Array.ArrayIterable read (Kryo kryo, Input input, Class<Array.ArrayIterable> type) {
+				return null; // don't return an iterable
+			}
+		});
+		
+		
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
 		
@@ -634,36 +643,45 @@ public class MapScreen implements Screen {
 		
 		Log.DEBUG();
 		
+		kingdom.remove();
+		kingdom.clearChildren();
+		kryo.writeObjectOrNull(output, this.kingdom, this.kingdom.getClass());
+
+		
 		// try nullifying all map references from armies
-		for (Army army : kingdom.getArmies()) {
-			army.nullify();
-		}
-		Array<Location> locations = kingdom.getAllLocationsCopy();
-		for (Location location : locations) {
-			location.nullify();
-		}
-		
-		kryo.writeObject(output, new Date());
-		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
-		
-		// saving all armies works, locations don't
-//		kryo.writeOb
-		
-//		kryo.setReferences(true);
-		
-		this.kingdom.map.remove();
-		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
+//		for (Army army : kingdom.getArmies()) {
+//			army.nullify();
+//		}
+//		for (Location location : locations) {
+//			location.nullify();
+//		}
+//		
+//		kryo.writeObject(output, new Date());
+//		kryo.writeObjectOrNull(output, this.character, this.character.getClass());
+//		
+//		// saving all armies works, locations don't
+////		kryo.writeOb
+//		
+////		kryo.setReferences(true);
+//		
+//		this.kingdom.map.remove();
+//		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
 		this.kingdom.addActor(this.kingdom.map);
 		
-		for (Army toSave :  kingdom.getArmies()) {
-			System.out.println("saving " + toSave.getName());
-			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
-		}
+////		for (Army toSave :  kingdom.getArmies()) {
+////			System.out.println("saving " + toSave.getName());
+////			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
+////		}
 //		
-		for (Location city : locations) {
-			System.out.println("saving " + city.getName());
-			kryo.writeObjectOrNull(output, city, city.getClass());		
-		}
+//		kryo.writeObjectOrNull(output, kingdom.getArmies(), kingdom.getArmies().getClass());
+//		
+//		kryo.writeObjectOrNull(output, locations, locations.getClass());
+
+//		
+//		for (Location city : locations) {
+//			System.out.println("saving " + city.getName());
+//			kryo.writeObjectOrNull(output, city, city.getClass());		
+//		}
 		
 		output.close();
 		
@@ -671,9 +689,12 @@ public class MapScreen implements Screen {
 			army.restore(kingdom);
 		}
 		
+		Array<Location> locations = kingdom.getAllLocationsCopy();
 		for (Location location : locations) {
 			location.restore(kingdom);
 		}
+		
+		this.kingdomStage.addActor(kingdom);
 
 //		kingdom.addActor(kingdom.getPlayer());
 //		kingdom.getPlayer().path = tempPath;
@@ -683,6 +704,8 @@ public class MapScreen implements Screen {
 	
 	public void load() {
 		if (kryo == null) return;
+//		
+		
 		
 		Input input = null;
 		try {
@@ -692,37 +715,53 @@ public class MapScreen implements Screen {
 		catch (Exception e) {
 			
 		}
-		Date date = kryo.readObjectOrNull(input, Date.class);
 		
-		System.out.println(date.toString());
+		this.kingdom.remove();
+
+		Kingdom kingdom = kryo.readObjectOrNull(input, Kingdom.class);
+		this.kingdom = kingdom;
+		this.kingdomStage.addActor(kingdom);
 		
-		this.character = null;
-		this.character = kryo.readObjectOrNull(input, Character.class);
-		
-		this.kingdom.removeActor(kingdom.map);
-		this.kingdom.map = null;
-		
-		for (Army army : kingdom.getArmies()) {
-			army.nullify();
-		}
-		Array<Location> locations = kingdom.getAllLocationsCopy();
-		for (Location location : locations) {
-			location.nullify();
-		}
-		
-		this.kingdom.map = kryo.readObjectOrNull(input, Map.class);
-		this.kingdom.map.initialize();
-		this.kingdom.addActor(kingdom.map);
-		
-		input.close();
-		
-		for (Army army : kingdom.getArmies()) {
-			army.restore(kingdom);
-		}
-		
-		for (Location location : locations) {
-			location.restore(kingdom);
-		}
+//		Date date = kryo.readObjectOrNull(input, Date.class);
+//		
+//		System.out.println(date.toString());
+//		
+//		
+//		// delete everything
+//		this.character = null;
+//		this.character = kryo.readObjectOrNull(input, Character.class);
+//		
+//		this.kingdom.removeActor(kingdom.map);
+//		this.kingdom.map = null;
+//		
+//		for (Army army : kingdom.getArmies()) {
+//			army.nullify();
+//		}
+//		Array<Location> locations = kingdom.getAllLocationsCopy();
+//		for (Location location : locations) {
+//			location.nullify();
+//		}
+//		
+//		
+//		// start by reading in map
+//		this.kingdom.map = kryo.readObjectOrNull(input, Map.class);
+//		
+//		this.kingdom.setArmies(kryo.readObjectOrNull(input, Array.class)));
+//		this.kingdom.setLocations(kryo.readObjectOrNull(input, Array.class)));
+//		
+//		input.close();
+//
+//		this.kingdom.map.initialize();
+//		this.kingdom.addActor(kingdom.map);
+//		
+//		
+//		for (Army army : kingdom.getArmies()) {
+//			army.restore(kingdom);
+//		}
+//		
+//		for (Location location : locations) {
+//			location.restore(kingdom);
+//		}
 		
 	}
 	

@@ -58,7 +58,7 @@ public class Kingdom extends Group {
 	private float targetDarkness; // for fading
 
 	public Map map;
-	private MapScreen mapScreen;
+	transient private MapScreen mapScreen;
 	public Array<Faction> factions;
 	private int factionCount;
 	public Array<Array<Integer>> factionRelations; // should break into multiple arrays
@@ -81,8 +81,11 @@ public class Kingdom extends Group {
 	private boolean rightClicked;
 	private Point mouse;
 
-	private ShapeRenderer sr = new ShapeRenderer();
-
+	// for loading kingdom
+	public Kingdom() {
+		
+	}
+	
 	public Kingdom(MapScreen mapScreen) {
 		map = new Map(true);
 
@@ -298,6 +301,8 @@ public class Kingdom extends Group {
 	}
 
 	public void click(int pointer) {
+		this.armies.iterator();
+		
 //		if (pointer == 0)
 //			leftClicked = true;
 //		else if (pointer == 1) 
@@ -908,6 +913,9 @@ public class Kingdom extends Group {
 
 	public Array<Army> getArmies() {
 		return armies;
+	}
+	public void setArmies(Array<Army> armies) {
+		this.armies = armies;
 	}
 	public void addBattle(Battle battle) {
 		battles.add(battle);

@@ -22,6 +22,8 @@ public class Merchant extends Army {
 	private final String textureRegion = "Merchant";
 	public City goal;
 
+	public Merchant() {}
+	
 	public Merchant(Kingdom kingdom,
 			City defaultTarget, City goal) {
 		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), PartyType.MERCHANT);

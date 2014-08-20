@@ -24,6 +24,8 @@ public class Patrol extends Army {
 	public double proximityToBase;
 	private Location patrolAround;
 
+	public Patrol() {}
+	
 	public Patrol(Kingdom kingdom, Location defaultTarget) {
 		super(kingdom, defaultTarget.getName() + " Patrol", defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), PartyType.PATROL);
 		this.setDefaultTarget(defaultTarget);

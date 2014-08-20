@@ -35,6 +35,10 @@ public class Noble extends Army {
 
 	//	private int level;
 
+	public Noble() {
+		// for loading
+	}
+	
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
 		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.NOBLE_DEFAULT_1);

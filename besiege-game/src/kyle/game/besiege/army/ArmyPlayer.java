@@ -26,10 +26,14 @@ public class ArmyPlayer extends Army {
 	private final String textureRegion = "Player";
 		
 	// debugging
-	private final ShapeRenderer sr;
+	transient private final ShapeRenderer sr;
 	public float losSquared;
 //	private Destination target;
 
+	public ArmyPlayer() {
+		this.sr = new ShapeRenderer();
+	}
+	
 	public ArmyPlayer(Kingdom kingdom, Faction faction,
 			int posX, int posY, int troopCount) {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);

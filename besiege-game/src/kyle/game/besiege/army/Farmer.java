@@ -28,6 +28,8 @@ public class Farmer extends Army {
 	
 	private Village village;
 
+	public Farmer() {}
+	
 	public Farmer(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
 		super(kingdom, name, faction, posX, posY, PartyType.FARMER);

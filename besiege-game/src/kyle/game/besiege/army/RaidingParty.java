@@ -16,6 +16,8 @@ public class RaidingParty extends Army {
 	
 	private City raidAround; // city, village or point
 
+	public RaidingParty() {}
+	
 	public RaidingParty(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
 		super(kingdom, name, faction, posX, posY, PartyType.RAIDING_PARTY);

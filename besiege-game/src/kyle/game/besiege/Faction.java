@@ -47,18 +47,18 @@ public class Faction {
 
 	public int index; // for keeping track of relations
 	public String name; 
-	public TextureRegion crest;
+	transient public TextureRegion crest; // will have to load this separately
 	public Color color;
-	public Array<City> cities;
-	public Array<Castle> castles;
-	public Array<City> closeEnemyCities;
-	public Array<Castle> closeEnemyCastles;
-	public Array<Village> closeEnemyVillages;
+	transient public Array<City> cities;
+	transient public Array<Castle> castles;
+	transient public Array<City> closeEnemyCities;
+	transient public Array<Castle> closeEnemyCastles;
+	transient public Array<Village> closeEnemyVillages;
 	//	public Array<Location> closeEnemyLocations;
 	public Array<Location> closeFriendlyLocations;
 	public Array<Noble> nobles;
 	public Array<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
-	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
+	transient public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
 	transient public Array<Center> centers; // centers under influence of this faction
 	public Array<Polygon> territory; // polygon of all centers
 
@@ -74,6 +74,8 @@ public class Faction {
 	//	private static Array<Array<Integer>> factionNearbyCities; // not needed, calced in real time?
 	//	private static Array<Array<Integer>> factionTrade;
 
+	public Faction() {}
+	
 	public Faction(Kingdom kingdom, String name, String textureRegion, Color color) {
 		this.kingdom = kingdom;
 		this.name = name;
