@@ -84,7 +84,7 @@ public class Kingdom extends Group {
 	private ShapeRenderer sr = new ShapeRenderer();
 
 	public Kingdom(MapScreen mapScreen) {
-		map = new Map();
+		map = new Map(true);
 
 		clock = 0; // set initial clock
 		timeOfDay = 0;

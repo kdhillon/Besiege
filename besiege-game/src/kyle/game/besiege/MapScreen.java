@@ -437,7 +437,7 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.L))
 				losToggle = true;
 			else if (losToggle) {
-//				load();
+				load();
 				toggleLOS();
 				losToggle = false;
 			}
@@ -653,18 +653,17 @@ public class MapScreen implements Screen {
 		
 		this.kingdom.map.remove();
 		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
-		
 		this.kingdom.addActor(this.kingdom.map);
 		
-//		for (Army toSave :  kingdom.getArmies()) {
-//			System.out.println("saving " + toSave.getName());
-//			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
-//		}
-////		
-//		for (Location city : locations) {
-//			System.out.println("saving " + city.getName());
-//			kryo.writeObjectOrNull(output, city, city.getClass());		
-//		}
+		for (Army toSave :  kingdom.getArmies()) {
+			System.out.println("saving " + toSave.getName());
+			kryo.writeObjectOrNull(output, toSave, toSave.getClass());
+		}
+//		
+		for (Location city : locations) {
+			System.out.println("saving " + city.getName());
+			kryo.writeObjectOrNull(output, city, city.getClass());		
+		}
 		
 		output.close();
 		
@@ -700,7 +699,31 @@ public class MapScreen implements Screen {
 		this.character = null;
 		this.character = kryo.readObjectOrNull(input, Character.class);
 		
+		this.kingdom.removeActor(kingdom.map);
+		this.kingdom.map = null;
+		
+		for (Army army : kingdom.getArmies()) {
+			army.nullify();
+		}
+		Array<Location> locations = kingdom.getAllLocationsCopy();
+		for (Location location : locations) {
+			location.nullify();
+		}
+		
+		this.kingdom.map = kryo.readObjectOrNull(input, Map.class);
+		this.kingdom.map.initialize();
+		this.kingdom.addActor(kingdom.map);
+		
 		input.close();
+		
+		for (Army army : kingdom.getArmies()) {
+			army.restore(kingdom);
+		}
+		
+		for (Location location : locations) {
+			location.restore(kingdom);
+		}
+		
 	}
 	
 	@Override

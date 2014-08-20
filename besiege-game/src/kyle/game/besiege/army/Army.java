@@ -108,7 +108,7 @@ public class Army extends Actor implements Destination {
 	private Destination defaultTarget;
 	//	private Location defaultTarget;
 	protected Stack<Destination> targetStack;
-	transient public Path path;
+	public Path path;
 	protected Army runFrom;
 //	public Destination runTo; // use for running
 	public Array<Army> targetOf; // armies that have this army as a target

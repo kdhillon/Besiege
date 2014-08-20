@@ -11,8 +11,11 @@ package kyle.game.besiege.geom;
  */
 public class Rectangle {
 
-    final public double x, y, width, height, right, bottom, left, top;
+    public double x, y, width, height, right, bottom, left, top;
 
+    public Rectangle() {
+    }
+    
     public Rectangle(double x, double y, double width, double height) {
         left = this.x = x;
         top = this.y = y;

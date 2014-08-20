@@ -41,14 +41,18 @@ public class VoronoiGraph {
 	private static final double LAND_FREQ = .43; // increase for overall land mass (sensitive) (~.4)
 	private static final double TURBULENCE = 4; // (~5)
 
-    final public ArrayList<Corner> corners = new ArrayList<Corner>();
-    final public ArrayList<Center> centers = new ArrayList<Center>();
-    final public ArrayList<Edge> edges = new ArrayList<Edge>();
+    public ArrayList<Corner> corners = new ArrayList<Corner>();
+    public ArrayList<Center> centers = new ArrayList<Center>();
+    public ArrayList<Edge> edges = new ArrayList<Edge>();
 
-    final public Rectangle bounds;
-    final private MyRandom r;
-    final private PerlinNoiseGenerator perlin;
+    public Rectangle bounds;
+    private MyRandom r;
+    private PerlinNoiseGenerator perlin;
 
+    // for serialization
+    public VoronoiGraph() {
+    }
+    
     public VoronoiGraph(Voronoi v, int numLloydRelaxations, MyRandom r) {
         this.r = r;
 	    perlin = new PerlinNoiseGenerator(r.seed);
@@ -609,10 +613,10 @@ public class VoronoiGraph {
     }
     double[][] noise;
     double ISLAND_FACTOR = 1.07;  // 1.0 means no small islands; 2.0 leads to a lot
-    final int bumps;
-    final double startAngle;
-    final double dipAngle;
-    final double dipWidth;
+    int bumps;
+    double startAngle;
+    double dipAngle;
+    double dipWidth;
     
     //only the radial implementation of amitp's map generation
     //TODO implement more island shapes

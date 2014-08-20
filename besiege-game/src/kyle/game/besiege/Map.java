@@ -61,10 +61,10 @@ public class Map extends Actor {
 	public Array<Corner> availableCorners;
 	public Array<Center> availableCenters;
 	
-	public Array<Corner> borderCorners;
-	public Array<Edge> impassable;
-	public Array<Edge> impBorders;
-	public Array<Center> connected; // land centers connected to reference
+	transient public Array<Corner> borderCorners;
+	transient public Array<Edge> impassable;
+	transient public Array<Edge> impBorders;
+	transient public Array<Center> connected; // land centers connected to reference
 	
 	public Center reference; // center on main map
 	public Point referencePoint;
@@ -78,14 +78,20 @@ public class Map extends Actor {
 	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
-	// contains code written by connor
+	// this is called when map is loaded
 	public Map() {
+		this.sr = new ShapeRenderer();
+	}
+	
+	// contains code written by connor
+	public Map(boolean generate) {
 		sr = new ShapeRenderer();
 		testIndex = 1;
 		totalVisibilityLines = 0;
 
 		final ArrayList<PointH> pointHs = new ArrayList<PointH>();
-		final long seed = (long) (Math.random()*1000000);
+		long seed = (long) (Math.random()*1000000);
+	
 		//final long see = System.nanoTime();
 		final MyRandom r = new MyRandom(seed);
 		cityCorners = new Array<Corner>();
@@ -94,10 +100,6 @@ public class Map extends Actor {
 		availableCorners = new Array<Corner>();
 		availableCenters = new Array<Center>();
 		
-		borderCorners = new Array<Corner>();
-		impassable = new Array<Edge>();
-		impBorders = new Array<Edge>();
-		connected = new Array<Center>();
 		System.out.println("seed: " + seed);
 
 		//let's create a bunch of random points
@@ -110,23 +112,30 @@ public class Map extends Actor {
 		//assemble the voronoi structure into a usable graph object representing a map
 		this.vg = new VoronoiGraph(v, 2, r);
 
-		// paint background
-		//Pixmap pix = new Pixmap(WIDTH, HEIGHT, Pixmap.Format.RGB888);
-		//vg.paint(pix);
-	//	this.bg = new Texture(pix);
-
-		calcReference();
-		calcReferencePoint();
+		impassable = new Array<Edge>();
+		impBorders = new Array<Edge>();
+		
+//		this.initialize();
 		
 		// testing: works
 //		neighborAdj = new Array<Center>();
 //		neighborAdj.add(reference);
 //		for (Center c : reference.neighbors) {
 //			neighborAdj.add(c);
-//		}
+//		}this.vg.restore();
+
+		
+		borderCorners = new Array<Corner>();
+		
+		connected = new Array<Center>();
+		
+		calcReference();
+		calcReferencePoint();
+		
 		borderEdges = new Array<Edge>();
 		calcConnected(reference, connected);
 		System.out.println("Num connected polygons: " + connected.size);
+		
 		addPolygons();
 		calcTriangles();
 //		System.out.println("Adding polygons to centers");
@@ -135,6 +144,31 @@ public class Map extends Actor {
 		calcWaterBorders();
 		calcVisibilityGraph();
 		calcCitySpots();
+	}
+	
+	public void initialize() {
+		this.vg.restore();
+		
+		impassable = new Array<Edge>();
+		impBorders = new Array<Edge>();
+		borderCorners = new Array<Corner>();
+		connected = new Array<Center>();
+		
+		calcReference();
+		calcReferencePoint();
+		
+		borderEdges = new Array<Edge>();
+		calcConnected(reference, connected);
+		System.out.println("Num connected polygons: " + connected.size);
+		
+//		addPolygons();
+		calcTriangles();
+//		System.out.println("Adding polygons to centers");
+		
+		convertIslandsToWater();
+		calcWaterBorders();
+
+		calcBorders();
 	}
 	
 	/** Updates list of edges that separate factions
@@ -384,7 +418,7 @@ public class Map extends Actor {
 		}
 	}
 
-	public void calcVisibilityGraph() {
+	public void calcBorders() {
 		for (Corner corner : vg.corners) {
 			corner.calcWaterTouches();
 			if (corner.waterBorder) {
@@ -397,6 +431,10 @@ public class Map extends Actor {
 			if (edge.isBorder())
 				impBorders.add(edge);
 		}
+	}
+	
+	public void calcVisibilityGraph() {
+		calcBorders();
 
 		System.out.println("Border corners: " + borderCorners.size);
 		System.out.println("Impassable edges: " + impassable.size);
