@@ -25,7 +25,7 @@ public class Village extends Location {
 
 	private final String textureRegion = "Village";
 		
-	transient public Array<Farmer> farmers;
+	public Array<Farmer> farmers;
 
 	public Village(){}
 	

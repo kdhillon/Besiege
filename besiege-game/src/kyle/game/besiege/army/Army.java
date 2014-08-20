@@ -67,11 +67,12 @@ public class Army extends Actor implements Destination {
 	
 	protected int wealthFactor = 1; // set in children
 
-	transient private Kingdom kingdom; // parent actor, kingdom
+	private Kingdom kingdom; // parent actor, kingdom
 	private String name;
 	private Faction faction;
 
 	transient private TextureRegion region;
+	public String textureName;
 
 	private float speed;
 	public float speedFactor;
@@ -111,10 +112,10 @@ public class Army extends Actor implements Destination {
 	public Path path;
 	protected Army runFrom;
 //	public Destination runTo; // use for running
-	transient public Array<Army> targetOf; // armies that have this army as a target
+	public Array<Army> targetOf; // armies that have this army as a target
 	public int containingCenter;
-	transient public Array<Army> closeArmies;
-	transient public Array<Integer> closeCenters; 
+	public Array<Army> closeArmies;
+	public Array<Integer> closeCenters; 
 	
 	private float timeSinceRunFrom = 0;
 
@@ -124,6 +125,8 @@ public class Army extends Actor implements Destination {
 	public boolean playerTouched; // kinda parallel to location.playerIn
 
 	public Army() {
+		this.party = PartyType.BANDIT.generate();
+		this.party.army = this;
 		//for loading
 		// restore kingdom, texture region, 
 	}
@@ -1285,6 +1288,7 @@ public class Army extends Actor implements Destination {
 		return garrisonedIn;
 	}
 	public void setTextureRegion(String textureRegion) {
+		this.textureName = textureRegion;
 		this.region = Assets.atlas.findRegion(textureRegion);
 		this.initializeBox();
 	}
@@ -1373,5 +1377,8 @@ public class Army extends Actor implements Destination {
 	}
 	public Center getContaining() {
 		return kingdom.getMap().getCenter(containingCenter);
+	}
+	public void restoreTexture() {
+		this.setTextureRegion(textureName);
 	}
 }

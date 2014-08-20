@@ -46,6 +46,8 @@ public class Location extends Actor implements Destination {
 	protected int POP_MAX;
 	
 	transient private TextureRegion region;
+	public String textureName;
+	
 	public enum LocationType {CITY, CASTLE, VILLAGE};
 	public LocationType type;
 
@@ -53,17 +55,17 @@ public class Location extends Actor implements Destination {
 //	protected Array<Location> closestEnemyLocations;
 	protected Array<Patrol> patrols;
 	
-	transient protected Array<City> closestFriendlyCities;
-	transient protected Array<Castle> closestFriendlyCastles;
-	transient protected Array<Village> closestFriendlyVillages;
+	protected Array<City> closestFriendlyCities;
+	protected Array<Castle> closestFriendlyCastles;
+	protected Array<Village> closestFriendlyVillages;
 	
-	transient public Array<City> closestEnemyCities;
-	transient public Array<Castle> closestEnemyCastles;
-	transient public Array<Village> closestEnemyVillages;
+	public Array<City> closestEnemyCities;
+	public Array<Castle> closestEnemyCastles;
+	public Array<Village> closestEnemyVillages;
 	
 	private boolean mouseOver;
 	
-	transient private Kingdom kingdom;
+	private Kingdom kingdom;
 	private String name;
 	private int index;
 	private Faction faction;
@@ -94,7 +96,9 @@ public class Location extends Actor implements Destination {
 	public int center = -1; // one of these will be null
 	public int corner = -1;
 	
-	public Location(){}
+	public Location(){
+		this.region = Assets.atlas.findRegion(textureName);
+	}
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, Party garrison) {
 		this.kingdom = kingdom;
@@ -812,6 +816,7 @@ public class Location extends Actor implements Destination {
 	}
 	
 	public void setTextureRegion(String textureRegion) {
+		this.textureName = textureRegion;
 		region = Assets.atlas.findRegion(textureRegion);
 	}
 	
@@ -858,5 +863,8 @@ public class Location extends Actor implements Destination {
 	public void restore(Kingdom kingdom) {
 		this.kingdom = kingdom;
 		kingdom.addActor(this);
+	}
+	public void restoreTexture() {
+		this.setTextureRegion(textureName);
 	}
 }

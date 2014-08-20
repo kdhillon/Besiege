@@ -61,10 +61,10 @@ public class Map extends Actor {
 	public Array<Corner> availableCorners;
 	public Array<Center> availableCenters;
 	
-	transient public Array<Corner> borderCorners;
-	transient public Array<Edge> impassable;
-	transient public Array<Edge> impBorders;
-	transient public Array<Center> connected; // land centers connected to reference
+	public Array<Corner> borderCorners;
+	public Array<Edge> impassable;
+	public Array<Edge> impBorders;
+	public Array<Center> connected; // land centers connected to reference
 	
 	public Center reference; // center on main map
 	public Point referencePoint;
@@ -148,27 +148,6 @@ public class Map extends Actor {
 	
 	public void initialize() {
 		this.vg.restore();
-		
-		impassable = new Array<Edge>();
-		impBorders = new Array<Edge>();
-		borderCorners = new Array<Corner>();
-		connected = new Array<Center>();
-		
-		calcReference();
-		calcReferencePoint();
-		
-		borderEdges = new Array<Edge>();
-		calcConnected(reference, connected);
-		System.out.println("Num connected polygons: " + connected.size);
-		
-//		addPolygons();
-		calcTriangles();
-//		System.out.println("Adding polygons to centers");
-		
-		convertIslandsToWater();
-		calcWaterBorders();
-
-		calcBorders();
 	}
 	
 	/** Updates list of edges that separate factions

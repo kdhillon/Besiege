@@ -160,6 +160,14 @@ public class MapScreen implements Screen {
 		startLog();
 		
 		this.kryo = new Kryo();
+		kryo.register(Array.ArrayIterable.class, new Serializer<Array.ArrayIterable>() {
+			public void write (Kryo kryo, Output output, Array.ArrayIterable object) {
+				
+			}
+			public Array.ArrayIterable read (Kryo kryo, Input input, Class<Array.ArrayIterable> type) {
+				return null; // don't return an iterable
+			}
+		});
 	}
 	
 	private void startLog() {
@@ -619,14 +627,7 @@ public class MapScreen implements Screen {
 //		kryo.register(Location.class, 115);
 //		kryo.register(Array.class, 116);
 
-		kryo.register(Array.ArrayIterable.class, new Serializer<Array.ArrayIterable>() {
-			public void write (Kryo kryo, Output output, Array.ArrayIterable object) {
-				
-			}
-			public Array.ArrayIterable read (Kryo kryo, Input input, Class<Array.ArrayIterable> type) {
-				return null; // don't return an iterable
-			}
-		});
+		
 		
 		
 		FileHandle file = Gdx.files.local("save.dat");
@@ -644,7 +645,6 @@ public class MapScreen implements Screen {
 		Log.DEBUG();
 		
 		kingdom.remove();
-		kingdom.clearChildren();
 		kryo.writeObjectOrNull(output, this.kingdom, this.kingdom.getClass());
 
 		
@@ -666,7 +666,7 @@ public class MapScreen implements Screen {
 //		
 //		this.kingdom.map.remove();
 //		kryo.writeObjectOrNull(output, this.kingdom.map, this.kingdom.map.getClass());
-		this.kingdom.addActor(this.kingdom.map);
+		//this.kingdom.addActor(this.kingdom.map);
 		
 ////		for (Army toSave :  kingdom.getArmies()) {
 ////			System.out.println("saving " + toSave.getName());
@@ -685,14 +685,14 @@ public class MapScreen implements Screen {
 		
 		output.close();
 		
-		for (Army army : kingdom.getArmies()) {
-			army.restore(kingdom);
-		}
-		
-		Array<Location> locations = kingdom.getAllLocationsCopy();
-		for (Location location : locations) {
-			location.restore(kingdom);
-		}
+//		for (Army army : kingdom.getArmies()) {
+//			army.restore(kingdom);
+//		}
+//		
+//		Array<Location> locations = kingdom.getAllLocationsCopy();
+//		for (Location location : locations) {
+//			location.restore(kingdom);
+//		}
 		
 		this.kingdomStage.addActor(kingdom);
 
@@ -720,8 +720,22 @@ public class MapScreen implements Screen {
 
 		Kingdom kingdom = kryo.readObjectOrNull(input, Kingdom.class);
 		this.kingdom = kingdom;
+		for (Army army : kingdom.getArmies()) army.restoreTexture();
+		Array<Location> locations = kingdom.getAllLocationsCopy();
+		for (Location location : locations) {
+			location.restoreTexture();
+			System.out.println(location.textureName);
+		}
+
+		kingdom.getMap().initialize();
+		this.kingdom.setMapScreen(this);
 		this.kingdomStage.addActor(kingdom);
+		// restore faction crests()
+		kingdom.restoreFactionCrests();
+		this.sidePanel.clearChildren();
+		this.sidePanel.setActiveArmy(kingdom.getPlayer());
 		
+	
 //		Date date = kryo.readObjectOrNull(input, Date.class);
 //		
 //		System.out.println(date.toString());

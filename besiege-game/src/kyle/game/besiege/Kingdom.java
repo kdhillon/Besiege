@@ -126,6 +126,7 @@ public class Kingdom extends Group {
 		currentPanel = new Point(0,0);
 	}
 
+
 	@Override
 	public void act(float delta) {
 		if (mouseOver) {
@@ -569,6 +570,13 @@ public class Kingdom extends Group {
 
 		System.out.println("no one controls that center");
 		return null;
+	}
+	
+	
+	public void restoreFactionCrests() {
+		for (Faction faction : factions) {
+			faction.restoreCrest();
+		}
 	}
 
 	public int getRelations(Faction faction1, Faction faction2) {

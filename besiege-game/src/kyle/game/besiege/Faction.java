@@ -43,23 +43,24 @@ public class Faction {
 	public static final Color TEAL = new Color(57/256.0f, 170/256.0f, 115/256.0f, 1);
 	public static final Color GREEN = new Color(41/256.0f, 72/256.0f, 33/256.0f, 1);
 	
-	transient public Kingdom kingdom;
+	public Kingdom kingdom;
 
 	public int index; // for keeping track of relations
 	public String name; 
+	public String textureName;
 	transient public TextureRegion crest; // will have to load this separately
 	public Color color;
-	transient public Array<City> cities;
-	transient public Array<Castle> castles;
-	transient public Array<City> closeEnemyCities;
-	transient public Array<Castle> closeEnemyCastles;
-	transient public Array<Village> closeEnemyVillages;
+	public Array<City> cities;
+	public Array<Castle> castles;
+	public Array<City> closeEnemyCities;
+	public Array<Castle> closeEnemyCastles;
+	public Array<Village> closeEnemyVillages;
 	//	public Array<Location> closeEnemyLocations;
 	public Array<Location> closeFriendlyLocations;
 	public Array<Noble> nobles;
 	public Array<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
-	transient public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
-	transient public Array<Center> centers; // centers under influence of this faction
+	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
+	public Array<Center> centers; // centers under influence of this faction
 	public Array<Polygon> territory; // polygon of all centers
 
 	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
@@ -77,6 +78,7 @@ public class Faction {
 	public Faction() {}
 	
 	public Faction(Kingdom kingdom, String name, String textureRegion, Color color) {
+		this.textureName = textureRegion;
 		this.kingdom = kingdom;
 		this.name = name;
 		crest = Assets.atlas.findRegion(textureRegion);
@@ -237,6 +239,10 @@ public class Faction {
 	public void removeNoble(Noble noble) {
 		this.nobles.removeValue(noble, true);
 		if (unoccupiedNobles.contains(noble, true)) unoccupiedNobles.removeValue(noble, true);
+	}
+	
+	public void restoreCrest() {
+		this.crest = Assets.atlas.findRegion(textureName);
 	}
 	
 	/** First updates each city's lists of close friendly and 
