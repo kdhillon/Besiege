@@ -103,7 +103,17 @@ public class MapScreen implements Screen {
 	
 //	public PrintWriter out; // accessed by kingdom
 	
-	public MapScreen() {
+	public MapScreen(boolean generate) {
+		this.kryo = new Kryo();
+		kryo.register(Array.ArrayIterable.class, new Serializer<Array.ArrayIterable>() {
+			public void write (Kryo kryo, Output output, Array.ArrayIterable object) {
+				
+			}
+			public Array.ArrayIterable read (Kryo kryo, Input input, Class<Array.ArrayIterable> type) {
+				return null; // don't return an iterable
+			}
+		});
+		
 		character = new Character("Kyle");
 		
 		kingdomCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
@@ -125,7 +135,13 @@ public class MapScreen implements Screen {
 		uiStage.addListener(new InputListener());
 		sidePanel = new SidePanel(this);
 
-		kingdom = new Kingdom(this);
+		if (generate)
+			kingdom = new Kingdom(this);
+		else {
+			this.load();
+			if (kingdom == null) System.out.println("kingdom still null");
+		}
+		
 		sidePanel.setKingdom(kingdom);
 //		fog = new Fog(this);
 		
@@ -143,7 +159,7 @@ public class MapScreen implements Screen {
 		mouseOverPanel = false;
 		keydown = 0;
 		
-		kingdom.addPlayer();
+		if (generate) kingdom.addPlayer();
 		sidePanel.initializePanels();
 		
 		shouldCenter = false;
@@ -158,16 +174,6 @@ public class MapScreen implements Screen {
 		toggleNextFormation = false;
 		
 		startLog();
-		
-		this.kryo = new Kryo();
-		kryo.register(Array.ArrayIterable.class, new Serializer<Array.ArrayIterable>() {
-			public void write (Kryo kryo, Output output, Array.ArrayIterable object) {
-				
-			}
-			public Array.ArrayIterable read (Kryo kryo, Input input, Class<Array.ArrayIterable> type) {
-				return null; // don't return an iterable
-			}
-		});
 	}
 	
 	private void startLog() {
@@ -648,10 +654,13 @@ public class MapScreen implements Screen {
 		
 		Date date = kryo.readObjectOrNull(input, Date.class);
 		
-		this.kingdom.remove();
+		if (this.kingdom != null) this.kingdom.remove();
 
 		Kingdom kingdom = kryo.readObjectOrNull(input, Kingdom.class);
 		this.kingdom = kingdom;
+		
+		if (this.kingdom == null) System.out.println("loaded null kingdom");
+		
 		for (Army army : kingdom.getArmies()) army.restoreTexture();
 		Array<Location> locations = kingdom.getAllLocationsCopy();
 		for (Location location : locations) {
@@ -665,7 +674,7 @@ public class MapScreen implements Screen {
 		kingdom.restoreFactionCrests();
 		this.sidePanel.setActiveArmy(kingdom.getPlayer());
 		
-
+		this.center();
 		System.out.println("Loaded save from " + date.toString());
 	}
 	

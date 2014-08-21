@@ -54,8 +54,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	
 	public Weapon weapon;
 	public RangedWeapon rangedWeapon;
-	transient public Array<Equipment> equipment;
-
+	public Array<Equipment> equipment;
 	
 	public Soldier() {}
 	

@@ -33,7 +33,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 
 public class Kingdom extends Group {
-	public static BitmapFont arial;
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int CITY_START_WEALTH = 500;
@@ -120,7 +119,6 @@ public class Kingdom extends Group {
 		for (int i = 0; i < cities.size; i++)
 			cities.get(i).findCloseLocations();
 		
-		arial = new BitmapFont();
 		mouse = new Point(0,0);
 		banditCount = 0;
 		currentPanel = new Point(0,0);
@@ -368,8 +366,6 @@ public class Kingdom extends Group {
 
 		// leak is not here
 		super.draw(batch, parentAlpha);
-		arial.setColor(Color.WHITE);
-		arial.setScale(2*(getMapScreen().getCamera().zoom));
 		
 		if (drawCrests) {
 			for (City c : cities)

@@ -40,7 +40,7 @@ public class Simulation extends Game {
 		Texture.setEnforcePotImages(false);
 		
 		Assets.load();
-		mapScreen = new MapScreen();
+		mapScreen = new MapScreen(true);
 		
 //		mapScreen.resize(width, height);
 		// create fake battlestage

@@ -51,9 +51,9 @@ public class Army extends Actor implements Destination {
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 	public static final int A_STAR_FREQ = 20; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that party size detracts from total speed
-	private static final float BASE_LOS = 40;
+	private static final float BASE_LOS = 80;
 	private static final int MAX_STACK_SIZE = 10;
-	private static final float LOS_FACTOR = 4; // times troops in party
+	private static final float LOS_FACTOR = 1; // times troops in party
 	private static final float momentumDecay = 6; // every N hours, momentum -= 1
 	private static final int offset = 30;
 	private static final String DEFAULT_TEXTURE = "Player";
@@ -79,7 +79,7 @@ public class Army extends Actor implements Destination {
 	private float lineOfSight;
 
 	private PartyType partyType;
-	transient public Party party;
+	public Party party;
 
 	private int morale;
 	private int momentum; //changes with recent events
@@ -335,6 +335,10 @@ public class Army extends Actor implements Destination {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
+		if (this.getFaction() == null) {
+			System.out.println("no faction!");
+			return;
+		}
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), 1, 1, getRotation());
 		//if (mousedOver()) drawInfo(batch, parentAlpha);

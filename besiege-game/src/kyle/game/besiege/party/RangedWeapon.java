@@ -5,17 +5,17 @@ import com.badlogic.gdx.utils.Array;
 public enum RangedWeapon {
 	
 	// Tier 4 Ranged
-	SHORTBOW (4, "Shortbow", "Archer", 1, 20, 8, 5),
+	SHORTBOW (4, "Shortbow", "Archer", 3, 20, 8, 5),
 	
 	// Tier 6 Ranged
-	CROSSBOW (6, "Crossbow", "Crossbowman", 3, 20, 10, 8), // slower, less range, more accurate, more power
-	RECURVE (6, "Recurve Bow", "Bowman",    2, 30, 6, 4),  // faster, medium range, less accurate, medium power
-	LONGBOW (6, "Longbow", "Longbowman",    2, 50, 8, 5), // slower, more range, medium accurate, medium power
+	CROSSBOW (6, "Crossbow", "Crossbowman", 3, 30, 10, 8), // slower, medium range, more accurate
+	RECURVE (6, "Recurve Bow", "Bowman",    3, 30, 6, 4),  // faster, medium range, less accurate
+	LONGBOW (6, "Longbow", "Longbowman",    3, 50, 8, 5), // slower, more range, medium accurate
 	
 	// Tier 8 Ranged
-	ADV_CROSSBOW (8, "Crossbow", "Crossbow Master", 4, 30, 8, 9), // slower, less range, more accurate, more power
-	ADV_RECURVE  (8, "Recurve Bow", "Bowmaster", 3, 40, 4, 6),  // faster, medium range, less accurate, medium power
-	ADV_LONGBOW  (8, "Longbow", "Longbow Master", 2, 60, 6, 7);  // slower, more range, medium accurate, medium power
+	ADV_CROSSBOW (8, "Crossbow", "Crossbow Master", 3, 30, 8, 9), // slower, less range, more accurate
+	ADV_RECURVE  (8, "Recurve Bow", "Bowmaster", 	3, 40, 4, 6),  // faster, medium range, less accurate
+	ADV_LONGBOW  (8, "Longbow", "Longbow Master",	3, 60, 6, 7);  // slower, more range, medium accurate
 	
 	public final int tier;
 	public final String name;

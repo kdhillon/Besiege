@@ -25,13 +25,12 @@ public class BesiegeMain extends Game {
 		Texture.setEnforcePotImages(false);
 		
 		Assets.load();
-		mapScreen = new MapScreen();
 		mainMenuScreen = new MainMenuScreen(this);
 		
 //		mapTest = new MapTest();
 		
-		setScreen(mapScreen); // eventually make mainMenu
-//		setScreen(mainMenuScreen);
+//		setScreen(mapScreen); // eventually make mainMenu
+		setScreen(mainMenuScreen);
 		
 		// doesn't work!pppppppppp
 		switch (Gdx.app.getType()) {
@@ -51,10 +50,20 @@ public class BesiegeMain extends Game {
 		}	
 	}
 	
-	public void setPlayerName(String text) {
-		mapScreen.getCharacter().name = text;
-		mapScreen.getKingdom().getPlayer().setName(text);
+	public void loadMapScreen() {
+		mapScreen = new MapScreen(false);
 	}
+	
+	
+	public void createMapScreen(String name) {
+		mapScreen = new MapScreen(true);
+		mapScreen.getCharacter().name = name;
+		mapScreen.getKingdom().getPlayer().setName(name);
+	}
+	
+//	public void setPlayerName(String text) {
+//		mapScreen.getCharacter().name = text;
+//	}
 
 	@Override
 	public void dispose() {

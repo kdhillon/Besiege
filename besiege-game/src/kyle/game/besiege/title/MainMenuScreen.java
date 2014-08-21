@@ -8,6 +8,7 @@ package kyle.game.besiege.title;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.MapScreen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -158,11 +159,15 @@ public class MainMenuScreen implements Screen {
 	}
 	
 	private void clickLoad() {
+		System.out.println("clicked load");
+		main.loadMapScreen();
+		main.setScreen(main.mapScreen);
 	}
 	
 	private void enterName(String text) {
 		System.out.println("User entered: " + text); 
-		main.setPlayerName(text);
+		main.createMapScreen(text);
+//		main.setPlayerName(text);
 		main.setScreen(main.mapScreen);
 	}
 
