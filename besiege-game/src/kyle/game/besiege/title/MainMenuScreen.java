@@ -8,7 +8,6 @@ package kyle.game.besiege.title;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
-import kyle.game.besiege.MapScreen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -24,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
+import com.badlogic.gdx.utils.Array;
 
 public class MainMenuScreen implements Screen {
 	private final int PAD = 50;
@@ -43,6 +43,8 @@ public class MainMenuScreen implements Screen {
 	
 	private LabelStyle styleTitle;
 	private LabelStyle styleButtons;
+	
+	private Array<Candle> candles;
 //	private ButtonStyle bs;
 	
 	public MainMenuScreen(BesiegeMain main) {
@@ -101,15 +103,40 @@ public class MainMenuScreen implements Screen {
 		topTable.add(placeholder).colspan(2);
 		
 		stage.addActor(topTable);
+		
+		Candle candle = new Candle(100, -100, 2, 1);
+		candles = new Array<Candle>();
+		candles.add(candle);
+		stage.addActor(candle);
 	}
-
+	
 	@Override
 	public void render(float delta) {
+		updateCandles();
+		
 		stage.act(delta);
 		Gdx.gl.glClearColor(0,0,0,0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Table.drawDebug(stage);
 		stage.draw();
+	}
+	
+
+	private void updateCandles() {
+//		Candle.wind_x += Math.random()*.1 - .05;
+//		if (Candle.wind_x > 1) Candle.wind_x = 1;
+//		if (Candle.wind_x < -1) Candle.wind_x = -1;
+//		Candle.wind_x += 2*candles.first().current_flicker;
+
+		// update text lighting
+//		if (Math.random() < .15)
+//			updateTextLighting();
+
+		for (Candle candle : candles) {
+			candle.generateParticles();
+			candle.updateFlicker();
+			candle.updatePositions();
+		}
 	}
 
 	@Override
@@ -170,7 +197,7 @@ public class MainMenuScreen implements Screen {
 //		main.setPlayerName(text);
 		main.setScreen(main.mapScreen);
 	}
-
+	
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
