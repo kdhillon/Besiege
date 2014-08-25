@@ -131,11 +131,10 @@ allow joining battles
 MAP:
 now:
 use hacky saving where you actually only save parties near the player and only nobles
-use shaperenderer to make shapes
+
 
 later:
-add besieging of castles
-add menu screen with flame!
+fix button clicking
 add garrison repairing
 add cancelling and reforming of sieges
 make bandits not seige (?)
@@ -164,7 +163,6 @@ fix army following--path doesn't account for borders when chasing--should follow
 use shape renderer to draw map instead of drawing entire map (large) every time, see if improvements
 
 optimizations:
-use kd tree for towns, villages, and centers
 improve battle mechanic! (don't just RNG every frame...)
 
 map improvements:
@@ -174,8 +172,7 @@ utilize map areas (farmland = more wealth, mountains make you slow, etc?)
 
 aesthetics:
 add rain/lightning!
-add cool loading screen 
-consolidate battlePanel display using partyPanel's
+add cool loading screen
 smooth out camera centering
 add minimap (use clipping?)
 improve asthetics of map (add rough edges and noise/textures, roads, forests, other details)

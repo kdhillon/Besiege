@@ -43,18 +43,24 @@ public class Kingdom extends Group {
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
 
-	private final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
-	private final float NIGHT_FLOAT = .6f;
+	public final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
+	public final float NIGHT_FLOAT = .6f;
+	public final float RAIN_FLOAT = .5f;
+	public final float LIGHTNING_FLOAT = 1f;
 	private final float MOUSE_DISTANCE = 10; // distance destination must be from mouse to register
 	private final int DAWN = 7;
 	private final int DUSK = 21;
+	private final double RAIN_CHANCE = 5000; // higher is less likely
+	public final double THUNDER_CHANCE = 800;
 
 	public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
 	private int day;
 	public boolean night; // is nighttime?
 	public float currentDarkness; // can be used for LOS
-	private float targetDarkness; // for fading
+	public float targetDarkness; // for fading
+	public boolean raining;
+	
 
 	public Map map;
 	transient private MapScreen mapScreen;
@@ -91,6 +97,7 @@ public class Kingdom extends Group {
 		clock = 0; // set initial clock
 		timeOfDay = 0;
 		day = 0;
+		raining = true;
 		
 		//		currentDarkness = NIGHT_FLOAT;
 		currentDarkness = 0; // fade in
@@ -142,6 +149,7 @@ public class Kingdom extends Group {
 		}
 		if (leftClicked) leftClicked = false;
 		if (rightClicked) rightClicked = false;
+		
 	}
 
 	public void manageBandits() {
@@ -205,6 +213,9 @@ public class Kingdom extends Group {
 			night = false;
 		if (timeOfDay <= DAWN || timeOfDay >= DUSK)
 			night = true;
+		
+		if (Math.random() < 1/RAIN_CHANCE) raining = true;
+		if (raining && Math.random() < .0005) raining = false;
 	}
 	
 	// Events that occur every day
@@ -357,10 +368,12 @@ public class Kingdom extends Group {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		//batch.setColor(Color.WHITE);
-		if (night) targetDarkness = NIGHT_FLOAT;
-		else targetDarkness = 1f;
-		if (currentDarkness != targetDarkness) adjustDarkness();
-		batch.setColor(currentDarkness, currentDarkness, currentDarkness, 1f);
+		if (!raining) {
+			if (night) targetDarkness = NIGHT_FLOAT;
+			else targetDarkness = 1f;
+		}
+	
+		mapScreen.updateColor(batch);
 
 		map.draw(batch, parentAlpha);
 
@@ -385,6 +398,7 @@ public class Kingdom extends Group {
 		for (Castle c : castles) 
 			c.drawText(batch);
 	}
+	
 
 	public void initializeFactions(Kingdom kingdom) {
 		factions = new Array<Faction>();
@@ -970,10 +984,7 @@ public class Kingdom extends Group {
 	//	public void setToDay(SpriteBatch b) {
 	//		b.setColor(1f, 1f, 1f, 1f);
 	//	}
-	private void adjustDarkness() {
-		if (targetDarkness - currentDarkness > LIGHT_ADJUST_SPEED) currentDarkness += LIGHT_ADJUST_SPEED;
-		else if (currentDarkness - targetDarkness > LIGHT_ADJUST_SPEED) currentDarkness -= LIGHT_ADJUST_SPEED;
-	}
+	
 	public int getTime() {
 		return timeOfDay;
 	}

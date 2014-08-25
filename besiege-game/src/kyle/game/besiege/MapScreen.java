@@ -272,12 +272,35 @@ public class MapScreen implements Screen {
 			uiStage.act(delta);
 		}
 		
+		if (kingdom.raining) rain();
+		updateColor(currentStage.getSpriteBatch());
 		
 		currentStage.draw();
 		uiStage.draw();
 		
 		//if (shouldCenter && !kingdom.isPaused()) center(); // maybe should be in kingdom
 		if (shouldCenter) center(); // maybe should be in kingdom
+	}
+
+	public void rain() {
+//		System.out.println("raining");
+		kingdom.targetDarkness = kingdom.RAIN_FLOAT;
+		if (Math.random() < 1/kingdom.THUNDER_CHANCE) thunder();
+	}
+	
+	private void thunder() {
+//		kingdom.currentDarkness = (float)((Math.random()/2+.5)*kingdom.LIGHTNING_FLOAT);
+		kingdom.currentDarkness = kingdom.LIGHTNING_FLOAT;
+	}
+	
+	public void updateColor(SpriteBatch batch) {
+		if (kingdom.currentDarkness != kingdom.targetDarkness) adjustDarkness();
+		batch.setColor(kingdom.currentDarkness, kingdom.currentDarkness, kingdom.currentDarkness, 1f);
+	}
+	
+	private void adjustDarkness() {
+		if (kingdom.targetDarkness - kingdom.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness += kingdom.LIGHT_ADJUST_SPEED;
+		else if (kingdom.currentDarkness - kingdom.targetDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED;
 	}
 	
 	public void moveUp() {
@@ -575,7 +598,10 @@ public class MapScreen implements Screen {
 		currentStage = kingdomStage;
 		this.currentCamera = kingdomCamera;
 		center();
-		currentStage = kingdomStage;
+		
+		this.sidePanel.clean();
+		this.sidePanel.setDefault();
+		
 		if (!kingdom.getPlayer().forceWait) kingdom.setPaused(true);
 	}
 	

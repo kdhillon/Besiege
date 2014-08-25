@@ -38,7 +38,7 @@ public class Panel extends Group {
 	private final int r = 3; // 9patch offset
 
 	private final String PAUSED = "Paused";
-	private final String SAVING = "Saving...";
+//	private final String SAVING = "Saving...";
 
 	protected SidePanel sidePanel;
 
@@ -204,11 +204,11 @@ public class Panel extends Group {
 		
 		super.act(delta);
 		
-		if (kingdom.isPaused() && !saving)
+		if (kingdom.isPaused())
 			pausedLabel.setText(PAUSED);
-		else if (!saving)
+		else
 			pausedLabel.setText("");
-		else pausedLabel.setText(SAVING);
+//		else pausedLabel.setText(SAVING);
 		
 //		System.out.println(pausedLabel.getText());
 	}
@@ -306,9 +306,9 @@ public class Panel extends Group {
 	 }
 	
 	public void beginSaving() {
-		System.out.println("begin saving in panel");
-		this.pausedLabel.setText(SAVING);
-		saving = true;
+//		System.out.println("begin saving in panel");
+////		this.pausedLabel.setText(SAVING);
+//		saving = true;
 	}
 	public void endSaving() {
 		saving = false;

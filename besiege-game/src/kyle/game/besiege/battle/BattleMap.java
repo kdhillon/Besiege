@@ -678,7 +678,8 @@ public class BattleMap extends Actor {
 
 
 					Color c = batch.getColor();
-					Color mycolor = new Color(1, 1, 1, .3f);
+					Color mycolor = new Color(c);
+					mycolor.a = c.a*.3f;
 					batch.setColor(mycolor);
 					// draw four extra squares at corners with alpha
 					batch.draw(texture, j*stage.unit_width*stage.scale*SIZE + half_width, i*stage.unit_height*stage.scale*SIZE + half_height, stage.unit_width*stage.scale*SIZE, stage.unit_height*stage.scale*SIZE);

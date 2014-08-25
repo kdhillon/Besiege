@@ -119,6 +119,12 @@ public class SidePanel extends Group {
 //		miniStage.clear();
 //		mapScreen.getStage().addActor(kingdom);
 	}
+	public void clean() {
+		this.clearChildren();
+		this.previousPanel = null;
+		this.activePanel = null;
+	}
+	
 	public void setPreviousPanel(Panel previousPanel) {
 			this.previousPanel = previousPanel;
 	}
