@@ -131,11 +131,11 @@ public class Faction {
 		// send armies to capture/raid enemy cities/castles/villages
 		// negotiate diplomacy, declare war/peace
 		// that's it for now :D
-		if (Kingdom.getTotalHour() % CHECK_FREQ == 0 && !hasChecked) {
+		if (kingdom.getTotalHour() % CHECK_FREQ == 0 && !hasChecked) {
 			manageNobles();
 			hasChecked = true;
 		}
-		else if (Kingdom.getTotalHour() % CHECK_FREQ != 0) hasChecked = false;
+		else if (kingdom.getTotalHour() % CHECK_FREQ != 0) hasChecked = false;
 	}
 	
 	public boolean hasNewCenter() {

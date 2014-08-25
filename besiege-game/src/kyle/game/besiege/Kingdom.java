@@ -49,7 +49,7 @@ public class Kingdom extends Group {
 	private final int DAWN = 7;
 	private final int DUSK = 21;
 
-	public static float clock;
+	public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
 	private int day;
 	public boolean night; // is nighttime?
@@ -977,7 +977,7 @@ public class Kingdom extends Group {
 	public int getTime() {
 		return timeOfDay;
 	}
-	public static int getTotalHour() {
+	public int getTotalHour() {
 		return (int) (clock/HOUR_TIME);
 	}
 	public int getDay() {

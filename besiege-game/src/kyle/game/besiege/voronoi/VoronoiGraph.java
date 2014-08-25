@@ -405,7 +405,7 @@ public class VoronoiGraph {
 //        g.drawRectangle((int) bounds.x, (int) bounds.y, (int) bounds.width, (int) bounds.height);
     }
 
-    public Color getColor(Center c) {
+    public static Color getColor(Center c) {
     	Color color = new Color(OCEAN);
     
     	switch (c.biome) {
@@ -944,32 +944,32 @@ public class VoronoiGraph {
     //
     //
     public static int OCEAN = 0x44447aff;
-    public int COAST = 0x33335aff;
-    public int LAKESHORE = 0x225588ff;
-    public int LAKE = 0x336699ff;
-    public int RIVER = 0x225588ff;
-    public int MARSH = 0x2f6666ff;
-    public int ICE = 0x99ffffff;
-    public int BEACH = 0xa09077ff;
-    public int ROAD1 = 0x442211ff;
-    public int ROAD2 = 0x553322ff;
-    public int ROAD3 = 0x664433ff;
-    public int vBRIDGE = 0x686860ff;
-    public int LAVA = 0xcc3333ff;
+    public static int COAST = 0x33335aff;
+    public static int LAKESHORE = 0x225588ff;
+    public static int LAKE = 0x336699ff;
+    public static int RIVER = 0x225588ff;
+    public static int MARSH = 0x2f6666ff;
+    public static int ICE = 0x99ffffff;
+    public static int BEACH = 0xa09077ff;
+    public static int ROAD1 = 0x442211ff;
+    public static int ROAD2 = 0x553322ff;
+    public static int ROAD3 = 0x664433ff;
+    public static int vBRIDGE = 0x686860ff;
+    public static int LAVA = 0xcc3333ff;
     // Terrain
-    public int SNOW = 0xffffffff;
-    public int TUNDRA = 0xbbbbaaff;
-    public int BARE = 0x888888ff;
-    public int SCORCHED = 0x555555ff;
-    public int TAIGA = 0x99aa77ff;
-    public int SHRUBLAND = 0x889977ff;
-    public int TEMPERATE_DESERT = 0xc9d29bff;
-    public int TEMPERATE_RAIN_FOREST = 0x448855ff;
-    public int TEMPERATE_DECIDUOUS_FOREST = 0x679459ff;
-    public int GRASSLAND = 0x88aa55ff;
-    public int SUBTROPICAL_DESERT = 0xd2b98bff;
-    public int TROPICAL_RAIN_FOREST = 0x337755ff;
-    public int TROPICAL_SEASONAL_FOREST = 0x559944ff;
+    public static int SNOW = 0xffffffff;
+    public static int TUNDRA = 0xbbbbaaff;
+    public static int BARE = 0x888888ff;
+    public static int SCORCHED = 0x555555ff;
+    public static int TAIGA = 0x99aa77ff;
+    public static int SHRUBLAND = 0x889977ff;
+    public static int TEMPERATE_DESERT = 0xc9d29bff;
+    public static int TEMPERATE_RAIN_FOREST = 0x448855ff;
+    public static int TEMPERATE_DECIDUOUS_FOREST = 0x679459ff;
+    public static int GRASSLAND = 0x88aa55ff;
+    public static int SUBTROPICAL_DESERT = 0xd2b98bff;
+    public static int TROPICAL_RAIN_FOREST = 0x337755ff;
+    public static int TROPICAL_SEASONAL_FOREST = 0x559944ff;
     public static HashMap<Integer, String> colorBiomeMap = new HashMap();
     public static HashMap<String, Integer> biomeColorMap = new HashMap();
 

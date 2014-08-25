@@ -8,12 +8,15 @@ package kyle.game.besiege.title;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.MapScreen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,7 +26,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+
+//import com.esotericsoftware.kryo.io.Input;
 
 public class MainMenuScreen implements Screen {
 	private final int PAD = 50;
@@ -44,7 +50,13 @@ public class MainMenuScreen implements Screen {
 	private LabelStyle styleTitle;
 	private LabelStyle styleButtons;
 	
+	TextField tf;
+	
 	private Array<Candle> candles;
+	
+	private float wind_velocity;
+	
+	private float count;
 //	private ButtonStyle bs;
 	
 	public MainMenuScreen(BesiegeMain main) {
@@ -75,17 +87,26 @@ public class MainMenuScreen implements Screen {
 		topTable.add(labelTitle).colspan(2).padBottom(PAD);
 		topTable.row();
 		
-		labelNew.addListener(new InputListener() {
-			public boolean touchDown(InputEvent event, float x,
-					float y, int pointer, int button) {
-				return true;
-			}
+		labelNew.addListener(new ClickListener() {
+//			public boolean touchDown(InputEvent event, float x,
+//					float y, int pointer, int button) {
+//				return true;
+//			}
+			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				clickNew();
 			}
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				setNewOn();
+			}
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				setNewOff();
+			}
 		});
-		labelLoad.addListener(new InputListener() {
+		labelLoad.addListener(new ClickListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -93,6 +114,14 @@ public class MainMenuScreen implements Screen {
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				clickLoad();
+			}
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				setLoadOn();
+			}
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				setLoadOff();
 			}
 		});
 		topTable.add(labelNew).right().padRight(SEPARATE);
@@ -104,10 +133,29 @@ public class MainMenuScreen implements Screen {
 		
 		stage.addActor(topTable);
 		
-		Candle candle = new Candle(100, -100, 2, 1);
+		Candle candle = new Candle(634, -521, 2, 1);
 		candles = new Array<Candle>();
 		candles.add(candle);
 		stage.addActor(candle);
+		
+		count = 0f;
+		this.checkForFile();
+	}
+	
+	private void setNewOn() {
+		labelNew.setColor(Color.LIGHT_GRAY);
+	}
+	
+	private void setNewOff() {
+		labelNew.setColor(Color.WHITE);
+	}
+	
+	private void setLoadOn() {
+		labelLoad.setColor(Color.LIGHT_GRAY);
+	}
+	
+	private void setLoadOff() {
+		labelLoad.setColor(Color.WHITE);
 	}
 	
 	@Override
@@ -115,18 +163,48 @@ public class MainMenuScreen implements Screen {
 		updateCandles();
 		
 		stage.act(delta);
-		Gdx.gl.glClearColor(0,0,0,0);
+		Gdx.gl.glClearColor(.1f,.1f,.1f,0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Table.drawDebug(stage);
 		stage.draw();
+
+		// check for a file every second
+		if (count > 1) {
+			checkForFile();
+			count = 0;
+		}
+		count += delta;
+	}
+	
+	private void checkForFile() {
+		com.esotericsoftware.kryo.io.Input input = null;
+		try {
+			FileHandle file = Gdx.files.local(MapScreen.getSaveFileName());
+			input = new com.esotericsoftware.kryo.io.Input(file.read());
+			input.close();
+			this.labelLoad.setVisible(true);
+		}
+		catch (Exception e) {
+			System.out.println("no save file");
+			this.labelLoad.setVisible(false);
+		}
 	}
 	
 
 	private void updateCandles() {
-//		Candle.wind_x += Math.random()*.1 - .05;
-//		if (Candle.wind_x > 1) Candle.wind_x = 1;
-//		if (Candle.wind_x < -1) Candle.wind_x = -1;
-//		Candle.wind_x += 2*candles.first().current_flicker;
+//		if (Math.random() < .1) 
+		wind_velocity += (Math.random() - .5f)/400;
+		
+		Candle.wind_x += wind_velocity/10;
+//		System.out.println(Candle.wind_x);
+
+		if (wind_velocity > 2) wind_velocity = 1;
+		if (wind_velocity < -2) wind_velocity = -1;
+		
+		if (Candle.wind_x > .5) { Candle.wind_x = .5f;		}
+		if (Candle.wind_x < -.5) { Candle.wind_x = -.5f; }
+	
+//		Candle.wind_x += 1*candles.first().current_flicker;
 
 		// update text lighting
 //		if (Math.random() < .15)
@@ -162,16 +240,18 @@ public class MainMenuScreen implements Screen {
 		TextFieldStyle tfs = new TextFieldStyle();
 		tfs.fontColor = Color.WHITE;
 		tfs.font = Assets.pixel64;
-		TextField tf = new TextField("", tfs);
+		tf = new TextField("", tfs);
 		TextField tf2 = new TextField("", tfs);
 		tf2.setVisible(false);
-		topTable.add(tf).expandX().center().colspan(2).width(300);
+		topTable.add(tf).center().colspan(2);
 		tf.setMaxLength(MAX_NAME);
 		topTable.row();
 		topTable.add(tf2).colspan(2).height(0); // needed to autoselect
 		tf.next(true);
 		tf.setTextFieldFilter(new TextFieldFilter() {
 			public boolean acceptChar(TextField textField, char key) {
+				expand();
+//				System.out.println("Hello");
 				return true;
 			}
 		});
@@ -185,7 +265,14 @@ public class MainMenuScreen implements Screen {
 		tf2.next(false);
 	}
 	
+	private void expand() {
+		this.tf.setWidth(50000);
+	}
+	
 	private void clickLoad() {
+		// check if null
+		
+		
 		System.out.println("clicked load");
 		main.loadMapScreen();
 		main.setScreen(main.mapScreen);

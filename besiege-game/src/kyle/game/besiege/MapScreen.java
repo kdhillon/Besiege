@@ -167,7 +167,7 @@ public class MapScreen implements Screen {
 		shouldLetRun = false;
 		
 		fogOn = false;
-		losOn = true;
+		losOn = false;
 		fogToggle = false;
 		losToggle = true;
 		
@@ -177,11 +177,11 @@ public class MapScreen implements Screen {
 	}
 	
 	private void startLog() {
-		BottomPanel.log("Welcome to Besiege! This is the pre-alpha release, mostly for testing the game engine. Enjoy!", "green");
+		BottomPanel.log("Welcome to Besiege! This is the alpha release. Enjoy!", "green");
 		BottomPanel.log("Controls: ", "orange");
 		BottomPanel.log("Move: left-click       Pan camera: WASD       Rotate camera: Q,E       Zoom: mouse wheel       Wait: hold space", "orange");
 		BottomPanel.log("View map info: g       View factions: t         8x Speed: hold f          Toggle Line of Sight: l", "orange");
-		BottomPanel.log("Check out the source code at github.com/kdhillon/besiege-game", "yellow");
+		BottomPanel.log("Check out the source code at github.com/kdhillon/besiege", "yellow");
 	}
 
 	@Override
@@ -454,13 +454,13 @@ public class MapScreen implements Screen {
 				toggleLOS();
 				losToggle = false;
 			}
-			if (Gdx.input.isKeyPressed(Keys.E))
-				editToggle = true;
-			else if (editToggle) {
-				save();
-//				toggleEdit();
-				editToggle = false;
-			}
+//			if (Gdx.input.isKeyPressed(Keys.E))
+//				editToggle = true;
+//			else if (editToggle) {
+////				save();
+////				toggleEdit();
+//				editToggle = false;
+//			}
 			if (Gdx.input.isKeyPressed(Keys.B))
 				nightToggle = true;
 			else if (nightToggle) {
@@ -623,7 +623,13 @@ public class MapScreen implements Screen {
 //		}
 	}
 	
-	public void save() {		
+	public void save() {	
+//		System.out.println("saving");
+//		this.sidePanel.beginSaving();
+//		BottomPanel.log("presaving");
+		
+		// need to draw for one frame to let everyone know what's going o
+		
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
 		
@@ -639,7 +645,8 @@ public class MapScreen implements Screen {
 		
 		this.kingdomStage.addActor(kingdom);
 
-		System.out.println("Saved game!");
+		this.sidePanel.endSaving();
+		BottomPanel.log("Game saved successfully!");
 	}
 	
 	public void load() {
@@ -647,10 +654,13 @@ public class MapScreen implements Screen {
 
 		Input input = null;
 		try {
-			FileHandle file = Gdx.files.local("save.dat");
+			FileHandle file = Gdx.files.local(getSaveFileName());
 			input = new Input(file.read());
 		}
-		catch (Exception e) {}
+		catch (Exception e) {
+			System.out.println("no save file");
+			return;
+		}
 		
 		Date date = kryo.readObjectOrNull(input, Date.class);
 		
@@ -676,6 +686,10 @@ public class MapScreen implements Screen {
 		
 		this.center();
 		System.out.println("Loaded save from " + date.toString());
+	}
+	
+	public static String getSaveFileName() {
+		return "save.dat";
 	}
 	
 	@Override

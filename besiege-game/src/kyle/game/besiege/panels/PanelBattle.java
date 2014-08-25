@@ -43,7 +43,6 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private final String tablePatch = "grey-d9";
 	private final String redPatch = "red9";
 	private final String greenPatch = "green9";
-	private SidePanel panel;
 	public Battle battle;
 	
 	public BattleStage battleStage;
@@ -96,7 +95,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private LabelStyle lsSmallG;
 	
 	public PanelBattle(SidePanel panel, Battle battle) {
-		this.panel = panel;
+		this.sidePanel = panel;
 		this.battle = battle;
 		this.addParentPanel(panel);
 		
@@ -604,9 +603,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	@Override
 	public void resize() { // problem with getting scroll bar to appear...
 		Cell cell = text.getCell(soldierPane);
-		cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+		cell.height(sidePanel.getHeight() - DESC_HEIGHT).setWidget(null);
 		soldierPane = new ScrollPane(soldierTable);
-		soldierPane.setHeight(panel.getHeight() - DESC_HEIGHT);
+		soldierPane.setHeight(sidePanel.getHeight() - DESC_HEIGHT);
 		soldierPane.setScrollingDisabled(true, false);
 		soldierPane.setFadeScrollBars(false);
 		soldierPane.setScrollbarsOnTop(true);
@@ -620,7 +619,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		if (getButton(1).isVisible()) {
 			
 			if (battleStage == null)
-				battle.retreat(panel.getKingdom().getPlayer());	
+				battle.retreat(sidePanel.getKingdom().getPlayer());	
 			else {
 				battleStage.placementPhase = false;
 				battleStage.retreatAll(true);
@@ -650,7 +649,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	@Override
 	public void button4() {
 //		if (party == panel.getKingdom().getPlayer().getParty())
-			panel.setDefault();
+			sidePanel.setDefault();
 //		else 
 //			panel.returnToPrevious();
 	}

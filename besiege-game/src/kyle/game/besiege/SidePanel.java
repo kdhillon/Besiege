@@ -224,4 +224,10 @@ public class SidePanel extends Group {
 	public Panel getActivePanel() {
 		return activePanel;
 	}
+	public void beginSaving() {
+		this.activePanel.beginSaving();
+	}
+	public void endSaving() {
+		this.activePanel.endSaving();
+	}
 }

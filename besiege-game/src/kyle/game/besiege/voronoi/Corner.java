@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import kyle.game.besiege.Map;
 import kyle.game.besiege.geom.PointH;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -46,9 +47,35 @@ public class Corner {
 	public int river;
 	public double moisture; 
 	
+	public Color lerpColor; // linear interpolation of land colors
+	
 	public void init() {
 		locPushed = new PointH(this.loc.x, this.loc.y);
 		locNew = new PointH(this.loc.x, Map.HEIGHT-this.loc.y);
+		
+		ArrayList<Center> nonWaterCenters = new ArrayList<Center>();
+		for (Center center : touches) {
+			if (!center.water) nonWaterCenters.add(center);
+		}
+		
+		if (nonWaterCenters.size() == 1) lerpColor = VoronoiGraph.getColor(nonWaterCenters.get(0));
+		if (nonWaterCenters.size() == 2) {
+			lerpColor = VoronoiGraph.getColor(nonWaterCenters.get(0));
+			lerpColor.lerp(VoronoiGraph.getColor(nonWaterCenters.get(1)), .5f);
+		}
+		if (nonWaterCenters.size() == 3) {
+			lerpColor = VoronoiGraph.getColor(nonWaterCenters.get(0));
+			lerpColor.lerp(VoronoiGraph.getColor(nonWaterCenters.get(1)), .5f);
+			lerpColor.lerp(VoronoiGraph.getColor(nonWaterCenters.get(2)), .333f);
+		}
+		if (nonWaterCenters.size() == 4) {
+			lerpColor = VoronoiGraph.getColor(nonWaterCenters.get(0));
+			lerpColor.lerp(VoronoiGraph.getColor(nonWaterCenters.get(1)), .5f);
+			lerpColor.lerp(VoronoiGraph.getColor(nonWaterCenters.get(2)), .333f);
+			lerpColor.lerp(VoronoiGraph.getColor(nonWaterCenters.get(3)), .25f);
+		}
+		
+		if (lerpColor == null) lerpColor = new Color(VoronoiGraph.OCEAN);
 	}
 	
 	public void addVisible(Corner corner) {

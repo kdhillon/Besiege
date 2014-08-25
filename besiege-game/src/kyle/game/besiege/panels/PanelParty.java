@@ -254,6 +254,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			this.setButton(1, "Upgrades");
 			this.setButton(2, "Inventory");
 			this.setButton(3, "Character");
+			this.setButton(4, "Save");
 		}		
 		playerTouched = false;
 		
@@ -448,8 +449,9 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	}
 	@Override
 	public void button4() {
-//		if (party == panel.getKingdom().getPlayer().getParty())
-			//panel.setActive(panel.main);
+		if (party.player) {
+			this.panel.getMapScreen().save();
+		}
 //		else 
 //			panel.returnToPrevious();
 		if (!this.party.player) 

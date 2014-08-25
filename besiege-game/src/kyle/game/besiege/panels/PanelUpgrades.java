@@ -346,9 +346,12 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			none.setWrap(true);
 			none.setAlignment(0,0);
 			soldierTable.add(none).colspan(2).width(SidePanel.WIDTH - PAD*6).padTop(PAD*4);
-
+			this.setButton(4, "Back");
 			soldierTable.row();
 		}
+		
+		if (!upgradableRemaining()) this.setButton(4, "Back");
+		
 		// may be memory infeficienta
 //		if (upgradable.size == 0 || !upgradableRemaining()) {
 //			this.setButton(4, null);
@@ -633,7 +636,9 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	}
 	@Override
 	public void button4() {
-		upgradeAll();
+		if (upgradableRemaining())
+			upgradeAll();
+		else panel.returnToPrevious();
 		//panel.returnToPrevious();
 	}
 }

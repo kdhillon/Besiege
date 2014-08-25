@@ -345,7 +345,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void drawCrest(SpriteBatch batch) {
-		if (this.isInBattle() || this.isGarrisoned() || !this.isVisible()) return;
+		if (this.isInBattle() || this.isGarrisoned() || !this.isVisible() || (this.getFaction() == null)) return;
 		float size_factor = .4f;
 
 		size_factor +=  .005*this.party.getTotalSize();

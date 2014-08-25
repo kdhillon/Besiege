@@ -176,7 +176,7 @@ public class Unit extends Group {
 		// check if in cover
 		checkIfInCover();
 
-		assignColor();
+//		assignColor();
 
 		calcStats();
 
@@ -464,7 +464,7 @@ public class Unit extends Group {
 			}
 
 		
-			batch.setColor(this.tintColor);
+//			batch.setColor(this.tintColor);
 			
 			
 			if (this.isHit)

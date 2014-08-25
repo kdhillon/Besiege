@@ -1018,7 +1018,7 @@ public class BattleStage extends Group {
 		boolean loserDestroyed = false;
 
 		// figure out if totally destroyed or if units retreated
-		if (loser.getParty().getHealthySize() <= Battle.DESTROY_THRESHOLD) {
+		if ((loser.getParty().getHealthySize() <= Battle.DESTROY_THRESHOLD && !loser.getParty().player) || loser.getParty().getHealthySize() <= 0) {
 			battle.increaseSpoilsForKill(loser);
 			loserDestroyed = true;
 			loser.destroy();

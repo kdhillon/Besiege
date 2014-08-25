@@ -275,13 +275,13 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	}
 	
 	public boolean isHealed() {
-		if (Kingdom.clock - timeWounded >= HEAL_TIME)
+		if (party.army.getKingdom().clock - timeWounded >= HEAL_TIME)
 			return true;
 		return false;
 	}
 	public void wound() {
 		wounded = true;
-		timeWounded = Kingdom.clock; // seconds elapsed when wounded
+		timeWounded = party.army.getKingdom().clock; // seconds elapsed when wounded
 	}
 	public void heal() {
 		wounded = false;

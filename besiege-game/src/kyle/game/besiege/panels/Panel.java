@@ -38,8 +38,9 @@ public class Panel extends Group {
 	private final int r = 3; // 9patch offset
 
 	private final String PAUSED = "Paused";
+	private final String SAVING = "Saving...";
 
-	private SidePanel parentPanel;
+	protected SidePanel sidePanel;
 
 	private Kingdom kingdom;
 	private int day;
@@ -62,6 +63,8 @@ public class Panel extends Group {
 	private LabelStyle ls17;
 	private LabelStyle ls12;
 	private ButtonStyle bs;
+	
+	boolean saving = false;
 
 	public Panel() {
 		this.setPosition(0, 0);
@@ -114,7 +117,7 @@ public class Panel extends Group {
 	}
 
 	public void addParentPanel(SidePanel panel) {
-		this.parentPanel = panel;
+		this.sidePanel = panel;
 		this.kingdom = panel.getMapScreen().getKingdom();
 	}
 
@@ -191,19 +194,23 @@ public class Panel extends Group {
 	// LEAK IS NOT HERE
 	@Override
 	public void act(float delta) {	
-		if (topPane.getHeight() != parentPanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2) {
+		if (topPane.getHeight() != sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2) {
 			resize();
 		}
 		
 		day = kingdom.getDay();
 		time = kingdom.getTime();
 		timeLabel.setText("Day: " + day + " " + time + ":00");
-		if (kingdom.isPaused())
-			pausedLabel.setText(PAUSED);
-		else
-			pausedLabel.setText("");
-	
+		
 		super.act(delta);
+		
+		if (kingdom.isPaused() && !saving)
+			pausedLabel.setText(PAUSED);
+		else if (!saving)
+			pausedLabel.setText("");
+		else pausedLabel.setText(SAVING);
+		
+//		System.out.println(pausedLabel.getText());
 	}
 	
 	public void resize() {
@@ -211,7 +218,7 @@ public class Panel extends Group {
 		topPane = new ScrollPane(topTable, spStyle);
 		topPane.setScrollingDisabled(true, false);
 		topPane.setFadeScrollBars(false);
-		topPane.setBounds(PAD, PAD + BUTTONHEIGHT, SidePanel.WIDTH - PAD*2, parentPanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2);
+		topPane.setBounds(PAD, PAD + BUTTONHEIGHT, SidePanel.WIDTH - PAD*2, sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2);
 		this.addActor(topPane);
 	}
 
@@ -225,10 +232,10 @@ public class Panel extends Group {
 		spStyle.vScrollKnob = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(knobTexture), r,r,r,r));
 		
 		topPane = new ScrollPane(topTable, spStyle);
-		topPane.setY(parentPanel.getHeight() - SidePanel.WIDTH);
+		topPane.setY(sidePanel.getHeight() - SidePanel.WIDTH);
 		topPane.setX(0);
 		topPane.setWidth(SidePanel.WIDTH-PAD*2);
-		topPane.setHeight(parentPanel.getHeight()-SidePanel.WIDTH);
+		topPane.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
 		topPane.setScrollingDisabled(true, false);
 		this.addActor(topPane);
 	}
@@ -244,7 +251,7 @@ public class Panel extends Group {
 	}
 	// Back button
 	public void button4() {
-		parentPanel.returnToPrevious();
+		sidePanel.returnToPrevious();
 	}
 	public Button getButton(int button) {
 		if (button == 1)
@@ -297,4 +304,13 @@ public class Panel extends Group {
 	    	return buffer.toString();
 	    }
 	 }
+	
+	public void beginSaving() {
+		System.out.println("begin saving in panel");
+		this.pausedLabel.setText(SAVING);
+		saving = true;
+	}
+	public void endSaving() {
+		saving = false;
+	}
 }

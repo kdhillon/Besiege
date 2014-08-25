@@ -36,12 +36,12 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	transient public ShapeRenderer sr;
 
-	public static final int WIDTH = 11500;
-	public static final int HEIGHT = 11500;
+	public static final int WIDTH = 10000;
+	public static final int HEIGHT = 10000;
 	
 	// max safe size for saving using expanded stack is ~1000
 	// using new int technique, can support infinite sites - tested up to 3200
-	private static final int NUM_SITES = 1200;
+	private static final int NUM_SITES = 2000;
 //	public static boolean debug = true;
 	public static boolean debug;
 	public static boolean drawSpheres;
@@ -637,15 +637,32 @@ public class Map extends Actor {
 	
 	private void drawCenter(Center center, SpriteBatch batch) {		
 		// try multiplying to blend colors?
-		Color cColor = vg.getColor(center);
-		Color blend = new Color(cColor.r * batch.getColor().r, cColor.g * batch.getColor().g, cColor.b * batch.getColor().b, 1f);
-		sr.setColor(blend);
+		Color cColor = VoronoiGraph.getColor(center);
 		
 		for (Edge edge : center.borders) {
+			float lerp = .75f;
+			
+			Center adj = edge.d0;
+			if (adj == center) adj = edge.d1;
+			if (adj.water || center.water) lerp = 1;
+			Color border = VoronoiGraph.getColor(adj);
+			border.lerp(cColor, lerp);
+			
+			border.mul(batch.getColor());
+//			border.lerp(batch.getColor(), .8f);			
+			sr.setColor(border);
+//			
 			if (edge.v0 == null || edge.v1 == null) continue;
-			sr.triangle((float) center.loc.x,(float) (HEIGHT- center.loc.y), 
-				(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
-				(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y));
+			
+//			if (center.water)
+			sr.triangle((float) center.loc.x,  (float) (HEIGHT- center.loc.y), 
+						(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
+						(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y));
+//			else
+//			sr.triangle((float) center.loc.x,  (float) (HEIGHT- center.loc.y), 
+//					(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
+//					(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y),
+//					VoronoiGraph.getColor(center), edge.v0.lerpColor, edge.v1.lerpColor);
 		}
 	}
 

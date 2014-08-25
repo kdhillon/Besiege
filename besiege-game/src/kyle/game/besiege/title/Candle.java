@@ -23,7 +23,7 @@ public class Candle extends Actor {
 	private static int INIT_G = 1;
 	private static float FINAL_G = .2f;
 	private static int counter = 0;
-	public static int wind_x = 0;
+	public static float wind_x = 0;
 
 	int _x;
 	int _y;
@@ -87,11 +87,11 @@ public class Candle extends Actor {
 			
 			this._x = candle._x;
 			this._y = candle._y;
-
-			float direction = 1;
-			if (Math.random() < .5) direction = -1f; 
+//
+//			float direction = 1;
+//			if (Math.random() < .5) direction = -1f; 
 			
-			this.vx = (float) (Math.random() - .5)*.1f;// * INIT_VX * direction;// + candle.current_flicker);
+			this.vx = (float) (Math.random() - .5)*.7f + .15f;// * INIT_VX * direction;// + candle.current_flicker);
 
 			//			System.out.println(vx);
 			this.vy = (float) (candle.INIT_VY*Math.random() - candle.INIT_VY);
@@ -103,6 +103,7 @@ public class Candle extends Actor {
 //			this.vx = 
 			
 //			this.lifetime = candle.INIT_LIFETIME + Math.min(candle.LIFETIME_RANDOMNESS/(Math.abs(this.vx) - candle.current_flicker), candle.MAX_LIFETIME);
+//			this.lifetime = .9f+(float) (Math.random()*.1);
 			this.lifetime = 1;
 			this.init_lifetime = candle.INIT_LIFETIME;
 
@@ -129,16 +130,16 @@ public class Candle extends Actor {
 	// don't limit particle count
 	public void generateParticles() {
 		// if (particles.length < PARTICLE_COUNT) 
-		if (Math.random() < .5)
+		if (Math.random() < 1)
 			particles.add(new Particle(this));
 	}
 
 	private void removeParticle(Particle p) {
-		if (Math.random() < .2 && !p.isSmoke) {
+		if (Math.random() < .1 && !p.isSmoke) {
 			p.isSmoke = true;
-			p.lifetime = (float) (Math.random()*3);
+			p.lifetime = (float) (Math.random()*15);
 			p.init_lifetime = p.lifetime;
-			p.vy *= 1.5;
+			p.vy *= 1;
 
 			// element.innerHTML = "~";
 			p._y -= 10;
@@ -153,17 +154,20 @@ public class Candle extends Actor {
 	}
 
 	private void  calculateNewPosition(Particle p) {
-//		if (!p.isSmoke)
+		if (!p.isSmoke)
 			p.vy += ACCEL_Y*MS/20;
-//		else p.vx = wind_x;
-//		if (p.vy < -.7) {
-//			if (p.vx > 0) p.vx -= .05;
-//			if (p.vx < 0) p.vx += .05;
-//		} 
+		else p.vx = wind_x;
+		if (p.vy < .2 && !p.isSmoke) {
+			if (p.vx > 0) p.vx -= .05;
+			if (p.vx < 0) p.vx += .05;
+//			p.vx += wind_x / 10;
+		} 
 
-			System.out.println(p.vx);
+//			System.out.println(p.vx);
 		p._x += p.vx*MS/20;
 		p._y += p.vy*MS/20;
+		
+		p._x += wind_x/2;
 	}
 
 //	private void  doMove(p) {
@@ -195,7 +199,7 @@ public class Candle extends Actor {
 
 	public void updateFlicker() {
 //		float scale = 1;
-//		if (Math.random() < .02) scale = 10; 
+//		if (Math.random() < .02) scale = 2; 
 //		current_flicker += (Math.random()*FLICKER_RATE_X*scale)-FLICKER_RATE_X*scale/2;
 //		if (current_flicker > MAX_FLICKER) current_flicker = MAX_FLICKER;
 //		if (current_flicker < -MAX_FLICKER) current_flicker = -MAX_FLICKER;
@@ -272,7 +276,7 @@ public class Candle extends Actor {
 //			System.out.println("drawing");
 			batch.setColor(p.color);
 			
-			batch.draw(region, p._x, -p._y, 10, 10);
+			batch.draw(region, p._x, -p._y, 8, 8);
 		}
 	}
 }

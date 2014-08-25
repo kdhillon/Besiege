@@ -55,7 +55,7 @@ public class Siege extends Actor {
 		}
 		this.duration += delta;
 		
-		if (Kingdom.getTotalHour() % CHECK_FREQ == 0) {
+		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0) {
 			if (!hasChecked) {
 				shouldAttack();
 				hasChecked = true;
