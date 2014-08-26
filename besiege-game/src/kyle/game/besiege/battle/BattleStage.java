@@ -21,6 +21,7 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Biomes;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -46,7 +47,9 @@ public class BattleStage extends Group {
 	public static int PLACE_HEIGHT = 15;
 
 	public static double RETREAT_TIME = 10; // have to wait 5 secs before can retreat
-	
+	static final float RAIN_SLOW = .8f;
+	static final float SNOW_SLOW = .7f;
+
 
 	public int MIN_PLACE_X;
 	public int MAX_PLACE_X;
@@ -1112,6 +1115,7 @@ public class BattleStage extends Group {
 		if (drawCrests) {
 
 		}
+	
 	}
 
 	public void addUnit(Unit unit) {
@@ -1142,6 +1146,16 @@ public class BattleStage extends Group {
 //	public void setPaused(boolean paused) {
 //		this.paused = paused;
 //	}
+	
+	public float getStageSlow() {
+		if (this.battlemap.isSnowing()) {
+			return SNOW_SLOW;
+		}
+		if (this.battlemap.isRaining()) {
+			return RAIN_SLOW;
+		}
+		return 1;
+	}
 
 	public float getMouseX() {
 		return mouse.getX();

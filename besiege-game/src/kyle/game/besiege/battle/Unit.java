@@ -18,20 +18,20 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 
 public class Unit extends Group {
-	final int FRAME_COLS = 2;
-	final int FRAME_ROWS = 1;
+	static final int FRAME_COLS = 2;
+	static final int FRAME_ROWS = 1;
 
-	final int DEFENSE_DISTANCE = 5;
-	final int ATTACK_EVERY = 1;
+	static final int DEFENSE_DISTANCE = 5;
+	static final int ATTACK_EVERY = 1;
 
-	final int RETREAT_THRESHOLD = 2;
+	static final int RETREAT_THRESHOLD = 2;
 
-	public float NEAR_COVER_DISTANCE = 5;
-	public float HEIGHT_RANGE_FACTOR = 6;
-	public float MAN_SIEGE_DISTANCE = 40;
+	static public float NEAR_COVER_DISTANCE = 5;
+	static public float HEIGHT_RANGE_FACTOR = 6;
+	static public float MAN_SIEGE_DISTANCE = 40;
 
-	final float DEATH_TIME = 300;
-	final float BASE_SPEED = .2f;
+	static final float DEATH_TIME = 300;
+	static final float BASE_SPEED = .2f;
 
 	static final float UNIT_HEIGHT_GROUND = .1f;
 	static final float UNIT_HEIGHT_HORSE = .2f;
@@ -75,7 +75,7 @@ public class Unit extends Group {
 	public int hp;
 
 	//	public float speed = .35f;
-	public float speed = .35f;
+	public float UNIT_BASE_SPEED = .35f;
 
 	public float currentSpeed = 0;
 	public int team;
@@ -1138,12 +1138,19 @@ public class Unit extends Group {
 		moving = true;
 		moveSmooth = true;
 		percentComplete = 0;
-		this.currentSpeed = (speed) * (float)(1-stage.slow[pos_y][pos_x]);
-
+		
+		this.calcSpeed();
+	
+		
 		if (prev_y != pos_y && prev_x != pos_x) System.out.println("error!");
 
 		this.orientation = direction;
 		return true;
+	}
+	
+	private void calcSpeed() {
+		this.currentSpeed = (UNIT_BASE_SPEED) * (float)(1-stage.slow[pos_y][pos_x]);
+		this.currentSpeed *= stage.getStageSlow();
 	}
 
 	public boolean canMove(int pos_x, int pos_y) {

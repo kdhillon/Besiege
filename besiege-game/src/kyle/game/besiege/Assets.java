@@ -16,9 +16,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 
 public class Assets {
-	private static int cityCount = 40;
-	private static int castleCount = 40;
-	private static int villageCount = 80;
+	private static int cityCount = 20;
+	private static int castleCount = 20;
+	private static int villageCount = 40;
 	public static Array<String> cityArray;
 	public static Array<String> villageArray;
 	public static Array<String> castleArray;

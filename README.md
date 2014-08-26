@@ -109,7 +109,9 @@ Day 82: started process of simplifying references for eventual saving
 Day 83: added optional "optimized" setting to map
 Day 84: continued working on serialization, changed graph to use indices
 Day 85: finished saving map and armies/locations
-Day 86: added basic saving and loading functionality using kryo
+Day 86: finished basic saving and loading functionality using kryo
+Day 87: started working on title screen
+Day 88: finished flame on titlescreen, added rain to kingdom
 
 todo:
 update my linkedin
@@ -118,6 +120,8 @@ BATTLESTAGE:
 add waves and reinforcements to battles
 add safeguards against battles getting stuck
 get austin to start making cool art for additional units
+make selecting units easier
+have separate "darkness" for battlestage and kingdom
 
 later:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
@@ -129,8 +133,7 @@ add some randomness to which ladder is chosen
 allow joining battles
 
 MAP:
-now:
-use hacky saving where you actually only save parties near the player and only nobles
+now
 
 
 later:
@@ -138,6 +141,8 @@ fix button clicking
 add garrison repairing
 add cancelling and reforming of sieges
 make bandits not seige (?)
+add mist to certain battlemaps
+make title cooler
 
 gameplay:
 
@@ -286,3 +291,4 @@ ideas:
    future games http://en.wikipedia.org/wiki/Yaoguai
    
 </pre>
+

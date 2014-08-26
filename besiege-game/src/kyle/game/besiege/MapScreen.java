@@ -294,13 +294,20 @@ public class MapScreen implements Screen {
 	}
 	
 	public void updateColor(SpriteBatch batch) {
+		System.out.println("target darkness: " + kingdom.targetDarkness);
 		if (kingdom.currentDarkness != kingdom.targetDarkness) adjustDarkness();
 		batch.setColor(kingdom.currentDarkness, kingdom.currentDarkness, kingdom.currentDarkness, 1f);
 	}
 	
 	private void adjustDarkness() {
-		if (kingdom.targetDarkness - kingdom.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness += kingdom.LIGHT_ADJUST_SPEED;
-		else if (kingdom.currentDarkness - kingdom.targetDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED;
+		if (kingdom.raining) {
+			if (kingdom.targetDarkness - kingdom.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness += kingdom.LIGHT_ADJUST_SPEED/2;
+			else if (kingdom.currentDarkness - kingdom.targetDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED/2;
+		}
+		else {
+			if (kingdom.targetDarkness - kingdom.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness += kingdom.LIGHT_ADJUST_SPEED;
+			else if (kingdom.currentDarkness - kingdom.targetDarkness > kingdom.LIGHT_ADJUST_SPEED) kingdom.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED;
+		}
 	}
 	
 	public void moveUp() {

@@ -44,8 +44,8 @@ public class Kingdom extends Group {
 	public static boolean drawArmyCrests = true;
 
 	public final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
-	public final float NIGHT_FLOAT = .6f;
-	public final float RAIN_FLOAT = .5f;
+	public final float NIGHT_FLOAT = .5f;
+	public final float RAIN_FLOAT = .4f;
 	public final float LIGHTNING_FLOAT = 1f;
 	private final float MOUSE_DISTANCE = 10; // distance destination must be from mouse to register
 	private final int DAWN = 7;
@@ -97,11 +97,14 @@ public class Kingdom extends Group {
 		clock = 0; // set initial clock
 		timeOfDay = 0;
 		day = 0;
-		raining = true;
+		raining = false;
+		this.time(0);
 		
 		//		currentDarkness = NIGHT_FLOAT;
 		currentDarkness = 0; // fade in
-
+		if (this.night)
+			this.targetDarkness = NIGHT_FLOAT;
+		else this.targetDarkness = 1f;
 		this.mapScreen = mapScreen;
 
 		addActor(map);

@@ -189,21 +189,21 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	}
 	
 	public int getBonusDef() {
-		int bonusAtk = 0;
-		bonusAtk += weapon.atkMod;
+		int bonusDef = 0;
+		bonusDef += weapon.defMod;
 		for (Equipment e : equipment) {
-			bonusAtk += e.atkMod;
+			bonusDef += e.defMod;
 		}
-		return bonusAtk;
+		return bonusDef;
 	}
 	
 	public int getBonusSpd() {
-		int bonusAtk = 0;
-		bonusAtk += weapon.atkMod;
+		int bonusSpd = 0;
+		bonusSpd += weapon.spdMod;
 		for (Equipment e : equipment) {
-			bonusAtk += e.atkMod;
+			bonusSpd += e.spdMod;
 		}
-		return bonusAtk;
+		return bonusSpd;
 	}
 	
 	public void calcStats() {

@@ -17,7 +17,8 @@ public class BattleMap extends Actor {
 	private TextureRegion white;
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
-
+	private static final Color RAINDROP_COLOR = new Color(0, 0, 1f, .5f);
+	private static final Color SNOW_COLOR = new Color(.9f, .9f, 1f, .5f);
 
 	private static final int TREE_X_OFFSET = 1;
 	private static final int TREE_Y_OFFSET = 1;
@@ -38,6 +39,10 @@ public class BattleMap extends Actor {
 	public Array<Ladder> ladders;
 	public Array<BPoint> entrances;
 
+	private BPoint[] raindrops;
+	private int updateDrops;
+	private boolean snowing; // used for rare cases where mountaintops aren't snowing
+
 	private class Wall {
 		int pos_x;
 		int pos_y;
@@ -46,16 +51,16 @@ public class BattleMap extends Actor {
 		Orientation orientation;
 		int size; // original thickness of wall
 	}
-	
+
 	public Array<Wall> walls;
-	
+
 	//	private Array<Object> walls;
 
 	public int wallTop; 
 	public int wallLeft;
 	public int wallRight;
 	public int wallBottom;
-	
+
 	private boolean wallDamaged;
 
 	private enum GroundType {
@@ -95,8 +100,8 @@ public class BattleMap extends Actor {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.FOREST;
+//		this.maptype = getMapTypeForBiome(mainmap.biome);
+		this.maptype = MapType.ALPINE;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -134,26 +139,38 @@ public class BattleMap extends Actor {
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
+		if (this.maptype == MapType.ALPINE && Math.random() < .9) snowing = true;
+		
+		
+		if (isRaining()) {
+			int raindrop_count = 20 + (int) (Math.random() * 400);
+			// 50 - 500 is good
+
+			raindrops = new BPoint[raindrop_count];
+			for (int i = 0; i < raindrop_count; i++) {
+				raindrops[i] = new BPoint(0, 0);
+			}
+		}
 
 		// default values 
 		wallTop = Integer.MAX_VALUE;
 		wallLeft = Integer.MIN_VALUE;
 		wallRight = Integer.MAX_VALUE;
 		wallBottom = Integer.MIN_VALUE;
-		
-//		wallTop = 60;
-//		wallLeft = 10;
-//		wallBottom = 10;
-//		wallRight = 60;
-		
+
+		//		wallTop = 60;
+		//		wallLeft = 10;
+		//		wallBottom = 10;
+		//		wallRight = 60;
+
 		if (stage.siegeAttack)
 			wallBottom = 60;
 
 		// create castle
-//		if (stage.siegeDefense)
-//			wallTop = (int) (stage.size_y*.2f);
-//		if (stage.siegeAttack)
-//			wallBottom = (int) (stage.size_y*.8f);
+		//		if (stage.siegeDefense)
+		//			wallTop = (int) (stage.size_y*.2f);
+		//		if (stage.siegeAttack)
+		//			wallBottom = (int) (stage.size_y*.8f);
 
 
 		// generate random map
@@ -317,7 +334,7 @@ public class BattleMap extends Actor {
 		double percent_broken = .1;
 
 		System.out.println("adding wall");
-		
+
 		if (wallTop != Integer.MAX_VALUE) {
 			for (int i = Math.max(0, wallLeft); i < Math.min(stage.size_x, wallRight); i++) {
 				if (Math.random() > percent_broken) {
@@ -384,14 +401,14 @@ public class BattleMap extends Actor {
 		this.ladders.add(l);
 		stage.slow[l.pos_y][l.pos_x] = LADDER_SLOW;
 	}
-	
+
 	public void removeLadderAt(int pos_x, int pos_y) {
 		for (Ladder l : ladders) {
 			if (l.pos_x == pos_x && l.pos_y == pos_y) ladders.removeValue(l, true);
 		}
 		stage.slow[pos_y][pos_x] = 0;
 	}
-	
+
 	public boolean ladderAt(int pos_x, int pos_y) {
 		return getLadderAt(pos_x, pos_y) != null;
 	}
@@ -408,20 +425,20 @@ public class BattleMap extends Actor {
 		}
 		return false;
 	}	
-	
+
 	private void addCottage() { 
 		int MIN_SIZE = 5;
 		int MAX_SIZE = 10;
-		
+
 		int size_x, size_y;
 		size_x = size_y = (int) (Math.random() * (MAX_SIZE - MIN_SIZE) + MIN_SIZE);
 
 		// find clear region 
-		
-	
-	
+
+
+
 	}
-	
+
 	//	private void addTower(int y_position) {
 	//		
 	//		// add ladders
@@ -530,7 +547,7 @@ public class BattleMap extends Actor {
 			this.addLadder(pos_x+horFactor*width, pos_y+vertFactor*width, orientation);
 		}
 	}
-	
+
 	public void damageWallAt(int pos_x, int pos_y, int damage) {
 		for (Wall wall : walls) {
 			if (wall.pos_x == pos_x && wall.pos_y == pos_y) {
@@ -544,7 +561,7 @@ public class BattleMap extends Actor {
 					// delete entire wall?
 					stage.heights[pos_y][pos_x] = 0;
 					stage.closed[pos_y][pos_x] = false;
-					
+
 					//delete ladder;
 					if (wall.orientation == Orientation.DOWN || wall.orientation == Orientation.UP) {
 						if (ladderAt(pos_x, pos_y+1)) removeLadderAt(pos_x, pos_y+1);
@@ -554,13 +571,13 @@ public class BattleMap extends Actor {
 						if (ladderAt(pos_x+1, pos_y)) removeLadderAt(pos_x+1, pos_y);
 						if (ladderAt(pos_x-1, pos_y)) removeLadderAt(pos_x-1, pos_y);
 					}
-					
+
 					// injure unit
 					if (stage.units[pos_y][pos_x] != null) {
 						stage.units[pos_y][pos_x].isDying = true;
 						stage.units[pos_y][pos_x].kill();
 					}
-					
+
 					checkForNewEntrance(wall);
 				}
 			}
@@ -599,12 +616,12 @@ public class BattleMap extends Actor {
 			for (int i = 0; i < wall.size; i++)
 				if (objects[entrance_y][entrance_x-i] != null) return;
 		}
-		
+
 		// add entrance
 		BPoint entrance = new BPoint(entrance_x, entrance_y);
 		this.entrances.add(entrance);
 	}
-	
+
 	private void addFences(int maxWalls) {
 		int number_walls = (int)(Math.random()*maxWalls + .5);
 		for (int count = 0; count < number_walls; count++) {
@@ -868,6 +885,38 @@ public class BattleMap extends Actor {
 			}
 			batch.setColor(c);
 		}
+
+		// draw rain
+		if (isRaining() || isSnowing()) {
+			if (updateDrops == 0) {
+				for (int i = 0; i < raindrops.length; i++) {// draw rain
+					raindrops[i].pos_x = (int) (Math.random()*stage.size_x);
+					raindrops[i].pos_y = (int) (Math.random()*stage.size_y);
+				}
+				updateDrops = 5;
+			}
+			else updateDrops--;
+
+			Color c = batch.getColor();
+			Color mycolor = RAINDROP_COLOR;
+			if (this.isSnowing()) mycolor = SNOW_COLOR;
+			batch.setColor(mycolor);
+
+			for (int i = 0; i < raindrops.length; i++) {
+				BPoint p = raindrops[i];
+				batch.draw(white, (p.pos_x*stage.unit_width*stage.scale), (p.pos_y*stage.unit_height*stage.scale),stage.unit_width*stage.scale/2, stage.unit_height*stage.scale/2);
+			}
+
+			batch.setColor(c);
+		}
+	}
+	
+	public boolean isSnowing() {
+		return this.maptype == MapType.ALPINE && snowing;
+	}
+	
+	public boolean isRaining() {
+		return stage.getMapScreen().getKingdom().raining || this.isSnowing();
 	}
 
 	// used to draw trees after units have been drawn
@@ -877,7 +926,7 @@ public class BattleMap extends Actor {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
 				if (objects[i][j] == Object.TREE) {
-//					System.out.println("drawing trees");
+					//					System.out.println("drawing trees");
 					texture = tree;
 				}
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width*stage.scale), ((i-TREE_Y_OFFSET)*stage.unit_height*stage.scale), TREE_WIDTH*stage.unit_width*stage.scale, TREE_HEIGHT*stage.unit_height*stage.scale);
@@ -945,7 +994,7 @@ public class BattleMap extends Actor {
 		}
 		return false;
 	}
-	
+
 	private boolean addObject(int pos_x, int pos_y, Object object) {
 		return addObject(pos_x, pos_y, object, null, 0);
 	}
