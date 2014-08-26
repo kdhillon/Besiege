@@ -113,15 +113,12 @@ Day 86: finished basic saving and loading functionality using kryo
 Day 87: started working on title screen
 Day 88: finished flame on titlescreen, added rain to kingdom
 
-todo:
-update my linkedin
 
 BATTLESTAGE:
 add waves and reinforcements to battles
 add safeguards against battles getting stuck
 get austin to start making cool art for additional units
-make selecting units easier
-have separate "darkness" for battlestage and kingdom
+add scramble formation
 
 later:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
@@ -137,7 +134,6 @@ now
 
 
 later:
-fix button clicking
 add garrison repairing
 add cancelling and reforming of sieges
 make bandits not seige (?)

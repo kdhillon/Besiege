@@ -12,8 +12,8 @@ public enum Equipment {
 	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 20),
 	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
 	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 10),
-	WORK_HORSE ("Workhorse", Type.HORSE, 0, 0, 6, 20),
-	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 7, 30);
+	WORK_HORSE ("Workhorse", Type.HORSE, 0, 0, 4, 20),
+	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 6, 30);
 	
 	public final String name;
 	public final Type type;

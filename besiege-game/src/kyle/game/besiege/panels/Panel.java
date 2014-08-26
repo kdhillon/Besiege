@@ -38,7 +38,7 @@ public class Panel extends Group {
 	private final int r = 3; // 9patch offset
 
 	private final String PAUSED = "Paused";
-//	private final String SAVING = "Saving...";
+	//	private final String SAVING = "Saving...";
 
 	protected SidePanel sidePanel;
 
@@ -48,13 +48,13 @@ public class Panel extends Group {
 
 	private ScrollPane topPane;
 	private ScrollPane.ScrollPaneStyle spStyle;
-	
+
 	private Label timeLabel;
 	private Label pausedLabel;
 	private Table buttons;
 	private Table topTable;
 	private Array<Button> buttonArray;
-	
+
 	private Button b1;
 	private Button b2;
 	private Button b3;
@@ -63,7 +63,7 @@ public class Panel extends Group {
 	private LabelStyle ls17;
 	private LabelStyle ls12;
 	private ButtonStyle bs;
-	
+
 	boolean saving = false;
 
 	public Panel() {
@@ -77,6 +77,7 @@ public class Panel extends Group {
 		ls17.font = Assets.pixel17;
 		ls12 = new LabelStyle();
 		ls12.font = Assets.pixel12;
+
 		bs = new ButtonStyle();
 		bs.up = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(upTexture), r,r,r,r));
 		bs.down = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(downTexture), r,r,r,r));
@@ -109,10 +110,10 @@ public class Panel extends Group {
 		buttons.add(timeLabel).padTop(PAD).padLeft(PAD).expand(false,false).fill(false).width((SidePanel.WIDTH - PAD * 2)/2-PAD);
 		buttons.add(pausedLabel).padTop(PAD).padRight(PAD).expand(false,false).fill(false).width((SidePanel.WIDTH - PAD * 2)/2-PAD);
 		//buttons.debug();
-		
+
 		// TODO remove
 		this.addActor(buttons);
-		
+
 		//buttonArray = new Array<Button>();
 	}
 
@@ -122,73 +123,74 @@ public class Panel extends Group {
 	}
 
 	public void setButton(int bc, String name) {
-			Button b;
-			if (bc == 1) b = b1;
-			else if (bc == 2) b = b2; 
-			else if (bc == 3) b = b3;
-			else b = b4;
-			
-			if (name == null) {
-				b.clear();
-				b.setVisible(false);
+		Button b;
+		if (bc == 1) b = b1;
+		else if (bc == 2) b = b2; 
+		else if (bc == 3) b = b3;
+		else b = b4;
+
+		if (name == null) {
+			b.clearChildren();
+			b.setVisible(false);
+		} 
+		else {
+			Label label = new Label(name, ls17);
+			b.clearChildren();
+			b.add(label);
+			b.setVisible(true);
+			// can simplify if make button1() button2() etc into one method with int argument
+			if (bc == 1) {
+				b1.addListener(new InputListener() {
+					public boolean touchDown(InputEvent event, float x,
+							float y, int pointer, int button) {
+						System.out.println("clicked b1");
+						return true;
+					}
+					public void touchUp(InputEvent event, float x, float y,
+							int pointer, int button) {
+						button1();
+					}
+				});
 			} 
-			else {
-				Label label = new Label(name, ls17);
-				b.clear();
-				b.add(label);
-				b.setVisible(true);
-				// can simplify if make button1() button2() etc into one method with int argument
-				if (bc == 1) {
-					b1.addListener(new InputListener() {
-						public boolean touchDown(InputEvent event, float x,
-								float y, int pointer, int button) {
-							return true;
-						}
-						public void touchUp(InputEvent event, float x, float y,
-								int pointer, int button) {
-							button1();
-						}
-					});
-				} 
-				else if (bc == 2) {
-					b2.addListener(new InputListener() {
-						public boolean touchDown(InputEvent event, float x,
-								float y, int pointer, int button) {
-							return true;
-						}
+			else if (bc == 2) {
+				b2.addListener(new InputListener() {
+					public boolean touchDown(InputEvent event, float x,
+							float y, int pointer, int button) {
+						return true;
+					}
 
-						public void touchUp(InputEvent event, float x, float y,
-								int pointer, int button) {
-							button2();
-						}
-					});
-				} else if (bc == 3) {
-					b3.addListener(new InputListener() {
-						public boolean touchDown(InputEvent event, float x,
-								float y, int pointer, int button) {
-							return true;
-						}
+					public void touchUp(InputEvent event, float x, float y,
+							int pointer, int button) {
+						button2();
+					}
+				});
+			} else if (bc == 3) {
+				b3.addListener(new InputListener() {
+					public boolean touchDown(InputEvent event, float x,
+							float y, int pointer, int button) {
+						return true;
+					}
 
-						public void touchUp(InputEvent event, float x, float y,
-								int pointer, int button) {
-							button3();
-						}
-					});
-				} else if (bc == 4) {
-					b4.addListener(new InputListener() {
-						public boolean touchDown(InputEvent event, float x,
-								float y, int pointer, int button) {
-							return true;
-						}
+					public void touchUp(InputEvent event, float x, float y,
+							int pointer, int button) {
+						button3();
+					}
+				});
+			} else if (bc == 4) {
+				b4.addListener(new InputListener() {
+					public boolean touchDown(InputEvent event, float x,
+							float y, int pointer, int button) {
+						return true;
+					}
 
-						public void touchUp(InputEvent event, float x, float y,
-								int pointer, int button) {
-							button4();
-						}
-					});
-				} else
+					public void touchUp(InputEvent event, float x, float y,
+							int pointer, int button) {
+						button4();
+					}
+				});
+			} else
 				System.out.println("you done f***ed up");
-			}
+		}
 	}
 
 	// LEAK IS NOT HERE
@@ -197,22 +199,22 @@ public class Panel extends Group {
 		if (topPane.getHeight() != sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2) {
 			resize();
 		}
-		
+
 		day = kingdom.getDay();
 		time = kingdom.getTime();
 		timeLabel.setText("Day: " + day + " " + time + ":00");
-		
+
 		super.act(delta);
-		
+
 		if (kingdom.isPaused())
 			pausedLabel.setText(PAUSED);
 		else
 			pausedLabel.setText("");
-//		else pausedLabel.setText(SAVING);
-		
-//		System.out.println(pausedLabel.getText());
+		//		else pausedLabel.setText(SAVING);
+
+		//		System.out.println(pausedLabel.getText());
 	}
-	
+
 	public void resize() {
 		this.removeActor(topPane);
 		topPane = new ScrollPane(topTable, spStyle);
@@ -227,10 +229,10 @@ public class Panel extends Group {
 		//topTable.debug();
 		topTable.top();
 		spStyle = new ScrollPane.ScrollPaneStyle();
-		
+
 		spStyle.vScroll = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(barTexture), r,r,r,r));
 		spStyle.vScrollKnob = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(knobTexture), r,r,r,r));
-		
+
 		topPane = new ScrollPane(topTable, spStyle);
 		topPane.setY(sidePanel.getHeight() - SidePanel.WIDTH);
 		topPane.setX(0);
@@ -271,44 +273,44 @@ public class Panel extends Group {
 		return null;
 	}
 	public static String format(final String input, final int cutoff) {
-	    char[] split = input.toCharArray();//in your case "%d" as delimeter
-	    final StringBuffer buffer = new StringBuffer();
-	    int i;
-	    boolean hasPeriod = false;
-	    if (cutoff <= 0) return input;
-	    for (i = 0; i < split.length; i++) {
-	        if (split[i] == '.') {
-	        	hasPeriod = true;
-	        	break;
-	        }
-	        buffer.append(split[i]);
-	    }
-	    if (hasPeriod) {
-	    	buffer.append('.');
-	    	i++;
-	    	int j;
-	    	for (j = i; j < split.length && j < i+cutoff; j++) {
-	    		buffer.append(split[j]);
-	    	}
-	    	if (j == split.length) {
-	    		for (; j < i+cutoff; j++)
-	    			buffer.append('0');
-	    	}
-	    	return buffer.toString();
-	    }
-	    else {
-	    	buffer.append('.');
-	    	for (int j = 0; j < cutoff; j++) {
-	    		buffer.append('0');
-	    	}
-	    	return buffer.toString();
-	    }
-	 }
-	
+		char[] split = input.toCharArray();//in your case "%d" as delimeter
+		final StringBuffer buffer = new StringBuffer();
+		int i;
+		boolean hasPeriod = false;
+		if (cutoff <= 0) return input;
+		for (i = 0; i < split.length; i++) {
+			if (split[i] == '.') {
+				hasPeriod = true;
+				break;
+			}
+			buffer.append(split[i]);
+		}
+		if (hasPeriod) {
+			buffer.append('.');
+			i++;
+			int j;
+			for (j = i; j < split.length && j < i+cutoff; j++) {
+				buffer.append(split[j]);
+			}
+			if (j == split.length) {
+				for (; j < i+cutoff; j++)
+					buffer.append('0');
+			}
+			return buffer.toString();
+		}
+		else {
+			buffer.append('.');
+			for (int j = 0; j < cutoff; j++) {
+				buffer.append('0');
+			}
+			return buffer.toString();
+		}
+	}
+
 	public void beginSaving() {
-//		System.out.println("begin saving in panel");
-////		this.pausedLabel.setText(SAVING);
-//		saving = true;
+		//		System.out.println("begin saving in panel");
+		////		this.pausedLabel.setText(SAVING);
+		//		saving = true;
 	}
 	public void endSaving() {
 		saving = false;

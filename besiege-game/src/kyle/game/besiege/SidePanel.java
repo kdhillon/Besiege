@@ -107,7 +107,7 @@ public class SidePanel extends Group {
 		//minimap.clipBegin(100, 100, 100, 100);
 		super.draw(batch, parentAlpha);
 		//minimap.clipEnd();
-		Table.drawDebug(getMapScreen().getUIStage());
+//		Table.drawDebug(getMapScreen().getUIStage());
 
 //		miniCam.update();
 //		miniStage.addActor(kingdom);
@@ -188,7 +188,9 @@ public class SidePanel extends Group {
 //		setActive(pf);
 	}
 	public void setDefault() {
-		setActive(party); // can change
+		if (mapScreen.battle != null)
+			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());
+		else setActive(party); // can change
 		
 		// testing for leaks?
 		// leaks still occur with character!

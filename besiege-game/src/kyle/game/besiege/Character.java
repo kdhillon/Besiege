@@ -5,6 +5,7 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
+import kyle.game.besiege.battle.Formation;
 import kyle.game.besiege.panels.BottomPanel;
 
 import com.badlogic.gdx.utils.Array;
@@ -19,6 +20,7 @@ public class Character {
 	public String title;
 	public int fame;
 	public int maxTroops;
+	public Array<Formation> availableFormations;
 	
 	public int availablePoints; // for attributes
 	
@@ -68,6 +70,12 @@ public class Character {
 		this.title = "None";
 		this.fame = 0;
 		this.addAvailablePoints(5);
+		this.availableFormations = new Array<Formation>();
+		this.availableFormations.add(Formation.LINE);
+		this.availableFormations.add(Formation.DEFENSIVE_LINE);
+		this.availableFormations.add(Formation.FLANKING);
+		this.availableFormations.add(Formation.VEE);
+		
 		initAttributes();
 	}
 	

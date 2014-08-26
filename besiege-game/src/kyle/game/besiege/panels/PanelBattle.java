@@ -309,7 +309,6 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 
 		this.addTopTable(text);
 	
-		
 		// try to fix weird text bug
 //		updateSoldierTable();
 		shouldUpdate = true;
@@ -320,9 +319,18 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	public void act(float delta) {
 		
 		if (battleStage != null) {
-			if ((battle.playerInA || battle.playerInD) && battleStage.retreatTimer <= 0 && !retreatSet) {
-				retreatSet = true;
-				this.setButton(1, "Retreat!");
+			if (battle.playerInA || battle.playerInD) {
+				if (!battleStage.placementPhase) {
+					if (battleStage.retreatTimer <= 0 && !retreatSet) {
+						retreatSet = true;
+						this.setButton(1, "Retreat!");
+					}
+					else if (!(battleStage.retreatTimer <= 0)) this.setButton(1, null);
+				}
+				else {
+					this.setButton(1, battleStage.currentFormation.name);
+					this.setButton(2, battleStage.getPlayerStanceString());
+				}
 			}
 		}
 		
@@ -384,8 +392,11 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			}
 		}
 
-		if (battleStage != null && battleStage.playerStance == Stance.DEFENSIVE)
-			this.setButton(2, "Charge!");
+		if (battleStage != null && !battleStage.placementPhase){
+			if (battleStage.playerStance == Stance.DEFENSIVE)
+				this.setButton(2, "Charge!");
+			else this.setButton(2, null);
+		}
 		
 		super.act(delta);
 	}
@@ -618,11 +629,18 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		//retreat button
 		if (getButton(1).isVisible()) {
 			
-			if (battleStage == null)
+			
+			if (battleStage == null) {
 				battle.retreat(sidePanel.getKingdom().getPlayer());	
+			}
 			else {
-				battleStage.placementPhase = false;
-				battleStage.retreatAll(true);
+				if (battleStage.placementPhase) {
+					this.battleStage.toNextFormation();
+				}
+				else {
+					battleStage.placementPhase = false;
+					battleStage.retreatAll(true);
+				}
 			}
 			
 			getButton(1).setVisible(false);
@@ -630,17 +648,24 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	}
 	@Override
 	public void button2() {
+	
 		if (getButton(2).isVisible()) {
 			
 			if (battleStage == null) BottomPanel.log("no battle stage to retreat!!");
 			else {
-				battleStage.placementPhase = false;
-				battleStage.chargeAll(true);
+				// toggle stance
+				if (battleStage.placementPhase) {
+					this.battleStage.togglePlayerStance();
+				}
+				// charge all (move "Begin!" to button 3)
+				else {
+					battleStage.placementPhase = false;
+					battleStage.chargeAll(true);
+					getButton(2).setVisible(false);
+				}
 			}
-			
-			getButton(2).setVisible(false);
 		}
-		BottomPanel.log("b2");
+//		BottomPanel.log("b2");
 	}
 	@Override
 	public void button3() {
@@ -649,7 +674,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	@Override
 	public void button4() {
 //		if (party == panel.getKingdom().getPlayer().getParty())
-			sidePanel.setDefault();
+	
+//			sidePanel.setDefault();
 //		else 
 //			panel.returnToPrevious();
 	}

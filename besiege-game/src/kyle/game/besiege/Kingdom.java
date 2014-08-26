@@ -97,7 +97,9 @@ public class Kingdom extends Group {
 		clock = 0; // set initial clock
 		timeOfDay = 0;
 		day = 0;
-		raining = false;
+		raining = true;
+//		raining = false;
+
 		this.time(0);
 		
 		//		currentDarkness = NIGHT_FLOAT;
@@ -219,6 +221,35 @@ public class Kingdom extends Group {
 		
 		if (Math.random() < 1/RAIN_CHANCE) raining = true;
 		if (raining && Math.random() < .0005) raining = false;
+	}
+	
+
+	public void rain() {
+//		System.out.println("raining");
+		this.targetDarkness = this.RAIN_FLOAT;
+		if (Math.random() < 1/this.THUNDER_CHANCE) thunder();
+	}
+	
+	private void thunder() {
+//		this.currentDarkness = (float)((Math.random()/2+.5)*this.LIGHTNING_FLOAT);
+		this.currentDarkness = this.LIGHTNING_FLOAT;
+	}
+	
+	public void updateColor(SpriteBatch batch) {
+//		System.out.println("target darkness: " + this.targetDarkness);
+		if (this.currentDarkness != this.targetDarkness) adjustDarkness();
+		batch.setColor(this.currentDarkness, this.currentDarkness, this.currentDarkness, 1f);
+	}
+	
+	private void adjustDarkness() {
+		if (this.raining) {
+			if (this.targetDarkness - this.currentDarkness > this.LIGHT_ADJUST_SPEED) this.currentDarkness += this.LIGHT_ADJUST_SPEED/2;
+			else if (this.currentDarkness - this.targetDarkness > this.LIGHT_ADJUST_SPEED) this.currentDarkness -= this.LIGHT_ADJUST_SPEED/2;
+		}
+		else {
+			if (this.targetDarkness - this.currentDarkness > this.LIGHT_ADJUST_SPEED) this.currentDarkness += this.LIGHT_ADJUST_SPEED;
+			else if (this.currentDarkness - this.targetDarkness > this.LIGHT_ADJUST_SPEED) this.currentDarkness -= this.LIGHT_ADJUST_SPEED;
+		}
 	}
 	
 	// Events that occur every day
@@ -376,7 +407,7 @@ public class Kingdom extends Group {
 			else targetDarkness = 1f;
 		}
 	
-		mapScreen.updateColor(batch);
+		this.updateColor(batch);
 
 		map.draw(batch, parentAlpha);
 
