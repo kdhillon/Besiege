@@ -102,7 +102,7 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-		this.maptype = MapType.CRAG;
+		this.maptype = MapType.DESERT;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -269,6 +269,7 @@ public class BattleMap extends Actor {
 					else ground[i][j] = GroundType.MUD;
 				}
 			}
+			this.addFences(20);
 			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 		}
@@ -828,7 +829,7 @@ public class BattleMap extends Actor {
 		}
 
 		// draw cover
-		boolean drawCover = false;
+		boolean drawCover = true;
 		//		boolean drawCover = false;
 		if (drawCover) {
 			Color c = batch.getColor();
@@ -930,7 +931,7 @@ public class BattleMap extends Actor {
 	}
 	
 	public boolean isRaining() {
-		return stage.raining;
+		return stage.raining && this.maptype != MapType.DESERT;
 	}
 
 	// used to draw trees after units have been drawn
@@ -987,6 +988,13 @@ public class BattleMap extends Actor {
 								batch.draw(white, (center_x+i)*stage.unit_width*stage.scale, (center_y+j)*stage.unit_height*stage.scale , stage.unit_width*stage.scale, stage.unit_height*stage.scale);
 					}
 				}
+			}
+			batch.setColor(Color.BLACK);
+
+			// draw target
+			if (drawRange.nearestTarget != null) {
+				System.out.println("drawing nearest target");
+				batch.draw(white, (drawRange.nearestTarget.getX()), (drawRange.nearestTarget.getY()), stage.unit_width*stage.scale, stage.unit_height*stage.scale);
 			}
 			batch.setColor(c);
 		}

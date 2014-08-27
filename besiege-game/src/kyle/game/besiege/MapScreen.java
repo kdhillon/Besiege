@@ -584,6 +584,7 @@ public class MapScreen implements Screen {
 		
 		this.sidePanel.clean();
 		this.sidePanel.setDefault();
+		kingdom.currentDarkness = kingdom.targetDarkness;
 		
 		if (!kingdom.getPlayer().forceWait) kingdom.setPaused(true);
 	}

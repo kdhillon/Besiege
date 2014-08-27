@@ -521,7 +521,7 @@ public class BattleStage extends Group {
 		}
 	}
 
-	private boolean inMap(BPoint p) {
+	public boolean inMap(BPoint p) {
 		return p.pos_x < size_x &&
 				p.pos_y < size_y && 
 				p.pos_x >= 0 && 
@@ -876,7 +876,7 @@ public class BattleStage extends Group {
 			for (int i = -1; i <= 1; i++) {
 				for (int j = -1; j <= 1; j++) {
 					if (inMap(new BPoint(mousePoint.pos_x + i, mousePoint.pos_y + j))) {
-						Unit adj = units[mousePoint.pos_x + i][mousePoint.pos_y + j];	
+						Unit adj = units[mousePoint.pos_y + j][mousePoint.pos_x + i];	
 						if (adj == null) continue;
 						if (adj.prev_x == mousePoint.pos_x && adj.prev_y == mousePoint.pos_y) return adj;
 						if (adj != null && (i == 0 || j == 0)) u = adj;

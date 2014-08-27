@@ -74,7 +74,7 @@ public class Character {
 		this.availableFormations.add(Formation.LINE);
 		this.availableFormations.add(Formation.DEFENSIVE_LINE);
 		this.availableFormations.add(Formation.FLANKING);
-		this.availableFormations.add(Formation.VEE);
+		this.availableFormations.add(Formation.SCRAMBLE);
 		
 		initAttributes();
 	}

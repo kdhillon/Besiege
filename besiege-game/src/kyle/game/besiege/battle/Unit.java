@@ -22,11 +22,12 @@ public class Unit extends Group {
 	static final int FRAME_ROWS = 1;
 
 	static final int DEFENSE_DISTANCE = 5;
+	static final int SAFE_DISTANCE = 10; // how far away an enemy should be from friendly before shooting at them
 	static final int ATTACK_EVERY = 1;
 
 	static final int RETREAT_THRESHOLD = 2;
 
-	static public float NEAR_COVER_DISTANCE = 5;
+	static public float NEAR_COVER_DISTANCE = 4;
 	static public float HEIGHT_RANGE_FACTOR = 6;
 	static public float MAN_SIEGE_DISTANCE = 40;
 
@@ -176,7 +177,7 @@ public class Unit extends Group {
 		// check if in cover
 		checkIfInCover();
 
-//		assignColor();
+		//		assignColor();
 
 		calcStats();
 
@@ -235,15 +236,15 @@ public class Unit extends Group {
 		if (this.horse != null) {
 			isMounted = true;
 		}
-		
+
 		if (this.team == 0 && stage.siegeDefense) this.canRetreat = false;
 		if (this.team == 1 && stage.siegeAttack) this.canRetreat = false;
-		
+
 		//
 		//		// TODO REMOVE
 		//		if (this.team == 0) this.retreating = true;
 	}
-	
+
 	private void assignColor() {
 		this.tintColor = new Color((float) Math.random() * .2f + .6f, .7f, (float) Math.random() * .1f + .6f, 1f);
 	}
@@ -334,18 +335,16 @@ public class Unit extends Group {
 			else { // either defensive stance or aggressive but ranged within range
 				// just use attack every for convenience
 				timer += delta;
-//				if (timer > ATTACK_EVERY){
-//					faceEnemy();
-//					timer = 0;
-//				}
+				//				if (timer > ATTACK_EVERY){
+				//					faceEnemy();
+				//					timer = 0;
+				//				}
 				// if enemy is within one unit and fighting, can move to them.
 				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
 					moveToEnemy();
-				else if (this.reloading > 0) {
-					if (nearestTarget != null) face(nearestTarget);
-					reloading -= delta;
-					if (reloading < 0f)
-						firingStateTime = 0;
+				else if (this.reloading > 0 && nearestTarget != null) {
+					face(nearestTarget);
+					reload(delta);
 				}
 				// if ranged, fire weapon
 				else {
@@ -367,6 +366,12 @@ public class Unit extends Group {
 		}
 	}
 
+	private void reload(float delta) {
+		reloading -= delta;
+		if (reloading < 0f)
+			firingStateTime = 0;
+	}
+
 	public void checkIfShouldManSiege() {
 		// for now, no defensive units should siege
 		if (this.bowOut() || this.isMounted() || (stage.siegeAttack && this.stance == Stance.DEFENSIVE)) return;
@@ -384,11 +389,12 @@ public class Unit extends Group {
 	}
 
 	public void checkIfInCover() {
-		for (BPoint p : stage.battlemap.cover) {
-			if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
-				this.nearestCover = p;
-			}
-		}
+		//		for (BPoint p : stage.battlemap.cover) {
+		//			if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
+		//				if (p.orientation == this.orientation)
+		//					this.nearestCover = p;
+		//			}
+		//		}
 	}
 
 	public boolean inCover() {
@@ -463,10 +469,10 @@ public class Unit extends Group {
 				setY(stage.scale * pos_y * stage.unit_height);
 			}
 
-		
-//			batch.setColor(this.tintColor);
-			
-			
+
+			//			batch.setColor(this.tintColor);
+
+
 			if (this.isHit)
 				batch.setColor(1, 0, 0, 1); 
 			else if (attacking != null) {
@@ -493,7 +499,7 @@ public class Unit extends Group {
 			if (this.isHit){
 				this.isHit = false;
 			}
-			
+
 			batch.setColor(c);
 		}
 	}
@@ -503,7 +509,7 @@ public class Unit extends Group {
 		//		else 
 		return 15 + this.def*3;
 	}
-	
+
 	private void moveToEnemy() {
 		if (nearestEnemy != null && !nearestEnemy.inMap()) {
 			nearestEnemy = getNearestEnemy();
@@ -513,47 +519,47 @@ public class Unit extends Group {
 			if (nearestEnemy == null) return;
 		}
 		nearestEnemy = getNearestEnemy();
-		
+
 		if (nearestEnemy.retreating && nearestEnemy.moveSmooth) {
 			moveToPoint(nearestEnemy.getAdjacentPoint());
 		}
 		else
 			moveToPoint(nearestEnemy.getPoint());
 	}
-	
-//	private void moveToEnemy() {
-//		nearestCover = null;
-//		if (enemyArray.size == 0) return;
-//		this.faceEnemy();
-//
-//		if (this.onWall() != nearestEnemy.onWall()) {
-//			if (this.isMounted()) this.dismount();
-//			this.moveToPoint(getNearestLadder());
-//			return;
-//		}
-//
-//		Orientation original = this.orientation;
-//
-//		if (!this.moveForward()) {
-//			if (Math.random() > .5) this.forceTwoMoves = true;
-//
-//			// move in a different direction
-//			faceEnemyAlt();
-//			if (!this.moveForward()) {
-//
-//
-//				// try the last two directions as a last resort
-//				this.orientation = getOppositeOrientation(this.orientation);
-//				if (!this.moveForward()) {
-//					this.orientation = getOppositeOrientation(original);
-//					if (!this.moveForward()) {
-//						// this actually seems to work!
-//						//System.out.println("stuck!");
-//					}
-//				}
-//			}
-//		}
-//	}
+
+	//	private void moveToEnemy() {
+	//		nearestCover = null;
+	//		if (enemyArray.size == 0) return;
+	//		this.faceEnemy();
+	//
+	//		if (this.onWall() != nearestEnemy.onWall()) {
+	//			if (this.isMounted()) this.dismount();
+	//			this.moveToPoint(getNearestLadder());
+	//			return;
+	//		}
+	//
+	//		Orientation original = this.orientation;
+	//
+	//		if (!this.moveForward()) {
+	//			if (Math.random() > .5) this.forceTwoMoves = true;
+	//
+	//			// move in a different direction
+	//			faceEnemyAlt();
+	//			if (!this.moveForward()) {
+	//
+	//
+	//				// try the last two directions as a last resort
+	//				this.orientation = getOppositeOrientation(this.orientation);
+	//				if (!this.moveForward()) {
+	//					this.orientation = getOppositeOrientation(original);
+	//					if (!this.moveForward()) {
+	//						// this actually seems to work!
+	//						//System.out.println("stuck!");
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
 
 	private void moveToPoint(BPoint point) {
 		if (point == null) return;
@@ -565,11 +571,11 @@ public class Unit extends Group {
 				nearLadder = getNearestLadderTo(this.getPoint());
 			else nearLadder = getNearestLadderTo(point); // slightly better but not perfect - must guarantee that there are always ladders close enough
 			if (stage.selectedUnit == this) System.out.println("moving to ladder");
-//			if (!(point.pos_x == nearLadder.pos_x && point.pos_y == nearLadder.pos_y) && !stage.ladderAt(this.pos_x, this.pos_y))
-				this.moveToPoint(nearLadder);
+			//			if (!(point.pos_x == nearLadder.pos_x && point.pos_y == nearLadder.pos_y) && !stage.ladderAt(this.pos_x, this.pos_y))
+			this.moveToPoint(nearLadder);
 			return;
 		} 
-//		// check if on same side of wall (also make sure to not check sides with entrances)
+		//		// check if on same side of wall (also make sure to not check sides with entrances)
 		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.bowOut()) {
 			BPoint nearestEntrance;
 			if (stage.insideWall(this.pos_x, this.pos_y))
@@ -580,11 +586,11 @@ public class Unit extends Group {
 			if (stage.selectedUnit == this) System.out.println("needs to move inside wall");
 			return;
 		}
-		
+
 		if (stage.selectedUnit == this) if (stage.entranceAt(point.pos_x, point.pos_y)) System.out.println("target is entrance");
-		
+
 		this.face(point);
-		
+
 		Orientation original = this.orientation;
 
 		if (!this.moveForward()) {
@@ -633,12 +639,16 @@ public class Unit extends Group {
 			return true;
 		}
 
-		if (!inCover() && nearestEnemy != null) {
-			this.nearestCover = this.getNearestCover();
-			if (this.nearestCover != null) {
-				moveToPoint(nearestCover);
-			}
-		}
+//		if (nearestEnemy != null && !inCover()) {
+//			this.nearestCover = this.getNearestCover();
+//			if (!inCover()) {
+//				if (this.nearestCover != null && Math.random() < .6) {
+//					moveToPoint(nearestCover);
+//					System.out.println("moving to cover");
+//					//					return true;
+//				}
+//			}
+//		}
 		return false;
 	}
 
@@ -667,20 +677,23 @@ public class Unit extends Group {
 		stage.addActor(projectile);
 	}
 
-//	private void faceEnemy() {
-//		Unit nearest = this.getNearestEnemy();
-//		if (nearest == null) return;
-//		this.face(nearest);
-//	}
+	//	private void faceEnemy() {
+	//		Unit nearest = this.getNearestEnemy();
+	//		if (nearest == null) return;
+	//		this.face(nearest);
+	//	}
 
-//	private void faceEnemyAlt() {
-//		Unit nearest = this.getNearestEnemy();
-//		if (nearest == null) return;
-//		this.faceAlt(nearest);
-//	}
+	//	private void faceEnemyAlt() {
+	//		Unit nearest = this.getNearestEnemy();
+	//		if (nearest == null) return;
+	//		this.faceAlt(nearest);
+	//	}
 
 	private BPoint getNearestCover() {
+		if (this.nearestEnemy == null) return null;
+		this.face(nearestEnemy);
 		Orientation thisOrientation = this.orientation;
+
 
 		// check to see if should move to cover
 		BPoint closest = null;
@@ -688,7 +701,7 @@ public class Unit extends Group {
 
 		for (BPoint p : stage.battlemap.cover) { // && nearestEnemy.distanceTo(p) < rangedWeapon.range  ?
 			if (p.orientation == thisOrientation && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
-				if (nearestEnemy != null && nearestEnemy.distanceTo(p) < this.getCurrentRange()) {
+				if (nearestEnemy.distanceTo(p) < this.getCurrentRange()) {
 					if (Math.abs(this.pos_x - p.pos_x) < NEAR_COVER_DISTANCE && Math.abs(this.pos_y - p.pos_y) < NEAR_COVER_DISTANCE) {
 						float dist = (float) distanceTo(p);
 						if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
@@ -745,7 +758,8 @@ public class Unit extends Group {
 		for (Unit that : enemyArray) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
-			if (dist > MIN_DIST && dist < this.getCurrentRange()) {
+			// note - make sure not attacking, because you might hit a teammate
+			if (dist > MIN_DIST && dist < this.getCurrentRange() && that.attacking == null && that.distanceTo(that.nearestEnemy) > SAFE_DISTANCE) {
 				if (!that.retreating && that.bowOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
@@ -803,13 +817,13 @@ public class Unit extends Group {
 		int dist_to_top = stage.size_y-pos_y;
 		int dist_to_left = pos_x;
 		int dist_to_bottom = pos_y;
-		
+
 		// don't allow to retreat into enemies (hacky)
 		if (team == 0) dist_to_top = Integer.MAX_VALUE;
 		if (team == 1) dist_to_bottom = Integer.MAX_VALUE;
 
 		boolean done = false;
-		
+
 		// right
 		if (dist_to_right < dist_to_left && dist_to_right < dist_to_top && dist_to_right < dist_to_bottom) {
 			point_x = stage.size_x-1;
@@ -843,7 +857,7 @@ public class Unit extends Group {
 
 		return closest;
 	}
-	
+
 	public BPoint getNearestLadderTo(BPoint p) {
 		BPoint closest = null;
 
@@ -859,7 +873,7 @@ public class Unit extends Group {
 		}
 		return closest;
 	}
-	
+
 	public BPoint getNearestEntranceTo(BPoint that) {
 		BPoint closest = null;
 		double closestDistance = 999999;
@@ -1138,16 +1152,16 @@ public class Unit extends Group {
 		moving = true;
 		moveSmooth = true;
 		percentComplete = 0;
-		
+
 		this.calcSpeed();
-	
-		
+
+
 		if (prev_y != pos_y && prev_x != pos_x) System.out.println("error!");
 
 		this.orientation = direction;
 		return true;
 	}
-	
+
 	private void calcSpeed() {
 		this.currentSpeed = (UNIT_BASE_SPEED) * (float)(1-stage.slow[pos_y][pos_x]);
 		this.currentSpeed *= stage.getStageSlow();
@@ -1192,11 +1206,11 @@ public class Unit extends Group {
 
 	public void killHorse() {
 		//soldier.equipment.removeValue(horse, true);
-//		this.horse = null;
+		//		this.horse = null;
 		this.dismount();
-//		this.weaponDraw.horseWalk = null;
-//		soldier.calcStats();
-//		soldier.calcBonus();
+		//		this.weaponDraw.horseWalk = null;
+		//		soldier.calcStats();
+		//		soldier.calcBonus();
 		calcStats();
 	}
 
@@ -1240,7 +1254,7 @@ public class Unit extends Group {
 		if (this.team == 0) stage.allies.removeValue(this, true);
 		if (this.team == 1) stage.enemies.removeValue(this, true);
 		this.removeActor(weaponDraw);
-		
+
 		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 
 		//		System.out.println("DESTROYED");
@@ -1272,6 +1286,7 @@ public class Unit extends Group {
 	}
 
 	public void face(Unit that) {
+		if (!stage.inMap(new BPoint(that.pos_x, that.pos_y))) return; 
 		int x_dif = that.pos_x - this.pos_x;
 		int y_dif = that.pos_y - this.pos_y;
 
@@ -1399,7 +1414,7 @@ public class Unit extends Group {
 				pos_x >= 0 && 
 				pos_y >= 0;
 	}
-	
+
 	public BPoint getPoint() {
 		return new BPoint(pos_x, pos_y);
 	}

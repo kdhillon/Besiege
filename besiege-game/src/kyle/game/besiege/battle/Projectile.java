@@ -16,7 +16,7 @@ public class Projectile extends Actor {
 	//	private final float UNIT_HEIGHT = .1f;
 	private final float GRAVITY = -1;
 	
-	private final static boolean FRIENDLY_FIRE = false; // if true, arrows can hurt own team. note that siege hurts own team by default
+	private final static boolean FRIENDLY_FIRE = true; // if true, arrows can hurt own team. note that siege hurts own team by default
 	
 	private float SCALE = 3;
 	private float SCALE_SIEGE = 3f;
@@ -379,12 +379,14 @@ public class Projectile extends Actor {
 	}
 
 	public void collision(Unit that) {
+		if (that == firing) return;
 		
 		if (this.isArrow()) {
 			if (!FRIENDLY_FIRE && that.team == firing.team) {
 //				this.destroy();
 				return;
 			}
+			if (that.team == firing.team && this.vz > 0) return; // don't collide with friends on the way up
 		}
 		
 		if (this.isArrow()) {

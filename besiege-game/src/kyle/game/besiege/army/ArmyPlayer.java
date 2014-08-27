@@ -39,7 +39,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.PATROL);
+		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.NOBLE_DEFAULT_1);
 		
 		setTextureRegion(textureRegion);
 //		initializeBox();

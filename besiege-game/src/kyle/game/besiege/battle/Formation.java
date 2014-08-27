@@ -13,7 +13,7 @@ public enum Formation {
 	private Formation(String name) {
 		this.name = name;
 	}
-	
+
 	public static Soldier.SoldierType[][] getFormation(Party party, Formation formationChoice, int size_x, int size_y) {
 		Soldier.SoldierType[][] formation;
 
@@ -26,8 +26,36 @@ public enum Formation {
 		int cCount = cavalry.size;
 
 		// figure out what formation to do
+		// Scramble:  C A I C C I A 
+		//			  A I C A I C A
+		if (formationChoice == Formation.SCRAMBLE) {
+			int formation_width = (iCount + aCount + cCount);
+			int formation_height = BattleStage.PLACE_HEIGHT;
+
+			formation = new Soldier.SoldierType[formation_height][formation_width];
+			
+			while (iCount > 0 || aCount > 0 || cCount > 0) {
+				System.out.println("randomly creating scramble");
+				int x = (int) (Math.random() * formation_width);
+				int y = (int) (Math.random() * formation_height);
+				if (formation[y][x] == null) {
+					if (iCount > 0) {
+						formation[y][x] = Soldier.SoldierType.INFANTRY;
+						iCount--;
+					}
+					else if (aCount > 0) {
+						formation[y][x] = Soldier.SoldierType.ARCHER;
+						aCount--;
+					}
+					else if (cCount > 0) {
+						formation[y][x] = Soldier.SoldierType.CAVALRY;
+						cCount--;
+					}
+				}
+			}
+		} 
 		// Line:   CCCC IIII AAAAA IIII CCCC
-		if (formationChoice == Formation.LINE) {
+		else if (formationChoice == Formation.LINE) {
 			int formation_width = iCount + aCount + cCount;
 			int formation_height = 1;
 
@@ -234,8 +262,8 @@ public enum Formation {
 			int bottom_start_left = Math.max(0, top_row - bottom_row)/2;
 			int top_start_left = Math.max(0, bottom_row - top_row)/2;
 
-//			System.out.println("top row: " + top_row);
-			
+			//			System.out.println("top row: " + top_row);
+
 			int formation_width = Math.max(top_row, bottom_row);
 			int formation_height = 3;
 
