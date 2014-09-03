@@ -17,6 +17,7 @@ public class BattleParty {
 	public Stance stance;
 	public Formation formation;
 	public float minSpeed;
+	public boolean retreating;
 	
 	
 //	public void removeUnit(remove, true) {

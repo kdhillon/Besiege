@@ -464,7 +464,8 @@ public class Army extends Actor implements Destination {
 			nearEnemies.add(targetArmy.party);
 			
 			for (Army a : kingdom.getArmies()) {
-				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight) continue;
+				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight || (a.isGarrisoned() && siegeOf == null) || 
+						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true)) continue;
 				if (a.isAtWar(targetArmy) && !a.isAtWar(this))
 					nearAllies.add(a.party);
 				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))
@@ -488,7 +489,8 @@ public class Army extends Actor implements Destination {
 			nearEnemies.add(this.party);
 			
 			for (Army a : kingdom.getArmies()) {
-				if (a == targetArmy || a == this || a.distToCenter(this) > targetArmy.lineOfSight) continue;
+				if (a == targetArmy || a == this || a.distToCenter(targetArmy) > this.lineOfSight || (a.isGarrisoned() && siegeOf == null) || 
+						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true)) continue;
 				if (a.isAtWar(targetArmy) && !a.isAtWar(this))
 					nearEnemies.add(a.party);
 				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))

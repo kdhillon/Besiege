@@ -33,7 +33,7 @@ public class BattleStage extends Group {
 	private PanelBattle pb;
 	public float scale = 1f;
 	public float MIN_SIZE = 40;
-	public float SIZE_FACTOR = .6f; // how much does the size of the parties
+	public float SIZE_FACTOR = .4f; // how much does the size of the parties
 	public float targetDarkness;
 	public float currentDarkness;
 	public boolean raining;
@@ -49,7 +49,7 @@ public class BattleStage extends Group {
 	public static int BOTTOM_PAD = 5;
 	public static int PLACE_HEIGHT = 15;
 
-	public static double RETREAT_TIME = 10; // have to wait 5 secs before can retreat
+	public static double RETREAT_TIME_BASE = 10; // have to wait 5 secs before can retreat
 	static final float RAIN_SLOW = .8f;
 	static final float SNOW_SLOW = .7f;
 
@@ -104,7 +104,8 @@ public class BattleStage extends Group {
 	private boolean mouseOver; // is mouse over Battle screen?
 //	private boolean paused;
 	public boolean isOver; // is the battle over?
-	public double retreatTimer;
+	public double retreatTimerPlayer;
+	public double retreatTimerEnemy;
 
 	public int unit_width = 16;
 	public int unit_height = 16;
@@ -273,16 +274,13 @@ public class BattleStage extends Group {
 		originalPoint =  new BPoint(size_x/2, BOTTOM_PAD + PLACE_HEIGHT/2);
 		placementPoint = originalPoint;
 
-		this.retreatTimer = RETREAT_TIME;
-		
+		this.retreatTimerPlayer = RETREAT_TIME_BASE / allies.first().getAvgSpd() * 2;
+		this.retreatTimerEnemy = RETREAT_TIME_BASE / enemies.first().getAvgSpd() * 2;
+				
 		addUnits();
 	}
 
 
-	public void createFakeBattle() {
-		// player = PartyType.MERCHANT.generate();
-	
-	}
 
 	public void centerCamera() {
 		// translate to center of screen?
@@ -557,18 +555,12 @@ public class BattleStage extends Group {
 				p.pos_y >= 0;
 	}
 
-	public void retreatAll(boolean player) {
-		if (retreatTimer >= 0) return; // can't retreat unless proper time
-		
-		if (player) {
-			for (Unit unit : getAllies()) {
-				unit.retreating = true;
-			}
+	public void retreatAll(boolean player) {	
+		if (player && retreatTimerPlayer < 0) {
+			allies.retreating = true;
 		} 
-		else{
-			for (Unit unit : getEnemies()) {
-				unit.retreating = true;
-			}
+		else if (!player && retreatTimerEnemy < 0){
+			enemies.retreating = true;
 		} 
 	}
 
@@ -619,7 +611,9 @@ public class BattleStage extends Group {
 		}
 		if (!placementPhase) {
 			super.act(delta);
-			this.retreatTimer -= delta;
+			this.retreatTimerPlayer -= delta;
+			this.retreatTimerEnemy -= delta;
+			
 			if ((playerDefending && battle.balanceA < Battle.RETREAT_THRESHOLD/2) || (!playerDefending && battle.balanceD < Battle.RETREAT_THRESHOLD/2)) {
 				retreatAll(false);
 			}
@@ -833,9 +827,6 @@ public class BattleStage extends Group {
 		
 		this.battle.didAtkWin = didAtkWin;
 		
-		winner.endBattle();
-		winner.setStopped(false);
-		winner.forceWait(Battle.WAIT);
 		if (winner.getParty().player) {
 			kingdom.getMapScreen().getSidePanel().setStay(false);
 		}
@@ -855,27 +846,25 @@ public class BattleStage extends Group {
 			loser.destroy();
 		} else battle.increaseSpoilsForRetreat(loser);
 
-
-		if (!winner.isGarrisoned())
-			winner.setVisible(true);
-		if (!loser.isGarrisoned() && !loserDestroyed) 
-			loser.setVisible(true);
-		// army.nextTarget(); //
-
-		//		if (winner.getParty().player) {
-		//			// army.setStopped(true);
-		loser.setStopped(false);
-		winner.setStopped(false);
+	
+		for (Party p : allies.parties) {
+			if (!((p.getHealthySize() <= Battle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+				p.army.setVisible(true);
+			p.army.endBattle();
+			p.army.setStopped(false);
+			p.army.setTarget(null);
+		}
+		for (Party p : enemies.parties) {
+			if (!((p.getHealthySize() <= Battle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+				p.army.setVisible(true);
+			p.army.endBattle();
+			p.army.setStopped(false);
+			p.army.setTarget(null);
+		}
 		
 		loser.waitFor(0);
 		winner.forceWait(Battle.WAIT);
-		
-		winner.endBattle();
-		loser.endBattle();
-		
-		winner.setTarget(null);
-		loser.setTarget(null);
-
+	
 		if (battle.siegeOf != null && !battle.siegeOf.isVillage()) {
 			System.out.println("managing siege");
 			battle.manageSiege();

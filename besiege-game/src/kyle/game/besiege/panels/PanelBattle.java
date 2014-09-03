@@ -321,14 +321,20 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		if (battleStage != null) {
 			if (battle.playerInA || battle.playerInD) {
 				if (!battleStage.placementPhase) {
-					if (battleStage.retreatTimer <= 0 && !retreatSet) {
-						retreatSet = true;
+					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
+//						retreatSet = true;
 						this.setButton(1, "Retreat!");
 						this.getButton(1).setDisabled(false);
 					}
-					else if (!(battleStage.retreatTimer <= 0)) {
-						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimer) + ")");
+					else if (!(battleStage.retreatTimerPlayer <= 0)) {
+						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
 						this.getButton(1).setDisabled(true);
+					}
+					else if (battleStage.allies.retreating) {
+						this.setButton(1, "Retreat!");
+						this.getButton(1).setDisabled(true);
+						this.getButton(1).setVisible(true);
+						this.getButton(2).setDisabled(true);
 					}
 				}
 				else {
@@ -396,9 +402,10 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			}
 		}
 
-		if (battleStage != null && !battleStage.placementPhase){
-//			if (battleStage.allies.stance != Stance.AGGRESSIVE)
+		if (battleStage != null && !battleStage.placementPhase) {
 			this.setButton(2, "Charge!");
+			if (battleStage.allies.stance == Stance.AGGRESSIVE)
+				this.getButton(2).setDisabled(true);
 //			else this.setButton(2, null);
 		}
 		

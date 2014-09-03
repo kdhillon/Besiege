@@ -15,15 +15,15 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.utils.Array;
 
 public class Unit extends Group {
 	static final int FRAME_COLS = 2;
 	static final int FRAME_ROWS = 1;
 
 	static final int DEFENSE_DISTANCE = 5;
-	static final int SAFE_DISTANCE = 10; // how far away an enemy should be from friendly before shooting at them
+	static final int SAFE_DISTANCE = 8; // how far away an enemy should be from friendly before shooting at them
 	static final int ATTACK_EVERY = 1;
+	static final float NEAREST_UPDATE_TIME = 2;
 
 	static final int RETREAT_THRESHOLD = 2;
 
@@ -109,6 +109,8 @@ public class Unit extends Group {
 
 	public float rotation;
 	public boolean retreating;
+	
+	public float updateNearestEnemy;
 
 	float stateTime;
 	float firingStateTime;
@@ -267,7 +269,12 @@ public class Unit extends Group {
 		stateTime += delta;
 		firingStateTime += delta;
 
-		if (nearestEnemy == null) this.getNearestEnemy();
+		if (nearestEnemy == null || updateNearestEnemy < 0) {
+			this.nearestEnemy = this.getNearestEnemy();
+			updateNearestEnemy = NEAREST_UPDATE_TIME;
+		}
+		
+		updateNearestEnemy -= delta;
 
 		// flip flop logic kind of
 		if (moveToggle) {
@@ -310,7 +317,8 @@ public class Unit extends Group {
 			this.moveForward();
 			this.forceTwoMoves = false;
 		}
-		else if (this.retreating) {
+		else if (this.retreating || this.bp.retreating) {
+			this.retreating = true;
 			retreat();
 		}
 		else if (this.siegeUnit != null) {
@@ -347,7 +355,11 @@ public class Unit extends Group {
 				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
 					moveToEnemy();
 				else if (this.reloading > 0 && nearestTarget != null) {
-					face(nearestTarget);
+					if (nearestTarget.isDying) {
+						nearestTarget = getNearestTarget();
+					}
+					if (nearestTarget != null)
+						face(nearestTarget);
 					reload(delta);
 				}
 				// if ranged, fire weapon
@@ -356,8 +368,12 @@ public class Unit extends Group {
 
 					if (this.bowOut() && !shouldMove()) {
 						if (nearestTarget != null) {
-							if (nearestTarget.distanceTo(this) < this.getCurrentRange()) {
+							if (nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
 								fireAtEnemy();
+							}
+							else {
+								this.nearestTarget = getNearestTarget();
+								if (this.nearestTarget == null) moveToEnemy();
 							}
 						}
 					}
@@ -763,7 +779,8 @@ public class Unit extends Group {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
 			// note - make sure not attacking, because you might hit a teammate
-			if (dist > MIN_DIST && dist < this.getCurrentRange() && that.attacking == null && that.distanceTo(that.nearestEnemy) > SAFE_DISTANCE) {
+			if (dist > MIN_DIST && dist < this.getCurrentRange() && that.attacking == null && that.distanceTo(that.getNearestEnemy()) > SAFE_DISTANCE) {
+//				System.out.println(that.distanceTo(that.nearestEnemy));
 				if (!that.retreating && that.bowOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
@@ -785,29 +802,29 @@ public class Unit extends Group {
 
 		if (PRIORITIZE_ARCHERS || closestDistance < closestNormalDistance){
 			if (closest != null) {
-				nearestEnemy = closest;
+				nearestTarget = closest;
 				return closest;
 			}
 			else if (closestNormal != null) {
-				nearestEnemy = closestNormal;
+				nearestTarget = closestNormal;
 				return closestNormal;
 			}
 			else {
-				nearestEnemy = closestRetreating;
+				nearestTarget = closestRetreating;
 				return closestRetreating;
 			}
 		}
 		else {
 			if (closestNormal != null) {
-				nearestEnemy = closestNormal;
+				nearestTarget = closestNormal;
 				return closestNormal;
 			}
 			if (closest != null) {
-				nearestEnemy = closest;
+				nearestTarget = closest;
 				return closest;
 			}
 			else {
-				nearestEnemy = closestRetreating;
+				nearestTarget = closestRetreating;
 				return closestRetreating;
 			}
 		}

@@ -103,7 +103,7 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-		//		this.maptype = MapType.DESERT;
+				this.maptype = MapType.BEACH;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
@@ -239,7 +239,7 @@ public class BattleMap extends Actor {
 		if (maptype == MapType.BEACH) {
 			double slope = Math.random()*3+3;
 			double slope2 = Math.random()*1;
-			double thresh = Math.random()*40/SIZE+60/SIZE;
+			double thresh = Math.random()*stage.size_x/2/SIZE+stage.size_x/2/SIZE;
 
 			// determine if ocean on right or left of line?
 			for (int i = 0; i < ground.length; i++) {

@@ -134,7 +134,7 @@ design new unit tree
 
 MAP:
 now
-
+fix bug where armies that joined in battle don't reappear on map
 
 later:
 add garrison repairing

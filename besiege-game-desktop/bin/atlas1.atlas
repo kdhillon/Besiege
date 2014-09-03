@@ -220,9 +220,16 @@ grey-med9
   orig: 8, 8
   offset: 0, 0
   index: -1
+grey-mmd9
+  rotate: false
+  xy: 107, 82
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
 grey-xl
   rotate: false
-  xy: 127, 87
+  xy: 137, 87
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
@@ -250,7 +257,7 @@ knightSword
   index: -1
 lightFog
   rotate: false
-  xy: 107, 82
+  xy: 117, 82
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
@@ -264,7 +271,7 @@ panelBG
   index: -1
 red9
   rotate: false
-  xy: 117, 82
+  xy: 127, 82
   size: 8, 8
   orig: 8, 8
   offset: 0, 0

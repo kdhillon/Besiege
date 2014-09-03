@@ -5,10 +5,12 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.army.Army;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.SidePanel;
+import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
+import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 
@@ -29,6 +31,8 @@ public class PanelUnit extends Panel {
 	private final String tablePatch = "grey-d9";
 	private final String redPatch = "red9";
 	private final String greenPatch = "green9";
+	private BattleStage battleStage;
+	private Battle battle;
 	private SidePanel panel;
 	private Unit unit;
 	private Soldier soldier;
@@ -67,6 +71,8 @@ public class PanelUnit extends Panel {
 	public PanelUnit(SidePanel panel, Unit unit) {
 		this.panel = panel;
 		this.unit = unit;
+		this.battleStage = unit.stage;
+		this.battle = this.battleStage.battle;
 		this.soldier = unit.soldier;
 		this.party = unit.party;
 		this.addParentPanel(panel);
@@ -204,6 +210,39 @@ public class PanelUnit extends Panel {
 		if (totalWidth*(1-(unit.hp*1.0/max_hp)) > 0)
 			health.add(red).width((float) (totalWidth*(1-(unit.hp*1.0/max_hp))));
 		
+		if (battleStage != null) {
+			if (battle.playerInA || battle.playerInD) {
+				if (!battleStage.placementPhase) {
+					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
+						this.setButton(1, "Retreat!");
+						this.getButton(1).setDisabled(false);
+					}
+					else if (!(battleStage.retreatTimerPlayer <= 0)) {
+						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
+						this.getButton(1).setDisabled(true);
+					}
+					else if (battleStage.allies.retreating) {
+						this.setButton(1, "Retreat!");
+						this.getButton(1).setDisabled(true);
+						this.getButton(1).setVisible(true);
+						this.getButton(2).setDisabled(true);
+					}
+				}
+				else {
+					this.setButton(1, battleStage.currentFormation.name);
+					this.setButton(2, battleStage.getPlayerStanceString());
+				}
+			}
+		}
+		
+		if (battleStage != null && !battleStage.placementPhase) {
+			this.setButton(2, "Charge!");
+			if (battleStage.allies.stance == Stance.AGGRESSIVE)
+				this.getButton(2).setDisabled(true);
+//			else this.setButton(2, null);
+		}
+		
+		
 		super.act(delta);
 	}
 	
@@ -240,13 +279,51 @@ public class PanelUnit extends Panel {
 //		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
 //	}
 	
+	
 	@Override
 	public void button1() {
-		
+		//retreat button
+		if (getButton(1).isVisible()) {
+			
+			
+			if (battleStage == null) {
+//				battle.retreat(sidePanel.getKingdom().getPlayer());
+				return;
+			}
+			else {
+				if (battleStage.placementPhase) {
+					this.battleStage.toNextFormation();
+				}
+				else {
+					battleStage.placementPhase = false;
+					battleStage.retreatAll(true);
+					getButton(1).setDisabled(true);
+				}
+			}
+			
+		}
 	}
 	@Override
 	public void button2() {
-		
+	
+		if (getButton(2).isVisible()) {
+			
+			if (battleStage == null) BottomPanel.log("no battle stage to retreat!!");
+			else {
+				// toggle stance
+				if (battleStage.placementPhase) {
+					this.battleStage.togglePlayerStance();
+				}
+				// charge all (move "Begin!" to button 3)
+				else {
+					battleStage.placementPhase = false;
+					battleStage.chargeAll(true);
+//					getButton(2).setVisible(false);
+					getButton(2).setDisabled(true);
+				}
+			}
+		}
+//		BottomPanel.log("b2");
 	}
 	@Override
 	public void button3() {

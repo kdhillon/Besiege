@@ -35,7 +35,7 @@ public class Panel extends Group {
 	private final String downTexture = "grey-med9";
 	private final String barTexture = "grey-d9";
 	private final String knobTexture = "grey-med9";
-	private final String disabledTexture = "grey-md9";
+	private final String disabledTexture = "grey-mmd9";
 	private final int r = 3; // 9patch offset
 
 	private final String PAUSED = "Paused";
