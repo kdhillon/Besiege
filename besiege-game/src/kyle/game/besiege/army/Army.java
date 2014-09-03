@@ -455,16 +455,48 @@ public class Army extends Actor implements Destination {
 		//		System.out.println(this.getName() + " creating battle");
 		if (this == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
-			getKingdom().getPlayer().createPlayerBattleWith(targetArmy, false, siegeOf);
 			
 			// get nearby armies and make them join battle
+			Array<Party> nearAllies = new Array<Party>();
+			nearAllies.add(this.party);
+		
+			Array<Party> nearEnemies = new Array<Party>();
+			nearEnemies.add(targetArmy.party);
+			
+			for (Army a : kingdom.getArmies()) {
+				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight) continue;
+				if (a.isAtWar(targetArmy) && !a.isAtWar(this))
+					nearAllies.add(a.party);
+				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))
+					nearEnemies.add(a.party);
+			}
+			
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
+			
 			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else if (targetArmy == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacked by " + this.getName() + "!");
-			getKingdom().getPlayer().createPlayerBattleWith(this, true, siegeOf);
+			
+			// get nearby armies and join them
+			Array<Party> nearAllies = new Array<Party>();
+			nearAllies.add(targetArmy.party);
+			
+			Array<Party> nearEnemies = new Array<Party>();
+			nearEnemies.add(this.party);
+			
+			for (Army a : kingdom.getArmies()) {
+				if (a == targetArmy || a == this || a.distToCenter(this) > targetArmy.lineOfSight) continue;
+				if (a.isAtWar(targetArmy) && !a.isAtWar(this))
+					nearEnemies.add(a.party);
+				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))
+					nearAllies.add(a.party);
+			}
+			
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
+			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
@@ -489,7 +521,33 @@ public class Army extends Actor implements Destination {
 
 	public void joinBattle(Battle battle) {
 		if (this.party.player) {
-			BottomPanel.log("sorry, joining battles has not been implemented yet");
+			
+			Array<Party> allies = new Array<Party>();
+			Array<Party> enemies = new Array<Party>();
+			
+			allies.add(this.party);
+			
+			boolean defending = false;
+			
+			// should join defenders
+			if (battle.shouldJoin(this) == 1) {
+				defending = true;
+				for (Army army : battle.dArmies)
+					allies.add(army.party);
+				for (Army army : battle.aArmies)
+					enemies.add(army.party);
+			}
+			else if (battle.shouldJoin(this) == 2) {
+				defending = false;
+				for (Army army : battle.dArmies)
+					enemies.add(army.party);
+				for (Army army : battle.aArmies)
+					allies.add(army.party);
+			}
+			else return;
+			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, battle.siegeOf);
+			
+			BottomPanel.log("Joining " + battle.getName());
 		}
 		else {
 			if (battle == null) {

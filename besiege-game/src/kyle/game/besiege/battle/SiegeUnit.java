@@ -468,8 +468,8 @@ public class SiegeUnit extends Group {
 
 		
 		Array<Unit> enemy;
-		if (this.currentTeam() == 0) enemy = stage.enemies;
-		else enemy = stage.allies;
+		if (this.currentTeam() == 0) enemy = stage.enemies.units;
+		else enemy = stage.allies.units;
 		
 		
 		// check for nearby units

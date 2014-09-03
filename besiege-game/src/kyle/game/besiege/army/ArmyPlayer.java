@@ -10,17 +10,16 @@ import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Map;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 public class ArmyPlayer extends Army {
 	private final String textureRegion = "Player";
@@ -39,7 +38,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.NOBLE_DEFAULT_1);
+		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.BANDIT);
 		
 		setTextureRegion(textureRegion);
 //		initializeBox();
@@ -252,10 +251,10 @@ public class ArmyPlayer extends Army {
 	}
 	
 	// create a battle involving the player
-	public void createPlayerBattleWith(Army army, boolean defending, Location siegeOf) {
+	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean defending, Location siegeOf) {
 		System.out.println("switching to battle view");
 		// first create battle stage with appropriate stuff
-		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), this.getParty(), army.getParty(), defending, siegeOf);
+		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siegeOf);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);
 	}
 	

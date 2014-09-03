@@ -35,6 +35,7 @@ public class Panel extends Group {
 	private final String downTexture = "grey-med9";
 	private final String barTexture = "grey-d9";
 	private final String knobTexture = "grey-med9";
+	private final String disabledTexture = "grey-md9";
 	private final int r = 3; // 9patch offset
 
 	private final String PAUSED = "Paused";
@@ -81,6 +82,7 @@ public class Panel extends Group {
 		bs = new ButtonStyle();
 		bs.up = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(upTexture), r,r,r,r));
 		bs.down = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(downTexture), r,r,r,r));
+		bs.disabled = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(disabledTexture), r,r,r,r));
 		bs.pressedOffsetX = OFFSET;
 		bs.pressedOffsetY = -OFFSET;
 

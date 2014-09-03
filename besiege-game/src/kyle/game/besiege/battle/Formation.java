@@ -14,7 +14,7 @@ public enum Formation {
 		this.name = name;
 	}
 
-	public static Soldier.SoldierType[][] getFormation(Party party, Formation formationChoice, int size_x, int size_y) {
+	public static Soldier.SoldierType[][] getFormation(BattleParty party, Formation formationChoice, int size_x, int size_y) {
 		Soldier.SoldierType[][] formation;
 
 		Array<Soldier> infantry = party.getHealthyInfantry();

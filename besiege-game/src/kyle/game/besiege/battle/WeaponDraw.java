@@ -184,8 +184,11 @@ public class WeaponDraw extends Actor {
 		//this.toFront();
 		this.toBack();
 		Color c = new Color(batch.getColor());
-		if (unit.team == 0)
-			batch.setColor(1, 0, 0, .2f); 
+		if (unit.team == 0) {
+			if (unit.party == unit.stage.allies.first())
+				batch.setColor(1, 0, 0, .2f); 
+			else batch.setColor(1, .5f, .5f, .2f);
+		}
 		else batch.setColor(0, 0, 1, .2f);
 		
 		// draw white if selected

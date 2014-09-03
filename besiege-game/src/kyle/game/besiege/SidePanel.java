@@ -121,6 +121,8 @@ public class SidePanel extends Group {
 	}
 	public void clean() {
 		this.clearChildren();
+		this.addActor(this.minimap);
+		this.addActor(this.bottom);
 		this.previousPanel = null;
 		this.activePanel = null;
 	}

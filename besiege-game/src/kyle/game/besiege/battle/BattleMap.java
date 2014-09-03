@@ -16,7 +16,7 @@ public class BattleMap extends Actor {
 	private TextureRegion white;
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
-	private static final Color RAINDROP_COLOR = new Color(0, 0, 1f, .5f);
+	private static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
 	private static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 
 	private static final int TREE_X_OFFSET = 1;
@@ -38,12 +38,13 @@ public class BattleMap extends Actor {
 	public Array<Ladder> ladders;
 	public Array<BPoint> entrances;
 
+	private int currentRainIndex;
 	private BPoint[] raindrops;
 	private Color rainColor;
 	private int updateDrops;
 	private boolean snowing; // used for rare cases where mountaintops aren't snowing
-	
-	
+
+
 	private class Wall {
 		int pos_x;
 		int pos_y;
@@ -102,11 +103,11 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-		this.maptype = MapType.DESERT;
+		//		this.maptype = MapType.DESERT;
 
 		this.total_height = mainmap.size_y/SIZE;
 		this.total_width = mainmap.size_x/SIZE;
-		
+
 
 		ground = new GroundType[total_height][total_width];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
@@ -142,8 +143,8 @@ public class BattleMap extends Actor {
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
 		if (this.maptype == MapType.ALPINE && Math.random() < .9) snowing = true;
-		
-		
+
+
 		if (isRaining() || isSnowing()) {
 			int raindrop_count = 20 + (int) (Math.random() * 400);
 			// 50 - 500 is good
@@ -152,7 +153,7 @@ public class BattleMap extends Actor {
 			for (int i = 0; i < raindrop_count; i++) {
 				raindrops[i] = new BPoint(0, 0);
 			}
-			
+
 			if (isRaining()) {
 				this.rainColor = RAINDROP_COLOR;
 				this.rainColor.mul(stage.targetDarkness*1.5f);
@@ -296,7 +297,7 @@ public class BattleMap extends Actor {
 				}
 			}
 			stage.targetDarkness = .5f;
-			
+
 			if (stage.siegeDefense || stage.siegeAttack)
 				addWall();
 
@@ -680,13 +681,15 @@ public class BattleMap extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		TextureRegion texture;
-
+		
+		if (false) return;
+		
 		this.toBack();
 
 		//		System.out.println(ground.length);
 		//		System.out.println(stage.size_x);
 
-		// draw base layer textures
+//		// draw base layer textures
 		for (int i = 0; i < ground[0].length; i++) {
 			for (int j = 0; j < ground.length; j++) {
 				texture = getTexture(ground[j][i]);
@@ -819,17 +822,17 @@ public class BattleMap extends Actor {
 		}
 		else if (drawAll && stage.currentPanel != null) {
 			if (stage.currentPanel.team == 0) {
-				for (Unit drawRange : stage.allies) 
+				for (Unit drawRange : stage.getAllies()) 
 					drawRange(drawRange, batch);
 			}
 			else if (stage.currentPanel.team == 1) {
-				for (Unit drawRange : stage.enemies)
+				for (Unit drawRange : stage.getEnemies())
 					drawRange(drawRange, batch);
 			}
 		}
 
 		// draw cover
-		boolean drawCover = true;
+		boolean drawCover = false;
 		//		boolean drawCover = false;
 		if (drawCover) {
 			Color c = batch.getColor();
@@ -899,37 +902,48 @@ public class BattleMap extends Actor {
 		}
 
 		// draw rain
-		if (isRaining() || isSnowing()) {
-			if (updateDrops == 0) {
-				for (int i = 0; i < raindrops.length; i++) {// draw rain
-					raindrops[i].pos_x = (int) (Math.random()*stage.size_x);
-					raindrops[i].pos_y = (int) (Math.random()*stage.size_y);
+		boolean drawRain = false;
+		if (drawRain) {
+			if (isRaining() || isSnowing()) {
+				int perFrame = 5;
+				for (int i = 0; i < perFrame; i++) {
+					raindrops[currentRainIndex].pos_x = (int) (Math.random()*stage.size_x);
+					raindrops[currentRainIndex].pos_y = (int) (Math.random()*stage.size_y);
+					currentRainIndex++; 
+					if (currentRainIndex >= raindrops.length) currentRainIndex = 0;
 				}
-				updateDrops = 5;
+
+				Color c = batch.getColor();
+				Color mycolor = RAINDROP_COLOR;
+
+				// we can figure out how much to fade drop by calculating distance between its index and currentrainindex, 
+				// then divide by array size to get between 0 and 1 yay
+
+				// eg if index = 20 and currentIndex = 10, diff is (20-10)/40 = 1/4
+				// eg if index = 20 and currentIndex = 25, diff is 40 + (20 - 25) = 
+
+				if (this.isSnowing()) {
+					mycolor = SNOW_COLOR;	
+				}
+
+				for (int i = 0; i < raindrops.length; i++) {
+					BPoint p = raindrops[i];
+					double indexDiff = i - currentRainIndex;
+					if (indexDiff < 0) indexDiff += raindrops.length;
+					mycolor.a = (float) (Math.max(0, indexDiff / raindrops.length - .3));
+					batch.setColor(mycolor);
+					batch.draw(white, (p.pos_x*stage.unit_width*stage.scale), (p.pos_y*stage.unit_height*stage.scale),stage.unit_width*stage.scale/2, stage.unit_height*stage.scale/2);
+				}
+
+				batch.setColor(c);
 			}
-			else updateDrops--;
-
-			Color c = batch.getColor();
-			Color mycolor = RAINDROP_COLOR;
-
-			if (this.isSnowing()) {
-				mycolor = SNOW_COLOR;	
-			}
-			batch.setColor(mycolor);
-
-			for (int i = 0; i < raindrops.length; i++) {
-				BPoint p = raindrops[i];
-				batch.draw(white, (p.pos_x*stage.unit_width*stage.scale), (p.pos_y*stage.unit_height*stage.scale),stage.unit_width*stage.scale/2, stage.unit_height*stage.scale/2);
-			}
-
-			batch.setColor(c);
 		}
 	}
-	
+
 	public boolean isSnowing() {
 		return this.maptype == MapType.ALPINE && snowing;
 	}
-	
+
 	public boolean isRaining() {
 		return stage.raining && this.maptype != MapType.DESERT;
 	}

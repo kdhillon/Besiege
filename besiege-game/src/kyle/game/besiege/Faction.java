@@ -197,7 +197,7 @@ public class Faction {
 	}
 	public void orderSiegeOf(Location location) {
 		locationsToAttack.add(location);
-		int noblesToOrder = Math.max((int) (unoccupiedNobles.size * ORDER_FACTOR), 1);
+		int noblesToOrder = Math.max((int) (unoccupiedNobles.size * ORDER_FACTOR), 2);
 		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles");
 		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles", "magenta");
 		while (noblesToOrder > 0) {

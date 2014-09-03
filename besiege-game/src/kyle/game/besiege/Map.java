@@ -36,8 +36,8 @@ import com.badlogic.gdx.utils.Array;
 public class Map extends Actor {
 	transient public ShapeRenderer sr;
 
-	public static final int WIDTH = 1000;
-	public static final int HEIGHT = 1000;
+	public static final int WIDTH = 5000;
+	public static final int HEIGHT = 5000;
 	
 	// max safe size for saving using expanded stack is ~1000
 	// using new int technique, can support infinite sites - tested up to 3200

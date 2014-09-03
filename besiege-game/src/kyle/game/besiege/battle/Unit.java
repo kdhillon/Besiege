@@ -45,6 +45,7 @@ public class Unit extends Group {
 	public Unit attacking;
 	public SiegeUnit attackingSiege;
 
+	public BattleParty bp;
 	public Party party;
 	public Soldier soldier;
 	public Weapon weapon;
@@ -53,6 +54,7 @@ public class Unit extends Group {
 
 	public boolean isMounted = true;
 	public boolean canRetreat = true;
+
 	//	private boolean inCover;
 	private BPoint nearestCover;
 
@@ -80,7 +82,8 @@ public class Unit extends Group {
 
 	public float currentSpeed = 0;
 	public int team;
-	public Array<Unit> enemyArray;
+//	public Array<Unit> enemyArray;
+	public BattleParty enemyParty;
 	boolean isHit; // is unit hit
 	boolean isDying;
 	float timeSinceDeath = 0;
@@ -96,7 +99,7 @@ public class Unit extends Group {
 
 	public float percentComplete; // between 0 and 1, used for moving?
 	public enum Orientation {LEFT, UP, RIGHT, DOWN};
-	public enum Stance {AGGRESSIVE, DEFENSIVE};
+	public enum Stance {AGGRESSIVE, DEFENSIVE, INLINE};
 	public Orientation orientation;
 	public Stance stance;
 	public Unit nearestEnemy;
@@ -127,14 +130,15 @@ public class Unit extends Group {
 	//	Animation swordWalk;
 	//	Animation swordAttack;
 
-	public Unit(BattleStage parent, int pos_x, int pos_y, int team, Soldier soldier, Party party) {
+	public Unit(BattleStage parent, int pos_x, int pos_y, int team, Soldier soldier, BattleParty bp) {
 		stage = parent;
 
 		//		texture = new TextureRegion(new Texture("red.png"));
-		this.party = party;
+		this.bp = bp;
+		this.party = soldier.party;
 		this.team = team;
-		if (this.team == 0) enemyArray = stage.enemies;
-		else enemyArray = stage.allies;
+		if (this.team == 0) enemyParty = stage.enemies;
+		else enemyParty = stage.allies;
 
 		this.original_x = pos_x;
 		this.original_y = pos_y;
@@ -196,22 +200,22 @@ public class Unit extends Group {
 			dieFile = "farmer_die.png";
 			firingFile = "bandit_firing.png";
 		}
+		else if (soldier.getDef() > 6){
+			walkFile = "knight_walk.png";
+			attackFile = "knight_walk.png";
+			dieFile = "knight_die.png";
+			firingFile = "bandit_firing.png";
+		}
 		else if (soldier.getTier() < 6 || soldier.getType() == Soldier.SoldierType.ARCHER) {
 			walkFile = "bandit_walk.png";
 			attackFile = "bandit_walk.png";
 			dieFile = "bandit_die.png";
 			firingFile = "bandit_firing.png";
 		}
-		else if (soldier.getTier() < 8) {
+		else  {
 			walkFile = "bandit_walk.png";
 			attackFile = "bandit_walk.png";
 			dieFile = "bandit_die.png";
-			firingFile = "bandit_firing.png";
-		}
-		else {
-			walkFile = "knight_walk.png";
-			attackFile = "knight_walk.png";
-			dieFile = "knight_die.png";
 			firingFile = "bandit_firing.png";
 		}
 
@@ -329,7 +333,7 @@ public class Unit extends Group {
 				if (nearestCover != null)
 					moveToPoint(nearestCover);
 			}
-			else if (stance == Stance.AGGRESSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {				
+			else if (stance != Stance.DEFENSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {				
 				moveToEnemy();
 			}
 			else { // either defensive stance or aggressive but ranged within range
@@ -418,7 +422,7 @@ public class Unit extends Group {
 	//	}
 
 	public float getSpeed() {
-		return currentSpeed * spd;
+		return currentSpeed;
 	}
 
 	public float getCurrentRange() {
@@ -721,7 +725,7 @@ public class Unit extends Group {
 		Unit closestRetreating = null;
 		double closestDistance = 99999;
 
-		for (Unit that : enemyArray) {
+		for (Unit that : enemyParty.units) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
 			if (dist < closestDistance) {
@@ -755,7 +759,7 @@ public class Unit extends Group {
 
 		double MIN_DIST = 0f; // arbitrary
 
-		for (Unit that : enemyArray) {
+		for (Unit that : enemyParty.units) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			double dist = this.distanceTo(that);
 			// note - make sure not attacking, because you might hit a teammate
@@ -1025,7 +1029,9 @@ public class Unit extends Group {
 	public void die(float delta) {
 		timeSinceDeath += delta;
 		if (timeSinceDeath > DEATH_TIME) {
-			stage.removeUnit(this);
+			if (this.team == 0)
+				stage.enemies.removeUnit(this);
+			else stage.enemies.removeUnit(this);
 		}
 	}
 
@@ -1161,10 +1167,15 @@ public class Unit extends Group {
 		this.orientation = direction;
 		return true;
 	}
-
+	
 	private void calcSpeed() {
 		this.currentSpeed = (UNIT_BASE_SPEED) * (float)(1-stage.slow[pos_y][pos_x]);
 		this.currentSpeed *= stage.getStageSlow();
+		
+		// either use this speed or everyone's speed
+		if (!retreating && bp.stance == Stance.INLINE)
+			this.currentSpeed *= bp.minSpeed;
+		else this.currentSpeed *= spd;
 	}
 
 	public boolean canMove(int pos_x, int pos_y) {
@@ -1251,8 +1262,8 @@ public class Unit extends Group {
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
-		if (this.team == 0) stage.allies.removeValue(this, true);
-		if (this.team == 1) stage.enemies.removeValue(this, true);
+		if (this.team == 0) stage.allies.units.removeValue(this, true);
+		if (this.team == 1) stage.enemies.units.removeValue(this, true);
 		this.removeActor(weaponDraw);
 
 		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
@@ -1266,10 +1277,9 @@ public class Unit extends Group {
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
-		if (this.team == 0) stage.allies.removeValue(this, true);
-		if (this.team == 1) stage.enemies.removeValue(this, true);
-
-		stage.removeUnit(this);
+		if (this.team == 0) stage.allies.removeUnit(this);
+		if (this.team == 1) stage.enemies.removeUnit(this);
+		
 		stage.retreated.add(this);
 		stage.battle.calcBalancePlayer();
 
@@ -1278,7 +1288,7 @@ public class Unit extends Group {
 
 		status += " retreated!";
 
-		if (party == stage.player)
+		if (bp.player)
 			color = "yellow";
 		else // if (dArmies.contains(army, true)) {
 			color = "blue";

@@ -113,13 +113,14 @@ Day 86: finished basic saving and loading functionality using kryo
 Day 87: started working on title screen
 Day 88: finished flame on titlescreen, added rain to kingdom
 Day 89: fixed button bug, added formation options
+Day 90: fixed cover bug, added scramble, inline stance
+Day 91: added joining battles
 
 BATTLESTAGE:
 add waves and reinforcements to battles
 add safeguards against battles getting stuck
 get austin to start making cool art for additional units
-add scramble formation
-fix bug with cover
+
 
 later:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
@@ -129,6 +130,7 @@ add villages and ruins
 add ballistas
 add some randomness to which ladder is chosen
 allow joining battles
+design new unit tree
 
 MAP:
 now

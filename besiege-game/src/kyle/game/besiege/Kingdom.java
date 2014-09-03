@@ -624,6 +624,7 @@ public class Kingdom extends Group {
 	}
 
 	public int getRelations(Faction faction1, Faction faction2) {
+		if (faction1 == null || faction2 == null) return 0;
 		return factionRelations.get(faction1.index).get(faction2.index);
 	}
 	

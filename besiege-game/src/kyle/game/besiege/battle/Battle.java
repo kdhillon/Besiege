@@ -221,6 +221,12 @@ public class Battle extends Actor implements Destination { // new battle system 
 		else log(army.getName() + " shouldn't join", "red");
 	}
 	
+	
+	/**
+	 * returns 1 if should join defenders, 2 if attackers, 0 if shouldn't join
+	 * @param army
+	 * @return
+	 */
 	public int shouldJoin(Army army) {
 		if (aArmies.size >= 1 && dArmies.size >= 1) {
 			if (army.isAtWar(aArmies.first())) {

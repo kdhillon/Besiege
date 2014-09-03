@@ -324,8 +324,12 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 					if (battleStage.retreatTimer <= 0 && !retreatSet) {
 						retreatSet = true;
 						this.setButton(1, "Retreat!");
+						this.getButton(1).setDisabled(false);
 					}
-					else if (!(battleStage.retreatTimer <= 0)) this.setButton(1, null);
+					else if (!(battleStage.retreatTimer <= 0)) {
+						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimer) + ")");
+						this.getButton(1).setDisabled(true);
+					}
 				}
 				else {
 					this.setButton(1, battleStage.currentFormation.name);
@@ -393,9 +397,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		}
 
 		if (battleStage != null && !battleStage.placementPhase){
-			if (battleStage.playerStance == Stance.DEFENSIVE)
-				this.setButton(2, "Charge!");
-			else this.setButton(2, null);
+//			if (battleStage.allies.stance != Stance.AGGRESSIVE)
+			this.setButton(2, "Charge!");
+//			else this.setButton(2, null);
 		}
 		
 		super.act(delta);
@@ -631,7 +635,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			
 			
 			if (battleStage == null) {
-				battle.retreat(sidePanel.getKingdom().getPlayer());	
+//				battle.retreat(sidePanel.getKingdom().getPlayer());
+				return;
 			}
 			else {
 				if (battleStage.placementPhase) {
@@ -640,10 +645,10 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 				else {
 					battleStage.placementPhase = false;
 					battleStage.retreatAll(true);
+					getButton(1).setDisabled(true);
 				}
 			}
 			
-			getButton(1).setVisible(false);
 		}
 	}
 	@Override
@@ -661,7 +666,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 				else {
 					battleStage.placementPhase = false;
 					battleStage.chargeAll(true);
-					getButton(2).setVisible(false);
+//					getButton(2).setVisible(false);
+					getButton(2).setDisabled(true);
 				}
 			}
 		}
