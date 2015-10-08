@@ -27,6 +27,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	private static final int EXP_FACTOR = 47; // how much more exp is given to winning party than total atk of enemies
 	private static final int BASE_EXP = 1;
 	private static final int MIN_EXP = 500;
+	private static final float MIN_BALANCE = .3f;
 	private static final int MIN_RETREAT_TIME = 3;
 	private static final int BASE_RETREAT_TIME = 5;
 	private static final double RETREAT_WEALTH_FACTOR = .7; // this is how much of the retreating parties wealth will be lost
@@ -36,14 +37,21 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	private final int baseMoraleReward = 25;
 	private final String REGION = "battle";
-	private TextureRegion region;
-	public TextureRegion halfCrest;
+	transient private TextureRegion region;
+	transient public TextureRegion halfCrest;
 	private String name;
+	
+	// doesn't require a kingdom necessarily
 	private Kingdom kingdom;
 	public Array<Army> aArmies;
 	public Array<Army> dArmies;
 	public Array<Army> aArmiesRet; 
 	public Array<Army> dArmiesRet;
+	
+	public Array<Party> aParties;
+	public Array<Party> dParties;
+	public Array<Party> aPartiesRet;
+	public Array<Party> dPartiesRet;
 	
 	public Location siegeOf; // only if a siege
 	
@@ -52,6 +60,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	public boolean playerInA;
 	public boolean playerInD;
+	
+	private boolean firstTimeInit = false;
 	
 	public int aAtk;
 	public int dAtk;
@@ -65,31 +75,39 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public double balanceD; 
 	public double initBalanceA;
 	public double initBalanceD;
+	public int initTotalTroops;
 	
 	private boolean mouseOver;
 	
 	public boolean isOver;
 	public boolean didAtkWin;
 	
-	public Battle() {}
+	// For Kryo
+	public Battle() {
+		
+	}
 	
-	public Battle (Kingdom kingdom, Army initAttacker, Army initDefender) {
-//		System.out.println("creating new battle");
+	// for simulation purposes
+	public Battle(Kingdom kingdom, Party initAttackerParty, Party initDefenderParty) {
 		this.kingdom = kingdom;
 		
-		aArmies = new Array<Army>();
-		dArmies = new Array<Army>();
-		aArmiesRet = new Array<Army>();
-		dArmiesRet = new Array<Army>();
+//		region = Assets.atlas.findRegion(REGION);
 
-		if (initAttacker == null) System.out.println("init attacker is null!");
-		if (initDefender == null) System.out.println("init defender is null!");
+		Army initAttacker = initAttackerParty.army;
+		Army initDefender = initDefenderParty.army;
+
+		aParties = new Array<Party>();
+		dParties = new Array<Party>();
+		aPartiesRet = new Array<Party>();
+		dPartiesRet = new Array<Party>();
 		
-		aArmies.add(initAttacker);
-		dArmies.add(initDefender);
+		aParties.add(initAttackerParty);
+		dParties.add(initDefenderParty);
+		
 		calcStats();
 		initBalanceA = balanceA;
 		initBalanceD = balanceD;
+		initTotalTroops = initAttackerParty.getHealthySize() + initDefenderParty.getHealthySize();
 		
 		spoils = 0;
 		//expA = initDefender.getParty().getAtk();
@@ -97,39 +115,49 @@ public class Battle extends Actor implements Destination { // new battle system 
 		expA = BASE_EXP;
 		expD = BASE_EXP;
 		
-		if (initAttacker == kingdom.getPlayer())
-			playerInA = true;
-		else playerInA = false;
-		if (initDefender == kingdom.getPlayer())
-			playerInD = true;
-		else playerInD = false;
+		if (initAttackerParty.player) playerInA = true;
+		else if (initDefenderParty.player) playerInD = true;
 		
 		
 //		if (playerInA || playerInD) 
 //			kingdom.getMapScreen().getSidePanel().setActiveBattle(this);
 		
-		initAttacker.setStopped(true);
-		initDefender.setStopped(true);
-		initAttacker.setVisible(false);
-		initDefender.setVisible(false);
-		
-		this.name = initAttacker.getName() + " vs " + initDefender.getName();
+		if (initAttacker != null && initDefender != null) {
+			aArmies = new Array<Army>();
+			dArmies = new Array<Army>();
+			aArmiesRet = new Array<Army>();
+			dArmiesRet = new Array<Army>();
+			
+			aArmies.add(initAttacker);
+			dArmies.add(initDefender);
+			
+			initAttacker.setStopped(true);
+			initAttacker.setVisible(false);
+			initDefender.setStopped(true);
+			initDefender.setVisible(false);
+			this.name = initAttacker.getName() + " vs " + initDefender.getName();
+			
+			mouseOver = false;
+			
+			region = Assets.atlas.findRegion(REGION);
+			this.setPosition((initAttacker.getCenterX() + initDefender.getCenterX())/2, (initAttacker.getCenterY() + initDefender.getCenterY())/2);
+			this.setWidth(region.getRegionWidth()*getScaleX());
+			this.setHeight(region.getRegionHeight()*getScaleY());
+			this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
+			
+			if (initAttacker.getFaction().crest == null) {
+				System.out.println("No crest found for " + initAttacker.getFaction());
+			}
+			if (initDefender.getFaction().crest == null) {
+				System.out.println("No crest found for " + initDefender.getFaction());
+			}
+			TextureRegion[][] split = initAttacker.getFaction().crest.split(initDefender.getFaction().crest.getRegionWidth()/2, initAttacker.getFaction().crest.getRegionHeight());
+			this.halfCrest = split[0][1];
+		}
 		
 		aAdvantage = 1; // for now. make influenced by player's attribute as well as morale.
 		dAdvantage = 1;
 		
-		//BottomPanel.log("creating battle " + initAttacker.getName() + " vs " + initDefender.getName(), "pink");
-		
-		mouseOver = false;
-		
-		region = Assets.atlas.findRegion(REGION);
-		this.setPosition((initAttacker.getCenterX() + initDefender.getCenterX())/2, (initAttacker.getCenterY() + initDefender.getCenterY())/2);
-		this.setWidth(region.getRegionWidth()*getScaleX());
-		this.setHeight(region.getRegionHeight()*getScaleY());
-		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
-		
-		TextureRegion[][] split = dArmies.first().getFaction().crest.split(dArmies.first().getFaction().crest.getRegionWidth()/2, dArmies.first().getFaction().crest.getRegionHeight());
-		this.halfCrest = split[0][1];
 	}
 	
 	@Override
@@ -175,20 +203,23 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 		
 		aAtk = 0;
-		for (Army a : aArmies) {
-			Party p = a.getParty();
+		
+//		aParties.removeValue(null, true);
+//		dParties.removeValue(null, true);
+		System.out.println(aParties.size);
+		
+		for (Party p : aParties) {
 			p.calcStats();
 			aAtk += p.getAtk();
 		}
 		dAtk = 0;
-		for (Army a : dArmies) {
-			Party p = a.getParty();
+		for (Party p : dParties) {
 			p.calcStats();
 			dAtk += p.getAtk();
 		}
 
-		balanceA = aAtk*aAdvantage + aArmies.size + aArmiesRet.size; // method for computing balance
-		balanceD = dAtk*dAdvantage + dArmies.size + dArmiesRet.size;
+		balanceA = aAtk*aAdvantage; // method for computing balance
+		balanceD = dAtk*dAdvantage;
 		double total = balanceA + balanceD;
 		balanceA = balanceA / total; // balanceA + balanceD = 1
 		balanceD = balanceD / total; 
@@ -204,8 +235,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 			}
 			//expA 
 			dArmies.add(army);
+			dParties.add(army.party);
 			log(army.getName() + " was added to defenders!", "pink");
 			army.setVisible(false);
+			initTotalTroops += army.getParty().getHealthySize();
 		}
 		else if (join == 2) {
 			army.setVisible(false);
@@ -215,7 +248,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 			}
 			log(army.getName() + " was added to attackers!", "pink");
 			aArmies.add(army);
+			aParties.add(army.party);
 			army.setVisible(false);
+			initTotalTroops += army.getParty().getHealthySize();
 		}
 		
 		else log(army.getName() + " shouldn't join", "red");
@@ -228,6 +263,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	 * @return
 	 */
 	public int shouldJoin(Army army) {
+		if (aArmies == null || dArmies == null) return 0;
 		if (aArmies.size >= 1 && dArmies.size >= 1) {
 			if (army.isAtWar(aArmies.first())) {
 				if (!army.isAtWar(dArmies.first()))
@@ -243,14 +279,22 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	public void remove(Army army) {	
 //		System.out.println("removeing " + army.getName());
-		if (aArmies.contains(army, true))
+		if (aArmies.contains(army, true)) {
+			aParties.removeValue(army.party, true);
 			aArmies.removeValue(army, true);
-		else if (dArmies.contains(army, true))
+		}
+		else if (dArmies.contains(army, true)) {
 			dArmies.removeValue(army, true);
-		else if (aArmiesRet.contains(army, true))
+			dParties.removeValue(army.party, true);
+		}
+		else if (aArmiesRet.contains(army, true)) {
 			aArmiesRet.removeValue(army, true);
-		else if (dArmiesRet.contains(army, true))
+			aParties.removeValue(army.party, true);
+		}
+		else if (dArmiesRet.contains(army, true)) {
+			dParties.removeValue(army.party, true);
 			dArmiesRet.removeValue(army, true);
+		}
 		else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
 		
 //		System.out.println("removing " + army.getName() + " dArmies = "  + dArmies.size + " aArmies = " + aArmies.size + " dArmiesRet = " + dArmiesRet.size + " aArmiesRet = " + aArmiesRet.size);
@@ -311,13 +355,18 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public void retreat(Army army) {
 		army.retreatCounter = MIN_RETREAT_TIME + BASE_RETREAT_TIME / army.getParty().getAvgSpd(); // start countdown
 		if (aArmies.contains(army, true)) {
-			aArmies.removeValue(army, true); 
+			aArmies.removeValue(army, true);
+			aParties.removeValue(army.party, true);
 			aArmiesRet.add(army);
+			aPartiesRet.add(army.party);
 			log(army.getName() + " is retreating!", "yellow");
 		}
 		else if (dArmies.contains(army, true)) {
 			dArmies.removeValue(army, true);	
+			dParties.removeValue(army.party, true);
 			dArmiesRet.add(army);
+			dPartiesRet.add(army.party);
+
 			log(army.getName() + " is retreating!", "yellow");
 		}
 		increaseSpoilsForRetreat(army);
@@ -455,7 +504,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
-	public void killOne(Army army, boolean atkKill) { // kills/wounds one troop in this army, weighted by the troop's defense
+	public void killOne(Army army, boolean atkKill) { // kills/wounds one random troop in this army, weighted by the troop's defense
 		// Compute the total weight of all soldier's defenses together
 		double totalWeight = 0.0d;
 		for (Soldier s : army.getParty().getHealthy())
@@ -484,6 +533,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
+	// main thing called by battlestage?
 	public void casualty(Soldier soldier, boolean atkKill) {
 		boolean killed = soldier.party.casualty(soldier);
 		if (atkKill) expD += soldier.getExpForKill();
@@ -491,11 +541,17 @@ public class Battle extends Actor implements Destination { // new battle system 
 		
 		if (playerInD || playerInA) {
 			String status = soldier.getName();
-			if (killed) status += " was killed!";
-			else status += " was wounded!";
+			if (soldier.killedBy != null) {
+				if (killed) status += " was killed by " + soldier.killedBy.getName() + "!";
+				else status += " was wounded by " + soldier.killedBy.getName() + "!";
+			}
+			else {
+				if (killed) status += " was killed!";
+				else status += " was wounded!";
+			}
 
 			String color = "white";
-			// determines color of logged text (yellow if wounded, orange if killed, blue if enemy killed)
+			// determines color of logged text (yellw if wounded, orange if killed, blue if enemy killed)
 			if (playerInD == atkKill) {
 				if (killed) color = "red";
 				else color = "orange";
@@ -593,6 +649,23 @@ public class Battle extends Actor implements Destination { // new battle system 
 		
 		aArmies.clear();
 		dArmies.clear();
+		aArmiesRet.clear();
+		dArmiesRet.clear();
+		aParties.clear();
+		dParties.clear();
+		aPartiesRet.clear();
+		dPartiesRet.clear();
+		
+		aArmies = null;
+		dArmies = null;
+		aArmiesRet = null;
+		dArmiesRet = null;
+		aParties = null;
+		dParties = null;
+		aPartiesRet = null;
+		dPartiesRet = null;
+		this.isOver = true;
+		
 		this.kingdom.removeBattle(this);
 		this.remove();
 	}
@@ -612,19 +685,36 @@ public class Battle extends Actor implements Destination { // new battle system 
 		expReward *= EXP_FACTOR; // just to beef it up
 		expReward += MIN_EXP;
 		
-		if (army.getParty().player)
-			log(army.getName() + " receives " + moraleReward + " morale, " + reward + " gold and " + expReward + " experience!", "green");
+		if (army.getParty().player) {
+//			System.out.println("initBalanceD = " + this.initBalanceD);
+//			System.out.println("initBalanceA = " + this.initBalanceA);
+
+			// also distribute honor and fame
+			int fameReward;
+			if (attackVictory) {
+				fameReward = (int) (this.initBalanceD * this.initTotalTroops)/5;
+				if (this.initBalanceD < MIN_BALANCE) fameReward = 0;
+			}
+			else {
+				fameReward = (int) (this.initBalanceA * this.initTotalTroops)/5;
+				if (this.initBalanceA < MIN_BALANCE) fameReward = 0;
+			}
+			kingdom.getMapScreen().getCharacter().addFame(fameReward);
+			log(army.getName() + " receives " + moraleReward + " morale, " + fameReward + " fame, " + reward + " gold and " + expReward + " experience!", "green");
+		}
 		army.getParty().wealth += reward;
 		army.getParty().distributeExp(expReward);
 		army.setMomentum(army.getMomentum()+moraleReward);
 	}
 	
 	public void manageSiege() {
-		if (didAtkWin) {
-			Faction newOwner;
-			if (siegeOf.getSiege() == null) newOwner = aArmies.first().getFaction();
-			else newOwner = siegeOf.getSiege().besieging;
-			siegeOf.changeFaction(newOwner);
+		if (didAtkWin && siegeOf.getSiege() != null) {
+			siegeOf.getSiege().siegeSuccess();
+			
+//			Faction newOwner;
+//			if (siegeOf.getSiege() == null) newOwner = aArmies.first().getFaction();
+//			else siegeOf.getSiege().siegeSuccess();
+//			siegeOf.changeFaction(newOwner);
 		}
 		else if (siegeOf.getSiege() != null) siegeOf.getSiege().destroy();
 	}
@@ -705,20 +795,27 @@ public class Battle extends Actor implements Destination { // new battle system 
 		int firstAtk = 0;
 		int firstSize = 0;
 		
-		for (Army a : aArmies) {
-			firstAtk += a.getParty().getAtk();
-			firstSize += a.getParty().getHealthySize();
+		for (Party p : aParties) {
+			firstAtk += p.getAtk();
+			firstSize += p.getHealthySize();
 		}
 		int secondAtk = 0;
 		int secondSize = 0;
-		for (Army a : dArmies) {
-			secondAtk += a.getParty().getAtk();
-			secondSize += a.getParty().getHealthySize();
+		for (Party p : dParties) {
+			secondAtk += p.getAtk();
+			secondSize += p.getHealthySize();
 		}
 		double balanceFirst = firstAtk + firstSize; // method for computing balance
 		double balanceSecond = secondAtk + secondSize;
 		double total = balanceFirst + balanceSecond;
 		balanceA = balanceFirst / total; // balanceA + balanceD = 1
 		balanceD = 1-balanceA;
+		
+		if (!firstTimeInit) {
+			initBalanceA = balanceA;
+			initBalanceD = balanceD;
+//			System.out.println(initBalanceA + " " + initBalanceD);
+			firstTimeInit = true;
+		}
 	}
 }

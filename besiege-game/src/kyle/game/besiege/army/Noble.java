@@ -11,12 +11,13 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
 
 import com.badlogic.gdx.math.MathUtils;
 
 public class Noble extends Army {
 	private static final String[] RANKS = {"Baron", "Earl", "Count", "Duke", "Prince", "Archduke", "King"};
-	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	250,		 300, 301};
+	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	  250,		 300, 301};
 	
 	// change for testing
 	private static final int BASE_PC = 350; // base party count
@@ -41,7 +42,7 @@ public class Noble extends Army {
 	
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
-		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), PartyType.NOBLE_DEFAULT_1);
+		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), Type.NOBLE);
 		this.home = home;
 		this.setDefaultTarget((City) home);
 		// set up initial party, rank, etc
@@ -108,7 +109,7 @@ public class Noble extends Army {
 
 	// some problem where noble detects path to new target (friendly city), but still travels to enemy city (perhaps old special target)
 	public void manageSpecialTarget() {
-		if (this.path.isEmpty()) {
+		if (this.path.isEmpty() || this.getTarget() != specialTarget) {
 			if (specialTarget != null && this.getTarget() != specialTarget) {
 				setTarget(specialTarget);
 				//System.out.println(getName() + " setting special target " + specialTarget.getName());
@@ -146,7 +147,7 @@ public class Noble extends Army {
 		// make sure not going to enemy city - weird glitch
 		else {
 //			System.out.println(getName() + " has path");
-			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && getKingdom().isAtWar(this.path.nextGoal.getFaction(), this.getFaction()))
+			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && this.path.nextGoal.getFaction().atWar(this.getFaction()))
 				goToNewTarget();
 		}
 	}
@@ -210,5 +211,12 @@ public class Noble extends Army {
 	public void leaveSiege() {
 		super.leaveSiege();
 //		this.specialTarget = null;
+	}
+	
+	public static String getTitleForFame(int fame) {
+		for (int i = 1; i < REKNOWN_RANK.length; i++) {
+			if (REKNOWN_RANK[i] > fame) return RANKS[i-1];
+		}
+		return "God";
 	}
 }

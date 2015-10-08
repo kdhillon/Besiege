@@ -11,25 +11,17 @@ package kyle.game.besiege.location;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Map;
-import kyle.game.besiege.Point;
-import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
-import kyle.game.besiege.geom.PointH;
-import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.voronoi.Center;
-import kyle.game.besiege.voronoi.Corner;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 public class Castle extends Location {
 	private final static int SCOUT_TRAVEL_FACTOR = 5;
 	private final static float SCALE = 10;
-	private static int CASTLE_UPPER_LIMIT = Assets.castleArray.size; // highest number of cities possible
+	private static int CASTLE_UPPER_LIMIT = Assets.castleNames.size; // highest number of cities possible
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
 	private final static double MERCHANT_GAIN = .008; // calculates merchant's wealth which goes to other cities.
 	private  int patrolCost;
@@ -38,7 +30,7 @@ public class Castle extends Location {
 //	private Array<Castle> closestFriendlyCities;
 //	private Array<Castle> closestEnemyCities;
 	
-	private Array<Patrol> scouts;
+//	private Array<Patrol> scouts;
 	private Array<RaidingParty> raiders;
 	private boolean[] raiderExists;
 	
@@ -49,7 +41,7 @@ public class Castle extends Location {
 	
 	public Castle(Kingdom kingdom, String name, int index, Faction faction, float posX,
 			float posY, int wealth) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.CITY_GARR_1.generate());
+		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CASTLE_GARRISON);
 		this.type = LocationType.CASTLE;
 				
 		getParty().wealth = wealth;
@@ -58,7 +50,7 @@ public class Castle extends Location {
 //		
 		this.getFaction().castles.add(this);
 		
-		scouts = new Array<Patrol>();
+//		scouts = new Array<Patrol>();
 	
 		raiders = new Array<RaidingParty>();
 		raiderExists = new boolean[CASTLE_UPPER_LIMIT];
@@ -126,10 +118,10 @@ public class Castle extends Location {
 	}
 	
 	public void removePatrol(Patrol patrol) {
-		scouts.removeValue(patrol, true);
+		patrols.removeValue(patrol, true);
 	}
 	public Array<Patrol> getPatrols() {
-		return scouts;
+		return patrols;
 	}
 //
 //	public void createRaider() {
@@ -154,10 +146,12 @@ public class Castle extends Location {
 		this.toHire = this.nextHire;
 		// some random stuff should happen here, small chance of getting a really good crop of soldiers
 		// high chance of sucky ones!
-		double random = Math.random();
-		if (random > .9) 		this.nextHire = PartyType.CITY_HIRE_1.generate();
-		else if (random > .7)	this.nextHire = PartyType.CITY_HIRE_2.generate(); // second best
-		else 					this.nextHire = PartyType.CITY_HIRE_3.generate(); // worst
+//		double random = Math.random();
+		// TODO
+		this.nextHire = PartyType.generatePT(PartyType.Type.CASTLE_HIRE, this).generate();
+//		if (random > .9) 		this.nextHire = PartyType.generate(PartyType.Type.CITY_HIRE);
+//		else if (random > .7)	this.nextHire = PartyType.CITY_HIRE_2.generate(); // second best
+//		else 					this.nextHire = PartyType.CITY_HIRE_3.generate(); // worst
 	}
 //	
 //	public void updateClosestLocations() {

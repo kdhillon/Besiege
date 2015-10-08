@@ -20,28 +20,27 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
  
-/*
- * TestDriver.java Function Date Jun 14, 2013
- *
- * @author Kyle
- */
 
 public class Map extends Actor {
-	transient public ShapeRenderer sr;
-
-	public static final int WIDTH = 5000;
-	public static final int HEIGHT = 5000;
+	transient public ShapeRenderer sr; // only used for debugging information
 	
-	// max safe size for saving using expanded stack is ~1000
+	public static final int WIDTH = 7000;
+	public static final int HEIGHT = 7000;
+	
 	// using new int technique, can support infinite sites - tested up to 3200
-	private static final int NUM_SITES = 200;
+	private static final int NUM_SITES = 800;
+	
+	public Kingdom kingdom;
 //	public static boolean debug = true;
 	public static boolean debug;
 	public static boolean drawSpheres;
@@ -72,20 +71,29 @@ public class Map extends Actor {
 	/** Borders between faction territory */
 	public Array<Edge> borderEdges; 
 	
+	transient private ShaderProgram shader;
+	private float[] batchColor;
+		
 	// testing
 //	transient public Array<Polygon> testPolygons = new Array<Polygon>();
 //	transient public Array<Corner> testCorners = new Array<Corner>();
 	//private boolean toggle = true;
 //	Array<Center> neighborAdj; // testing only
 	
-	// this is called when map is loaded
+	// this is called when map is loaded, after save
 	public Map() {
 		this.sr = new ShapeRenderer();
+		shader = createMeshShader();
+		batchColor = new float[3];
 	}
 	
 	// contains code written by connor
-	public Map(boolean generate) {
+	public Map(Kingdom kingdom, boolean generate) {
+		this.kingdom = kingdom;
 		sr = new ShapeRenderer();
+		shader = createMeshShader();
+		batchColor = new float[3];
+
 		testIndex = 1;
 		totalVisibilityLines = 0;
 
@@ -94,23 +102,35 @@ public class Map extends Actor {
 	
 		//final long see = System.nanoTime();
 		final MyRandom r = new MyRandom(seed);
-		cityCorners = new Array<Corner>();
-		cityCenters = new Array<Center>();
-//		availableLocationSites = new Array<PointH>();
-		availableCorners = new Array<Corner>();
-		availableCenters = new Array<Center>();
-		
 		System.out.println("seed: " + seed);
 
 		//let's create a bunch of random points
 		for (int i = 0; i < NUM_SITES; i++)
-			pointHs.add(new PointH(r.nextDouble(0, WIDTH), r.nextDouble(0, HEIGHT)));
+			pointHs.add(new PointH((float) r.nextDouble(0, WIDTH), (float) r.nextDouble(0, HEIGHT)));
 
 		//now make the initial underlying voronoi structure
 		final Voronoi v = new Voronoi(pointHs, null, new Rectangle(0, 0, WIDTH, HEIGHT));
 
 		//assemble the voronoi structure into a usable graph object representing a map
 		this.vg = new VoronoiGraph(v, 2, r);
+		
+		// eventually should be able to:
+		// 		draw continent outline
+		// 		continent is automatically divided into polygons
+		// 		you can assign biomes (and names!) to the polygons
+		// 		
+		
+		// also, should display something at your destination, and show path at all times
+		// also, when traveling to a center, should display center name.
+		// should allow "regions" to be groups of centers?!?! too complicated? allows advanced shapes, but kinda defeats the purpose of biomes
+		// could define regions to be adjacent centers with same biome? let's see how that would look
+		
+		
+		
+		// can load a pre-made VG here, calculate everything, and it should work.
+		// first step is to save a randomly generated VG, then try to load it here.
+		// obviously that will work. what are the properties of a VG that I'd have to assign?
+		// first is the points. 
 
 		impassable = new Array<Edge>();
 		impBorders = new Array<Edge>();
@@ -124,6 +144,12 @@ public class Map extends Actor {
 //			neighborAdj.add(c);
 //		}this.vg.restore();
 
+		
+		cityCorners = new Array<Corner>();
+		cityCenters = new Array<Center>();
+//		availableLocationSites = new Array<PointH>();
+		availableCorners = new Array<Corner>();
+		availableCenters = new Array<Center>();
 		
 		borderCorners = new Array<Corner>();
 		
@@ -315,7 +341,7 @@ public class Map extends Actor {
 	public boolean pathExists(Destination start, double px, double py) {
 		// ray casting
 		Corner c1 = new Corner();
-		c1.loc = new PointH(px, Map.HEIGHT-py);
+		c1.loc = new PointH((float) px, (float) (Map.HEIGHT-py));
 		c1.init();
 		Corner c2 = new Corner();
 		c2.loc = new PointH(start.getCenterX(), Map.HEIGHT-start.getCenterY());
@@ -563,7 +589,9 @@ public class Map extends Actor {
 		return (cy-ay)*(bx-ax) > (by-ay)*(cx-ax);
 	}
 	
+	// Called every time pathfinding is done, not every frame.
 	// return true if a connection line is needed between two corners (vectors on same side of connecting line)
+	// Often has null pointer exceptions on map generation
 	private boolean lineNeeded(Corner a, Corner b) {
 		Vector2 connector = new Vector2((float) (a.getLoc().x-b.getLoc().x), (float) (HEIGHT-a.getLoc().y-(HEIGHT-b.getLoc().y)));
 //		Vector2 connector = new Vector2((float) (a.loc.x-b.loc.x), (float) (HEIGHT-a.loc.y-(HEIGHT-b.loc.y)));
@@ -597,7 +625,8 @@ public class Map extends Actor {
 		}
 		else return true;
 		
-		if (b.adjacent.size() != 0) { 
+		// Sometimes, corners can have a single adjacent corner?
+		if (b.adjacent.size() >= 2) { 
 			Corner[] bC = new Corner[2];
 			int index = 0;
 			for (Corner corner : b.adjacent) {
@@ -609,7 +638,16 @@ public class Map extends Actor {
 
 //			Vector2 b1 = new Vector2((float) (bC[0].getLoc().x-b.getLoc().x),(float) (HEIGHT-bC[0].getLoc().y-(HEIGHT-b.getLoc().y)));
 //			Vector2 b2 = new Vector2((float) (bC[1].getLoc().x-b.getLoc().x),(float) (HEIGHT-bC[1].getLoc().y-(HEIGHT-b.getLoc().y)));
-			
+			if (bC[0].loc == null) {
+				throw new java.lang.NullPointerException();
+			}
+			if (bC[1].loc == null) {
+				throw new java.lang.NullPointerException();
+			}
+			if (b.loc == null) {
+				throw new java.lang.NullPointerException();
+			}
+
 			Vector2 b1 = new Vector2((float) (bC[0].loc.x-b.loc.x),(float) (HEIGHT-bC[0].loc.y-(HEIGHT-b.loc.y)));
 			Vector2 b2 = new Vector2((float) (bC[1].loc.x-b.loc.x),(float) (HEIGHT-bC[1].loc.y-(HEIGHT-b.loc.y)));
 			
@@ -635,36 +673,83 @@ public class Map extends Actor {
 		}
 	}
 	
-	private void drawCenter(Center center, SpriteBatch batch) {		
-		// try multiplying to blend colors?
-		Color cColor = VoronoiGraph.getColor(center);
-		
-		for (Edge edge : center.borders) {
-			float lerp = .75f;
-			
-			Center adj = edge.d0;
-			if (adj == center) adj = edge.d1;
-			if (adj.water || center.water) lerp = 1;
-			Color border = VoronoiGraph.getColor(adj);
-			border.lerp(cColor, lerp);
-			
-			border.mul(batch.getColor());
-//			border.lerp(batch.getColor(), .8f);			
-			sr.setColor(border);
-//			
-			if (edge.v0 == null || edge.v1 == null) continue;
-			
-//			if (center.water)
-			sr.triangle((float) center.loc.x,  (float) (HEIGHT- center.loc.y), 
-						(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
-						(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y));
-//			else
-//			sr.triangle((float) center.loc.x,  (float) (HEIGHT- center.loc.y), 
-//					(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
-//					(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y),
-//					VoronoiGraph.getColor(center), edge.v0.lerpColor, edge.v1.lerpColor);
-		}
+//	// draws all triangles to openGL
+//	private void flush() {
+//		
+//	}
+	public static final String VERT_SHADER =  
+			"attribute vec3 a_position;\n" +
+			"attribute vec4 a_color;\n" +			
+			"uniform mat4 u_projTrans;\n" + 
+			"uniform vec3 u_batchColor;\n" +
+			"varying vec4 vColor;\n" +			
+			"void main() {\n" +  
+			"	vColor = vec4(u_batchColor, 1.0) * a_color;\n" +
+			"	gl_Position =  u_projTrans * vec4(a_position, 1.0);\n" +
+			"}";
+	public static final String FRAG_SHADER = 
+            "#ifdef GL_ES\n" +
+            "precision mediump float;\n" +
+            "#endif\n" +
+			"varying vec4 vColor;\n" + 			
+			"void main() {\n" +  
+			"	gl_FragColor = vColor;\n" + 
+			"}";
+	// from https://gist.github.com/mattdesl/5793041
+	protected static ShaderProgram createMeshShader() {
+		ShaderProgram.pedantic = false;
+		ShaderProgram shader = new ShaderProgram(VERT_SHADER, FRAG_SHADER);
+		String log = shader.getLog();
+		if (!shader.isCompiled())
+			throw new GdxRuntimeException(log);		
+		if (log!=null && log.length()!=0)
+			System.out.println("Shader Log: "+log);
+		return shader;
 	}
+	
+	// draws the center (with a mesh!)
+	private void drawCenter(Center center, Matrix4 projTrans, float[] batchColor) {
+		shader.begin();
+		center.draw(projTrans, shader, batchColor);
+		shader.end();
+	}
+	
+	
+//	private void drawCenter(Center center, SpriteBatch batch) {		
+//		// try multiplying to blend colors?
+//		Color cColor = VoronoiGraph.getColor(center);
+//		
+//		for (Edge edge : center.borders) {
+//			float lerp = .75f;
+//			
+//			Center adj = edge.d0;
+//			if (adj == center) adj = edge.d1;
+//			if (adj.water || center.water) lerp = 1;
+//			Color border = VoronoiGraph.getColor(adj);
+//			border.lerp(cColor, lerp);
+//			
+//			border.mul(batch.getColor());
+////			border.lerp(batch.getColor(), .1f);			
+//			sr.setColor(border);
+////			
+//			if (edge.v0 == null || edge.v1 == null) continue;
+//			
+//			// switch from shaperenderer -- instead, store a bunch of meshes  
+//			// for each center, store 1 mesh?
+//			// try this shit later.
+//			
+//			
+////			if (center.water)
+//			sr.triangle((float) center.loc.x,  (float) (HEIGHT- center.loc.y), 
+//						(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
+//						(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y));
+////			else
+////				sr.triangle((float) center.loc.x,  (float) (HEIGHT- center.loc.y), 
+////					(float) edge.v0.loc.x, (float) (HEIGHT-edge.v0.loc.y), 
+////					(float) edge.v1.loc.x, (float) (HEIGHT-edge.v1.loc.y),
+////					VoronoiGraph.getColor(center), edge.v0.lerpColor, edge.v1.lerpColor);
+//		}
+//	}
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
@@ -675,12 +760,17 @@ public class Map extends Actor {
 		batch.end();
 
 		// draw map using shaperenderer
-		sr.begin(ShapeType.Filled);
-		sr.setProjectionMatrix(batch.getProjectionMatrix());
+//		sr.begin(ShapeType.Filled);
+//		sr.setProjectionMatrix(batch.getProjectionMatrix());
+		batchColor[0] = batch.getColor().r;
+		batchColor[1] = batch.getColor().g;
+		batchColor[2] = batch.getColor().b;
+		
 		for (Center center : this.vg.centers) {
-			drawCenter(center, batch);
+			drawCenter(center, kingdom.getMapScreen().currentCamera.combined, batchColor);
+//			drawCenter(center, kingdom.getMapScreen()., batchColor);			
 		}
-		sr.end();
+//		sr.end();
 		
 		
 //		 for copying and pasting

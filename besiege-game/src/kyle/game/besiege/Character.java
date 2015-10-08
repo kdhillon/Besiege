@@ -5,7 +5,9 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
+import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.battle.Formation;
+import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 
 import com.badlogic.gdx.utils.Array;
@@ -13,14 +15,45 @@ import com.badlogic.gdx.utils.Array;
 public class Character {
 	private static final int STARTING_PTS = 5;
 	private final int POINTS_PER_LEVEL = 1;
+	private final int BASE_TROOPS = 20;
+	private final double FAME_FACTOR = .1;
 	public String name;
-	public int exp;
-	public int level;
-	public int nextLevel;
-	public String title;
+	
+	public int rank;
+
+	public int honor;
 	public int fame;
-	public int maxTroops;
+	public int trainingExp;
+	
+//	public int maxTroops;
+	
+	// Player has:
+	// name
+	// rank/title
+	// 		gained by: fighting for a faction and maintaining high honor and fame
+	//		lost by: leaving a faction, low honor
+	//		allows: increases max holdings (additional tax)
+	// honor (karma -- determines faction trust, allows hiring of better soldiers, prevents rebellions, can increase or decrease rank)
+	// 		number between 0 and 100?
+	// 		gained by:	fighting enemies stronger than you (winning or losing)
+	//					releasing enemy nobles
+	//					defeating bandits and defending villages from raids
+	//					low tax rates
+	//		lost by: 	fighting battles against much smaller non-noble forces
+	// 					executing enemy nobles
+	//					raiding villages
+	// 					high tax rates
+	// fame  (basically exp  -- allows a larger party and grants you )
+	// 		gained by:	winning battles (bigger the enemy, the better)
+	//		lost by: 	nothing
+	// holdings (cities, castles, villages):
+	// 		gained by:	besieging cities and castles, and having high enough rank
+	// 		lost by: 	losing them to enemies
+	//		allows: 	collecting taxes, training specialized soldiers,
+
 	public Array<Formation> availableFormations;
+	
+	public Array<Location> holdings;
 	
 	public int availablePoints; // for attributes
 	
@@ -64,12 +97,12 @@ public class Character {
 	
 	public Character(String name) {
 		this.name = name;
-		this.level = 0;
-		this.exp = 0;
-		this.nextLevel = 100; // change
-		this.title = "None";
+//		this.title = "None";
 		this.fame = 0;
 		this.addAvailablePoints(5);
+		this.trainingExp = 10;
+//		this.trainingExp = 20000;
+		
 		this.availableFormations = new Array<Formation>();
 		this.availableFormations.add(Formation.LINE);
 		this.availableFormations.add(Formation.DEFENSIVE_LINE);
@@ -125,24 +158,25 @@ public class Character {
 		else BottomPanel.log("No points available!", "red");
 	}
 	
-	public void addExp(int exp) {
-		this.exp += exp;
-		if (exp >= nextLevel)
-			levelUp();
-		BottomPanel.log(exp + " exp gained!", "yellow");
+	public String getTitle() {
+		return Noble.getTitleForFame(fame);
 	}
 	
-	public void levelUp() {
-		level++;
-		this.addAvailablePoints(POINTS_PER_LEVEL);
-		BottomPanel.log("Level Up!", "green");
+	public void addFame(int fame) {
+		this.fame += fame;
 	}
-	public String getTitle() {
-		return title;
+	public int getFame() {
+		return fame;
+	}
+	public String getHonor() {
+		return ""+honor;
 	}
 	public void addAvailablePoints(int additional) {
 		availablePoints += additional;
 //		BottomPanel.log(availablePoints + " points available to spend", "green");
 	}
 	
+	public int getMaxTroops() {
+		return BASE_TROOPS + (int) (this.fame*FAME_FACTOR);
+	}
 }

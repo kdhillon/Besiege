@@ -10,6 +10,7 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
 
 public class RaidingParty extends Army {
 	private final String textureRegion = "Raider";
@@ -20,7 +21,7 @@ public class RaidingParty extends Army {
 	
 	public RaidingParty(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
-		super(kingdom, name, faction, posX, posY, PartyType.RAIDING_PARTY);
+		super(kingdom, name, faction, posX, posY, Type.RAIDING_PARTY);
 		setTextureRegion(textureRegion);
 	}
 	

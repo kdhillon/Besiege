@@ -31,7 +31,7 @@ public class Village extends Location {
 	
 	public Village(Kingdom kingdom, String name, int index, Faction faction,
 			float posX, float posY, int wealth) {
-		super(kingdom, name, index, faction, posX, posY, new Party());
+		super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON);
 		this.type = LocationType.VILLAGE;
 		getParty().wealth = wealth;
 		
@@ -95,23 +95,28 @@ public class Village extends Location {
 		this.toHire = this.nextHire;
 		// some random stuff should happen here, small chance of getting a really good crop of soldiers
 		// high chance of sucky ones!
-		double random = Math.random();
-		double upper;
-		double lower;
-		if (this.getParty().wealth > HIGH_WEALTH) { 
-			lower = .2; 
-			upper = .6;
-		}
-		else if (this.getParty().wealth > MED_WEALTH) {
-			lower = .4; 
-			upper = .7;
-		}
-		else {
-			lower = .5; 
-			upper = .9;
-		}
-		if (random > upper) 		this.nextHire = PartyType.VILLAGE_HIRE_1.generate();
-		else if (random > lower)	this.nextHire = PartyType.VILLAGE_HIRE_2.generate(); // second best
-		else 					this.nextHire = PartyType.VILLAGE_HIRE_3.generate(); // worst
+		
+		this.nextHire = PartyType.generatePT(PartyType.Type.VILLAGE_HIRE, this).generate();
+//		System.out.println("updating to hire for village: " + this.getName());
+//		System.out.println(toHire.getAvgSpd());
+//		double random = Math.random();
+//		double upper;
+//		double lower;
+//		if (this.getParty().wealth > HIGH_WEALTH) { 
+//			lower = .2; 
+//			upper = .6;
+//		}
+//		else if (this.getParty().wealth > MED_WEALTH) {
+//			lower = .4; 
+//			upper = .7;
+//		}
+//		else {
+//			lower = .5; 
+//			upper = .9;
+//		}
+		// TODO
+//		if (random > upper) 		this.nextHire = PartyType.VILLAGE_HIRE_1.generate();
+//		else if (random > lower)	this.nextHire = PartyType.VILLAGE_HIRE_2.generate(); // second best
+//		else 					this.nextHire = PartyType.VILLAGE_HIRE_3.generate(); // worst
 	}
 }

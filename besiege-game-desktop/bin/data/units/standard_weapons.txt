@@ -1,0 +1,49 @@
+name			atk	def	spd	1h		blunt	polearm
+
+Pitchfork		1	0	-1	false	false	true
+
+Sickle			1	0	0	true	false	false
+Dagger			1	0	0	true	false	false	
+Hammer			1	0	0	true	true	false
+Military Fork	1	1	-1	false	false	true
+
+Club			2	0	0	true	true	false
+Spear			2	1	-1	false	false	true
+Hatchet			2	0	0	true	false	false
+Torch			2	0	0	true	true	false
+Staff			2	1	-1	false	true	true
+
+Spiked Club		3	0	0	true	false	false
+Pike			2	3	-2	false	false	true
+Halberd			3	2	-2	false	false	true
+Longsword		2	2	-1	false	false	false
+Battle Axe		3	1	-1	false	false	false
+Shortsword		2	1	0	true	false	false
+War Hammer		3	0	0	true	true	false
+War Staff		2	1	0	false	true	true
+Mace			2	1	0	true	true	false
+
+Flail			3	1	0	true	false	false
+
+Sword			2	1	0	true	false	false
+Khmer Spear		3	1	-1	false	false	true
+Khmer Pike		4	1	-1	true	false	true
+Khmer Sword		4	0	0	true	false	false
+
+Holy Pike		4	1	0	true	false	true
+Holy Sword		5	0	0	true	false	false
+
+Snow Knife		1	0	0	true	false	false
+Stone Club		2	0	-1	true	true	false
+Claw Axe		2	0	0	true	false	false
+
+Kakivak			1	1	0	false	false	true
+Seal Spear		2	1	0	false	false	true
+Whale Spear		3	1	0	false	false	true
+Bone Spear		4	1	0	false	false	true
+
+Teeth			2	0	0	false	false	false
+Claws			3	0	0	false	false	false
+Sharp Claws		4	0	0	false	false	false
+
+

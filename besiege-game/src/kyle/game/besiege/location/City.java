@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Array;
 public class City extends Location {
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
-	private static int CITY_UPPER_VALUE = Assets.cityArray.size; // highest number of cities possible
+	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest number of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
@@ -47,7 +47,7 @@ public class City extends Location {
 	
 	public City(Kingdom kingdom, String name, int index, Faction faction, float posX,
 			float posY, int wealth) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.CITY_GARR_1.generate());
+		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CITY_GARRISON);
 		this.type = LocationType.CITY;
 				
 		getParty().wealth = wealth;
@@ -169,10 +169,13 @@ public class City extends Location {
 		this.toHire = this.nextHire;
 		// some random stuff should happen here, small chance of getting a really good crop of soldiers
 		// high chance of sucky ones!
-		double random = Math.random();
-		if (random > .9) 		this.nextHire = PartyType.CITY_HIRE_1.generate();
-		else if (random > .5)	this.nextHire = PartyType.CITY_HIRE_2.generate(); // second best
-		else 					this.nextHire = PartyType.CITY_HIRE_3.generate(); // worst
+//		double random = Math.random();
+		this.nextHire = PartyType.generatePT(PartyType.Type.CITY_HIRE, this).generate();
+//		System.out.println("updating to hire for " + this.getName());
+//		System.out.println(toHire.getAvgSpd());
+//		if (random > .9) 		this.nextHire = PartyType.CITY_HIRE_1.generate();
+//		else if (random > .5)	this.nextHire = PartyType.CITY_HIRE_2.generate(); // second best
+//		else 					this.nextHire = PartyType.CITY_HIRE_3.generate(); // worst
 	}
 	
 //	public void updateClosestLocations() {

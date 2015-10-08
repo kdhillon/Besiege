@@ -65,8 +65,8 @@ public class VoronoiGraph {
             ArrayList<PointH> pointHs = v.siteCoords();
             for (PointH p : pointHs) {
                 ArrayList<PointH> region = v.region(p);
-                double x = 0;
-                double y = 0;
+                float x = 0;
+                float y = 0;
                 for (PointH c : region) {
                     x += c.x;
                     y += c.y;
@@ -94,6 +94,15 @@ public class VoronoiGraph {
         assignPolygonMoisture();
         assignBiomes();
         calculateAreas();
+        
+        // added by Kyle
+        initMeshes();
+    }
+    
+    public void initMeshes() {
+    	for (Center c : centers) {
+    		c.initMesh(this);
+    	}
     }
 //    public BufferedImage img; // may have to change for web use
 //    public RenderableGraphics rg;
@@ -499,7 +508,7 @@ public class VoronoiGraph {
             edge.d1 = pointCenterMap.get(dEdge.p1);
             if (edge.d1 != null) edge.adjCenter1 = edge.d1.index;
 
-            System.out.println(edge.adjCenter0 + " " + edge.adjCenter1 + " " + edge.adjCorner0 + " " + edge.adjCorner1);
+//            System.out.println(edge.adjCenter0 + " " + edge.adjCenter1 + " " + edge.adjCorner0 + " " + edge.adjCorner1);
             
             // Centers point to edges. Corners point to edges.
             if (edge.d0 != null) {
@@ -593,14 +602,14 @@ public class VoronoiGraph {
                 c.elevation = 0;
                 queue.add(c);
             } else {
-                c.elevation = Double.MAX_VALUE;
+                c.elevation = Float.MAX_VALUE;
             }
         }
 
         while (queue.size > 0) {
             Corner c = queue.pop();
             for (Corner a : c.adjacent) {
-                double newElevation = 0.01 + c.elevation;
+            	float newElevation = 0.01f + c.elevation;
                 if (!c.water && !a.water) {
                     newElevation += 1;
                 }
@@ -610,6 +619,10 @@ public class VoronoiGraph {
                 }
             }
         }
+        
+//        for (Corner c : corners) {
+//        	System.out.println("Elevation: " + c.elevation);
+//        }
     }
     double[][] noise;
     double ISLAND_FACTOR = 1.07;  // 1.0 means no small islands; 2.0 leads to a lot
@@ -680,7 +693,8 @@ public class VoronoiGraph {
 
     private void assignOceanCoastAndLand() {
         Array<Center> queue = new Array<Center>();
-        final double waterThreshold = .3;
+        final double waterThreshold = 0.6; // 0.3 originally
+        
         for (final Center center : centers) {
             int numWater = 0;
             for (final Corner c : center.corners) {
@@ -755,22 +769,22 @@ public class VoronoiGraph {
 
         final double SCALE_FACTOR = 1.1;
         for (int i = 0; i < landCorners.size(); i++) {
-            double y = (double) i / landCorners.size();
-            double x = Math.sqrt(SCALE_FACTOR) - Math.sqrt(SCALE_FACTOR * (1 - y));
+        	float y = (float) i / landCorners.size();
+            float x = (float) (Math.sqrt(SCALE_FACTOR) - Math.sqrt(SCALE_FACTOR * (1 - y)));
             x = Math.min(x, 1);
             landCorners.get(i).elevation = x;
         }
 
         for (Corner c : corners) {
             if (c.ocean || c.coast) {
-                c.elevation = 0.0;
+                c.elevation = 0.0f;
             }
         }
     }
 
     private void assignPolygonElevations() {
         for (Center center : centers) {
-            double total = 0;
+        	float total = 0;
             for (Corner c : center.corners) {
                 total += c.elevation;
             }
@@ -895,7 +909,10 @@ public class VoronoiGraph {
             return Biomes.LAKE;
         } else if (p.coast) {
             return Biomes.BEACH;
-        } else if (p.elevation > 0.8) {
+        } 
+        // Kyle modified these values
+        // originally 0.8
+        else if (p.elevation > 0.5) {
             if (p.moisture > 0.50) {
                 return Biomes.SNOW;
             } else if (p.moisture > 0.33) {

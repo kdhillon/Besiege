@@ -7,8 +7,6 @@
 package kyle.game.besiege;
 
 
-import java.util.Scanner;
-
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.army.Bandit;
@@ -16,17 +14,13 @@ import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.Ruin;
 import kyle.game.besiege.location.Village;
-import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -42,10 +36,13 @@ public class Kingdom extends Group {
 	public static final int MAX_BANDITS = 5;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
+	
+//	public static float MASTER_VOLUME = .5f;
+	public static float MASTER_VOLUME = 0f;
 
 	public final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
-	public final float NIGHT_FLOAT = .5f;
-	public final float RAIN_FLOAT = .4f;
+	public final float NIGHT_FLOAT = .6f;
+	public final float RAIN_FLOAT = .5f;
 	public final float LIGHTNING_FLOAT = 1f;
 	private final float MOUSE_DISTANCE = 10; // distance destination must be from mouse to register
 	private final int DAWN = 7;
@@ -60,18 +57,19 @@ public class Kingdom extends Group {
 	public float currentDarkness; // can be used for LOS
 	public float targetDarkness; // for fading
 	public boolean raining;
-	
 
 	public Map map;
 	transient private MapScreen mapScreen;
 	public Array<Faction> factions;
-	private int factionCount;
-	public Array<Array<Integer>> factionRelations; // should break into multiple arrays
+//	private int factionCount;
+//	public Array<Array<Integer>> factionRelations; // should break into multiple arrays
 	
 	private Array<Army> armies;
 	public Array<City> cities;
 	public Array<Castle> castles;
 	public Array<Village> villages;
+	public Array<Ruin> ruins;
+	
 	private Array<Battle> battles;
 	private ArmyPlayer player;
 
@@ -92,13 +90,13 @@ public class Kingdom extends Group {
 	}
 	
 	public Kingdom(MapScreen mapScreen) {
-		map = new Map(true);
+		map = new Map(this, true);
 
 		clock = 0; // set initial clock
 		timeOfDay = 0;
 		day = 0;
-		raining = true;
-//		raining = false;
+		startRain();
+		//		raining = false;
 
 		this.time(0);
 		
@@ -115,6 +113,7 @@ public class Kingdom extends Group {
 		cities = new Array<City>();
 		castles = new Array<Castle>();
 		villages = new Array<Village>();
+		ruins = new Array<Ruin>();
 		battles = new Array<Battle>();
 
 		initializeFactions(this);
@@ -124,7 +123,7 @@ public class Kingdom extends Group {
 		initializeCities();
 		initializeVillages();
 		initializeCastles();
-		
+		initializeRuins();
 		
 		initializeFactionCityInfo();
 
@@ -169,6 +168,7 @@ public class Kingdom extends Group {
 	
 	// just check adjacent centers!
 	public void updateArmyPolygon(Army army) {
+		if (army.isGarrison) return;
 		if (army.getContaining() != null) {
 
 			// first check if it's left it's previous polygon
@@ -210,7 +210,7 @@ public class Kingdom extends Group {
 	public void time(float delta) {
 		clock += delta;
 		timeOfDay = (int) ((clock - day*60) / HOUR_TIME);
-		if (timeOfDay == 24) {
+		if (timeOfDay >= 24) {
 			dailyRoutine();
 			day++;
 		}
@@ -219,11 +219,24 @@ public class Kingdom extends Group {
 		if (timeOfDay <= DAWN || timeOfDay >= DUSK)
 			night = true;
 		
-		if (Math.random() < 1/RAIN_CHANCE) raining = true;
-		if (raining && Math.random() < .0005) raining = false;
+		if (Math.random() < 1/RAIN_CHANCE) startRain();
+		if (raining && Math.random() < .0005) stopRain();
 	}
 	
-
+	public void startRain() {
+		if (raining == true) return;
+		raining = true;
+		Assets.rain.setLooping(true);
+		Assets.rain.setVolume(MASTER_VOLUME * .3f);
+		Assets.rain.play();
+	}
+	
+	public void stopRain() {
+		if (raining == false) return;
+		raining = false;
+		Assets.rain.pause();
+	}
+	
 	public void rain() {
 //		System.out.println("raining");
 		this.targetDarkness = this.RAIN_FLOAT;
@@ -233,6 +246,10 @@ public class Kingdom extends Group {
 	private void thunder() {
 //		this.currentDarkness = (float)((Math.random()/2+.5)*this.LIGHTNING_FLOAT);
 		this.currentDarkness = this.LIGHTNING_FLOAT;
+		if (Math.random() < .5) {
+			Assets.thunder1.play(MASTER_VOLUME * (float) (.2 + Math.random()*0.5));
+		}
+		else Assets.thunder1.play(MASTER_VOLUME * (float) (.2 + Math.random()*0.5));
 	}
 	
 	public void updateColor(SpriteBatch batch) {
@@ -267,6 +284,14 @@ public class Kingdom extends Group {
 			c.dailyWealthIncrease(); 
 			c.dailyPopIncrease();
 		}
+		
+		// assume fixed war effect for now
+//		for (int i = 0; i < factions.size; i++) {
+//			Faction f = factions.get(i);
+//			f.updateWarEffects();
+//		}
+		
+		player.train();
 	}
 
 	private void mouseOver(Point mouse) {
@@ -328,6 +353,8 @@ public class Kingdom extends Group {
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}
 	}
+	
+	// this is actually left click right now
 	private void rightClick(Point mouse) {		
 		Destination d = getDestAt(mouse);
 		if (d.getType() == Destination.DestType.LOCATION) {
@@ -342,6 +369,24 @@ public class Kingdom extends Group {
 			Battle battle = (Battle) d;
 			getMapScreen().getSidePanel().setActiveBattle(battle);
 		}
+		// check if a center 
+		if (d.getType() == Destination.DestType.POINT) {
+			Center containing = null;
+			Point army = (Point) d;
+			for (Center center : map.connected) {
+				Polygon p = center.polygon;
+				if (p.contains(army.getCenterX(), army.getCenterY())) {
+					containing = center;
+					break;
+				}
+			}
+			if (containing != null)
+				getMapScreen().getSidePanel().setActiveCenter(containing);
+			else {
+//				System.out.println("containing is null");
+			}
+		}
+		
 	}
 
 	public void click(int pointer) {
@@ -381,6 +426,10 @@ public class Kingdom extends Group {
 		for (Castle castle : castles) {
 			if (Kingdom.distBetween(castle, mouse) <= MOUSE_DISTANCE)
 				dest = castle;
+		}
+		for (Ruin ruin : ruins) {
+			if (Kingdom.distBetween(ruin, mouse) <= MOUSE_DISTANCE)
+				dest = ruin;
 		}
 		for (Army army : armies) {
 			if (army.isVisible() && Kingdom.distBetween(army, mouse) <= MOUSE_DISTANCE)
@@ -431,21 +480,23 @@ public class Kingdom extends Group {
 			v.drawText(batch);
 		for (Castle c : castles) 
 			c.drawText(batch);
+		for (Ruin r : ruins) 
+			r.drawText(batch);
 	}
 	
 
 	public void initializeFactions(Kingdom kingdom) {
 		factions = new Array<Faction>();
 
-		factionRelations = new Array<Array<Integer>>();
+//		factionRelations = new Array<Array<Integer>>();
 		//		factionMilitaryAction = new Array<Array<Integer>>();
 
 		// add player faction (index 0) 
 		
 		Faction.BANDITS_FACTION = new Faction(this, "Bandits", "crestBandits", Color.BLACK);
-		Faction.PLAYER_FACTION = new Faction(this,"Rogue", "crestBlank", Color.WHITE);
+		Faction.ROGUE_FACTION = new Faction(this,"Rogue", "crestBlank", Color.WHITE);
 		
-		createFaction(Faction.PLAYER_FACTION);
+		createFaction(Faction.ROGUE_FACTION);
 		// add bandits faction (index 1)
 		createFaction(Faction.BANDITS_FACTION);	
 
@@ -460,24 +511,36 @@ public class Kingdom extends Group {
 		createFaction("Fernel", "crestRedAxe", Color.LIGHT_GRAY);
 	//	createFaction("Draekal", "crestBlank", Color.BLACK);
 
-		for (Faction f : factions) {
+		for (int i = 0; i < factions.size; i++) {
+			Faction f = factions.get(i);
 			f.kingdom = kingdom;
+			f.initializeRelations();
 		}
+		Faction.initialized = true;
 
-		factions.get(2).declareWar(factions.get(3));
+	//	factions.get(2).declareWar(factions.get(3));
 
 		//		factionRelations = new int[factionCount][factionCount];
-		for (int i = 0; i < factionCount; i++) {
-			for (int j = 0; j < factionCount; j++) {
+		for (int i = 0; i < factions.size; i++) {
+			for (int j = 0; j < factions.size; j++) {
 				//				factionRelations[i][j] = -30;
-				factionRelations.get(i).set(j, -30);
-				factionRelations.get(j).set(i, -30);
+				
+				// randomize initial faction relations
+//				int random = (int)(Math.random() * 200) - 100;
+//				factionRelations.get(i).set(j, random);
+//				factionRelations.get(j).set(i, random);
+//				factionRelations.get(i).set(j, 100);
+//				factionRelations.get(j).set(i, 100);
+				
+				System.out.println(i + " " + j);
 			}
 		}
-		for (int i = 0; i < factionCount; i++) {
+		for (int i = 0; i < factions.size; i++) {
 			//			factionRelations[i][i] = 100;
-			factionRelations.get(i).set(i, 100);
+//			factionRelations.get(i).set(i, 100);
 		}
+		
+
 	}
 	
 	public void factionAct(float delta) {
@@ -492,20 +555,20 @@ public class Kingdom extends Group {
 		for (int i = 0; i < factions.size; i++) {
 			//			factionRelations[faction.index][i] = 0; // resets faction relations
 			//			factionRelations[i][faction.index] = 0;
-			if (factionRelations.size <= faction.index)
-				factionRelations.add(new Array<Integer>());
-
-			if (factionRelations.get(i).size <= faction.index)
-				factionRelations.get(i).add(0);
-			else factionRelations.get(i).set(faction.index, 0);
-
-			if (factionRelations.get(faction.index).size <= i)
-				factionRelations.get(faction.index).add(0);
-			else factionRelations.get(faction.index).set(i, 0);
+//			if (factionRelations.size <= faction.index)
+//				factionRelations.add(new Array<Integer>());
+//
+//			if (factionRelations.get(i).size <= faction.index)
+//				factionRelations.get(i).add(0);
+//			else factionRelations.get(i).set(faction.index, 0);
+//
+//			if (factionRelations.get(faction.index).size <= i)
+//				factionRelations.get(faction.index).add(0);
+//			else factionRelations.get(faction.index).set(i, 0);
 		}
-		if (faction.index >= 1) {
-			faction.declareWar(Faction.BANDITS_FACTION);
-		}
+//		if (faction.index >= 1) {
+//			faction.declareWar(Faction.BANDITS_FACTION);
+//		}
 	}
 	public void createFaction(Faction faction) {
 		factions.add(faction);
@@ -513,19 +576,16 @@ public class Kingdom extends Group {
 		for (int i = 0; i < factions.size; i++) {
 			//			factionRelations[faction.index][i] = 0; // resets faction relations
 			//			factionRelations[i][faction.index] = 0;
-			if (factionRelations.size <= faction.index)
-				factionRelations.add(new Array<Integer>());
-
-			if (factionRelations.get(i).size <= faction.index)
-				factionRelations.get(i).add(0);
-			else factionRelations.get(i).set(faction.index, 0);
-
-			if (factionRelations.get(faction.index).size <= i)
-				factionRelations.get(faction.index).add(0);
-			else factionRelations.get(faction.index).set(i, 0);
-		}
-		if (faction.index >= 1) {
-			faction.declareWar(Faction.BANDITS_FACTION);
+//			if (factionRelations.size <= faction.index)
+//				factionRelations.add(new Array<Integer>());
+//
+//			if (factionRelations.get(i).size <= faction.index)
+//				factionRelations.get(i).add(0);
+//			else factionRelations.get(i).set(faction.index, 0);
+//
+//			if (factionRelations.get(faction.index).size <= i)
+//				factionRelations.get(faction.index).add(0);
+//			else factionRelations.get(faction.index).set(i, 0);
 		}
 	}
 	
@@ -534,8 +594,9 @@ public class Kingdom extends Group {
 	 *  of centers, and village control. 
 	 */
 	public void initializeFactionCityInfo() {
-		System.out.println("initializing faction city info");
+//		System.out.println("initializing faction city info");
 		for (Faction f : factions) { 
+//			System.out.println("initializeing fci! " + f.name);
 			f.initializeCloseLocations();
 			f.centers.clear();
 		}
@@ -546,7 +607,7 @@ public class Kingdom extends Group {
 	 *  of centers, and village control. 
 	 */
 	public void updateFactionCityInfo() {
-		System.out.println("updating faction city info");
+//		System.out.println("updating faction city info");
 		for (Faction f : factions) { 
 			f.updateCloseLocations();
 			f.centers.clear();
@@ -623,9 +684,16 @@ public class Kingdom extends Group {
 		}
 	}
 
-	public int getRelations(Faction faction1, Faction faction2) {
+//	public int getRelations(Faction faction1, Faction faction2) {
+//		if (faction1 == null || faction2 == null) return 0;
+//		return factionRelations.get(faction1.index).get(faction2.index);
+//	}
+	
+	public int calcRelations(Faction faction1, Faction faction2) {
 		if (faction1 == null || faction2 == null) return 0;
-		return factionRelations.get(faction1.index).get(faction2.index);
+		// calculate relations between the two faction
+		return faction1.calcRelations(faction2);
+		
 	}
 	
 	/** return whether or not these two factions are at war. 
@@ -634,58 +702,61 @@ public class Kingdom extends Group {
 	 * @param faction2
 	 * @return
 	 */
-	public boolean isAtWar(Faction faction1, Faction faction2) {
-		if (faction1 == faction2) return false;
-		return (getRelations(faction1, faction2) < Faction.WAR_THRESHOLD);
-	}
-	public void setAtWar(Faction faction1, Faction faction2) {
-		//		factionRelations[faction1][faction2] = WAR_THRESHOLD-1;
-		//		factionRelations[faction2][faction1] = WAR_THRESHOLD-1;
-		factionRelations.get(faction1.index).set(faction2.index, Faction.INIT_WAR_RELATION);
-		factionRelations.get(faction2.index).set(faction1.index, Faction.INIT_WAR_RELATION);
-	}
-	public void setNeutral(Faction faction1, Faction faction2) {
-		factionRelations.get(faction1.index).set(faction2.index, 0);
-		factionRelations.get(faction2.index).set(faction1.index, 0);
+	
+	
+	
+//	public boolean isAtWar(Faction faction1, Faction faction2) {
+//		if (faction1 == faction2) return false;
+//		return (getRelations(faction1, faction2) < Faction.WAR_THRESHOLD);
+//	}
+//	public void setAtWar(Faction faction1, Faction faction2) {
+//		//		factionRelations[faction1][faction2] = WAR_THRESHOLD-1;
+//		//		factionRelations[faction2][faction1] = WAR_THRESHOLD-1;
+//		factionRelations.get(faction1.index).set(faction2.index, Faction.INIT_WAR_RELATION);
+//		factionRelations.get(faction2.index).set(faction1.index, Faction.INIT_WAR_RELATION);
+//	}
+//	public void setNeutral(Faction faction1, Faction faction2) {
+//		factionRelations.get(faction1.index).set(faction2.index, 0);
+//		factionRelations.get(faction2.index).set(faction1.index, 0);
+//
+//		//		factionRelations[faction1][faction2] = 0;
+//		//		factionRelations[faction2][faction1] = 0;
+//	}
 
-		//		factionRelations[faction1][faction2] = 0;
-		//		factionRelations[faction2][faction1] = 0;
-	}
+//	public void makePeace(Faction faction1, Faction faction2) {
+//		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have signed a peace agreement!", "magenta");
+//		
+////		setNeutral(faction1, faction2);
+//	}
+//	public void declareWar(Faction faction1, Faction faction2) {
+//		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
+//		setAtWar(faction1, faction2);
+//	}
 
-	public void makePeace(Faction faction1, Faction faction2) {
-		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have signed a peace agreement!", "magenta");
-		setNeutral(faction1, faction2);
-	}
-	public void declareWar(Faction faction1, Faction faction2) {
-		//		BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
-		setAtWar(faction1, faction2);
-	}
+//	public void changeRelation(Faction faction1, Faction faction2, int delta) {
+////		int initialRelation = factionRelations.get(faction1.index).get(faction2.index);
+////		int newRelation;
+////		if (initialRelation + delta >= Faction.MAX_RELATION) newRelation = Faction.MAX_RELATION;
+////		else if (initialRelation + delta <= Faction.MIN_RELATION) newRelation = Faction.MIN_RELATION;
+////		else newRelation = initialRelation + delta;
+////		if (initialRelation >= Faction.WAR_THRESHOLD && newRelation < Faction.WAR_THRESHOLD) ;
+////		//			BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
+////		else if (initialRelation < Faction.WAR_THRESHOLD && newRelation >= Faction.WAR_THRESHOLD) 
+////			makePeace(faction1, faction2);
+////		factionRelations.get(faction1.index).set(faction2.index, newRelation);
+//		
+//	}
 
-	public void changeRelation(Faction faction1, Faction faction2, int delta) {
-		int initialRelation = factionRelations.get(faction1.index).get(faction2.index);
-		int newRelation;
-		if (initialRelation + delta >= Faction.MAX_RELATION) newRelation = Faction.MAX_RELATION;
-		else if (initialRelation + delta <= Faction.MIN_RELATION) newRelation = Faction.MIN_RELATION;
-		else newRelation = initialRelation + delta;
-		if (initialRelation >= Faction.WAR_THRESHOLD && newRelation < Faction.WAR_THRESHOLD) ;
-		//			BottomPanel.log(faction1.name + " and " + faction2.name + " have declared war!", "magenta");
-		else if (initialRelation < Faction.WAR_THRESHOLD && newRelation >= Faction.WAR_THRESHOLD) 
-			makePeace(faction1, faction2);
-		factionRelations.get(faction1.index).set(faction2.index, newRelation);
+	public static void calcAllRelations() {
+//		for (Faction f : factions) { 
+//			for (int i = 0; i < factions.size; i++) {
+//				int base = 0;
+//				//				base += factionMilitaryAction.get(f.index).get(i); // Military actions
+//				base += f.getCloseCityEffect(factions.get(i));	   // Borders
+//				base += factions.get(i).getCloseCityEffect(f);	   // (Borders is 2-way)
+//			}
+//		}
 	}
-
-	//	public static void calcAllRelations() {
-	//		for (Faction f : factions) { 
-	//			for (int i = 0; i < factions.size; i++) {
-	//				int base = 0;
-	////				base += factionMilitaryAction.get(f.index).get(i); // Military actions
-	//				base += f.getCloseCityEffect(factions.get(i));	   // Borders
-	//				base += factions.get(i).getCloseCityEffect(f);	   // (Borders is 2-way)
-	//				factionRelations.get(i).set(f.index, base); 	   // can make more efficient
-	//				factionRelations.get(f.index).set(i, base);
-	//			}
-	//		}
-	//	}
 
 	public Faction get(int index) {
 		return factions.get(index);
@@ -708,7 +779,7 @@ public class Kingdom extends Group {
 //	}
 	
 	public void initializeCities() {	
-		Array<String> cityArray = Assets.cityArray;
+		Array<String> cityArray = Assets.cityNames;
 		//		Scanner scanner = Assets.cityList;
 		
 //		int currentFaction = 2; // no bandits or player 
@@ -791,7 +862,7 @@ public class Kingdom extends Group {
 			double closestDistance = 99999999;
 			Faction closestFaction = null;
 			for (Faction f : factions) {
-				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
+				if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
 				if (f == null) continue;
 				
 				if (!f.hasNewCenter()) {
@@ -826,7 +897,7 @@ public class Kingdom extends Group {
 	// villages only spawn at centers (for influence purposes)
 	public void initializeVillages() {
 		//		Scanner scanner = Assets.villageList;
-		Array<String> villageArray = Assets.villageArray;
+		Array<String> villageArray = Assets.villageNames;
 
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
 		while (villageArray.size > 0 && map.availableCenters.size > 0) {
@@ -836,18 +907,15 @@ public class Kingdom extends Group {
 			//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
 			Village village = new Village(this, villageArray.pop(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
 			villages.add(village);
-			village.center = center.index;
+			village.setCenter(center);
+//			village.center = center.index;
 			addActor(village);
 		}
 		System.out.println("Number villages: " + villages.size);
 	}
 	
 	public void initializeCastles() {
-		Array<String> castleArray = Assets.castleArray;
-
-		int currentFaction = 2; // no bandits or player 
-		int factionRepeats = 0;
-		int maxRepeats = (int) (Math.random()*3) + 1; // max 2, min 0
+		Array<String> castleArray = Assets.castleNames;
 		
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
 		while (castleArray.size > 0 && map.availableCorners.size > 0) {
@@ -871,7 +939,7 @@ public class Kingdom extends Group {
 			double closestDistance = Double.MAX_VALUE;
 			Faction closestFaction = null;
 			for (Faction f : factions) {
-				if (f == Faction.PLAYER_FACTION || f == Faction.BANDITS_FACTION) continue;
+				if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
 				if (f == null) continue;
 				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
 				if (distance < closestDistance) {
@@ -884,21 +952,66 @@ public class Kingdom extends Group {
 			
 			Castle castle = new Castle(this, castleArray.pop(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
 			castles.add(castle);
-			castle.corner = corner.index;
+			castle.setCorner(corner);
 			
 			addActor(castle);
 		}
 		
-		System.out.println("Number castles: " + villages.size);
+		System.out.println("Number castles: " + castles.size);
 	}
 
+	public void initializeRuins() {
+		Array<String> ruinArray = Assets.ruinNames;
+		
+		while (ruinArray.size > 0 && map.availableCorners.size > 0) {
+			Corner corner;
+			do {
+				//System.out.println(map.availableCorners.size);
+				corner = map.availableCorners.random();
+				map.availableCorners.removeValue(corner, true);
+			} while (corner == null && map.availableCorners.size > 0);
+			
+			if (corner == null) {
+				System.out.println("no corners left");
+				break;
+			}
+			
+			float x = (float) corner.getLoc().x;
+			float y = (float) (Map.HEIGHT-corner.getLoc().y);
+			
+			
+			double closestDistance = Double.MAX_VALUE;
+			Faction closestFaction = null;
+			for (Faction f : factions) {
+				if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
+				if (f == null) continue;
+				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
+				if (distance < closestDistance) {
+					closestFaction = f;
+					closestDistance = distance;
+				}	
+			}
+			
+			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+			
+			Ruin ruin = new Ruin(this, ruinArray.pop(), -1, x, y);			
+			ruins.add(ruin);
+			ruin.setCorner(corner);
+			
+			addActor(ruin);
+		}
+		
+		System.out.println("Number ruins: " + ruins.size);
+	}
+	
 	public void addArmy(Army add) {
 		armies.add(add);
 		addActor(add);
 		//add.postAdd();
 	}
 	public void addPlayer() {
-		Faction faction = factions.get(2);
+		Faction faction = factions.get(5);
+//		faction = ;
 		Center center = map.reference;
 		
 		int pos_x = (int) map.reference.loc.x;
@@ -948,6 +1061,7 @@ public class Kingdom extends Group {
 		locations.addAll(cities);
 		locations.addAll(castles);
 		locations.addAll(villages);
+		locations.addAll(ruins);
 		return locations;
 	}
 	
@@ -1030,7 +1144,8 @@ public class Kingdom extends Group {
 		return day;
 	}
 	public float getZoom() {
-		return getMapScreen().getCamera().zoom;
+//		return getMapScreen().getCamera().zoom;
+		return 1;
 	}
 	public void setMouseOver(boolean b) {
 		mouseOver = b;

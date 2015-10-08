@@ -9,6 +9,7 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
 
 public class Militia extends Army { // Revamp this :)
 	private final String textureRegion = "Farmer";
@@ -19,7 +20,7 @@ public class Militia extends Army { // Revamp this :)
 	
 	public Militia(Kingdom kingdom, String name, Faction faction, float posX,
 			float posY) {
-		super(kingdom, name, faction, posX, posY, PartyType.MILITIA);
+		super(kingdom, name, faction, posX, posY, Type.MILITIA);
 		setTextureRegion(textureRegion);
 	}
 	

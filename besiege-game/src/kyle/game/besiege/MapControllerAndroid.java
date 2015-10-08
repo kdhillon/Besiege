@@ -7,15 +7,15 @@ package kyle.game.besiege;
 
 import kyle.game.besiege.panels.BottomPanel;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 
 public class MapControllerAndroid implements GestureListener {
-	private OrthographicCamera camera;
+	private Camera camera;
 	private MapScreen screen;
 	
-	public MapControllerAndroid(OrthographicCamera camera, MapScreen screen) {
+	public MapControllerAndroid(Camera camera, MapScreen screen) {
 		this.camera = camera;
 		this.screen = screen;
 	}

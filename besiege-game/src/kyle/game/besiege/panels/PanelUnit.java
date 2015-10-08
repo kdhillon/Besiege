@@ -98,7 +98,9 @@ public class PanelUnit extends Panel {
 		Label weaponSC = 	new Label("Weapon: ", ls);
 		Label equipmentSC = new Label("Armor: ", ls);
 		
+		
 		title = new Label(soldier.getName(), lsBig);
+		title.setColor(soldier.unitType.unitClass.color);
 		title.setAlignment(0,0);
 //		title.setWrap(true); // wrapping messes up click listeners... WTF?
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
@@ -124,8 +126,8 @@ public class PanelUnit extends Panel {
 		atkS = new Label("" + soldier.getAtk(), ls);
 		defS = new Label("" + soldier.getDef(), ls);
 		spdS = new Label("" + soldier.getSpd(), ls);
-		weaponS = new Label("" + soldier.weapon.name, ls);
-		if (unit.isRanged()) weaponS.setText(soldier.rangedWeapon.name + "(" + unit.quiver + ")");
+		weaponS = new Label("" + soldier.unitType.melee.name, ls);
+		if (unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
 		weaponS.setAlignment(0,0);
 		
 		equipmentS = new Label("", ls);
@@ -166,20 +168,20 @@ public class PanelUnit extends Panel {
 		text.row();
 		text.add(weaponS).colspan(4).fillX().expandX();
 		text.row();
-		text.add(atkSC).padLeft(MINI_PAD);
-		text.add(atkS);
 		text.add(levelSC).padLeft(PAD);
 		text.add(levelS);
+		text.add(atkSC).padLeft(MINI_PAD);
+		text.add(atkS);
 		text.row();
-		text.add(defSC).padLeft(MINI_PAD);
-		text.add(defS);
 		text.add(hpSC).padLeft(PAD);
 		text.add(hpS);
+		text.add(defSC).padLeft(MINI_PAD);
+		text.add(defS);
 		text.row();
-		text.add(spdSC).padLeft(MINI_PAD);
-		text.add(spdS);
 		text.add(expSC).padLeft(PAD);
 		text.add(expS);
+		text.add(spdSC).padLeft(MINI_PAD);
+		text.add(spdS);
 
 		text.row();
 
@@ -196,8 +198,10 @@ public class PanelUnit extends Panel {
 		atkS.setText("" + unit.atk);
 		defS.setText("" + unit.def);
 		spdS.setText("" + (int) unit.spd);
-		if (unit.isRanged() && unit.attacking == null && unit.quiver > 0) weaponS.setText(soldier.rangedWeapon.name + " (" + unit.quiver + ")");
-		else weaponS.setText(soldier.weapon.name);
+		if (unit.isRanged() && unit.attacking == null && unit.quiver > 0) weaponS.setText(soldier.unitType.ranged.name + " (" + unit.quiver + ")");
+		else weaponS.setText(soldier.unitType.melee.name);
+		
+		weaponS.setText(weaponS.getText() + ", " + unit.soldier.unitType.armor.name);
 		
 		String mounted = "";
 		if (unit.isMounted()) mounted = " (Mounted)";
@@ -336,8 +340,14 @@ public class PanelUnit extends Panel {
 	
 	@Override
 	public TextureRegion getCrest() {
-		if (party.army != null)
-			return party.army.getFaction().crest;
+//		if (party.army != null)
+//			return party.army.getFaction().crest;
+//		return null;
 		return null;
+	}
+	
+	@Override
+	public Soldier getSoldierInsteadOfCrest() {
+		return this.unit.soldier;
 	}
 }

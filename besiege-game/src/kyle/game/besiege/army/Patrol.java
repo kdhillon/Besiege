@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Besiege
+f * Besiege
  * by Kyle Dhillon
  * Source Code available under a read-only license. Do not copy, modify, or distribute.
  ******************************************************************************/
@@ -14,6 +14,7 @@ import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
 
 public class Patrol extends Army {
  	private final static int PATROL_TRAVEL_FACTOR = 2;
@@ -27,7 +28,7 @@ public class Patrol extends Army {
 	public Patrol() {}
 	
 	public Patrol(Kingdom kingdom, Location defaultTarget) {
-		super(kingdom, defaultTarget.getName() + " Patrol", defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), PartyType.PATROL);
+		super(kingdom, defaultTarget.getName() + " Patrol", defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.PATROL);
 		this.setDefaultTarget(defaultTarget);
 		this.patrolAround = null;
 		setTextureRegion(textureRegion);

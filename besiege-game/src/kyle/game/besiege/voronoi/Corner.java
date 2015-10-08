@@ -41,7 +41,9 @@ public class Corner {
 	public int waterTouches; // num water centers it touches
 	//    public boolean blocked;
 
-	public double elevation;
+	
+	// used to be double but I changed it
+	public float elevation;
 	public boolean water, ocean, coast;
 	transient public Corner downslope;
 	public int river;

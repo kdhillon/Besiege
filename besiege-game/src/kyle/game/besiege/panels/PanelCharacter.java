@@ -10,6 +10,7 @@ import kyle.game.besiege.Character;
 import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.ArmyPlayer;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -21,12 +22,11 @@ public class PanelCharacter extends Panel {
 	private ArmyPlayer player;
 	private Table text;
 	private Label name;
-	private Label level;
-	private Label exp;
-	private Label nextLevel;
+	private Label maxTroops;
+	private Label fame;
+	private Label honor;
 	private Label faction;
 	private Label title;
-	private Label fame;
 	
 	public PanelCharacter(SidePanel panel) {
 		this.panel = panel;
@@ -41,39 +41,24 @@ public class PanelCharacter extends Panel {
 		LabelStyle ls30 = new LabelStyle();
 		ls30.font = Assets.pixel30;
 		LabelStyle ls24 = new LabelStyle();
-		ls24.font = Assets.pixel24;
+		ls24.font = Assets.pixel20;
 		
-		Label charC = new Label("Character", ls30);
-		charC.setAlignment(0,0);
-		Label nameC = new Label("Name:", ls24);
-		Label levelC = new Label("Level:",ls24);
-		Label expC = new Label("EXP:",ls24);
-		Label nextLevelC = new Label("Next:", ls24);
+		Label honorC = new Label("Honor:", ls24);
 		Label factionC = new Label("Faction:", ls24);
 		Label titleC = new Label("Title:", ls24); 
 		Label fameC = new Label("Fame:", ls24);
+		Label maxTroopsC = new Label("Party Limit:", ls24);
 
-		name = new Label("", ls24);
-		level = new Label("", ls24);
-		exp = new Label("", ls24);
-		nextLevel = new Label("" ,ls24);
+		name = new Label("", ls30);
+		name.setAlignment(0,0);
+
+		honor = new Label("" ,ls24);
 		faction = new Label("", ls24);
 		title = new Label("", ls24);
 		fame = new Label("", ls24);
+		maxTroops = new Label("", ls24);
 		
-		text.add(charC).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX();
-		text.row();
-		text.add(nameC).left();
-		text.add(name).right();
-		text.row();
-		text.add(levelC).left();
-		text.add(level).right();
-		text.row();
-		text.add(expC).left();
-		text.add(exp).right();
-		text.row();
-		text.add(nextLevelC).left();
-		text.add(nextLevel).right();
+		text.add(name).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX();
 		text.row();
 		text.add(factionC).left();
 		text.add(faction).right();
@@ -81,9 +66,15 @@ public class PanelCharacter extends Panel {
 		text.add(titleC).left();
 		text.add(title).right();
 		text.row();
+		text.add(honorC).left();
+		text.add(honor).right();
+		text.row();
 		text.add(fameC).left();
 		text.add(fame).right();
-
+		text.row();
+		text.add(maxTroopsC).left();
+		text.add(maxTroops).right();
+		
 		this.addTopTable(text);
 		
 		this.setButton(1, "Attributes");
@@ -93,13 +84,12 @@ public class PanelCharacter extends Panel {
 	
 	@Override
 	public void act(float delta) {
-		level.setText(""+player.getLevel());
 		name.setText(player.getName());
-		exp.setText("" + getCharacter().exp);
-		nextLevel.setText(""+ getCharacter().nextLevel);
+		honor.setText("" + getCharacter().getHonor());
 		faction.setText(player.getFactionName());
-		title.setText(getCharacter().title);
-		fame.setText(getCharacter().fame+"");
+		title.setText(getCharacter().getTitle());
+		maxTroops.setText(getCharacter().getMaxTroops() +"");
+		fame.setText(""+getCharacter().getFame());
 		super.act(delta);
 	}
 	
@@ -122,5 +112,10 @@ public class PanelCharacter extends Panel {
 	
 	public Character getCharacter() {
 		return this.panel.getMapScreen().getCharacter();
+	}
+	
+	@Override
+	public TextureRegion getCrest() {
+		return player.getFaction().crest;
 	}
 }

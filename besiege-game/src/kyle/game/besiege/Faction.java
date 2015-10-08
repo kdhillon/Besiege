@@ -10,6 +10,7 @@ import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Location.LocationType;
+import kyle.game.besiege.location.ObjectLabel;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.voronoi.Center;
@@ -19,20 +20,47 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 
+/* time to make factions really awesome: 
+ * nations can be at war, at peace, or allies with other nations
+ * relations are re-calculated every day based on:
+ * 		
+ * 		nearby cities/troops (negative)
+ * 		long-term peace (positive)
+ * 		alliance (positive)
+ * 		past wars (negative)
+ * 		current wars (negative)
+ */
+
 public class Faction {
-	public static final int INCREASE_INTERVAL = 10; // every these seconds, relations will increase btw these factions
-	public static final int CLOSE_CITY_FACTOR = 10; // this times num of close cities of one faction will decrease the relation with that faction
-	private static final int CHECK_FREQ = 5; // how frequently this manages stuff
+	//	public static final int INCREASE_INTERVAL = 10; // every these seconds, relations will increase btw these factions
+	public static final int CLOSE_CITY_FACTOR = 2; // this times num of close cities of one faction will decrease the relation with that faction
+	private static final int FACTION_UPDATE_FREQ = 5; // every x hours, factions update nobles and diplomacy
+	//	private static final int DIPLOMACY_CHECK_FREQ = 21;
 	private static final float ORDER_FACTOR = .9f; // what percent of nobles will be ordered to besiege a city
-	public static final int MAX_RELATION = 100;
-	public static final int MIN_RELATION = -100;
-	public static final int INIT_WAR_RELATION = -40; //when war is declared, this is the relation you will have
-//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
-	public static final int WAR_THRESHOLD = 10; //cross this and you're at war
+	private static final int WAR_BONUS = 20;
+	private static final int ALLIANCE_BONUS = 20;
+	private static final int DAILY_PEACE_EFFECT = 1;
+	private static final int DAILY_WAR_EFFECT = 1;
+
+	private static final double PEACE_PROBABILITY = 0.0001; // how likely it is that on any given update, factions will 
+	private static final double WAR_PROBABILITY = 0.0001; // how likely it is that on any given update, factions will 
+
+	private static final int STATIC_WAR_EFFECT = -20;
+	private static final int STATIC_PEACE_EFFECT = 10;
+
+	private static final int PEACE_THRESHOLD = -10;
+	//	private static final int INIT_WAR_EFFECT = 10;
+
+	//	public static final int MAX_RELATION = 100;
+	//	public static final int MIN_RELATION = -100;
+	//	public static final int INIT_WAR_RELATION = -40; //when war is declared, this is the relation you will have
+	//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
+	//	public static final int WAR_THRESHOLD = 10; //cross this and you're at war
 
 	public static Faction BANDITS_FACTION;
-	public static Faction PLAYER_FACTION;
-	
+	public static Faction ROGUE_FACTION;
+	public static boolean initialized = false;
+
 	public static final Color BROWN = new Color(184/256.0f, 119/256.0f, 25/256.0f, 1);
 	public static final Color OLIVE = new Color(107/256.0f, 138/256.0f, 48/256.0f, 1);
 	public static final Color RED = new Color(148/256.0f, 34/256.0f, 22/256.0f, 1);
@@ -42,7 +70,7 @@ public class Faction {
 	public static final Color PURPLE = new Color(73/256.0f, 54/256.0f, 158/256.0f, 1);
 	public static final Color TEAL = new Color(57/256.0f, 170/256.0f, 115/256.0f, 1);
 	public static final Color GREEN = new Color(41/256.0f, 72/256.0f, 33/256.0f, 1);
-	
+
 	public Kingdom kingdom;
 
 	public int index; // for keeping track of relations
@@ -56,19 +84,31 @@ public class Faction {
 	public Array<Castle> closeEnemyCastles;
 	public Array<Village> closeEnemyVillages;
 	//	public Array<Location> closeEnemyLocations;
-	public Array<Location> closeFriendlyLocations;
+	public Array<City> closeFriendlyCities;
+	public Array<Castle> closeFriendlyCastles;
+	//	public Array<Village> closeFriendlyVillages;
 	public Array<Noble> nobles;
 	public Array<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
 	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
 	public Array<Center> centers; // centers under influence of this faction
 	public Array<Polygon> territory; // polygon of all centers
+	public Array<Faction> atPeace;
+	public Array<Faction> atWar;
+	public Array<Faction> allies;
 
-	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
+	// this keeps track of historical relations -- long peace increases this, long war decreases this
+	public Array<Integer> warEffects; // negative if war, positive if peace, etc
+	//	public Array<Faction> allied;
+
+	public ObjectLabel label;
+	public ObjectLabel label2;
+
+	//	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
 	private boolean hasChecked;
 
 	public int faction_center_x; // only used when initializing map to keep factions close together
 	public int faction_center_y; 
-	
+
 	private final int NOBLE_COUNT = 5; //TODO
 
 	//	private static Array<Array<Integer>> factionMilitaryAction; // is this worth it?
@@ -76,7 +116,7 @@ public class Faction {
 	//	private static Array<Array<Integer>> factionTrade;
 
 	public Faction() {}
-	
+
 	public Faction(Kingdom kingdom, String name, String textureRegion, Color color) {
 		this.textureName = textureRegion;
 		this.kingdom = kingdom;
@@ -94,97 +134,188 @@ public class Faction {
 		closeEnemyCities = new Array<City>();
 		closeEnemyCastles = new Array<Castle>();
 		closeEnemyVillages = new Array<Village>();
-		closeFriendlyLocations = new Array<Location>();
+		closeFriendlyCities = new Array<City>();
+		closeFriendlyCastles = new Array<Castle>();
+
 		locationsToAttack = new Array<Location>();
-		timeSinceIncrease = 0;
 		faction_center_x = 0;
 		faction_center_y = 0;
+
+		atWar = new Array<Faction>();
+		atPeace = new Array<Faction>();
+		allies = new Array<Faction>();
 	}
 
-	public void removeFaction(Faction faction) {
+	public void initializeRelations() {
+		//		System.out.println(this.name + " initializing relations");
+		warEffects = new Array<Integer>();
+
+		for (Faction f : kingdom.factions) {
+			//			System.out.println("adding war effect " + f.name);
+			warEffects.insert(f.index, 0);
+		}
+
+		for (Faction f : kingdom.factions) {
+			//			System.out.println("declaring peace " + f.name);
+			//			if (!this.atPeace(f))
+			if (f == this) continue;
+			this.declarePeace(f);
+			if (Math.random() < 0.5)
+				this.declareWar(f);
+		}
+
+		//		if (index >= 1) {
+		//			if (!this.atWar(BANDITS_FACTION) && this != BANDITS_FACTION)
+		//				declareWar(BANDITS_FACTION);
+		//		}
+
+		if (this == BANDITS_FACTION) this.goRogue();
+		if (this == ROGUE_FACTION) this.goRogue();
+	}
+
+	public void removeOther(Faction faction) {
 		kingdom.factions.removeValue(faction, true);
+		atWar.removeValue(faction, true);
+		atPeace.removeValue(faction, true);
+
+		//		allied.removeValue(faction, true);
+		//		for (int i = 0; i < kingdom.factions.size; i++) {
+		//			//			factionRelations[faction.index][i] = -999; // 'deletes' faction relations
+		//			//			factionRelations[i][faction.index] = -999;
+		////			kingdom.factions.get(i).
+		////			kingdom.factionRelations.get(i).set(faction.index, null);
+		////			kingdom.factionRelations.get(faction.index).set(i, null);
+		//		}
+	}
+
+	public void removeFaction() {
 		for (int i = 0; i < kingdom.factions.size; i++) {
-			//			factionRelations[faction.index][i] = -999; // 'deletes' faction relations
-			//			factionRelations[i][faction.index] = -999;
-			kingdom.factionRelations.get(i).set(faction.index, null);
-			kingdom.factionRelations.get(faction.index).set(i, null);
+			kingdom.factions.get(i).removeOther(this);
 		}
 	}
 
 	public void act(float delta) {
-		timeSinceIncrease += delta;
+		//		timeSinceIncrease += delta;
 
 		//		if (this == PLAYER_FACTION)
 		//			System.out.println(this.name + " " + BANDITS_FACTION.name + getRelations(this, BANDITS_FACTION));
 
-		if (timeSinceIncrease >= INCREASE_INTERVAL) {
-			//			System.out.println(timeSinceIncrease);
-			for (Faction f : kingdom.factions)
-				kingdom.changeRelation(this, f, 0); // factor to increase relations by
-			timeSinceIncrease = 0;
-		}
+		//		if (timeSinceIncrease >= INCREASE_INTERVAL) {
+		//			//			System.out.println(timeSinceIncrease);
+		//			for (Faction f : kingdom.factions)
+		//				kingdom.changeRelation(this, f, 0); // factor to increase relations by
+		//			timeSinceIncrease = 0;
+		//		}
 
-		if (this != PLAYER_FACTION) autoManage(delta);
+		if (this != ROGUE_FACTION) autoManage(delta);
 	}
 
 	public void autoManage(float delta) {
 		// send armies to capture/raid enemy cities/castles/villages
 		// negotiate diplomacy, declare war/peace
 		// that's it for now :D
-		if (kingdom.getTotalHour() % CHECK_FREQ == 0 && !hasChecked) {
+		// Check once per day
+		if (kingdom.getTotalHour() % FACTION_UPDATE_FREQ == 0 && !hasChecked) {
+			if (this != Faction.BANDITS_FACTION && this != Faction.ROGUE_FACTION)
+				manageDiplomacy();
 			manageNobles();
 			hasChecked = true;
 		}
-		else if (kingdom.getTotalHour() % CHECK_FREQ != 0) hasChecked = false;
+		else if (kingdom.getTotalHour() % FACTION_UPDATE_FREQ != 0) hasChecked = false;
 	}
-	
+
 	public boolean hasNewCenter() {
 		return (this.faction_center_x != 0 || this.faction_center_y != 0);
 	}
-	
+
 	// reallocate nobles from this city if it's taken by an enemy
 	public void allocateNoblesFrom(City city) {
 		for (Noble noble : city.nobles) {
 			if (this.cities.size == 0) noble.destroy(); // kill noble for now
-			else this.getRandomCity().addNoble(noble);
+			else {
+				City newCity = this.getRandomCity();
+				if (!newCity.nobles.contains(noble, true)) newCity.addNoble(noble);
+			}
 		}
 	}
-	
+
 	// create new nobles for this city
 	public void allocateNoblesFor(City city) {
 		assert(this.cities.contains(city, true));
 		this.createNobleAt(city);
 		// new noble created everytime a city is captured... but also nobles will die when they lose big battles
 	}
-	
+
 	public void manageNobles() {
 		// if a city doesn't have a noble, create a baron or earl
 		// when a noble is upgraded to the next level (later, if a city is upgraded) add a fresh noob to replace them.
-		
-//		while (nobles.size < NOBLE_COUNT && cities.size >= 1) {
-//			createNobleAt(cities.random());
-//		}
+
+		//		while (nobles.size < NOBLE_COUNT && cities.size >= 1) {
+		//			createNobleAt(cities.random());
+		//		}
 		manageSieges();
 
 		// figure out whether or not to organize a siege or something!
 	}
+
+	public void manageDiplomacy() {
+		for (Faction that : this.atWar) {
+			if (Math.random() < PEACE_PROBABILITY && 
+					that != Faction.BANDITS_FACTION &&
+					this != Faction.BANDITS_FACTION &&
+					that != Faction.ROGUE_FACTION &&
+					this != Faction.ROGUE_FACTION) {
+				this.declarePeace(that);
+				return;
+			}
+		}
+		for (Faction that : this.atPeace) {
+			if (Math.random() < WAR_PROBABILITY  && 
+					that != Faction.BANDITS_FACTION &&
+					this != Faction.BANDITS_FACTION &&
+					that != Faction.ROGUE_FACTION &&
+					this != Faction.ROGUE_FACTION) {
+				this.declareWar(that);
+				return;
+			}
+		}
+	}
+
 	public void manageSieges() {
 		for (Location l : locationsToAttack) {
 			if (l.getFaction() == this) cancelSiegeOf(l);
 		}
-		
-		if (locationsToAttack.size < 1 && unoccupiedNobles.size > 1 && closeEnemyCities.size > 1) {
+
+		if (locationsToAttack.size < 1 && unoccupiedNobles.size > 1 && (closeEnemyCities.size > 0 || closeEnemyCastles.size > 0)) {
 			Location randomLocation;
-			if (Math.random() < .5) randomLocation = closeEnemyCities.random();
-			else randomLocation = closeEnemyCastles.random();
+			if (Math.random() < .5 && closeEnemyCities.size > 0) randomLocation = closeEnemyCities.random();
+			else if (closeEnemyCastles.size > 0) randomLocation = closeEnemyCastles.random();
+			else return;
+
 			if (randomLocation == null || randomLocation.getFaction() == this) return;
-			
+
 			if (randomLocation.underSiege()) return;
 			// check that no other factions are besieging it
 			for (Faction f : kingdom.factions) {
 				if (f.locationsToAttack.contains(randomLocation, true)) return;
 			}
 			orderSiegeOf(randomLocation);
+		}
+		else {
+			System.out.println(this.name);
+			System.out.println("locations to attack: " + locationsToAttack.size);
+			System.out.println("locations to attack:");
+			for (Location l : locationsToAttack) {
+				System.out.println(l.getName());
+			}
+			System.out.println("unoccupied nobles: " + unoccupiedNobles.size);
+			System.out.println("total nobles: " + this.nobles.size);
+			System.out.println("noble special tasks:");
+			for (Noble n : nobles) {
+				if (n.specialTarget != null)
+					System.out.println(n.getName() + ": " + n.specialTarget.getName());
+			}
+			System.out.println("Close enemy locations: " + (closeEnemyCities.size + closeEnemyCastles.size));
 		}
 		//		if (nobles.size > 1 && closeEnemyCities.size > 1) {
 		//			Noble random = nobles.random();
@@ -215,7 +346,7 @@ public class Faction {
 			}
 		}
 	}
-	
+
 	public void setTask(Noble noble, Location location) {
 		noble.setSpecialTarget(location);
 		this.unoccupiedNobles.removeValue(noble, true);
@@ -240,170 +371,346 @@ public class Faction {
 		this.nobles.removeValue(noble, true);
 		if (unoccupiedNobles.contains(noble, true)) unoccupiedNobles.removeValue(noble, true);
 	}
-	
+
 	public void restoreCrest() {
 		this.crest = Assets.atlas.findRegion(textureName);
 	}
-	
+
 	/** First updates each city's lists of close friendly and 
 	 *  hostile cities, then updates this faction's lists based on 
 	 *  that list */
 	public void initializeCloseLocations() {
-//		System.out.println(this.name + " initializing cities: ");
+		//		System.out.println(this.name + " initializing cities: ");
 		this.closeEnemyCities.clear();
 		this.closeEnemyCastles.clear();
 		// find hostile locations near cities
 		for (City c: cities) {
-//			System.out.println("  close to " + c.getName() + ":");
+			//			System.out.println("  close to " + c.getName() + ":");
 			c.findCloseLocations();
-//			System.out.println("  f  " + c.closestEnemyCities.size);
+			//			System.out.println("  f  " + c.closestEnemyCities.size);
 			for (City hostileCity : c.closestEnemyCities) {
 				if (!closeEnemyCities.contains((City) hostileCity, true)) {
-//					System.out.println("    " + hostileCity.getName());
+					//					System.out.println("    " + hostileCity.getName());
 					closeEnemyCities.add((City) hostileCity);
 				}
 			}
 			for (Castle hostileCastle : c.closestEnemyCastles) {
 				if (!closeEnemyCastles.contains((Castle) hostileCastle, true)) {
-//					System.out.println("    " + hostileCastle.getName());
+					//					System.out.println("    " + hostileCastle.getName());
 					closeEnemyCastles.add((Castle) hostileCastle);
+				}
+			}
+
+			for (City friendlyCity : c.closestFriendlyCities) {
+				if (!closeFriendlyCities.contains((City) friendlyCity, true)) {
+					//					System.out.println("    " + hostileCity.getName());
+					closeFriendlyCities.add((City) friendlyCity);
+				}
+			}
+			for (Castle friendlyCastle : c.closestFriendlyCastles) {
+				if (!closeFriendlyCastles.contains((Castle) friendlyCastle, true)) {
+					//					System.out.println("    " + hostileCastle.getName());
+					closeFriendlyCastles.add((Castle) friendlyCastle);
 				}
 			}
 		}
 		// find hostile locations near castles
 		for (Castle c: castles) {
-//			System.out.println("  close to " + c.getName() + ":");
+			//			System.out.println("  close to " + c.getName() + ":");
 			c.findCloseLocations();
-//			System.out.println("  f  " + c.closestEnemyCities.size);
+			//			System.out.println("  f  " + c.closestEnemyCities.size);
 			for (City hostile : c.closestEnemyCities) {
 				if (!closeEnemyCities.contains((City) hostile, true)) {
-//					System.out.println("    " + hostile.getName());
+					//					System.out.println("    " + hostile.getName());
 					closeEnemyCities.add((City) hostile);
 				}
 			}
 			for (Castle hostile : c.closestEnemyCastles) {
 				if (!closeEnemyCastles.contains((Castle) hostile, true)) {
-//					System.out.println("    " + hostile.getName());
+					//					System.out.println("    " + hostile.getName());
 					closeEnemyCastles.add((Castle) hostile);
+				}
+			}
+			for (City friendlyCity : c.closestFriendlyCities) {
+				if (!closeFriendlyCities.contains((City) friendlyCity, true)) {
+					//					System.out.println("    " + hostileCity.getName());
+					closeFriendlyCities.add((City) friendlyCity);
+				}
+			}
+			for (Castle friendlyCastle : c.closestFriendlyCastles) {
+				if (!closeFriendlyCastles.contains((Castle) friendlyCastle, true)) {
+					//					System.out.println("    " + hostileCastle.getName());
+					closeFriendlyCastles.add((Castle) friendlyCastle);
 				}
 			}
 		}
 	}	
-	
+
 	/** First updates each city's lists of close friendly and 
 	 *  hostile cities, then updates this faction's lists based on 
 	 *  that list
 	 *  TODO review this process and make sure it works */
 	public void updateCloseLocations() {
-		System.out.println(this.name + " updating cities: ");
+		//		System.out.println(this.name + " updating cities: ");
 		this.closeEnemyCities.clear();
 		this.closeEnemyCastles.clear();
 		// find hostile locations near cities
 		for (City c: cities) {
-			System.out.println("  close to " + c.getName() + ":");
+			//			System.out.println("  close to " + c.getName() + ":");
 			c.updateCloseLocations();
-			System.out.println("  f  " + c.closestEnemyCities.size);
+			//			System.out.println("  f  " + c.closestEnemyCities.size);
 			for (City hostileCity : c.closestEnemyCities) {
 				if (!closeEnemyCities.contains((City) hostileCity, true)) {
-					System.out.println("    " + hostileCity.getName());
+					//					System.out.println("    " + hostileCity.getName());
 					closeEnemyCities.add((City) hostileCity);
 				}
 			}
 			for (Castle hostileCastle : c.closestEnemyCastles) {
 				if (!closeEnemyCastles.contains((Castle) hostileCastle, true)) {
-					System.out.println("    " + hostileCastle.getName());
+					//					System.out.println("    " + hostileCastle.getName());
+					closeEnemyCastles.add((Castle) hostileCastle);
+				}
+			}
+
+			// friendly
+			for (City friendlyCity : c.closestFriendlyCities) {
+				if (!closeFriendlyCities.contains((City) friendlyCity, true)) {
+					//					System.out.println("    " + friendlyCity.getName());
+					closeEnemyCities.add((City) friendlyCity);
+				}
+			}
+			for (Castle hostileCastle : c.closestEnemyCastles) {
+				if (!closeEnemyCastles.contains((Castle) hostileCastle, true)) {
+					//					System.out.println("    " + hostileCastle.getName());
 					closeEnemyCastles.add((Castle) hostileCastle);
 				}
 			}
 		}
 		// find hostile locations near castles
 		for (Castle c: castles) {
-			System.out.println("  close to " + c.getName() + ":");
+			//			System.out.println("  close to " + c.getName() + ":");
 			c.updateCloseLocations();
-			System.out.println("  f  " + c.closestEnemyCities.size);
+			//			System.out.println("  f  " + c.closestEnemyCities.size);
 			for (City hostile : c.closestEnemyCities) {
 				if (!closeEnemyCities.contains((City) hostile, true)) {
-					System.out.println("    " + hostile.getName());
+					//					System.out.println("    " + hostile.getName());
 					closeEnemyCities.add((City) hostile);
 				}
 			}
 			for (Castle hostile : c.closestEnemyCastles) {
 				if (!closeEnemyCastles.contains((Castle) hostile, true)) {
-					System.out.println("    " + hostile.getName());
+					//					System.out.println("    " + hostile.getName());
 					closeEnemyCastles.add((Castle) hostile);
 				}
 			}
 		}
+		updateAllRelations();
 	}	
 
-//	/** First updates each city's lists of close friendly and 
-//	 *  hostile cities, then updates this faction's lists based on 
-//	 *  that list
-//	 *  TODO review this process and make sure it works */
-//	public void updateCloseHostileCities() {
-//		Array<City> tempCloseEnemyCities = new Array<City>();
-//		Array<City> tempCloseFriendlyCities = new Array<City>();
-//		//System.out.println(this.name + ":");
-//
-//
-//		for (City c: cities) {
-//			c.updateCloseLocations();
-//			for (City hostile : c.getClosestHostileLocations()) {
-//				tempCloseEnemyCities.add(hostile);
-//				//this makes factions dislike factions with nearby cities
-//				// compares new array with old array (can be better)
-//				if (!closeEnemyLocations.contains(hostile, true)) {
-//					if (hostile.getFaction() == this) System.out.println("hostile: " + hostile.getName());
-//					changeRelation(this, hostile.getFaction(), -1*CLOSE_CITY_FACTOR);
-//				}	
-//			}
-//			for (City friendly : c.getClosestFriendlyCities()) {
-//				if (friendly.getFaction() != this) {
-//					tempCloseFriendlyCities.add(friendly);
-//					//this makes factions dislike factions with nearby cities
-//					if (!closeFriendlyLocations.contains(friendly, true) && friendly.getFaction().index != this.index) {
-//						//						System.out.println("new friendly city: " + friendly.getName());
-//						changeRelation(this, friendly.getFaction(), -1*CLOSE_CITY_FACTOR);
-//					}	
-//				}
-//			}
-//		}
-//		closeEnemyLocations = new Array<City>(tempCloseEnemyCities);
-//		closeFriendlyLocations = new Array<City>(tempCloseFriendlyCities);
-//	}
+	//	/** First updates each city's lists of close friendly and 
+	//	 *  hostile cities, then updates this faction's lists based on 
+	//	 *  that list
+	//	 *  TODO review this process and make sure it works */
+	//	public void updateCloseHostileCities() {
+	//		Array<City> tempCloseEnemyCities = new Array<City>();
+	//		Array<City> tempCloseFriendlyCities = new Array<City>();
+	//		//System.out.println(this.name + ":");
+	//
+	//
+	//		for (City c: cities) {
+	//			c.updateCloseLocations();
+	//			for (City hostile : c.getClosestHostileLocations()) {
+	//				tempCloseEnemyCities.add(hostile);
+	//				//this makes factions dislike factions with nearby cities
+	//				// compares new array with old array (can be better)
+	//				if (!closeEnemyLocations.contains(hostile, true)) {
+	//					if (hostile.getFaction() == this) System.out.println("hostile: " + hostile.getName());
+	//					changeRelation(this, hostile.getFaction(), -1*CLOSE_CITY_FACTOR);
+	//				}	
+	//			}
+	//			for (City friendly : c.getClosestFriendlyCities()) {
+	//				if (friendly.getFaction() != this) {
+	//					tempCloseFriendlyCities.add(friendly);
+	//					//this makes factions dislike factions with nearby cities
+	//					if (!closeFriendlyLocations.contains(friendly, true) && friendly.getFaction().index != this.index) {
+	//						//						System.out.println("new friendly city: " + friendly.getName());
+	//						changeRelation(this, friendly.getFaction(), -1*CLOSE_CITY_FACTOR);
+	//					}	
+	//				}
+	//			}
+	//		}
+	//		closeEnemyLocations = new Array<City>(tempCloseEnemyCities);
+	//		closeFriendlyLocations = new Array<City>(tempCloseFriendlyCities);
+	//	}
 
-//	/** Calculates negative effect of close cities on the relations
-//	 *  between two factions
-//	 * 
-//	 * @param that
-//	 * @return effect on relations
-//	 */
-//	public int getCloseCityEffect(Faction that) {
-//		if (this.index == that.index) return 0;
-//		int totalEffect = 0;
-//		if (isAtWar(this, that)) {
-//			for (City c : closeEnemyLocations)
-//				if (c.getFaction() == that)	totalEffect += -1*CLOSE_CITY_FACTOR;
-//		}
-//		else {
-//			for (City c : closeFriendlyLocations)
-//				if (c.getFaction() == that) totalEffect += -1*CLOSE_CITY_FACTOR;
-//		}
-//		return totalEffect;
-//	}
+	//	/** Calculates negative effect of close cities on the relations
+	//	 *  between two factions
+	//	 * 
+	//	 * @param that
+	//	 * @return effect on relations
+	//	 */
+	public int getCloseCityEffect(Faction that) {
+		if (this.index == that.index) return 0;
+		int totalEffect = 0;
+		if (atWar(that)) {
+			for (City c : closeEnemyCities)
+				if (c.getFaction() == that)	totalEffect += -1*CLOSE_CITY_FACTOR;
+			for (Castle c : closeEnemyCastles)
+				if (c.getFaction() == that)	totalEffect += -1*CLOSE_CITY_FACTOR;
+		}
+		else {
+			for (City c : closeFriendlyCities)
+				if (c.getFaction() == that) totalEffect += -1*CLOSE_CITY_FACTOR;
+			for (Castle c : closeFriendlyCastles)
+				if (c.getFaction() == that) totalEffect += -1*CLOSE_CITY_FACTOR;
 
-	public int getRelationsWith(Faction that) {
-		return kingdom.getRelations(this, that);
+			//			for (Castle c : closeEnemyCastles)
+			//				if (c.getFaction() == that)	totalEffect += -1*CLOSE_CITY_FACTOR;
+		}
+		return totalEffect;
+	}
+
+	//	public int getRelationsWith(Faction that) {
+	//		return kingdom.getRelations(this, that);
+	//	}
+
+	// this isn't stored, but calculated on demand
+	public int calcRelations(Faction that) {
+		/* 		nearby cities/troops (negative)
+		 * 
+		 * 		// "war effects":
+		 * 		long-term peace (positive)
+		 * 		past wars (negative)
+		 * 
+		 * 		current wars (negative) 
+		 * 		alliance (positive)
+		 */
+		if (that == null) return 0;
+		//		if (this.warEffects == null) System.out.println("war effects are null for " + this.name);
+		int warEffect = 0;
+		if (this.atWar(that)) warEffect = STATIC_WAR_EFFECT;
+		if (this.atPeace(that)) warEffect = STATIC_PEACE_EFFECT;
+		int relation = warEffect + getAllianceBonus(that) - getWarBonus(that) + this.getCloseCityEffect(that);
+		//		int relation = this.warEffects.get(that.index) + getAllianceBonus(that) - getWarBonus(that) + this.getCloseCityEffect(that);
+
+		if (this.atWar(that) && relation >= PEACE_THRESHOLD) {
+			this.declarePeace(that);
+		}
+
+		return relation;
+	}
+
+	public void updateAllRelations() {
+		for (int i = 0; i < kingdom.factions.size; i++) {
+			if (kingdom.factions.get(i) != null) {
+				this.calcRelations(kingdom.factions.get(i));
+			}
+			else {
+				System.out.println("Faction " + i + " doesn't exist");
+			}
+		}
+	}
+
+	public int getWarBonus(Faction that) {
+		if (this.atWar(that)) return WAR_BONUS;
+		return 0;
+	}
+
+	public int getAllianceBonus(Faction that) {
+		if (this.alliedWith(that)) return ALLIANCE_BONUS;
+		return 0;
+	}
+
+	// change daily
+	//	public void updateWarEffects() {
+	//		for (Faction f : kingdom.factions) {
+	//			int currentEffect = this.warEffects.get(f.index);
+	//			if (f.atWar(this))
+	//				this.warEffects.insert(f.index, currentEffect - DAILY_WAR_EFFECT);
+	//			else if (f.atPeace(this))
+	//				this.warEffects.insert(f.index, currentEffect + DAILY_PEACE_EFFECT);
+	//		}
+	//		updateAllRelations();
+	//	}
+
+	public boolean atWar(Faction that) {
+		if (this.atWar.contains(that, true) != that.atWar.contains(this,  true)) {
+			System.out.println(this.name + " and " + that.name + " don't have the same war status");
+			throw new java.lang.RuntimeException();
+		}
+		return this.atWar.contains(that, true);
+	}
+
+	public boolean alliedWith(Faction that) {
+		return this.allies.contains(that, true);
+	}
+
+	public boolean atPeace(Faction that) {
+		if (this.atPeace.contains(that, true) != that.atPeace.contains(this,  true)) {
+			System.out.println(this.name + " and " + that.name + " don't have the same peace status");
+			throw new java.lang.RuntimeException();
+		}
+		return this.atPeace.contains(that, true);
 	}
 
 	public void declareWar(Faction that) {
-		if (!kingdom.isAtWar(this,  that))
-			kingdom.declareWar(this, that);
+		//		if (!kingdom.isAtWar(this,  that))
+		//			kingdom.declareWar(this, that);
+		if (this.atWar.contains(that, true)) {
+			System.out.println(this.name + " ALREADY AT WAR with " + that.name);
+			throw new java.lang.RuntimeException();
+		}
+		if (!this.atPeace.contains(that, true)) {
+			System.out.println(this.name + " is not at peace with " + that.name);
+			throw new java.lang.RuntimeException();
+		}
+
+		if (!this.atWar.contains(that, true))
+			this.atWar.add(that);
+		if (!that.atWar.contains(this, true))
+			that.atWar.add(this);
+
+		//		if (!this.atPeace.removeValue(that, true)) throw new java.lang.RuntimeException();
+		//		if (!that.atPeace.removeValue(this, true)) throw new java.lang.RuntimeException();
+
+		while (this.atPeace.contains(that, true)) {
+			if (!this.atPeace.removeValue(that, true)) throw new java.lang.RuntimeException();
+		}
+
+		while (that.atPeace.contains(this, true)) {
+			if (!that.atPeace.removeValue(this, true)) throw new java.lang.RuntimeException();
+		}
+
+		if (that.atPeace.contains(this, true)) throw new java.lang.RuntimeException();
+		if (this.atPeace.contains(that, true)) throw new java.lang.RuntimeException();
+
+		if (Faction.initialized)
+			BottomPanel.log(this.name + " and " + that.name + " have declared war!");
+	}
+
+	public void declarePeace(Faction that) {
+		if (this.atPeace.contains(that, true)) {
+			System.out.println(this.name + " ALREADY AT PEACE with " + that.name);
+		}
+		//		if (!this.atWar.contains(that, true)) {
+		//			System.out.println(this.name + " is not at war with " + that.name);
+		//		}
+
+		this.atWar.removeValue(that, true);
+		that.atWar.removeValue(this, true);
+		this.atPeace.add(that);
+		that.atPeace.add(this);
+
+		if (Faction.initialized)
+			BottomPanel.log(this.name + " and " + that.name + " have signed a peace agreement!");
 	}
 
 	public void goRogue() { // just for testing, declares war on all factions other than this one
 		for (int i = 0; i < kingdom.factions.size; i++)
-			if (i != index) kingdom.declareWar(this, kingdom.factions.get(i));
+			if (i != index) {
+				if (this.atPeace(kingdom.factions.get(i)))
+					kingdom.factions.get(i).declareWar(this);
+			}
 	}
 
 	public int getTotalWealth() {

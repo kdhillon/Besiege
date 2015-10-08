@@ -8,7 +8,7 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.utils.Array;
 
 public enum Equipment {
-	WOOD_SHIELD ("Wood Shield", Type.SHIELD, 0, 1, -1, 12),
+	WOOD_SHIELD ("Wood Shield", Type.SHIELD, 0, 1, -1, 15),
 	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 20),
 	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
 	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 10),
@@ -40,34 +40,64 @@ public enum Equipment {
 	}
 	
 	
-	// returns an array containing the basic equipment for a particular soldier
-	public static Array<Equipment> getBaseEquipment(Weapon weapon) {
+//	// returns an array containing the basic equipment for a particular soldier
+//	public static Array<Equipment> getBaseEquipment(OldWeapon oldWeapon) {
+//		Array<Equipment> equip = new Array<Equipment>();
+//		
+//		// add shields
+////		if (weapon.oneHand && weapon != Weapon.SHORTBOW) equip.add(IRON_SHIELD);
+//		
+//		// add horse
+//		switch (oldWeapon) {
+//		case CAVALRY_SPEAR :
+//			equip.add(WORK_HORSE);
+//			break;
+//		case CAVALRY_AXE :
+//			equip.add(WORK_HORSE);
+//			break;
+//		case CAVALRY_PICK :
+//			equip.add(WORK_HORSE);
+//			break;
+//		case LANCE :
+//			equip.add(WAR_HORSE);
+//			break;
+//		case ARMING_SWORD :
+//			equip.add(WAR_HORSE);
+//			break;
+//		case FLAIL :
+//			equip.add(WAR_HORSE);
+//			break;
+//		}
+//		return equip;
+//	}
+	
+	public static Array<Equipment> getBaseEquipment(UnitType type) {
 		Array<Equipment> equip = new Array<Equipment>();
 		
 		// add shields
 //		if (weapon.oneHand && weapon != Weapon.SHORTBOW) equip.add(IRON_SHIELD);
 		
 		// add horse
-		switch (weapon) {
-		case CAVALRY_SPEAR :
-			equip.add(WORK_HORSE);
-			break;
-		case CAVALRY_AXE :
-			equip.add(WORK_HORSE);
-			break;
-		case CAVALRY_PICK :
-			equip.add(WORK_HORSE);
-			break;
-		case LANCE :
-			equip.add(WAR_HORSE);
-			break;
-		case ARMING_SWORD :
-			equip.add(WAR_HORSE);
-			break;
-		case FLAIL :
-			equip.add(WAR_HORSE);
-			break;
-		}
+//		switch (weapon) {
+//		case CAVALRY_SPEAR :
+//			equip.add(WORK_HORSE);
+//			break;
+//		case CAVALRY_AXE :
+//			equip.add(WORK_HORSE);
+//			break;
+//		case CAVALRY_PICK :
+//			equip.add(WORK_HORSE);
+//			break;
+//		case LANCE :
+//			equip.add(WAR_HORSE);
+//			break;
+//		case ARMING_SWORD :
+//			equip.add(WAR_HORSE);
+//			break;
+//		case FLAIL :
+//			equip.add(WAR_HORSE);
+//			break;
+//		}
 		return equip;
 	}
 }

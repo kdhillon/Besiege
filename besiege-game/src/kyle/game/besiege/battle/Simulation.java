@@ -3,6 +3,9 @@ package kyle.game.besiege.battle;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
 import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
+import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.title.MainMenuScreen;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -40,11 +43,13 @@ public class Simulation extends Game {
 		Texture.setEnforcePotImages(false);
 		
 		Assets.load();
-		mapScreen = new MapScreen(true);
+		// don't generate a new kingdom
+		mapScreen = new MapScreen();
 		
 //		mapScreen.resize(width, height);
 		// create fake battlestage
-		bs = new BattleStage(mapScreen, null, null, false, null); 
+		bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.TEST, UnitLoader.classTypes.get("Basic")), 
+										PartyType.getPartyType(Type.TEST, UnitLoader.classTypes.get("Basic"))); 
 		mapScreen.switchToBattleView(bs);
 		
 //		mapTest = new MapTest();

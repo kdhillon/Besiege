@@ -11,6 +11,7 @@ import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
 
 
 public class Merchant extends Army {
@@ -26,7 +27,7 @@ public class Merchant extends Army {
 	
 	public Merchant(Kingdom kingdom,
 			City defaultTarget, City goal) {
-		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), PartyType.MERCHANT);
+		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.MERCHANT);
 		this.setTextureRegion(textureRegion);
 		this.type = ArmyType.MERCHANT;
 		this.passive = true;
@@ -79,12 +80,17 @@ public class Merchant extends Army {
 	@Override
 	public void wait(float delta) {
 		if (getKingdom().clock() >= getWaitUntil()) {
+			super.wait(delta);
 			if (isGarrisonedIn(goal)) {
 				deposit();
 			}
-			setWaiting(false);
-			setWaitUntil(0);
-			setForceWait(false);
+//			else {
+//				this
+//			}
+//			System.out.println(this.getName() + " is done waiting");
+//			setWaiting(false);
+////			setWaitUntil(0);
+//			setForceWait(false);
 		}
 	}
 	

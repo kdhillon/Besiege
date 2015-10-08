@@ -8,11 +8,10 @@ package kyle.game.besiege.panels;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
-import kyle.game.besiege.party.Weapon;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -41,7 +40,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 	private final String tablePatch = "grey-d9";
 	private SidePanel panel;
 	private Location location;
-	private Party toHire;
+//	private Party toHire;
 	
 	private Table text;
 	private Label title;
@@ -220,6 +219,8 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		this.addTopTable(text);
 		this.setButton(2, "Hire All");
 		this.setButton(4, "Back");
+		
+		updateSoldierTable();
 	}
 
 	@Override
@@ -227,18 +228,22 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		playerWealth.setText("" + panel.getKingdom().getPlayer().getParty().wealth);
 		playerParty.setText("" + panel.getKingdom().getPlayer().getPartyInfo());
 
-		updateSoldierTable();
+		if (location.getToHire() != null && location.getToHire().getHealthySize() == 0) getButton(2).setDisabled(true);
+		else getButton(2).setDisabled(false);
+		
 		super.act(delta);
 	}
 	
 	public void updateSoldierTable() {
-		toHire = location.getToHire();
 		soldierTable.clear();
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
 		soldierTable.add().colspan(2).width(SidePanel.WIDTH - PAD*2).padTop(0);
 		soldierTable.row();
-		for (Soldier s : toHire.getHealthy()) {
+//		System.out.println(location.getName());
+		if (location.getToHire() == null) return;
+		for (Soldier s : location.getToHire().getHealthy()) {
 			SoldierLabel name = new SoldierLabel(s.getName(), ls, s);
+			if (selected == s) name.setColor(Color.YELLOW);
 			name.addListener(new ClickListener() {
 				@Override
 				public boolean touchDown(InputEvent event, float x,
@@ -248,6 +253,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 				public void touchUp(InputEvent event, float x, float y,
 						int pointer, int button) {
 					select(((SoldierLabel) event.getTarget()).soldier);
+//					((SoldierLabel) event.getTarget()).setColor(Color.YELLOW);
 				}
 			});
 			soldierTable.add(name).left();
@@ -256,7 +262,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 			soldierTable.add().right();
 			soldierTable.row();
 		}
-		if (toHire.getHealthySize() == 0) {
+		if (location.getToHire().getHealthySize() == 0) {
 			Label none = new Label("No troops available for hire", ls);
 			none.setWrap(true);
 			none.setAlignment(0,0);
@@ -286,16 +292,21 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
 		else 
 			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
-		weaponS.setText(s.weapon.name);
+		weaponS.setText(s.unitType.melee.name);
+		equipmentS.setText(s.unitType.armor.name);
+
 		hireLabel.soldier = s;
 		int cost = s.getBuyCost();
 //		int cost = (int) (s.level*COST_FACTOR);
 		hireLabel.setText("Hire " + s.getName() + " (" + cost + ")");
+		
+		updateSoldierTable();
 	}
 
 	public void deselect() {
 		this.selected = null;
 		stats.setVisible(false);
+		updateSoldierTable();
 	} 
 	
 	public void hireSelected() {
@@ -305,6 +316,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 			deselect();
 		}
 		else BottomPanel.log("Can't afford " + selected.getName());
+		updateSoldierTable();
 	}
 	
 	public void hireAll() { //Fixed iterator problem
@@ -321,6 +333,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 				break;
 			}
 		}
+		updateSoldierTable();
 	}
 	
 	@Override
@@ -352,6 +365,13 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 	}
 	@Override
 	public TextureRegion getCrest() {
-		return location.getFaction().crest;
+		if (selected == null)
+			return location.getFaction().crest;
+		else return null;
+	}
+	@Override
+	public Soldier getSoldierInsteadOfCrest() {
+		if (selected != null) return selected;
+		return null;
 	}
 }

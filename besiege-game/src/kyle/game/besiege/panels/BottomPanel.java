@@ -21,6 +21,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 public class BottomPanel extends Group {
+	private static final Color RED = new Color(230/255f, 0, 15/255f, 1);
+	private static final Color ORANGE = new Color(1, 60/255f, 0, 1);
+	private static final Color BLUE = new Color(0, 70/255f, 1, 1);
+	private static final Color PURPLE = new Color(168/255f, 0, 1, 1);
 	public static final int HEIGHT = 80;
 	public final float PAD = 4;
 	public final float NEG = -4;
@@ -97,8 +101,8 @@ public class BottomPanel extends Group {
 	public void act(float delta) {
 		this.setX(0);
 		// if resized
-		if (this.getWidth() != panel.getKingdom().getMapScreen().getCamera().viewportWidth - SidePanel.WIDTH) {
-			this.setWidth(panel.getKingdom().getMapScreen().getCamera().viewportWidth - SidePanel.WIDTH);
+		if (this.getWidth() != panel.getMapScreen().getCamera().viewportWidth - SidePanel.WIDTH) {
+			this.setWidth(panel.getMapScreen().getCamera().viewportWidth - SidePanel.WIDTH);
 			resize();
 		}
 		this.setX(-this.getWidth());
@@ -126,9 +130,9 @@ public class BottomPanel extends Group {
 	public static void log(String text, String color) {
 		Color fontColor;
 		if (color == "red")
-			fontColor = new Color(230/255f, 0, 15/255f, 1);
+			fontColor = RED;
 		else if (color == "orange")
-			fontColor = new Color(1, 60/255f, 0, 1);
+			fontColor = ORANGE;
 		else if (color == "yellow")
 			fontColor = Color.YELLOW;
 		else if (color == "cyan")
@@ -140,14 +144,15 @@ public class BottomPanel extends Group {
 		else if (color == "green")
 			fontColor = Color.GREEN;
 		else if (color == "blue")
-			fontColor = new Color(0, 70/255f, 1, 1);
+			fontColor = BLUE;
 		else if (color == "purple")
-			fontColor = new Color(168/255f, 0, 1, 1);
+			fontColor = PURPLE;
 		else fontColor = Color.WHITE;
 
+		// We do need a new LS for every color.
 		LabelStyle lsNew = new LabelStyle(ls);
 		lsNew.fontColor = fontColor;
-		Label temp = new Label(text,lsNew); // Memory leak, should change to have 4 or 5 fixed colors so new one is not created everytime.
+		Label temp = new Label(text,lsNew); // Minor memory leak, should change to have 4 or 5 fixed colors so new one is not created everytime.
 		logTable.row();
 		logTable.add(temp);
 		logging = 0;

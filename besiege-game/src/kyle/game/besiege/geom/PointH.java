@@ -14,11 +14,18 @@ public class PointH {
    public static double distance(PointH _coord, PointH _coord0) {
         return Math.sqrt((_coord.x - _coord0.x) * (_coord.x - _coord0.x) + (_coord.y - _coord0.y) * (_coord.y - _coord0.y));
     }
-    public double x, y;
+    public float x, y;
 
-    public PointH(double x, double y) {
+    // this used to be double but I changed it
+    // for drawing meshes
+    public PointH(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+    
+    public PointH(double x, double y) {
+        this.x = (float) x;
+        this.y = (float) y;
     }
     
     public PointH() {

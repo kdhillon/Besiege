@@ -1,7 +1,7 @@
 package kyle.game.besiege.battle;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.party.RangedWeapon;
+import kyle.game.besiege.party.UnitType;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -23,7 +23,7 @@ public class WeaponDraw extends Actor {
 	private float SHIELD_OFFSET_X = -2;
 	private float SHIELD_OFFSET_Y = 8;
 	private float scale_x = 1.6f;
-	private float scale_y = 2.5f;
+	private float scale_y = 2f;
 	private Unit unit;
 	private int offset_x = 12;
 	private int offset_y = 4;
@@ -31,13 +31,14 @@ public class WeaponDraw extends Actor {
 	private float offset_x_ranged = 14;
 	private float offset_y_ranged = -.5f;
 	private TextureRegion white;
-	private TextureRegion weaponMelee;
-	private TextureRegion weaponRanged;
+	public TextureRegion weaponMelee;
+	public TextureRegion weaponRanged;
 	
 	public Animation horseWalk;
 	public TextureRegion shield;
 //	private Animation hors
-	
+	private Color c = new Color();
+
 	public WeaponDraw(Unit unit) {
 		this.unit = unit;
 		
@@ -57,144 +58,186 @@ public class WeaponDraw extends Actor {
 		}
 	}
 	
+	public static TextureRegion GetMeleeWeaponTextureForUnittype(UnitType unit) {
+		String filename = unit.melee.name;
+		TextureRegion weaponMeleeTexture;
+		weaponMeleeTexture = Assets.weapons.findRegion(filename);
+		
+		// check last word of weapon because yolo
+		if (weaponMeleeTexture == null) {
+			String[] split = filename.split(" ");
+			if (split.length > 0)
+				weaponMeleeTexture = Assets.weapons.findRegion(split[split.length-1]);
+		}
+
+		if (weaponMeleeTexture == null) {			
+			System.out.println("can't find texture for melee weapon: " + filename);
+			weaponMeleeTexture = Assets.weapons.findRegion("Shortsword");			
+		}
+		return weaponMeleeTexture;
+	}
+	
+	public static TextureRegion GetRangedWeaponTextureForUnittype(UnitType unit) {
+		String rangedFilename = unit.ranged.name;
+		TextureRegion weaponRangedTexture = Assets.weapons.findRegion(rangedFilename);	
+		
+		if (weaponRangedTexture == null) {
+			System.out.println("can't find texture for ranged weapon: " + rangedFilename);
+			weaponRangedTexture = Assets.weapons.findRegion("Longbow");
+		}
+		return weaponRangedTexture;
+	}
+	
 	private void mapWeaponTextures() {
 		String filename = "";
 		String rangedFilename = "";
-		switch(unit.weapon) {
-		case PITCHFORK :
-			filename = "pitchfork";
-			break;
-		case MILITARY_FORK : 
-			filename = "militaryfork";
-			break;
-		case SPEAR :
-			filename = "spear";
-			break;
-		case HATCHET :
-			filename = "axe";
-			break;
-		case CLUB :
-			filename = "club";
-			break;
-		case PIKE :
-			filename = "pike";
-			break;
-		case HALBERD :
-			filename = "halberd";
-			break;
-		case LONGSWORD :
-			filename = "longsword";
-			break;
-		case BATTLE_AXE :
-			filename = "battleaxe";
-			break;
-		case SHORTSWORD :
-			filename = "shortsword";
-			break;
-		case WAR_HAMMER :
-			filename = "warhammer";
-			break;
-		case MACE :
-			filename = "mace";
-			break;
-		case CAVALRY_SPEAR :
-			filename = "spear";
-			break;
-		case CAVALRY_AXE :
-			filename = "axe";
-			break;
-		case CAVALRY_PICK :
-			filename = "warhammer";
-			break;
-			
-		case LANCE :
-			filename = "lance";
-			break;
-		case ARMING_SWORD :
-			filename = "shortsword";
-			break;
-		case FLAIL :
-			filename = "morningstar";
-			break;
 		
-		case GUISARME :
-			filename = "guisarme";
-			break;
-		case VOULGE :
-			filename = "voulge";
-			break;
-		case GREATSWORD :
-			filename = "claymore";
-			break;
-		case GLAIVE :
-			filename = "bardiche";
-			break;
-		case FALCHION :
-			filename = "falchion";
-			break;
-		case MAUL :
-			filename = "maul";
-			break;
-		case MORNINGSTAR :
-			filename = "morningstar";
-			break;
-			
-		// ranged
-		case SHORTBOW :
-			filename = "dagger";
-			rangedFilename = "shortbow";
-			break;
-			
-		case CROSSBOW :
-			filename = "dagger";
-			rangedFilename = "crossbow";
-			break;
-		case RECURVE :
-			filename = "dagger";
-			rangedFilename = "recurve";
-			break;
-		case LONGBOW :
-			filename = "dagger";
-			rangedFilename = "longbow";
-			break;
-			
-		case ADV_CROSSBOW :
-			filename = "shortsword";
-			rangedFilename = "crossbow";
-			break;
-		case ADV_RECURVE :
-			filename = "shortsword";
-			rangedFilename = "recurve";
-			break;
-		case ADV_LONGBOW :
-			filename = "shortsword";
-			rangedFilename = "longbow";
-			break;
+		// simplify
+		filename = unit.soldier.unitType.melee.name;
+		
+//		System.out.println(unit.soldier.unitType.name);
+		if (unit.isRanged()) {
+//			if (unit.rangedWeapon == null) syso 
+			this.weaponRanged = GetRangedWeaponTextureForUnittype(unit.soldier.unitType);
 		}
-		
-		if (rangedFilename != "") 
-			this.weaponRanged = Assets.weapons.findRegion(rangedFilename);		
-		this.weaponMelee = Assets.weapons.findRegion(filename);
+
+		this.weaponMelee = GetMeleeWeaponTextureForUnittype(unit.soldier.unitType);
+//		switch(unit.weapon) {
+//		case PITCHFORK :
+//			filename = "pitchfork";
+//			break;
+//		case MILITARY_FORK : 
+//			filename = "militaryfork";
+//			break;
+//		case SPEAR :
+//			filename = "spear";
+//			break;
+//		case HATCHET :
+//			filename = "axe";
+//			break;
+//		case CLUB :
+//			filename = "club";
+//			break;
+//		case PIKE :
+//			filename = "pike";
+//			break;
+//		case HALBERD :
+//			filename = "halberd";
+//			break;
+//		case LONGSWORD :
+//			filename = "longsword";
+//			break;
+//		case BATTLE_AXE :
+//			filename = "battleaxe";
+//			break;
+//		case SHORTSWORD :
+//			filename = "shortsword";
+//			break;
+//		case WAR_HAMMER :
+//			filename = "warhammer";
+//			break;
+//		case MACE :
+//			filename = "mace";
+//			break;
+//		case CAVALRY_SPEAR :
+//			filename = "spear";
+//			break;
+//		case CAVALRY_AXE :
+//			filename = "axe";
+//			break;
+//		case CAVALRY_PICK :
+//			filename = "warhammer";
+//			break;
+//			
+//		case LANCE :
+//			filename = "lance";
+//			break;
+//		case ARMING_SWORD :
+//			filename = "shortsword";
+//			break;
+//		case FLAIL :
+//			filename = "morningstar";
+//			break;
+//		
+//		case GUISARME :
+//			filename = "guisarme";
+//			break;
+//		case VOULGE :
+//			filename = "voulge";
+//			break;
+//		case GREATSWORD :
+//			filename = "claymore";
+//			break;
+//		case GLAIVE :
+//			filename = "bardiche";
+//			break;
+//		case FALCHION :
+//			filename = "falchion";
+//			break;
+//		case MAUL :
+//			filename = "maul";
+//			break;
+//		case MORNINGSTAR :
+//			filename = "morningstar";
+//			break;
+//			
+//		// ranged
+//		case SHORTBOW :
+//			filename = "dagger";
+//			rangedFilename = "shortbow";
+//			break;
+//			
+//		case CROSSBOW :
+//			filename = "dagger";
+//			rangedFilename = "crossbow";
+//			break;
+//		case RECURVE :
+//			filename = "dagger";
+//			rangedFilename = "recurve";
+//			break;
+//		case LONGBOW :
+//			filename = "dagger";
+//			rangedFilename = "longbow";
+//			break;
+//			
+//		case ADV_CROSSBOW :
+//			filename = "shortsword";
+//			rangedFilename = "crossbow";
+//			break;
+//		case ADV_RECURVE :
+//			filename = "shortsword";
+//			rangedFilename = "recurve";
+//			break;
+//		case ADV_LONGBOW :
+//			filename = "shortsword";
+//			rangedFilename = "longbow";
+//			break;
+//		}
 	}
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {	
 		if (!unit.inMap()) return;
+		if (unit.isHidden() && unit.team != 0) return;
 
 		//this.toFront();
 		this.toBack();
-		Color c = new Color(batch.getColor());
+		c.set(batch.getColor());
 		if (unit.team == 0) {
 			if (unit.party == unit.stage.allies.first())
-				batch.setColor(1, 0, 0, .2f); 
+				batch.setColor(1, .3f, .3f, .6f); 
 			else batch.setColor(1, .5f, .5f, .2f);
 		}
-		else batch.setColor(0, 0, 1, .2f);
+		else batch.setColor(.3f, .3f, 1, .6f);
 		
 		// draw white if selected
 		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) batch.setColor(1, 1, 1, .5f);
 		
-		batch.draw(white, 0, 0, unit.stage.scale*unit.stage.unit_width, unit.stage.scale*unit.stage.unit_height);
+		boolean drawTeams = true;
+		
+		if (drawTeams)
+			batch.draw(white, 0, 0, unit.stage.unit_width/2, unit.stage.unit_height/2, unit.stage.unit_width, unit.stage.unit_height, 1, 1, -this.getParent().getRotation());
+//		batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
 		batch.setColor(c);
 		
 		// draw horse
@@ -202,7 +245,7 @@ public class WeaponDraw extends Actor {
 			float time = unit.stateTime;
 			if (!unit.moveSmooth) time = .3f;
 			TextureRegion region = horseWalk.getKeyFrame(time, false);
-			batch.draw(region, HORSE_OFFSET_X*unit.stage.scale, HORSE_OFFSET_Y*unit.stage.scale, region.getRegionWidth()*unit.stage.scale*HORSE_SCALE, region.getRegionHeight()* unit.stage.scale*HORSE_SCALE);
+			batch.draw(region, HORSE_OFFSET_X, HORSE_OFFSET_Y, region.getRegionWidth()*HORSE_SCALE, region.getRegionHeight()* HORSE_SCALE);
 		}
 		
 		// manual offset
@@ -210,13 +253,13 @@ public class WeaponDraw extends Actor {
 		float man_rotation = 0;
 		
 		if (unit.moving) {
-			if (unit.animationWalk.getKeyFrameIndex(unit.stateTime) == 0)
+			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 0)
 				man_offset_y = DEFAULT_OFFSET;
 			else
 				man_offset_y = FIRST_OFFSET;
 		}
 		else if (unit.attacking != null) {
-			if (unit.animationWalk.getKeyFrameIndex(unit.stateTime) == 1) {
+			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1) {
 				man_offset_y = ATTACK_OFFSET;
 				man_rotation = ATTACK_ROTATION;
 			}
@@ -227,8 +270,8 @@ public class WeaponDraw extends Actor {
 		// draw shield
 		if (shield != null && !unit.bowOut()) {
 			float offset_to_use = FIRST_OFFSET;
-			if (unit.animationWalk.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver) offset_to_use = DEFAULT_OFFSET;
-			batch.draw(shield, SHIELD_OFFSET_X*unit.stage.scale, (SHIELD_OFFSET_Y+offset_to_use)*unit.stage.scale, shield.getRegionWidth()*unit.stage.scale*SHIELD_SCALE, shield.getRegionHeight()*unit.stage.scale*SHIELD_SCALE);		
+			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) offset_to_use = DEFAULT_OFFSET;
+			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+offset_to_use), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);		
 		}
 		
 		float offset_x_to_use = offset_x;
@@ -236,13 +279,13 @@ public class WeaponDraw extends Actor {
 		TextureRegion toDraw = weaponMelee;
 		if (unit.bowOut()) {
 			toDraw = weaponRanged;
-			if (unit.rangedWeapon != RangedWeapon.ADV_CROSSBOW  && unit.rangedWeapon != RangedWeapon.CROSSBOW) {
+//			if (unit.rangedWeapon != RangedWeapon.ADV_CROSSBOW  && unit.rangedWeapon != RangedWeapon.CROSSBOW) {
 				offset_x_to_use = offset_x_ranged;
 				offset_y_to_use = offset_y_ranged;
-			}
+//			}
 			// don't draw if firing
 			if (!unit.moveSmooth) return;
 		}
-		batch.draw(toDraw, offset_x_to_use*unit.stage.scale, (offset_y_to_use+man_offset_y/1.5f)*unit.stage.scale, 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), unit.stage.scale*scale_x, unit.stage.scale*scale_y, man_rotation);		
+		batch.draw(toDraw, offset_x_to_use, (offset_y_to_use+man_offset_y/1.5f), 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), scale_x, scale_y, man_rotation);		
 	}
 }

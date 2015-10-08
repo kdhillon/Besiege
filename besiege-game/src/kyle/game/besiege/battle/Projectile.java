@@ -1,6 +1,8 @@
 package kyle.game.besiege.battle;
 
+import kyle.game.besiege.Assets;
 import kyle.game.besiege.battle.Unit.Orientation;
+import kyle.game.besiege.party.RangedWeaponType.Type;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -35,12 +37,13 @@ public class Projectile extends Actor {
 
 	public static final float INITIAL_HEIGHT = .075f;
 	private static final float SIEGE_INITIAL_HEIGHT = .25f;
+	@SuppressWarnings("unused")
 	private static final float SIEGE_TARGET_HEIGHT = .8f;
 	private static final float SPEED_SCALE_SIEGE = .4f; // how much does speed decrease when unit is hit.
 	
 	private static int MAX_BOUNCES = 5;
 	private final float DAMAGE_FACTOR = 5f;
-	private final float STUCK_Y = -4f;
+	private final float STUCK_Y = -6f;
 
 	float BOUNCE_DEPRECIATION = .4f; // can randomize for more fun
 
@@ -59,7 +62,8 @@ public class Projectile extends Actor {
 	public float distanceToTravel;
 
 	public float SPEED = 25f;
-	//		public float speed = 1f; // this is hilarious
+	public float FIREARM_SPEED = 100f;
+//			public float SPEED = 200f; // basically gunfire
 
 	public Vector2 velocity;
 	public float rotation;
@@ -83,8 +87,8 @@ public class Projectile extends Actor {
 
 	// create new arrow with target
 	public Projectile(Unit firing, Unit target) {
-		texture = new TextureRegion(new Texture("objects/arrow.png"));
-		halfArrow = new TextureRegion(new Texture("objects/half_arrow.png"));
+		texture = Assets.map.findRegion("arrow");
+		halfArrow = Assets.map.findRegion("half_arrow");
 		this.firing = firing;
 
 		initializePosition();
@@ -100,6 +104,12 @@ public class Projectile extends Actor {
 		distanceToTravel = (float) firing.distanceTo(target);
 		
 		SPEED += (float) (Math.random()*SPEED/5f);
+		
+		if (firing.rangedWeapon.type == Type.FIREARM) {
+			SPEED = FIREARM_SPEED;
+			texture = null;
+		}
+		
 		float time_to_collision = distanceToTravel/SPEED;
 
 		boolean shouldLead = true;
@@ -130,8 +140,8 @@ public class Projectile extends Actor {
 
 	// create new siege projectile with target
 	public Projectile(SiegeUnit siegeFiring, BPoint target) {
-		texture = new TextureRegion(new Texture("objects/rock.png"));
-		halfArrow = new TextureRegion(new Texture("objects/half_rock.png"));
+		texture = Assets.map.findRegion("rock");
+		halfArrow = Assets.map.findRegion("half_rock");
 		
 		SCALE = SCALE_SIEGE;
 		
@@ -329,8 +339,8 @@ public class Projectile extends Actor {
 		if (!this.inMap()) return;
 		if (!this.stopped && this.stuck == null) this.toFront();
 
-		this.setX(stage.scale * pos_x * stage.unit_width);
-		this.setY(stage.scale * pos_y * stage.unit_height);
+		this.setX(pos_x * stage.unit_width);
+		this.setY(pos_y * stage.unit_height);
 
 		float stoppedScale = .8f;
 		if (stopped || stuck != null) stoppedScale = .4f;
@@ -339,9 +349,8 @@ public class Projectile extends Actor {
 
 		if (height < 0) drawHeight = 0;
 		
-		
-		float scaleX = (BASE_SCALE+drawHeight*stage.scale*HEIGHT_SCALE_FACTOR);
-		float scaleY = (BASE_SCALE+drawHeight*stage.scale*HEIGHT_SCALE_FACTOR);
+		float scaleX = (BASE_SCALE+drawHeight*HEIGHT_SCALE_FACTOR);
+		float scaleY = (BASE_SCALE+drawHeight*HEIGHT_SCALE_FACTOR);
 		
 		if (this.isArrow()) {
 			scaleX *= ARROW_SCALE_X;
@@ -366,7 +375,8 @@ public class Projectile extends Actor {
 		if (this.stuck == null) {
 			TextureRegion toDraw = texture;
 			if ((this.stopped && this.isArrow()) || this.broken) toDraw = halfArrow;
-			batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
+			if (toDraw != null)
+				batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
 		}
 		else if (!stuck.isDying || stuck.timeSinceDeath > .75f){
 						setScaleY(getScaleY()*2f);
@@ -374,7 +384,8 @@ public class Projectile extends Actor {
 			setY(stuck.getOriginY() + temp_offset_y);
 			this.setRotation(-rotation_offset);
 
-			batch.draw(halfArrow, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());	
+			if (texture != null)
+				batch.draw(halfArrow, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());	
 		}
 	}
 
@@ -407,7 +418,7 @@ public class Projectile extends Actor {
 					firing.soldier.addExp(that.soldier.getExpForKill());
 				}
 
-				that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
+//				that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
 
 				this.stopped = true;
 				this.stuck = that;
@@ -418,7 +429,7 @@ public class Projectile extends Actor {
 				this.temp_offset_x *= 5;
 				this.temp_offset_y *= 5;
 
-				this.temp_offset_y += STUCK_Y * stage.scale;
+				this.temp_offset_y += STUCK_Y;
 
 				this.rotation_offset = that.getRotation() - this.getRotation();
 				this.remove();

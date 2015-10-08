@@ -49,13 +49,16 @@ public class Siege extends Actor {
 			if (countdown <= 0) this.destroy();
 		}
 		
+		// If no longer at war, end siege
+		if (!besieging.atWar(location.getFaction())) this.destroy();
+		
 		if (location.playerBesieging && location.getKingdom().getPlayer().hasTarget()) {
 			remove(location.getKingdom().getPlayer());
 //			System.out.println(location.playerBesieging + " " + !location.getKingdom().getPlayer().isStopped());
 		}
 		this.duration += delta;
 		
-		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0) {
+		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0 && armies.size > 0) {
 			if (!hasChecked) {
 				shouldAttack();
 				hasChecked = true;
@@ -63,12 +66,17 @@ public class Siege extends Actor {
 		}
 		else if (hasChecked) hasChecked = false;
 	}
+	// TODO change back to have some chance of maintaining
 	public void shouldAttack() {
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
 		double balance = Battle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
 		if (balance >= .4 && !inBattle) attack();
 		else if (balance <= .1 && !inBattle) destroy(); // end siege if no chance
+		else {
+			// previously maintained siege, now force attack:
+			attack();
+		}
 	}
 	
 	public void attack() {
@@ -93,6 +101,20 @@ public class Siege extends Actor {
 		inBattle = false;
 	}
 	
+	public void siegeSuccess() {
+		location.changeFaction(besieging);
+		if (location.playerBesieging) {
+			location.getKingdom().getPlayer().garrisonIn(location);
+			// this doesn't work
+			location.getKingdom().getMapScreen().getSidePanel().setActiveLocation(location);
+			location.playerBesieging = false;
+		}
+		if (location.playerWaiting) {
+			location.getKingdom().getPlayer().garrisonIn(null);
+		}
+		location.siege = null;
+	}
+	
 	public void add(Army army) {
 		if (armies.contains(army, true)) {
 			System.out.println("adding twice");
@@ -105,7 +127,7 @@ public class Siege extends Actor {
 	
 	public void remove(Army army) {
 		if (army.getParty().player) {
-			location.playerBesieging = false;
+//			location.playerBesieging = false;
 			System.out.println("removed player");
 			if (location.playerWaiting) location.stopWait();
 		}
@@ -123,6 +145,7 @@ public class Siege extends Actor {
 			a.leaveSiege();
 		}
 		location.endSiege();
+		besieging.cancelSiegeOf(location);
 		this.remove();
 	}
 

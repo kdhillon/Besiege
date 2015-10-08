@@ -14,18 +14,20 @@ import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.panels.PanelAttributes;
 import kyle.game.besiege.panels.PanelBattle;
+import kyle.game.besiege.panels.PanelCenter;
 import kyle.game.besiege.panels.PanelCharacter;
 import kyle.game.besiege.panels.PanelFaction;
 import kyle.game.besiege.panels.PanelLocation;
 import kyle.game.besiege.panels.PanelParty;
 import kyle.game.besiege.panels.PanelUnit;
 import kyle.game.besiege.panels.PanelUpgrades;
+import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.voronoi.Center;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public class SidePanel extends Group {
 	public static final int WIDTH = 190; // 180 works well
@@ -145,6 +147,11 @@ public class SidePanel extends Group {
 	}
 	public void setActive(Panel newActivePanel) {
 		if (this.activePanel == newActivePanel) return;
+		if (newActivePanel == upgrades) upgrades.updateSoldierTable();
+		if (newActivePanel.getClass() == PanelParty.class) {
+			((PanelParty) newActivePanel).updateSoldierTable();
+//			System.out.println("just updated party panel!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
 		if (!stay) {
 			if (activePanel != null) {
 				setPreviousPanel(activePanel);
@@ -189,6 +196,10 @@ public class SidePanel extends Group {
 //		PanelFaction pf = new PanelFaction(this, faction);
 //		setActive(pf);
 	}
+	public void setActiveCenter(Center center) {
+		PanelCenter pc = new PanelCenter(this, center);
+		setActive(pc);
+	}
 	public void setDefault() {
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());
@@ -226,10 +237,16 @@ public class SidePanel extends Group {
 		return stay;
 	}
 	public TextureRegion getActiveCrest() {
+		if (activePanel == null) return null;
 		return activePanel.getCrest();
 	}
 	public TextureRegion getSecondCrest() {
+		if (activePanel == null) return null;
 		return activePanel.getSecondCrest();
+	}
+	public Soldier getSoldierInstead() {
+		if (activePanel == null) return null;
+		return activePanel.getSoldierInsteadOfCrest();
 	}
 	public Panel getActivePanel() {
 		return activePanel;

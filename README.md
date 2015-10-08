@@ -114,9 +114,10 @@ Day 87: started working on title screen
 Day 88: finished flame on titlescreen, added rain to kingdom
 Day 89: fixed button bug, added formation options
 Day 90: fixed cover bug, added scramble, inline stance
-Day 91: added joining battles
+Day 91: added joining battles, fame
 
 BATTLESTAGE:
+finish hiding
 add waves and reinforcements to battles
 add safeguards against battles getting stuck
 get austin to start making cool art for additional units
@@ -129,19 +130,23 @@ add towers
 add villages and ruins
 add ballistas
 add some randomness to which ladder is chosen
-allow joining battles
 design new unit tree
+add mist to certain battlemaps
 
 MAP:
-now
-fix bug where armies that joined in battle don't reappear on map
+now:
+test some optimizations -
+    see if A* is what's making big maps slow. if it is, optimize a* by only looking at nearby points
+    optimize army searches by only looking at armies within ArmyPlayer.closeArmies
+    note that moving around stutters when map has a large amount of pixels. can be solved by intentionally scaling down the pixel size of the map.
+bug:
+after upgrade, units don't display in list
 
 later:
 add garrison repairing
 add cancelling and reforming of sieges
-make bandits not seige (?)
-add mist to certain battlemaps
 make title cooler
+add severe woundedness
 
 gameplay:
 
@@ -236,6 +241,51 @@ Once strong enough, you can take your shot at capturing a city or town. Then you
 and declare yourself as king. Other factions will take notice and may react violently, opening up opportunities
 for more expansion or annihilation. You should be able to organize your own merchants, patrols, siege parties,
 etc.
+
+
+Interesting mechanic later on - crosstraining?
+ie - having units of certain level in your party allows you to create blends of multiple units
+eg - having a Firespitter in your party allows your Fanatics to become self-destructing?
+eg - Spirit Walker: 
+
+Unit ideas:
+
+   Standard
+        Hunter (shortbow, club)
+      
+  Special Cultures:
+     Swamp(swamp warriors)
+        Marshman (club)
+        Archer (recurve bow)
+        Firebomber (firebombs, club)
+        Firespitter (firebombs, torch)
+    
+    Kalas (valley warriors)
+        Recruit (spear)
+        Warrior (sword)
+        Warrior (axe)
+        Hero (dual swords)
+        Blade Thrower (throwing knives)
+
+    Dura (crag warriors)
+        Follower (club)
+        Fanatic (2xDagger)
+        Martyr (firebomb)
+        Priest (staff)
+         
+    Intu (alpine warriors)
+        (?) Fisherman (knife)
+        Trapper (Knives)
+        Hunter (Spear)
+        Spirit Walker (staff)
+        Wolfblood (axe)
+        
+    Zuul (grassland warriors)
+        Warrior (spear)
+        Healer 
+        
+        
+        
 
 army types and purposes:
 

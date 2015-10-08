@@ -1,0 +1,7 @@
+name			atk	range	acc		rate	type
+
+Shortbow		3	30		8		5		firearm
+
+Crossbow		3	30		9		8		crossbow
+Recurve Bow		3	35		6		4		bow
+Longbow			3	45		8		5		bow

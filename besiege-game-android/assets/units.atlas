@@ -1,0 +1,173 @@
+
+units.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+bandit_base
+  rotate: false
+  xy: 438, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+bandit_die
+  rotate: false
+  xy: 2, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+bandit_die2
+  rotate: false
+  xy: 36, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+bandit_firing
+  rotate: false
+  xy: 240, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit_firing2
+  rotate: false
+  xy: 258, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit_walk
+  rotate: false
+  xy: 276, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit_walk2
+  rotate: false
+  xy: 294, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+die1_armor
+  rotate: false
+  xy: 70, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+die1_skin
+  rotate: false
+  xy: 104, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+farmer_base
+  rotate: false
+  xy: 448, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+farmer_die
+  rotate: false
+  xy: 138, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+farmer_walk
+  rotate: false
+  xy: 312, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firing_armor
+  rotate: false
+  xy: 330, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firing_skin
+  rotate: false
+  xy: 348, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+knight_base
+  rotate: false
+  xy: 458, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+knight_die
+  rotate: false
+  xy: 172, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+knight_die2
+  rotate: false
+  xy: 206, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+knight_walk
+  rotate: false
+  xy: 366, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+knight_walk2
+  rotate: false
+  xy: 384, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+marshman_base
+  rotate: false
+  xy: 468, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview_armor
+  rotate: false
+  xy: 478, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview_skin
+  rotate: false
+  xy: 488, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+walk_armor
+  rotate: false
+  xy: 402, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+walk_skin
+  rotate: false
+  xy: 420, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1

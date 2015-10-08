@@ -8,13 +8,11 @@ package kyle.game.besiege.army;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Point;
-import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.PartyType;
-
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import kyle.game.besiege.party.PartyType.Type;
 
 public class Farmer extends Army {
 	private final String textureRegion = "Farmer";
@@ -32,7 +30,7 @@ public class Farmer extends Army {
 	
 	public Farmer(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
-		super(kingdom, name, faction, posX, posY, PartyType.FARMER);
+		super(kingdom, name, faction, posX, posY, Type.FARMERS);
 		setTextureRegion(textureRegion);
 		crops = 0;
 //		this.shouldEject = false;

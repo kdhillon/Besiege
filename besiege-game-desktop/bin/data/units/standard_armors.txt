@@ -1,0 +1,27 @@
+name				color_name	def	spd	
+
+Clothes				DK_BLUE		0	1
+Loose Clothes		DK_RED		0	1
+Marsh Clothes		DK_GREEN	0	1
+Leather Armor		MD_BROWN	1	0
+
+Studded				DK_BROWN	2	0
+Robes				BROWN_G		1	1
+Marsh Armor			FOREST_GR	2	0
+
+Light Armor			DK_RED		1	1
+Royal Armor			TAN			3	1
+
+Chainmail			MD_GRAY		4	0
+Light Platemail		LT_GRAY		3	1
+Heavy Platemail		DK_GRAY		5	-1
+
+
+Caribou Hide		MD_BROWN	2	-1
+Wolf Hide			OFF_WHITE	3	-1
+Bear Hide			DK_BROWN	4	-1
+Bear Pelt			OFF_WHITE	4	0
+
+Human Flesh			LT_BROWN	2	0
+Amautiit			DK_BROWN	2	0
+Bloody Fur			DK_RED		4	0

@@ -1,0 +1,28 @@
+tier name 			weapon				armor			upgrades_to
+
+Class:	Basic	WHITE
+1	Farmer			Pitchfork			Armor			Spearman/Axeman/Clubman/Archer
+
+2	Spearman		Spear				Armor			Pikeman/Poleman
+2	Woodsman		Hatchet				Armor			Swordsman/Axeman
+2	Clubman			Club				Armor			Hammerman/Maceman
+2	Archer			Shortbow/Dagger		Armor			Crossbowman/Bowman/Longbowman
+
+3	Pikeman			Pike				Armor			Pikemaster
+3	Poleman			Halberd				Armor			Blademaster
+3	Swordsman		Shortsword			Armor			Swordmaster
+3	Axeman			Battle Axe			Armor			Axemaster
+3	Hammerman		War Hammer			Armor			Hammermaster
+3	Maceman			Mace				Armor			Macemaster
+3	Bowman			Recurve Bow/Dagger	Armor			none
+3	Crossbowman		Crossbow/Dagger		Armor			none
+3	Longbowman		Longbow/Dagger		Armor			none
+
+4	Pikemaster		Guisarme			Armor			none
+4	Blademaster		Voulge				Armor			none
+4	Swordmaster		Longsword			Armor			none
+4	Axemaster		Glaive				Armor			none
+4	Hammermaster	Maul				Armor			none
+4	Macemaster		Morningstar			Armor			none
+
+5	Legend			Greatsword			Armor			none

@@ -13,6 +13,7 @@ import kyle.game.besiege.MapScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -26,6 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
@@ -37,6 +39,10 @@ public class MainMenuScreen implements Screen {
 	private final int WIDTH = 500;
 	private final int SEPARATE = 50;
 	private final int MAX_NAME = 15;
+	
+	enum ScreenState{Title, InputName};
+	
+	ScreenState state;
 	
 	private BesiegeMain main;
 	private Stage stage;
@@ -59,8 +65,13 @@ public class MainMenuScreen implements Screen {
 	private float count;
 //	private ButtonStyle bs;
 	
+	private int candleX;
+	private int candleY;
+	
 	public MainMenuScreen(BesiegeMain main) {
 		this.main = main;
+		
+		state = ScreenState.Title;
 		
 		stage = new Stage();
 		Gdx.input.setInputProcessor(stage);
@@ -133,7 +144,10 @@ public class MainMenuScreen implements Screen {
 		
 		stage.addActor(topTable);
 		
-		Candle candle = new Candle(634, -521, 2, 1);
+		candleX = 0; // will be initialized in Resize
+		candleY = 0; 
+		
+		Candle candle = new Candle(candleX, candleY, 2, 1);
 		candles = new Array<Candle>();
 		candles.add(candle);
 		stage.addActor(candle);
@@ -174,6 +188,10 @@ public class MainMenuScreen implements Screen {
 			count = 0;
 		}
 		count += delta;
+		
+		if (Gdx.input.isKeyPressed(Keys.ENTER) && 
+				state == ScreenState.Title)
+			this.clickNew();
 	}
 	
 	private void checkForFile() {
@@ -223,6 +241,10 @@ public class MainMenuScreen implements Screen {
 		BesiegeMain.WIDTH = width;
 		topTable.setWidth(width);
 		topTable.setHeight(height);
+				
+		this.candleX = (int) (width/2) - 7;
+		this.candleY = (int) (-height/2) - 120;
+		this.candles.first().move(candleX, candleY);
 		
 //		topTable.getCells().get(1).padLeft(width-WIDTH).padRight(SEPARATE);
 //		topTable.getCells().get(2).padRight(width-WIDTH).padLeft(SEPARATE);
@@ -230,6 +252,8 @@ public class MainMenuScreen implements Screen {
 	}
 	
 	private void clickNew() {
+		this.state = ScreenState.InputName;
+		
 		topTable.clear();
 		topTable.add(labelTitle).colspan(2).padBottom(PAD);
 		topTable.row();
@@ -241,9 +265,12 @@ public class MainMenuScreen implements Screen {
 		tfs.fontColor = Color.WHITE;
 		tfs.font = Assets.pixel64;
 		tf = new TextField("", tfs);
+		
+		// need a second textfield so that it's automatically selected?
 		TextField tf2 = new TextField("", tfs);
 		tf2.setVisible(false);
-		topTable.add(tf).center().colspan(2);
+		
+		topTable.add(tf).center().colspan(2).align(Align.center);
 		tf.setMaxLength(MAX_NAME);
 		topTable.row();
 		topTable.add(tf2).colspan(2).height(0); // needed to autoselect
@@ -288,7 +315,7 @@ public class MainMenuScreen implements Screen {
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
-		
+		Gdx.input.setInputProcessor(stage);
 	}
 
 	@Override

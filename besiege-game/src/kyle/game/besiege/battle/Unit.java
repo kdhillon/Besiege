@@ -1,22 +1,24 @@
 package kyle.game.besiege.battle;
 
+import kyle.game.besiege.Assets;
 import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Equipment;
+import kyle.game.besiege.party.RangedWeaponType;
+import kyle.game.besiege.party.RangedWeaponType.Type;
+import kyle.game.besiege.party.WeaponType;
 import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.RangedWeapon;
 import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.Weapon;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
 public class Unit extends Group {
+
 	static final int FRAME_COLS = 2;
 	static final int FRAME_ROWS = 1;
 
@@ -27,9 +29,10 @@ public class Unit extends Group {
 
 	static final int RETREAT_THRESHOLD = 2;
 
-	static public float NEAR_COVER_DISTANCE = 4;
+	static public float NEAR_COVER_DISTANCE = 6;
 	static public float HEIGHT_RANGE_FACTOR = 6;
 	static public float MAN_SIEGE_DISTANCE = 40;
+	static public float HIDE_DISTANCE = 30;
 
 	static final float DEATH_TIME = 300;
 	static final float BASE_SPEED = .2f;
@@ -48,8 +51,8 @@ public class Unit extends Group {
 	public BattleParty bp;
 	public Party party;
 	public Soldier soldier;
-	public Weapon weapon;
-	public RangedWeapon rangedWeapon;
+	public WeaponType weapon;
+	public RangedWeaponType rangedWeapon;
 	public SiegeUnit siegeUnit;
 
 	public boolean isMounted = true;
@@ -72,6 +75,8 @@ public class Unit extends Group {
 	public int def;
 	public float spd;
 
+	boolean rotationFixed;
+
 	float timer = ATTACK_EVERY;
 	float reloading = 0f;
 	//float lastFace = 0f;
@@ -82,10 +87,11 @@ public class Unit extends Group {
 
 	public float currentSpeed = 0;
 	public int team;
-//	public Array<Unit> enemyArray;
+	//	public Array<Unit> enemyArray;
 	public BattleParty enemyParty;
 	boolean isHit; // is unit hit
 	boolean isDying;
+	boolean isHidden;
 	float timeSinceDeath = 0;
 
 	public int pos_x;
@@ -109,16 +115,19 @@ public class Unit extends Group {
 
 	public float rotation;
 	public boolean retreating;
-	
+
 	public float updateNearestEnemy;
 
 	float stateTime;
 	float firingStateTime;
-	public Animation animationWalk;
-	public Animation animationAttack;
-	public Animation animationDie;
-	public Animation animationFiring;
-	private Color tintColor;
+	public Animation walkArmor, walkSkin;
+	//	public Animation animationAttack;
+	public Animation dieArmor, dieSkin;
+	public Animation firingArmor, firingSkin;
+
+
+	public Color armorTint;
+	public Color skinTint;
 
 	// shouldn't be used that much, mostly for drawing horses in battles
 	public Equipment horse;
@@ -131,7 +140,8 @@ public class Unit extends Group {
 	//	Animation knightIdle;
 	//	Animation swordWalk;
 	//	Animation swordAttack;
-
+	private Color c = new Color();
+	
 	public Unit(BattleStage parent, int pos_x, int pos_y, int team, Soldier soldier, BattleParty bp) {
 		stage = parent;
 
@@ -144,11 +154,11 @@ public class Unit extends Group {
 
 		this.original_x = pos_x;
 		this.original_y = pos_y;
-		this.setX(stage.scale * pos_x * stage.unit_width);
-		this.setY(stage.scale * pos_y * stage.unit_height);
+		this.setX( pos_x * stage.unit_width);
+		this.setY( pos_y * stage.unit_height);
 
-		this.setWidth(stage.scale*stage.unit_width);
-		this.setHeight(stage.scale*stage.unit_height);
+		this.setWidth(stage.unit_width);
+		this.setHeight(stage.unit_height);
 		//		this.setWidth(texture.getRegionWidth());
 		//		this.setHeight(texture.getRegionHeight());
 
@@ -159,8 +169,6 @@ public class Unit extends Group {
 		this.shield = soldier.getShield();
 		if (shield != null) shield_hp = shield.hp;
 		if (horse != null) horse_hp = horse.hp;
-
-		quiver = soldier.level; // number of arrows this unit gets
 
 		ladder_height = 0;
 
@@ -175,62 +183,60 @@ public class Unit extends Group {
 		this.stance = Stance.AGGRESSIVE;
 
 		this.soldier = soldier;
-		this.weapon = soldier.weapon;
-		this.rangedWeapon = soldier.rangedWeapon;
+		this.weapon = soldier.unitType.melee;
+		this.rangedWeapon = soldier.unitType.ranged;
+		
+		// calculate number of arrows unit gets
+		
+		
+		if (rangedWeapon != null) {
+			if (rangedWeapon.type == Type.BOW)
+				quiver = 20;
+			if (rangedWeapon.type == Type.CROSSBOW) 
+				quiver = 20;
+			if (rangedWeapon.type == Type.FIREARM) 
+				quiver = 15;
+			if (rangedWeapon.type == Type.THROWN)
+				quiver = 1;
+		}
 		//		if (rangedWeapon != null) 
 		//			this.stance = Stance.DEFENSIVE;
 
 		// check if in cover
 		checkIfInCover();
 
-		//		assignColor();
+		assignColor();
 
 		calcStats();
 
 		if (this.spd == 0) System.out.println("speed is 0");
 
-		//		if (this.team == 1)  stance = Stance.DEFENSIVE;
+		float ani = 0.25f;
+		walkArmor	= createAnimation("walk_armor", 2, ani);
+		walkSkin 	= createAnimation("walk_skin", 2, ani);
 
-		// TODO change to texture region once I have more
-		String walkFile;
-		String attackFile;
-		String dieFile;
-		String firingFile;
-		if (soldier.getTier() < 3) {
-			walkFile = "farmer_walk.png";
-			attackFile = "farmer_walk.png";
-			dieFile = "farmer_die.png";
-			firingFile = "bandit_firing.png";
-		}
-		else if (soldier.getDef() > 6){
-			walkFile = "knight_walk.png";
-			attackFile = "knight_walk.png";
-			dieFile = "knight_die.png";
-			firingFile = "bandit_firing.png";
-		}
-		else if (soldier.getTier() < 6 || soldier.getType() == Soldier.SoldierType.ARCHER) {
-			walkFile = "bandit_walk.png";
-			attackFile = "bandit_walk.png";
-			dieFile = "bandit_die.png";
-			firingFile = "bandit_firing.png";
-		}
-		else  {
-			walkFile = "bandit_walk.png";
-			attackFile = "bandit_walk.png";
-			dieFile = "bandit_die.png";
-			firingFile = "bandit_firing.png";
-		}
+		// later on randomize the dying animation
+		dieArmor	= createAnimation("die1_armor", 4, ani);
+		dieSkin 	= createAnimation("die1_skin", 4, ani);
+		dieArmor.setPlayMode(Animation.NORMAL);
+		dieSkin.setPlayMode(Animation.NORMAL);
 
-		animationWalk = createAnimation(walkFile, 2, .25f);
-		animationAttack = createAnimation(attackFile, 2, .25f);
-		animationDie = createAnimation(dieFile, 4, .25f);
-		animationDie.setPlayMode(Animation.NORMAL);
-		animationFiring = createAnimation(firingFile, 2, 2f);
-		animationFiring.setPlayMode(Animation.NORMAL);
+		firingArmor	= createAnimation("firing_armor", 2, 2);
+		firingSkin 	= createAnimation("firing_skin", 2, 2);
+		firingArmor.setPlayMode(Animation.NORMAL);
+		firingSkin.setPlayMode(Animation.NORMAL);
+
+
+		//		animationWalk = createAnimation(walkFile, 2, .25f);
+		//		animationAttack = createAnimation(attackFile, 2, .25f);
+		//		animationDie = createAnimation(dieFile, 4, .25f);
+		//		animationDie.setPlayMode(Animation.NORMAL);
+		//		animationFiring = createAnimation(firingFile, 2, 2f);
+		//		animationFiring.setPlayMode(Animation.NORMAL);
 
 		firingStateTime = 0f;
 		stateTime = 0f;
-		if (rangedWeapon != null) reloading = rangedWeapon.rate/2; // initial reload time
+		if (rangedWeapon != null) reloading = 0; // initial reload time
 
 		//		this.height = 0;
 
@@ -243,8 +249,8 @@ public class Unit extends Group {
 			isMounted = true;
 		}
 
-		if (this.team == 0 && stage.siegeDefense) this.canRetreat = false;
-		if (this.team == 1 && stage.siegeAttack) this.canRetreat = false;
+		if (this.team == 0 && stage.siege && stage.playerDefending) this.canRetreat = false;
+		if (this.team == 1 && stage.siege && !stage.playerDefending) this.canRetreat = false;
 
 		//
 		//		// TODO REMOVE
@@ -252,20 +258,39 @@ public class Unit extends Group {
 	}
 
 	private void assignColor() {
-		this.tintColor = new Color((float) Math.random() * .2f + .6f, .7f, (float) Math.random() * .1f + .6f, 1f);
+		// get appropriate color from armor and skin
+		// for now, just randomiz
+
+//		if (Math.random() < .2f)
+//			this.armorTint = Color.DARK_GRAY;
+//		else if (Math.random() < 0.5f) 
+//			this.armorTint = new Color(120/256.0f, 95/256.0f, 75/256.0f, 1);
+//		else if (Math.random() < 0.2f){
+//			this.armorTint = Color.GRAY;
+//		}
+//		else if (Math.random() < 0.2f) {
+//			this.armorTint = new Color(.4f, .1f, .1f, 1);
+//		}
+//		else if (Math.random() < 0.2f) {
+//			this.armorTint = new Color(.1f, .1f, .4f, 1);
+//		}
+//		else this.armorTint = new Color(.3f, .2f, .15f, 1);
+
+		this.armorTint = soldier.unitType.armor.color;
+		this.skinTint = soldier.getColor();
 	}
 
 	// create animation with speed .25f assuming one row, loops by default
 	private Animation createAnimation(String filename, int columns, float time) {
-		Texture walkSheet = new Texture(Gdx.files.internal("units/"+filename)); 
-		TextureRegion[][] textureArray = TextureRegion.split(walkSheet, walkSheet.getWidth()/columns, walkSheet.getHeight()/1);
+		TextureRegion walkSheet = Assets.units.findRegion(filename);
+		TextureRegion[][] textureArray = walkSheet.split(walkSheet.getRegionWidth()/columns, walkSheet.getRegionHeight()/1);
 		Animation animation = new Animation(time, textureArray[0]);
 		animation.setPlayMode(Animation.LOOP);
 		return animation;
 	}
 
 	@Override
-	public void act(float delta) {
+	public void act(float delta) {		
 		stateTime += delta;
 		firingStateTime += delta;
 
@@ -273,7 +298,7 @@ public class Unit extends Group {
 			this.nearestEnemy = this.getNearestEnemy();
 			updateNearestEnemy = NEAREST_UPDATE_TIME;
 		}
-		
+
 		updateNearestEnemy -= delta;
 
 		// flip flop logic kind of
@@ -341,7 +366,7 @@ public class Unit extends Group {
 				if (nearestCover != null)
 					moveToPoint(nearestCover);
 			}
-			else if (stance != Stance.DEFENSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {				
+			else if (stance != Stance.DEFENSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {								
 				moveToEnemy();
 			}
 			else { // either defensive stance or aggressive but ranged within range
@@ -357,9 +382,11 @@ public class Unit extends Group {
 				else if (this.reloading > 0 && nearestTarget != null) {
 					if (nearestTarget.isDying) {
 						nearestTarget = getNearestTarget();
+						this.updateRotation();
 					}
-					if (nearestTarget != null)
-						face(nearestTarget);
+					// makes archers freak out
+					//					if (nearestTarget != null)
+					//						face(nearestTarget);
 					reload(delta);
 				}
 				// if ranged, fire weapon
@@ -375,6 +402,10 @@ public class Unit extends Group {
 								this.nearestTarget = getNearestTarget();
 								if (this.nearestTarget == null) moveToEnemy();
 							}
+						}
+						else {
+							if (this.stance == Stance.AGGRESSIVE)
+								moveToEnemy();
 						}
 					}
 					// move to orignial position for infantry
@@ -394,7 +425,7 @@ public class Unit extends Group {
 
 	public void checkIfShouldManSiege() {
 		// for now, no defensive units should siege
-		if (this.bowOut() || this.isMounted() || (stage.siegeAttack && this.stance == Stance.DEFENSIVE)) return;
+		if (this.bowOut() || this.isMounted() || (stage.siege && this.stance == Stance.DEFENSIVE)) return;
 
 		for (SiegeUnit s : stage.siegeUnitsArray) {
 			if (!s.hasMen() && s.enemyTeam() != this.team) {
@@ -467,8 +498,12 @@ public class Unit extends Group {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {		
 
+		if (this.isHidden() && this.team != 0) return;
+
+
 		if (isDying) {
-			drawAnimation(batch, animationDie, timeSinceDeath, false);
+			drawAnimationTint(batch, dieArmor, timeSinceDeath, false, armorTint);
+			drawAnimationTint(batch, dieSkin, timeSinceDeath, false, skinTint);
 			super.draw(batch,  parentAlpha);
 		}
 		else {
@@ -476,45 +511,41 @@ public class Unit extends Group {
 			super.draw(batch, parentAlpha);
 
 			this.toFront();
-			Color c = new Color(batch.getColor());
+			c.set(batch.getColor());
 
 			updateRotation();
 
 			if (moving) {
-				setX(stage.scale * currentX() * stage.unit_width);
-				setY(stage.scale * currentY() * stage.unit_height);
+				setX(currentX() * stage.unit_width);
+				setY(currentY() * stage.unit_height);
 			}
 			else {
-				setX(stage.scale * pos_x * stage.unit_width);
-				setY(stage.scale * pos_y * stage.unit_height);
+				setX(pos_x * stage.unit_width);
+				setY(pos_y * stage.unit_height);
 			}
 
-
 			//			batch.setColor(this.tintColor);
-
 
 			if (this.isHit)
 				batch.setColor(1, 0, 0, 1); 
 			else if (attacking != null) {
 				// maybe remove later
 				this.face(attacking);
-				drawAnimation(batch, animationAttack, stateTime, true);
-				//			drawAnimation(batch, swordAttack, stateTime);
+				drawAnimationTint(batch, walkArmor, stateTime, true, armorTint);
+				drawAnimationTint(batch, walkSkin, stateTime, true, skinTint);
 			}
 			else if (moveSmooth) {
-				drawAnimation(batch, animationWalk, stateTime, true);
-				//			drawAnimation(batch, swordWalk, stateTime);
+				drawAnimationTint(batch, walkArmor, stateTime, true, armorTint);
+				drawAnimationTint(batch, walkSkin, stateTime, true, skinTint);
 			}	
 			else if (reloading > 0) {
-				drawAnimation(batch, animationFiring, firingStateTime, false);
+				drawAnimationTint(batch, firingArmor, firingStateTime, false, armorTint);
+				drawAnimationTint(batch, firingSkin, firingStateTime, false, skinTint);
 			}
 			else {
-				drawAnimation(batch, animationWalk, 0, false);
-				//			drawAnimation(batch, swordWalk, 0);
+				drawAnimationTint(batch, walkArmor, 0, false, armorTint);
+				drawAnimationTint(batch, walkSkin, 0, false, skinTint);
 			}
-
-			//		if (team == 0) 
-			//			batch.draw(texture, pos_x_world, pos_y_world, getWidth(), getHeight());
 
 			if (this.isHit){
 				this.isHit = false;
@@ -613,12 +644,16 @@ public class Unit extends Group {
 
 		Orientation original = this.orientation;
 
-		if (!this.moveForward()) {
+		if (!this.moveForward() && !this.unitMovingOutOfWay()) {
 
 			if (Math.random() > .5) this.forceTwoMoves = true;
 
-			faceAlt(point);
-			if (Math.random() < .1 || !this.moveForward()) {					
+			this.faceAlt(point);
+
+			// this happens way more than it should for some reason
+			// changed from "or" to "and" to be stricter
+			if (Math.random() < .01 && (!this.moveForward() && !this.unitMovingOutOfWay())) {	
+				//				System.out.println("desperate move");
 				// try the last two directions as a last resort
 				this.orientation = getOppositeOrientation(this.orientation);
 				if (Math.random() < .1 || !this.moveForward()) {
@@ -630,6 +665,18 @@ public class Unit extends Group {
 				}
 			}
 		}
+	}
+
+	public boolean unitMovingOutOfWay() {
+		Unit inWay = stage.units[this.getAdjacentPoint().pos_y][this.getAdjacentPoint().pos_x];
+		if (inWay == null) return false;
+		if (inWay.party != this.party) return false; // should attack if a foe
+		if (inWay.moveSmooth && inWay.orientation == this.orientation) {
+
+			//			System.out.println("unit moving out of way");
+			return true;
+		}
+		return false;
 	}
 
 	private void retreat() {
@@ -659,16 +706,16 @@ public class Unit extends Group {
 			return true;
 		}
 
-//		if (nearestEnemy != null && !inCover()) {
-//			this.nearestCover = this.getNearestCover();
-//			if (!inCover()) {
-//				if (this.nearestCover != null && Math.random() < .6) {
-//					moveToPoint(nearestCover);
-//					System.out.println("moving to cover");
-//					//					return true;
-//				}
-//			}
-//		}
+		//		if (nearestEnemy != null && !inCover()) {
+		//			this.nearestCover = this.getNearestCover();
+		//			if (!inCover()) {
+		//				if (this.nearestCover != null && Math.random() < .6) {
+		//					moveToPoint(nearestCover);
+		//					System.out.println("moving to cover");
+		//					//					return true;
+		//				}
+		//			}
+		//		}
 		return false;
 	}
 
@@ -722,18 +769,54 @@ public class Unit extends Group {
 		for (BPoint p : stage.battlemap.cover) { // && nearestEnemy.distanceTo(p) < rangedWeapon.range  ?
 			if (p.orientation == thisOrientation && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
 				if (nearestEnemy.distanceTo(p) < this.getCurrentRange()) {
-					if (Math.abs(this.pos_x - p.pos_x) < NEAR_COVER_DISTANCE && Math.abs(this.pos_y - p.pos_y) < NEAR_COVER_DISTANCE) {
-						float dist = (float) distanceTo(p);
-						if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
-							closest = p;
-							closestDistance = dist;
-						}
+					float dist = (float) distanceTo(p);
+					if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
+						closest = p;
+						closestDistance = dist;
 					}
+
 				}
 			}
 		}
 
+		if (closestDistance > NEAR_COVER_DISTANCE) return null;
+//		System.out.println("Closest cover is " + closestDistance);
+
 		return closest;
+	}
+
+	// return true if that is surrounded by units or not accessible
+	private boolean notAccessible(Unit that) {
+		BPoint current = new BPoint(that.pos_x, that.pos_y + 1);
+
+		if (stage.inMap(current)) {
+			if (stage.units[current.pos_y][current.pos_x] == null || stage.units[current.pos_y][current.pos_x] == this) {
+				if (!stage.closed[current.pos_y][current.pos_x])
+					return false;
+			}
+		}
+		current = new BPoint(that.pos_x, that.pos_y - 1);
+		if (stage.inMap(current)) {
+			if (stage.units[current.pos_y][current.pos_x] == null || stage.units[current.pos_y][current.pos_x] == this) {
+				if (!stage.closed[current.pos_y][current.pos_x])
+					return false;
+			}
+		}
+		current = new BPoint(that.pos_x - 1, that.pos_y);
+		if (stage.inMap(current)) {
+			if (stage.units[current.pos_y][current.pos_x] == null || stage.units[current.pos_y][current.pos_x] == this) {
+				if (!stage.closed[current.pos_y][current.pos_x])
+					return false;
+			}
+		}
+		current = new BPoint(that.pos_x + 1, that.pos_y);
+		if (stage.inMap(current)) {
+			if (stage.units[current.pos_y][current.pos_x] == null || stage.units[current.pos_y][current.pos_x] == this) {
+				if (!stage.closed[current.pos_y][current.pos_x])
+					return false;
+			}
+		}
+		return true;
 	}
 
 	private Unit getNearestEnemy() {
@@ -743,6 +826,8 @@ public class Unit extends Group {
 
 		for (Unit that : enemyParty.units) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
+			if (that.isHidden) continue;
+			if (notAccessible(that)) continue;
 			double dist = this.distanceTo(that);
 			if (dist < closestDistance) {
 				if (that.retreating)
@@ -753,9 +838,14 @@ public class Unit extends Group {
 				}
 			}
 		}
+
 		if (closest != null) {
 			nearestEnemy = closest;
 			return closest;
+		}
+		else if (closestRetreating == null) {
+			// in this case, all units are out of line of sight
+			return enemyParty.units.random();
 		}
 		else {
 			nearestEnemy = closestRetreating;
@@ -777,10 +867,12 @@ public class Unit extends Group {
 
 		for (Unit that : enemyParty.units) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
+			if (that.isHidden) continue;
+
 			double dist = this.distanceTo(that);
 			// note - make sure not attacking, because you might hit a teammate
 			if (dist > MIN_DIST && dist < this.getCurrentRange() && that.attacking == null && that.distanceTo(that.getNearestEnemy()) > SAFE_DISTANCE) {
-//				System.out.println(that.distanceTo(that.nearestEnemy));
+				//				System.out.println(that.distanceTo(that.nearestEnemy));
 				if (!that.retreating && that.bowOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
@@ -1031,6 +1123,8 @@ public class Unit extends Group {
 
 		this.isHit = true;
 		if (this.hp <= 0) {
+			if (this.soldier != null && attacker != null && attacker.soldier != null)
+				this.soldier.killedBy = attacker.soldier;
 			this.isDying = true;
 			this.kill();
 			//			this.destroy();
@@ -1044,6 +1138,10 @@ public class Unit extends Group {
 	}
 
 	public void die(float delta) {
+		if (!this.rotationFixed) {
+			this.setRotation(this.rotation + (float) (Math.random() * 120 - 60));
+			this.rotationFixed = true;
+		}
 		timeSinceDeath += delta;
 		if (timeSinceDeath > DEATH_TIME) {
 			if (this.team == 0)
@@ -1079,6 +1177,7 @@ public class Unit extends Group {
 	}
 
 	public static Orientation getRandomDirection() {
+		System.out.println("moving in random direction");
 		double random = Math.random();
 		if (random < .25)
 			return Orientation.LEFT;
@@ -1096,7 +1195,18 @@ public class Unit extends Group {
 		if (orientation == Orientation.DOWN) rotation = 180;
 		if (orientation == Orientation.LEFT) rotation = 90;
 		if (orientation == Orientation.RIGHT) rotation = 270;
+
+		if (this.nearestTarget != null && this.bowOut() && !this.moveSmooth) {
+			rotation = angleToEnemy(this.nearestTarget);
+		}
+
 		this.setRotation(rotation);
+	}
+
+	public float angleToEnemy(Unit nearestTarget) {
+		float angle = (float)Math.atan2(this.pos_x - nearestTarget.getX()/stage.unit_width, this.pos_y - nearestTarget.getY()/stage.unit_height) * MathUtils.radiansToDegrees;
+		if (angle < 0) angle += 360;
+		return -angle + 180;
 	}
 
 	public static Orientation getOppositeOrientation(Orientation orientation) {
@@ -1115,6 +1225,13 @@ public class Unit extends Group {
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());		
 	}
 
+	public void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint) {
+		Color c = batch.getColor();
+		batch.setColor(tint);
+		TextureRegion region = animation.getKeyFrame(stateTime, loop);
+		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());		
+		batch.setColor(c);
+	}
 
 	public float currentX() {
 		return (prev_x + percentComplete*(pos_x-prev_x));
@@ -1125,6 +1242,7 @@ public class Unit extends Group {
 	}
 
 	public boolean moveForward() {
+
 		return startMove(this.orientation);
 	}
 
@@ -1178,17 +1296,20 @@ public class Unit extends Group {
 
 		this.calcSpeed();
 
+		if (this.team == 0) stage.enemies.updateHiddenAll();
+		else if (this.team == 1) stage.allies.updateHiddenAll();
+		this.updateHidden();
 
 		if (prev_y != pos_y && prev_x != pos_x) System.out.println("error!");
 
 		this.orientation = direction;
 		return true;
 	}
-	
+
 	private void calcSpeed() {
 		this.currentSpeed = (UNIT_BASE_SPEED) * (float)(1-stage.slow[pos_y][pos_x]);
 		this.currentSpeed *= stage.getStageSlow();
-		
+
 		// either use this speed or everyone's speed
 		if (!retreating && bp.stance == Stance.INLINE)
 			this.currentSpeed *= bp.minSpeed;
@@ -1296,7 +1417,7 @@ public class Unit extends Group {
 		this.pos_y = -100;
 		if (this.team == 0) stage.allies.removeUnit(this);
 		if (this.team == 1) stage.enemies.removeUnit(this);
-		
+
 		stage.retreated.add(this);
 		stage.battle.calcBalancePlayer();
 
@@ -1313,20 +1434,21 @@ public class Unit extends Group {
 	}
 
 	public void face(Unit that) {
-		if (!stage.inMap(new BPoint(that.pos_x, that.pos_y))) return; 
-		int x_dif = that.pos_x - this.pos_x;
-		int y_dif = that.pos_y - this.pos_y;
-
-		if (Math.abs(x_dif) > Math.abs(y_dif)) {
-			if (x_dif > 0) this.orientation = Orientation.RIGHT;
-			else this.orientation = Orientation.LEFT;
-		}
-		else if (Math.abs(x_dif) < Math.abs(y_dif)) {
-			if (y_dif > 0) this.orientation = Orientation.UP;
-			else this.orientation = Orientation.DOWN;
-		}
-		else if (y_dif > 0) this.orientation = Orientation.UP;
-		else this.orientation = Orientation.DOWN;
+		if (!stage.inMap(that.getPoint())) return; 
+		//		int x_dif = that.pos_x - this.pos_x;
+		//		int y_dif = that.pos_y - this.pos_y;
+		//
+		//		if (Math.abs(x_dif) > Math.abs(y_dif)) {
+		//			if (x_dif > 0) this.orientation = Orientation.RIGHT;
+		//			else this.orientation = Orientation.LEFT;
+		//		}
+		//		else if (Math.abs(x_dif) < Math.abs(y_dif)) {
+		//			if (y_dif > 0) this.orientation = Orientation.UP;
+		//			else this.orientation = Orientation.DOWN;
+		//		}
+		//		else if (y_dif > 0) this.orientation = Orientation.UP;
+		//		else this.orientation = Orientation.DOWN;
+		this.face(that.getPoint());
 	}
 
 	// same as above but with point
@@ -1334,38 +1456,71 @@ public class Unit extends Group {
 		int x_dif = that.pos_x - this.pos_x;
 		int y_dif = that.pos_y - this.pos_y;
 
-		if (Math.abs(x_dif) > Math.abs(y_dif)) {
-			if (x_dif > 0) this.orientation = Orientation.RIGHT;
-			else this.orientation = Orientation.LEFT;
+		double move_hor_prob = Math.abs(x_dif) / (double) (Math.abs(x_dif) + Math.abs(y_dif));
+		if (move_hor_prob < 0.5) move_hor_prob = move_hor_prob/10;
+		else if (move_hor_prob >= 0.5) move_hor_prob = move_hor_prob * 1.5;
+
+		//		move_hor_prob = 1;
+		// should move right
+		if (x_dif > 0) {
+			// up
+			if (y_dif > 0) {
+				// up or right
+				if (Math.random() < (move_hor_prob)) {
+					this.orientation = Orientation.RIGHT;
+				}
+				else {
+					this.orientation = Orientation.UP;
+				}
+			}
+			else {
+				// down or right
+				if (Math.random() < move_hor_prob) {
+					this.orientation = Orientation.RIGHT;
+				}
+				else {
+					this.orientation = Orientation.DOWN;
+				}
+			}
 		}
-		else if (Math.abs(x_dif) < Math.abs(y_dif)) {
-			if (y_dif > 0) this.orientation = Orientation.UP;
-			else this.orientation = Orientation.DOWN;
+		// should move left
+		else {
+			if (y_dif > 0) {
+				// up or left
+				if (Math.random() < move_hor_prob && x_dif != 0) {
+					this.orientation = Orientation.LEFT;
+				}
+				else {
+					this.orientation = Orientation.UP;
+				}
+			}
+			else {
+				// down or left
+				if (Math.random() < move_hor_prob && x_dif != 0) {
+					this.orientation = Orientation.LEFT;
+				}
+				else {
+					this.orientation = Orientation.DOWN;
+				}
+			}
 		}
-		else if (y_dif > 0) this.orientation = Orientation.UP;
-		else this.orientation = Orientation.DOWN;
+
+		//		if (Math.abs(x_dif) > Math.abs(y_dif)) {
+		//			if (x_dif > 0) this.orientation = Orientation.RIGHT;
+		//			else this.orientation = Orientation.LEFT;
+		//		}
+		//		else if (Math.abs(x_dif) < Math.abs(y_dif)) {
+		//			if (y_dif > 0) this.orientation = Orientation.UP;
+		//			else this.orientation = Orientation.DOWN;
+		//		}
+		//		else if (y_dif > 0) this.orientation = Orientation.UP;
+		//		else this.orientation = Orientation.DOWN;
 	}
 
 
 	// still tries to face the enemy, but in none of the same ways as the other face method
 	public void faceAlt(Unit that) {
-		int x_dif = that.pos_x - this.pos_x;
-		int y_dif = that.pos_y - this.pos_y;
-
-		if (Math.abs(x_dif) < Math.abs(y_dif)) {
-			if (x_dif > 0) this.orientation = Orientation.RIGHT;
-			else if (x_dif < 0) this.orientation = Orientation.LEFT;
-			else if (Math.random() < .5) this.orientation = Orientation.RIGHT;
-			else this.orientation = Orientation.LEFT;
-		}
-		else if (Math.abs(x_dif) > Math.abs(y_dif)) {
-			if (y_dif > 0) this.orientation = Orientation.UP;
-			else if (y_dif < 0) this.orientation = Orientation.DOWN;
-			else if (Math.random() < .5) this.orientation = Orientation.UP;
-			else this.orientation = Orientation.UP;
-		}
-		else if (x_dif > 0) this.orientation = Orientation.RIGHT;
-		else this.orientation = Orientation.LEFT;
+		this.faceAlt(that.getPoint());
 	}
 
 	public void faceAlt(BPoint that) {
@@ -1425,7 +1580,7 @@ public class Unit extends Group {
 
 
 	public boolean isRanged() {
-		return this.rangedWeapon != null || this.quiver <= 0;
+		return this.rangedWeapon != null;// || this.quiver <= 0;
 	}
 
 	public float getCenterX() {
@@ -1444,5 +1599,29 @@ public class Unit extends Group {
 
 	public BPoint getPoint() {
 		return new BPoint(pos_x, pos_y);
+	}
+
+
+	// only 1-handed units and non-mounted
+	public boolean canHide() {
+		if (this.isMounted()) return false;
+		return this.weapon.oneHand; 
+	}
+
+	public void updateHidden() {
+		if (this.canHide()) {
+			this.nearestEnemy = this.getNearestEnemy();
+			if (this.nearestEnemy == null) this.isHidden = false;
+			else if (this.nearestEnemy.distanceTo(this) > HIDE_DISTANCE*this.stage.battlemap.obscurity_factor) {
+				this.isHidden = true;
+			}
+			else this.isHidden = false;
+		}
+		else this.isHidden = false;
+	}
+
+	// return true if enemy can't see this unit
+	public boolean isHidden() {
+		return isHidden;
 	}
 }

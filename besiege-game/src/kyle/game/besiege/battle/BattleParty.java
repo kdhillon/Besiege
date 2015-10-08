@@ -101,7 +101,7 @@ public class BattleParty {
 	public void updatePolygon() {
 		if (parties == null) return;
 		for (Party p : parties) {
-			if (p != null && p.army != null)
+			if (p != null && p.army != null && !p.army.isGarrison)
 				p.army.updatePolygon();
 		}
 	}
@@ -113,5 +113,10 @@ public class BattleParty {
 			if (unit.spd < min) min = unit.spd;
 		}
 		this.minSpeed = min;
+	}
+	
+	public void updateHiddenAll() {
+		for (Unit unit : units) unit.updateHidden();
+//		System.out.println("updating hidden");
 	}
 }

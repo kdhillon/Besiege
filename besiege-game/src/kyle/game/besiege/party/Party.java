@@ -16,7 +16,7 @@ import kyle.game.besiege.party.Soldier.SoldierType;
 import com.badlogic.gdx.utils.Array;
 
 public class Party {
-	private final double BASE_CHANCE = .5;
+	private final double BASE_CHANCE = .3;
 	private final double MIN_WEALTH_FACTOR = 1.4; // times troopcount
 
 	public boolean updated; // does the panel need to be updated.
@@ -55,7 +55,7 @@ public class Party {
 	}
 
 	public void act(float delta) {
-		if (player) woundChance = BASE_CHANCE * army.getCharacter().getAttributeFactor("Reviving");
+		if (player && army != null) woundChance = BASE_CHANCE * army.getCharacter().getAttributeFactor("Reviving");
 		if (!this.army.isInBattle())
 			checkHeal();
 		calcStats();
@@ -63,7 +63,10 @@ public class Party {
 
 	public void checkUpgrades() {
 		for (Soldier s : getUpgradable()) {
-			s.upgrade(Weapon.upgrade(s.weapon).random());
+			if (s.unitType.upgrades.length == 0) return;
+			int selection = (int) (Math.random() * s.unitType.upgrades.length);
+			s.upgrade(s.unitType.upgrades[selection]);
+//			s.upgrade(Weapon.upgrade(s.getWeapon()).random());
 		}
 	}
 
@@ -111,6 +114,8 @@ public class Party {
 		prisoners.sort();
 	}
 	public boolean casualty(Soldier soldier) { // returns true if killed, false if wounded
+		// wound chance = base_chance*heal factor + (level of unit / max level)/2
+		double thisWoundChance = woundChance + (soldier.level / Soldier.MAX_LEVEL) / 2;
 		if (Math.random() < woundChance) {
 			wound(soldier);
 			return false;
@@ -125,7 +130,8 @@ public class Party {
 		healthy.sort();
 	}
 	public void wound(Soldier soldier) {
-		soldier.wound();
+		if (army != null)
+			soldier.wound();
 		healthy.removeValue(soldier, true);
 		this.addSoldier(soldier);
 		//	if (player) BottomPanel.log(soldier.name + " wounded", "orange");
@@ -142,6 +148,7 @@ public class Party {
 		healthy.sort();
 		updated = true;
 	}
+	
 	public Array<Soldier> getUpgradable() {
 		upgradable.clear();
 		for (Soldier s : healthy) {
@@ -248,14 +255,14 @@ public class Party {
 		Array<String> names = new Array<String>();
 		Array<Array<Soldier>> consol = new Array<Array<Soldier>>();
 		for (Soldier s : arrSoldier) {
-			if (!names.contains(s.getName(), false)) {
-				names.add(s.getName());
+			if (!names.contains(s.getName() + s.getUnitClass(), false)) {
+				names.add(s.getName() + s.getUnitClass());
 				Array<Soldier> type = new Array<Soldier>();
 				type.add(s);
 				consol.add(type);
 			}
 			else {
-				consol.get(names.indexOf(s.getName(), false)).add(s);
+				consol.get(names.indexOf(s.getName() + s.getUnitClass(), false)).add(s);
 			}
 		}
 		return consol;	
@@ -291,6 +298,9 @@ public class Party {
 		return spdTotal/1f/getHealthySize();
 	}
 	public void distributeExp(int total) {
+		System.out.println("distributing " + total + " exp to you");
+		if (this.player) BottomPanel.log("Party receives " + total + " experience!", "green");
+		
 		int exp = (int) (total/1.0/getHealthySize());
 		getHealthy().shrink();
 		for (int i = 0; i < getHealthy().size; i++)
@@ -307,7 +317,7 @@ public class Party {
 		boolean canAfford = true;
 		while (missing > 0 && canAfford) {
 			Soldier newSoldier = new Soldier(pt.randomSoldierType(), this);
-			int cost = newSoldier.weapon.getCost();
+			int cost = newSoldier.getCost();
 			if (this.wealth > cost) {
 				this.addSoldier(newSoldier);
 				this.wealth -= cost;

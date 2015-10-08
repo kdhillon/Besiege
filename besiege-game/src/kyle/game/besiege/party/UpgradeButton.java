@@ -8,11 +8,11 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
-public class WeaponButton extends Button {
-	public Weapon weapon;
+public class UpgradeButton extends Button {
+	public UnitType upgrade;
 	
-	public WeaponButton(Actor actor, ButtonStyle style, Weapon weapon) {
+	public UpgradeButton(Actor actor, ButtonStyle style, UnitType oldWeapon) {
 		super(actor, style);
-		this.weapon = weapon;
+		this.upgrade = oldWeapon;
 	}
 }

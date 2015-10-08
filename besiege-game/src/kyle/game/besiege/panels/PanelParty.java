@@ -12,11 +12,11 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -341,6 +341,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	public static void updateTableWithTypes(Table table, Array<Array<Soldier>> types, LabelStyle style) {
 		for (Array<Soldier> type : types) {
 			Label name = new Label(type.first().getName(), style);
+			name.setColor(type.first().unitType.unitClass.color);
 			table.add(name).left();
 			Label count = new Label(type.size + "", style);
 			table.add(count).right();
@@ -386,7 +387,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
 		else 
 			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
-		weaponS.setText(s.weapon.name);
+		weaponS.setText(s.unitType.melee.name);
 	}
 	
 	public void clearStats() {
@@ -398,8 +399,9 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	}
 	
 	public void centerCamera() {
-		OrthographicCamera camera = panel.getKingdom().getMapScreen().getCamera();
-		camera.translate(new Vector2(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y));
+		Camera camera = panel.getKingdom().getMapScreen().getCamera();
+//		camera.translate(new Vector2(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y));
+		camera.translate(new Vector3(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y, 0));
 	}
 	
 	@Override
@@ -419,6 +421,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	public void button1() {
 		if (this.getButton(1).isVisible()) {
 			if (party == panel.getKingdom().getPlayer().getParty()) {
+				panel.upgrades.update();
 				panel.setActive(panel.upgrades);
 			}
 			else {

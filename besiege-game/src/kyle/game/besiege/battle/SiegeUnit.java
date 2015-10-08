@@ -1,5 +1,6 @@
 package kyle.game.besiege.battle;
 
+import kyle.game.besiege.Assets;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.panels.BottomPanel;
@@ -66,10 +67,10 @@ public class SiegeUnit extends Group {
 	float timeSinceDeath;
 
 	BPoint nearestTarget;
-
+	Color c = new Color();
 
 	public enum SiegeType {
-		CATAPULT(20f, 50, 10, 15, 6, "catapult.png", "catapult_firing.png", "Catapult");
+		CATAPULT(20f, 50, 10, 15, 6, "catapult", "catapult_firing", "Catapult");
 
 		float projectileSpeed;
 		int range; 
@@ -99,8 +100,8 @@ public class SiegeUnit extends Group {
 		this.setX(pos_x);
 		this.setY(pos_y);
 
-		this.setWidth(stage.scale*stage.unit_width*size_x);
-		this.setHeight(stage.scale*stage.unit_height*size_y);
+		this.setWidth(stage.unit_width*size_x);
+		this.setHeight(stage.unit_height*size_y);
 		//		this.setWidth(texture.getRegionWidth());
 		//		this.setHeight(texture.getRegionHeight());
 
@@ -142,8 +143,8 @@ public class SiegeUnit extends Group {
 
 	// create animation with speed .25f assuming one row, loops by default
 	private Animation createAnimation(String filename, int columns, float time) {
-		Texture walkSheet = new Texture(Gdx.files.internal("objects/"+filename)); 
-		TextureRegion[][] textureArray = TextureRegion.split(walkSheet, walkSheet.getWidth()/columns, walkSheet.getHeight()/1);
+		TextureRegion walkSheet = Assets.map.findRegion(filename);
+		TextureRegion[][] textureArray = walkSheet.split(walkSheet.getRegionWidth()/columns, walkSheet.getRegionHeight()/1);
 		Animation animation = new Animation(time, textureArray[0]);
 		animation.setPlayMode(Animation.LOOP);
 		return animation;
@@ -377,17 +378,17 @@ public class SiegeUnit extends Group {
 			super.draw(batch, parentAlpha);
 
 			this.toFront();
-			Color c = new Color(batch.getColor());
+			c.set(batch.getColor());
 
 			updateRotation();
 
 			if (moving) {
-				setX(stage.scale * currentX() * stage.unit_width);
-				setY(stage.scale * currentY() * stage.unit_height);
+				setX(currentX() * stage.unit_width);
+				setY(currentY() * stage.unit_height);
 			}
 			else {
-				setX(stage.scale * pos_x * stage.unit_width);
-				setY(stage.scale * pos_y * stage.unit_height);
+				setX(pos_x * stage.unit_width);
+				setY(pos_y * stage.unit_height);
 			}
 
 			if (this.isHit)

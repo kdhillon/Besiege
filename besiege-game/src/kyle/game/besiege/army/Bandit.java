@@ -19,7 +19,7 @@ public class Bandit extends Army {
 	
 	public Bandit(Kingdom kingdom, String name,
 			float posX, float posY) {
-		super(kingdom, name, Faction.BANDITS_FACTION, posX, posY, PartyType.BANDIT);
+		super(kingdom, name, Faction.BANDITS_FACTION, posX, posY, PartyType.Type.FARMERS);
 		
 		if (getParty().getTotalSize() >= MID_SIZE)
 			texture = "Raider";

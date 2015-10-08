@@ -3,175 +3,175 @@ weapons.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-axe
+Axe
   rotate: false
   xy: 2, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-bardiche
+Bardiche
   rotate: false
   xy: 7, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-battleaxe
+Battleaxe
   rotate: false
   xy: 12, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-claymore
+Claymore
   rotate: false
   xy: 17, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-club
+Club
   rotate: false
   xy: 22, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-crossbow
+Crossbow
   rotate: false
   xy: 27, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-dagger
+Dagger
   rotate: false
   xy: 32, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-falchion
+Falchion
   rotate: false
   xy: 37, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-guisarme
+Guisarme
   rotate: false
   xy: 42, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-halberd
+Halberd
   rotate: false
   xy: 47, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-lance
+Lance
   rotate: false
   xy: 52, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-longbow
+Longbow
   rotate: false
   xy: 57, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-longsword
+Longsword
   rotate: false
   xy: 62, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-mace
+Mace
   rotate: false
   xy: 67, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-maul
+Maul
   rotate: false
   xy: 72, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-militaryfork
+Military Fork
   rotate: false
   xy: 77, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-morningstar
+Morningstar
   rotate: false
   xy: 82, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-pike
+Pike
   rotate: false
   xy: 87, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-pitchfork
+Pitchfork
   rotate: false
   xy: 92, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-recurve
+Recurve Bow
   rotate: false
   xy: 97, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-shortbow
+Shortbow
   rotate: false
   xy: 102, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-shortsword
+Shortsword
   rotate: false
   xy: 107, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-spear
+Spear
   rotate: false
   xy: 112, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-voulge
+Voulge
   rotate: false
   xy: 117, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-warhammer
+War Hammer
   rotate: false
   xy: 122, 2
   size: 3, 12

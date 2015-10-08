@@ -12,5 +12,7 @@ public class MyPacker {
  
         	TexturePacker2.process("A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/textures","A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "atlas1");
             TexturePacker2.process("A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/weapons", "A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "weapons");
+            TexturePacker2.process("A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/units", "A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "units");
+            TexturePacker2.process("A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/map", "A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "map");
         }
 }

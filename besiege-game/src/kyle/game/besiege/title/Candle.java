@@ -57,6 +57,11 @@ public class Candle extends Actor {
 		
 		this.particles = new Array<Particle>();
 	}
+	
+	public void move(int x, int y) {
+		this._x = x;
+		this._y = y;
+	}
 
 	private class Particle {
 		int _x;

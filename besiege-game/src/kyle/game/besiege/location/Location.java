@@ -20,7 +20,7 @@ import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.Weapon;
+import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
@@ -39,108 +39,200 @@ public class Location extends Actor implements Destination {
 	private final int HIRE_REFRESH = 120; // seconds it takes for soldiers to refresh in city
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
+	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
+
+	// for font rotation
+	private Matrix4 mx4Font = new Matrix4();
 	
+	public ObjectLabel label;
+
 	protected int DAILY_WEALTH_INCREASE_BASE;
 	protected double DAILY_POP_INCREASE_BASE;
 	protected int POP_MIN;
 	protected int POP_MAX;
-	
+
 	transient private TextureRegion region;
 	public String textureName;
-	
-	public enum LocationType {CITY, CASTLE, VILLAGE};
+
+	public enum LocationType {CITY, CASTLE, VILLAGE, RUIN};
 	public LocationType type;
 
-//	protected Array<Location> closestFriendlyLocations;
-//	protected Array<Location> closestEnemyLocations;
+	// relative prevalence of biomes surrounding this location
+	public float[] biomeDistribution;
+
+	//	protected Array<Location> closestFriendlyLocations;
+	//	protected Array<Location> closestEnemyLocations;
 	protected Array<Patrol> patrols;
-	
-	protected Array<City> closestFriendlyCities;
-	protected Array<Castle> closestFriendlyCastles;
-	protected Array<Village> closestFriendlyVillages;
-	
+
+	public Array<City> closestFriendlyCities;
+	public Array<Castle> closestFriendlyCastles;
+	public Array<Village> closestFriendlyVillages;
+
 	public Array<City> closestEnemyCities;
 	public Array<Castle> closestEnemyCastles;
 	public Array<Village> closestEnemyVillages;
-	
+
 	private boolean mouseOver;
-	
+
 	private Kingdom kingdom;
 	private String name;
 	private int index;
 	private Faction faction;
-	
+
+	public boolean ruin;
+
 	protected double population;
-	
+
 	private double wealthFactor = 1;
 
 	private Array<Army> garrisonedArmies;
-	transient protected Party toHire;
+	public transient Party toHire;
 	transient protected Party nextHire; // prevents player from loading and quitting to get ideal choice of hire
 	public Army garrison;
-	
+
 	private float timeSinceFreshHire;
-	
+
 	public Siege siege;
-	
+
 	private float spawnX; // where should units spawn? must be inside
 	private float spawnY;
-	
+
 	private boolean autoManage;
 	public boolean playerIn; //is player garrisoned inside (special menu)
 	public boolean hostilePlayerTouched;
 	public boolean playerWaiting; // is player waiting inside?
 	public boolean playerBesieging;
-	
+
 	public Point spawnPoint; // point where armies and farmers should spawn if on water
 	public int center = -1; // one of these will be null
 	public int corner = -1;
-	
+
 	public Location(){
 		this.region = Assets.atlas.findRegion(textureName);
 	}
-	
-	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, Party garrison) {
+
+
+	// constructor for Ruins (location with no faction, garrison, etc)
+	public Location(Kingdom kingdom, String name, int index, float posX, float posY) {
 		this.kingdom = kingdom;
 		this.name = name;
 		this.index = index;
-		this.faction = faction;
-				
-		setPosition(posX, posY);
-		
-		setTextureRegion("Castle"); // default location textureRegion
-	
-		garrisonedArmies = new Array<Army>();
-		this.garrison = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
-		this.garrison.setParty(garrison);
-//		this.garrison(this.garrison);
 
-		autoManage = true;
+		this.faction = null;
+		this.ruin = true;
+
+		setPosition(posX, posY);
+
+		setTextureRegion("Castle"); // default location textureRegion
+
+		garrisonedArmies = new Array<Army>();
+
 		playerIn = false;
 		hostilePlayerTouched = false;
-		
-		patrols = new Array<Patrol>();
-		
-//		closestFriendlyLocations = new Array<Location>();
-//		closestEnemyLocations = new Array<Location>();
-		
-		closestEnemyCities = new Array<City>(); 
-		closestEnemyCastles = new Array<Castle>();
-		closestEnemyVillages = new Array<Village>();
-		
-		closestFriendlyCities = new Array<City>(); 
-		closestFriendlyCastles = new Array<Castle>();
-		closestFriendlyVillages = new Array<Village>();
-		
-		timeSinceFreshHire = 0;
-		nextHire = new Party(); //empty
-		updateToHire();
-		updateToHire();
-		
+
 		this.setRotation(0);
 		this.setScale(1);
 		initializeBox();
 	}
+
+	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType) {
+		this.kingdom = kingdom;
+		this.name = name;
+		this.index = index;
+		this.faction = faction;
+
+		setPosition(posX, posY);
+
+		setTextureRegion("Castle"); // default location textureRegion
+
+		garrisonedArmies = new Array<Army>();
+
+		this.garrison = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), pType);
+		this.garrison.isGarrison = true;
+		//		this.garrison.setParty(garrison);
+		//		this.garrison(this.garrison);
+
+		autoManage = true;
+		playerIn = false;
+		hostilePlayerTouched = false;
+
+		patrols = new Array<Patrol>();
+
+		//		closestFriendlyLocations = new Array<Location>();
+		//		closestEnemyLocations = new Array<Location>();
+
+		closestEnemyCities = new Array<City>(); 
+		closestEnemyCastles = new Array<Castle>();
+		closestEnemyVillages = new Array<Village>();
+
+		closestFriendlyCities = new Array<City>(); 
+		closestFriendlyCastles = new Array<Castle>();
+		closestFriendlyVillages = new Array<Village>();
+
+		timeSinceFreshHire = 0;
+		nextHire = new Party(); //empty
+
+
+		this.setRotation(0);
+		this.setScale(1);
+		initializeBox();
+	}
+
+	public void initializeBiomeDistributions() {
+		Biomes[] biomes = Biomes.values();
+		biomeDistribution = new float[biomes.length];
+
+		if (this.corner != -1) {
+			Corner c = this.getCorner();
+			// just do adjacent corners
+			for (Center neighbor : c.touches) {
+				if (!neighbor.water) {
+					int biomeIndex = neighbor.getBiomeIndex();
+					biomeDistribution[biomeIndex]++;
+				}
+			}
+		}
+		else if (this.center != -1) {
+			Center c = this.getCenter();
+			int thisIndex = c.getBiomeIndex();
+			biomeDistribution[thisIndex] += 3; // arbitrary
+
+			for (Center neighbor : c.neighbors) {
+				if (!neighbor.water) {
+					int biomeIndex = neighbor.getBiomeIndex();
+					biomeDistribution[biomeIndex]++;
+				}
+			}
+		}
+
+		// normalize biome distribution
+		float total = 0;
+		for (int i = 0; i < biomeDistribution.length; i++) {
+			total += biomeDistribution[i];
+		}
+		for (int i = 0; i < biomeDistribution.length; i++) {
+			biomeDistribution[i] /= total;
+			//			if (biomeDistribution[i] != 0) 
+			//				System.out.println(this.name + ": " + biomes[i].toString() + " (" + biomeDistribution[i] +")");
+		}
+	}
+
+	//	public void initializeGarrison() {
+	//		Type type = null;
+	//		switch(this.type) {
+	//		case CASTLE:
+	//			type = Type.CASTLE_GARRISON;
+	//			break;
+	//		case CITY:
+	//			type = Type.CITY_GARRISON;
+	//			break;
+	//		case VILLAGE:
+	//			type = Type.VILLAGE_GARRISON;
+	//			break;
+	//		}
+	//		Party gParty = PartyType.getDefault(type, this).generate();
+	//		this.garrison.setParty(gParty);
+	//	}
 
 	public void initializeBox() {
 		this.setWidth(region.getRegionWidth()*SCALE);
@@ -149,9 +241,21 @@ public class Location extends Actor implements Destination {
 	}
 	public void setCorner(Corner corner) {
 		this.corner = corner.index;
+		this.initializeBiomeDistributions();
+
+		// problem is that boime distribution hasn't been initialized yet
+		updateToHire();
+		updateToHire();
+		//		this.initializeGarrison();
 	}
 	public void setCenter(Center center) {
 		this.center = center.index;
+		this.initializeBiomeDistributions();
+
+		// problem is that boime distribution hasn't been initialized yet
+		updateToHire();
+		updateToHire();
+		//		this.initializeGarrison();
 	}
 	public Center getCenter() {
 		if (this.center == -1) return null;
@@ -161,7 +265,7 @@ public class Location extends Actor implements Destination {
 		if (this.corner == -1) return null;
 		return kingdom.getMap().getCorner(corner);
 	}
-	
+
 	/** Initialize containers for armies created at this site 
 	 * @param army Army to be created */
 	public void setContainerForArmy(Army army) {
@@ -170,11 +274,11 @@ public class Location extends Actor implements Destination {
 			getCenter().armies.add(army);
 		}
 		else if (getCorner() != null) {
-//			assert(army != null);
-//			assert(army.containing != null);
-//			assert(corner.touches != null);
-//			assert(corner.touches.get(0) != null);
-//			assert(false);
+			//			assert(army != null);
+			//			assert(army.containing != null);
+			//			assert(corner.touches != null);
+			//			assert(corner.touches.get(0) != null);
+			//			assert(false);
 			if (getCorner() == null) System.out.println("containing is null!");
 			army.containingCenter = getCorner().touches.get(0).index;
 			getCorner().touches.get(0).armies.add(army);
@@ -182,63 +286,55 @@ public class Location extends Actor implements Destination {
 		else 
 			System.out.println(this.getName() + " no corner or center!");
 	}
-	
+
 	@Override
 	public void act(float delta) {
-		if (this.garrison.getKingdom() != null)
-			this.garrison.act(delta);
-		
-		if (autoManage) {
-			autoManage();
+		if (ruin) {
+			// nothing here
 		}
-		if (timeSinceFreshHire >= HIRE_REFRESH) {
-			timeSinceFreshHire = 0;
-			updateToHire();
+		else {
+			if (this.garrison.getKingdom() != null)
+				this.garrison.act(delta);
+
+			if (autoManage) {
+				autoManage();
+			}
+			if (timeSinceFreshHire >= HIRE_REFRESH) {
+				timeSinceFreshHire = 0;
+				updateToHire();
+			}
+			else timeSinceFreshHire += delta;
+
+			if (!kingdom.isPaused()) {
+				hostilePlayerTouched = false; // only can be selected when game is paused;
+			}
 		}
-		else timeSinceFreshHire += delta;
-		
-		if (!kingdom.isPaused()) {
-			hostilePlayerTouched = false; // only can be selected when game is paused;
-		}
-//		if (underSiege()) {
-//			if (playerBesieging) {
-//				if (!siege.armies.contains(kingdom.getPlayer(), true)) {
-//					playerBesieging = false;
-//					kingdom.getMapScreen().getSidePanel().setDefault();
-//				}
-//			}
-//			if (!playerBesieging) {
-//				if (siege.armies.contains(kingdom.getPlayer(), true))
-//					playerBesieging = true;
-//			}
-//		}
-		
 		super.act(delta);
 	}
-	
+
 	public void autoManage() {
 		//contains actions in extensions
 	}
-	
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		setRotation(kingdom.getMapScreen().rotation);
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 	}
-	
+
 	public void drawCrest(SpriteBatch batch) {
 		float size_factor = 1.4f;
-		 
+
 		if ((this.type == LocationType.VILLAGE))
 			size_factor = .5f * size_factor;
 		if ((this.type == LocationType.CASTLE))
 			size_factor = .8f * size_factor;
-		
+
 		Color temp = batch.getColor();
-		float zoom = getKingdom().getMapScreen().getCamera().zoom;
+		float zoom = getKingdom().getZoom();
 		zoom *= size_factor; 
-	
+
 		// TODO do some vector calculations to make this rotate	
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
@@ -291,50 +387,47 @@ public class Location extends Actor implements Destination {
 				font = Assets.pixel12;
 				zoom = .6f;
 			}
-			
-			// draw crest
-			Color clear_white = new Color();
-			clear_white.b = 1;	clear_white.r = 1;	clear_white.g = 1;
-			clear_white.a = .6f;
+
+			// draw crest			
 			batch.setColor(clear_white);
-			
-			Matrix4 mx4Font = new Matrix4();
+
+			mx4Font.idt();
 			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
 			mx4Font.trn(getCenterX(), getCenterY(), 0);
 			Matrix4 tempMatrix = batch.getTransformMatrix();
 			batch.setTransformMatrix(mx4Font);
-			
+
 			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
 			batch.setColor(temp);
-			
+
 			batch.setTransformMatrix(tempMatrix);
-//			// draw text
-//			font.setColor(clear_white);
-//			String toDraw = getName();
-//			font.draw(batch, toDraw, getX() - (int) (4.3*toDraw.length())*zoom, getY()-5-5*zoom);
+			//			// draw text
+			//			font.setColor(clear_white);
+			//			String toDraw = getName();
+			//			font.draw(batch, toDraw, getX() - (int) (4.3*toDraw.length())*zoom, getY()-5-5*zoom);
 		}
 	}
-	
+
 	public void drawText(SpriteBatch batch) {
 		float size_factor = 1.4f;
-		 
+
 		if ((this.type == LocationType.VILLAGE))
 			size_factor = .5f * size_factor;
-		if ((this.type == LocationType.CASTLE))
+		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN))
 			size_factor = .8f * size_factor;
-		
+
 		Color temp = batch.getColor();
-		float zoom = getKingdom().getMapScreen().getCamera().zoom;
+		float zoom =  getKingdom().getZoom();
 		zoom *= size_factor; 
-	
-		
+
+
 		// TODO do some vector calculations to make this rotate	
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
 		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !(this.type == LocationType.CASTLE && zoom > 9)) {			
+		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 9)) {			
 			BitmapFont font;			
-			
+
 			if (zoom > 7) {
 				font = Assets.pixel150;
 				zoom = 7;
@@ -382,38 +475,35 @@ public class Location extends Actor implements Destination {
 			}
 			String toDraw = getName();
 
-			Matrix4 mx4Font = new Matrix4();
+			mx4Font.idt();
 			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
 			mx4Font.trn(getX(), getY(), 0);
 			Matrix4 tempMatrix = batch.getTransformMatrix();
 			batch.setTransformMatrix(mx4Font);
-			
-//			// draw crest
-			Color clear_white = new Color();
-			clear_white.b = 1;	clear_white.r = 1;	clear_white.g = 1;
-			clear_white.a = .8f;
-//			batch.setColor(clear_white);
-//			batch.draw(this.getFaction().crest, getCenterX() - 14*zoom, getCenterY() + 13, 30*zoom, 45*zoom);
-//			batch.setColor(temp);
-			
+
+			//			// draw crest
+			//			batch.setColor(clear_white);
+			//			batch.draw(this.getFaction().crest, getCenterX() - 14*zoom, getCenterY() + 13, 30*zoom, 45*zoom);
+			//			batch.setColor(temp);
+
 			// draw text
 			font.setColor(clear_white);
 			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom, -8*zoom);
-			
+
 			batch.setTransformMatrix(tempMatrix);
 		}
 	}
 
-//	public void drawInfo(SpriteBatch batch, float parentAlpha) {
-//		Kingdom.arial.setColor(Kingdom.factionColors.get(getFaction()));
-//		Kingdom.arial.draw(batch, getName() + " (" + garrison.wealth + ")", getX(), getY());	
-//		
-//		float offset = 0;
-//		for (Army army : getGarrisoned()) {
-//			offset -= getOffset()*getKingdom().getZoom();
-//			Kingdom.arial.draw(batch, army.getName() + ": " + army.getTroopCount(), getX(), getY() + offset);
-//		}	
-//	}
+	//	public void drawInfo(SpriteBatch batch, float parentAlpha) {
+	//		Kingdom.arial.setColor(Kingdom.factionColors.get(getFaction()));
+	//		Kingdom.arial.draw(batch, getName() + " (" + garrison.wealth + ")", getX(), getY());	
+	//		
+	//		float offset = 0;
+	//		for (Army army : getGarrisoned()) {
+	//			offset -= getOffset()*getKingdom().getZoom();
+	//			Kingdom.arial.draw(batch, army.getName() + ": " + army.getTroopCount(), getX(), getY() + offset);
+	//		}	
+	//	}
 
 	/** initializes closeLocation arrays with close locations
 	 */
@@ -421,41 +511,41 @@ public class Location extends Actor implements Destination {
 		closestEnemyCities.clear();
 		closestEnemyCastles.clear();
 		closestEnemyVillages.clear();
-		
+
 		for (City that : getKingdom().getCities()) {
 			if (that != this && Kingdom.distBetween(this, that) < CLOSE_LOC_DISTANCE) {
-				if (!kingdom.isAtWar(getFaction(), that.getFaction())) 
+				if (!this.faction.atWar(that.getFaction())) 
 					closestFriendlyCities.add(that);
 				else closestEnemyCities.add(that);
 			}
 		}
 		for (Castle castle : getKingdom().castles) {
 			if (castle != this && Kingdom.distBetween(this, castle) < CLOSE_LOC_DISTANCE) {
-				if (!kingdom.isAtWar(getFaction(), castle.getFaction())) 
+				if (!this.faction.atWar(castle.getFaction())) 
 					closestFriendlyCastles.add(castle);
 				else closestEnemyCastles.add(castle);
 			}
 		}
 		// when is village faction info initialized?
-//		for (Village village : getKingdom().villages) {
-//			if (village != this && Kingdom.distBetween(this, village) < CLOSE_LOC_DISTANCE) {
-//				if (!Faction.isAtWar(getFaction(), village.getFaction()))
-//					closestFriendlyVillages.add(village);
-//				else closestEnemyVillages.add(village);
-//			}
-//		}
+		//		for (Village village : getKingdom().villages) {
+		//			if (village != this && Kingdom.distBetween(this, village) < CLOSE_LOC_DISTANCE) {
+		//				if (!Faction.isAtWar(getFaction(), village.getFaction()))
+		//					closestFriendlyVillages.add(village);
+		//				else closestEnemyVillages.add(village);
+		//			}
+		//		}
 	}
-	
+
 	/** Update closeLocation arrays (doesn't look for new cities)
 	 * 
 	 */
 	public void updateCloseLocations() {
 		Array<City> newCloseEnemyCities = new Array<City>();
 		Array<City> newCloseFriendlyCities = new Array<City>();
-		
+
 		// cities
 		for (City c : closestEnemyCities) {
-			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
+			if (this.getFaction().atWar(c.getFaction())) {
 				if (!newCloseEnemyCities.contains(c, true))
 					newCloseEnemyCities.add(c);
 			}
@@ -463,7 +553,7 @@ public class Location extends Actor implements Destination {
 				newCloseFriendlyCities.add(c);
 		}
 		for (City c : closestFriendlyCities) {
-			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
+			if (this.getFaction().atWar(c.getFaction())) {
 				if (!newCloseEnemyCities.contains(c, true))
 					newCloseEnemyCities.add(c);
 			}
@@ -472,13 +562,13 @@ public class Location extends Actor implements Destination {
 		}
 		closestEnemyCities = new Array<City>(newCloseEnemyCities);
 		closestFriendlyCities = new Array<City>(newCloseFriendlyCities);
-		
+
 		Array<Castle> newCloseEnemyCastles = new Array<Castle>();
 		Array<Castle> newCloseFriendlyCastles = new Array<Castle>();
-		
+
 		// castles
 		for (Castle c : closestEnemyCastles) {
-			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
+			if (this.getFaction().atWar(c.getFaction())) {
 				if (!newCloseEnemyCastles.contains(c, true))
 					newCloseEnemyCastles.add(c);
 			}
@@ -486,7 +576,7 @@ public class Location extends Actor implements Destination {
 				newCloseFriendlyCastles.add(c);
 		}
 		for (Castle c : closestFriendlyCastles) {
-			if (kingdom.isAtWar(this.getFaction(), c.getFaction())) {
+			if (this.getFaction().atWar(c.getFaction())) {
 				if (!newCloseEnemyCastles.contains(c, true))
 					newCloseEnemyCastles.add(c);
 			}
@@ -498,10 +588,10 @@ public class Location extends Actor implements Destination {
 
 		Array<Village> newCloseEnemyVillages = new Array<Village>();
 		Array<Village> newCloseFriendlyVillages = new Array<Village>();
-		
+
 		// villages
 		for (Village v : closestEnemyVillages) {
-			if (kingdom.isAtWar(this.getFaction(), v.getFaction())) {
+			if (this.getFaction().atWar(v.getFaction())) {
 				if (!newCloseEnemyVillages.contains(v, true))
 					newCloseEnemyVillages.add(v);
 			}
@@ -509,7 +599,7 @@ public class Location extends Actor implements Destination {
 				newCloseFriendlyVillages.add(v);
 		}
 		for (Village v : closestFriendlyVillages) {
-			if (kingdom.isAtWar(this.getFaction(), v.getFaction())) {
+			if (this.getFaction().atWar(v.getFaction())) {
 				if (!newCloseEnemyVillages.contains(v, true))
 					newCloseEnemyVillages.add(v);
 			}
@@ -519,7 +609,7 @@ public class Location extends Actor implements Destination {
 		closestEnemyVillages = new Array<Village>(newCloseEnemyVillages);
 		closestFriendlyVillages = new Array<Village>(newCloseFriendlyVillages);
 	}
-	
+
 	public Location getCloseEnemyCity() {
 		return closestEnemyCities.random();
 	}
@@ -529,7 +619,7 @@ public class Location extends Actor implements Destination {
 	public Location getCloseEnemyVillage() {
 		return closestEnemyVillages.random();
 	}
-	
+
 	public Array<Patrol> getPatrols() {
 		return patrols;
 	}
@@ -540,40 +630,56 @@ public class Location extends Actor implements Destination {
 	public void dailyWealthIncrease() {
 		this.addWealth((int) (DAILY_WEALTH_INCREASE_BASE * wealthFactor * population/POP_MAX));
 	}
-	
+
 	public void dailyPopIncrease() {
 		this.population += (DAILY_POP_INCREASE_BASE);
 		if (this.population > POP_MAX) this.population = POP_MAX;
 	}
-	
-	
-	
+
+
+
 	// TODO fix for battlestage
 	public void siegeAttack(Array<Army> attackers) {
-//		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
-//		garrisonArmy.setParty(garrison);
-//		if (this.location. == null) {
-//			System.out.println("FUCK no besieging");
-//			return;
-//		}
-		
-		attackers.first().createBattleWith(garrison, this);
-		Battle b = garrison.getBattle();
-		b.siegeOf = this;
-		
-		System.out.println("siegeOf = " + this.getName());
-		b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
-		b.dAdvantage = this.getDefenseFactor();
-		for (Army a : attackers) {
-			if (a.getParty().player) ;
+		//		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
+		//		garrisonArmy.setParty(garrison);
+		//		if (this.location. == null) {
+		//			System.out.println("FUCK no besieging");
+		//			return;
+		//		}
+
+		if (playerWaiting) {
+			// create array of defenders
+			Array<Party> defenders = new Array<Party>();
+			defenders.add(garrison.party);
+			for (Army a : garrisonedArmies) {
+				if (!a.party.player)
+				defenders.add(a.party);
+			}
+			Array<Party> attackerParties = new Array<Party>();
+			for (Army a : attackers) {
+				attackerParties.add(a.party);
+			}
+			kingdom.getPlayer().createPlayerBattleWith(defenders, attackerParties, true, this);
+		}
+		else {
+			attackers.first().createBattleWith(garrison, this);
+			Battle b = garrison.getBattle();
+			b.siegeOf = this;
+
+			System.out.println("siegeOf = " + this.getName());
+			b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
+			b.dAdvantage = this.getDefenseFactor();
+			for (Army a : attackers) {
+				if (a.getParty().player) ;
 				// bring up option to attack, pause/stay etc
-			if (a != attackers.first()) {
+				if (a != attackers.first()) {
+					a.joinBattle(b);
+				}
+			}
+			for (Army a : garrisonedArmies) {
+				//			System.out.println("adding " + a.getName() + " to siege battle");
 				a.joinBattle(b);
 			}
-		}
-  		for (Army a : garrisonedArmies) {
-//			System.out.println("adding " + a.getName() + " to siege battle");
-			a.joinBattle(b);
 		}
 	}
 	public void beginSiege(Army army) {
@@ -587,7 +693,7 @@ public class Location extends Actor implements Destination {
 		siege.add(army);
 		if (garrison.getBattle() != null) garrison.getBattle().add(army);
 	}
-	
+
 	public void endSiege() {
 		kingdom.removeActor(siege);
 		siege = null;
@@ -599,7 +705,7 @@ public class Location extends Actor implements Destination {
 		return siege;
 	}
 	public void updateToHire() {
-//		if (this.toHire.size == 0) toHire.add(new Soldier(Weapon.PITCHFORK, null));
+		//		if (this.toHire.size == 0) toHire.add(new Soldier(Weapon.PITCHFORK, null));
 		// contained in extensions
 	}
 	public void garrison(Soldier soldier) {
@@ -612,7 +718,7 @@ public class Location extends Actor implements Destination {
 		garrisonedArmies.add(army);
 		army.setVisible(false);
 		army.setPosition(this.getCenterX()-army.getOriginX(), getCenterY()-army.getOriginY());
-		
+
 		// attmepting this
 		//kingdom.removeArmy(army);
 	}
@@ -635,23 +741,23 @@ public class Location extends Actor implements Destination {
 		System.out.println("location.startWait()");
 		playerWaiting = true;
 		getKingdom().getPlayer().setWaiting(true);
-//		getKingdom().getMapScreen().shouldFastForward = true;
+		//		getKingdom().getMapScreen().shouldFastForward = true;
 		getKingdom().getMapScreen().shouldLetRun = true;
 		getKingdom().setPaused(false);
 	}
-	
+
 	public void stopWait() {
-//		System.out.println("location.stopWait()");
+		//		System.out.println("location.stopWait()");
 		playerWaiting = false;
 		getKingdom().getPlayer().setWaiting(false);
-//		getKingdom().getMapScreen().shouldFastForward = false;
+		//		getKingdom().getMapScreen().shouldFastForward = false;
 		getKingdom().getMapScreen().shouldLetRun = false;
 		getKingdom().setPaused(true);
 	}
 	public boolean hire(Party party, Soldier s) { // returns true if hired successfully, false if not (not enough money?)
 		if (toHire.getHealthy().contains(s, true)) {
-			if (party.wealth - Weapon.TIER_COST[s.getTier()] >= party.minWealth) {
-				party.wealth -= Weapon.TIER_COST[s.getTier()];
+			if (party.wealth - s.getHireCost() >= party.minWealth) {
+				party.wealth -= s.getHireCost();
 				toHire.removeSoldier(s);
 				party.addSoldier(s);
 				s.party = party;
@@ -666,7 +772,7 @@ public class Location extends Actor implements Destination {
 	public void setToHire(Party toHire) {
 		this.toHire = toHire;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
@@ -675,28 +781,29 @@ public class Location extends Actor implements Destination {
 	public Faction getFaction() {
 		return faction;
 	}
-	private void setFaction(Faction faction) {
-		this.faction = faction;
-	}
+	//	private void setFaction(Faction faction) {
+	//		this.faction = faction;
+	//	}
 	public void changeFaction(Faction newFaction) {
-
+		if (this.ruin) return;
 		if (this.type == LocationType.CITY) {
 			this.faction.cities.removeValue((City) this, true);
 			newFaction.cities.add((City) this);
-			
+
 			this.faction.allocateNoblesFrom((City) this);
 			newFaction.allocateNoblesFor((City) this);
-			
+
 			for (Army army : kingdom.getArmies()) {
 				if (army.type == Army.ArmyType.MERCHANT) {
-					 Merchant merchant = ((Merchant) army);
+					Merchant merchant = ((Merchant) army);
 					if (merchant.goal == this) merchant.returnHome();
 				}
 			}
-			
+
 			for (Patrol patrol : this.patrols)
 				patrol.setFaction(newFaction);
 			
+
 			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.CASTLE) {
@@ -710,27 +817,36 @@ public class Location extends Actor implements Destination {
 			for (Farmer f : ((Village) this).farmers) {
 				f.setFaction(newFaction);
 			}
-//			((Village) this).farmers = new Array<Farmer>(((Village) this).farmers);
+			//			((Village) this).farmers = new Array<Farmer>(((Village) this).farmers);
 			// TODO undo this
 		}
-		
+
 		if (this.type != LocationType.VILLAGE) {
 			// swap captured and garrison
 			Array<Soldier> oldCaptured = new Array<Soldier>(garrison.getParty().getPrisoners());
 			garrison.getParty().clearPrisoners();
-			
+
 			for (Soldier newPrisoner : garrison.getParty().getWounded()) 
 				this.garrison.getParty().givePrisoner(newPrisoner, this.garrison.getParty());
 			for (Soldier newPrisoner : garrison.getParty().getHealthy())
 				this.garrison.getParty().givePrisoner(newPrisoner, this.garrison.getParty());
-			
+
 			for (Soldier newSoldier : oldCaptured) 
 				this.garrison.getParty().addPrisoner(newSoldier);
-				
+
 			kingdom.updateFactionCityInfo();
 		}
-		
 		this.faction = newFaction;
+//		if (playerWaiting) {
+//			kingdom.getPlayer().garrisonIn(null);
+//			this.playerWaiting = false;
+//		}
+//		
+//		System.out.println(playerWaiting + " " + playerBesieging);
+//		if (playerBesieging) {
+//			kingdom.getPlayer().garrisonIn(this);
+//			this.playerBesieging = false;
+//		}
 		// update friendly arrays, and everything (if this isn't a village)
 	}
 	@Override 
@@ -741,6 +857,7 @@ public class Location extends Actor implements Destination {
 		return index;
 	}
 	public Party getParty() {
+		if (garrison == null) return null;
 		return garrison.getParty();
 	}
 	public void setParty(Party party) {
@@ -755,37 +872,37 @@ public class Location extends Actor implements Destination {
 	public void loseWealth(int wealth) {
 		this.getParty().wealth -= wealth;
 	}
-	
+
 	public double distTo(Location location) {
 		return Math.sqrt((this.getCenterY() - location.getCenterY())*(this.getCenterY() - location.getCenterY()) + 
 				(this.getCenterX() - location.getCenterX())*(this.getCenterX() - location.getCenterX()));
 	}
-	
+
 	public double distTo(double x, double y) {
 		return Math.sqrt((this.getCenterY() - y)*(this.getCenterY() - y) + 
 				(this.getCenterX() - x)*(this.getCenterX() - x));
 	}
-	
+
 	public int getWealth() {
 		return this.getParty().wealth;
 	}
 	public void changeWealth(int delta) {
 		if (this.getParty().wealth + delta > 0) this.getParty().wealth += delta;
 	}
-//	public int getWealth() {
-//		return wealth;
-//	}
-//	public void setWealth(int wealth) {
-//		this.wealth = wealth;
-//	}
-//	@Override
-//	public double distToCenter(Destination d) {
-//		return Math.sqrt((d.getX()-getCenterX())*(d.getX()-getCenterX())+(d.getY()-getCenterY())*(d.getY()-getCenterY()));
-//	}
-//	@Override
-//	public double distTo(Destination d) {
-//		return Math.sqrt((d.getX()-getX())*(d.getX()-getX())+(d.getY()-getY())*(d.getY()-getY()));
-//	}
+	//	public int getWealth() {
+	//		return wealth;
+	//	}
+	//	public void setWealth(int wealth) {
+	//		this.wealth = wealth;
+	//	}
+	//	@Override
+	//	public double distToCenter(Destination d) {
+	//		return Math.sqrt((d.getX()-getCenterX())*(d.getX()-getCenterX())+(d.getY()-getCenterY())*(d.getY()-getCenterY()));
+	//	}
+	//	@Override
+	//	public double distTo(Destination d) {
+	//		return Math.sqrt((d.getX()-getX())*(d.getX()-getX())+(d.getY()-getY())*(d.getY()-getY()));
+	//	}
 
 	@Override
 	public void setMouseOver(boolean mouseOver) {
@@ -803,7 +920,7 @@ public class Location extends Actor implements Destination {
 			}
 		}
 	}
-	
+
 	public float getCenterX() {
 		return this.getX() + this.getOriginX();
 	}
@@ -814,24 +931,24 @@ public class Location extends Actor implements Destination {
 	public Kingdom getKingdom() {
 		return kingdom;
 	}
-	
+
 	public void setTextureRegion(String textureRegion) {
 		this.textureName = textureRegion;
 		region = Assets.atlas.findRegion(textureRegion);
 	}
-	
+
 	public Array<Army> getGarrisoned() {
 		return garrisonedArmies;
 	}
-	
+
 	public Array<Army> getGarrisonedAndGarrison() {
 		Array<Army> garrisoned = new Array<Army>(getGarrisoned());
-//		Army garrisonArmy = new Army(getKingdom(), "Garrison", getFaction(), getCenterX(), getCenterY(), null);
-//		garrisonArmy.setParty(garrison);
+		//		Army garrisonArmy = new Army(getKingdom(), "Garrison", getFaction(), getCenterX(), getCenterY(), null);
+		//		garrisonArmy.setParty(garrison);
 		garrisoned.add(garrison);
 		return garrisoned;
 	}
-	
+
 	public int getOffset() {
 		return offset;
 	}
@@ -842,6 +959,7 @@ public class Location extends Actor implements Destination {
 		return this.type == LocationType.CASTLE;
 	}
 	public String getFactionName() {
+		if (faction == null) return "Abandoned";
 		return faction.name;
 	}
 	public String getTypeStr() {
@@ -849,8 +967,11 @@ public class Location extends Actor implements Destination {
 			return "Village";
 		else if (this.isCastle())
 			return "Castle";
-		else 
+		else if (type == LocationType.CITY)
 			return "City";
+		else if (type == LocationType.RUIN)
+			return "Ruins";
+		return "No Type";
 	}
 	public float getDefenseFactor() {
 		return 1.5f; //TODO

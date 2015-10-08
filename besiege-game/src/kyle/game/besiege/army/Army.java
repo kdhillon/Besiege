@@ -61,9 +61,12 @@ public class Army extends Actor implements Destination {
 	private static final float RUN_EVERY = .5f;
 	protected static final double WEALTH_FACTOR = 2;
 	private static final double ACTING_RANGE_FACTOR = 2; // times player LOS, units within this range will act. otherwise they won't
-	
+	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 	private boolean mouseOver;
 	protected boolean passive; // passive if true (won't attack) aggressive if false;
+	
+	// for font rotation
+	private Matrix4 mx4Font = new Matrix4();
 	
 	protected int wealthFactor = 1; // set in children
 
@@ -91,7 +94,7 @@ public class Army extends Actor implements Destination {
 	protected boolean normalWaiting;
 	private double waitUntil;// seconds goal
 	public boolean forceWait;
-	private boolean shouldRepair;
+	public boolean isGarrison;
 
 	private boolean startedRunning;
 
@@ -106,16 +109,18 @@ public class Army extends Actor implements Destination {
 	public float retreatCounter; // needed in battles
 	private Siege siege;
 	private Destination target;
-	private Destination defaultTarget;
+	private transient Destination defaultTarget;
 	//	private Location defaultTarget;
 	protected Stack<Destination> targetStack;
 	public Path path;
 	protected Army runFrom;
 //	public Destination runTo; // use for running
 	public Array<Army> targetOf; // armies that have this army as a target
-	public int containingCenter;
-	public Array<Army> closeArmies;
+	public int containingCenter = -1;
+	public transient Array<Army> closeArmies;
 	public Array<Integer> closeCenters; 
+	
+	public boolean hiding;
 	
 	private float timeSinceRunFrom = 0;
 
@@ -124,34 +129,30 @@ public class Army extends Actor implements Destination {
 	private int currentHour; // used for decreasing momentum every hour
 	public boolean playerTouched; // kinda parallel to location.playerIn
 
+	private boolean justLoaded;
+	
 	public Army() {
-		this.party = PartyType.BANDIT.generate();
-		this.party.army = this;
+//		this.party = PartyType.generateDefault(PartyType.Type.FARMERS);
+//		this.party.army = this;
 		//for loading
 		// restore kingdom, texture region, 
+		// not sure if this will fix saving bug
+		this.closeArmies = new Array<Army>();
+		this.justLoaded = true;
 	}
 	
-	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType pt) {
+	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type) {
 		this.kingdom = kingdom;
 		this.name = name;
 		this.faction = faction;
-		this.partyType = pt;
-
-		if (pt != null)
-			this.party = pt.generate();
-		else this.party = new Party();
-		this.party.army = this;
-
-		this.speedFactor = ORIGINAL_SPEED_FACTOR;
-		this.speed = calcSpeed();
-		this.lineOfSight = calcLOS();
-
-		this.morale = calcMorale();
-		this.currentHour = getKingdom().getTotalHour();
+//		this.partyType = pt;
+		
+//		else this.party = new Party();
 
 		this.stopped = true;
 		this.normalWaiting = false;
 		this.waitUntil = 0;
+		this.hiding = false;
 
 		this.battle = null;
 		this.siege = null;	
@@ -171,6 +172,33 @@ public class Army extends Actor implements Destination {
 		
 		this.setPosition(posX, posY);
 		this.setRotation(0);
+		
+		kingdom.updateArmyPolygon(this);
+		
+		if (type != null) {
+			Center containing = kingdom.getMap().getCenter(containingCenter);
+			if (containing == null) {
+				containing = kingdom.getMap().reference;
+//				throw new java.lang.NullPointerException();
+			}
+			this.partyType = PartyType.generatePT(type, containing);
+			this.party = partyType.generate();		
+			this.party.army = this;
+		}
+		else {
+			System.out.println("NULL TYPE!!!");
+		}
+
+		if (party == null) throw new java.lang.NullPointerException();
+
+		
+		this.speedFactor = ORIGINAL_SPEED_FACTOR;
+		this.speed = calcSpeed();
+		this.lineOfSight = calcLOS();
+
+		this.morale = calcMorale();
+		this.currentHour = getKingdom().getTotalHour();
+		
 
 		this.toTarget = new Vector2();
 
@@ -192,9 +220,14 @@ public class Army extends Actor implements Destination {
 
 	@Override
 	public void act(float delta) {
-
-
 //		System.out.println(this.getName() + " is acting");
+		if (this.justLoaded) {
+			this.defaultTarget = this.faction.getRandomCity();
+		}
+		
+		if (this.party == null) {
+			throw new java.lang.NullPointerException();
+		}
 		
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
 		//		setLineOfSight();
@@ -348,18 +381,20 @@ public class Army extends Actor implements Destination {
 		if (this.isInBattle() || this.isGarrisoned() || !this.isVisible() || (this.getFaction() == null)) return;
 		float size_factor = .4f;
 
-		size_factor +=  .005*this.party.getTotalSize();
+		size_factor +=  .004*this.party.getTotalSize();
 
 		Color temp = batch.getColor();
-		float zoom = getKingdom().getMapScreen().getCamera().zoom;
-		zoom *= size_factor; 
+//		float zoom = getKingdom().getMapScreen().getCamera().zoom;
+		float zoom = 1;
 
-		Color clear_white = new Color();
-		clear_white.b = 1;	clear_white.r = 1;	clear_white.g = 1;
-		clear_white.a = .6f;
+		zoom *= size_factor; 
+		
+		if (zoom < .5) zoom = .5f;
+
+
 		batch.setColor(clear_white);
 		
-		Matrix4 mx4Font = new Matrix4();
+		mx4Font.idt();
 		mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
 		mx4Font.trn(getCenterX(), getCenterY(), 0);
 		Matrix4 tempMatrix = batch.getTransformMatrix();
@@ -503,7 +538,7 @@ public class Army extends Actor implements Destination {
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else {
-			Battle b = new Battle(getKingdom(), this, targetArmy);
+			Battle b = new Battle(getKingdom(), this.party, targetArmy.party);
 			this.setBattle(b);
 			targetArmy.setBattle(b);
 			getKingdom().addBattle(b);
@@ -733,6 +768,7 @@ public class Army extends Actor implements Destination {
 
 
 	// returns closest army should run from, else closest army should attack, or null if no armies are close.
+	// Will not return garrisons.
 	public Army closestHostileArmy() {
 		//		if (this.type == ArmyType.PATROL) System.out.println(getName() + " in closest hostile army"); 
 		// can (slightly) optimize by maintaining close Centers until this army's center changes! TODO
@@ -762,13 +798,14 @@ public class Army extends Actor implements Destination {
 			for (int index: closeCenters){ 
 				Center containing2 = getKingdom().getMap().getCenter(index);
 				if (containing2.armies != null) closeArmies.addAll(containing2.armies);
+				closeArmies.removeValue(this, true);
 			}
 
 			//			System.out.println("Total Armies length: " + getKingdom().getArmies().size);
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
 
 			for (Army army : closeArmies) {
-				if (this.distToCenter(army) < lineOfSight && !army.isGarrisoned()) {
+				if (this.distToCenter(army) < lineOfSight && !army.isGarrisoned() && !army.hiding) {
 					// hostile troop
 					if (isAtWar(army)) {
 						if (shouldRunFrom(army)) {
@@ -816,7 +853,7 @@ public class Army extends Actor implements Destination {
 			waitUntil = 0;
 			if (forceWait) { 
 				forceWait = false;
-				//				this.stopped = false;
+				this.stopped = false;
 			}
 		}
 	}
@@ -836,6 +873,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public boolean shouldRunFrom(Army that) {
+		if (that.isGarrison) return false;
 		//		if (this.type == ArmyType.PATROL)System.out.println(getName() + " in shouldRun method"); 
 
 		if (this.getTroopCount() < that.getTroopCount())
@@ -1276,7 +1314,9 @@ public class Army extends Actor implements Destination {
 	//		else this.money = money;
 	//	}
 	public boolean isAtWar(Destination destination) {
-		return kingdom.isAtWar(faction, destination.getFaction());
+		if (destination.getFaction() == null) return false;
+		if (this.faction == null) return false;
+		return faction.atWar(destination.getFaction());
 	}
 
 	// laziness sake
@@ -1441,7 +1481,7 @@ public class Army extends Actor implements Destination {
 	}
 	
 	public boolean withinActingRange() {
-		if (this.isNoble()) return true;
+		if (this.isNoble() || this.isMerchant()) return true;
 		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared*ACTING_RANGE_FACTOR);
 	}
 	public Center getContaining() {

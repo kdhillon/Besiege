@@ -15,6 +15,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.PartyType.Type;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -38,7 +39,8 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.BANDIT);
+		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.Type.MERCHANT);
+//		Location loc = this.detectNearbyFriendlyCity();
 		
 		setTextureRegion(textureRegion);
 //		initializeBox();
@@ -55,12 +57,14 @@ public class ArmyPlayer extends Army {
 		
 		
 		// debugging
-//		this.getParty().distributeExp(100000);
+		this.getParty().distributeExp(100000);
+		this.getParty().wealth = 100000;
 	}
 
 	@Override
 	public void act(float delta) {	
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
+		this.hiding = false;
 
 		if (isStopped() && !isWaiting()) {
 //			System.out.println("is stopped and isn't waiting");
@@ -68,6 +72,7 @@ public class ArmyPlayer extends Army {
 		}
 		if (isWaiting()) {
 			setStopped(true);
+			this.hiding = true;
 			//this.wait(delta);
 			//System.out.println("setting stopped because waiting");
 		}
@@ -238,7 +243,7 @@ public class ArmyPlayer extends Army {
 					return true;
 			}
 			if (getKingdom().getMapScreen().losOn) {
-				if (distToCenter(getTarget()) > this.getLineOfSight() - 5)
+				if (!targetArmy.withinLOSRange())
 					return true;
 			}
 		}
@@ -256,6 +261,11 @@ public class ArmyPlayer extends Army {
 		// first create battle stage with appropriate stuff
 		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siegeOf);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);
+	}
+	
+	public void train() {
+		if (!getKingdom().getMapScreen().SIMULATE)
+			this.party.distributeExp(getKingdom().getMapScreen().getCharacter().trainingExp);
 	}
 	
 	@Override
@@ -300,10 +310,7 @@ public class ArmyPlayer extends Army {
 	public void setPaused(boolean paused) {
 		this.getKingdom().setPaused(paused);
 	}
-	
-	public int getLevel() {
-		return getCharacter().level; // todo
-	}
+
 	public String getPartyInfo() {
 		return getParty().getHealthySize() + "/" + getParty().getTotalSize();
 	}
@@ -315,5 +322,9 @@ public class ArmyPlayer extends Army {
 	public void calcMaxPartySize() {
 //		getParty().maxSize = (int) (character.famereknown * REKNOWN_PC_FACTOR + BASE_PC);
 		getParty().maxSize = 10000;
+	}
+	
+	public String getTitle() {
+		return getKingdom().getMapScreen().getCharacter().getTitle();
 	}
 }

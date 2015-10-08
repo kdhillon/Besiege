@@ -8,14 +8,15 @@ package kyle.game.besiege;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 public class MapControllerDesktop implements InputProcessor {
-	OrthographicCamera camera;
+	Camera camera;
 	MapScreen screen;
 	private float zoomFactor = (1f/20);
 
-	public MapControllerDesktop(OrthographicCamera camera, MapScreen screen) {
+	public MapControllerDesktop(Camera camera, MapScreen screen) {
 		this.camera = camera;
 		this.screen = screen;
 //		if (Gdx.app.getType() == ApplicationType.WebGL)
@@ -70,10 +71,12 @@ public class MapControllerDesktop implements InputProcessor {
 //		return false;
 //	}
 
+	// TODO replace this
 	@Override
 	public boolean scrolled(int amount) {
-		if (Gdx.app.getType() == ApplicationType.Desktop)
-			screen.zoom(amount*camera.zoom*zoomFactor);
+//		if (Gdx.app.getType() == ApplicationType.Desktop)
+//			screen.zoom(amount*camera.zoom*zoomFactor);
+//		return true;
 		return false;
 	}
 

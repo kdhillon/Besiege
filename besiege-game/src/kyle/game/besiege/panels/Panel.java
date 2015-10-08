@@ -9,7 +9,10 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.ArmyPlayer;
+import kyle.game.besiege.battle.Unit;
+import kyle.game.besiege.party.Soldier;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -202,16 +205,16 @@ public class Panel extends Group {
 			resize();
 		}
 
-		day = kingdom.getDay();
-		time = kingdom.getTime();
+		if (kingdom != null) day = kingdom.getDay();
+		if (kingdom != null) time = kingdom.getTime();
 		timeLabel.setText("Day: " + day + " " + time + ":00");
 
 		super.act(delta);
 
-		if (kingdom.isPaused())
-			pausedLabel.setText(PAUSED);
+		if (kingdom != null && kingdom.isPaused())
+			pausedLabel.setText(PAUSED + " (" + Gdx.graphics.getFramesPerSecond() + ")");
 		else
-			pausedLabel.setText("");
+			pausedLabel.setText(" (" + Gdx.graphics.getFramesPerSecond() + ")");
 		//		else pausedLabel.setText(SAVING);
 
 		//		System.out.println(pausedLabel.getText());
@@ -270,6 +273,9 @@ public class Panel extends Group {
 	}
 	public TextureRegion getCrest() {
 		return Assets.atlas.findRegion("crestBlank");
+	}
+	public Soldier getSoldierInsteadOfCrest() {
+		return null;
 	}
 	public TextureRegion getSecondCrest() {
 		return null;

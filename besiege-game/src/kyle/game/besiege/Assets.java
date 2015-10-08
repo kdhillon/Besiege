@@ -9,28 +9,35 @@ package kyle.game.besiege;
 
 //import java.util.Scanner;
 
+import kyle.game.besiege.party.UnitLoader;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 
 public class Assets {
-	private static int cityCount = 20;
+	private static int cityCount = 30;
 	private static int castleCount = 20;
-	private static int villageCount = 40;
-	public static Array<String> cityArray;
-	public static Array<String> villageArray;
-	public static Array<String> castleArray;
+	private static int ruinCount = 10;
+	private static int villageCount = 60;
+	public static Array<String> cityNames;
+	public static Array<String> villageNames;
+	public static Array<String> castleNames;
+	public static Array<String> ruinNames;
 	//	public static Scanner cityList;
 	//	public static Scanner villageList;
 	public static TextureAtlas atlas;
 	public static TextureAtlas weapons;
 	public static TextureAtlas map;
-	public static Texture map1;
-	public static Texture map2;
-	public static Texture map3;
-	public static Texture map4;
+	public static TextureAtlas units;
+
+//	public static Texture map1;
+//	public static Texture map2;
+//	public static Texture map3;
+//	public static Texture map4;
 
 	public static BitmapFont pixel12;
 	public static BitmapFont pixel13neg;
@@ -54,20 +61,26 @@ public class Assets {
 	public static BitmapFont pixel150;
 	public static BitmapFont pixel200;
 	public static BitmapFont pixel256;
+	
+	public static Music rain;
+	public static Sound thunder1;
+	public static Sound thunder2;
+	public static Sound thunder3;
+	public static Sound thunder4;
 
 	public static void load() {
 		atlas = new TextureAtlas(Gdx.files.internal("atlas1.atlas"));
 		weapons = new TextureAtlas(Gdx.files.internal("weapons.atlas"));
-		//		map = new TextureAtlas(Gdx.files.internal("mapAtlas.atlas"));
-		//		map1 = new Texture(Gdx.files.internal("map/Map2_1.PNG"));
-		//		map2 = new Texture(Gdx.files.internal("map/Map2_2.PNG"));
-		//		map3 = new Texture(Gdx.files.internal("map/Map2_3.PNG"));
-		//		map4 = new Texture(Gdx.files.internal("map/Map2_4.PNG"));
+		units = new TextureAtlas(Gdx.files.internal("units.atlas"));
+		map = new TextureAtlas(Gdx.files.internal("map.atlas"));
+		
+		// load units
+		UnitLoader.load("basic");
 
-		//		map2 = new Texture(Gdx.files.internal("map/Map2_1.PNG"));
-		//		map3 = new Texture(Gdx.files.internal("map/Map2_1.PNG"));
-		//		map4 = new Texture(Gdx.files.internal("map/Map2_1.PNG"));
-	
+		rain = Gdx.audio.newMusic(Gdx.files.internal("sound/rain1.mp3"));
+		thunder1 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder1.wav"));
+		thunder2 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder2.wav"));
+		
 		String[] cities = {
 				"Catterick",
 				"Colne",
@@ -111,9 +124,9 @@ public class Assets {
 				"Oxted"
 		};
 
-		cityArray = new Array<String>();
+		cityNames = new Array<String>();
 		for (int i = 0; i < cityCount; i++) 
-			cityArray.add(cities[i]);
+			cityNames.add(cities[i]);
 
 		String[] castlesVillages = {
 				"Lewes",
@@ -277,20 +290,31 @@ public class Assets {
 //				"Evesham2",
 				"Harcourt"
 		};
-		villageArray = new Array<String>();
+		villageNames = new Array<String>();
 		for (int i = 0; i < villageCount; i++) 
-			villageArray.add(castlesVillages[i]);
+			villageNames.add(castlesVillages[i]);
 		
-		// go backwards in list for castles, starting from bottom
-		castleArray = new Array<String>();
-		for (int i = villageArray.size-1; i >= villageArray.size-1-castleCount; i--) {
-			if (castlesVillages[i].length() < 8) {
+		// go backwards in list for castles and ruins, starting from bottom
+		castleNames = new Array<String>();		
+		int castleIndex = villageNames.size-1;
+		while (castleNames.size < castleCount) {
+			if (castlesVillages[castleIndex].length() < 8) {
 				if (Math.random() < .7)
-					castleArray.add(castlesVillages[i] + " Castle");
-				else castleArray.add(castlesVillages[i] + " Fortress");
+					castleNames.add(castlesVillages[castleIndex] + " Castle");
+				else castleNames.add(castlesVillages[castleIndex] + " Fortress");
 			}
+			castleIndex--;
 		}
-
+		
+		ruinNames = new Array<String>();
+		int ruinIndex = castleIndex;
+		while (ruinNames.size < ruinCount) {
+			if (castlesVillages[ruinIndex].length() < 8) {
+				ruinNames.add(castlesVillages[ruinIndex] + " Ruins");
+			}
+			ruinIndex--;
+		}
+		
 		//		cityList = new Scanner(Gdx.files.internal("mapSmall.txt").readString());
 		//		cityList = new Scanner(Gdx.files.internal("map40.txt").readString());
 
@@ -325,6 +349,10 @@ public class Assets {
 	public static void dispose() {
 		atlas.dispose();
 		weapons.dispose();
-//		map.dispose();
+		rain.dispose();
+		thunder1.dispose();
+		thunder2.dispose();
+//		thunder3.dispose();
+//		thunder4.dispose();
 	}
 }
