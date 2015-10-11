@@ -16,6 +16,8 @@ import com.badlogic.gdx.utils.Array;
 public class Siege extends Actor {
 	private final float MAINTAIN = 10.0f; // siege will exist this long without any army present
 	private final float CHECK_FREQ = 5; // every this seconds will check if should attack;
+	public final static float MIN_BALANCE_TO_ATTACK = 0.2f;
+	public final static float MAX_BALANCE_TO_BREAK = 0.1f;
 	public Location location;
 	public Array<Army> armies;
 	public float duration;
@@ -30,7 +32,7 @@ public class Siege extends Actor {
 	public Siege(){}
 	
 	public Siege(Location location, Faction besieging) {
-		System.out.println("creating new siege at " + location.getName());
+//		System.out.println("creating new siege at " + location.getName());
 		this.location = location;
 		armies = new Array<Army>();
 		this.besieging = besieging; 
@@ -60,19 +62,19 @@ public class Siege extends Actor {
 		
 		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0 && armies.size > 0) {
 			if (!hasChecked) {
-				shouldAttack();
+				attackOrDestroy();
 				hasChecked = true;
 			}
 		}
 		else if (hasChecked) hasChecked = false;
 	}
 	// TODO change back to have some chance of maintaining
-	public void shouldAttack() {
+	public void attackOrDestroy() {
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
 		double balance = Battle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
-		if (balance >= .4 && !inBattle) attack();
-		else if (balance <= .1 && !inBattle) destroy(); // end siege if no chance
+		if (balance >= MIN_BALANCE_TO_ATTACK && !inBattle) attack();
+		else if (balance <= MAX_BALANCE_TO_BREAK && !inBattle) destroy(); // end siege if no chance
 		else {
 			// previously maintained siege, now force attack:
 			attack();
@@ -80,11 +82,11 @@ public class Siege extends Actor {
 	}
 	
 	public void attack() {
-		System.out.println("attack at " + location.getName());
+//		System.out.println("attack at " + location.getName());
 		location.siegeAttack(armies);
 		// make sure siege is set
 		location.siege = this;
-		System.out.println("SETTING SIEGE");
+//		System.out.println("SETTING SIEGE");
 //		for (Army a : armies) {
 //			// make sure siege is set
 //			a.setSiege(this);
@@ -97,7 +99,7 @@ public class Siege extends Actor {
 		if (this.battle.siegeOf.siege != this) System.out.println("THIS IS REALLY FUCKED");
 	}
 	public void endAttack() {
-		System.out.println("ending attack at " + location.getName());
+//		System.out.println("ending attack at " + location.getName());
 		inBattle = false;
 	}
 	
@@ -140,7 +142,7 @@ public class Siege extends Actor {
 	}
 	
 	public void destroy() {
-		System.out.println("destroying siege");
+//		System.out.println("destroying siege of " + location.getName());
 		for (Army a : armies) {
 			a.leaveSiege();
 		}

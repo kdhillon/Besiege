@@ -1014,7 +1014,7 @@ public class BattleStage extends Group {
 
 		if (battle.siegeOf != null && !battle.siegeOf.isVillage()) {
 			System.out.println("managing siege");
-			battle.manageSiege();
+			battle.handleSiegeVictory();
 		}
 
 		battle.distributeRewards(winner, 1, didAtkWin);

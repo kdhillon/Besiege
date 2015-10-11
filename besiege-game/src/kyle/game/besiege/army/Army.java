@@ -63,7 +63,7 @@ public class Army extends Actor implements Destination {
 	private static final double ACTING_RANGE_FACTOR = 2; // times player LOS, units within this range will act. otherwise they won't
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 	private boolean mouseOver;
-	protected boolean passive; // passive if true (won't attack) aggressive if false;
+	public boolean passive; // passive if true (won't attack) aggressive if false;
 	
 	// for font rotation
 	private Matrix4 mx4Font = new Matrix4();
@@ -695,7 +695,7 @@ public class Army extends Actor implements Destination {
 //			}
 			//			else if (army == null || !shouldRunFrom(army)) {
 			if (this.isRunning() && shouldStopRunning()) {
-				System.out.println("player should stop running...");
+//				System.out.println("player should stop running...");
 				runFrom = null;
 				eject();
 				setTarget(null);

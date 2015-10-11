@@ -20,9 +20,10 @@ import com.badlogic.gdx.utils.Array;
 
 public class Assets {
 	private static int cityCount = 30;
-	private static int castleCount = 20;
+
+	private static int castleCount = 10;
 	private static int ruinCount = 10;
-	private static int villageCount = 60;
+	private static int villageCount = 21;
 	public static Array<String> cityNames;
 	public static Array<String> villageNames;
 	public static Array<String> castleNames;
@@ -293,17 +294,17 @@ public class Assets {
 		villageNames = new Array<String>();
 		for (int i = 0; i < villageCount; i++) 
 			villageNames.add(castlesVillages[i]);
-		
+						
 		// go backwards in list for castles and ruins, starting from bottom
 		castleNames = new Array<String>();		
-		int castleIndex = villageNames.size-1;
+		int castleIndex = villageNames.size;
 		while (castleNames.size < castleCount) {
 			if (castlesVillages[castleIndex].length() < 8) {
 				if (Math.random() < .7)
 					castleNames.add(castlesVillages[castleIndex] + " Castle");
 				else castleNames.add(castlesVillages[castleIndex] + " Fortress");
 			}
-			castleIndex--;
+			castleIndex++;
 		}
 		
 		ruinNames = new Array<String>();
@@ -312,7 +313,7 @@ public class Assets {
 			if (castlesVillages[ruinIndex].length() < 8) {
 				ruinNames.add(castlesVillages[ruinIndex] + " Ruins");
 			}
-			ruinIndex--;
+			ruinIndex++;
 		}
 		
 		//		cityList = new Scanner(Gdx.files.internal("mapSmall.txt").readString());

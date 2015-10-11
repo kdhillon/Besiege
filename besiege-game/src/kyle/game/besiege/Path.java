@@ -228,7 +228,7 @@ public class Path {
 		if (pq.isEmpty()) return null;
 		min = pq.remove();
 		double minG = min.G;
-		if (army.getParty().player) System.out.println(minG);
+//		if (army.getParty().player) System.out.println(minG);
 
 		Stack<Destination> path = new Stack<Destination>();
 		path.push(endDest);

@@ -31,7 +31,7 @@ public class Noble extends Army {
 	public int rank;
 	private int reknown;
 	private int nextRank;
-	public Location specialTarget;
+	public Location specialTargetToBesiege;
 	private boolean toggleWait;
 
 	//	private int level;
@@ -77,8 +77,15 @@ public class Noble extends Army {
 		// nobles do: 
 		// travel between their own cities (by default)
 		// or are sent to besiege other cities (by faction)
-		if (this.hasSpecialTarget() && !this.isGarrisonedIn(specialTarget)) {
+		if (this.hasSpecialTarget() && !this.isGarrisonedIn(specialTargetToBesiege)) {
 			if (getKingdom().currentPanel == this) System.out.println(getName() + " has special target");
+			
+			// If for some reason at peace with special target, stop going towards it.
+			// This is slow, find a better way to do this.
+			if (!this.specialTargetToBesiege.getFaction().atWar(this.getFaction())) {
+				System.out.println("WHY IS THIS HAPPENING (nOBLE)");
+				this.getFaction().endTask(this);
+			}
 
 			//			System.out.println(getName() + " managing special target " + this.specialTarget.getName());
 			// go to city to besiege/raid
@@ -109,9 +116,9 @@ public class Noble extends Army {
 
 	// some problem where noble detects path to new target (friendly city), but still travels to enemy city (perhaps old special target)
 	public void manageSpecialTarget() {
-		if (this.path.isEmpty() || this.getTarget() != specialTarget) {
-			if (specialTarget != null && this.getTarget() != specialTarget) {
-				setTarget(specialTarget);
+		if (this.path.isEmpty() || this.getTarget() != specialTargetToBesiege) {
+			if (specialTargetToBesiege != null && this.getTarget() != specialTargetToBesiege) {
+				setTarget(specialTargetToBesiege);
 				//System.out.println(getName() + " setting special target " + specialTarget.getName());
 			//	path.travel();
 			}
@@ -202,10 +209,11 @@ public class Noble extends Army {
 		//		System.out.println(this.getTarget().getName() + " is new target of " + this.getName());
 	}
 	public void setSpecialTarget(Location specialTarget) {
-		this.specialTarget = specialTarget;
+		assert(specialTarget == null || this.getFaction().atWar(specialTarget.getFaction()));
+		this.specialTargetToBesiege = specialTarget;
 	}
 	public boolean hasSpecialTarget() {
-		return specialTarget != null;
+		return specialTargetToBesiege != null;
 	}
 	@Override 
 	public void leaveSiege() {

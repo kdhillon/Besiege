@@ -22,6 +22,10 @@ public class Merchant extends Army {
 //	private final double waitTime = 10;
 	private final String textureRegion = "Merchant";
 	public City goal;
+	
+	// if garrisoned not in goal, delete after this.
+	// Sometimes merchants get stuck in random cities and can't leave, just kill them after a few hours 
+	public float secondsToLive = MERCHANT_WAIT + 65;
 
 	public Merchant() {}
 	
@@ -77,6 +81,7 @@ public class Merchant extends Army {
 		if (this.isWaiting()) this.wait(delta);
 	}
 	
+	
 	@Override
 	public void wait(float delta) {
 		if (getKingdom().clock() >= getWaitUntil()) {
@@ -84,6 +89,7 @@ public class Merchant extends Army {
 			if (isGarrisonedIn(goal)) {
 				deposit();
 			}
+			
 //			else {
 //				this
 //			}
@@ -91,6 +97,10 @@ public class Merchant extends Army {
 //			setWaiting(false);
 ////			setWaitUntil(0);
 //			setForceWait(false);
+		}
+		this.secondsToLive -= delta;
+		if (secondsToLive < 0) {
+			this.destroy();
 		}
 	}
 	

@@ -339,6 +339,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 
 			int totalGarr = 0;
 			for (Army a: location.getGarrisoned()) {
+				// don't show passive armies in garrison
+				if (a.passive) continue;
 				//			garrStr += "+" + a.getParty().getHealthySize();
 				totalGarr += a.getParty().getHealthySize();
 			}
@@ -355,6 +357,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			int totalGarr = 0;
 			for (Army a: location.getGarrisoned()) {
 				//			garrStr += "+" + a.getParty().getHealthySize();
+				// don't show passive armies in garrison
+				if (a.passive) continue;
 				totalGarr += a.getParty().getHealthySize();
 			}
 			//		if (totalGarr > 0) garrStr += "+" + totalGarr;
@@ -405,6 +409,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		}
 		// For Garrisoned armies
 		for (Army a : location.getGarrisoned()) {
+			// don't show passive armies in garrison
+			if (a.passive) continue;
 			Party garrParty = a.getParty();
 			
 			// TODO fix this memory leak

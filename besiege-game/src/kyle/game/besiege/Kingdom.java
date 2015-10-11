@@ -37,6 +37,7 @@ public class Kingdom extends Group {
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
 	
+	
 //	public static float MASTER_VOLUME = .5f;
 	public static float MASTER_VOLUME = 0f;
 
@@ -61,6 +62,7 @@ public class Kingdom extends Group {
 	public Map map;
 	transient private MapScreen mapScreen;
 	public Array<Faction> factions;
+
 //	private int factionCount;
 //	public Array<Array<Integer>> factionRelations; // should break into multiple arrays
 	
@@ -271,7 +273,33 @@ public class Kingdom extends Group {
 	
 	// Events that occur every day
 	private void dailyRoutine() {
-		System.out.println("day is done");
+//		System.out.println("day is done");
+		
+		// testing 
+		boolean printArmies = false;
+		if (printArmies) {
+			System.out.println("total armies: " + armies.size);
+			int merchantCount = 0;
+			int farmerCount = 0;
+			int patrolCount = 0;
+			int nobleCount = 0;
+			int banditCount = 0;
+			for (Army a : armies) {
+				if (a.isMerchant()) merchantCount++;
+				if (a.isFarmer()) farmerCount++;
+				if (a.isPatrol()) patrolCount++;
+				if (a.isNoble()) nobleCount++;
+				if (a.getFaction() == Faction.BANDITS_FACTION) banditCount++;
+			}
+			System.out.println("merchants: " + merchantCount);
+			System.out.println("farmers: " + farmerCount);
+			System.out.println("patrols: " + patrolCount);
+			System.out.println("nobles: " + nobleCount);
+			System.out.println("bandits: " + banditCount);
+			System.out.println();
+		}
+		
+		
 		
 		// increase village wealth
 		for (Village v : villages) {
@@ -516,31 +544,10 @@ public class Kingdom extends Group {
 			f.kingdom = kingdom;
 			f.initializeRelations();
 		}
+		Faction.BANDITS_FACTION.goRogue();
+		Faction.ROGUE_FACTION.goRogue();
+		factions.get(3).goRogue();
 		Faction.initialized = true;
-
-	//	factions.get(2).declareWar(factions.get(3));
-
-		//		factionRelations = new int[factionCount][factionCount];
-		for (int i = 0; i < factions.size; i++) {
-			for (int j = 0; j < factions.size; j++) {
-				//				factionRelations[i][j] = -30;
-				
-				// randomize initial faction relations
-//				int random = (int)(Math.random() * 200) - 100;
-//				factionRelations.get(i).set(j, random);
-//				factionRelations.get(j).set(i, random);
-//				factionRelations.get(i).set(j, 100);
-//				factionRelations.get(j).set(i, 100);
-				
-				System.out.println(i + " " + j);
-			}
-		}
-		for (int i = 0; i < factions.size; i++) {
-			//			factionRelations[i][i] = 100;
-//			factionRelations.get(i).set(i, 100);
-		}
-		
-
 	}
 	
 	public void factionAct(float delta) {
@@ -552,41 +559,10 @@ public class Kingdom extends Group {
 		Faction faction = new Faction(this, name, textureRegion, color);
 		factions.add(faction);
 		faction.index = factions.indexOf(faction, true);
-		for (int i = 0; i < factions.size; i++) {
-			//			factionRelations[faction.index][i] = 0; // resets faction relations
-			//			factionRelations[i][faction.index] = 0;
-//			if (factionRelations.size <= faction.index)
-//				factionRelations.add(new Array<Integer>());
-//
-//			if (factionRelations.get(i).size <= faction.index)
-//				factionRelations.get(i).add(0);
-//			else factionRelations.get(i).set(faction.index, 0);
-//
-//			if (factionRelations.get(faction.index).size <= i)
-//				factionRelations.get(faction.index).add(0);
-//			else factionRelations.get(faction.index).set(i, 0);
-		}
-//		if (faction.index >= 1) {
-//			faction.declareWar(Faction.BANDITS_FACTION);
-//		}
 	}
 	public void createFaction(Faction faction) {
 		factions.add(faction);
-		faction.index = factions.indexOf(faction, true);
-		for (int i = 0; i < factions.size; i++) {
-			//			factionRelations[faction.index][i] = 0; // resets faction relations
-			//			factionRelations[i][faction.index] = 0;
-//			if (factionRelations.size <= faction.index)
-//				factionRelations.add(new Array<Integer>());
-//
-//			if (factionRelations.get(i).size <= faction.index)
-//				factionRelations.get(i).add(0);
-//			else factionRelations.get(i).set(faction.index, 0);
-//
-//			if (factionRelations.get(faction.index).size <= i)
-//				factionRelations.get(faction.index).add(0);
-//			else factionRelations.get(faction.index).set(i, 0);
-		}
+		faction.index = factions.indexOf(faction, true);		
 	}
 	
 	
@@ -763,9 +739,10 @@ public class Kingdom extends Group {
 	}
 	
 	
-	
 	public void addCity(City newCity) {
 		cities.add(newCity);
+		
+		// initialize nobles
 		newCity.getFaction().createNobleAt(newCity);
 		
 		addActor(newCity);
@@ -1004,9 +981,13 @@ public class Kingdom extends Group {
 		System.out.println("Number ruins: " + ruins.size);
 	}
 	
+	// Was adding nobles more than once previously.
 	public void addArmy(Army add) {
-		armies.add(add);
-		addActor(add);
+		if (!armies.contains(add, true)) {
+			armies.add(add);
+		}
+		if (!this.getChildren().contains(add, true))
+			addActor(add);
 		//add.postAdd();
 	}
 	public void addPlayer() {

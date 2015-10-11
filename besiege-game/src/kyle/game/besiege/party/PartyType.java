@@ -178,8 +178,8 @@ public class PartyType { // todo add ability for max party size
 			break;
 		case CITY_GARRISON:
 			pt.name = "Garrison";
-			pt.maxCount = 150;
-			pt.minCount = 100;
+			pt.maxCount = 90;
+			pt.minCount = 50;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
 		case CASTLE_GARRISON:

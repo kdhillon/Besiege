@@ -298,7 +298,7 @@ public class Party {
 		return spdTotal/1f/getHealthySize();
 	}
 	public void distributeExp(int total) {
-		System.out.println("distributing " + total + " exp to you");
+		if (this.player) System.out.println("distributing " + total + " exp to you");
 		if (this.player) BottomPanel.log("Party receives " + total + " experience!", "green");
 		
 		int exp = (int) (total/1.0/getHealthySize());

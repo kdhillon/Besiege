@@ -38,7 +38,7 @@ public class Map extends Actor {
 	public static final int HEIGHT = 7000;
 	
 	// using new int technique, can support infinite sites - tested up to 3200
-	private static final int NUM_SITES = 800;
+	private static final int NUM_SITES = 300;
 	
 	public Kingdom kingdom;
 //	public static boolean debug = true;

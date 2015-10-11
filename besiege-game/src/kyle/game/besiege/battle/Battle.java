@@ -11,6 +11,7 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Army.ArmyType;
+import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
@@ -206,7 +207,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		
 //		aParties.removeValue(null, true);
 //		dParties.removeValue(null, true);
-		System.out.println(aParties.size);
+//		System.out.println(aParties.size);
 		
 		for (Party p : aParties) {
 			p.calcStats();
@@ -594,7 +595,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		victor.shrink();
 
 		// change faction of city if siege
-		if (siegeOf != null) manageSiege();
+		if (siegeOf != null) handleSiegeVictory();
 		
 		// manage victorious armies and calculate contributions
 		for (int i = 0; i < victor.size; i++) {
@@ -707,7 +708,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		army.setMomentum(army.getMomentum()+moraleReward);
 	}
 	
-	public void manageSiege() {
+	public void handleSiegeVictory() {
 		if (didAtkWin && siegeOf.getSiege() != null) {
 			siegeOf.getSiege().siegeSuccess();
 			
@@ -716,6 +717,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //			else siegeOf.getSiege().siegeSuccess();
 //			siegeOf.changeFaction(newOwner);
 		}
+		// attack lost, destroy siege
 		else if (siegeOf.getSiege() != null) siegeOf.getSiege().destroy();
 	}
 	
@@ -772,6 +774,26 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	// calculates the hypothetical initial balance (0 - 1.0) in a battle between these armies, for the first set (w/ no advantage)
 	public static double calcBalance(Array<Army> first, double firstAdvantage, Array<Army> second, double secondAdvantage) {
+		int firstAtk = 0;
+		int firstSize = 0;
+		for (Army a : first) {
+			firstAtk += a.getParty().getAtk();
+			firstSize += a.getParty().getTotalSize();
+		}
+		int secondAtk = 0;
+		int secondSize = 0;
+		for (Army a : second) {
+			secondAtk += a.getParty().getAtk();
+			secondSize += a.getParty().getTotalSize();
+		}
+		double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
+		double balanceSecond = secondAtk*secondAdvantage + secondSize;
+		double total = balanceFirst + balanceSecond;
+		return balanceFirst / total; // balanceA + balanceD = 1
+	}
+	
+	// Identical to above, but takes nobles instead of Armies
+	public static double calcBalanceNobles(Array<Noble> first, double firstAdvantage, Array<Army> second, double secondAdvantage) {
 		int firstAtk = 0;
 		int firstSize = 0;
 		for (Army a : first) {

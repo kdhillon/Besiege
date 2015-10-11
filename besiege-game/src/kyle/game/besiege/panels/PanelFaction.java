@@ -289,21 +289,21 @@ public class PanelFaction extends Panel {
 		nobles.add(noblesC).colspan(2).center();
 		nobles.row();
 		for (Noble noble : faction.nobles) {
-//			ObjectLabel name = new ObjectLabel(noble.getName(), ls, noble);
-//			name.addListener(new InputListener() {
-//				public boolean touchDown(InputEvent event, float x,
-//						float y, int pointer, int button) {
-//					return true;
-//				}
-//				public void touchUp(InputEvent event, float x, float y,
-//						int pointer, int button) {
-//					setActiveNoble((Noble) ((ObjectLabel) event.getTarget()).object);
-//				}
-//			});
-//			nobles.add(name);
-//			ObjectLabel troopCount = new ObjectLabel(noble.getTroopCount() +"", ls, noble);
-//			nobles.add(troopCount).right();
-//			nobles.row();
+			ObjectLabel name = new ObjectLabel(noble.getName(), ls, noble);
+			name.addListener(new InputListener() {
+				public boolean touchDown(InputEvent event, float x,
+						float y, int pointer, int button) {
+					return true;
+				}
+				public void touchUp(InputEvent event, float x, float y,
+						int pointer, int button) {
+					setActiveNoble((Noble) ((ObjectLabel) event.getTarget()).object);
+				}
+			});
+			nobles.add(name);
+			ObjectLabel troopCount = new ObjectLabel(noble.getTroopCount() +"", ls, noble);
+			nobles.add(troopCount).right();
+			nobles.row();
 		}
 	}
 

@@ -84,11 +84,13 @@ public class Location extends Actor implements Destination {
 	protected double population;
 
 	private double wealthFactor = 1;
-
+	
 	private Array<Army> garrisonedArmies;
 	public transient Party toHire;
 	transient protected Party nextHire; // prevents player from loading and quitting to get ideal choice of hire
 	public Army garrison;
+	
+	// have a variable for delayed merchant arrivals?
 
 	private float timeSinceFreshHire;
 
@@ -649,12 +651,11 @@ public class Location extends Actor implements Destination {
 
 		if (playerWaiting) {
 			// create array of defenders
+			Array<Army> defendersArmies = this.getGarrisonedAndGarrison();
 			Array<Party> defenders = new Array<Party>();
-			defenders.add(garrison.party);
-			for (Army a : garrisonedArmies) {
-				if (!a.party.player)
+			for (Army a : defendersArmies) 
 				defenders.add(a.party);
-			}
+				
 			Array<Party> attackerParties = new Array<Party>();
 			for (Army a : attackers) {
 				attackerParties.add(a.party);
@@ -666,7 +667,7 @@ public class Location extends Actor implements Destination {
 			Battle b = garrison.getBattle();
 			b.siegeOf = this;
 
-			System.out.println("siegeOf = " + this.getName());
+//			System.out.println("siegeOf = " + this.getName());
 			b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
 			b.dAdvantage = this.getDefenseFactor();
 			for (Army a : attackers) {
@@ -678,6 +679,7 @@ public class Location extends Actor implements Destination {
 			}
 			for (Army a : garrisonedArmies) {
 				//			System.out.println("adding " + a.getName() + " to siege battle");
+				if (a.passive) continue; // don't add passive armies to defenders
 				a.joinBattle(b);
 			}
 		}
@@ -708,10 +710,12 @@ public class Location extends Actor implements Destination {
 		//		if (this.toHire.size == 0) toHire.add(new Soldier(Weapon.PITCHFORK, null));
 		// contained in extensions
 	}
-	public void garrison(Soldier soldier) {
-		garrison.getParty().addSoldier(soldier);
-	}
+//	public void garrison(Soldier soldier) {
+//		garrison.getParty().addSoldier(soldier);
+//	}
 	public void garrison(Army army) {
+		// don't garrison a city garrison
+		if (army.isGarrison) return;
 		if (army.shouldRepair()) {
 			repair(army);
 		}
@@ -722,6 +726,7 @@ public class Location extends Actor implements Destination {
 		// attmepting this
 		//kingdom.removeArmy(army);
 	}
+	// ejecting armies was duplicating them previously.
 	public void eject(Army army) {
 		garrisonedArmies.removeValue(army, true);
 		army.setGarrisonedIn(null);
@@ -860,9 +865,9 @@ public class Location extends Actor implements Destination {
 		if (garrison == null) return null;
 		return garrison.getParty();
 	}
-	public void setParty(Party party) {
-		this.garrison.setParty(party);
-	}
+//	public void setParty(Party party) {
+//		this.garrison.setParty(party);
+//	}
 	public double getPop() {
 		return population;
 	}
@@ -941,8 +946,12 @@ public class Location extends Actor implements Destination {
 		return garrisonedArmies;
 	}
 
+	// Doesn't return passive armies
 	public Array<Army> getGarrisonedAndGarrison() {
 		Array<Army> garrisoned = new Array<Army>(getGarrisoned());
+		for (Army a : garrisoned) {
+			if (a.passive) garrisoned.removeValue(a, true);
+		}
 		//		Army garrisonArmy = new Army(getKingdom(), "Garrison", getFaction(), getCenterX(), getCenterY(), null);
 		//		garrisonArmy.setParty(garrison);
 		garrisoned.add(garrison);

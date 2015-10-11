@@ -5,20 +5,20 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
-import kyle.game.besiege.army.Noble;
-import kyle.game.besiege.location.Castle;
-import kyle.game.besiege.location.City;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Location.LocationType;
-import kyle.game.besiege.location.ObjectLabel;
-import kyle.game.besiege.location.Village;
-import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.voronoi.Center;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.army.Noble;
+import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.location.Castle;
+import kyle.game.besiege.location.City;
+import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.ObjectLabel;
+import kyle.game.besiege.location.Village;
+import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.voronoi.Center;
 
 /* time to make factions really awesome: 
  * nations can be at war, at peace, or allies with other nations
@@ -47,6 +47,7 @@ public class Faction {
 
 	private static final int STATIC_WAR_EFFECT = -20;
 	private static final int STATIC_PEACE_EFFECT = 10;
+	private static final int STATIC_ALLY_EFFECT = 10;
 
 	private static final int PEACE_THRESHOLD = -10;
 	//	private static final int INIT_WAR_EFFECT = 10;
@@ -146,6 +147,7 @@ public class Faction {
 		allies = new Array<Faction>();
 	}
 
+	// should only be called once per faction
 	public void initializeRelations() {
 		//		System.out.println(this.name + " initializing relations");
 		warEffects = new Array<Integer>();
@@ -159,18 +161,11 @@ public class Faction {
 			//			System.out.println("declaring peace " + f.name);
 			//			if (!this.atPeace(f))
 			if (f == this) continue;
+			System.out.println("initializing peace");
 			this.declarePeace(f);
-			if (Math.random() < 0.5)
-				this.declareWar(f);
+			//			if (Math.random() < 0.5)
+			//				this.declareWar(f);
 		}
-
-		//		if (index >= 1) {
-		//			if (!this.atWar(BANDITS_FACTION) && this != BANDITS_FACTION)
-		//				declareWar(BANDITS_FACTION);
-		//		}
-
-		if (this == BANDITS_FACTION) this.goRogue();
-		if (this == ROGUE_FACTION) this.goRogue();
 	}
 
 	public void removeOther(Faction faction) {
@@ -231,21 +226,24 @@ public class Faction {
 	// reallocate nobles from this city if it's taken by an enemy
 	public void allocateNoblesFrom(City city) {
 		for (Noble noble : city.nobles) {
-			if (this.cities.size == 0) noble.destroy(); // kill noble for now
-			else {
-				City newCity = this.getRandomCity();
-				if (!newCity.nobles.contains(noble, true)) newCity.addNoble(noble);
-			}
+			//			if (this.cities.size == 0) noble.destroy(); // kill noble for now
+			//			else {
+			//				City newCity = this.getRandomCity();
+			//				if (!newCity.nobles.contains(noble, true)) newCity.addNoble(noble);
+			//			}
+			// Just destroy all nobles for now, in future, can make them nobles of other cities
+			noble.destroy();
 		}
 	}
 
 	// create new nobles for this city
 	public void allocateNoblesFor(City city) {
 		assert(this.cities.contains(city, true));
-		this.createNobleAt(city);
+		// this isn't actually leaking nobles...
+		//		this.createNobleAt(city);
 		// new noble created everytime a city is captured... but also nobles will die when they lose big battles
 	}
-
+	
 	public void manageNobles() {
 		// if a city doesn't have a noble, create a baron or earl
 		// when a noble is upgraded to the next level (later, if a city is upgraded) add a fresh noob to replace them.
@@ -282,17 +280,29 @@ public class Faction {
 	}
 
 	public void manageSieges() {
+		// update locations to attack
 		for (Location l : locationsToAttack) {
-			if (l.getFaction() == this) cancelSiegeOf(l);
+			if (l.getFaction().atPeace(this)) {
+				cancelSiegeOf(l);
+				updateCloseLocations();
+				//				throw new java.lang.AssertionError();
+				//				cancelSiegeOf(l);
+			}
 		}
 
+		// You should be able to either execute, capture, or release Nobles.
+		// Nobles should have names, get promoted, etc. 
+		// Factions should promote new nobles as necessary (# nobles should reflect size of cities. )
+		// Also, nobles should have a huge variety of strengths. Everything from 10 soldiers to 200+.
+		// Do a smarter check of what cities to attack:
+		// 		 if the city has a smaller garrison (simulate a hypothetical battle), then order a siege of it
 		if (locationsToAttack.size < 1 && unoccupiedNobles.size > 1 && (closeEnemyCities.size > 0 || closeEnemyCastles.size > 0)) {
 			Location randomLocation;
 			if (Math.random() < .5 && closeEnemyCities.size > 0) randomLocation = closeEnemyCities.random();
 			else if (closeEnemyCastles.size > 0) randomLocation = closeEnemyCastles.random();
 			else return;
 
-			if (randomLocation == null || randomLocation.getFaction() == this) return;
+			if (randomLocation == null || randomLocation.getFaction() == this || !this.shouldSiege(randomLocation)) return;
 
 			if (randomLocation.underSiege()) return;
 			// check that no other factions are besieging it
@@ -302,20 +312,21 @@ public class Faction {
 			orderSiegeOf(randomLocation);
 		}
 		else {
-			System.out.println(this.name);
-			System.out.println("locations to attack: " + locationsToAttack.size);
-			System.out.println("locations to attack:");
-			for (Location l : locationsToAttack) {
-				System.out.println(l.getName());
-			}
-			System.out.println("unoccupied nobles: " + unoccupiedNobles.size);
-			System.out.println("total nobles: " + this.nobles.size);
-			System.out.println("noble special tasks:");
-			for (Noble n : nobles) {
-				if (n.specialTarget != null)
-					System.out.println(n.getName() + ": " + n.specialTarget.getName());
-			}
-			System.out.println("Close enemy locations: " + (closeEnemyCities.size + closeEnemyCastles.size));
+			//			System.out.println();
+			//			System.out.println(this.name);
+			//			System.out.println("locations to attack: " + locationsToAttack.size);
+			//			System.out.println("locations to attack:");
+			//			for (Location l : locationsToAttack) {
+			//				System.out.println(l.getName());
+			//			}
+			//			System.out.println("unoccupied nobles: " + unoccupiedNobles.size);
+			//			System.out.println("total nobles: " + this.nobles.size);
+			//			System.out.println("noble special tasks:");
+			//			for (Noble n : nobles) {
+			//				if (n.specialTarget != null)
+			//					System.out.println(n.getName() + ": " + n.specialTarget.getName());
+			//			}
+			//			System.out.println("Close enemy locations: " + (closeEnemyCities.size + closeEnemyCastles.size));
 		}
 		//		if (nobles.size > 1 && closeEnemyCities.size > 1) {
 		//			Noble random = nobles.random();
@@ -326,22 +337,36 @@ public class Faction {
 		//			}
 		//		}
 	}
+	// Returns true if this faction should order a siege of location.
+	public boolean shouldSiege(Location location) {
+		if (this.atPeace(location.getFaction())) return false;
+		double balance = Battle.calcBalanceNobles(unoccupiedNobles, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
+		return balance >= Siege.MIN_BALANCE_TO_ATTACK;
+	}
 	public void orderSiegeOf(Location location) {
 		locationsToAttack.add(location);
-		int noblesToOrder = Math.max((int) (unoccupiedNobles.size * ORDER_FACTOR), 2);
-		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles");
-		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + noblesToOrder + " nobles", "magenta");
-		while (noblesToOrder > 0) {
-			Noble randomNoble = unoccupiedNobles.random();
-			setTask(randomNoble, location);
-			noblesToOrder--;
+
+		// always order all nobles
+		//		int noblesToOrder = Math.max((int) (unoccupiedNobles.size * ORDER_FACTOR), 2);
+		//		while (noblesToOrder > 0) {
+		//			Noble randomNoble = unoccupiedNobles.random();
+		//			setTask(randomNoble, location);
+		//			noblesToOrder--;
+		//		}
+
+		//		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles");
+		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles", "magenta");
+
+		for (Noble n : unoccupiedNobles) {
+			setTask(n, location);
 		}
+
 	}
 	public void cancelSiegeOf(Location location) {
 		locationsToAttack.removeValue(location, true);
 		BottomPanel.log(this.name + " is cancelling siege of " + location.getName(), "magenta");
 		for (Noble noble : this.nobles) {
-			if (noble.specialTarget == location) {
+			if (noble.specialTargetToBesiege == location) {
 				endTask(noble);
 			}
 		}
@@ -590,7 +615,8 @@ public class Faction {
 		int warEffect = 0;
 		if (this.atWar(that)) warEffect = STATIC_WAR_EFFECT;
 		if (this.atPeace(that)) warEffect = STATIC_PEACE_EFFECT;
-		int relation = warEffect + getAllianceBonus(that) - getWarBonus(that) + this.getCloseCityEffect(that);
+		if (this.alliedWith(that)) warEffect += STATIC_ALLY_EFFECT;
+		int relation = warEffect + this.getCloseCityEffect(that);
 		//		int relation = this.warEffects.get(that.index) + getAllianceBonus(that) - getWarBonus(that) + this.getCloseCityEffect(that);
 
 		if (this.atWar(that) && relation >= PEACE_THRESHOLD) {
@@ -612,12 +638,12 @@ public class Faction {
 	}
 
 	public int getWarBonus(Faction that) {
-		if (this.atWar(that)) return WAR_BONUS;
+//		if (this.atWar(that)) return WAR_BONUS;
 		return 0;
 	}
 
 	public int getAllianceBonus(Faction that) {
-		if (this.alliedWith(that)) return ALLIANCE_BONUS;
+//		if (this.alliedWith(that)) return ALLIANCE_BONUS;
 		return 0;
 	}
 
@@ -686,6 +712,8 @@ public class Faction {
 
 		if (Faction.initialized)
 			BottomPanel.log(this.name + " and " + that.name + " have declared war!");
+
+		this.updateCloseLocations();
 	}
 
 	public void declarePeace(Faction that) {
@@ -703,14 +731,25 @@ public class Faction {
 
 		if (Faction.initialized)
 			BottomPanel.log(this.name + " and " + that.name + " have signed a peace agreement!");
+
+		for (Location l : locationsToAttack) {
+			if (l.getFaction() == that) {
+				this.cancelSiegeOf(l);
+			}
+		}
+		updateCloseLocations();
 	}
 
 	public void goRogue() { // just for testing, declares war on all factions other than this one
-		for (int i = 0; i < kingdom.factions.size; i++)
+		for (int i = 0; i < kingdom.factions.size; i++) {
 			if (i != index) {
-				if (this.atPeace(kingdom.factions.get(i)))
+				if (this.atPeace(kingdom.factions.get(i))) {
+
+					System.out.println(this.name + " declaring war against: " + kingdom.factions.get(i).name);
 					kingdom.factions.get(i).declareWar(this);
+				}
 			}
+		}
 	}
 
 	public int getTotalWealth() {
