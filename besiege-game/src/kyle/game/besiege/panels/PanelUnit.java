@@ -6,7 +6,6 @@
 package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;

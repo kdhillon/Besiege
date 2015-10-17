@@ -9,4 +9,5 @@ public class ArmorType {
 	public Color color;
 	public int defMod;
 	public int spdMod;
+	public boolean clothes;
 }

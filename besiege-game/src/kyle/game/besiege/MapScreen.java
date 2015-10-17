@@ -15,6 +15,7 @@ import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.SidePanel;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
@@ -44,14 +45,14 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class MapScreen implements Screen {
 	private Kryo kryo;
-	public boolean SIMULATE = true;
+	public boolean SIMULATE = false;
 
 	private static final boolean FORCERUN = false;
 	private static final float SCROLL_SPEED = 20f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
 	private static final float ZOOM_MAX = 10;
 	private static final float ZOOM_MIN = .05f;
-	private static final float ZOOM_RATE_Z = 300;
+	private static final float ZOOM_RATE_Z = 500;
 	//	private final Color background = new Color(0, 109.0f/255, 185.0f/255, 1);
 	//	private final Color background = new Color(VoronoiGraph.OCEAN);
 	private static final Color background = new Color(0x44447aff); // water
@@ -821,9 +822,10 @@ public class MapScreen implements Screen {
 		//		System.out.println("saving");
 		//		this.sidePanel.beginSaving();
 		//		BottomPanel.log("presaving");
-
+		// Should not save MapScreen or SidePanel.
+		// Should only save Kingdom.
+		// Kryo errors read bottom to top (bottom is always Kingdom)
 		// need to draw for one frame to let everyone know what's going o
-
 		FileHandle file = Gdx.files.local("save.dat");
 		Output output = new Output(file.write(false));
 

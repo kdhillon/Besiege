@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
-import kyle.game.besiege.SidePanel;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;

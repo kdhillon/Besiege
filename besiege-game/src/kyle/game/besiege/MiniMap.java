@@ -7,6 +7,7 @@ package kyle.game.besiege;
 
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.battle.WeaponDraw;
+import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Soldier;
 
 import com.badlogic.gdx.graphics.Color;

@@ -5,6 +5,11 @@
  ******************************************************************************/
 package kyle.game.besiege.battle;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
@@ -15,13 +20,11 @@ import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
+import kyle.game.besiege.party.ArmorType;
 import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
-
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
+import kyle.game.besiege.party.WeaponType;
 
 public class Battle extends Actor implements Destination { // new battle system involving Party
 	private static final float SPEED = 2000; //lower is faster
@@ -35,6 +38,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
 	public static final int WAIT = 3; // time army must wait after winning a battle to give the retreater a head start? maybe a better way to do this.
 	public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
+	public static final float BASE_WEAPON_DROP_CHANCE = 0.2f; 
+	public static final float BASE_ARMOR_DROP_CHANCE = 0.2f;
 	
 	private final int baseMoraleReward = 25;
 	private final String REGION = "battle";
@@ -82,6 +87,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	public boolean isOver;
 	public boolean didAtkWin;
+	
+	public Array<WeaponType> weaponLoot;
+	public Array<RangedWeaponType> rangedLoot;
+	public Array<ArmorType> armorLoot;
 	
 	// For Kryo
 	public Battle() {
@@ -159,6 +168,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 		aAdvantage = 1; // for now. make influenced by player's attribute as well as morale.
 		dAdvantage = 1;
 		
+		weaponLoot = new Array<WeaponType>();
+		rangedLoot = new Array<RangedWeaponType>();
+		armorLoot = new Array<ArmorType>();
 	}
 	
 	@Override
@@ -537,6 +549,18 @@ public class Battle extends Actor implements Destination { // new battle system 
 	// main thing called by battlestage?
 	public void casualty(Soldier soldier, boolean atkKill) {
 		boolean killed = soldier.party.casualty(soldier);
+		
+		// add soldier's loot to loot drop
+		if (killed) {
+			if (Math.random() < BASE_WEAPON_DROP_CHANCE)
+				this.weaponLoot.add(soldier.getWeapon());
+			if (soldier.getRanged() != null && Math.random() < BASE_WEAPON_DROP_CHANCE)
+				this.rangedLoot.add(soldier.getRanged());
+			if (!soldier.getArmor().clothes && Math.random() < BASE_ARMOR_DROP_CHANCE) 
+				this.armorLoot.add(soldier.getArmor());
+				
+		}
+		
 		if (atkKill) expD += soldier.getExpForKill();
 		else expA += soldier.getExpForKill();
 		
@@ -702,6 +726,19 @@ public class Battle extends Actor implements Destination { // new battle system 
 			}
 			kingdom.getMapScreen().getCharacter().addFame(fameReward);
 			log(army.getName() + " receives " + moraleReward + " morale, " + fameReward + " fame, " + reward + " gold and " + expReward + " experience!", "green");
+			
+			// Add collected loot
+			kingdom.getMapScreen().getCharacter().inventory.addWeapons(weaponLoot);
+			kingdom.getMapScreen().getCharacter().inventory.addRanged(rangedLoot);
+			kingdom.getMapScreen().getCharacter().inventory.addArmor(armorLoot);
+			
+			if (weaponLoot.size > 0 || rangedLoot.size > 0 || armorLoot.size > 0) {
+				String lootString = army.getName() + " looted ";
+				if (weaponLoot.size > 0) lootString += weaponLoot.size + " weapons, ";
+				if (rangedLoot.size > 0) lootString += rangedLoot.size + " ranged weapons, ";
+				if (armorLoot.size > 0) lootString += armorLoot.size + " armor!";
+				log(lootString, "green");
+			}
 		}
 		army.getParty().wealth += reward;
 		army.getParty().distributeExp(expReward);

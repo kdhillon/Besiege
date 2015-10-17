@@ -1,3 +1,4 @@
 name				color_name	def	spd	
 
-Armor				BROWN_G		0	0
+Clothes				BROWN_G		0	0	true
+Armor				DK_GRAY		1	0	false

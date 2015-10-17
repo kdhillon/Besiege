@@ -114,9 +114,19 @@ public class Center {
 		initMesh(vg);
 	}
 	
+	public int getSubVertices() {
+		int total = 0; 
+		for (Edge e : borders) {
+			if (e.subEdges == null) continue;
+			total += e.subEdges.length + 2;
+		}
+		if (total == 0) throw new java.lang.AssertionError();
+		return total;
+	}
+	
 	void initMesh(VoronoiGraph vg) {
 		// just hijacking this method 
-		int numVerts = this.borders.size() * 3 * 7;
+		int numVerts = getSubVertices() * 3 * 7;
 		this.verts = new float[numVerts];
 //		System.out.println("borders are " + this.borders.size());
 		// need one per triangle
@@ -124,8 +134,10 @@ public class Center {
 		VertexAttribute position = new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position");
 		VertexAttribute colorAttribute = new VertexAttribute(VertexAttributes.Usage.Color, 4, "a_color");
 
+		// This depends on the size of Edge.subEdges
+		float estTriangles = 200;
 		// I dont' know why 12 is the magic number for triangles, maybe 6 each side? duplicate triangles?
-		mesh = new Mesh(true, true, 15 * 3, 6 * 3 * 7, new VertexAttributes(position, colorAttribute));
+		mesh = new Mesh(true, true, 200 * 3, 6 * 3 * 7, new VertexAttributes(position, colorAttribute));
 		// somehow meshes can have up to 13 triangles. make this 15 just to be safe?
 		
 		Color color = VoronoiGraph.getColor(this);
@@ -137,13 +149,7 @@ public class Center {
 		
 		// draw all triangles
 		int idx = 0;
-		// hack just draw one triangle to start
-//		boolean runOnce = false;
-		for (int edgeIndex : this.adjEdges) {
-//			if (runOnce) continue;
-//			runOnce = true;
-		//	int idx = 0;
-			
+		for (int edgeIndex : this.adjEdges) {		
 			Edge e = vg.edges.get(edgeIndex);
 			if (e == null) {
 //				System.out.println("e is null");
@@ -158,49 +164,152 @@ public class Center {
 				continue;
 			}
 			
-			float x1 = e.v0.loc.x;
-			float y1 = (float) vg.bounds.height-e.v0.loc.y-1;
-			float z1 = e.v0.elevation * ELEVATION_FACTOR;
-			z1 = 0;
-			
-			float x2 = e.v1.loc.x;
-			float y2 = (float) vg.bounds.height-e.v1.loc.y-1;
-			float z2 = e.v1.elevation * ELEVATION_FACTOR;
-			z2 = 0;
-			
-//			System.out.println(x1 + " " + y1 + " " + z1);
-			//now we push the vertex data into our array
-			//we are assuming (0, 0) is lower left, and Y is up
-			
-			//bottom left vertex
-			verts[idx++] = x0; 			//Position(x, y) 
-			verts[idx++] = y0;
-			verts[idx++] = z0;
-			verts[idx++] = color.r; 	//Color(r, g, b, a)
-			verts[idx++] = color.g;
-			verts[idx++] = color.b;
-			verts[idx++] = color.a;
-			
-			//top left vertex
-			verts[idx++] = x1; 			//Position(x, y) 
-			verts[idx++] = y1;
-			verts[idx++] = z1;
-			verts[idx++] = color.r; 	//Color(r, g, b, a)
-			verts[idx++] = color.g;
-			verts[idx++] = color.b;
-			verts[idx++] = color.a;
-	 
-			//bottom right vertex
-			verts[idx++] = x2;	 //Position(x, y) 
-			verts[idx++] = y2;
-			verts[idx++] = z2;
-			verts[idx++] = color.r;		 //Color(r, g, b, a)
-			verts[idx++] = color.g;
-			verts[idx++] = color.b;
-			verts[idx++] = color.a; // gotta do this every frame to multiply this by the batch color.
+			// draw all 4 or 8 sub-triangles
+			for (int i = -1; i < e.subEdges.length; i++) {
+				float x1, y1, z1, x2, y2, z2;
+				// case with first vertex and second edge
+				if (i < 0) {
+					x1 = e.v0.loc.x;
+					y1 = (float) vg.bounds.height-e.v0.loc.y-1;
+				}
+				else {
+//					if (e.subEdges[i] == null) return;
+					x1 = e.subEdges[i].x;
+					y1 = (float) vg.bounds.height-e.subEdges[i].y;
+				}
+				z1 = e.v0.elevation * ELEVATION_FACTOR;
+				z1 = 0;
+				
+				// case where last vertex is corner
+				if (i >= e.subEdges.length - 1) {
+					 x2 = e.v1.loc.x;
+					 y2 = (float) vg.bounds.height-e.v1.loc.y-1;	
+				}
+				else {
+//					if (e.subEdges[i + 1] == null) return;
+					x2 = e.subEdges[i + 1].x;
+					y2 = (float) vg.bounds.height - e.subEdges[i + 1].y;
+				}
+				z2 = e.v1.elevation * ELEVATION_FACTOR;
+				z2 = 0;
+
+				//			System.out.println(x1 + " " + y1 + " " + z1);
+				//now we push the vertex data into our array
+				//we are assuming (0, 0) is lower left, and Y is up
+
+				//bottom left vertex
+				verts[idx++] = x0; 			//Position(x, y) 
+				verts[idx++] = y0;
+				verts[idx++] = z0;
+				verts[idx++] = color.r; 	//Color(r, g, b, a)
+				verts[idx++] = color.g;
+				verts[idx++] = color.b;
+				verts[idx++] = color.a;
+
+				//top left vertex
+				verts[idx++] = x1; 			//Position(x, y) 
+				verts[idx++] = y1;
+				verts[idx++] = z1;
+				verts[idx++] = color.r; 	//Color(r, g, b, a)
+				verts[idx++] = color.g;
+				verts[idx++] = color.b;
+				verts[idx++] = color.a;
+
+				//bottom right vertex
+				verts[idx++] = x2;	 //Position(x, y) 
+				verts[idx++] = y2;
+				verts[idx++] = z2;
+				verts[idx++] = color.r;		 //Color(r, g, b, a)
+				verts[idx++] = color.g;
+				verts[idx++] = color.b;
+				verts[idx++] = color.a; // gotta do this every frame to multiply this by the batch color.
+			}
 		}
 		this.mesh.setVertices(verts);
 	}
+	
+	//
+//	void initMesh(VoronoiGraph vg) {
+//		// just hijacking this method 
+//		int numVerts = this.borders.size() * 3 * 7;
+//		this.verts = new float[numVerts];
+////		System.out.println("borders are " + this.borders.size());
+//		// need one per triangle
+//		
+//		VertexAttribute position = new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position");
+//		VertexAttribute colorAttribute = new VertexAttribute(VertexAttributes.Usage.Color, 4, "a_color");
+//
+//		// I dont' know why 12 is the magic number for triangles, maybe 6 each side? duplicate triangles?
+//		mesh = new Mesh(true, true, 15 * 3, 6 * 3 * 7, new VertexAttributes(position, colorAttribute));
+//		// somehow meshes can have up to 13 triangles. make this 15 just to be safe?
+//		
+//		Color color = VoronoiGraph.getColor(this);
+//		
+//		float x0 = this.loc.x;
+//		float y0 = (float) vg.bounds.height-this.loc.y-1;
+//		float z0 = this.elevation * ELEVATION_FACTOR;
+//		z0 = 0;
+//		
+//		// draw all triangles
+//		int idx = 0;
+//		for (int edgeIndex : this.adjEdges) {		
+//			Edge e = vg.edges.get(edgeIndex);
+//			if (e == null) {
+////				System.out.println("e is null");
+//				continue;
+//			}
+//			if (e.v0 == null) {
+////				System.out.println("e v0 is null");
+//				continue;
+//			}
+//			if (e.v1 == null) {
+////				System.out.println("e v1 is null");
+//				continue;
+//			}
+//			
+//			float x1 = e.v0.loc.x;
+//			float y1 = (float) vg.bounds.height-e.v0.loc.y-1;
+//			float z1 = e.v0.elevation * ELEVATION_FACTOR;
+//			z1 = 0;
+//			
+//			float x2 = e.v1.loc.x;
+//			float y2 = (float) vg.bounds.height-e.v1.loc.y-1;
+//			float z2 = e.v1.elevation * ELEVATION_FACTOR;
+//			z2 = 0;
+//			
+////			System.out.println(x1 + " " + y1 + " " + z1);
+//			//now we push the vertex data into our array
+//			//we are assuming (0, 0) is lower left, and Y is up
+//			
+//			//bottom left vertex
+//			verts[idx++] = x0; 			//Position(x, y) 
+//			verts[idx++] = y0;
+//			verts[idx++] = z0;
+//			verts[idx++] = color.r; 	//Color(r, g, b, a)
+//			verts[idx++] = color.g;
+//			verts[idx++] = color.b;
+//			verts[idx++] = color.a;
+//			
+//			//top left vertex
+//			verts[idx++] = x1; 			//Position(x, y) 
+//			verts[idx++] = y1;
+//			verts[idx++] = z1;
+//			verts[idx++] = color.r; 	//Color(r, g, b, a)
+//			verts[idx++] = color.g;
+//			verts[idx++] = color.b;
+//			verts[idx++] = color.a;
+//	 
+//			//bottom right vertex
+//			verts[idx++] = x2;	 //Position(x, y) 
+//			verts[idx++] = y2;
+//			verts[idx++] = z2;
+//			verts[idx++] = color.r;		 //Color(r, g, b, a)
+//			verts[idx++] = color.g;
+//			verts[idx++] = color.b;
+//			verts[idx++] = color.a; // gotta do this every frame to multiply this by the batch color.
+//		}
+//		this.mesh.setVertices(verts);
+//	}
 	
 	public void draw(Matrix4 projTrans, ShaderProgram shader, float[] batchColor) {
 		if (verts.length % 3 != 0) {

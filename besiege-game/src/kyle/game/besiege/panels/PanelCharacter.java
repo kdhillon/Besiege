@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Character;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.ArmyPlayer;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

@@ -45,4 +45,8 @@ public class PointH {
     public double length() {
         return Math.sqrt(x * x + y * y);
     }
+    
+    public PointH midpoint(PointH that) {
+    	return new PointH((that.x + this.x) / 2, (that.y + this.y) / 2);
+    }
 }

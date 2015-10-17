@@ -6,7 +6,6 @@
 package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
@@ -113,8 +112,6 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		// testing
 		title.setText(army.getName());
 
-		
-		
 		faction.setText(army.getFactionName());
 
 
@@ -434,7 +431,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	public void button2() {
 		if (this.getButton(2).isVisible()) {
 			if (party == panel.getKingdom().getPlayer().getParty()) {
-				BottomPanel.log("Inventory");
+				panel.setPanelInventory();
 			}
 			else {
 				panel.setStay(false); // withdraw

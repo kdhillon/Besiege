@@ -6,7 +6,6 @@
 package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.party.Party;
@@ -40,6 +39,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private final float OFFSET = 1;
 	private final String upTexture = "grey-med9";
 	private final String downTexture = "grey-dm9";
+	private final String disabledTexture = "grey-mmd9";
 	private final int r = 3;
 	private final String tablePatch = "grey-d9";
 	private SidePanel panel;
@@ -75,6 +75,8 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private Label upgrade1StatsS;
 	private Label upgrade2StatsS;
 	private Label upgrade3StatsS;
+	
+	private boolean justPressed3;
 
 	private Soldier selected;
 
@@ -181,7 +183,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 
 		Label equippedSC = new Label("Equipped with:", lsMed);
 		equippedSC.setAlignment(0,0);
-		Label upgradeSC = new Label("Upgrade with:",lsMed);
+		Label upgradeSC = new Label("Upgrade to:",lsMed);
 		upgradeSC.setAlignment(0,0);
 
 		nameS = new Label("", lsMB);
@@ -220,6 +222,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		bs = new ButtonStyle();
 		bs.up = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(upTexture), r,r,r,r));
 		bs.down = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(downTexture), r,r,r,r));
+		bs.disabled = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(disabledTexture), r,r,r,r));
 		bs.pressedOffsetX = OFFSET;
 		bs.pressedOffsetY = -OFFSET;
 
@@ -331,6 +334,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	// use this for web
 	@Override
 	public void act(float delta) {
+		justPressed3 = false;
 		morale.setText(army.getMorale() + "");
 		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
 		money.setText("" + army.getParty().wealth);
@@ -432,6 +436,19 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 				upgrade1StatsS.setText(s.getUpgradeCost() + "");
 				//upgrade1StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up1)));
 			}
+			if (!this.panel.getMapScreen().getCharacter().inventory.canEquip(up1)) {
+				up1B.setTouchable(Touchable.disabled);
+				up1B.setDisabled(true);
+			}
+			else {
+				up1B.setTouchable(Touchable.enabled);
+				up1B.setDisabled(false);
+			}
+		}
+		else {
+			upgrade1S.setText("");
+			up1B.setVisible(false);
+			upgrade1StatsS.setText("");
 		}
 		if (upgradeArr.length >= 2) {
 			UnitType up2 = upgradeArr[1];
@@ -446,6 +463,14 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 				upgrade2S.setText(" " + up2.name + " ");
 				upgrade2StatsS.setText(s.getUpgradeCost() + "");
 				//upgrade2StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up2)));
+			}
+			if (!this.panel.getMapScreen().getCharacter().inventory.canEquip(up2)) {
+				up2B.setTouchable(Touchable.disabled);
+				up2B.setDisabled(true);
+			}
+			else {
+				up2B.setTouchable(Touchable.enabled);
+				up2B.setDisabled(false);
 			}
 		}
 		else {
@@ -466,6 +491,14 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 				upgrade3S.setText(" " + up3.name + " ");
 				upgrade3StatsS.setText(s.getUpgradeCost() + "");
 				//upgrade3StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up3)));
+			}
+			if (!this.panel.getMapScreen().getCharacter().inventory.canEquip(up3)) {
+				up3B.setTouchable(Touchable.disabled);
+				up3B.setDisabled(true);
+			}
+			else {
+				up3B.setTouchable(Touchable.enabled);
+				up3B.setDisabled(false);
 			}
 		}
 		else {
@@ -533,7 +566,8 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private void upgradeCurrent(UnitType unitType) {
 		//int index = party.getUpgradable().indexOf(selected, true);
 		String first = selected.getName();
-		if (selected.upgrade(unitType)) { // only if successfully upgrades
+		 // only if successfully upgrades
+		if (selected.upgrade(unitType, panel.getMapScreen().getCharacter().inventory)) {
 			String next = selected.getName();
 			BottomPanel.log(first + " upgraded to " + next);
 			Soldier prev_selected = selected;
@@ -567,8 +601,10 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		for (Soldier s : possibleToUpgrade) {
 			if (s.unitType.upgrades.length == 1) {
 				select(s);
-				upgradeCurrent((s.unitType.upgrades[0]));
+				if (this.panel.getMapScreen().getCharacter().inventory.canEquip(s.unitType.upgrades[0]))
+					upgradeCurrent((s.unitType.upgrades[0]));
 			}
+			System.out.println("in upgrade loop: " + possibleToUpgrade.size);
 		}
 	}
 
@@ -674,10 +710,14 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	}
 	@Override
 	public void button3() {
-		if (upgradableRemaining())
-			upgradeAll();
-		if (up3B.isVisible()) {
-//			upgradeCurrent(up3B.upgrade);
+		// fixes bug where upgrade loop would be infinite
+		if (!justPressed3) {
+			justPressed3 = true;
+			if (upgradableRemaining())
+				upgradeAll();
+			if (up3B.isVisible()) {
+				//			upgradeCurrent(up3B.upgrade);
+			}
 		}
 	}
 	@Override

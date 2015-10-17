@@ -546,7 +546,6 @@ public class Kingdom extends Group {
 		}
 		Faction.BANDITS_FACTION.goRogue();
 		Faction.ROGUE_FACTION.goRogue();
-		factions.get(3).goRogue();
 		Faction.initialized = true;
 	}
 	

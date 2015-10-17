@@ -10,6 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 public class ObjectLabel extends Label {
 	public Object object;
 	
+	public ObjectLabel() {
+		super("default", new LabelStyle());
+	};
+	
 	public ObjectLabel(String text, LabelStyle ls, Object object) {
 		super(text, ls);
 		this.object = object;

@@ -5,6 +5,7 @@
  ******************************************************************************/
 package kyle.game.besiege.party;
 
+import kyle.game.besiege.Inventory;
 import kyle.game.besiege.panels.BottomPanel;
 
 import com.badlogic.gdx.graphics.Color;
@@ -284,14 +285,40 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 			if (this.getTier() % 2 != 0) {
 				if (party.player)
 					BottomPanel.log(this.getName() + " ready for upgrade!", "green");
-				canUpgrade = true;
+				if (this.unitType.upgrades != null && this.unitType.upgrades.length > 0) canUpgrade = true;
+				else canUpgrade = false;
 			}
 			else upgrade(null);
 		}
 
 		calcStats();
 	}
+	
+	// Upgrades with items from inventory
+	public boolean upgrade(UnitType unitType, Inventory inventory) {
+		if (party.player && party.army != null) {
+			inventory.equip(unitType);
+			
+			if (unitType != null) {// only if not upgrading to veteran
+				this.unitType = unitType;
+			}
 
+			if (LEVEL_TIER.length <= getTier() + 1) return false;
+
+			this.nextUpgrade = LEVEL_TIER[getTier() + 1];
+
+			if (ATK_TIER[getTier()]) baseAtk++;
+			if (DEF_TIER[getTier()]) baseDef++;
+			if (SPD_TIER[getTier()]) baseSpd++;
+
+			this.canUpgrade = false;
+
+			calcStats();
+		}	
+		return true;
+	}
+
+	// Old upgrade method, maybe delete this.
 	public boolean upgrade(UnitType unitType) { // returns true if upgraded, false otherwise	
 		int cost;
 		if (unitType != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.getTier()];
@@ -432,6 +459,14 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	
 	public WeaponType getWeapon() {
 		return this.unitType.melee;
+	}
+	
+	public RangedWeaponType getRanged() {
+		return this.unitType.ranged;
+	}
+	
+	public ArmorType getArmor() {
+		return this.unitType.armor;
 	}
 	
 	public UnitClass getUnitClass() {

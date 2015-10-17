@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Faction;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
@@ -121,7 +120,7 @@ public class PanelFaction extends Panel {
 
 		// Create text
 		text = new Table();
-		//		text.debug();
+//		text.debug();
 		text.defaults().padTop(NEG).left();
 
 		//		title.addListener(new InputListener() {

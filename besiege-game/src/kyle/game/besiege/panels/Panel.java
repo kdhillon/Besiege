@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.SidePanel;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.party.Soldier;

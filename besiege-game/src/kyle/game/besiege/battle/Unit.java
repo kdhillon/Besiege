@@ -668,6 +668,7 @@ public class Unit extends Group {
 	}
 
 	public boolean unitMovingOutOfWay() {
+		if (stage == null || stage.units == null || this.getAdjacentPoint() == null) return false;
 		Unit inWay = stage.units[this.getAdjacentPoint().pos_y][this.getAdjacentPoint().pos_x];
 		if (inWay == null) return false;
 		if (inWay.party != this.party) return false; // should attack if a foe

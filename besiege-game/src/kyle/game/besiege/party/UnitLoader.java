@@ -123,6 +123,7 @@ public class UnitLoader {
 			if (armor.color == null) throw new java.lang.NullPointerException("Can't find color: " + colorToGet);
 			armor.defMod 	= in.nextInt();
 			armor.spdMod	= in.nextInt();
+			armor.clothes 	= in.nextBoolean();
 			armorTypes.put(armor.name, armor);
 			//	printArmor(armor);
 		}

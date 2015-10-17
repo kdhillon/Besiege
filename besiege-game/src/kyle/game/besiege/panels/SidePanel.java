@@ -3,24 +3,21 @@
  * by Kyle Dhillon
  * Source Code available under a read-only license. Do not copy, modify, or distribute.
  ******************************************************************************/
-package kyle.game.besiege;
+package kyle.game.besiege.panels;
 
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.Destination;
+import kyle.game.besiege.Faction;
+import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.MiniMap;
+import kyle.game.besiege.Destination.DestType;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.panels.Panel;
-import kyle.game.besiege.panels.PanelAttributes;
-import kyle.game.besiege.panels.PanelBattle;
-import kyle.game.besiege.panels.PanelCenter;
-import kyle.game.besiege.panels.PanelCharacter;
-import kyle.game.besiege.panels.PanelFaction;
-import kyle.game.besiege.panels.PanelLocation;
-import kyle.game.besiege.panels.PanelParty;
-import kyle.game.besiege.panels.PanelUnit;
-import kyle.game.besiege.panels.PanelUpgrades;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Center;
 
@@ -28,6 +25,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public class SidePanel extends Group {
 	public static final int WIDTH = 190; // 180 works well
@@ -45,15 +43,16 @@ public class SidePanel extends Group {
 	private MiniMap minimap;
 	private BottomPanel bottom;
 	
-	private Panel activePanel;
-	private Panel previousPanel;
+	private transient Panel activePanel;
+	private transient Panel previousPanel;
 	
 	//public PanelMain main;
 	public PanelCharacter character;
 	public PanelAttributes attributes;
 	public PanelParty party;
 	public PanelUpgrades upgrades;
-	
+	public PanelInventory inventory;
+		
 	private boolean stay; // stay on current panel until set false
 		
 	public SidePanel(MapScreen mapScreen) {
@@ -80,14 +79,26 @@ public class SidePanel extends Group {
 		this.setHeight(camera.viewportHeight);
 		stay = false;
 	}
+
+	// hopefully will prevent stupid kryo errors
+	// nope was totally different
+//	public void purgeBeforeSave() {
+//		this.clearChildren();
+//	}
+//	
+//	public void restoreAfterSave() {
+//		this.addActor(bottom);
+//		this.addActor(minimap);
+//		this.addActor(activePanel);
+//	}
 	
 	public void initializePanels() {
 		//main = new PanelMain(this);
 		character = new PanelCharacter(this);
+		inventory = new PanelInventory(this);
 		party = new PanelParty(this, kingdom.getPlayer());
 		attributes = new PanelAttributes(this);
 		upgrades = new PanelUpgrades(this, kingdom.getPlayer());
-		
 		this.setActive(party);
 	}
 	
@@ -109,7 +120,7 @@ public class SidePanel extends Group {
 		//minimap.clipBegin(100, 100, 100, 100);
 		super.draw(batch, parentAlpha);
 		//minimap.clipEnd();
-//		Table.drawDebug(getMapScreen().getUIStage());
+		Table.drawDebug(getMapScreen().getUIStage());
 
 //		miniCam.update();
 //		miniStage.addActor(kingdom);
@@ -199,6 +210,9 @@ public class SidePanel extends Group {
 	public void setActiveCenter(Center center) {
 		PanelCenter pc = new PanelCenter(this, center);
 		setActive(pc);
+	}
+	public void setPanelInventory() {
+		setActive(inventory);
 	}
 	public void setDefault() {
 		if (mapScreen.battle != null)

@@ -19,6 +19,8 @@ public class Character {
 	private final double FAME_FACTOR = .1;
 	public String name;
 	
+	public Inventory inventory;
+	
 	public int rank;
 
 	public int honor;
@@ -102,6 +104,8 @@ public class Character {
 		this.addAvailablePoints(5);
 		this.trainingExp = 10;
 //		this.trainingExp = 20000;
+		
+		this.inventory = new Inventory();
 		
 		this.availableFormations = new Array<Formation>();
 		this.availableFormations.add(Formation.LINE);

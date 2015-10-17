@@ -24,12 +24,65 @@ public class Edge {
     public boolean impassable;
     
     public int river;
+    
+    public static final int subDivisions = 8;
+    public static final double noiseFactor = .3;
+    // this contains the list of randomly generated sub-edges, which can be drawn to add extra noise to edges
+    // Subedges go from v0 to v1.
+    public PointH[] subEdges;
 
     public void setVornoi(Corner v0, Corner v1) {
         this.v0 = v0;  this.adjCorner0 = v0.index;
         this.v1 = v1;  this.adjCorner1 = v1.index;
         midpoint = new PointH((v0.loc.x + v1.loc.x) / 2, (v0.loc.y + v1.loc.y) / 2);
+        
+        calculateSubedges();
     }
+    
+    public void calculateSubedges() {
+    	subEdges = new PointH[subDivisions - 1];
+    	    	
+    	recursiveSubdivide(-1, subDivisions-1, subEdges);	
+    }
+    
+    // take midpoint of p1, p2. "push" in random direction by random value between 0 and factor*distance(p1, p2).
+	// recursively do this on this midpoint and start and end points.
+    public void recursiveSubdivide(int left, int right, PointH[] currentPoints) {
+    	if (right-left <= 1) return;
+    	System.out.println(left + " " + right);
+    	
+    	int midpoint = (right - left) / 2 + left;
+
+    	PointH leftPoint, rightPoint;
+    	if (left >= 0)
+    		leftPoint = currentPoints[left];
+    	else 
+    		leftPoint = v0.getLoc();
+    	if (right < currentPoints.length)
+    		rightPoint = currentPoints[right];
+    	else 
+    		rightPoint = v1.getLoc();
+    	
+    	double dist = PointH.distance(leftPoint, rightPoint);
+    	dist *= noiseFactor;
+    	
+    	double randomPush = dist * Math.random();
+    	double randomAngle = Math.random() * 360;
+    	
+    	// should be negative or positive
+    	float push_x = (float) (randomPush * Math.cos(randomAngle));
+    	float push_y = (float) (randomPush * Math.sin(randomAngle));
+    	
+    	currentPoints[midpoint] = leftPoint.midpoint(rightPoint);
+    	
+    	// push midpoint out appropriately    	
+    	currentPoints[midpoint].x += push_x;
+    	currentPoints[midpoint].y += push_y;
+    	
+    	recursiveSubdivide(left, midpoint, currentPoints);
+    	recursiveSubdivide(midpoint, right, currentPoints);
+    }
+    
     public boolean isImpassable() {
 		return ((d0.water || d1.water));// && !(d0.water && d1.water));
     }

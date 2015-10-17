@@ -44,7 +44,7 @@ public class Location extends Actor implements Destination {
 	// for font rotation
 	private Matrix4 mx4Font = new Matrix4();
 	
-	public ObjectLabel label;
+	public transient ObjectLabel label;
 
 	protected int DAILY_WEALTH_INCREASE_BASE;
 	protected double DAILY_POP_INCREASE_BASE;

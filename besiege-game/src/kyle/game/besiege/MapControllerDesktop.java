@@ -74,8 +74,11 @@ public class MapControllerDesktop implements InputProcessor {
 	// TODO replace this
 	@Override
 	public boolean scrolled(int amount) {
-//		if (Gdx.app.getType() == ApplicationType.Desktop)
+		if (Gdx.app.getType() == ApplicationType.Desktop)
+			screen.zoom(amount*zoomFactor);
+
 //			screen.zoom(amount*camera.zoom*zoomFactor);
+		
 //		return true;
 		return false;
 	}

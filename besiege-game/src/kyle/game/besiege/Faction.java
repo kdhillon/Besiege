@@ -93,16 +93,19 @@ public class Faction {
 	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
 	public Array<Center> centers; // centers under influence of this faction
 	public Array<Polygon> territory; // polygon of all centers
-	public Array<Faction> atPeace;
-	public Array<Faction> atWar;
+	public transient Array<Faction> atPeace;
+	public transient Array<Faction> atWar;
+	public Array<Integer> atWarInt;
 	public Array<Faction> allies;
 
 	// this keeps track of historical relations -- long peace increases this, long war decreases this
 	public Array<Integer> warEffects; // negative if war, positive if peace, etc
 	//	public Array<Faction> allied;
 
-	public ObjectLabel label;
-	public ObjectLabel label2;
+	// this was the cause of a lot of Kryo errors
+	// NOTE: KRYO ERRORS READ BOTTOM TO TOP
+	public transient ObjectLabel label;
+	public transient ObjectLabel label2;
 
 	//	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
 	private boolean hasChecked;
@@ -143,6 +146,7 @@ public class Faction {
 		faction_center_y = 0;
 
 		atWar = new Array<Faction>();
+		atWarInt = new Array<Integer>();
 		atPeace = new Array<Faction>();
 		allies = new Array<Faction>();
 	}
@@ -163,14 +167,15 @@ public class Faction {
 			if (f == this) continue;
 			System.out.println("initializing peace");
 			this.declarePeace(f);
-			//			if (Math.random() < 0.5)
-			//				this.declareWar(f);
+			if (Math.random() < 0.5)
+				this.declareWar(f);
 		}
 	}
 
 	public void removeOther(Faction faction) {
 		kingdom.factions.removeValue(faction, true);
 		atWar.removeValue(faction, true);
+		atWarInt.removeValue(faction.index, true);
 		atPeace.removeValue(faction, true);
 
 		//		allied.removeValue(faction, true);
@@ -190,6 +195,8 @@ public class Faction {
 	}
 
 	public void act(float delta) {
+		if (this.atWar == null || this.atPeace == null) refreshAtWar();
+
 		//		timeSinceIncrease += delta;
 
 		//		if (this == PLAYER_FACTION)
@@ -243,7 +250,7 @@ public class Faction {
 		//		this.createNobleAt(city);
 		// new noble created everytime a city is captured... but also nobles will die when they lose big battles
 	}
-	
+
 	public void manageNobles() {
 		// if a city doesn't have a noble, create a baron or earl
 		// when a noble is upgraded to the next level (later, if a city is upgraded) add a fresh noob to replace them.
@@ -257,6 +264,7 @@ public class Faction {
 	}
 
 	public void manageDiplomacy() {
+		if (this.atWar == null || this.atPeace == null) refreshAtWar();
 		for (Faction that : this.atWar) {
 			if (Math.random() < PEACE_PROBABILITY && 
 					that != Faction.BANDITS_FACTION &&
@@ -568,6 +576,17 @@ public class Faction {
 	//		closeFriendlyLocations = new Array<City>(tempCloseFriendlyCities);
 	//	}
 
+	public void refreshAtWar() {
+		this.atWar = new Array<Faction>();
+		this.atPeace = new Array<Faction>();
+		for (int i : this.atWarInt) {
+			this.atWar.add(kingdom.factions.get(i));
+		}
+		for (Faction f : kingdom.factions) {
+			if (!this.atWar.contains(f, true)) atPeace.add(f);;
+		}
+	}
+
 	//	/** Calculates negative effect of close cities on the relations
 	//	 *  between two factions
 	//	 * 
@@ -638,12 +657,12 @@ public class Faction {
 	}
 
 	public int getWarBonus(Faction that) {
-//		if (this.atWar(that)) return WAR_BONUS;
+		//		if (this.atWar(that)) return WAR_BONUS;
 		return 0;
 	}
 
 	public int getAllianceBonus(Faction that) {
-//		if (this.alliedWith(that)) return ALLIANCE_BONUS;
+		//		if (this.alliedWith(that)) return ALLIANCE_BONUS;
 		return 0;
 	}
 
@@ -660,6 +679,12 @@ public class Faction {
 	//	}
 
 	public boolean atWar(Faction that) {
+		if (this.atWar == null || this.atPeace == null) { 
+			refreshAtWar(); 
+		}
+		if (that.atWar == null || that.atPeace == null) { 
+			that.refreshAtWar(); 
+		}
 		if (this.atWar.contains(that, true) != that.atWar.contains(this,  true)) {
 			System.out.println(this.name + " and " + that.name + " don't have the same war status");
 			throw new java.lang.RuntimeException();
@@ -668,10 +693,22 @@ public class Faction {
 	}
 
 	public boolean alliedWith(Faction that) {
+		if (this.atWar == null || this.atPeace == null) { 
+			refreshAtWar(); 
+		}
+		if (that.atWar == null || that.atPeace == null) { 
+			that.refreshAtWar(); 
+		}
 		return this.allies.contains(that, true);
 	}
 
 	public boolean atPeace(Faction that) {
+		if (this.atWar == null || this.atPeace == null) { 
+			refreshAtWar(); 
+		}
+		if (that.atWar == null || that.atPeace == null) { 
+			that.refreshAtWar(); 
+		}
 		if (this.atPeace.contains(that, true) != that.atPeace.contains(this,  true)) {
 			System.out.println(this.name + " and " + that.name + " don't have the same peace status");
 			throw new java.lang.RuntimeException();
@@ -691,10 +728,14 @@ public class Faction {
 			throw new java.lang.RuntimeException();
 		}
 
-		if (!this.atWar.contains(that, true))
+		if (!this.atWar.contains(that, true)) {
 			this.atWar.add(that);
-		if (!that.atWar.contains(this, true))
+			this.atWarInt.add(that.index);
+		}
+		if (!that.atWar.contains(this, true)){
 			that.atWar.add(this);
+			that.atWarInt.add(this.index);
+		}
 
 		//		if (!this.atPeace.removeValue(that, true)) throw new java.lang.RuntimeException();
 		//		if (!that.atPeace.removeValue(this, true)) throw new java.lang.RuntimeException();
@@ -725,7 +766,9 @@ public class Faction {
 		//		}
 
 		this.atWar.removeValue(that, true);
+		this.atWarInt.removeValue(that.index, true);
 		that.atWar.removeValue(this, true);
+		that.atWarInt.removeValue(this.index, true);
 		this.atPeace.add(that);
 		that.atPeace.add(this);
 
