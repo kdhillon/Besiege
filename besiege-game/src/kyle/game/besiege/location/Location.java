@@ -5,6 +5,15 @@
  ******************************************************************************/
 package kyle.game.besiege.location;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
@@ -24,19 +33,10 @@ import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
-
 public class Location extends Actor implements Destination {
 	private final float SCALE = .06f;
 	private final int offset = 30;
-	private final int HIRE_REFRESH = 120; // seconds it takes for soldiers to refresh in city
+	private final int HIRE_REFRESH = 600; // seconds it takes for soldiers to refresh in city
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
@@ -96,8 +96,8 @@ public class Location extends Actor implements Destination {
 
 	public Siege siege;
 
-	private float spawnX; // where should units spawn? must be inside
-	private float spawnY;
+//	private float spawnX; // where should units spawn? must be inside
+//	private float spawnY;
 
 	private boolean autoManage;
 	public boolean playerIn; //is player garrisoned inside (special menu)
@@ -105,7 +105,7 @@ public class Location extends Actor implements Destination {
 	public boolean playerWaiting; // is player waiting inside?
 	public boolean playerBesieging;
 
-	public Point spawnPoint; // point where armies and farmers should spawn if on water
+	private Point spawnPoint; // point where armies and farmers should spawn if on water
 	public int center = -1; // one of these will be null
 	public int corner = -1;
 
@@ -116,16 +116,18 @@ public class Location extends Actor implements Destination {
 
 	// constructor for Ruins (location with no faction, garrison, etc)
 	public Location(Kingdom kingdom, String name, int index, float posX, float posY) {
+		this.faction = null;
+		this.ruin = true;
+		
+		basicConstruct(kingdom, name, index, posX, posY);
+	}
+
+	public void basicConstruct(Kingdom kingdom, String name, int index, float posX, float posY) {
 		this.kingdom = kingdom;
 		this.name = name;
 		this.index = index;
-
-		this.faction = null;
-		this.ruin = true;
-
+	
 		setPosition(posX, posY);
-
-		setTextureRegion("Castle"); // default location textureRegion
 
 		garrisonedArmies = new Array<Army>();
 
@@ -134,20 +136,17 @@ public class Location extends Actor implements Destination {
 
 		this.setRotation(0);
 		this.setScale(1);
+		
+		spawnPoint = new Point(this.getCenterX(), this.getCenterY());
+		
+		setTextureRegion("Castle"); // default location textureRegion
 		initializeBox();
 	}
-
+	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType) {
-		this.kingdom = kingdom;
-		this.name = name;
-		this.index = index;
 		this.faction = faction;
 
-		setPosition(posX, posY);
-
-		setTextureRegion("Castle"); // default location textureRegion
-
-		garrisonedArmies = new Array<Army>();
+		basicConstruct(kingdom, name, index, posX, posY);		
 
 		this.garrison = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), pType);
 		this.garrison.isGarrison = true;
@@ -155,8 +154,6 @@ public class Location extends Actor implements Destination {
 		//		this.garrison(this.garrison);
 
 		autoManage = true;
-		playerIn = false;
-		hostilePlayerTouched = false;
 
 		patrols = new Array<Patrol>();
 
@@ -173,11 +170,6 @@ public class Location extends Actor implements Destination {
 
 		timeSinceFreshHire = 0;
 		nextHire = new Party(); //empty
-
-
-		this.setRotation(0);
-		this.setScale(1);
-		initializeBox();
 	}
 
 	public void initializeBiomeDistributions() {
@@ -430,51 +422,51 @@ public class Location extends Actor implements Destination {
 		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 9)) {			
 			BitmapFont font;			
 
-			if (zoom > 7) {
-				font = Assets.pixel150;
-				zoom = 7;
-			}
-			else if (zoom > 5) {
-				font = Assets.pixel100;
-				zoom = 5;
-			}
-			else if (zoom > 4) {
-				font = Assets.pixel80;
-				zoom = 4;
-			}
-			else if (zoom > 3) {
-				font = Assets.pixel64;
-				zoom = 3;
-			}
-			// add some fonts here for smoothness
-			else if (zoom > 2.5) {
-				font = Assets.pixel50;
-				zoom = 2.5f;
-			}
-			else if (zoom > 2) {
-				font = Assets.pixel40;
-				zoom = 2f;
-			}
-			else if (zoom > 1.5) {
+//			if (zoom > 7) {
+//				font = Assets.pixel150;
+//				zoom = 7;
+//			}
+//			else if (zoom > 5) {
+//				font = Assets.pixel100;
+//				zoom = 5;
+//			}
+//			else if (zoom > 4) {
+//				font = Assets.pixel80;
+//				zoom = 4;
+//			}
+//			else if (zoom > 3) {
+//				font = Assets.pixel64;
+//				zoom = 3;
+//			}
+//			// add some fonts here for smoothness
+//			else if (zoom > 2.5) {
+//				font = Assets.pixel50;
+//				zoom = 2.5f;
+//			}
+//			else if (zoom > 2) {
+//				font = Assets.pixel40;
+//				zoom = 2f;
+//			}
+//			else if (zoom > 1.5) {
 				font = Assets.pixel30;
 				zoom = 1.5f;
-			}
-			else if (zoom > 1.2) {
-				font = Assets.pixel24;
-				zoom = 1.2f;
-			}
-			else if (zoom > 1) {
-				font = Assets.pixel20;
-				zoom = 1f;
-			}
-			else if (zoom > .75) {
-				font = Assets.pixel15;
-				zoom = .75f;
-			}
-			else {
-				font = Assets.pixel12;
-				zoom = .6f;
-			}
+//			}
+//			else if (zoom > 1.2) {
+//				font = Assets.pixel24;
+//				zoom = 1.2f;
+//			}
+//			else if (zoom > 1) {
+//				font = Assets.pixel20;
+//				zoom = 1f;
+//			}
+//			else if (zoom > .75) {
+//				font = Assets.pixel15;
+//				zoom = .75f;
+//			}
+//			else {
+//				font = Assets.pixel12;
+//				zoom = .6f;
+//			}
 			String toDraw = getName();
 
 			mx4Font.idt();
@@ -721,11 +713,12 @@ public class Location extends Actor implements Destination {
 		}
 		garrisonedArmies.add(army);
 		army.setVisible(false);
-		army.setPosition(this.getCenterX()-army.getOriginX(), getCenterY()-army.getOriginY());
+		army.setPosition(this.spawnPoint.getX()-army.getOriginX(), spawnPoint.getY()-army.getOriginY());
 
 		// attmepting this
 		//kingdom.removeArmy(army);
 	}
+	
 	// ejecting armies was duplicating them previously.
 	public void eject(Army army) {
 		garrisonedArmies.removeValue(army, true);
@@ -776,6 +769,10 @@ public class Location extends Actor implements Destination {
 	}
 	public void setToHire(Party toHire) {
 		this.toHire = toHire;
+	}
+	
+	public Point getSpawnPoint() {
+		return spawnPoint;
 	}
 
 	@Override

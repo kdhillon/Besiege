@@ -4,18 +4,16 @@
  */
 package kyle.game.besiege.voronoi;
 
-import java.awt.BasicStroke;
-//import java.awt.Color;
-import com.badlogic.gdx.graphics.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
+
+//import java.awt.Color;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.ext.PerlinNoiseGenerator;
 import kyle.game.besiege.geom.PointH;
@@ -23,10 +21,6 @@ import kyle.game.besiege.geom.Rectangle;
 import kyle.game.besiege.utils.MyRandom;
 import kyle.game.besiege.voronoi.nodename.as3delaunay.LineSegment;
 import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
-
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.utils.Array;
 
 
 /**
@@ -88,7 +82,7 @@ public class VoronoiGraph {
 
         calculateDownslopes();
         //calculateWatersheds();
-        createRivers();
+//        createRivers();
         assignCornerMoisture();
         redistributeMoisture(landCorners());
         assignPolygonMoisture();
@@ -104,6 +98,7 @@ public class VoronoiGraph {
     		c.initMesh(this);
     	}
     }
+    
 //    public BufferedImage img; // may have to change for web use
 //    public RenderableGraphics rg;
 
@@ -975,9 +970,11 @@ public class VoronoiGraph {
     public static int LAVA = 0xcc3333ff;
     // Terrain
     public static int SNOW = 0xffffffff;
-    public static int TUNDRA = 0xbbbbaaff;
+//    public static int TUNDRA = 0xbbbbaaff;
+    public static int TUNDRA = 0x99bb88ff;
     public static int BARE = 0x888888ff;
-    public static int SCORCHED = 0x555555ff;
+//    public static int SCORCHED = 0x555555ff;
+    public static int SCORCHED = 0x774444ff;
     public static int TAIGA = 0x99aa77ff;
     public static int SHRUBLAND = 0x889977ff;
     public static int TEMPERATE_DESERT = 0xc9d29bff;

@@ -163,7 +163,7 @@ public class Character {
 	}
 	
 	public String getTitle() {
-		return Noble.getTitleForFame(fame);
+		return "scum";
 	}
 	
 	public void addFame(int fame) {

@@ -54,6 +54,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public Array<Army> aArmiesRet; 
 	public Array<Army> dArmiesRet;
 	
+	// ONLY USED IN SIMULATION
 	public Array<Party> aParties;
 	public Array<Party> dParties;
 	public Array<Party> aPartiesRet;
@@ -100,6 +101,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 	// for simulation purposes
 	public Battle(Kingdom kingdom, Party initAttackerParty, Party initDefenderParty) {
 		this.kingdom = kingdom;
+		
+//		if (initAttackerParty.getFaction().atPeace(initDefenderParty.getFaction())) 
+//			throw new java.lang.AssertionError();
 		
 //		region = Assets.atlas.findRegion(REGION);
 
@@ -180,6 +184,11 @@ public class Battle extends Actor implements Destination { // new battle system 
 //				setVisible(false);
 //			else setVisible(true);
 //		}
+		
+		if (this.aArmies == null) {
+			this.destroy();
+			return;
+		}
 		
 		calcStats();
 		meleePhase();
@@ -370,16 +379,19 @@ public class Battle extends Actor implements Destination { // new battle system 
 		if (aArmies.contains(army, true)) {
 			aArmies.removeValue(army, true);
 			aParties.removeValue(army.party, true);
-			aArmiesRet.add(army);
-			aPartiesRet.add(army.party);
+			if (!aArmiesRet.contains(army, true)) {
+				aArmiesRet.add(army);
+				aPartiesRet.add(army.party);
+			}
 			log(army.getName() + " is retreating!", "yellow");
 		}
 		else if (dArmies.contains(army, true)) {
 			dArmies.removeValue(army, true);	
 			dParties.removeValue(army.party, true);
-			dArmiesRet.add(army);
-			dPartiesRet.add(army.party);
-
+			if (!aArmiesRet.contains(army, true)) {
+				dArmiesRet.add(army);
+				dPartiesRet.add(army.party);
+			}
 			log(army.getName() + " is retreating!", "yellow");
 		}
 		increaseSpoilsForRetreat(army);
@@ -394,13 +406,13 @@ public class Battle extends Actor implements Destination { // new battle system 
 				 attackStep();
 			 else if (dArmiesRet.size <= 0) {
 //				 System.out.println(getName() + " point 1");
-				 victory(aArmies);
+				 victory(aArmies, dArmies);
 				 return;
 			 }
 		}
 		else if (aArmiesRet.size <= 0) {
 //			System.out.println(getName() + " point 2");
-			victory(dArmies);	
+			victory(dArmies, aArmies);	
 			return;
 		}
 		
@@ -412,25 +424,35 @@ public class Battle extends Actor implements Destination { // new battle system 
 					defenseStep();
 				else if (dArmiesRet.size <= 0) {
 //					System.out.println(getName() + " point 3");
-					victory(aArmies);
+					victory(aArmies, dArmies);
 					return;
 				}
 			}
 			else if (aArmiesRet.size <= 0) {
 //				 System.out.println(getName() + " point 4");
-				victory(dArmies);
+				victory(dArmies, aArmies);
 				return;
 			}
 		}
 		// clean up
 		if (aArmies.size >= 1) {
 			if (dArmies.size == 0 && dArmiesRet.size == 0)
-				victory(aArmies);
+				victory(aArmies, dArmies);
 		}
 		else { // just do it regardless of dArmies size in case both retreat or die somehow
 			if (aArmies.size == 0 && aArmiesRet.size == 0)
-				victory(dArmies);
+				victory(dArmies, aArmies);
 		}
+	}
+	
+	public void finalizeRetreat(Army army) {
+		for (Soldier s : army.party.getHealthy()) {
+			s.registerBattleRetreat();
+		}
+		for (Soldier s : army.party.getWounded()) {
+			s.registerBattleRetreat();
+		}
+		remove(army);
 	}
 	
 	public void retreatPhase(float delta) {
@@ -453,8 +475,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 //				System.out.println(army.getName() + " retreat point 1 with counter " + army.retreatCounter);
 				if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) 
 					this.destroy(army);
-				else
-					remove(army);
+				else {
+					finalizeRetreat(army);
+				}
 			}
 			if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) 
 				this.destroy(army);
@@ -517,28 +540,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
-	public void killOne(Army army, boolean atkKill) { // kills/wounds one random troop in this army, weighted by the troop's defense
-		// Compute the total weight of all soldier's defenses together
-		double totalWeight = 0.0d;
-		for (Soldier s : army.getParty().getHealthy())
-		{
-		    totalWeight += 1/s.getDef();
-		}
-		// Now choose a random soldier
-		int randomIndex = -1;
-		double randomDouble = Math.random() * totalWeight;
-		army.getParty().getHealthy().shrink();
-		for (int i = 0; i < army.getParty().getHealthySize(); ++i)
-		{
-		    randomDouble -= 1/army.getParty().getHealthy().get(i).getDef();
-		    if (randomDouble <= 0.0d)
-		    {
-		        randomIndex = i;
-		        break;
-		    }
-		}
-		Soldier random = army.getParty().getHealthy().get(randomIndex);
-		casualty(random, atkKill);
+	public void killOne(Army army, boolean atkDead) { // kills/wounds one random troop in this army, weighted by the troop's defense
+		// Now choose a random soldier weighted by def
+		Soldier random = army.party.getRandomWeightedInverseDefense();
+		casualty(random, atkDead);
 		
 		if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) {
 			log(army.getName() + " lost all troops and was removed from battle", "red");
@@ -547,7 +552,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	// main thing called by battlestage?
-	public void casualty(Soldier soldier, boolean atkKill) {
+	public void casualty(Soldier soldier, boolean atkDead) {
 		boolean killed = soldier.party.casualty(soldier);
 		
 		// add soldier's loot to loot drop
@@ -558,17 +563,31 @@ public class Battle extends Actor implements Destination { // new battle system 
 				this.rangedLoot.add(soldier.getRanged());
 			if (!soldier.getArmor().clothes && Math.random() < BASE_ARMOR_DROP_CHANCE) 
 				this.armorLoot.add(soldier.getArmor());
-				
 		}
 		
-		if (atkKill) expD += soldier.getExpForKill();
+		// add to total exp sum
+		if (atkDead) expD += soldier.getExpForKill();
 		else expA += soldier.getExpForKill();
 		
+		// randomize who gets the kill
+		if (soldier.killedBy == null) {
+			soldier.killedBy = getRandomForKill(!atkDead);
+		}
+		
+		if (soldier.killedBy == soldier) soldier.killedBy = null;
+		
+		// randomize killedby
+		if (soldier.killedBy != null) {
+			if (soldier.killedBy.kills > 20) 
+				System.out.println("casualty for " + soldier.killedBy.getTypeName() + " of " + soldier.killedBy.party.getName() +" killing " + soldier.getTypeName() + " of " + soldier.party.getName());
+			soldier.killedBy.registerKill(soldier);
+		}
+		
 		if (playerInD || playerInA) {
-			String status = soldier.getName();
+			String status = soldier.getTypeName();
 			if (soldier.killedBy != null) {
-				if (killed) status += " was killed by " + soldier.killedBy.getName() + "!";
-				else status += " was wounded by " + soldier.killedBy.getName() + "!";
+				if (killed) status += " was killed by " + soldier.killedBy.getTypeName() + "!";
+				else status += " was wounded by " + soldier.killedBy.getTypeName() + "!";
 			}
 			else {
 				if (killed) status += " was killed!";
@@ -577,7 +596,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 
 			String color = "white";
 			// determines color of logged text (yellw if wounded, orange if killed, blue if enemy killed)
-			if (playerInD == atkKill) {
+			if (playerInD == atkDead) {
 				if (killed) color = "red";
 				else color = "orange";
 			}
@@ -586,7 +605,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //					color = "cyan";
 //				else color = "purple";
 //			}
-			else if (playerInA == atkKill)
+			else if (playerInA == atkDead)
 				color = "cyan";
 			//	else color = "purple";
 			
@@ -594,11 +613,43 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
+	public Soldier getRandomForKill(boolean atkKill) {
+		Array<Army> armies;
+		if (atkKill) armies = aArmies;
+		else armies = dArmies;
+		
+		armies.shrink();
+		
+		// get random party based on healthy size
+		int totalSize = 0;
+		for (int i = 0; i < armies.size; i++) {
+			totalSize += armies.get(i).party.getHealthySize();
+		}
+		
+		int randomIndex = -1;
+		int randomValue = (int) (Math.random() * totalSize);
+		
+		for (int i = 0; i < armies.size; ++i)
+		{
+			randomValue -= armies.get(i).party.getHealthySize();
+			if (randomValue <= 0)
+			{
+				randomIndex = i;
+				break;
+			}
+		}
+	
+		// if for some reason can't register this kill, that's ok.
+		if (randomIndex == -1) return null;
+		
+		return armies.get(randomIndex).party.getRandomWeightedAttack();	
+	}
+	
 	public void logDefeat(Army army) {
 		log(army.getName() + " was defeated!", "green");
 	}
 	
-	public void victory(Array<Army> victor) {
+	public void victory(Array<Army> victor, Array<Army> loser) {
 //		System.out.println("victory in " + name);
 //		System.out.println("battle over");
 //		if (isOver) System.out.println(getName() + " ENDING BATTLE TWICE!!!?!");
@@ -647,8 +698,16 @@ public class Battle extends Actor implements Destination { // new battle system 
 		
 		// distribute rewards
 		for (int i = 0; i < victor.size; i++) {
+			Army army = victor.get(i);
+
 			double contribution = victorContribution[i]/1.0d/totalContribution;
-			this.distributeRewards(victor.get(i), contribution, didAtkWin);
+			army.party.registerBattleVictory();
+			this.distributeRewards(army, contribution, didAtkWin);
+		}
+		
+		for (int i = 0; i < loser.size; i++) {
+			Army army = loser.get(i);
+			army.party.registerBattleLoss();
 		}
 				
 //		// TESTING
@@ -669,17 +728,20 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	public void destroy() {
+		System.out.println("Destroying battle " + this.getName());
 		if (playerInA || playerInD)
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
 		
-		aArmies.clear();
-		dArmies.clear();
-		aArmiesRet.clear();
-		dArmiesRet.clear();
-		aParties.clear();
-		dParties.clear();
-		aPartiesRet.clear();
-		dPartiesRet.clear();
+		if (aArmies != null) {
+			aArmies.clear();
+			dArmies.clear();
+			aArmiesRet.clear();
+			dArmiesRet.clear();
+			aParties.clear();
+			dParties.clear();
+			aPartiesRet.clear();
+			dPartiesRet.clear(); 
+		}
 		
 		aArmies = null;
 		dArmies = null;
@@ -755,7 +817,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //			siegeOf.changeFaction(newOwner);
 		}
 		// attack lost, destroy siege
-		else if (siegeOf.getSiege() != null) siegeOf.getSiege().destroy();
+		else if (siegeOf.getSiege() != null) siegeOf.getSiege().siegeFailure();
 	}
 	
 	public void rangedPhase() {

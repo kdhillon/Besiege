@@ -5,6 +5,12 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
 import kyle.game.besiege.Destination;
@@ -12,7 +18,6 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.MiniMap;
-import kyle.game.besiege.Destination.DestType;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
@@ -20,12 +25,6 @@ import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Center;
-
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public class SidePanel extends Group {
 	public static final int WIDTH = 190; // 180 works well
@@ -163,6 +162,10 @@ public class SidePanel extends Group {
 			((PanelParty) newActivePanel).updateSoldierTable();
 //			System.out.println("just updated party panel!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
+		if (newActivePanel.getClass() != PanelCenter.class && kingdom != null) {
+			kingdom.map.selectedCenter = null;
+		}
+		
 		if (!stay) {
 			if (activePanel != null) {
 				setPreviousPanel(activePanel);
@@ -209,6 +212,7 @@ public class SidePanel extends Group {
 	}
 	public void setActiveCenter(Center center) {
 		PanelCenter pc = new PanelCenter(this, center);
+		kingdom.map.selectedCenter = center;
 		setActive(pc);
 	}
 	public void setPanelInventory() {

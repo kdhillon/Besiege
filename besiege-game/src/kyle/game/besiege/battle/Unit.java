@@ -1,21 +1,21 @@
 package kyle.game.besiege.battle;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.battle.BattleMap.Ladder;
-import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.party.Equipment;
-import kyle.game.besiege.party.RangedWeaponType;
-import kyle.game.besiege.party.RangedWeaponType.Type;
-import kyle.game.besiege.party.WeaponType;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.battle.BattleMap.Ladder;
+import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.party.Equipment;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.RangedWeaponType;
+import kyle.game.besiege.party.RangedWeaponType.Type;
+import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.WeaponType;
 
 public class Unit extends Group {
 
@@ -123,7 +123,7 @@ public class Unit extends Group {
 	public Animation walkArmor, walkSkin;
 	//	public Animation animationAttack;
 	public Animation dieArmor, dieSkin;
-	public Animation firingArmor, firingSkin;
+	public Animation firingArmor, firingSkin, firearmArmor, firearmSkin;
 
 
 	public Color armorTint;
@@ -221,18 +221,19 @@ public class Unit extends Group {
 		dieArmor.setPlayMode(Animation.NORMAL);
 		dieSkin.setPlayMode(Animation.NORMAL);
 
-		firingArmor	= createAnimation("firing_armor", 2, 2);
-		firingSkin 	= createAnimation("firing_skin", 2, 2);
-		firingArmor.setPlayMode(Animation.NORMAL);
-		firingSkin.setPlayMode(Animation.NORMAL);
+		if (this.isRanged()) {
+			firingArmor	= createAnimation("firing_armor", 2, 2);
+			firingSkin 	= createAnimation("firing_skin", 2, 2);
 
+			firingArmor.setPlayMode(Animation.NORMAL);
+			firingSkin.setPlayMode(Animation.NORMAL);
 
-		//		animationWalk = createAnimation(walkFile, 2, .25f);
-		//		animationAttack = createAnimation(attackFile, 2, .25f);
-		//		animationDie = createAnimation(dieFile, 4, .25f);
-		//		animationDie.setPlayMode(Animation.NORMAL);
-		//		animationFiring = createAnimation(firingFile, 2, 2f);
-		//		animationFiring.setPlayMode(Animation.NORMAL);
+			firearmArmor	= createAnimation("firearm_armor", 2, 2);
+			firearmSkin 	= createAnimation("firearm_skin", 2, 2);
+
+			firearmArmor.setPlayMode(Animation.NORMAL);
+			firearmSkin.setPlayMode(Animation.NORMAL);
+		}
 
 		firingStateTime = 0f;
 		stateTime = 0f;
@@ -483,7 +484,7 @@ public class Unit extends Group {
 		if (this.isDying) 				return "Dying";
 		if (this.siegeUnit != null)		return "Manning " + siegeUnit.type.name;
 		if (this.retreating)		 	return "Retreating";
-		if (this.attacking != null) 	return "Attacking " + attacking.soldier.getName();
+		if (this.attacking != null) 	return "Attacking " + attacking.soldier.getTypeName();
 		if (this.moveSmooth && 
 				nearestCover != null) 			return "Moving to cover";
 		if (this.moveSmooth) 			return "Charging";
@@ -539,8 +540,15 @@ public class Unit extends Group {
 				drawAnimationTint(batch, walkSkin, stateTime, true, skinTint);
 			}	
 			else if (reloading > 0) {
-				drawAnimationTint(batch, firingArmor, firingStateTime, false, armorTint);
-				drawAnimationTint(batch, firingSkin, firingStateTime, false, skinTint);
+				if (this.rangedWeapon.type == RangedWeaponType.Type.FIREARM) {
+					drawAnimationTint(batch, firearmArmor, firingStateTime, false, armorTint);
+					drawAnimationTint(batch, firearmSkin, firingStateTime, false, skinTint);
+			
+				}
+				else {
+					drawAnimationTint(batch, firingArmor, firingStateTime, false, armorTint);
+					drawAnimationTint(batch, firingSkin, firingStateTime, false, skinTint);
+				}
 			}
 			else {
 				drawAnimationTint(batch, walkArmor, 0, false, armorTint);
@@ -1127,13 +1135,16 @@ public class Unit extends Group {
 			if (this.soldier != null && attacker != null && attacker.soldier != null)
 				this.soldier.killedBy = attacker.soldier;
 			this.isDying = true;
+			
+			// this takes care of exp
 			this.kill();
 			//			this.destroy();
-			if (attacker != null) {
-				if (attacker.attacking == this) attacker.attacking = null;
-				// usually full level, but spread some out to party
-				attacker.soldier.addExp(this.soldier.getExpForKill());;
-			}
+//			if (attacker != null) {
+//				if (attacker.attacking == this) attacker.attacking = null;
+//				// usually full level, but spread some out to party
+//				// this happens in 
+////				attacker.soldier.registerKill(this.soldier, false);
+//			}
 		}
 		//		System.out.println(this.hp);
 	}
@@ -1347,7 +1358,7 @@ public class Unit extends Group {
 	}
 
 	public void destroyShield() {
-		soldier.equipment.removeValue(shield, true);
+//		soldier.equipment.removeValue(shield, true);
 		this.shield = null;
 		this.weaponDraw.shield = null;
 		soldier.calcStats();
@@ -1422,7 +1433,7 @@ public class Unit extends Group {
 		stage.retreated.add(this);
 		stage.battle.calcBalancePlayer();
 
-		String status = soldier.getName();
+		String status = soldier.getTypeName();
 		String color = "white";
 
 		status += " retreated!";
@@ -1461,7 +1472,9 @@ public class Unit extends Group {
 		if (move_hor_prob < 0.5) move_hor_prob = move_hor_prob/10;
 		else if (move_hor_prob >= 0.5) move_hor_prob = move_hor_prob * 1.5;
 
-		//		move_hor_prob = 1;
+		if (this.stance == Stance.INLINE) 
+			move_hor_prob = .01;
+		
 		// should move right
 		if (x_dif > 0) {
 			// up

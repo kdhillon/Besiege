@@ -438,7 +438,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
-		nameS.setText(s.getName() + "");
+		nameS.setText(s.getTypeName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");

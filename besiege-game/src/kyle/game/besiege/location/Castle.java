@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.Array;
 public class Castle extends Location {
 	private final static int SCOUT_TRAVEL_FACTOR = 5;
 	private final static float SCALE = 10;
-	private static int CASTLE_UPPER_LIMIT = Assets.castleNames.size; // highest number of cities possible
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
 	private final static double MERCHANT_GAIN = .008; // calculates merchant's wealth which goes to other cities.
 	private  int patrolCost;
@@ -53,7 +52,7 @@ public class Castle extends Location {
 //		scouts = new Array<Patrol>();
 	
 		raiders = new Array<RaidingParty>();
-		raiderExists = new boolean[CASTLE_UPPER_LIMIT];
+		raiderExists = new boolean[Kingdom.castleCount];
 
 //		closestFriendlyCities = new Array<Castle>();
 //		closestEnemyCities = new Array<Castle>();

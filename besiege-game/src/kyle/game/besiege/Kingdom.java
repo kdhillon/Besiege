@@ -16,8 +16,12 @@ import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Ruin;
 import kyle.game.besiege.location.Village;
+import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
+
+import java.util.HashSet;
+import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -27,6 +31,11 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 
 public class Kingdom extends Group {
+	public static int cityCount = 30;
+	public static int castleCount = 10;
+	public static int ruinCount = 10;
+	public static int villageCount = 21;
+	
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int CITY_START_WEALTH = 500;
@@ -36,7 +45,6 @@ public class Kingdom extends Group {
 	public static final int MAX_BANDITS = 5;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
-	
 	
 //	public static float MASTER_VOLUME = .5f;
 	public static float MASTER_VOLUME = 0f;
@@ -320,6 +328,8 @@ public class Kingdom extends Group {
 //		}
 		
 		player.train();
+		
+		printArmyStats();
 	}
 
 	private void mouseOver(Point mouse) {
@@ -618,22 +628,25 @@ public class Kingdom extends Group {
 	private void calcInfluence(Center center) {
 		Point centerPoint = new Point(center.loc.x, Map.HEIGHT - center.loc.y);
 		Faction bestFaction = null;
-		double bestScore = 0;
+		double minDist = Double.POSITIVE_INFINITY;
 
 		// go through factions and calc influence, saving it if it's the highest
 		for (Faction faction : factions) {
-			double score = 0; // score is inverse of city distance
+			double dist; // score is inverse of city distance (birds eye, but should be path-based)
+
 			for (City city : faction.cities) {
-				double dist = Kingdom.distBetween(city, centerPoint);
-				score += 1/dist;
+				dist = pathDistBetween(city, centerPoint);
+				if (dist < minDist) {
+					minDist = dist;
+					bestFaction = faction;
+				}
 			}
 			for (Castle castle : faction.castles) {
-				double dist = Kingdom.distBetween(castle, centerPoint);
-				score += 1/dist;
-			}
-			if (score > bestScore) {
-				bestScore = score;
-				bestFaction = faction;
+				dist = pathDistBetween(castle, centerPoint);
+				if (dist < minDist) {
+					minDist = dist;
+					bestFaction = faction;
+				}
 			}
 		}
 
@@ -755,7 +768,7 @@ public class Kingdom extends Group {
 //	}
 	
 	public void initializeCities() {	
-		Array<String> cityArray = Assets.cityNames;
+//		Array<String> cityArray = Assets.cityNames;
 		//		Scanner scanner = Assets.cityList;
 		
 //		int currentFaction = 2; // no bandits or player 
@@ -763,9 +776,10 @@ public class Kingdom extends Group {
 		
 //		int maxRepeats = (int) (Math.random()*3) + 1; // max 2, min 0
 		int maxRepeats = 4;
+		int citiesLeft = cityCount;
 		
 		//		while (scanner.hasNextLine() && (map.cityCorners.size > 0 && map.cityCenters.size > 0)) {
-		while (cityArray.size > 0 && (map.cityCorners.size > 0 && map.cityCenters.size > 0)) {
+		while (citiesLeft > 0 && (map.cityCorners.size() > 0 && map.cityCenters.size() > 0)) {
 			//			System.out.println("adding city");
 			City city = null;
 			int x, y;
@@ -778,57 +792,58 @@ public class Kingdom extends Group {
 			
 			// make with corner
 			if (useCorner) {
-				corner = map.cityCorners.random();
+				
+				corner = Kingdom.getRandom(map.cityCorners);
 				x = (int) corner.getLoc().x;
 				y = (int) corner.getLoc().y;
-				map.cityCorners.removeValue(corner, true);
-				map.availableCorners.removeValue(corner, true);
+				map.cityCorners.remove(corner);
+				map.availableCorners.remove(corner);
 
 				// remove neighboring corners 2 levels deep!
 				for (Corner adj : corner.adjacent) {
 					if (adj != null) {
-						map.cityCorners.removeValue(adj, true);
-						map.availableCorners.removeValue(adj, true);
+						map.cityCorners.remove(adj);
+						map.availableCorners.remove(adj);
 						for (int i = 0; i < adj.adjacent.size(); i++) {
 							// two levels deep
 							if (adj.adjacent.get(i) != null) 
-								map.cityCorners.removeValue(adj.adjacent.get(i), true);
+								map.cityCorners.remove(adj.adjacent.get(i));
 						}
 					}
 				}
 				// remove neighboring centers
 				for (Center adj : corner.touches) {
 					if (adj != null) {
-						map.cityCenters.removeValue(adj, true);
-						map.availableCenters.removeValue(adj, true);
+						map.cityCenters.remove(adj);
+						map.availableCenters.remove(adj);
 					}
 				}
 			}
 			// make with center
 			else {
-				center = map.cityCenters.random();
+				center = Kingdom.getRandom(map.cityCenters);
 				x = (int) center.loc.x;
 				y = (int) center.loc.y;
-				map.cityCenters.removeValue(center, true);
-				map.availableCenters.removeValue(center, true);
+				map.cityCenters.remove(center);
+				map.availableCenters.remove(center);
 
 				for (Corner adj : center.corners) {
 					if (adj != null) {
-						map.cityCorners.removeValue(adj, true);
-						//						map.availableLocationSites.removeValue(adj.loc, false);
+						map.cityCorners.remove(adj);
+						//						map.availableLocationSites.remove(adj.loc, false);
 						for (int i = 0; i < adj.adjacent.size(); i++) {
 							// two levels deep
 							if (adj.adjacent.get(i) != null)  {
-								map.cityCorners.removeValue(adj.adjacent.get(i), true);
-								//								map.availableLocationSites.removeValue(adj.adjacent.get(i).loc, false);
+								map.cityCorners.remove(adj.adjacent.get(i));
+								//								map.availableLocationSites.remove(adj.adjacent.get(i).loc, false);
 							}
 						}
 					}
 				}
 				for (Center adjCenter : center.neighbors) {
 					if (adjCenter != null) {
-						map.cityCenters.removeValue(adjCenter, true);
-						//						map.availableLocationSites.removeValue(adjCenter.loc, false);
+						map.cityCenters.remove(adjCenter);
+						//						map.availableLocationSites.remove(adjCenter.loc, false);
 					}
 				}
 				int index = -1;
@@ -857,7 +872,7 @@ public class Kingdom extends Group {
 			
 			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 			
-			city = new City(this, cityArray.pop(), -1, closestFaction, x, Map.HEIGHT-y, CITY_START_WEALTH);
+			city = new City(this, NameGenerator.generateCity(), -1, closestFaction, x, Map.HEIGHT-y, CITY_START_WEALTH);
 
 			if (center != null)
 				city.setCenter(center);
@@ -865,6 +880,7 @@ public class Kingdom extends Group {
 				city.setCorner(corner);
 
 			addCity(city);
+			citiesLeft--;
 		}
 
 		System.out.println("Number cities: " + cities.size);
@@ -873,35 +889,34 @@ public class Kingdom extends Group {
 	// villages only spawn at centers (for influence purposes)
 	public void initializeVillages() {
 		//		Scanner scanner = Assets.villageList;
-		Array<String> villageArray = Assets.villageNames;
-
+		int villagesLeft = villageCount;
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
-		while (villageArray.size > 0 && map.availableCenters.size > 0) {
-			Center center = map.availableCenters.random();
-			map.availableCenters.removeValue(center, true);
+		while (villagesLeft > 0 && map.availableCenters.size() > 0) {
+			Center center = getRandom(map.availableCenters);
+			map.availableCenters.remove(center);
 
 			//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
-			Village village = new Village(this, villageArray.pop(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
+			Village village = new Village(this,  NameGenerator.generateVillage(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
 			villages.add(village);
 			village.setCenter(center);
 //			village.center = center.index;
 			addActor(village);
+			villagesLeft--;
 		}
 		System.out.println("Number villages: " + villages.size);
 	}
 	
 	public void initializeCastles() {
-		Array<String> castleArray = Assets.castleNames;
-		
+		int castlesLeft = castleCount;
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
-		while (castleArray.size > 0 && map.availableCorners.size > 0) {
+		while (castlesLeft > 0 && map.availableCorners.size() > 0) {
 			
 			Corner corner;
 			do {
 				//System.out.println(map.availableCorners.size);
-				corner = map.availableCorners.random();
-				map.availableCorners.removeValue(corner, true);
-			} while (corner == null && map.availableCorners.size > 0);
+				corner = getRandom(map.availableCorners);
+				map.availableCorners.remove(corner);
+			} while (corner == null && map.availableCorners.size() > 0);
 			
 			if (corner == null) {
 				System.out.println("no corners left");
@@ -926,26 +941,26 @@ public class Kingdom extends Group {
 			
 			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 			
-			Castle castle = new Castle(this, castleArray.pop(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
+			Castle castle = new Castle(this, NameGenerator.generateCastle(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
 			castles.add(castle);
 			castle.setCorner(corner);
 			
 			addActor(castle);
+			castlesLeft--;
 		}
 		
 		System.out.println("Number castles: " + castles.size);
 	}
 
-	public void initializeRuins() {
-		Array<String> ruinArray = Assets.ruinNames;
-		
-		while (ruinArray.size > 0 && map.availableCorners.size > 0) {
+	public void initializeRuins() {		
+		int ruinsLeft = ruinCount;
+		while (ruinsLeft > 0 && map.availableCorners.size() > 0) {
 			Corner corner;
 			do {
 				//System.out.println(map.availableCorners.size);
-				corner = map.availableCorners.random();
-				map.availableCorners.removeValue(corner, true);
-			} while (corner == null && map.availableCorners.size > 0);
+				corner = getRandom(map.availableCorners);
+				map.availableCorners.remove(corner);
+			} while (corner == null && map.availableCorners.size() > 0);
 			
 			if (corner == null) {
 				System.out.println("no corners left");
@@ -970,11 +985,12 @@ public class Kingdom extends Group {
 			
 			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 			
-			Ruin ruin = new Ruin(this, ruinArray.pop(), -1, x, y);			
+			Ruin ruin = new Ruin(this, NameGenerator.generateRuins(), -1, x, y);			
 			ruins.add(ruin);
 			ruin.setCorner(corner);
 			
 			addActor(ruin);
+			ruinsLeft--;
 		}
 		
 		System.out.println("Number ruins: " + ruins.size);
@@ -1069,6 +1085,9 @@ public class Kingdom extends Group {
 	}
 	public void removeBattle(Battle battle) {
 		battles.removeValue(battle, true);
+		
+		// is this what's taking so long?
+//		this.removeActor(battle);
 	}
 	public Array<City> getCities() {
 		return cities;
@@ -1136,6 +1155,14 @@ public class Kingdom extends Group {
 	public Map getMap() {
 		return map;
 	}
+	
+	public double pathDistBetween(Destination d1, Destination d2) {
+		Path path = new Path(d1, this);
+		path.calcPathTo(d2);
+		double ret =  path.getRemainingDistance();
+//		if (ret == 0) System.out.println("RET IS 0 KiNGDOM");
+		return ret;
+	}
 	public static double distBetween(Destination d1, Destination d2) {
 		// TODO optimize by computing getCenter only once per
 		return Math.sqrt((d1.getCenterX()-d2.getCenterX())*(d1.getCenterX()-d2.getCenterX())+(d1.getCenterY()-d2.getCenterY())*(d1.getCenterY()-d2.getCenterY()));
@@ -1143,5 +1170,99 @@ public class Kingdom extends Group {
 	// should be slightly faster than above
 	public static double sqDistBetween(Destination d1, Destination d2) {
 		return (d1.getCenterX()-d2.getCenterX())*(d1.getCenterX()-d2.getCenterX())+(d1.getCenterY()-d2.getCenterY())*(d1.getCenterY()-d2.getCenterY());
+	}
+	
+	public static Corner getRandom(HashSet<Corner> myHashSet) {
+		int size = myHashSet.size();
+		int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+		int i = 0;
+		for(Corner obj : myHashSet)
+		{
+		    if (i == item)
+		        return obj;
+		    i++;
+		}
+		return null;
+	}
+	public static Center getRandom(HashSet<Center> myHashSet) {
+		int size = myHashSet.size();
+		int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+		int i = 0;
+		for(Center obj : myHashSet)
+		{
+		    if (i == item)
+		        return obj;
+		    i++;
+		}
+		return null;
+	}
+	
+	public void printArmyStats() {
+		System.out.println("Total soldiers " + getTotalSoldiers());
+		Soldier champ = getSoldierWithMostKills();
+//		if (champ.kills > 10) {
+			System.out.println("Most kills: " + champ.getTypeName() + " (" + champ.party.getName() + ") with " + champ.kills + 
+				" kills after " + champ.battlesWon + " wins, " + champ.battlesFled + " retreats out of " + champ.battlesSurvived + " total battles");
+			System.out.println();
+//		}
+		Soldier champ2 = getSoldierWithMostCaptures();
+			System.out.println("Most times captured: " + champ2.getTypeName() + " (" + champ2.party.getName() + ") with " + champ2.timesCaptured + 
+				" times captured after " + champ2.battlesWon + " wins, " + champ2.battlesFled + " retreats out of " + champ2.battlesSurvived + " total battles");
+			System.out.println();
+	}
+	
+	
+	private int getTotalSoldiers() {
+		int count = 0; 
+		for (Army a : armies) {
+			count += a.party.getTotalSize();
+		}
+		return count;
+	}
+	
+	private Soldier getSoldierWithMostKills() {
+		Soldier champion = null;
+		int max = -1; 
+		for (Army a : armies) {
+			for (Soldier s : a.party.getHealthy()) {
+				if (s.kills > max) {
+					max = s.kills;
+					champion = s;
+				}
+			}
+			for (Soldier s : a.party.getWounded()) {
+				if (s.kills > max) {
+					max = s.kills;
+					champion = s;
+				}
+			}
+		}
+		return champion;
+	}
+	
+	private Soldier getSoldierWithMostCaptures() {
+		Soldier champion = null;
+		int max = -1; 
+		for (Army a : armies) {
+			for (Soldier s : a.party.getHealthy()) {
+				if (s.timesCaptured > max) {
+					max = s.timesCaptured;
+					champion = s;
+				}
+			}
+			for (Soldier s : a.party.getWounded()) {
+				if (s.timesCaptured > max) {
+					max = s.timesCaptured;
+					champion = s;
+				}
+			}
+			for (Soldier s : a.party.getPrisoners()) {
+				if (s.timesCaptured > max) {
+					max = s.timesCaptured;
+					champion = s;
+				}
+			}
+		}
+		return champion;
 	}
 }

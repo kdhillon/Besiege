@@ -4,12 +4,12 @@
  * Source Code available under a read-only license. Do not copy, modify, or distribute.
  ******************************************************************************/
 package kyle.game.besiege.party;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
-
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
 
 
 public class PartyType { // todo add ability for max party size
@@ -184,9 +184,10 @@ public class PartyType { // todo add ability for max party size
 			break;
 		case CASTLE_GARRISON:
 			pt.name = "Garrison";
-			pt.maxCount = 150;
-			pt.minCount = 100;
-			pt.tiers = new int[]{2, 3, 4, 5};
+			pt.maxCount = 90;
+			pt.minCount = 50;
+			pt.tiers = new int[]{2, 3, 4};
+			break;
 		case VILLAGE_GARRISON:
 			pt.name = "Village Garrison";
 			pt.maxCount = 5;
@@ -245,8 +246,14 @@ public class PartyType { // todo add ability for max party size
 			pt.name = "Test";
 			pt.maxCount = 100;
 			pt.minCount = 100;
-			pt.tiers = new int[]{1, 2, 3, 4, 5};
+			pt.tiers = new int[]{2, 3};
 			break;
+//		case ENLIGHTENMENT:
+//			pt.name = "Enlightenment";
+//			pt.maxCount = 100;
+//			pt.minCount = 100;
+//			pt.tiers = new int[]{2, 3};
+//			break;
 		}
 //		pt.name = "Default";
 //		pt.tiers = new int[]{1, 2, 3};

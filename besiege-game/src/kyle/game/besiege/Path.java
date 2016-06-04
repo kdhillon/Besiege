@@ -23,15 +23,19 @@ import kyle.game.besiege.voronoi.Edge;
 import com.badlogic.gdx.math.Vector2;
 
 public class Path {
+	private static final int A_STAR_WAIT = 100;
 	private static final int GOAL_DIST = 8;
 	public Map map;
-	private Army army;
+	private Destination start;
 	public Destination finalGoal;
 //	private Stack<Destination> dStack; // maybe a queue, whatever will be easier.
 	//public for debugging
 	public Stack<Destination> dStack; // maybe a queue, whatever will be easier.
 	public Destination nextGoal;
 	private Vector2 toTarget;
+	
+	// how many iterations ago a star failed
+	int lastAStarFail = 0;
 	
 	// Should I do it with SearchNodes?
 	private class SearchNode implements Comparable<SearchNode> {
@@ -44,46 +48,67 @@ public class Path {
 			return (int) ((this.H + this.G) - (that.H + that.G));
 		}
 	}	
-
-	public Path() {}
 	
-	public Path(Army army) {
-		this.army = army;
-		this.map = army.getKingdom().getMap();
+	// for Kyro
+	public Path() {
+		
+	}
+
+	public Path(Destination d, Kingdom k) {
+		this.start = d;
+		this.map = k.getMap();
 		dStack = new Stack<Destination>();
 		toTarget = new Vector2();
 	}
+	
+//	public Path(Army army) {
+//		this.start = army;
+////		this.map = army.getKingdom().getMap();
+//		dStack = new Stack<Destination>();
+//		toTarget = new Vector2();
+//	}
 
+	public void calcStraightPathTo(Destination endDest) {
+		dStack.clear();
+		dStack.add(endDest);
+	}
+	
 	/** attempts a* to new destination
 	 *  returns true if succeeds, false if doesn't
 	 * @param endDest
 	 * @return
 	 */
 	public boolean calcPathTo(Destination endDest) {
+		if (lastAStarFail > 0) {
+			calcStraightPathTo(endDest);
+			return true;
+		}
+		
 		finalGoal = endDest;
 //		System.out.println(army.getName() + " getting new Path"); not the problem for freezing
 //		if (army.getParty().player) System.out.println("player getting new path");
 		// TODO remove news?
 		dStack.clear();
 		Corner startCorner = new Corner();
-		startCorner.loc = new PointH(army.getCenterX(), Map.HEIGHT-army.getCenterY());
+		startCorner.loc = new PointH(start.getCenterX(), Map.HEIGHT-start.getCenterY());
 		startCorner.init();
 		Corner endCorner = new Corner();
 		endCorner.loc = new PointH(endDest.getCenterX(), Map.HEIGHT-endDest.getCenterY());
 		endCorner.init();
 		
 		Edge edgeBlock = map.openPath(startCorner, endCorner);
-		if (army.getParty().player) {
-			if (map.isInWater(endDest))
-				System.out.println("destination in water!!!");
-		}
+//		if (army.getParty().player) {
+//			if (map.isInWater(endDest))
+//				System.out.println("destination in water!!!");
+//		}
 		
 		// allow armies off island to travel directly to destination on island
-		if (edgeBlock == null || map.isInWater(army)) {
-			if (army.getParty().player) {
-				map.testIndex = 1;
-				//				System.out.println("open path");
-			}
+		// TODO Make armies off island head towards closest land
+		if (edgeBlock == null || map.isInWater(start)) {
+//			if (army.getParty().player) {
+//				map.testIndex = 1;
+//				//				System.out.println("open path");
+//			}
 			dStack.add(endDest);
 			return true;
 		}
@@ -97,18 +122,25 @@ public class Path {
 				this.dStack = aStarStack;
 //				System.out.println("a star completed");
 			}
-			else System.out.println("a star failed");
-
-			if (army.getParty().player) {
-				map.testIndex = map.impassable.indexOf(edgeBlock, true);
+			else {
+				// this is really broken TODO fix
+				System.out.println("a star failed");
+				map.removeCorner(endCorner);
+				map.removeCorner(startCorner);
+				this.lastAStarFail = A_STAR_WAIT;
+				return false;
 			}
+
+//			if (army.getParty().player) {
+//				map.testIndex = map.impassable.indexOf(edgeBlock, true);
+//			}
 			
 			map.removeCorner(endCorner);
 			map.removeCorner(startCorner);
 			return true;
 		}
 		else {
-			System.out.println(army.getName() + " can't access");
+			System.out.println(start.getName() + " can't access");
 			return false;
 		}
 	}
@@ -173,7 +205,7 @@ public class Path {
 	// serious lag occurs when army calls this repeatedly.
 	// TODO remove news
 	public Stack<Destination> aStar(Corner start, Corner goal, Destination endDest) {
-		if (army.getParty().player) System.out.println("player in a*");
+//		if (army.getParty().player) System.out.println("player in a*");
 
 		PriorityQueue<SearchNode> pq;
 		ArrayList<Corner> notVisited = new ArrayList<Corner>(); // should visit all corners 
@@ -219,7 +251,10 @@ public class Path {
 				}
 			}   
 		}
-		if (loops >= 1000) System.out.println("too long");
+		if (loops >= 1000) {
+			System.out.println("too long");
+			return null;
+		}
 		
 		if (notVisited.isEmpty()) {
 			System.out.println("can't get to goal");
@@ -241,7 +276,7 @@ public class Path {
 	}
 	
 	private boolean pathExists(double px, double py) {
-		return map.pathExists(army, px, py);
+		return map.pathExists(start, px, py);
 	}
 
 	private Point cornerToPoint(Corner corner) {
@@ -257,7 +292,8 @@ public class Path {
 	}
 
 	public void travel() {
-		
+		lastAStarFail--;
+		Army army = (Army) start;
 		// make sure only doing detectCollision when close to goal
 		if (nextGoal != null) {
 			army.setRotation(calcRotation());
@@ -282,11 +318,12 @@ public class Path {
 	}
 
 	public float calcRotation() {
-		toTarget.x = nextGoal.getCenterX()-army.getCenterX();
-		toTarget.y = nextGoal.getCenterY()-army.getCenterY();
+		toTarget.x = nextGoal.getCenterX()-start.getCenterX();
+		toTarget.y = nextGoal.getCenterY()-start.getCenterY();
 		return toTarget.angle();
 	}
 	public void updatePosition() {
+		Army army = (Army) start;
 //		if (army.getParty().player)
 //			System.out.println("rotation before translate " + army.getRotation());
 		toTarget.nor();
@@ -297,7 +334,7 @@ public class Path {
 	public void detectPointCollision() {
 //		if (dStack.size() == 0)
 		// probably target is being set to something very close to the army, this is being called, next is called
-		if (Kingdom.distBetween(army, nextGoal) < GOAL_DIST) {
+		if (Kingdom.distBetween(start, nextGoal) < GOAL_DIST) {
 			next();
 //			System.out.println(army.getName() + " detecting collision, close to " + nextGoal.getName());
 		}
@@ -307,7 +344,7 @@ public class Path {
 //		if (dStack.isEmpty()) System.out.println("problem");
 		
 		// cleans out shit destinations, maybe fixes bug
-		while (dStack.size() > 1 && Kingdom.distBetween(army, dStack.peek()) < GOAL_DIST) {
+		while (dStack.size() > 1 && Kingdom.distBetween(start, dStack.peek()) < GOAL_DIST) {
 //			System.out.println("cleaning!");
 			dStack.pop();
 		}
@@ -327,5 +364,20 @@ public class Path {
 	public boolean isEmpty() {
 		if (nextGoal == null && dStack.isEmpty()) return true;
 		return false;
+	}
+	
+	
+	public double getRemainingDistance() {
+		if (dStack.isEmpty()) return Double.POSITIVE_INFINITY;
+		
+		double total = 0;
+		Destination current = null;
+		Destination next = start;
+		for (Destination d : dStack) {
+			current = next;
+			next = d;
+			total += Kingdom.distBetween(current, next);
+		}
+		return total;
 	}
 }

@@ -241,7 +241,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 //		System.out.println(location.getName());
 		if (location.getToHire() == null) return;
 		for (Soldier s : location.getToHire().getHealthy()) {
-			SoldierLabel name = new SoldierLabel(s.getName(), ls, s);
+			SoldierLabel name = new SoldierLabel(s.getTypeName(), ls, s);
 			if (selected == s) name.setColor(Color.YELLOW);
 			name.addListener(new ClickListener() {
 				@Override
@@ -275,7 +275,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		this.selected = s;
 
 		stats.setVisible(true);
-		nameS.setText(s.getName() + "");
+		nameS.setText(s.getTypeName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
@@ -297,7 +297,7 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		hireLabel.soldier = s;
 		int cost = s.getBuyCost();
 //		int cost = (int) (s.level*COST_FACTOR);
-		hireLabel.setText("Hire " + s.getName() + " (" + cost + ")");
+		hireLabel.setText("Hire " + s.getTypeName() + " (" + cost + ")");
 		
 		updateSoldierTable();
 	}
@@ -310,11 +310,11 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 	
 	public void hireSelected() {
 		if (location.hire(panel.getKingdom().getPlayer().getParty(), selected)) { // only if successfully hires
-			String name = selected.getName();
+			String name = selected.getTypeName();
 			BottomPanel.log("Hired " + name);
 			deselect();
 		}
-		else BottomPanel.log("Can't afford " + selected.getName());
+		else BottomPanel.log("Can't afford " + selected.getTypeName());
 		updateSoldierTable();
 	}
 	
@@ -324,11 +324,11 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		soldiers.reverse(); // cheapest first!
 		for (Soldier s : soldiers) {
 			if (location.hire(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
-				String name = s.getName();
+				String name = s.getTypeName();
 				BottomPanel.log("Hired " + name);
 			}
 			else {
-				BottomPanel.log("Can't afford " + s.getName());
+				BottomPanel.log("Can't afford " + s.getTypeName());
 				break;
 			}
 		}

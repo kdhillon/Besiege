@@ -10,13 +10,6 @@ package kyle.game.besiege;
 
 import java.util.Date;
 
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.location.Castle;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.panels.SidePanel;
-
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -24,14 +17,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -43,12 +32,19 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import kyle.game.besiege.army.Army;
+import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.location.Castle;
+import kyle.game.besiege.location.Location;
+import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.SidePanel;
+
 public class MapScreen implements Screen {
 	private Kryo kryo;
 	public boolean SIMULATE = false;
 
 	private static final boolean FORCERUN = false;
-	private static final float SCROLL_SPEED = 20f;
+	private static final float SCROLL_SPEED = 2f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
 	private static final float ZOOM_MAX = 10;
 	private static final float ZOOM_MIN = .05f;
@@ -59,7 +55,7 @@ public class MapScreen implements Screen {
 	//	private static final Color background = new Color(0x55aa44ff); // grass
 
 	//	private final Color backgroundGrass = new Color(0x55aa44ff);
-	private static final Color backgroundGrass = new Color(0x000000ff);
+//	private static final Color backgroundGrass = new Color(0x000000ff);
 	private float speedFactor;
 
 	public Environment environment;
@@ -267,7 +263,7 @@ public class MapScreen implements Screen {
 	private void startLog() {
 		BottomPanel.log("Welcome to Besiege! This is the alpha release. Enjoy!", "green");
 		BottomPanel.log("Controls: ", "orange");
-		BottomPanel.log("Move: left-click       Pan camera: WASD       Rotate camera: Q,E       Zoom: mouse wheel       Wait: hold space", "orange");
+		BottomPanel.log("Move: right-click       Pan camera: WASD       Rotate camera: Q,E       Zoom: mouse wheel       Wait: hold space", "orange");
 		BottomPanel.log("View map info: g       View factions: t         8x Speed: hold f          Toggle Line of Sight: l", "orange");
 		BottomPanel.log("Check out the source code at github.com/kdhillon/besiege", "yellow");
 	}
@@ -318,8 +314,10 @@ public class MapScreen implements Screen {
 			//		if (currentCamera == kingdomPerspectiveCamera)
 			Gdx.gl.glClearColor(background.r*kingdom.currentDarkness, background.g*kingdom.currentDarkness, 
 					background.b*kingdom.currentDarkness, background.a);
-		else Gdx.gl.glClearColor(backgroundGrass.r*battle.currentDarkness, backgroundGrass.g*battle.currentDarkness, 
-				backgroundGrass.b*battle.currentDarkness, backgroundGrass.a);
+		else {
+			Gdx.gl.glClearColor(battle.battlemap.bgColor.r*battle.currentDarkness, battle.battlemap.bgColor.g*battle.currentDarkness, 
+					battle.battlemap.bgColor.b*battle.currentDarkness, battle.battlemap.bgColor.a);
+		}
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		if (crazyFastForward) crazyFastForward(delta);
 		if (superFastForward) { // experimental 16x speed!
@@ -431,21 +429,25 @@ public class MapScreen implements Screen {
 		uiStage.act(delta);
 	}
 
+	public float getSpeed() {
+		return SCROLL_SPEED * speedFactor * currentCamera.zoom;
+	}
+	
 	public void moveUp() {
-		currentCamera.translate(currentCamera.up.scale(SCROLL_SPEED*speedFactor, SCROLL_SPEED*speedFactor, 0));
-		currentCamera.up.scale(1/(SCROLL_SPEED*speedFactor), 1/(SCROLL_SPEED*speedFactor), 0);
+		currentCamera.translate(currentCamera.up.scl(getSpeed(), getSpeed(), 0));
+		currentCamera.up.scl(1/(getSpeed()), 1/(getSpeed()), 0);
 	}
 	public void moveDown() {
-		currentCamera.translate(currentCamera.up.scale(-SCROLL_SPEED*speedFactor, -SCROLL_SPEED*speedFactor, 0));
-		currentCamera.up.scale(-1/(SCROLL_SPEED*speedFactor), -1/(SCROLL_SPEED*speedFactor), 0);
+		currentCamera.translate(currentCamera.up.scl(-getSpeed(), -getSpeed(), 0));
+		currentCamera.up.scl(-1/(getSpeed()), -1/(getSpeed()), 0);
 	}
 	public void moveLeft() {
-		currentCamera.translate(currentCamera.up.rotate(90, 0, 0, 1).scale(SCROLL_SPEED*speedFactor, SCROLL_SPEED*speedFactor,0));
-		currentCamera.up.scale(1/(SCROLL_SPEED*speedFactor), 1/(SCROLL_SPEED*speedFactor), 0).rotate(-90, 0, 0, 1);
+		currentCamera.translate(currentCamera.up.rotate(90, 0, 0, 1).scl(getSpeed(), getSpeed(),0));
+		currentCamera.up.scl(1/(getSpeed()), 1/(getSpeed()), 0).rotate(-90, 0, 0, 1);
 	}
 	public void moveRight() {
-		currentCamera.translate(currentCamera.up.rotate(-90, 0, 0, 1).scale(SCROLL_SPEED*speedFactor,SCROLL_SPEED*speedFactor,0));
-		currentCamera.up.scale(1/(SCROLL_SPEED*speedFactor), 1/(SCROLL_SPEED*speedFactor), 0).rotate(90, 0, 0, 1);
+		currentCamera.translate(currentCamera.up.rotate(-90, 0, 0, 1).scl(getSpeed(),getSpeed(),0));
+		currentCamera.up.scl(1/(getSpeed()), 1/(getSpeed()), 0).rotate(90, 0, 0, 1);
 	}
 
 	//	public void moveUp() {

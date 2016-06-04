@@ -566,7 +566,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			Array<Array<Soldier>> consolHealthy = party.getConsolHealthy();
 
 			for (Array<Soldier> as : consolHealthy) {
-				Label name = new Label(as.first().getName(), lsSmall);
+				Label name = new Label(as.first().getTypeName(), lsSmall);
 
 				//				name.setWrap(true);
 				//				name.addListener(new ClickListener() {
@@ -588,7 +588,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			Array<Array<Soldier>> consolWounded = party.getConsolWounded();
 
 			for (Array<Soldier> as : consolWounded) {
-				Label name = new Label(as.first().getName(), lsSmallG);
+				Label name = new Label(as.first().getTypeName(), lsSmallG);
 
 				//				name.setWrap(true);
 				//				name.addListener(new ClickListener() {
@@ -644,7 +644,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	}
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
-		nameS.setText(s.getName() + "");
+		nameS.setText(s.getTypeName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");

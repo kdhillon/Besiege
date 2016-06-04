@@ -116,12 +116,28 @@ Day 89: fixed button bug, added formation options
 Day 90: fixed cover bug, added scramble, inline stance
 Day 91: added joining battles, fame
 
+Day 1xx: added easily customizable unit types, more fluid map, better faction relations, procedurally generated location and soldier names, soldier stats. worked on rivers, 
+
+Features I want to add:
+	Better firearm battles
+		Replace bow walk animation 
+		Filing in to fill in ranks
+		smoke, sound, bullet trails
+		
+	Generals and control structures:
+		General stats that help battles!!! (replaces "character")
+		Squads in battles
+			User placement of squads
+		Promotions/user control
+		AI party management
+		
+
+
 BATTLESTAGE:
 finish hiding
 add waves and reinforcements to battles
 add safeguards against battles getting stuck
 get austin to start making cool art for additional units
-
 
 later:
 make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
@@ -133,8 +149,13 @@ add some randomness to which ladder is chosen
 design new unit tree
 add mist to certain battlemaps
 
+bugs:
+if you resize during a battle, fucks everything up, your mouse is not registered to be at the proper spot.
+
 MAP:
 now:
+make labels for cities look better (add gray background?)
+
 test some optimizations -
     see if A* is what's making big maps slow. if it is, optimize a* by only looking at nearby points
     optimize army searches by only looking at armies within ArmyPlayer.closeArmies
@@ -150,21 +171,16 @@ add severe woundedness
 
 gameplay:
 
-implement "honor" and baronage for player
+
 change "back" button to use a stack
 fix " upgrade for flail not found!" (allow veteran upgrade)
-give names to each region (and village names will be the same), and castle names will be "____ castle" or "____ fortress" 
 add city garrison/wealth management
 
 fix "economy":
  sample faction wealth over time and make sure it gradually increases, etc.
 
-
-use completely different names...? ok
-Belvoir Castle
-Belvoir Fortress
-Belvoir Stronghold
-Belvoir Ruins
+after we fix basic gameplay bugs:
+	add epic new soldier/control system. 
 
 engine:
 also figure out why some things happen twice?

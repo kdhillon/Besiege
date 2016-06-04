@@ -1,11 +1,5 @@
 package kyle.game.besiege.battle;
 
-import java.nio.ByteBuffer;
-
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.battle.Unit.Orientation;
-import kyle.game.besiege.voronoi.Biomes;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -14,6 +8,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.battle.Unit.Orientation;
+import kyle.game.besiege.voronoi.Biomes;
 
 
 public class BattleMap extends Actor {
@@ -35,6 +33,8 @@ public class BattleMap extends Actor {
 	private static final int TREE_HEIGHT = 3;
 	public static final float CASTLE_WALL_HEIGHT_DEFAULT = .5f;
 
+	public Color bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
+	
 	private enum MapType {
 		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, ALPINE, MEADOW, CRAG, RIVER, VILLAGE
 	}
@@ -126,7 +126,7 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.DESERT;
+//		this.maptype = MapType.ALPINE;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);

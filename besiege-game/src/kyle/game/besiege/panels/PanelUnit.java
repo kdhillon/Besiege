@@ -40,6 +40,7 @@ public class PanelUnit extends Panel {
 	
 	private Table text;
 	private Label title;
+	private Label subTitle;
 	private Label armyName;
 	private Label partyName;
 	private Label type;
@@ -98,11 +99,20 @@ public class PanelUnit extends Panel {
 		Label equipmentSC = new Label("Armor: ", ls);
 		
 		
-		title = new Label(soldier.getName(), lsBig);
+		title = new Label(soldier.getTypeName(), lsBig);
 		title.setColor(soldier.unitType.unitClass.color);
 		title.setAlignment(0,0);
 //		title.setWrap(true); // wrapping messes up click listeners... WTF?
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
+		
+		String name = soldier.getName();
+		if (soldier.female) name += " (f)";
+		else name += " (m)";
+		subTitle = new Label(name, ls);
+		subTitle.setColor(Color.WHITE);
+		subTitle.setAlignment(0, 0);
+		subTitle.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
+		
 //		title.addListener(new InputListener() {
 //			public boolean touchDown(InputEvent event, float x,
 //					float y, int pointer, int button) {
@@ -155,6 +165,8 @@ public class PanelUnit extends Panel {
 //			}
 //		});
 		text.add(title).colspan(4).fillX().expandX().padBottom(0);
+		text.row();
+		text.add(subTitle).colspan(4).fillX().expandX().padBottom(0);
 		text.row();
 		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
 		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);

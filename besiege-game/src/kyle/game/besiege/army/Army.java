@@ -8,24 +8,6 @@ package kyle.game.besiege.army;
 
 import java.util.Stack;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Destination;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.MapScreen;
-import kyle.game.besiege.Path;
-import kyle.game.besiege.Point;
-import kyle.game.besiege.Siege;
-import kyle.game.besiege.battle.Battle;
-import kyle.game.besiege.location.City;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Village;
-import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.panels.Panel;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.voronoi.Center;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -35,6 +17,24 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.Destination;
+import kyle.game.besiege.Faction;
+import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.Path;
+import kyle.game.besiege.Point;
+import kyle.game.besiege.Siege;
+import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.location.City;
+import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.Village;
+import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.Panel;
+import kyle.game.besiege.party.ImportantPerson;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Center;
 
 public class Army extends Actor implements Destination {
 	private static final boolean OPTIMIZED_MODE = true;
@@ -49,7 +49,7 @@ public class Army extends Actor implements Destination {
 	private static final float battleCollisionDistance = 15;
 	private static final float COLLISION_FACTOR = 10; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
-	public static final int A_STAR_FREQ = 20; // army may only set new target every x frames
+	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that party size detracts from total speed
 	private static final float BASE_LOS = 80;
 	private static final int MAX_STACK_SIZE = 10;
@@ -168,7 +168,7 @@ public class Army extends Actor implements Destination {
 		this.closeArmies = new Array<Army>();
 		this.closeCenters = new Array<Integer>();
 
-		this.path = new Path(this);
+		this.path = new Path(this, kingdom);
 		
 		this.setPosition(posX, posY);
 		this.setRotation(0);
@@ -1216,6 +1216,7 @@ public class Army extends Actor implements Destination {
 					}
 					else {
 						System.out.println(getName() + " failed A*");
+						this.path.calcStraightPathTo(newTarget);
 					}
 				}
 				else if (newTarget == this.path.finalGoal) System.out.println("new goal is already in path");
@@ -1489,5 +1490,8 @@ public class Army extends Actor implements Destination {
 	}
 	public void restoreTexture() {
 		this.setTextureRegion(textureName);
+	}
+	public ImportantPerson getGeneral() {
+		return this.party.general;
 	}
 }

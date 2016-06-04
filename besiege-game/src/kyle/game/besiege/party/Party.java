@@ -7,13 +7,13 @@ package kyle.game.besiege.party;
 
 import java.util.Iterator;
 
-import kyle.game.besiege.Character;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.army.Army;
+import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Soldier.SoldierType;
-
-import com.badlogic.gdx.utils.Array;
 
 public class Party {
 	private final double BASE_CHANCE = .3;
@@ -36,7 +36,9 @@ public class Party {
 	private int spdTotal;
 
 	public double woundChance;
-
+	
+	public ImportantPerson general; // usually null
+	
 	public Party() {
 		player = false;
 		healthy = new Array<Soldier>();
@@ -66,7 +68,7 @@ public class Party {
 			if (s.unitType.upgrades.length == 0) return;
 			int selection = (int) (Math.random() * s.unitType.upgrades.length);
 			s.upgrade(s.unitType.upgrades[selection]);
-//			s.upgrade(Weapon.upgrade(s.getWeapon()).random());
+			//			s.upgrade(Weapon.upgrade(s.getWeapon()).random());
 		}
 	}
 
@@ -88,11 +90,13 @@ public class Party {
 		else {
 			updated = true;
 			if (soldier.isWounded()) {
-				wounded.add(soldier);
+				if (!wounded.contains(soldier, true))
+					wounded.add(soldier);
 				wounded.sort();
 			}
 			else {
-				healthy.add(soldier);
+				if (!healthy.contains(soldier, true))
+					healthy.add(soldier);
 				healthy.sort();
 			}
 			calcStats();
@@ -110,6 +114,7 @@ public class Party {
 
 	public void addPrisoner(Soldier soldier) {
 		updated = true;
+		soldier.timesCaptured++;
 		prisoners.add(soldier);
 		prisoners.sort();
 	}
@@ -130,8 +135,8 @@ public class Party {
 		healthy.sort();
 	}
 	public void wound(Soldier soldier) {
-		if (army != null)
-			soldier.wound();
+//		if (army != null)
+		soldier.wound();
 		healthy.removeValue(soldier, true);
 		this.addSoldier(soldier);
 		//	if (player) BottomPanel.log(soldier.name + " wounded", "orange");
@@ -139,7 +144,7 @@ public class Party {
 	}
 	public void heal(Soldier soldier) {
 		healNoMessage(soldier);
-		if (player) BottomPanel.log(soldier.getName() + " healed", "blue");
+		if (player) BottomPanel.log(soldier.getTypeName() + " healed", "blue");
 	}
 	public void healNoMessage(Soldier soldier) {
 		soldier.heal();
@@ -148,7 +153,7 @@ public class Party {
 		healthy.sort();
 		updated = true;
 	}
-	
+
 	public Array<Soldier> getUpgradable() {
 		upgradable.clear();
 		for (Soldier s : healthy) {
@@ -198,7 +203,7 @@ public class Party {
 	public int getTotalSize() {
 		return getHealthySize() + getWoundedSize();
 	}
-	
+
 	// used for placing troops
 	public Array<Soldier> getHealthyInfantry() {
 		Array<Soldier> roReturn = new Array<Soldier>();
@@ -221,7 +226,7 @@ public class Party {
 		}
 		return toReturn;
 	}
-	
+
 	public Array<Soldier> getHealthy() {
 		return healthy;
 	}
@@ -255,27 +260,39 @@ public class Party {
 		Array<String> names = new Array<String>();
 		Array<Array<Soldier>> consol = new Array<Array<Soldier>>();
 		for (Soldier s : arrSoldier) {
-			if (!names.contains(s.getName() + s.getUnitClass(), false)) {
-				names.add(s.getName() + s.getUnitClass());
+			if (!names.contains(s.getTypeName() + s.getUnitClass(), false)) {
+				names.add(s.getTypeName() + s.getUnitClass());
 				Array<Soldier> type = new Array<Soldier>();
 				type.add(s);
 				consol.add(type);
 			}
 			else {
-				consol.get(names.indexOf(s.getName() + s.getUnitClass(), false)).add(s);
+				consol.get(names.indexOf(s.getTypeName() + s.getUnitClass(), false)).add(s);
 			}
 		}
 		return consol;	
 	}
-	
+
 	public Faction getFaction() {
 		if (army != null) return army.getFaction();
 		else return null;
 	}
-	
+
 	public String getName() {
 		if (army != null) return army.getName();
 		return "";
+	}
+	
+	public void setGeneral(ImportantPerson general) {
+		this.general = general;
+	}
+	
+	public Location getHome() {
+		return this.general.home;
+	}
+	
+	public boolean hasGeneral() {
+		return general != null;
 	}
 
 	@Override
@@ -300,7 +317,7 @@ public class Party {
 	public void distributeExp(int total) {
 		if (this.player) System.out.println("distributing " + total + " exp to you");
 		if (this.player) BottomPanel.log("Party receives " + total + " experience!", "green");
-		
+
 		int exp = (int) (total/1.0/getHealthySize());
 		getHealthy().shrink();
 		for (int i = 0; i < getHealthy().size; i++)
@@ -313,7 +330,7 @@ public class Party {
 	public void repair(PartyType pt) { // returns a repair cost
 		int newSize = pt.getRandomSize();
 		int missing = Math.max(newSize - this.getTotalSize(), 0); // no negative ints
-//		int totalCost = 0;
+		//		int totalCost = 0;
 		boolean canAfford = true;
 		while (missing > 0 && canAfford) {
 			Soldier newSoldier = new Soldier(pt.randomSoldierType(), this);
@@ -330,4 +347,75 @@ public class Party {
 		System.out.println("party repaired");
 	}
 
+	public void registerBattleVictory() {
+		for (Soldier s : healthy) {
+			s.registerBattleVictory();
+		}
+		for (Soldier s : wounded) {
+			s.registerBattleVictory();
+		}
+	}
+
+	public void registerBattleLoss() {
+		for (Soldier s : healthy) {
+			s.registerBattleLoss();
+		}
+		for (Soldier s : wounded) {
+			s.registerBattleLoss();
+		}
+	}
+	
+	/**
+	 * @return random soldier from healthy weighted by attack
+	 */
+	public Soldier getRandomWeightedAttack() {
+		// Compute the total weight of all soldier's defenses together
+		double totalWeight = 0.0d;
+		for (Soldier s : getHealthy())
+		{
+			totalWeight += s.getAtk();
+		}
+
+		int randomIndex = -1;
+		double randomDouble = Math.random() * totalWeight;
+		getHealthy().shrink();
+		for (int i = 0; i < getHealthySize(); ++i)
+		{
+			randomDouble -= getHealthy().get(i).getAtk();
+			if (randomDouble <= 0.0d)
+			{
+				randomIndex = i;
+				break;
+			}
+		}
+		Soldier random = getHealthy().get(randomIndex);
+		return random;
+	}
+	
+	/**
+	 *  @return random soldier from healthy weighted by inverse defense
+	 */
+	public Soldier getRandomWeightedInverseDefense() {
+		// Compute the total weight of all soldier's defenses together
+		double totalWeight = 0.0d;
+		for (Soldier s : getHealthy())
+		{
+		    totalWeight += 1/s.getDef();
+		}
+		
+		int randomIndex = -1;
+		double randomDouble = Math.random() * totalWeight;
+		getHealthy().shrink();
+		for (int i = 0; i < getHealthySize(); ++i)
+		{
+		    randomDouble -= 1/getHealthy().get(i).getDef();
+		    if (randomDouble <= 0.0d)
+		    {
+		        randomIndex = i;
+		        break;
+		    }
+		}
+		Soldier random = getHealthy().get(randomIndex);
+		return random;
+	}
 }

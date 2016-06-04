@@ -5,19 +5,18 @@
  ******************************************************************************/
 package kyle.game.besiege.army;
 
+import com.badlogic.gdx.math.MathUtils;
+
 import kyle.game.besiege.Destination;
-import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.ImportantPerson;
+import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.party.PartyType.Type;
-
-import com.badlogic.gdx.math.MathUtils;
+import kyle.game.besiege.party.UnitType;
 
 public class Noble extends Army {
-	private static final String[] RANKS = {"Baron", "Earl", "Count", "Duke", "Prince", "Archduke", "King"};
-	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	  250,		 300, 301};
 	
 	// change for testing
 	private static final int BASE_PC = 350; // base party count
@@ -26,11 +25,11 @@ public class Noble extends Army {
 	private static final float REKNOWN_PC_FACTOR = .5f;
 	private final float WAIT = 30;
 	//	private static final int MAX_LEVEL = 25;
-	public Location home;
-	public String rankName;
-	public int rank;
-	private int reknown;
-	private int nextRank;
+//	public Location home;
+//	public String rankName;
+//	public int rank;
+//	private int reknown;
+//	private int nextRank;
 	public Location specialTargetToBesiege;
 	private boolean toggleWait;
 
@@ -42,42 +41,56 @@ public class Noble extends Army {
 	
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
-		super(kingdom, "", home.getFaction(), home.getCenterX(), home.getCenterY(), Type.NOBLE);
-		this.home = home;
+		super(kingdom, "", home.getFaction(), home.getSpawnPoint().getX(), home.getSpawnPoint().getY(), Type.NOBLE);
 		this.setDefaultTarget((City) home);
 		// set up initial party, rank, etc
-		rank = 0; // baron for now
-		reknown = 0;
-		rankName = RANKS[rank];
-		nextRank = REKNOWN_RANK[rank + 1];
-		updateName();
-
+//		rank = 0; // baron for now
+//		reknown = 0;
+//		rankName = RANKS[rank];
+//		nextRank = REKNOWN_RANK[rank + 1];
 		String region = "knightFlail";
 		double random = Math.random();
 		if (random >= .33) region = "knightLance";
 		if (random > .67) region = "knightSword";
 		this.setTextureRegion(region);
 
-		
-		// earl, baron, or count
-		this.giveReknown(MathUtils.random(50));
-		this.giveReknown(MathUtils.random(50));
-		this.giveReknown(MathUtils.random(50));
-
 		//		System.out.println("creating noble");
 		kingdom.addArmy(this);
 		this.type = ArmyType.NOBLE;
 		
+		this.party.setGeneral(generateGeneral(home));
+
 		this.calcMaxPartySize();
+	}
+	
+	// generate the initial soldier for this 
+	public ImportantPerson generateGeneral(Location home) {
+		UnitType type = UnitLoader.classTypes.values().iterator().next().units.values().iterator().next();		
+		
+		ImportantPerson general = new ImportantPerson(type, this.party, "Duke", home);
+		
+		// earl, baron, or count
+		general.giveReknown(MathUtils.random(50));
+		general.giveReknown(MathUtils.random(50));
+		general.giveReknown(MathUtils.random(50));
+		return general;
 	}
 
 	@Override
 	public void uniqueAct() {
-
+		
+		// TESTING
+//		if (getKingdom().map.isInWater(this)) {
+//			System.out.println(this.getName() + " is in water!");
+//		}
+		
 		// nobles do: 
 		// travel between their own cities (by default)
 		// or are sent to besiege other cities (by faction)
-		if (this.hasSpecialTarget() && !this.isGarrisonedIn(specialTargetToBesiege)) {
+		if (shouldRepair()) {
+			this.returnHome();
+		}
+		else if (this.hasSpecialTarget() && !this.isGarrisonedIn(specialTargetToBesiege)) {
 			if (getKingdom().currentPanel == this) System.out.println(getName() + " has special target");
 			
 			// If for some reason at peace with special target, stop going towards it.
@@ -140,6 +153,17 @@ public class Noble extends Army {
 		super.besiege(location);
 //		System.out.println(this.getName() + " is besieging " + location.getName());
 	}
+	
+	public void returnHome() {
+//		System.out.println(this.getName() + " returning home");
+		if (getHome() == null) {
+			getGeneral().updateHome(this.getFaction().getRandomCity());
+		}
+		if (getHome() == null) this.destroy();
+		this.specialTargetToBesiege = null;
+		this.getFaction().unoccupiedNobles.removeValue(this, true);
+		setTarget(getHome());
+	}
 
 	public void wanderBetweenCities() {
 		// I think this is the problem
@@ -175,29 +199,21 @@ public class Noble extends Army {
 	public String getUniqueAction() {
 		return "Noble unique action";
 	}
-
-	public void giveReknown(int reknown) {
-		this.reknown += reknown;
-		if (rank <= RANKS.length - 1) {
-			if (this.reknown >= nextRank) {
-				increaseRank();
-			}
-		}
-		calcMaxPartySize();
+	
+	public int getFame() {
+		return this.party.general.fame;
 	}
 	
 	public void calcMaxPartySize() {
-		getParty().maxSize = (int) (reknown * REKNOWN_PC_FACTOR + BASE_PC);
+		getParty().maxSize = (int) (getFame() * REKNOWN_PC_FACTOR + BASE_PC);
 	}
 	
-	private void increaseRank() {
-		this.rank++;
-		rankName = RANKS[rank];
-		nextRank = REKNOWN_RANK[rank+1];
-		updateName();
-	}
-	public void updateName() {
-		this.setName(rankName + " of " + home.getName());
+//	public void updateName() {
+////		this.setName(rankName + " of " + home.getName() + " (");
+//	}
+	
+	public String getName() {
+		return this.getGeneral().getFullName();
 	}
 	// for when their old estate no longer belongs to their kingdom.
 	public void giveNewHome() {
@@ -221,10 +237,10 @@ public class Noble extends Army {
 //		this.specialTarget = null;
 	}
 	
-	public static String getTitleForFame(int fame) {
-		for (int i = 1; i < REKNOWN_RANK.length; i++) {
-			if (REKNOWN_RANK[i] > fame) return RANKS[i-1];
-		}
-		return "God";
+	public Location getHome() {
+		return this.getGeneral().home;
+	}
+	public void setHome(Location home) {
+		this.getGeneral().updateHome(home);
 	}
 }

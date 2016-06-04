@@ -357,7 +357,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 //		System.out.println("Upgradable: " + upgradable.size);
 		
 		for (Soldier s : upgradable) {
-			SoldierLabel name = new SoldierLabel(s.getName(), ls, s);
+			SoldierLabel name = new SoldierLabel(s.getTypeName(), ls, s);
 
 			if (selected == s) name.setColor(Color.YELLOW);
 			//else name.setColor(Color.DARK_GRAY);
@@ -402,7 +402,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	public void select(Soldier s) {
 		this.selected = s;
 
-		nameS.setText(s.getName());
+		nameS.setText(s.getTypeName());
 
 		weaponS.setText(s.unitType.melee.name);
 		
@@ -418,7 +418,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		if (Soldier.SPD_TIER[s.getTier()+1])
 			naturalUp += "+1 spd";
 		naturalS.setText(naturalUp);
-		equippedS.setText(s.getName());
+		equippedS.setText(s.getTypeName());
 		equippedStatsS.setText(s.getWeapon().atkMod + " atk, " + s.getWeapon().defMod + " def, " + s.getWeapon().spdMod + " spd");
 
 		UnitType[] upgradeArr = s.getUpgrades();
@@ -565,10 +565,10 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 
 	private void upgradeCurrent(UnitType unitType) {
 		//int index = party.getUpgradable().indexOf(selected, true);
-		String first = selected.getName();
+		String first = selected.getTypeName();
 		 // only if successfully upgrades
 		if (selected.upgrade(unitType, panel.getMapScreen().getCharacter().inventory)) {
-			String next = selected.getName();
+			String next = selected.getTypeName();
 			BottomPanel.log(first + " upgraded to " + next);
 			Soldier prev_selected = selected;
 			selectNext();

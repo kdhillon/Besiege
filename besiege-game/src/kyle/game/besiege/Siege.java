@@ -48,11 +48,29 @@ public class Siege extends Actor {
 			empty = false;
 		else if (empty) {
 			countdown -= delta;
-			if (countdown <= 0) this.destroy();
+			if (countdown <= 0) {
+				this.destroy();
+				return;
+			}
 		}
 		
-		// If no longer at war, end siege
-		if (!besieging.atWar(location.getFaction())) this.destroy();
+		// remove armies that are at peace
+		for (int i = 0; i < armies.size; i++) {
+			if (armies.get(i) != null && armies.get(i).getFaction().atPeace(location.getFaction())) {
+				armies.get(i).leaveSiege();
+			}
+		}
+		
+		if (armies.size == 0) {
+			this.destroy();
+			return;
+		}
+
+//		// If no longer at war, end siege
+//		if (besieging.atPeace(location.getFaction())) {
+//			this.destroy();
+//			return;
+//		}
 		
 		if (location.playerBesieging && location.getKingdom().getPlayer().hasTarget()) {
 			remove(location.getKingdom().getPlayer());
@@ -115,6 +133,13 @@ public class Siege extends Actor {
 			location.getKingdom().getPlayer().garrisonIn(null);
 		}
 		location.siege = null;
+		battle = null;
+	}
+	
+	// siege attack failed
+	public void siegeFailure() {
+		battle = null;
+		this.destroy();
 	}
 	
 	public void add(Army army) {
@@ -145,6 +170,10 @@ public class Siege extends Actor {
 //		System.out.println("destroying siege of " + location.getName());
 		for (Army a : armies) {
 			a.leaveSiege();
+		}
+		if (battle != null) {
+			battle.victory(battle.dArmies, battle.aArmies);
+			battle = null;
 		}
 		location.endSiege();
 		besieging.cancelSiegeOf(location);

@@ -57,13 +57,13 @@ public class Center {
 	public double moisture;
 	public Biomes biome;
 	public double area;
-	transient public Faction faction; // controlling faction - can be recalculated
+	public Faction faction; // controlling faction - can be recalculated
 
+	// For kryo
 	public Center() {
 		armies = new Array<Army>();
 //		initMesh(null);
 		// 6 * 3 vertices, 7 attributes
-	
 	}
 
 	public void calcTriangles() {
@@ -142,6 +142,34 @@ public class Center {
 		
 		Color color = VoronoiGraph.getColor(this);
 		
+		
+		// The following makes each center a bit discolored to account for neighbors, provides some differentition between centers
+		float strength = 0.6f;
+		float mixedR = 0;
+		float mixedG = 0;
+		float mixedB = 0;
+		
+		int colorCount = 0;
+		
+		if (!this.water) {
+			// Average with neighbor colors
+			for (Center c : this.neighbors) {
+				if (c.water) continue;
+				Color nColor = VoronoiGraph.getColor(c);
+				mixedR += nColor.r;
+				mixedG += nColor.g;
+				mixedB += nColor.b;
+				colorCount++;
+			}
+			float divFactor = (1 - strength) / colorCount;
+			
+			color.r = mixedR * divFactor + color.r * strength;
+			color.g = mixedG * divFactor + color.g * strength;
+			color.b = mixedB * divFactor + color.b * strength;
+		}
+		
+		// do some color blending for each polygon...
+		// for now, 0.7 * color  + 0.3 * adjacent color, weighted average. 
 		float x0 = this.loc.x;
 		float y0 = (float) vg.bounds.height-this.loc.y-1;
 		float z0 = this.elevation * ELEVATION_FACTOR;
@@ -163,6 +191,13 @@ public class Center {
 //				System.out.println("e v1 is null");
 				continue;
 			}
+			
+			Center adjacent = vg.centers.get(e.adjCenter0);
+			if (adjacent == this) adjacent = vg.centers.get(e.adjCenter1);
+			
+//			Color adjColor = VoronoiGraph.getColor(adjacent);
+//			Color current = new Color(color.r * 0.7f + adjColor.r * 0.3f, color.g * 0.7f + adjColor.g * 0.3f, color.b * 0.7f + adjColor.b * 0.3f, 1);
+			Color current = color;
 			
 			// draw all 4 or 8 sub-triangles
 			for (int i = -1; i < e.subEdges.length; i++) {
@@ -201,28 +236,28 @@ public class Center {
 				verts[idx++] = x0; 			//Position(x, y) 
 				verts[idx++] = y0;
 				verts[idx++] = z0;
-				verts[idx++] = color.r; 	//Color(r, g, b, a)
-				verts[idx++] = color.g;
-				verts[idx++] = color.b;
-				verts[idx++] = color.a;
+				verts[idx++] = current.r; 	//Color(r, g, b, a)
+				verts[idx++] = current.g;
+				verts[idx++] = current.b;
+				verts[idx++] = current.a;
 
 				//top left vertex
 				verts[idx++] = x1; 			//Position(x, y) 
 				verts[idx++] = y1;
 				verts[idx++] = z1;
-				verts[idx++] = color.r; 	//Color(r, g, b, a)
-				verts[idx++] = color.g;
-				verts[idx++] = color.b;
-				verts[idx++] = color.a;
+				verts[idx++] = current.r; 	//Color(r, g, b, a)
+				verts[idx++] = current.g;
+				verts[idx++] = current.b;
+				verts[idx++] = current.a;
 
 				//bottom right vertex
 				verts[idx++] = x2;	 //Position(x, y) 
 				verts[idx++] = y2;
 				verts[idx++] = z2;
-				verts[idx++] = color.r;		 //Color(r, g, b, a)
-				verts[idx++] = color.g;
-				verts[idx++] = color.b;
-				verts[idx++] = color.a; // gotta do this every frame to multiply this by the batch color.
+				verts[idx++] = current.r;		 //Color(r, g, b, a)
+				verts[idx++] = current.g;
+				verts[idx++] = current.b;
+				verts[idx++] = current.a; // gotta do this every frame to multiply this by the batch color.
 			}
 		}
 		this.mesh.setVertices(verts);
@@ -360,6 +395,6 @@ public class Center {
 	}
 	
 	public String getName() {
-		return "";
+		return "Fakename";
 	}
 }

@@ -5,14 +5,18 @@
  ******************************************************************************/
 package kyle.game.besiege.party;
 
-import kyle.game.besiege.Inventory;
-import kyle.game.besiege.panels.BottomPanel;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 
-public class Soldier implements Comparable { // should create a heal-factor, so garrisonning will heal faster
+import kyle.game.besiege.Inventory;
+import kyle.game.besiege.NameGenerator;
+import kyle.game.besiege.panels.BottomPanel;
 
+public class Soldier implements Comparable<Soldier> { // should create a heal-factor, so garrisonning will heal faster
+
+	//testing
+	static int namesGenerated = 0;
+	
 	public static enum SoldierType {
 		INFANTRY, ARCHER, CAVALRY
 	}
@@ -29,38 +33,52 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	private static final double COST_FACTOR = 2; // 
 	private static final double UPGRADE_FACTOR = 2;
 
-	private static final String VETERAN = ""; // "Veteran" or maybe invisible
+//	private static final String VETERAN = "Vet."; // "Veteran" or maybe invisible
 
-	public Party party;
+	public Party party; // containing party
 
+	
+	// personal attributes
+	public Color skinColor;
+	public boolean female;
+	public int age; // fixed for now, later should change based on year
+	private String name;
+	public boolean isImportant;
+
+	// like pokemon, should randomize stats (not all be fixed)
+	// can use this to generate epithet (high speed = "the quick", low speed = "the slow")
+	
+	// battle statistics
+	public int kills = 0; // this could start randomized. instead, start at 0.
+	public int battlesWon = 0; // even if wounded
+	public int battlesSurvived = 0;
+	public int battlesFled = 0;
+	public int timesCaptured = 0;
+	
+	public Array<ImportantPerson> ipKilled;
+	
 	public Soldier killedBy; // once killed
 
 	public int level;
 	public int exp;
 	public int next;   // exp needed for level up
-	//	public int getTier();  // goes up to getTier() 7 (aka 3.5) so used in arrays above 
 	private int nextUpgrade; // next level at which soldier can be upgraded
-
-	// personal attributes
-	public Color skinColor;
-	public boolean female;
-
-	//	public int atk; // total
-	//	public int def;
-	//	public int spd;
-
+	public boolean canUpgrade; // TODO remove this and check on fly
+	
+	// TODO remove this and calculate on fly, based on level.
 	public int baseAtk; // increases with level
 	public int baseDef;
 	public int baseSpd;
 	
-	public UnitType unitType;
+	public UnitType unitType; // determines weapon and armor for now.
 
+	// TODO remove this, just have "timeWounded"
 	private boolean wounded;
 //	private boolean retreated;
 	
 	private float timeWounded;
-	public boolean canUpgrade;
 
+	// TODO figure out if this is necessary
 	public float healTime;
 
 //	public Weapon weapon;
@@ -69,14 +87,14 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 //	public Armor armor;
 //	public Color armorColor;
 	
-	public Array<Equipment> equipment; // specify this in the unit type later
+//	public Array<Equipment> equipment; // specify this in the unit type later
 
 	public Soldier() {}
 
 	public Soldier(UnitType unitType, Party party) {
 		this.unitType = unitType;
 		
-		this.equipment = Equipment.getBaseEquipment(unitType);
+//		this.equipment = Equipment.getBaseEquipment(unitType);
 
 		//		if (rangedWeapon != null) System.out.println(rangedWeapon.name);
 
@@ -116,13 +134,39 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 			this.female = true;
 		}
 		calcStats();
+		
+		ipKilled = new Array<ImportantPerson>();
+		
+		age = (int) (Math.random() * 20 + 18); // between 17 and 48
+	}
+	
+	public void generateName() {
+		String firstName, lastName;
+		if (this.female) {
+			firstName = NameGenerator.generateFirstNameFemale();
+			lastName = NameGenerator.generateLastName();
+		}
+		else {
+			firstName = NameGenerator.generateFirstNameMale();
+			lastName = NameGenerator.generateLastName();
+		}
+		name = firstName + " " + lastName;
+	}
+	
+	public String getName() {
+		if (this.name == null) {
+			generateName();
+			namesGenerated++;
+			System.out.println("Names generated: " + namesGenerated);
+		}
+		return name;
 	}
 
-	public String getName() {
+	public String getTypeName() {
 		String name;
-		if (getTier() % 2 == 0)
+//		if (getTier() % 2 != 0)
 			name = unitType.name;
-		else name = VETERAN + unitType.name;
+//		else name = VETERAN + unitType.name;
 		return name;
 	}
 
@@ -223,9 +267,9 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	public int getBonusAtk() {
 		int bonusAtk = 0;
 		bonusAtk += unitType.melee.atkMod;
-		for (Equipment e : equipment) {
-			bonusAtk += e.atkMod;
-		}
+//		for (Equipment e : equipment) {
+//			bonusAtk += e.atkMod;
+//		}
 		return bonusAtk;
 	}
 
@@ -234,9 +278,9 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		bonusDef += unitType.melee.defMod;
 		bonusDef += unitType.armor.defMod;
 		
-		for (Equipment e : equipment) {
-			bonusDef += e.defMod;
-		}
+//		for (Equipment e : equipment) {
+//			bonusDef += e.defMod;
+//		}
 		return bonusDef;
 	}
 
@@ -284,7 +328,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		if (level >= nextUpgrade) {
 			if (this.getTier() % 2 != 0) {
 				if (party.player)
-					BottomPanel.log(this.getName() + " ready for upgrade!", "green");
+					BottomPanel.log(this.getTypeName() + " ready for upgrade!", "green");
 				if (this.unitType.upgrades != null && this.unitType.upgrades.length > 0) canUpgrade = true;
 				else canUpgrade = false;
 			}
@@ -327,7 +371,7 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		if (party.player && party.army != null) cost *= party.army.getCharacter().getAttributeFactor("Bargaining");
 		if (!(party.wealth - cost >= party.minWealth) && cost != 0) {
 			if (party.player)
-				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.getName());
+				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.getTypeName());
 			return false;
 		}
 		else {
@@ -362,6 +406,26 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 		return 10;
 	}
 
+	public void registerKill(Soldier that) {
+		this.addExp(that.getExpForKill());
+		this.kills++;
+		if (that.isImportant) this.ipKilled.add((ImportantPerson) that);
+	}
+	
+	public void registerBattleVictory() {
+		this.battlesSurvived++;
+		this.battlesWon++;
+	}
+	
+	public void registerBattleRetreat() {
+		this.battlesSurvived++;
+		this.battlesFled++;
+	}
+	
+	public void registerBattleLoss() {
+		this.battlesSurvived++;
+	}
+	
 	public int getExpForKill() {
 		return level;
 	}
@@ -373,7 +437,8 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	}
 	public void wound() {
 		wounded = true;
-		timeWounded = party.army.getKingdom().clock; // seconds elapsed when wounded
+		if (party.army != null)
+			timeWounded = party.army.getKingdom().clock; // seconds elapsed when wounded
 	}
 	public void heal() {
 		wounded = false;
@@ -398,10 +463,10 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	}
 
 	public Equipment getHorse() {
-		for (Equipment e : equipment) {
-			if (e.type == Equipment.Type.HORSE) 
-				return e;
-		}
+//		for (Equipment e : equipment) {
+//			if (e.type == Equipment.Type.HORSE) 
+//				return e;
+//		}
 		return null;
 	}
 
@@ -443,12 +508,12 @@ public class Soldier implements Comparable { // should create a heal-factor, so 
 	//	}
 
 	@Override
-	public int compareTo(Object thatObject) {
-		Soldier that = (Soldier) thatObject;
+	public int compareTo(Soldier thatObject) {
+		Soldier that = thatObject;
 		//		return this.getName().compareTo(that.getName());		
 		if (this.level != that.level)
 			return that.level - this.level;
-		else return this.getName().compareTo(that.getName());
+		else return this.getTypeName().compareTo(that.getTypeName());
 	}
 
 	public SoldierType getType() {

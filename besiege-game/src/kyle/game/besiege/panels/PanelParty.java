@@ -337,7 +337,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	// this method is evil don't call this frequently
 	public static void updateTableWithTypes(Table table, Array<Array<Soldier>> types, LabelStyle style) {
 		for (Array<Soldier> type : types) {
-			Label name = new Label(type.first().getName(), style);
+			Label name = new Label(type.first().getTypeName(), style);
 			name.setColor(type.first().unitType.unitClass.color);
 			table.add(name).left();
 			Label count = new Label(type.size + "", style);
@@ -348,7 +348,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	
 	public static void updateTableWithSoldiers(Table table, Array<Soldier> soldiers, LabelStyle style) {
 		for (Soldier s : soldiers) {
-			SoldierLabel name = new SoldierLabel(s.getName(), style, s);
+			SoldierLabel name = new SoldierLabel(s.getTypeName(), style, s);
 			name.addListener(new ClickListener() {
 				public void enter(InputEvent event, float x,
 						float y, int pointer, Actor fromActor) {
@@ -368,7 +368,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
-		nameS.setText(s.getName() + "");
+		nameS.setText(s.getTypeName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");

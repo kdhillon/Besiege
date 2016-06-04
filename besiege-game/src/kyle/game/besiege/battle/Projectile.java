@@ -1,14 +1,13 @@
 package kyle.game.besiege.battle;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.battle.Unit.Orientation;
-import kyle.game.besiege.party.RangedWeaponType.Type;
-
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.battle.Unit.Orientation;
+import kyle.game.besiege.party.RangedWeaponType.Type;
 
 public class Projectile extends Actor {
 	public BattleStage stage;	
@@ -107,7 +106,7 @@ public class Projectile extends Actor {
 		
 		if (firing.rangedWeapon.type == Type.FIREARM) {
 			SPEED = FIREARM_SPEED;
-			texture = null;
+			texture = Assets.map.findRegion("arrow");
 		}
 		
 		float time_to_collision = distanceToTravel/SPEED;
@@ -413,10 +412,12 @@ public class Projectile extends Actor {
 				// get a bit of EXP for hitting someone based on distance
 				firing.soldier.addExp((int) (distanceToTravel * DISTANCE_EXP_FACTOR));
 
-				// get more exp for killing someone based on their level
-				if (that.isDying) {
-					firing.soldier.addExp(that.soldier.getExpForKill());
-				}
+				// EXP is taken care of by that.hurt.
+				
+				// more exp for killing someone based on their level
+//				if (that.isDying) {
+//					firing.soldier.registerKill(that.soldier, true);
+//				}
 
 //				that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
 

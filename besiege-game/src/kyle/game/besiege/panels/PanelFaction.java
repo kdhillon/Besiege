@@ -5,14 +5,6 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.army.Noble;
-import kyle.game.besiege.location.Castle;
-import kyle.game.besiege.location.City;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.ObjectLabel;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -23,8 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.Faction;
+import kyle.game.besiege.army.Noble;
+import kyle.game.besiege.location.Castle;
+import kyle.game.besiege.location.City;
+import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.ObjectLabel;
 
 // Displays basic info about the faction including relations with all others.
 /* Should contain:

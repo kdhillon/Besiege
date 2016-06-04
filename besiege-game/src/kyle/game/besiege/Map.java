@@ -6,15 +6,7 @@ package kyle.game.besiege;
 
 
 import java.util.ArrayList;
-
-import kyle.game.besiege.geom.PointH;
-import kyle.game.besiege.geom.Rectangle;
-import kyle.game.besiege.utils.MyRandom;
-import kyle.game.besiege.voronoi.Center;
-import kyle.game.besiege.voronoi.Corner;
-import kyle.game.besiege.voronoi.Edge;
-import kyle.game.besiege.voronoi.VoronoiGraph;
-import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
+import java.util.HashSet;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -30,12 +22,22 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import kyle.game.besiege.geom.PointH;
+import kyle.game.besiege.geom.Rectangle;
+import kyle.game.besiege.utils.MyRandom;
+import kyle.game.besiege.voronoi.Center;
+import kyle.game.besiege.voronoi.Corner;
+import kyle.game.besiege.voronoi.Edge;
+import kyle.game.besiege.voronoi.VoronoiGraph;
+import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
+
 
 public class Map extends Actor {
 	transient public ShapeRenderer sr; // only used for debugging information
 
-	private static final Color riverColor = new Color(0, 0.2f, .8f, 1);
-	
+	private static final Color roadColor = new Color(0.4f, 0.2f, .1f, 1);
+	private static final Color riverColor = new Color(0.2f, 0.4f, .9f, 1);
+
 	public static final int WIDTH = 7000;
 	public static final int HEIGHT = 7000;
 
@@ -43,12 +45,13 @@ public class Map extends Actor {
 	private static final int NUM_SITES = 300;
 
 	// Higher is fewer rivers
-	private static final int RIVER_THRESHOLD = 20;
+	public static final int RIVER_THRESHOLD = 20;
 
 	public Kingdom kingdom;
 	//	public static boolean debug = true;
 	public static boolean debug;
 	public static boolean drawSpheres;
+	public static boolean drawBorders;
 
 	//	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 	//	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
@@ -59,16 +62,16 @@ public class Map extends Actor {
 	public int totalVisibilityLines;
 
 	//transient public Texture bg;
-	public Array<Corner> cityCorners;
-	public Array<Center> cityCenters;
+	public HashSet<Corner> cityCorners;
+	public HashSet<Center> cityCenters;
 	//	public Array<PointH> availableLocationSites;
-	public Array<Corner> availableCorners;
-	public Array<Center> availableCenters;
+	public HashSet<Corner> availableCorners;
+	public HashSet<Center> availableCenters;
 
-	public Array<Corner> borderCorners;
-	public Array<Edge> impassable;
-	public Array<Edge> impBorders;
-	public Array<Center> connected; // land centers connected to reference
+	public HashSet<Corner> borderCorners;
+	public HashSet<Edge> impassable;
+	public HashSet<Edge> impBorders;
+	public HashSet<Center> connected; // land centers connected to reference
 
 	public Center reference; // center on main map
 	public Point referencePoint;
@@ -78,6 +81,10 @@ public class Map extends Actor {
 
 	transient private ShaderProgram shader;
 	private float[] batchColor;
+
+	private Color riverColorToDraw = new Color();
+
+	public Center selectedCenter;
 
 	// testing
 	//	transient public Array<Polygon> testPolygons = new Array<Polygon>();
@@ -137,35 +144,35 @@ public class Map extends Actor {
 		// obviously that will work. what are the properties of a VG that I'd have to assign?
 		// first is the points. 
 
-		impassable = new Array<Edge>();
-		impBorders = new Array<Edge>();
+		impassable = new HashSet<Edge>();
+		impBorders = new HashSet<Edge>();
 
 		//		this.initialize();
 
 		// testing: works
-		//		neighborAdj = new Array<Center>();
+		//		neighborAdj = new HashSet<Center>();
 		//		neighborAdj.add(reference);
 		//		for (Center c : reference.neighbors) {
 		//			neighborAdj.add(c);
 		//		}this.vg.restore();
 
 
-		cityCorners = new Array<Corner>();
-		cityCenters = new Array<Center>();
-		//		availableLocationSites = new Array<PointH>();
-		availableCorners = new Array<Corner>();
-		availableCenters = new Array<Center>();
+		cityCorners = new HashSet<Corner>();
+		cityCenters = new HashSet<Center>();
+		//		availableLocationSites = new HashSet<PointH>();
+		availableCorners = new HashSet<Corner>();
+		availableCenters = new HashSet<Center>();
 
-		borderCorners = new Array<Corner>();
+		borderCorners = new HashSet<Corner>();
 
-		connected = new Array<Center>();
+		connected = new HashSet<Center>();
 
 		calcReference();
 		calcReferencePoint();
 
 		factionBorderEdges = new Array<Edge>();
 		calcConnected(reference, connected);
-		System.out.println("Num connected polygons: " + connected.size);
+		System.out.println("Num connected polygons: " + connected.size());
 
 		addPolygons();
 		calcTriangles();
@@ -176,6 +183,7 @@ public class Map extends Actor {
 		calcVisibilityGraph();
 		cleanImpassable();
 		calcCitySpots();
+		assignRoads();
 	}
 
 	public void initialize() {
@@ -195,13 +203,13 @@ public class Map extends Actor {
 			}
 		}
 	}
-	
+
 	// removes all water edges from impassable
 	private void cleanImpassable() {
 		for (Edge e : vg.edges) {
-			if (impassable.contains(e, true)) {
+			if (impassable.contains(e)) {
 				if (vg.centers.get(e.adjCenter0).water && vg.centers.get(e.adjCenter1).water) {
-					impassable.removeValue(e, true);
+					impassable.remove(e);
 				}
 			}
 		}
@@ -228,10 +236,10 @@ public class Map extends Actor {
 	}
 
 	// calc connected components, recursively
-	private void calcConnected(Center center, Array<Center> connected) {
+	private void calcConnected(Center center, HashSet<Center> connected) {
 		connected.add(center);
 		for (Center neighbor : center.neighbors) {
-			if (!neighbor.water && !connected.contains(neighbor, true)) {
+			if (!neighbor.water && !connected.contains(neighbor)) {
 				calcConnected(neighbor, connected);
 			}
 		}
@@ -296,7 +304,7 @@ public class Map extends Actor {
 	 */
 	private void convertIslandsToWater() {
 		for (Center center : vg.centers) {
-			if (!connected.contains(center, true))
+			if (!connected.contains(center))
 				center.water = true;
 		}
 		//		// also recalculate corners.water and edges.water
@@ -312,19 +320,27 @@ public class Map extends Actor {
 	}
 
 	private void calcCitySpots() {
-		// populate available city and village positions
+		// populate available city and village positions (centers and corners)
 		for (Center center : connected) {
-			if (!cityCenters.contains(center, true)) {
+			if (!cityCenters.contains(center)) {
 				addToAvailableCenters(center);
 				cityCenters.add(center);
 				for (Corner corner : center.corners) {
-					if (!cityCorners.contains(corner, true)) {
+					if (!cityCorners.contains(corner)) {
+						boolean river = false;
+						// don't allow cities on rivers
+						for (Edge e : corner.protrudes) {
+							if (e.river >= RIVER_THRESHOLD)
+								river = true;
+						}
+						if (river) continue;
 						cityCorners.add(corner);
 						addToAvailableCorners(corner);
 					}
 				}
 			}
 			for (Edge edge : center.borders) {
+				if (edge.river >= RIVER_THRESHOLD) continue;
 				addToAvailableCorners(edge.v0);	
 				addToAvailableCorners(edge.v1);
 			}
@@ -341,12 +357,12 @@ public class Map extends Actor {
 		//			System.out.println("NULL");
 		//			return;
 		//		}
-		if (!availableCorners.contains(c, true))
+		if (!availableCorners.contains(c))
 			availableCorners.add(c);
 	}
 
 	private void addToAvailableCenters(Center c) {
-		if (!availableCenters.contains(c, true))
+		if (!availableCenters.contains(c))
 			availableCenters.add(c);
 	}
 
@@ -428,7 +444,7 @@ public class Map extends Actor {
 	}
 
 	public void removeCorner(Corner toRemove) {
-		borderCorners.removeValue(toRemove, true);
+		borderCorners.remove(toRemove);
 		for (Corner existing : borderCorners) {
 			// TODO very slow please improve
 			//			if (existing.visibleCorners.contains(toRemove)) {
@@ -467,7 +483,7 @@ public class Map extends Actor {
 			if (edge.isBorder())
 				impBorders.add(edge);
 			if (edge.river > RIVER_THRESHOLD) {
-//				impBorders.add(edge);
+				//				impBorders.add(edge);
 				impassable.add(edge);
 				//				impBorders.add(edge);
 				//				System.out.println("Adding impassable");
@@ -479,9 +495,9 @@ public class Map extends Actor {
 	public void calcVisibilityGraph() {
 		calcBorders();
 
-		System.out.println("Border corners: " + borderCorners.size);
-		System.out.println("Impassable edges: " + impassable.size);
-		System.out.println("Impassable borders: " + impBorders.size);
+		System.out.println("Border corners: " + borderCorners.size());
+		System.out.println("Impassable edges: " + impassable.size());
+		System.out.println("Impassable borders: " + impBorders.size());
 		for (Corner c : borderCorners) {
 			calcVisible(c);
 		}
@@ -493,9 +509,10 @@ public class Map extends Actor {
 		if (currentCorner.visibleCorners == null)
 			currentCorner.visibleCorners = new ArrayList<Corner>();
 		if (currentCorner.waterTouches != 2) {
-			borderCorners.shrink();
-			for (int j = 0; j < borderCorners.size; j++) {
-				Corner otherCorner = (Corner) borderCorners.get(j);
+			//			borderCorners.shrink();
+			for (Corner otherCorner : borderCorners) {
+				//			for (int j = 0; j < borderCorners.size(); j++) {
+				//				Corner otherCorner = (Corner) borderCorners.(j);
 				if (otherCorner.waterTouches != 2 && lineNeeded(currentCorner, otherCorner)) {
 					for (Edge touching : currentCorner.protrudes) {
 						if ((!touching.d0.water || !touching.d1.water) && (touching.v0 == otherCorner || touching.v1 == otherCorner)) {
@@ -511,7 +528,7 @@ public class Map extends Actor {
 						boolean shouldAdd = true;
 						// make sure not same water polygon
 						for (Center center : currentCorner.touches) {
-							if (borderCorners.get(j).touches.contains(center)) {
+							if (otherCorner.touches.contains(center)) {
 								if (center.water) shouldAdd = false;
 							}
 						}
@@ -654,7 +671,7 @@ public class Map extends Actor {
 		// calculate "river touches"
 		// if river touches == 1, ignore
 		// if river touches == 2, treat like border
-		
+
 		// check if a river end, if so continue
 		if (a.waterTouches != 0 || a.riverTouches == 2) {
 			if (a.adjacent.size() >= 2) { 
@@ -663,7 +680,7 @@ public class Map extends Actor {
 				for (Corner corner : a.adjacent) {
 					// can optimize
 					// this should work with river corners who have no adjacent border corners.
-					if (borderCorners.contains(corner, true) && index <= 1) {
+					if (borderCorners.contains(corner) && index <= 1) {
 						aC[index] = corner;
 						index++;
 					}
@@ -697,7 +714,7 @@ public class Map extends Actor {
 				Corner[] bC = new Corner[2];
 				int index = 0;
 				for (Corner corner : b.adjacent) {
-					if (borderCorners.contains(corner, true) && index <= 1) {
+					if (borderCorners.contains(corner) && index <= 1) {
 						bC[index] = corner;
 						index++;
 					}
@@ -837,15 +854,22 @@ public class Map extends Actor {
 		batchColor[2] = batch.getColor().b;
 
 		for (Center center : this.vg.centers) {
-			drawCenter(center, kingdom.getMapScreen().currentCamera.combined, batchColor);
+			if (!center.ocean)
+				drawCenter(center, kingdom.getMapScreen().currentCamera.combined, batchColor);
 			//			drawCenter(center, kingdom.getMapScreen()., batchColor);			
 		}
 		//		sr.end();
 
 		// draw rivers
+		float riverSizeFactor = 15.0f;
+		Gdx.gl20.glLineWidth(riverSizeFactor/((Kingdom) this.getParent()).getMapScreen().getZoom());
 		sr.begin(ShapeType.Line);
 		sr.setProjectionMatrix(batch.getProjectionMatrix());
-		sr.setColor(riverColor);
+		riverColorToDraw.r = riverColor.r * this.kingdom.currentDarkness;
+		riverColorToDraw.g = riverColor.g * this.kingdom.currentDarkness;
+		riverColorToDraw.b = riverColor.b * this.kingdom.currentDarkness;
+		riverColorToDraw.a = riverColor.a * this.kingdom.currentDarkness;
+		sr.setColor(riverColorToDraw);
 		for (Edge e : vg.edges) {
 			if (e.river > RIVER_THRESHOLD) {
 				for (int i = -1; i < e.subEdges.length; i++) {
@@ -863,6 +887,22 @@ public class Map extends Actor {
 			}
 		}
 		sr.end();		
+
+		float roadFactor = 2.0f;
+		Gdx.gl20.glLineWidth(roadFactor/((Kingdom) this.getParent()).getMapScreen().getZoom());
+
+		boolean drawRoads = false;
+		// draw roads
+		if (drawRoads) {
+			sr.begin(ShapeType.Line);
+			sr.setProjectionMatrix(batch.getProjectionMatrix());
+			sr.setColor(roadColor);
+			for (Edge e : vg.edges) {
+				if (e.road)
+					sr.line((float)e.d0.loc.x,(float)(HEIGHT-e.d0.loc.y), (float) e.d1.loc.x, (float)(HEIGHT-e.d1.loc.y));
+			}
+			sr.end();	
+		}
 
 
 		//		 for copying and pasting
@@ -889,8 +929,9 @@ public class Map extends Actor {
 			Gdx.gl20.glLineWidth(1);
 
 			//			// draw visibility graph
+
 			for (Corner c : borderCorners) {
-				for (Corner c2 : c.visibleCorners){
+				for (Corner c2 : c.visibleCorners) {
 					sr.line((float) c.loc.x,(float)( HEIGHT-c.loc.y),(float) c2.loc.x, (float)(HEIGHT-c2.loc.y));
 				}
 			}
@@ -904,22 +945,24 @@ public class Map extends Actor {
 			//			}
 			// draw impassable borders
 			sr.setColor(.5f,1,0,1);
-			for (int i = 0; i < impBorders.size; i++) {
-				Edge toDraw = impBorders.get(i);
+			for (Edge toDraw : impBorders) { 
+				//			for (int i = 0; i < impBorders.size; i++) {
+				//				Edge toDraw = impBorders.get(i);
 				if (toDraw != null && toDraw.v0 != null && toDraw.v1 != null)
 					sr.line((float) toDraw.v0.loc.x, (float)(HEIGHT-toDraw.v0.loc.y), (float) toDraw.v1.loc.x, (float) (HEIGHT-toDraw.v1.loc.y));
 			}
 			sr.setColor(.5f,.7f,.2f,1);
-			for (int i = 0; i < impassable.size; i++) {
-				Edge toDraw = impassable.get(i);
+			for (Edge toDraw : impassable) {
+				//			for (int i = 0; i < impassable.size; i++) {
+				//				Edge toDraw = impassable.get(i);
 				if (toDraw != null && toDraw.v0 != null && toDraw.v1 != null)
 					sr.line((float) toDraw.v0.loc.x, (float)(HEIGHT-toDraw.v0.loc.y), (float) toDraw.v1.loc.x, (float) (HEIGHT-toDraw.v1.loc.y));
 			}
 			//			// draw impassable edges
 			sr.setColor(1, 1, 0, 1);
-//			testIndex = 1;
-			if (impassable.get(testIndex) != null && impassable.get(testIndex).midpoint != null)
-				sr.line((float) impassable.get(testIndex).v0.loc.x, (float)(HEIGHT-impassable.get(testIndex).v0.loc.y), (float) impassable.get(testIndex).v1.loc.x, (float) (HEIGHT-impassable.get(testIndex).v1.loc.y));
+			//			testIndex = 1;
+			//			if (impassable.get(testIndex) != null && impassable.get(testIndex).midpoint != null)
+			//				sr.line((float) impassable.get(testIndex).v0.loc.x, (float)(HEIGHT-impassable.get(testIndex).v0.loc.y), (float) impassable.get(testIndex).v1.loc.x, (float) (HEIGHT-impassable.get(testIndex).v1.loc.y));
 			//			
 			// draw centers that contain armies
 			//			for (Center c : connected) {
@@ -977,6 +1020,42 @@ public class Map extends Actor {
 		}	
 		batch.begin();
 
+		// draw selected center
+		if (selectedCenter != null) {
+			sr.begin(ShapeType.Line);
+			Gdx.gl20.glLineWidth(3);
+			sr.setColor(Color.RED);
+			batch.end();
+			for (int edgeIndex : (selectedCenter.adjEdges)) {
+				// b is used to draw dashed line
+				boolean b = false;
+				Edge e = getEdge(edgeIndex);
+				for (int i = -1; i < e.subEdges.length; i++) {
+					b = !b;
+					if (b) {
+						continue;
+					}
+					PointH start, end;
+					if (i == -1) {
+						start = e.v0.loc;
+					}
+					else start = e.subEdges[i];
+					if (i == e.subEdges.length - 1) {
+						end = e.v1.loc;
+					}
+					else end = e.subEdges[i + 1];
+					sr.line((float)start.x,(float)(HEIGHT-start.y),(float) end.x, (float)(HEIGHT-end.y));
+				}
+				//				sr.line((float) (e.v0.loc.x), (float) (HEIGHT-e.v0.loc.y), (float) (e.v1.loc.x), (float) (HEIGHT-e.v1.loc.y));
+				// to smooth out line
+				//				sr.x((float) (e.v0.loc.x), (float) (HEIGHT-e.v0.loc.y), 0);
+				//				sr.x((float) (e.v1.loc.x), (float) (HEIGHT-e.v1.loc.y), 0);
+			}
+			sr.end();
+			batch.begin();
+		}
+
+
 		if (drawSpheres) {
 			batch.end();
 			sr.begin(ShapeType.Filled);
@@ -984,23 +1063,68 @@ public class Map extends Actor {
 			Gdx.gl.glEnable(GL20.GL_BLEND);			
 
 			// draw spheres of influence
+			// note, when drawing to subedges, there is some overlap when the lines turn inward enough
 			for (Faction f : ((Kingdom) getParent()).factions) {
-				sr.setColor(f.color.r, f.color.g, f.color.b, .7f);
+				sr.setColor(f.color.r, f.color.g, f.color.b, .4f);
 				for (Center c : f.centers) {
-					for (float[] vertices : c.triangles) {
-						sr.triangle(vertices[0], vertices[1], vertices[2], 
-								vertices[3], vertices[4], vertices[5]);
+
+					for (int edgeIndex : c.adjEdges) {
+						Edge e = this.getEdge(edgeIndex);
+
+						for (int i = -1; i < e.subEdges.length; i++) {
+							PointH start, end;
+							if (i == -1) {
+								start = e.v0.loc;
+							}
+							else start = e.subEdges[i];
+							if (i == e.subEdges.length - 1) {
+								end = e.v1.loc;
+							}
+							else end = e.subEdges[i + 1];
+
+							sr.triangle(c.loc.x, HEIGHT - c.loc.y, (float)start.x,(float)(HEIGHT-start.y),(float) end.x, (float)(HEIGHT-end.y));
+						}
+
 					}
+
+					//					for (float[] vertices : c.triangles) {
+					//						sr.triangle(vertices[0], vertices[1], vertices[2], 
+					//								vertices[3], vertices[4], vertices[5]);
+					//					}
 				}
 			}
-
-			// draw thick black borders
 			sr.end();
+			batch.begin();
+		}
+		
+		
+		drawBorders = drawSpheres;
+		if (drawBorders) {
+			batch.end();
+			// draw thick black borders (no matter what
 			sr.begin(ShapeType.Line);
 			Gdx.gl20.glLineWidth(3);
 			sr.setColor(Color.BLACK);
 			for (Edge e : factionBorderEdges) {
-				sr.line((float) (e.v0.loc.x), (float) (HEIGHT-e.v0.loc.y), (float) (e.v1.loc.x), (float) (HEIGHT-e.v1.loc.y));
+				boolean b = false;
+				for (int i = -1; i < e.subEdges.length; i++) {
+					if (e.war(this))
+						b = !b;
+					if (b) {
+						continue;
+					}
+					PointH start, end;
+					if (i == -1) {
+						start = e.v0.loc;
+					}
+					else start = e.subEdges[i];
+					if (i == e.subEdges.length - 1) {
+						end = e.v1.loc;
+					}
+					else end = e.subEdges[i + 1];
+					sr.line((float)start.x,(float)(HEIGHT-start.y),(float) end.x, (float)(HEIGHT-end.y));
+				}
+				//				sr.line((float) (e.v0.loc.x), (float) (HEIGHT-e.v0.loc.y), (float) (e.v1.loc.x), (float) (HEIGHT-e.v1.loc.y));
 				// to smooth out line
 				//				sr.x((float) (e.v0.loc.x), (float) (HEIGHT-e.v0.loc.y), 0);
 				//				sr.x((float) (e.v1.loc.x), (float) (HEIGHT-e.v1.loc.y), 0);
@@ -1012,6 +1136,12 @@ public class Map extends Actor {
 			//			}
 			sr.end();
 			batch.begin();
+		}
+	}
+
+	public void assignRoads() {
+		for (Edge e : vg.edges) {
+			e.restoreFromVoronoi(vg);
 		}
 	}
 

@@ -19,15 +19,11 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 
 public class Assets {
-	private static int cityCount = 30;
 
-	private static int castleCount = 10;
-	private static int ruinCount = 10;
-	private static int villageCount = 21;
-	public static Array<String> cityNames;
-	public static Array<String> villageNames;
-	public static Array<String> castleNames;
-	public static Array<String> ruinNames;
+//	public static Array<String> cityNames;
+//	public static Array<String> villageNames;
+//	public static Array<String> castleNames;
+//	public static Array<String> ruinNames;
 	//	public static Scanner cityList;
 	//	public static Scanner villageList;
 	public static TextureAtlas atlas;
@@ -75,6 +71,8 @@ public class Assets {
 		units = new TextureAtlas(Gdx.files.internal("units.atlas"));
 		map = new TextureAtlas(Gdx.files.internal("map.atlas"));
 		
+		NameGenerator.init();
+		
 		// load units
 		UnitLoader.load("basic");
 
@@ -82,133 +80,133 @@ public class Assets {
 		thunder1 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder1.wav"));
 		thunder2 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder2.wav"));
 		
-		String[] cities = {
-				"Catterick",
-				"Colne",
-				"Fotheringhay",
-				"Hawarden",
-				"Gloucester",
-				"Furness",
-				"Weobley",
-				"Billinghame",
-				"Portishead",
-				"Oakham",
-				"Warkworth",
-				"Kidwelly",
-				"Brading",
-				"Hayton",
-				"Neville",
-				"Portsmouth",
-				"Colchester",
-				"Newstead",
-				"Sheffield",
-				"Salisbury",
-				"Knaresborough",
-				"Norham",
-				"Brackley",
-				"Elstow",
-				"Bloxham",
-				"Rhuddlan",
-				"Dudley",
-				"Scunthorpe",
-				"Hexham",
-				"Usk",
-				"Bebington",
-				"Wilton",
-				"Minster",
-				"Walpole",
-				"Lewes",
-				"Bamburgh",
-				"Buildwas",
-				"Pebmarsh",
-				"Oxford",
-				"Oxted"
-		};
+//		String[] cities = {
+//				"Catterick",
+//				"Colne",
+//				"Fotheringhay",
+//				"Hawarden",
+//				"Gloucester",
+//				"Furness",
+//				"Weobley",
+//				"Billinghame",
+//				"Portishead",
+//				"Oakham",
+//				"Warkworth",
+//				"Kidwelly",
+//				"Brading",
+//				"Hayton",
+//				"Neville",
+//				"Portsmouth",
+//				"Colchester",
+//				"Newstead",
+//				"Sheffield",
+//				"Salisbury",
+//				"Knaresborough",
+//				"Norham",
+//				"Brackley",
+//				"Elstow",
+//				"Bloxham",
+//				"Rhuddlan",
+//				"Dudley",
+//				"Scunthorpe",
+//				"Hexham",
+//				"Usk",
+//				"Bebington",
+//				"Wilton",
+//				"Minster",
+//				"Walpole",
+//				"Lewes",
+//				"Bamburgh",
+//				"Buildwas",
+//				"Pebmarsh",
+//				"Oxford",
+//				"Oxted"
+//		};
 
-		cityNames = new Array<String>();
-		for (int i = 0; i < cityCount; i++) 
-			cityNames.add(cities[i]);
+//		cityNames = new Array<String>();
+//		for (int i = 0; i < cityCount; i++) 
+//			cityNames.add(cities[i]);
 
-		String[] castlesVillages = {
-				"Lewes",
-				"Deal",
-				"Bytham",
-				"Ely",
-				"Northhallterton",
-				"Lacock",
-				"Leiston",
-				"Neath",
-				"Ipswich",
-				"Bushbury",
-				"Holbeach",
-				"Bodiam",
-				"Runnymede",
-				"Pebmarsh",
-				"Rothley",
-				"Folkingham",
-				"Bamburgh",
-				"Mold",
-				"Milford",
-				"Castor",
-				"Ebbsfleet",
-				"Egremount",
-				"Bowes",
-				"Radcliffe",
-				"Drayton",
-				"Brackley",
-				"Peterborough",
-				"Hay",
-				"Axminster",
-				"Avon",
-				"Ilchester",
-				"Tavistock",
-				"Deanwy",
-				"Stretton",
-				"Cheltenham",
-				"Dyserth",
-				"Arundel",
-				"Teignmouth",
-				"Bangor",
-				"Brecon",
-				"Billinghame",
-				"Bridport",
-				"Barborough",
-				"Romsey",
-				"Alton",
-				"Bridgewater",
-				"Neath",
-				"Hartlepool",
-				"Crediton",
-				"Ripley",
-				"Spalding",
-				"Bath",
-				"Uffington",
-				"Bardney",
-				"Haddon",
-				"Otterburn",
-				"Huyton",
-				"Starford",
-				"Belvoir",
-				"Walpole",
-				"Oxford",
-				"Deerhurst",
-				"Tynemouth",
-				"Newcastle",
-				"Haverfordwest",
-				"Selby",
-				"Cambridge",
-				"Swansea",
-				"Albans",
-				"Walsingham",
-				"Baldock",
-				"Hutton",
-				"Wigmore",
-				"Worthing",
-				"Carlisle",
-				"Elmham",
-				"Oswestry",
-				"Cricklade",
-				"Evesham",
+//		String[] castlesVillages = {
+//				"Lewes",
+//				"Deal",
+//				"Bytham",
+//				"Ely",
+//				"Northhallterton",
+//				"Lacock",
+//				"Leiston",
+//				"Neath",
+//				"Ipswich",
+//				"Bushbury",
+//				"Holbeach",
+//				"Bodiam",
+//				"Runnymede",
+//				"Pebmarsh",
+//				"Rothley",
+//				"Folkingham",
+//				"Bamburgh",
+//				"Mold",
+//				"Milford",
+//				"Castor",
+//				"Ebbsfleet",
+//				"Egremount",
+//				"Bowes",
+//				"Radcliffe",
+//				"Drayton",
+//				"Brackley",
+//				"Peterborough",
+//				"Hay",
+//				"Axminster",
+//				"Avon",
+//				"Ilchester",
+//				"Tavistock",
+//				"Deanwy",
+//				"Stretton",
+//				"Cheltenham",
+//				"Dyserth",
+//				"Arundel",
+//				"Teignmouth",
+//				"Bangor",
+//				"Brecon",
+//				"Billinghame",
+//				"Bridport",
+//				"Barborough",
+//				"Romsey",
+//				"Alton",
+//				"Bridgewater",
+//				"Neath",
+//				"Hartlepool",
+//				"Crediton",
+//				"Ripley",
+//				"Spalding",
+//				"Bath",
+//				"Uffington",
+//				"Bardney",
+//				"Haddon",
+//				"Otterburn",
+//				"Huyton",
+//				"Starford",
+//				"Belvoir",
+//				"Walpole",
+//				"Oxford",
+//				"Deerhurst",
+//				"Tynemouth",
+//				"Newcastle",
+//				"Haverfordwest",
+//				"Selby",
+//				"Cambridge",
+//				"Swansea",
+//				"Albans",
+//				"Walsingham",
+//				"Baldock",
+//				"Hutton",
+//				"Wigmore",
+//				"Worthing",
+//				"Carlisle",
+//				"Elmham",
+//				"Oswestry",
+//				"Cricklade",
+//				"Evesham",
 
 //				"Lewes2",
 //				"Deal2",
@@ -289,32 +287,32 @@ public class Assets {
 //				"Oswestry2",
 //				"Cricklade2",
 //				"Evesham2",
-				"Harcourt"
-		};
-		villageNames = new Array<String>();
-		for (int i = 0; i < villageCount; i++) 
-			villageNames.add(castlesVillages[i]);
-						
-		// go backwards in list for castles and ruins, starting from bottom
-		castleNames = new Array<String>();		
-		int castleIndex = villageNames.size;
-		while (castleNames.size < castleCount) {
-			if (castlesVillages[castleIndex].length() < 8) {
-				if (Math.random() < .7)
-					castleNames.add(castlesVillages[castleIndex] + " Castle");
-				else castleNames.add(castlesVillages[castleIndex] + " Fortress");
-			}
-			castleIndex++;
-		}
-		
-		ruinNames = new Array<String>();
-		int ruinIndex = castleIndex;
-		while (ruinNames.size < ruinCount) {
-			if (castlesVillages[ruinIndex].length() < 8) {
-				ruinNames.add(castlesVillages[ruinIndex] + " Ruins");
-			}
-			ruinIndex++;
-		}
+//				"Harcourt"
+//		};
+//		villageNames = new Array<String>();
+//		for (int i = 0; i < villageCount; i++) 
+//			villageNames.add(castlesVillages[i]);
+//						
+//		// go backwards in list for castles and ruins, starting from bottom
+//		castleNames = new Array<String>();		
+//		int castleIndex = villageNames.size;
+//		while (castleNames.size < castleCount) {
+//			if (castlesVillages[castleIndex].length() < 8) {
+//				if (Math.random() < .7)
+//					castleNames.add(castlesVillages[castleIndex] + " Castle");
+//				else castleNames.add(castlesVillages[castleIndex] + " Fortress");
+//			}
+//			castleIndex++;
+//		}
+//		
+//		ruinNames = new Array<String>();
+//		int ruinIndex = castleIndex;
+//		while (ruinNames.size < ruinCount) {
+//			if (castlesVillages[ruinIndex].length() < 8) {
+//				ruinNames.add(castlesVillages[ruinIndex] + " Ruins");
+//			}
+//			ruinIndex++;
+//		}
 		
 		//		cityList = new Scanner(Gdx.files.internal("mapSmall.txt").readString());
 		//		cityList = new Scanner(Gdx.files.internal("map40.txt").readString());

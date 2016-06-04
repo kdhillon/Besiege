@@ -1,10 +1,10 @@
 package kyle.game.besiege.battle;
 
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
-
-import com.badlogic.gdx.utils.Array;
 
 public class BattleParty {
 
@@ -109,7 +109,7 @@ public class BattleParty {
 	public void calcMinSpeed() {
 		float min = Float.MAX_VALUE;
 		for (Unit unit : units) {
-			if (unit.retreating || unit.bowOut()) continue;
+			if (unit.retreating) continue;
 			if (unit.spd < min) min = unit.spd;
 		}
 		this.minSpeed = min;

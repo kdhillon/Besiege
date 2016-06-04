@@ -93,9 +93,9 @@ public class Faction {
 	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
 	public Array<Center> centers; // centers under influence of this faction
 	public Array<Polygon> territory; // polygon of all centers
-	public transient Array<Faction> atPeace;
-	public transient Array<Faction> atWar;
-	public Array<Integer> atWarInt;
+	public Array<Faction> atPeace;
+	public Array<Faction> atWar;
+//	public Array<Integer> atWarInt;
 	public Array<Faction> allies;
 
 	// this keeps track of historical relations -- long peace increases this, long war decreases this
@@ -146,7 +146,7 @@ public class Faction {
 		faction_center_y = 0;
 
 		atWar = new Array<Faction>();
-		atWarInt = new Array<Integer>();
+//		atWarInt = new Array<Integer>();
 		atPeace = new Array<Faction>();
 		allies = new Array<Faction>();
 	}
@@ -175,7 +175,7 @@ public class Faction {
 	public void removeOther(Faction faction) {
 		kingdom.factions.removeValue(faction, true);
 		atWar.removeValue(faction, true);
-		atWarInt.removeValue(faction.index, true);
+//		atWarInt.removeValue(faction.index, true);
 		atPeace.removeValue(faction, true);
 
 		//		allied.removeValue(faction, true);
@@ -195,7 +195,7 @@ public class Faction {
 	}
 
 	public void act(float delta) {
-		if (this.atWar == null || this.atPeace == null) refreshAtWar();
+//		if (this.atWar == null || this.atPeace == null) refreshAtWar();
 
 		//		timeSinceIncrease += delta;
 
@@ -264,7 +264,7 @@ public class Faction {
 	}
 
 	public void manageDiplomacy() {
-		if (this.atWar == null || this.atPeace == null) refreshAtWar();
+//		if (this.atWar == null || this.atPeace == null) refreshAtWar();
 		for (Faction that : this.atWar) {
 			if (Math.random() < PEACE_PROBABILITY && 
 					that != Faction.BANDITS_FACTION &&
@@ -363,7 +363,7 @@ public class Faction {
 		//		}
 
 		//		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles");
-		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles", "magenta");
+//		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles", "magenta");
 
 		for (Noble n : unoccupiedNobles) {
 			setTask(n, location);
@@ -372,7 +372,7 @@ public class Faction {
 	}
 	public void cancelSiegeOf(Location location) {
 		locationsToAttack.removeValue(location, true);
-		BottomPanel.log(this.name + " is cancelling siege of " + location.getName(), "magenta");
+//		BottomPanel.log(this.name + " is cancelling siege of " + location.getName(), "magenta");
 		for (Noble noble : this.nobles) {
 			if (noble.specialTargetToBesiege == location) {
 				endTask(noble);
@@ -576,16 +576,16 @@ public class Faction {
 	//		closeFriendlyLocations = new Array<City>(tempCloseFriendlyCities);
 	//	}
 
-	public void refreshAtWar() {
-		this.atWar = new Array<Faction>();
-		this.atPeace = new Array<Faction>();
-		for (int i : this.atWarInt) {
-			this.atWar.add(kingdom.factions.get(i));
-		}
-		for (Faction f : kingdom.factions) {
-			if (!this.atWar.contains(f, true)) atPeace.add(f);;
-		}
-	}
+//	public void refreshAtWar() {
+//		this.atWar = new Array<Faction>();
+//		this.atPeace = new Array<Faction>();
+//		for (int i : this.atWarInt) {
+//			this.atWar.add(kingdom.factions.get(i));
+//		}
+//		for (Faction f : kingdom.factions) {
+//			if (!this.atWar.contains(f, true)) atPeace.add(f);;
+//		}
+//	}
 
 	//	/** Calculates negative effect of close cities on the relations
 	//	 *  between two factions
@@ -679,12 +679,12 @@ public class Faction {
 	//	}
 
 	public boolean atWar(Faction that) {
-		if (this.atWar == null || this.atPeace == null) { 
-			refreshAtWar(); 
-		}
-		if (that.atWar == null || that.atPeace == null) { 
-			that.refreshAtWar(); 
-		}
+//		if (this.atWar == null || this.atPeace == null) { 
+//			refreshAtWar(); 
+//		}
+//		if (that.atWar == null || that.atPeace == null) { 
+//			that.refreshAtWar(); 
+//		}
 		if (this.atWar.contains(that, true) != that.atWar.contains(this,  true)) {
 			System.out.println(this.name + " and " + that.name + " don't have the same war status");
 			throw new java.lang.RuntimeException();
@@ -693,22 +693,22 @@ public class Faction {
 	}
 
 	public boolean alliedWith(Faction that) {
-		if (this.atWar == null || this.atPeace == null) { 
-			refreshAtWar(); 
-		}
-		if (that.atWar == null || that.atPeace == null) { 
-			that.refreshAtWar(); 
-		}
+//		if (this.atWar == null || this.atPeace == null) { 
+//			refreshAtWar(); 
+//		}
+//		if (that.atWar == null || that.atPeace == null) { 
+//			that.refreshAtWar(); 
+//		}
 		return this.allies.contains(that, true);
 	}
 
 	public boolean atPeace(Faction that) {
-		if (this.atWar == null || this.atPeace == null) { 
-			refreshAtWar(); 
-		}
-		if (that.atWar == null || that.atPeace == null) { 
-			that.refreshAtWar(); 
-		}
+//		if (this.atWar == null || this.atPeace == null) { 
+//			refreshAtWar(); 
+//		}
+//		if (that.atWar == null || that.atPeace == null) { 
+//			that.refreshAtWar(); 
+//		}
 		if (this.atPeace.contains(that, true) != that.atPeace.contains(this,  true)) {
 			System.out.println(this.name + " and " + that.name + " don't have the same peace status");
 			throw new java.lang.RuntimeException();
@@ -730,11 +730,11 @@ public class Faction {
 
 		if (!this.atWar.contains(that, true)) {
 			this.atWar.add(that);
-			this.atWarInt.add(that.index);
+//			this.atWarInt.add(that.index);
 		}
 		if (!that.atWar.contains(this, true)){
 			that.atWar.add(this);
-			that.atWarInt.add(this.index);
+//			that.atWarInt.add(this.index);
 		}
 
 		//		if (!this.atPeace.removeValue(that, true)) throw new java.lang.RuntimeException();
@@ -766,9 +766,9 @@ public class Faction {
 		//		}
 
 		this.atWar.removeValue(that, true);
-		this.atWarInt.removeValue(that.index, true);
+//		this.atWarInt.removeValue(that.index, true);
 		that.atWar.removeValue(this, true);
-		that.atWarInt.removeValue(this.index, true);
+//		that.atWarInt.removeValue(this.index, true);
 		this.atPeace.add(that);
 		that.atPeace.add(this);
 

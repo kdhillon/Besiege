@@ -20,11 +20,9 @@ public class PanelCenter extends Panel {
 	private SidePanel panel;
 	private Center center;
 	private Table text;
-	private Label name;
+	private Label regionC;
 	private Label biome;
 	private Label faction;
-//	private Label honor;
-//	private Label faction;
 	private Label title;
 	
 	public PanelCenter(SidePanel panel, Center center) {
@@ -34,7 +32,7 @@ public class PanelCenter extends Panel {
 				
 		// Create text
 		text = new Table();
-		//text.debug();
+//		text.debug();
 		text.defaults().padTop(NEG);
 		
 		LabelStyle ls30 = new LabelStyle();
@@ -42,27 +40,27 @@ public class PanelCenter extends Panel {
 		LabelStyle ls24 = new LabelStyle();
 		ls24.font = Assets.pixel20;
 		
-		Label nameC = new Label("Name:", ls24);
 		Label factionC = new Label("Faction:", ls24);
 		Label biomeC = new Label("Biome:", ls24); 
 
-		name = new Label("", ls30);
-		name.setAlignment(0,0);
+		regionC = new Label("Region", ls24);
+		regionC.setAlignment(0,0);
 
 		biome = new Label("" ,ls24);
 		faction = new Label("", ls24);
-		title = new Label("Region", ls24);
+		title = new Label(center.getName(), ls30);
+		title.setAlignment(0,0);
 		
-		text.add(title).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX();
+		text.add(title).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
 		text.row();
-		text.add(nameC).left();
-		text.add(name).right();
+		text.add(regionC).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
 		text.row();
 		text.add(biomeC).left();
-		text.add(biome).right();
+		biome.setWrap(true);
+		text.add(biome).left().fillX().expandX().padLeft(PAD);
 		text.row();
 		text.add(factionC).left();
-		text.add(faction).right();
+		text.add(faction).left().fillX().expandX().padLeft(PAD);
 //		text.row();
 //		text.add(fameC).left();
 //		text.add(fame).right();
@@ -79,7 +77,6 @@ public class PanelCenter extends Panel {
 	
 	@Override
 	public void act(float delta) {
-		name.setText(center.getName());
 		biome.setText(center.biome.toString());
 		if (center.faction != null)
 			faction.setText(center.faction.name);

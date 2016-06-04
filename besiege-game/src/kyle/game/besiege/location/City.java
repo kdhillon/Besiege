@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Array;
 public class City extends Location {
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
-	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest number of cities possible
+//	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest number of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
@@ -63,10 +63,10 @@ public class City extends Location {
 		this.getFaction().cities.add(this);
 				
 		merchants = new Array<Merchant>();
-		merchantExists = new boolean[CITY_UPPER_VALUE];
+		merchantExists = new boolean[Kingdom.cityCount];
 		
 		raiders = new Array<RaidingParty>();
-		raiderExists = new boolean[CITY_UPPER_VALUE];
+		raiderExists = new boolean[Kingdom.cityCount];
 		
 		nobles = new Array<Noble>();
 
@@ -143,8 +143,7 @@ public class City extends Location {
 	public void addNoble(Noble noble) {
 		assert(!this.nobles.contains(noble, true));
 		this.nobles.add(noble);
-		noble.home = this;
-		noble.updateName();
+		noble.setHome(this);
 	}
 	
 //	public void createRaider() {
