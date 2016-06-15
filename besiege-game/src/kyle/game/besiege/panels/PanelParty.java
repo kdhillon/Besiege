@@ -5,12 +5,6 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.SoldierLabel;
-
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -26,8 +20,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.StrictArray;
+import kyle.game.besiege.army.Army;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.SoldierLabel;
 
 public class PanelParty extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
@@ -43,6 +43,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	private Table text;
 	private Label title;
 	private Label faction;
+	private Label general;
 	private Label action;
 	
 	private Label size;
@@ -109,11 +110,17 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		faction = new Label("", lsFaction);
 		faction.setAlignment(0,0);
 		
+		general = new Label("", ls);
+		general.setAlignment(0,0);
+		
 		// testing
 		title.setText(army.getName());
+//		if (army.isNoble()) {
+//			title.setText(army.getGeneral().getTitle());
+//		}
 
+		general.setText(army.party.getGeneral().getName());
 		faction.setText(army.getFactionName());
-
 
 		faction.addListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
@@ -155,6 +162,10 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
 		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
 		text.row();
+		if (!party.player){
+			text.add(general).colspan(4).padBottom(MINI_PAD).fillX().expandX();
+			text.row();
+		}
 		text.add(faction).colspan(4).padBottom(MINI_PAD).fillX().expandX();
 		text.row();
 		text.add(action).colspan(4).padBottom(MINI_PAD).fillX().expandX();
@@ -335,8 +346,8 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	}
 	
 	// this method is evil don't call this frequently
-	public static void updateTableWithTypes(Table table, Array<Array<Soldier>> types, LabelStyle style) {
-		for (Array<Soldier> type : types) {
+	public static void updateTableWithTypes(Table table, StrictArray<StrictArray<Soldier>> types, LabelStyle style) {
+		for (StrictArray<Soldier> type : types) {
 			Label name = new Label(type.first().getTypeName(), style);
 			name.setColor(type.first().unitType.unitClass.color);
 			table.add(name).left();
@@ -346,7 +357,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		}
 	}
 	
-	public static void updateTableWithSoldiers(Table table, Array<Soldier> soldiers, LabelStyle style) {
+	public static void updateTableWithSoldiers(Table table, StrictArray<Soldier> soldiers, LabelStyle style) {
 		for (Soldier s : soldiers) {
 			SoldierLabel name = new SoldierLabel(s.getTypeName(), style, s);
 			name.addListener(new ClickListener() {

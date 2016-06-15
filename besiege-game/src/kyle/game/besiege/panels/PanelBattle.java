@@ -5,32 +5,24 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Character;
-import kyle.game.besiege.MiniMap;
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.army.ArmyPlayer;
-import kyle.game.besiege.battle.Battle;
-import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.battle.Unit.Stance;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.SoldierLabel;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.StrictArray;
+import kyle.game.besiege.army.Army;
+import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.Soldier;
 
 public class PanelBattle extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
@@ -328,21 +320,25 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		if (battleStage != null) {
 			if (battle.playerInA || battle.playerInD) {
 				if (!battleStage.placementPhase) {
-					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
-						//						retreatSet = true;
-						this.setButton(1, "Retreat!");
-						this.getButton(1).setDisabled(false);
-					}
-					else if (!(battleStage.retreatTimerPlayer <= 0)) {
-						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
-						this.getButton(1).setDisabled(true);
-					}
-					else if (battleStage.allies.retreating) {
-						this.setButton(1, "Retreat!");
-						this.getButton(1).setDisabled(true);
-						this.getButton(1).setVisible(true);
-						this.getButton(2).setDisabled(true);
-					}
+					
+					// TODO remove comment
+//					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
+//						//						retreatSet = true;
+//						this.setButton(1, "Retreat!");
+//						this.getButton(1).setDisabled(false);
+//					}
+//					else if (!(battleStage.retreatTimerPlayer <= 0)) {
+//						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
+//						this.getButton(1).setDisabled(true);
+//					}
+					
+					// TODO remove comment
+//					else if (battleStage.allies.retreating) {
+//						this.setButton(1, "Retreat!");
+//						this.getButton(1).setDisabled(true);
+//						this.getButton(1).setVisible(true);
+//						this.getButton(2).setDisabled(true);
+//					}
 				}
 				else {
 					this.setButton(1, battleStage.currentFormation.name);
@@ -413,8 +409,10 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 
 		if (battleStage != null && !battleStage.placementPhase) {
 			this.setButton(2, "Charge!");
-			if (battleStage.allies.stance == Stance.AGGRESSIVE)
-				this.getButton(2).setDisabled(true);
+			
+			// TODO remove comment
+//			if (battleStage.allies.stance == Stance.AGGRESSIVE)
+//				this.getButton(2).setDisabled(true);
 			//			else this.setButton(2, null);
 		}
 
@@ -525,7 +523,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		updateTable(dRetTable, battle.dPartiesRet);
 	}
 
-	public void updateTable(Table table, Array<Party> parties) {
+	public void updateTable(Table table, StrictArray<Party> parties) {
 		table.clear();
 		boolean retreat = false;
 		if (table == aRetTable || table == dRetTable)
@@ -555,7 +553,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			// do consolidated view
 
 
-			//			for (Array<Soldier> type : types) {
+			//			for (StrictArray<Soldier> type : types) {
 			//				Label name = new Label(type.first().name, lsSmall);
 			//				table.add(name).left();
 			//				Label count = new Label(type.size + "", lsSmall);
@@ -563,9 +561,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			//				table.row();
 			//			}
 
-			Array<Array<Soldier>> consolHealthy = party.getConsolHealthy();
+			StrictArray<StrictArray<Soldier>> consolHealthy = party.getConsolHealthy();
 
-			for (Array<Soldier> as : consolHealthy) {
+			for (StrictArray<Soldier> as : consolHealthy) {
 				Label name = new Label(as.first().getTypeName(), lsSmall);
 
 				//				name.setWrap(true);
@@ -585,9 +583,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 				table.row();
 			}
 
-			Array<Array<Soldier>> consolWounded = party.getConsolWounded();
+			StrictArray<StrictArray<Soldier>> consolWounded = party.getConsolWounded();
 
-			for (Array<Soldier> as : consolWounded) {
+			for (StrictArray<Soldier> as : consolWounded) {
 				Label name = new Label(as.first().getTypeName(), lsSmallG);
 
 				//				name.setWrap(true);
@@ -693,7 +691,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			}
 			else {
 				if (battleStage.placementPhase) {
-					this.battleStage.toNextFormation();
+//					this.battleStage.toNextFormation();
 				}
 				else {
 					battleStage.placementPhase = false;
@@ -713,7 +711,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			else {
 				// toggle stance
 				if (battleStage.placementPhase) {
-					this.battleStage.togglePlayerStance();
+//					this.battleStage.togglePlayerStance();
 				}
 				// charge all (move "Begin!" to button 3)
 				else {

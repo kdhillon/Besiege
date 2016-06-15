@@ -8,7 +8,6 @@ package kyle.game.besiege;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.battle.Battle;
@@ -79,28 +78,28 @@ public class Faction {
 	public String textureName;
 	transient public TextureRegion crest; // will have to load this separately
 	public Color color;
-	public Array<City> cities;
-	public Array<Castle> castles;
-	public Array<City> closeEnemyCities;
-	public Array<Castle> closeEnemyCastles;
-	public Array<Village> closeEnemyVillages;
-	//	public Array<Location> closeEnemyLocations;
-	public Array<City> closeFriendlyCities;
-	public Array<Castle> closeFriendlyCastles;
-	//	public Array<Village> closeFriendlyVillages;
-	public Array<Noble> nobles;
-	public Array<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
-	public Array<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
-	public Array<Center> centers; // centers under influence of this faction
-	public Array<Polygon> territory; // polygon of all centers
-	public Array<Faction> atPeace;
-	public Array<Faction> atWar;
-//	public Array<Integer> atWarInt;
-	public Array<Faction> allies;
+	public StrictArray<City> cities;
+	public StrictArray<Castle> castles;
+	public StrictArray<City> closeEnemyCities;
+	public StrictArray<Castle> closeEnemyCastles;
+	public StrictArray<Village> closeEnemyVillages;
+	//	public StrictArray<Location> closeEnemyLocations;
+	public StrictArray<City> closeFriendlyCities;
+	public StrictArray<Castle> closeFriendlyCastles;
+	//	public StrictArray<Village> closeFriendlyVillages;
+	public StrictArray<Noble> nobles;
+	public StrictArray<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
+	public StrictArray<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
+	public StrictArray<Center> centers; // centers under influence of this faction
+	public StrictArray<Polygon> territory; // polygon of all centers
+	public StrictArray<Faction> atPeace;
+	public StrictArray<Faction> atWar;
+//	public StrictArray<Integer> atWarInt;
+	public StrictArray<Faction> allies;
 
 	// this keeps track of historical relations -- long peace increases this, long war decreases this
-	public Array<Integer> warEffects; // negative if war, positive if peace, etc
-	//	public Array<Faction> allied;
+	public StrictArray<Integer> warEffects; // negative if war, positive if peace, etc
+	//	public StrictArray<Faction> allied;
 
 	// this was the cause of a lot of Kryo errors
 	// NOTE: KRYO ERRORS READ BOTTOM TO TOP
@@ -115,9 +114,9 @@ public class Faction {
 
 	private final int NOBLE_COUNT = 5; //TODO
 
-	//	private static Array<Array<Integer>> factionMilitaryAction; // is this worth it?
-	//	private static Array<Array<Integer>> factionNearbyCities; // not needed, calced in real time?
-	//	private static Array<Array<Integer>> factionTrade;
+	//	private static StrictArray<StrictArray<Integer>> factionMilitaryAction; // is this worth it?
+	//	private static StrictArray<StrictArray<Integer>> factionNearbyCities; // not needed, calced in real time?
+	//	private static StrictArray<StrictArray<Integer>> factionTrade;
 
 	public Faction() {}
 
@@ -128,33 +127,33 @@ public class Faction {
 		crest = Assets.atlas.findRegion(textureRegion);
 		this.color = color;
 
-		nobles = new Array<Noble>();
-		unoccupiedNobles = new Array<Noble>();
-		cities = new Array<City>();
-		castles = new Array<Castle>();
-		centers = new Array<Center>();
-		territory = new Array<Polygon>();
-		//		closeEnemyLocations = new Array<Location>();
-		closeEnemyCities = new Array<City>();
-		closeEnemyCastles = new Array<Castle>();
-		closeEnemyVillages = new Array<Village>();
-		closeFriendlyCities = new Array<City>();
-		closeFriendlyCastles = new Array<Castle>();
+		nobles = new StrictArray<Noble>();
+		unoccupiedNobles = new StrictArray<Noble>();
+		cities = new StrictArray<City>();
+		castles = new StrictArray<Castle>();
+		centers = new StrictArray<Center>();
+		territory = new StrictArray<Polygon>();
+		//		closeEnemyLocations = new StrictArray<Location>();
+		closeEnemyCities = new StrictArray<City>();
+		closeEnemyCastles = new StrictArray<Castle>();
+		closeEnemyVillages = new StrictArray<Village>();
+		closeFriendlyCities = new StrictArray<City>();
+		closeFriendlyCastles = new StrictArray<Castle>();
 
-		locationsToAttack = new Array<Location>();
+		locationsToAttack = new StrictArray<Location>();
 		faction_center_x = 0;
 		faction_center_y = 0;
 
-		atWar = new Array<Faction>();
-//		atWarInt = new Array<Integer>();
-		atPeace = new Array<Faction>();
-		allies = new Array<Faction>();
+		atWar = new StrictArray<Faction>();
+//		atWarInt = new StrictArray<Integer>();
+		atPeace = new StrictArray<Faction>();
+		allies = new StrictArray<Faction>();
 	}
 
 	// should only be called once per faction
 	public void initializeRelations() {
 		//		System.out.println(this.name + " initializing relations");
-		warEffects = new Array<Integer>();
+		warEffects = new StrictArray<Integer>();
 
 		for (Faction f : kingdom.factions) {
 			//			System.out.println("adding war effect " + f.name);
@@ -545,8 +544,8 @@ public class Faction {
 	//	 *  that list
 	//	 *  TODO review this process and make sure it works */
 	//	public void updateCloseHostileCities() {
-	//		Array<City> tempCloseEnemyCities = new Array<City>();
-	//		Array<City> tempCloseFriendlyCities = new Array<City>();
+	//		StrictArray<City> tempCloseEnemyCities = new StrictArray<City>();
+	//		StrictArray<City> tempCloseFriendlyCities = new StrictArray<City>();
 	//		//System.out.println(this.name + ":");
 	//
 	//
@@ -572,13 +571,13 @@ public class Faction {
 	//				}
 	//			}
 	//		}
-	//		closeEnemyLocations = new Array<City>(tempCloseEnemyCities);
-	//		closeFriendlyLocations = new Array<City>(tempCloseFriendlyCities);
+	//		closeEnemyLocations = new StrictArray<City>(tempCloseEnemyCities);
+	//		closeFriendlyLocations = new StrictArray<City>(tempCloseFriendlyCities);
 	//	}
 
 //	public void refreshAtWar() {
-//		this.atWar = new Array<Faction>();
-//		this.atPeace = new Array<Faction>();
+//		this.atWar = new StrictArray<Faction>();
+//		this.atPeace = new StrictArray<Faction>();
 //		for (int i : this.atWarInt) {
 //			this.atWar.add(kingdom.factions.get(i));
 //		}

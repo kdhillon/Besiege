@@ -5,13 +5,7 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.battle.Battle;
-import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.battle.Unit;
-import kyle.game.besiege.battle.Unit.Stance;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
+import java.text.DecimalFormat;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -21,10 +15,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.battle.Unit;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.Soldier;
+
 public class PanelUnit extends Panel { 
-	private final float PAD = 10;
-	private final float MINI_PAD = 5;
-	private final float NEG = -5;
+	protected static final float PAD = 10;
+	protected static final float MINI_PAD = 5;
+	public final float NEG = -5;
 	private final float DESC_HEIGHT = 530;
 	private final int r = 3;
 	private final String tablePatch = "grey-d9";
@@ -34,51 +35,74 @@ public class PanelUnit extends Panel {
 	private Battle battle;
 	private SidePanel panel;
 	private Unit unit;
-	private Soldier soldier;
+	protected Soldier soldier;
 	private int max_hp;
 	private Party party;
-	
-	private Table text;
-	private Label title;
-	private Label subTitle;
+
+	protected Table text;
+	protected Label title;
+	protected Label subTitle;
 	private Label armyName;
 	private Label partyName;
 	private Label type;
-	
+
 	private Table health;
 	private Table red;
 	private Table green;
-	
-//	private Table stats;
-//	private Label nameS;
-	private Label levelS;
-	private Label hpS;
-	private Label expS;
-	private Label atkS;
-	private Label defS;
-	private Label spdS;
+
+	//	private Table stats;
+	//	private Label nameS;
+	protected Label atkSC;
+	protected Label defSC;
+	protected Label levelSC;
+	protected Label hpSC;
+	protected Label expSC;
+	protected Label spdSC;
+
+	protected Table generalStats;
+
+	protected Label levelS;
+	protected Label hpS;
+	protected Label expS;
+	protected Label atkS;
+	protected Label defS;
+	protected Label spdS;
 	private Label weaponS;
 	private Label equipmentS;
 	private Label actionS;
-	
-//	private Table soldierTable;
-//	private ScrollPane soldierPane;
-	
-	private LabelStyle ls;
+
+	//	private Table soldierTable;
+	//	private ScrollPane soldierPane;
+
+	protected LabelStyle ls;
 	private LabelStyle lsMed;
 	private LabelStyle lsG;
 
-	public PanelUnit(SidePanel panel, Unit unit) {
+	protected DecimalFormat df = new DecimalFormat("#.00"); 
+
+	// can be used for soldier or unit
+	public PanelUnit(SidePanel panel, Unit unit, Soldier soldier) {
 		this.panel = panel;
+
 		this.unit = unit;
-		this.battleStage = unit.stage;
-		this.battle = this.battleStage.battle;
-		this.soldier = unit.soldier;
-		this.party = unit.party;
+		unit = null;
+		this.unit = null;
+
+		this.party = soldier.party;
+		
+		if (unit != null) {
+			this.battleStage = unit.stage;
+			this.battle = this.battleStage.battle;
+			this.soldier = unit.soldier;
+			soldier = unit.soldier;
+			this.max_hp = unit.calcHP();
+		}
+		else {
+			this.soldier = soldier;
+		}
+
 		this.addParentPanel(panel);
-		
-		this.max_hp = unit.calcHP();
-		
+
 		LabelStyle lsBig = new LabelStyle();
 		lsBig.font = Assets.pixel22;
 		lsMed = new LabelStyle();
@@ -88,23 +112,26 @@ public class PanelUnit extends Panel {
 		lsG = new LabelStyle();
 		lsG.font = Assets.pixel16;
 		lsG.fontColor = Color.GRAY;
-		
-		Label levelSC = 	new Label("Level:", ls);
-		Label hpSC = 		new Label("HP:",ls);
-		Label expSC =		new Label("Height:",ls);
-		Label atkSC =		new Label("Atk:", ls);
-		Label defSC = 		new Label("Def:", ls);
-		Label spdSC = 		new Label("Spd:", ls); 
+
+		levelSC = 	new Label("Level:", ls);
+		hpSC = 		new Label("HP:",ls);
+		expSC =		new Label("Height:",ls);
+
+		atkSC =		new Label("Atk:", ls);
+		defSC = 	new Label("Def:", ls);
+		spdSC = 		new Label("Spd:", ls); 
+
+		generalStats = new Table();
+
 		Label weaponSC = 	new Label("Weapon: ", ls);
 		Label equipmentSC = new Label("Armor: ", ls);
-		
-		
+
 		title = new Label(soldier.getTypeName(), lsBig);
 		title.setColor(soldier.unitType.unitClass.color);
 		title.setAlignment(0,0);
-//		title.setWrap(true); // wrapping messes up click listeners... WTF?
+		//		title.setWrap(true); // wrapping messes up click listeners... WTF?
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
-		
+
 		String name = soldier.getName();
 		if (soldier.female) name += " (f)";
 		else name += " (m)";
@@ -112,58 +139,60 @@ public class PanelUnit extends Panel {
 		subTitle.setColor(Color.WHITE);
 		subTitle.setAlignment(0, 0);
 		subTitle.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
-		
-//		title.addListener(new InputListener() {
-//			public boolean touchDown(InputEvent event, float x,
-//					float y, int pointer, int button) {
-//				return true;
-//			}
-//			public void touchUp(InputEvent event, float x, float y,
-//					int pointer, int button) {
-//				centerCamera();
-//			}
-//		});
-		
+
+		//		title.addListener(new InputListener() {
+		//			public boolean touchDown(InputEvent event, float x,
+		//					float y, int pointer, int button) {
+		//				return true;
+		//			}
+		//			public void touchUp(InputEvent event, float x, float y,
+		//					int pointer, int button) {
+		//				centerCamera();
+		//			}
+		//		});
+
 		armyName = new Label("", ls);
 		if (party.army != null)
 			armyName.setText(party.army.getName());
 		armyName.setAlignment(0,0);
-		
+
 		levelS = new Label("" + soldier.level, ls);
-		hpS = new Label("" + unit.hp, ls);
+		if (unit != null)
+			hpS = new Label("" + unit.hp, ls);
 		expS = new Label("" + soldier.next, ls);
-		atkS = new Label("" + soldier.getAtk(), ls);
-		defS = new Label("" + soldier.getDef(), ls);
+		atkS = new Label("" + df.format(soldier.getAtk()), ls);
+		defS = new Label("" + df.format(soldier.getDef()), ls);
 		spdS = new Label("" + soldier.getSpd(), ls);
 		weaponS = new Label("" + soldier.unitType.melee.name, ls);
-		if (unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
+		if (unit != null && unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
 		weaponS.setAlignment(0,0);
-		
+
 		equipmentS = new Label("", ls);
-		actionS = new Label("" + unit.getStatus(), ls);
-		actionS.setAlignment(0,0);
-		
-		health = new Table();
-		red = new Table();
-		red.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(redPatch), r,r,r,r)));
-		green = new Table();
-		green.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(greenPatch), r,r,r,r)));
+		if (unit != null) {
+			actionS = new Label("" + unit.getStatus(), ls);
+			actionS.setAlignment(0,0);
+			health = new Table();
+			red = new Table();
+			red.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(redPatch), r,r,r,r)));
+			green = new Table();
+			green.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(greenPatch), r,r,r,r)));
+		}
 		
 		// Create text
 		text = new Table();
 		//text.debug();
 		text.defaults().padTop(NEG).left();
-		
-//		title.addListener(new InputListener() {
-//			public boolean touchDown(InputEvent event, float x,
-//					float y, int pointer, int button) {
-//				return true;
-//			}
-//			public void touchUp(InputEvent event, float x, float y,
-//					int pointer, int button) {
-//				centerCamera();
-//			}
-//		});
+
+		//		title.addListener(new InputListener() {
+		//			public boolean touchDown(InputEvent event, float x,
+		//					float y, int pointer, int button) {
+		//				return true;
+		//			}
+		//			public void touchUp(InputEvent event, float x, float y,
+		//					int pointer, int button) {
+		//				centerCamera();
+		//			}
+		//		});
 		text.add(title).colspan(4).fillX().expandX().padBottom(0);
 		text.row();
 		text.add(subTitle).colspan(4).fillX().expandX().padBottom(0);
@@ -173,12 +202,17 @@ public class PanelUnit extends Panel {
 		text.row();
 		text.add(armyName).colspan(4).fillX().expandX();
 		text.row();
-		text.add(health).colspan(4).padTop(MINI_PAD).padBottom(MINI_PAD);
-		text.row();
-		text.add(actionS).colspan(4).fillX().expandX();
-		text.row();
+		if (unit != null) {
+			text.add(health).colspan(4).padTop(MINI_PAD).padBottom(MINI_PAD);
+			text.row();
+			text.add(actionS).colspan(4).fillX().expandX();
+			text.row();
+		}
 		text.add(weaponS).colspan(4).fillX().expandX();
 		text.row();
+		text.add(generalStats).colspan(4).fillX().expandX().padTop(MINI_PAD).padBottom(MINI_PAD);
+		text.row();
+
 		text.add(levelSC).padLeft(PAD);
 		text.add(levelS);
 		text.add(atkSC).padLeft(MINI_PAD);
@@ -199,31 +233,53 @@ public class PanelUnit extends Panel {
 		text.padLeft(MINI_PAD);
 		this.addTopTable(text);
 	}
-	
+
+	// this is probably pretty slow if these strings are being constructed every frame
+	// TODO: an update system.
 	@Override
 	public void act(float delta) {	
+		//		if (!unit.isGeneral()) {
 		levelS.setText("" + soldier.level);
-		hpS.setText("" + unit.hp);
-//		expS.setText("" + soldier.exp);
-		expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
-		atkS.setText("" + unit.atk);
-		defS.setText("" + unit.def);
-		spdS.setText("" + (int) unit.spd);
-		if (unit.isRanged() && unit.attacking == null && unit.quiver > 0) weaponS.setText(soldier.unitType.ranged.name + " (" + unit.quiver + ")");
-		else weaponS.setText(soldier.unitType.melee.name);
 		
-		weaponS.setText(weaponS.getText() + ", " + unit.soldier.unitType.armor.name);
+		if (unit != null) {
+			hpS.setText("" + unit.hp);
+		//		expS.setText("" + soldier.exp);
+			expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
+		}
 		
-		String mounted = "";
-		if (unit.isMounted()) mounted = " (Mounted)";
-		actionS.setText(unit.getStatus() + mounted);
-		
-		health.clear();
-		float totalWidth = SidePanel.WIDTH - PAD;
+		if (unit != null && unit.bowOut()) {
+			atkSC.setText("Pow:");
+			defSC.setText("Rng:");
+			atkS.setText("" + df.format(unit.getRangeDmg()));
+			defS.setText("" + df.format(unit.getBaseRange()));
+		}
+		else {
+			atkSC.setText("Atk:");
+			defSC.setText("Def:");
+			atkS.setText("" + df.format(soldier.getAtk()));
+			defS.setText("" + df.format(soldier.getDef()));
+		}
+		spdS.setText("" + (int) soldier.getSpd());
+		//		}
 
-		health.add(green).width((float) (totalWidth*(unit.hp*1.0/max_hp)));
-		if (totalWidth*(1-(unit.hp*1.0/max_hp)) > 0)
-			health.add(red).width((float) (totalWidth*(1-(unit.hp*1.0/max_hp))));
+		if (unit != null && unit.isRanged() && unit.attacking == null && unit.quiver > 0) weaponS.setText(soldier.unitType.ranged.name + " (" + unit.quiver + ")");
+		else weaponS.setText(soldier.unitType.melee.name);
+
+		weaponS.setText(weaponS.getText() + ", " + soldier.unitType.armor.name);
+
+		String mounted = "";
+		if (unit != null) {
+			if (unit.isMounted()) mounted = " (Mounted)";
+
+			actionS.setText(unit.getStatus() + mounted);
+
+			health.clear();
+			float totalWidth = SidePanel.WIDTH - PAD;
+
+			health.add(green).width((float) (totalWidth*(unit.hp*1.0/max_hp)));
+			if (totalWidth*(1-(unit.hp*1.0/max_hp)) > 0)
+				health.add(red).width((float) (totalWidth*(1-(unit.hp*1.0/max_hp))));
+		}
 		
 		if (battleStage != null) {
 			if (battle.playerInA || battle.playerInD) {
@@ -249,116 +305,116 @@ public class PanelUnit extends Panel {
 				}
 			}
 		}
-		
+
 		if (battleStage != null && !battleStage.placementPhase) {
 			this.setButton(2, "Charge!");
-			if (battleStage.allies.stance == Stance.AGGRESSIVE)
-				this.getButton(2).setDisabled(true);
-//			else this.setButton(2, null);
+			//			if (battleStage.allies.stance == Stance.AGGRESSIVE)
+			//				this.getButton(2).setDisabled(true);
+			//			else this.setButton(2, null);
 		}
-		
-		
+
+
 		super.act(delta);
 	}
-	
-//	public void setStats(Soldier s) {
-//		stats.setVisible(true);
-//		nameS.setText(s.name + "");
-//		levelS.setText(s.level + "");
-//		expS.setText(s.exp + "");
-//		nextS.setText(s.next + "");
-//		if (s.bonusAtk >= 0)
-//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
-//		else 
-//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
-//		if (s.bonusDef >= 0)
-//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
-//		else 
-//			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
-//		if (s.bonusSpd >= 0)
-//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
-//		else 
-//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
-//		weaponS.setText(s.weapon.name);
-//	}
-	
-//	public void clearStats() {
-//		stats.setVisible(false);
-//	}
-//	
-//	public void setActiveFaction() {
-//		panel.setActiveFaction(location.getFaction());
-//	}
-//	public void centerCamera() {
-//		OrthographicCamera camera = panel.getKingdom().getMapScreen().getCamera();
-//		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
-//	}
-	
-	
+
+	//	public void setStats(Soldier s) {
+	//		stats.setVisible(true);
+	//		nameS.setText(s.name + "");
+	//		levelS.setText(s.level + "");
+	//		expS.setText(s.exp + "");
+	//		nextS.setText(s.next + "");
+	//		if (s.bonusAtk >= 0)
+	//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
+	//		else 
+	//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
+	//		if (s.bonusDef >= 0)
+	//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
+	//		else 
+	//			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
+	//		if (s.bonusSpd >= 0)
+	//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
+	//		else 
+	//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
+	//		weaponS.setText(s.weapon.name);
+	//	}
+
+	//	public void clearStats() {
+	//		stats.setVisible(false);
+	//	}
+	//	
+	//	public void setActiveFaction() {
+	//		panel.setActiveFaction(location.getFaction());
+	//	}
+	//	public void centerCamera() {
+	//		OrthographicCamera camera = panel.getKingdom().getMapScreen().getCamera();
+	//		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
+	//	}
+
+
 	@Override
 	public void button1() {
 		//retreat button
 		if (getButton(1).isVisible()) {
-			
-			
+
+
 			if (battleStage == null) {
-//				battle.retreat(sidePanel.getKingdom().getPlayer());
+				//				battle.retreat(sidePanel.getKingdom().getPlayer());
 				return;
 			}
 			else {
-				if (battleStage.placementPhase) {
-					this.battleStage.toNextFormation();
-				}
-				else {
-					battleStage.placementPhase = false;
-					battleStage.retreatAll(true);
-					getButton(1).setDisabled(true);
-				}
+				//				if (battleStage.placementPhase) {
+				//					this.battleStage.toNextFormation();
+				//				}
+				//				else {
+				//					battleStage.placementPhase = false;
+				//					battleStage.retreatAll(true);
+				//					getButton(1).setDisabled(true);
+				//				}
 			}
-			
+
 		}
 	}
 	@Override
 	public void button2() {
-	
+
 		if (getButton(2).isVisible()) {
-			
+
 			if (battleStage == null) BottomPanel.log("no battle stage to retreat!!");
 			else {
 				// toggle stance
-				if (battleStage.placementPhase) {
-					this.battleStage.togglePlayerStance();
-				}
-				// charge all (move "Begin!" to button 3)
-				else {
-					battleStage.placementPhase = false;
-					battleStage.chargeAll(true);
-//					getButton(2).setVisible(false);
-					getButton(2).setDisabled(true);
-				}
+				//				if (battleStage.placementPhase) {
+				//					this.battleStage.togglePlayerStance();
+				//				}
+				//				// charge all (move "Begin!" to button 3)
+				//				else {
+				//					battleStage.placementPhase = false;
+				//					battleStage.chargeAll(true);
+				////					getButton(2).setVisible(false);
+				//					getButton(2).setDisabled(true);
+				//				}
 			}
 		}
-//		BottomPanel.log("b2");
+		//		BottomPanel.log("b2");
 	}
 	@Override
 	public void button3() {
-		
+
 	}
 	@Override
 	public void button4() {
-		
+
 	}
-	
+
 	@Override
 	public TextureRegion getCrest() {
-//		if (party.army != null)
-//			return party.army.getFaction().crest;
-//		return null;
+		//		if (party.army != null)
+		//			return party.army.getFaction().crest;
+		//		return null;
 		return null;
 	}
-	
+
 	@Override
 	public Soldier getSoldierInsteadOfCrest() {
-		return this.unit.soldier;
+		return this.soldier;
 	}
 }

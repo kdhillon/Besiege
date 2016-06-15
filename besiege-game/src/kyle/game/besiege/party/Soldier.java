@@ -18,7 +18,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	static int namesGenerated = 0;
 	
 	public static enum SoldierType {
-		INFANTRY, ARCHER, CAVALRY
+		INFANTRY, ARCHER, CAVALRY, GENERAL
 	}
 
 	// getTier()  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
@@ -36,7 +36,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 //	private static final String VETERAN = "Vet."; // "Veteran" or maybe invisible
 
 	public Party party; // containing party
-
+	public Subparty subparty;
 	
 	// personal attributes
 	public Color skinColor;
@@ -55,7 +55,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public int battlesFled = 0;
 	public int timesCaptured = 0;
 	
-	public Array<ImportantPerson> ipKilled;
+	public Array<General> ipKilled;
 	
 	public Soldier killedBy; // once killed
 
@@ -65,7 +65,6 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	private int nextUpgrade; // next level at which soldier can be upgraded
 	public boolean canUpgrade; // TODO remove this and check on fly
 	
-	// TODO remove this and calculate on fly, based on level.
 	public int baseAtk; // increases with level
 	public int baseDef;
 	public int baseSpd;
@@ -74,16 +73,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	// TODO remove this, just have "timeWounded"
 	private boolean wounded;
-//	private boolean retreated;
-	
 	private float timeWounded;
+	public float healTime; // time it takes to heal (not needed to store)
 
-	// TODO figure out if this is necessary
-	public float healTime;
-
-//	public Weapon weapon;
-//	public RangedWeapon rangedWeapon;
-//	
 //	public Armor armor;
 //	public Color armorColor;
 	
@@ -91,6 +83,44 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	public Soldier() {}
 
+	// copy constructor (for making generals)
+	public Soldier(Soldier that) {
+		this.party = that.party;
+		this.subparty = that.subparty;
+		this.skinColor = that.skinColor;
+		this.female = that.female;
+		this.age = that.age; // fixed for now, later should change based on year
+		this.name = that.name;
+
+		this.kills = that.kills; // this could start randomized. instead, start at 0.
+		this.battlesWon = that.battlesWon; // even if wounded
+		this.battlesSurvived = that.battlesSurvived;
+		this.battlesFled = that.battlesFled;
+		this.timesCaptured = that.timesCaptured;
+		
+		this.ipKilled = that.ipKilled;
+		
+		this.killedBy = that.killedBy; // once killed
+
+		this.level = that.level;
+		this.exp = that.exp;
+		this.next = that.next;   // exp needed for level up
+		this.nextUpgrade = that.nextUpgrade; // next level at which soldier can be upgraded
+		this.canUpgrade = that.canUpgrade; // TODO remove this and check on fly
+		
+		// TODO remove this and calculate on fly, based on level.
+		this.baseAtk = that.baseAtk; // increases with level
+		this.baseDef = that.baseDef;
+		this.baseSpd = that.baseSpd;
+		
+		this.unitType = that.unitType; // determines weapon and armor for now.
+
+		this.wounded = that.wounded;		
+		this.timeWounded= that.timeWounded;
+
+		this.healTime = that.healTime;
+	}
+	
 	public Soldier(UnitType unitType, Party party) {
 		this.unitType = unitType;
 		
@@ -135,7 +165,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		}
 		calcStats();
 		
-		ipKilled = new Array<ImportantPerson>();
+		ipKilled = new Array<General>();
 		
 		age = (int) (Math.random() * 20 + 18); // between 17 and 48
 	}
@@ -157,7 +187,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		if (this.name == null) {
 			generateName();
 			namesGenerated++;
-			System.out.println("Names generated: " + namesGenerated);
+//			System.out.println("Names generated: " + namesGenerated);
 		}
 		return name;
 	}
@@ -264,19 +294,22 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	//		calcStats();
 	//	}
 
-	public int getBonusAtk() {
-		int bonusAtk = 0;
+	public float getBonusAtk() {
+		float bonusAtk = 0;
 		bonusAtk += unitType.melee.atkMod;
+		bonusAtk += subparty.getGeneral().getBonusAtk();
 //		for (Equipment e : equipment) {
 //			bonusAtk += e.atkMod;
 //		}
 		return bonusAtk;
 	}
 
-	public int getBonusDef() {
-		int bonusDef = 0;
+	public float getBonusDef() {
+		float bonusDef = 0;
 		bonusDef += unitType.melee.defMod;
 		bonusDef += unitType.armor.defMod;
+		
+		bonusDef += subparty.getGeneral().getBonusAtk();
 		
 //		for (Equipment e : equipment) {
 //			bonusDef += e.defMod;
@@ -284,8 +317,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return bonusDef;
 	}
 
-	public int getBonusSpd() {
-		int bonusSpd = 0;
+	public float getBonusSpd() {
+		float bonusSpd = 0;
 		bonusSpd += unitType.melee.spdMod;
 		bonusSpd += unitType.armor.spdMod;
 
@@ -409,7 +442,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public void registerKill(Soldier that) {
 		this.addExp(that.getExpForKill());
 		this.kills++;
-		if (that.isImportant) this.ipKilled.add((ImportantPerson) that);
+		if (that.isImportant) this.ipKilled.add((General) that);
 	}
 	
 	public void registerBattleVictory() {
@@ -452,13 +485,13 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public boolean isWounded() {
 		return wounded;
 	}
-	public int getAtk() {
+	public float getAtk() {
 		return baseAtk + getBonusAtk();	
 	}
-	public int getDef() {
+	public float getDef() {
 		return baseDef + getBonusDef();	
 	}
-	public int getSpd() {
+	public float getSpd() {
 		return baseSpd + getBonusSpd();	
 	}
 
@@ -536,5 +569,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	
 	public UnitClass getUnitClass() {
 		return this.unitType.unitClass;
+	}
+	
+	public boolean isGeneral() {
+		return false;
 	}
 }

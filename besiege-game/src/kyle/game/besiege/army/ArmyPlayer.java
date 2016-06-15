@@ -5,6 +5,11 @@
  ******************************************************************************/
 package kyle.game.besiege.army;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.Character;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
@@ -15,12 +20,6 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.party.PartyType.Type;
-
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.utils.Array;
 
 public class ArmyPlayer extends Army {
 	private final String textureRegion = "Player";
@@ -39,7 +38,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.Type.MERCHANT);
+		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.Type.MERCHANT, true);
 //		Location loc = this.detectNearbyFriendlyCity();
 		
 		setTextureRegion(textureRegion);
@@ -54,7 +53,6 @@ public class ArmyPlayer extends Army {
 		// debugging
 		sr = new ShapeRenderer();
 		this.calcMaxPartySize();
-		
 		
 		// debugging
 		this.getParty().distributeExp(100000);
@@ -118,9 +116,12 @@ public class ArmyPlayer extends Army {
 				if (hasTarget() && !isStopped() && !isInBattle()) {
 					if (targetLost())
 					{
+						// only display if target is still alive!
+						if (getTarget() != null && getTarget().getType() == DestType.ARMY && getKingdom().getArmies().contains((Army) getTarget(), true))
+							BottomPanel.log("Target lost!", "yellow");
+
 						setTarget(null);
 						getKingdom().setPaused(true);
-						BottomPanel.log("Target lost!", "yellow");
 						getKingdom().getMapScreen().getSidePanel().setDefault();
 					}
 					else {
@@ -165,9 +166,9 @@ public class ArmyPlayer extends Army {
 			}
 			
 			if (path.nextGoal != null)
-				sr.line((float) this.getX(), (float)(this.getY()), (float) path.nextGoal.getX(), (float) (path.nextGoal.getY()));
-			if (!path.dStack.isEmpty())
-				sr.line((float) this.path.dStack.peek().getX(), (float)(this.path.dStack.peek().getY()), (float) path.nextGoal.getX(), (float) (path.nextGoal.getY()));
+				sr.line((float) this.getCenterX(), (float)(this.getCenterY()), (float) path.nextGoal.getCenterX(), (float) (path.nextGoal.getCenterY()));
+			if (!path.dStack.isEmpty() && path.nextGoal != null)
+				sr.line((float) this.path.dStack.peek().getCenterX(), (float)(this.path.dStack.peek().getCenterY()), (float) path.nextGoal.getCenterX(), (float) (path.nextGoal.getCenterY()));
 			
 			sr.end();
 			batch.begin();
@@ -227,7 +228,9 @@ public class ArmyPlayer extends Army {
 	@Override
 	public void friendlyArmyCollision(Army targetArmy) {
 		//follow
-		if (this.getSpeed() >= targetArmy.getSpeed()) this.setSpeed(targetArmy.getSpeed() - 5);
+		if (this.getSpeed() >= targetArmy.getSpeed()) {
+			this.setSpeed(targetArmy.getSpeed() - 5);
+		}
 	}
 
 	@Override

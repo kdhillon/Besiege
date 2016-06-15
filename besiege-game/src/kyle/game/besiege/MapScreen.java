@@ -696,7 +696,9 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
 				if (battle != null && battle.placementPhase) {
 					toggleNextFormation = !toggleNextFormation;
-					if (toggleNextFormation) battle.toNextFormation();
+					
+					// TODO change back
+//					if (toggleNextFormation) battle.toNextFormation();
 				}
 			}
 

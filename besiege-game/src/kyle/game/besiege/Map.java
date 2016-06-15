@@ -403,7 +403,10 @@ public class Map extends Actor {
 		}
 	}
 
+	
+	// map freezes when it has to add a FUCKton of corners
 	public void addCorner(Corner otherCorner) {
+//		System.out.println("adding corner");
 		borderCorners.add(otherCorner);
 		otherCorner.visibleCorners = new ArrayList<Corner>();
 		for (Corner currentCorner : borderCorners) {

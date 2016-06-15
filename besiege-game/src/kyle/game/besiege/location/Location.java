@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
@@ -20,6 +19,7 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Point;
 import kyle.game.besiege.Siege;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Merchant;
@@ -60,17 +60,19 @@ public class Location extends Actor implements Destination {
 	// relative prevalence of biomes surrounding this location
 	public float[] biomeDistribution;
 
-	//	protected Array<Location> closestFriendlyLocations;
-	//	protected Array<Location> closestEnemyLocations;
-	protected Array<Patrol> patrols;
+	//	protected StrictArray<Location> closestFriendlyLocations;
+	//	protected StrictArray<Location> closestEnemyLocations;
+	
+	protected static final int MAX_PATROLS = 5;
+	protected StrictArray<Patrol> patrols;
 
-	public Array<City> closestFriendlyCities;
-	public Array<Castle> closestFriendlyCastles;
-	public Array<Village> closestFriendlyVillages;
+	public StrictArray<City> closestFriendlyCities;
+	public StrictArray<Castle> closestFriendlyCastles;
+	public StrictArray<Village> closestFriendlyVillages;
 
-	public Array<City> closestEnemyCities;
-	public Array<Castle> closestEnemyCastles;
-	public Array<Village> closestEnemyVillages;
+	public StrictArray<City> closestEnemyCities;
+	public StrictArray<Castle> closestEnemyCastles;
+	public StrictArray<Village> closestEnemyVillages;
 
 	private boolean mouseOver;
 
@@ -85,7 +87,7 @@ public class Location extends Actor implements Destination {
 
 	private double wealthFactor = 1;
 	
-	private Array<Army> garrisonedArmies;
+	private StrictArray<Army> garrisonedArmies;
 	public transient Party toHire;
 	transient protected Party nextHire; // prevents player from loading and quitting to get ideal choice of hire
 	public Army garrison;
@@ -129,7 +131,7 @@ public class Location extends Actor implements Destination {
 	
 		setPosition(posX, posY);
 
-		garrisonedArmies = new Array<Army>();
+		garrisonedArmies = new StrictArray<Army>();
 
 		playerIn = false;
 		hostilePlayerTouched = false;
@@ -155,18 +157,18 @@ public class Location extends Actor implements Destination {
 
 		autoManage = true;
 
-		patrols = new Array<Patrol>();
+		patrols = new StrictArray<Patrol>();
 
-		//		closestFriendlyLocations = new Array<Location>();
-		//		closestEnemyLocations = new Array<Location>();
+		//		closestFriendlyLocations = new StrictArray<Location>();
+		//		closestEnemyLocations = new StrictArray<Location>();
 
-		closestEnemyCities = new Array<City>(); 
-		closestEnemyCastles = new Array<Castle>();
-		closestEnemyVillages = new Array<Village>();
+		closestEnemyCities = new StrictArray<City>(); 
+		closestEnemyCastles = new StrictArray<Castle>();
+		closestEnemyVillages = new StrictArray<Village>();
 
-		closestFriendlyCities = new Array<City>(); 
-		closestFriendlyCastles = new Array<Castle>();
-		closestFriendlyVillages = new Array<Village>();
+		closestFriendlyCities = new StrictArray<City>(); 
+		closestFriendlyCastles = new StrictArray<Castle>();
+		closestFriendlyVillages = new StrictArray<Village>();
 
 		timeSinceFreshHire = 0;
 		nextHire = new Party(); //empty
@@ -534,8 +536,8 @@ public class Location extends Actor implements Destination {
 	 * 
 	 */
 	public void updateCloseLocations() {
-		Array<City> newCloseEnemyCities = new Array<City>();
-		Array<City> newCloseFriendlyCities = new Array<City>();
+		StrictArray<City> newCloseEnemyCities = new StrictArray<City>();
+		StrictArray<City> newCloseFriendlyCities = new StrictArray<City>();
 
 		// cities
 		for (City c : closestEnemyCities) {
@@ -554,11 +556,11 @@ public class Location extends Actor implements Destination {
 			else if (!newCloseFriendlyCities.contains(c, true))
 				newCloseFriendlyCities.add(c);
 		}
-		closestEnemyCities = new Array<City>(newCloseEnemyCities);
-		closestFriendlyCities = new Array<City>(newCloseFriendlyCities);
+		closestEnemyCities = new StrictArray<City>(newCloseEnemyCities);
+		closestFriendlyCities = new StrictArray<City>(newCloseFriendlyCities);
 
-		Array<Castle> newCloseEnemyCastles = new Array<Castle>();
-		Array<Castle> newCloseFriendlyCastles = new Array<Castle>();
+		StrictArray<Castle> newCloseEnemyCastles = new StrictArray<Castle>();
+		StrictArray<Castle> newCloseFriendlyCastles = new StrictArray<Castle>();
 
 		// castles
 		for (Castle c : closestEnemyCastles) {
@@ -577,11 +579,11 @@ public class Location extends Actor implements Destination {
 			else if (!newCloseFriendlyCastles.contains(c, true))
 				newCloseFriendlyCastles.add(c);
 		}
-		closestEnemyCastles = new Array<Castle>(newCloseEnemyCastles);
-		closestFriendlyCastles = new Array<Castle>(newCloseFriendlyCastles);
+		closestEnemyCastles = new StrictArray<Castle>(newCloseEnemyCastles);
+		closestFriendlyCastles = new StrictArray<Castle>(newCloseFriendlyCastles);
 
-		Array<Village> newCloseEnemyVillages = new Array<Village>();
-		Array<Village> newCloseFriendlyVillages = new Array<Village>();
+		StrictArray<Village> newCloseEnemyVillages = new StrictArray<Village>();
+		StrictArray<Village> newCloseFriendlyVillages = new StrictArray<Village>();
 
 		// villages
 		for (Village v : closestEnemyVillages) {
@@ -600,8 +602,8 @@ public class Location extends Actor implements Destination {
 			else if (!newCloseFriendlyVillages.contains(v, true))
 				newCloseFriendlyVillages.add(v);
 		}
-		closestEnemyVillages = new Array<Village>(newCloseEnemyVillages);
-		closestFriendlyVillages = new Array<Village>(newCloseFriendlyVillages);
+		closestEnemyVillages = new StrictArray<Village>(newCloseEnemyVillages);
+		closestFriendlyVillages = new StrictArray<Village>(newCloseFriendlyVillages);
 	}
 
 	public Location getCloseEnemyCity() {
@@ -614,7 +616,7 @@ public class Location extends Actor implements Destination {
 		return closestEnemyVillages.random();
 	}
 
-	public Array<Patrol> getPatrols() {
+	public StrictArray<Patrol> getPatrols() {
 		return patrols;
 	}
 	public void removePatrol(Patrol patrol) {
@@ -633,7 +635,7 @@ public class Location extends Actor implements Destination {
 
 
 	// TODO fix for battlestage
-	public void siegeAttack(Array<Army> attackers) {
+	public void siegeAttack(StrictArray<Army> attackers) {
 		//		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
 		//		garrisonArmy.setParty(garrison);
 		//		if (this.location. == null) {
@@ -643,12 +645,12 @@ public class Location extends Actor implements Destination {
 
 		if (playerWaiting) {
 			// create array of defenders
-			Array<Army> defendersArmies = this.getGarrisonedAndGarrison();
-			Array<Party> defenders = new Array<Party>();
+			StrictArray<Army> defendersArmies = this.getGarrisonedAndGarrison();
+			StrictArray<Party> defenders = new StrictArray<Party>();
 			for (Army a : defendersArmies) 
 				defenders.add(a.party);
 				
-			Array<Party> attackerParties = new Array<Party>();
+			StrictArray<Party> attackerParties = new StrictArray<Party>();
 			for (Army a : attackers) {
 				attackerParties.add(a.party);
 			}
@@ -819,13 +821,13 @@ public class Location extends Actor implements Destination {
 			for (Farmer f : ((Village) this).farmers) {
 				f.setFaction(newFaction);
 			}
-			//			((Village) this).farmers = new Array<Farmer>(((Village) this).farmers);
+			//			((Village) this).farmers = new StrictArray<Farmer>(((Village) this).farmers);
 			// TODO undo this
 		}
 
 		if (this.type != LocationType.VILLAGE) {
 			// swap captured and garrison
-			Array<Soldier> oldCaptured = new Array<Soldier>(garrison.getParty().getPrisoners());
+			StrictArray<Soldier> oldCaptured = new StrictArray<Soldier>(garrison.getParty().getPrisoners());
 			garrison.getParty().clearPrisoners();
 
 			for (Soldier newPrisoner : garrison.getParty().getWounded()) 
@@ -939,13 +941,13 @@ public class Location extends Actor implements Destination {
 		region = Assets.atlas.findRegion(textureRegion);
 	}
 
-	public Array<Army> getGarrisoned() {
+	public StrictArray<Army> getGarrisoned() {
 		return garrisonedArmies;
 	}
 
 	// Doesn't return passive armies
-	public Array<Army> getGarrisonedAndGarrison() {
-		Array<Army> garrisoned = new Array<Army>(getGarrisoned());
+	public StrictArray<Army> getGarrisonedAndGarrison() {
+		StrictArray<Army> garrisoned = new StrictArray<Army>(getGarrisoned());
 		for (Army a : garrisoned) {
 			if (a.passive) garrisoned.removeValue(a, true);
 		}

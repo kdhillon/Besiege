@@ -5,15 +5,10 @@
  ******************************************************************************/
 package kyle.game.besiege.party;
 
-import java.util.Iterator;
-
-import com.badlogic.gdx.utils.Array;
-
 import kyle.game.besiege.Faction;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
-import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.party.Soldier.SoldierType;
 
 public class Party {
 	private final double BASE_CHANCE = .3;
@@ -26,25 +21,27 @@ public class Party {
 
 	public boolean player;
 	public Army army;
-	private Array<Soldier> healthy;
-	private Array<Soldier> wounded;
-	private Array<Soldier> prisoners;
-	private Array<Soldier> upgradable;
+
+	public Subparty root;
+
+	private StrictArray<Soldier> prisoners;
+	public StrictArray<Subparty> sub;
 
 	private int atkTotal;
 	private int defTotal;
 	private int spdTotal;
 
 	public double woundChance;
-	
-	public ImportantPerson general; // usually null
-	
+
 	public Party() {
 		player = false;
-		healthy = new Array<Soldier>();
-		wounded = new Array<Soldier>();
-		prisoners = new Array<Soldier>();
-		upgradable = new Array<Soldier>();
+
+		root = new Subparty(this);
+		sub = new StrictArray<Subparty>();
+		sub.add(root);
+
+		prisoners = new StrictArray<Soldier>();
+
 		atkTotal = 0;
 		defTotal = 0;
 		spdTotal = 0;
@@ -58,8 +55,9 @@ public class Party {
 
 	public void act(float delta) {
 		if (player && army != null) woundChance = BASE_CHANCE * army.getCharacter().getAttributeFactor("Reviving");
-		if (!this.army.isInBattle())
-			checkHeal();
+		if (!this.army.isInBattle()) {
+			root.checkHeal();
+		}
 		calcStats();
 	}
 
@@ -72,44 +70,30 @@ public class Party {
 		}
 	}
 
-	public void checkHeal() { // to be called every frame 
-		Iterator<Soldier> iter = wounded.iterator();
-		while (iter.hasNext()) {
-			Soldier soldier = iter.next();
-			if (soldier.isHealed())
-				heal(soldier);
-			updated = true;
-		}
-	}
-
 	public void addSoldier(Soldier soldier) {
 		if (this.getTotalSize() >= maxSize) {
 			System.out.println("trying to add more than max size");
 			return;
 		}
 		else {
-			updated = true;
-			if (soldier.isWounded()) {
-				if (!wounded.contains(soldier, true))
-					wounded.add(soldier);
-				wounded.sort();
-			}
-			else {
-				if (!healthy.contains(soldier, true))
-					healthy.add(soldier);
-				healthy.sort();
-			}
-			calcStats();
+			// put this guy in a subparty that's not full, or create a new par
+			Subparty p = sub.first();
+			p.addSoldier(soldier);
 		}
 	}
+	
 	public void removeSoldier(Soldier soldier) {
-		updated = true;
-		if (healthy.contains(soldier, true)) {
-			healthy.removeValue(soldier, true);
+		for (Subparty p : sub) {
+			p.removeSoldier(soldier);
 		}
-		else if (wounded.contains(soldier, true))
-			wounded.removeValue(soldier, true);
-		calcStats();
+	}
+
+	public boolean casualty(Soldier soldier) {
+		for (Subparty p : sub) {
+			if (p.healthy.contains(soldier, true))
+				return p.casualty(soldier);
+		}
+		return false;
 	}
 
 	public void addPrisoner(Soldier soldier) {
@@ -118,72 +102,45 @@ public class Party {
 		prisoners.add(soldier);
 		prisoners.sort();
 	}
-	public boolean casualty(Soldier soldier) { // returns true if killed, false if wounded
-		// wound chance = base_chance*heal factor + (level of unit / max level)/2
-		double thisWoundChance = woundChance + (soldier.level / Soldier.MAX_LEVEL) / 2;
-		if (Math.random() < woundChance) {
-			wound(soldier);
-			return false;
-		}
-		else kill(soldier);
-		updated = true;
-		return true;
-	}
-	public void kill(Soldier soldier) {
-		removeSoldier(soldier); //can be used to kill both healthy and wounded soldiers.
-		wounded.sort();
-		healthy.sort();
-	}
-	public void wound(Soldier soldier) {
-//		if (army != null)
-		soldier.wound();
-		healthy.removeValue(soldier, true);
-		this.addSoldier(soldier);
-		//	if (player) BottomPanel.log(soldier.name + " wounded", "orange");
-		calcStats();
-	}
-	public void heal(Soldier soldier) {
-		healNoMessage(soldier);
-		if (player) BottomPanel.log(soldier.getTypeName() + " healed", "blue");
-	}
-	public void healNoMessage(Soldier soldier) {
-		soldier.heal();
-		wounded.removeValue(soldier, true);
-		this.addSoldier(soldier);
-		healthy.sort();
-		updated = true;
+
+
+	public StrictArray<Soldier> getUpgradable() {
+		StrictArray<Soldier> total = new StrictArray<Soldier>();
+		//		StrictArray<Subparty> subparties = getAllSub();
+		for (Subparty p : sub)
+			total.addAll(p.getUpgradable());
+		return total;
 	}
 
-	public Array<Soldier> getUpgradable() {
-		upgradable.clear();
-		for (Soldier s : healthy) {
-			if (s.canUpgrade)
-				upgradable.add(s);
-		}
-		for (Soldier s : wounded) {
-			if (s.canUpgrade)
-				upgradable.add(s);
-		}
-		return upgradable;
-	}
 	public void calcStats() {
 		atkTotal = 0;
 		defTotal = 0;
 		spdTotal = 0;
-		for (Soldier s : healthy) {
-			atkTotal += s.baseAtk + s.getBonusAtk();
-			defTotal += s.baseDef + s.getBonusDef();
-			spdTotal += s.baseSpd + s.getBonusSpd();
+		//		StrictArray<Subparty> subparties = getAllSub();
+		for (Subparty s : sub) {
+			atkTotal += s.atkTotal;
+			defTotal += s.defTotal;
+			spdTotal += s.spdTotal;
 		}
 		if (!player) minWealth = (int) (MIN_WEALTH_FACTOR*getTotalSize());
 		else minWealth = 0;
+//		System.out.println("total size: " + getTotalSize() + " min wealth: " + minWealth);
 	}
+
+	//	public StrictArray<Subparty> getAllSub() {
+	//		StrictArray<Subparty> p =  new StrictArray<Subparty>();
+	//		p.add(root);
+	//		return p;
+	//	}
+
 	public void givePrisoner(Soldier prisoner, Party recipient) {
-		if (this.wounded.contains(prisoner, true))
-			this.wounded.removeValue(prisoner, true);
-		else if (this.healthy.contains(prisoner, true))
-			this.healthy.removeValue(prisoner, true);
-		else BottomPanel.log("trying to add invalid prisoner", "red");
+		for (Subparty s : sub) {
+			if (s.wounded.contains(prisoner, true))
+				s.wounded.removeValue(prisoner, true);
+			else if (s.healthy.contains(prisoner, true))
+				s.healthy.removeValue(prisoner, true);
+			else BottomPanel.log("trying to add invalid prisoner", "red");
+		}
 		recipient.addPrisoner(prisoner);
 	}
 
@@ -195,74 +152,70 @@ public class Party {
 	}
 
 	public int getHealthySize() {
-		return healthy.size;
+		int total = 0; 
+		for (Subparty s : sub) {
+			total += s.getHealthySize();
+		}
+		return total;
 	}
 	public int getWoundedSize() {
-		return wounded.size;
+		int total = 0; 
+		for (Subparty s : sub) {
+			total += s.getWoundedSize();
+		}
+		return total;	
 	}
+
 	public int getTotalSize() {
 		return getHealthySize() + getWoundedSize();
 	}
 
-	// used for placing troops
-	public Array<Soldier> getHealthyInfantry() {
-		Array<Soldier> roReturn = new Array<Soldier>();
-		for (Soldier s : healthy) {
-			if (s.getType() == SoldierType.INFANTRY) roReturn.add(s);
-		}
-		return roReturn;
-	}
-	public Array<Soldier> getHealthyArchers() {
-		Array<Soldier> toReturn = new Array<Soldier>();
-		for (Soldier s : healthy) {
-			if (s.getType() == SoldierType.ARCHER) toReturn.add(s);
-		}
-		return toReturn;
-	}
-	public Array<Soldier> getHealthyCavalry() {
-		Array<Soldier> toReturn = new Array<Soldier>();
-		for (Soldier s : healthy) {
-			if (s.getType() == SoldierType.CAVALRY) toReturn.add(s);
-		}
-		return toReturn;
-	}
-
-	public Array<Soldier> getHealthy() {
+	public StrictArray<Soldier> getHealthy() {
+		StrictArray<Soldier> healthy = new StrictArray<Soldier>();
+		for (Subparty s : sub) {
+			healthy.addAll(s.healthy);
+		}		
 		return healthy;
 	}
-	public Array<Soldier> getWounded() {
+
+	public StrictArray<Soldier> getWounded() {
+		StrictArray<Soldier> wounded = new StrictArray<Soldier>();
+		for (Subparty s : sub) {
+			wounded.addAll(s.wounded);
+		}		
 		return wounded;
 	}
-	public Array<Soldier> getHealthyCopy() {
-		return new Array<Soldier>(healthy);
+
+	public StrictArray<Soldier> getHealthyCopy() {
+		return getHealthy();
 	}
-	public Array<Soldier> getPrisoners() {
+	public StrictArray<Soldier> getPrisoners() {
 		return prisoners;
 	}
 	public void clearPrisoners() {
 		prisoners.clear();
 	}
-	public Array<Array<Soldier>> getConsolHealthy() {
-		return getConsol(healthy);
+	public StrictArray<StrictArray<Soldier>> getConsolHealthy() {
+		return getConsol(getHealthy());
 	}
-	public Array<Array<Soldier>> getConsolWounded() {
-		return getConsol(wounded);
+	public StrictArray<StrictArray<Soldier>> getConsolWounded() {
+		return getConsol(getWounded());
 	}
-	public Array<Array<Soldier>> getConsolPrisoners() {
+	public StrictArray<StrictArray<Soldier>> getConsolPrisoners() {
 		return getConsol(prisoners);
 	}
 	// TODO maybe inefficient? can make more by sorting array by name
-	private Array<Array<Soldier>> getConsol(Array<Soldier> arrSoldier) {
+	private StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier) {
 		// first thing: sort arrSoldier by name
 		arrSoldier.sort();
 
 
-		Array<String> names = new Array<String>();
-		Array<Array<Soldier>> consol = new Array<Array<Soldier>>();
+		StrictArray<String> names = new StrictArray<String>();
+		StrictArray<StrictArray<Soldier>> consol = new StrictArray<StrictArray<Soldier>>();
 		for (Soldier s : arrSoldier) {
 			if (!names.contains(s.getTypeName() + s.getUnitClass(), false)) {
 				names.add(s.getTypeName() + s.getUnitClass());
-				Array<Soldier> type = new Array<Soldier>();
+				StrictArray<Soldier> type = new StrictArray<Soldier>();
 				type.add(s);
 				consol.add(type);
 			}
@@ -282,17 +235,21 @@ public class Party {
 		if (army != null) return army.getName();
 		return "";
 	}
-	
-	public void setGeneral(ImportantPerson general) {
-		this.general = general;
+
+	public void createFreshGeneral(UnitType type) {
+		this.root.general = new General(type, this);
 	}
-	
-	public Location getHome() {
-		return this.general.home;
+
+	public void setGeneral(General general) {
+		root.general = general;
 	}
+
+//	public Location getHome() {
+//		return getGeneral().home;
+//	}
 	
-	public boolean hasGeneral() {
-		return general != null;
+	public General getGeneral() {
+		return root.general;
 	}
 
 	@Override
@@ -322,8 +279,8 @@ public class Party {
 		getHealthy().shrink();
 		for (int i = 0; i < getHealthy().size; i++)
 			getHealthy().get(i).addExp(exp);
-		wounded.sort();
-		healthy.sort();
+		//		wounded.sort();
+		//		healthy.sort();
 	}
 
 	// repairs an army as much as its wealth will allow it.
@@ -348,23 +305,27 @@ public class Party {
 	}
 
 	public void registerBattleVictory() {
-		for (Soldier s : healthy) {
-			s.registerBattleVictory();
-		}
-		for (Soldier s : wounded) {
-			s.registerBattleVictory();
+		for (Subparty p : sub) {
+			for (Soldier s : p.healthy) {
+				s.registerBattleVictory();
+			}
+			for (Soldier s : p.wounded) {
+				s.registerBattleVictory();
+			}
 		}
 	}
 
 	public void registerBattleLoss() {
-		for (Soldier s : healthy) {
-			s.registerBattleLoss();
-		}
-		for (Soldier s : wounded) {
-			s.registerBattleLoss();
-		}
+		for (Subparty p : sub) {
+			for (Soldier s : p.healthy) {
+				s.registerBattleLoss();
+			}
+			for (Soldier s : p.wounded) {
+				s.registerBattleLoss();
+			}
+		}	
 	}
-	
+
 	/**
 	 * @return random soldier from healthy weighted by attack
 	 */
@@ -388,10 +349,13 @@ public class Party {
 				break;
 			}
 		}
+		
+		if (randomIndex < 0) return null;
+		
 		Soldier random = getHealthy().get(randomIndex);
 		return random;
 	}
-	
+
 	/**
 	 *  @return random soldier from healthy weighted by inverse defense
 	 */
@@ -400,21 +364,23 @@ public class Party {
 		double totalWeight = 0.0d;
 		for (Soldier s : getHealthy())
 		{
-		    totalWeight += 1/s.getDef();
+			totalWeight += 1/s.getDef();
 		}
-		
+
 		int randomIndex = -1;
 		double randomDouble = Math.random() * totalWeight;
 		getHealthy().shrink();
 		for (int i = 0; i < getHealthySize(); ++i)
 		{
-		    randomDouble -= 1/getHealthy().get(i).getDef();
-		    if (randomDouble <= 0.0d)
-		    {
-		        randomIndex = i;
-		        break;
-		    }
+			randomDouble -= 1/getHealthy().get(i).getDef();
+			if (randomDouble <= 0.0d)
+			{
+				randomIndex = i;
+				break;
+			}
 		}
+		
+		if (randomIndex < 0) return null;
 		Soldier random = getHealthy().get(randomIndex);
 		return random;
 	}

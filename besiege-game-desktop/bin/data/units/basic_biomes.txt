@@ -1,0 +1,21 @@
+biome				class
+
+Beach				Basic
+Snow				Basic
+Tundra				Basic
+Bare				Basic
+Scorched			Basic
+Taiga				Basic
+Shrubland			Basic
+Temperate Desert	Basic
+Coniferous Forest	Basic
+Deciduous Forest	Basic
+Grassland			Basic
+Desert				Basic
+Shurbland			Basic
+Ice					Basic
+Marsh				Basic
+Tropical Rainforest	Basic
+Seasonal Forest		Basic
+Coast				Basic
+Lakeshore			Basic

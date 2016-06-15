@@ -33,7 +33,7 @@ public class BattleMap extends Actor {
 	private static final int TREE_HEIGHT = 3;
 	public static final float CASTLE_WALL_HEIGHT_DEFAULT = .5f;
 
-	public Color bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
+	public Color bgColor = new Color();
 	
 	private enum MapType {
 		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, ALPINE, MEADOW, CRAG, RIVER, VILLAGE
@@ -216,6 +216,7 @@ public class BattleMap extends Actor {
 			addFences(5);
 			addTrees(.03*Math.random() + .01);
 			obscurity_factor = 1.5f;
+			bgColor = new Color(20/256f, 70/256f, 20/256f, 1);
 		}
 		if (maptype == MapType.GRASSLAND) {
 			for (int i = 0; i < ground.length; i++) {
@@ -232,6 +233,7 @@ public class BattleMap extends Actor {
 
 			addTrees(.001);
 			addFences(1);
+			bgColor = new Color(91f/256, 164/256f, 63/256f, 1);
 		}
 		if (maptype == MapType.MEADOW) {
 			for (int i = 0; i < ground.length; i++) {
@@ -250,6 +252,7 @@ public class BattleMap extends Actor {
 
 			addTrees(.00);
 			addFences(15);
+			bgColor = new Color(91f/256, 164/256f, 63/256f, 1);
 		}
 		if (maptype == MapType.BEACH) {
 			// this will have to be tweaked for the new map size
@@ -276,6 +279,7 @@ public class BattleMap extends Actor {
 
 			if (stage.siege)
 				addWall();
+			bgColor = new Color(143f/256, 202/256f, 85/256f, 1);
 		}
 		if (maptype == MapType.DESERT) {
 			for (int i = 0; i < ground.length; i++) {
@@ -290,6 +294,7 @@ public class BattleMap extends Actor {
 			this.addFences(20);
 			if (stage.siege)
 				addWall();
+			bgColor = new Color(204/256f, 188/256f, 74/256f, 1);
 		}
 		if (maptype == MapType.ALPINE) {
 			for (int i = 0; i < ground.length; i++) {
@@ -303,6 +308,7 @@ public class BattleMap extends Actor {
 			}
 			if (stage.siege)
 				addWall();
+			 bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
 		}
 		if (maptype == MapType.CRAG) {
 			for (int i = 0; i < ground.length; i++) {
@@ -319,6 +325,7 @@ public class BattleMap extends Actor {
 				addWall();
 
 			addStumps(.01);
+			bgColor = new Color(58/256f, 47/256f, 45/256f, 1);
 		}
 		if (maptype == MapType.SWAMP) {
 			for (int i = 0; i < ground.length; i++) {
@@ -331,6 +338,7 @@ public class BattleMap extends Actor {
 			}
 			if (stage.siege)
 				addWall();
+			bgColor = new Color(65/256f, 138/256f, 92/256f, 1);
 		}
 
 		// remove cover on top of objects
@@ -518,6 +526,7 @@ public class BattleMap extends Actor {
 					entrances.add(entrance);
 				}
 			} 
+			
 		}
 		if (wallRight != Integer.MAX_VALUE) {
 			for (int i = Math.max(0, wallBottom); i < Math.min(total_size_x/SIZE_FACTOR, wallTop); i++) {
@@ -705,7 +714,7 @@ public class BattleMap extends Actor {
 		}
 	}
 
-	public void damageWallAt(int pos_x, int pos_y, int damage) {
+	public void damageWallAt(int pos_x, int pos_y, float damage) {
 		for (Wall wall : walls) {
 			if (wall.pos_x == pos_x && wall.pos_y == pos_y) {
 				wall.hp -= damage;
@@ -971,16 +980,16 @@ public class BattleMap extends Actor {
 			Unit drawRange = stage.currentPanel;
 			drawRange(drawRange, batch);
 		}
-		else if (drawAll && stage.currentPanel != null) {
-			if (stage.currentPanel.team == 0) {
-				for (Unit drawRange : stage.getAllies()) 
-					drawRange(drawRange, batch);
-			}
-			else if (stage.currentPanel.team == 1) {
-				for (Unit drawRange : stage.getEnemies())
-					drawRange(drawRange, batch);
-			}
-		}
+//		else if (drawAll && stage.currentPanel != null) {
+//			if (stage.currentPanel.team == 0) {
+//				for (Unit drawRange : stage.getAllies()) 
+//					drawRange(drawRange, batch);
+//			}
+//			else if (stage.currentPanel.team == 1) {
+//				for (Unit drawRange : stage.getEnemies())
+//					drawRange(drawRange, batch);
+//			}
+//		}
 
 		// draw cover
 		boolean drawCover = false;
@@ -1270,11 +1279,6 @@ public class BattleMap extends Actor {
 		if (orientation == Orientation.DOWN) return 180;
 		else return 270;
 	}
-
-	//	@Override
-	//	public void act(float delta) {
-	//
-	//	}
 
 	public boolean insideWalls(int pos_x, int pos_y) {
 		if (wallTop > stage.size_y && wallRight > stage.size_x && wallBottom < 0 && wallLeft < 0) return false;

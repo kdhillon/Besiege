@@ -7,6 +7,17 @@
 package kyle.game.besiege;
 
 
+import static kyle.game.besiege.Kingdom.getRandom;
+
+import java.util.HashSet;
+import java.util.Random;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Group;
+
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.army.Bandit;
@@ -19,16 +30,6 @@ import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
-
-import java.util.HashSet;
-import java.util.Random;
-
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.utils.Array;
 
 public class Kingdom extends Group {
 	public static int cityCount = 30;
@@ -69,18 +70,18 @@ public class Kingdom extends Group {
 
 	public Map map;
 	transient private MapScreen mapScreen;
-	public Array<Faction> factions;
+	public StrictArray<Faction> factions;
 
 //	private int factionCount;
-//	public Array<Array<Integer>> factionRelations; // should break into multiple arrays
+//	public StrictArray<StrictArray<Integer>> factionRelations; // should break into multiple arrays
 	
-	private Array<Army> armies;
-	public Array<City> cities;
-	public Array<Castle> castles;
-	public Array<Village> villages;
-	public Array<Ruin> ruins;
+	private StrictArray<Army> armies;
+	public StrictArray<City> cities;
+	public StrictArray<Castle> castles;
+	public StrictArray<Village> villages;
+	public StrictArray<Ruin> ruins;
 	
-	private Array<Battle> battles;
+	private StrictArray<Battle> battles;
 	private ArmyPlayer player;
 
 	public int banditCount;
@@ -119,12 +120,12 @@ public class Kingdom extends Group {
 
 		addActor(map);
 
-		armies = new Array<Army>();
-		cities = new Array<City>();
-		castles = new Array<Castle>();
-		villages = new Array<Village>();
-		ruins = new Array<Ruin>();
-		battles = new Array<Battle>();
+		armies = new StrictArray<Army>();
+		cities = new StrictArray<City>();
+		castles = new StrictArray<Castle>();
+		villages = new StrictArray<Village>();
+		ruins = new StrictArray<Ruin>();
+		battles = new StrictArray<Battle>();
 
 		initializeFactions(this);
 
@@ -524,10 +525,10 @@ public class Kingdom extends Group {
 	
 
 	public void initializeFactions(Kingdom kingdom) {
-		factions = new Array<Faction>();
+		factions = new StrictArray<Faction>();
 
-//		factionRelations = new Array<Array<Integer>>();
-		//		factionMilitaryAction = new Array<Array<Integer>>();
+//		factionRelations = new StrictArray<StrictArray<Integer>>();
+		//		factionMilitaryAction = new StrictArray<StrictArray<Integer>>();
 
 		// add player faction (index 0) 
 		
@@ -608,8 +609,8 @@ public class Kingdom extends Group {
 		getMap().calcBorderEdges();
 		for (Faction f : factions) {
 			f.territory.clear();
-			Array<Array<Center>> aaCenters = MapUtils.calcConnectedCenters(f.centers);				
-			for (Array<Center> centers : aaCenters) {
+			StrictArray<StrictArray<Center>> aaCenters = MapUtils.calcConnectedCenters(f.centers);				
+			for (StrictArray<Center> centers : aaCenters) {
 				//				System.out.println("working");
 				
 				f.territory.add(MapUtils.centersToPolygon(centers));
@@ -623,6 +624,8 @@ public class Kingdom extends Group {
 	/**
 	 * figures out which faction has the most influence on this center,
 	 * and adds it to that faction's "centers" array
+	 * 
+	 * THIS IS WHATS MAKING IT SO SLOW!!!
 	 * @param center
 	 */
 	private void calcInfluence(Center center) {
@@ -635,14 +638,17 @@ public class Kingdom extends Group {
 			double dist; // score is inverse of city distance (birds eye, but should be path-based)
 
 			for (City city : faction.cities) {
-				dist = pathDistBetween(city, centerPoint);
+//				dist = pathDistBetween(city, centerPoint);
+				dist = distBetween(city, centerPoint);
 				if (dist < minDist) {
 					minDist = dist;
 					bestFaction = faction;
 				}
 			}
 			for (Castle castle : faction.castles) {
-				dist = pathDistBetween(castle, centerPoint);
+				// path dist between is pretty slow rn
+//				dist = pathDistBetween(castle, centerPoint);
+				dist = distBetween(castle, centerPoint);
 				if (dist < minDist) {
 					minDist = dist;
 					bestFaction = faction;
@@ -768,7 +774,7 @@ public class Kingdom extends Group {
 //	}
 	
 	public void initializeCities() {	
-//		Array<String> cityArray = Assets.cityNames;
+//		StrictArray<String> cityArray = Assets.cityNames;
 		//		Scanner scanner = Assets.cityList;
 		
 //		int currentFaction = 2; // no bandits or player 
@@ -1021,7 +1027,6 @@ public class Kingdom extends Group {
 		} else System.out.println("no centers!");
 		
 		player = new ArmyPlayer(this, faction, pos_x, pos_y, 6);
-		player.getParty().player = true;
 		player.containingCenter = center.index;
 		addArmy(player);
 		//		player.initializeBox(); // otherwise line of sight will be 0!
@@ -1052,8 +1057,8 @@ public class Kingdom extends Group {
 		banditCount++;
 	}
 	
-	public Array<Location> getAllLocationsCopy() {
-		Array<Location> locations = new Array<Location>();
+	public StrictArray<Location> getAllLocationsCopy() {
+		StrictArray<Location> locations = new StrictArray<Location>();
 		locations.addAll(cities);
 		locations.addAll(castles);
 		locations.addAll(villages);
@@ -1074,10 +1079,10 @@ public class Kingdom extends Group {
 		this.removeActor(remove);
 	}
 
-	public Array<Army> getArmies() {
+	public StrictArray<Army> getArmies() {
 		return armies;
 	}
-	public void setArmies(Array<Army> armies) {
+	public void setArmies(StrictArray<Army> armies) {
 		this.armies = armies;
 	}
 	public void addBattle(Battle battle) {
@@ -1089,7 +1094,7 @@ public class Kingdom extends Group {
 		// is this what's taking so long?
 //		this.removeActor(battle);
 	}
-	public Array<City> getCities() {
+	public StrictArray<City> getCities() {
 		return cities;
 	}
 	public ArmyPlayer getPlayer() {
@@ -1157,8 +1162,9 @@ public class Kingdom extends Group {
 	}
 	
 	public double pathDistBetween(Destination d1, Destination d2) {
+		System.out.println("path dist between");
 		Path path = new Path(d1, this);
-		path.calcPathTo(d2);
+		path.calcPathTo(d2, false);
 		double ret =  path.getRemainingDistance();
 //		if (ret == 0) System.out.println("RET IS 0 KiNGDOM");
 		return ret;

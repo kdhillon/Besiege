@@ -5,13 +5,12 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
+
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
-
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
 
 public class Siege extends Actor {
 	private final float MAINTAIN = 10.0f; // siege will exist this long without any army present
@@ -19,7 +18,7 @@ public class Siege extends Actor {
 	public final static float MIN_BALANCE_TO_ATTACK = 0.2f;
 	public final static float MAX_BALANCE_TO_BREAK = 0.1f;
 	public Location location;
-	public Array<Army> armies;
+	public StrictArray<Army> armies;
 	public float duration;
 	public boolean inBattle;
 	private boolean empty; // no armies present;
@@ -34,7 +33,7 @@ public class Siege extends Actor {
 	public Siege(Location location, Faction besieging) {
 //		System.out.println("creating new siege at " + location.getName());
 		this.location = location;
-		armies = new Array<Army>();
+		armies = new StrictArray<Army>();
 		this.besieging = besieging; 
 		this.duration = 0;
 	}

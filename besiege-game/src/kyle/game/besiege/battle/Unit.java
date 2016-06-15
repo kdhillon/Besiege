@@ -42,13 +42,15 @@ public class Unit extends Group {
 
 	static final float CLIMB_HEIGHT = .1f; // how high can units climb
 
-	final float POLARM_BONUS = 4f;
+	final static float POLARM_BONUS = 4f;
+	
+	final static float BASE_FIRE_RATE = 1.5f;
 
 	public BattleStage stage;	
 	public Unit attacking;
 	public SiegeUnit attackingSiege;
 
-	public BattleParty bp;
+	public BattleSubParty bsp;
 	public Party party;
 	public Soldier soldier;
 	public WeaponType weapon;
@@ -57,7 +59,7 @@ public class Unit extends Group {
 
 	public boolean isMounted = true;
 	public boolean canRetreat = true;
-
+	
 	//	private boolean inCover;
 	private BPoint nearestCover;
 
@@ -71,8 +73,8 @@ public class Unit extends Group {
 	public int original_x;
 	public int original_y;
 
-	public int atk;
-	public int def;
+	public float atk;
+	public float def;
 	public float spd;
 
 	boolean rotationFixed;
@@ -83,7 +85,7 @@ public class Unit extends Group {
 	public int hp;
 
 	//	public float speed = .35f;
-	public float UNIT_BASE_SPEED = .35f;
+	public float UNIT_BASE_SPEED = .45f;
 
 	public float currentSpeed = 0;
 	public int team;
@@ -142,11 +144,11 @@ public class Unit extends Group {
 	//	Animation swordAttack;
 	private Color c = new Color();
 	
-	public Unit(BattleStage parent, int pos_x, int pos_y, int team, Soldier soldier, BattleParty bp) {
+	public Unit(BattleStage parent, int pos_x, int pos_y, int team, Soldier soldier, BattleSubParty bp) {
 		stage = parent;
 
 		//		texture = new TextureRegion(new Texture("red.png"));
-		this.bp = bp;
+		this.bsp = bp;
 		this.party = soldier.party;
 		this.team = team;
 		if (this.team == 0) enemyParty = stage.enemies;
@@ -343,7 +345,7 @@ public class Unit extends Group {
 			this.moveForward();
 			this.forceTwoMoves = false;
 		}
-		else if (this.retreating || this.bp.retreating) {
+		else if (this.retreating || this.bsp.retreating) {
 			this.retreating = true;
 			retreat();
 		}
@@ -476,7 +478,7 @@ public class Unit extends Group {
 	public float getCurrentRange() {
 		if (this.rangedWeapon == null) return -1;
 		//		System.out.println(this.rangedWeapon.range + this.getFloorHeight()*HEIGHT_RANGE_FACTOR);
-		return this.rangedWeapon.range + this.getFloorHeight()*HEIGHT_RANGE_FACTOR;
+		return this.getBaseRange() + this.getFloorHeight()*HEIGHT_RANGE_FACTOR;
 	}
 
 
@@ -566,7 +568,7 @@ public class Unit extends Group {
 	public int calcHP() {
 		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
 		//		else 
-		return 15 + this.def*3;
+		return (int) (15 + this.def*3 + soldier.subparty.getGeneral().getHPBonus());
 	}
 
 	private void moveToEnemy() {
@@ -696,7 +698,7 @@ public class Unit extends Group {
 		// effectively wound soldier until after battle
 		if (this.pos_x == 0 || this.pos_y == 0 || this.pos_x == stage.size_x-1 || this.pos_y == stage.size_y-1) {
 			//			leaveField();
-			soldier.party.wound(soldier);
+			soldier.subparty.wound(soldier);
 			leaveBattle();
 			//			System.out.println("Safe");
 		}
@@ -727,6 +729,10 @@ public class Unit extends Group {
 		//		}
 		return false;
 	}
+	
+	public boolean isGeneral() {
+		return soldier.isGeneral();
+	}
 
 	private BPoint getAdjacentPoint() {
 		BPoint point = null;
@@ -745,7 +751,7 @@ public class Unit extends Group {
 	private void fireAtEnemy() {
 		this.quiver -= 1;
 
-		this.reloading = rangedWeapon.rate;
+		this.reloading = rangedWeapon.rate * BASE_FIRE_RATE;
 		Unit enemy = getNearestTarget();
 		face(enemy);
 		Projectile projectile = new Projectile(this, enemy);
@@ -828,11 +834,17 @@ public class Unit extends Group {
 		return true;
 	}
 
+	
+	// can make this super fast using a few simple ways
+	// if infantry, just check nearby area (16 squares or so)
+	// if nothing there, shoot line straight ahead to see if enemy is there.
+	// if nothing there, do expanding search (or use neighbor's nearest enemy)
 	private Unit getNearestEnemy() {
 		Unit closest = null;
 		Unit closestRetreating = null;
 		double closestDistance = 99999;
 
+		// just fix search now.
 		for (Unit that : enemyParty.units) {
 			if (that.team == this.team) System.out.println("TEAM ERROR!!!");
 			if (that.isHidden) continue;
@@ -1323,8 +1335,8 @@ public class Unit extends Group {
 		this.currentSpeed *= stage.getStageSlow();
 
 		// either use this speed or everyone's speed
-		if (!retreating && bp.stance == Stance.INLINE)
-			this.currentSpeed *= bp.minSpeed;
+		if (!retreating && bsp.stance == Stance.INLINE)
+			this.currentSpeed *= bsp.minSpeed;
 		else this.currentSpeed *= spd;
 	}
 
@@ -1391,6 +1403,10 @@ public class Unit extends Group {
 		}
 		this.hp = calcHP();
 	}
+	
+	public void setStance(Stance s) {
+		this.stance = s;
+	}
 
 	public boolean bowOut() {
 		return isRanged() && quiver > 0 && attacking == null;
@@ -1438,7 +1454,7 @@ public class Unit extends Group {
 
 		status += " retreated!";
 
-		if (bp.player)
+		if (team == 0)
 			color = "yellow";
 		else // if (dArmies.contains(army, true)) {
 			color = "blue";
@@ -1637,5 +1653,15 @@ public class Unit extends Group {
 	// return true if enemy can't see this unit
 	public boolean isHidden() {
 		return isHidden;
+	}
+	
+	public float getBaseRange() {
+		if (!this.isRanged()) return 0;
+		return this.rangedWeapon.range + soldier.subparty.general.getBonusRange();
+	}
+	
+	public float getRangeDmg() {
+		if (!this.isRanged()) return 0;
+		return this.rangedWeapon.atkMod + soldier.subparty.general.getBonusRangedAtk();
 	}
 }

@@ -11,12 +11,16 @@ import kyle.game.besiege.Destination;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.party.ImportantPerson;
-import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.party.PartyType.Type;
-import kyle.game.besiege.party.UnitType;
 
 public class Noble extends Army {
+	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	  250,		 300, 301};
+	private static final String[] RANKS = {"Baron", "Earl", "Count", "Duke", "Prince", "Archduke", "King"};
+
+	int rank;
+	int nextRank;
+	public Location home;
+	public String title; 	// "earl of x", "bandit warlord"
 	
 	// change for testing
 	private static final int BASE_PC = 350; // base party count
@@ -44,10 +48,11 @@ public class Noble extends Army {
 		super(kingdom, "", home.getFaction(), home.getSpawnPoint().getX(), home.getSpawnPoint().getY(), Type.NOBLE);
 		this.setDefaultTarget((City) home);
 		// set up initial party, rank, etc
-//		rank = 0; // baron for now
+		rank = 0; // baron for now
 //		reknown = 0;
-//		rankName = RANKS[rank];
-//		nextRank = REKNOWN_RANK[rank + 1];
+		updateTitle(RANKS[rank]);
+		nextRank = REKNOWN_RANK[rank + 1];
+		
 		String region = "knightFlail";
 		double random = Math.random();
 		if (random >= .33) region = "knightLance";
@@ -58,23 +63,32 @@ public class Noble extends Army {
 		kingdom.addArmy(this);
 		this.type = ArmyType.NOBLE;
 		
-		this.party.setGeneral(generateGeneral(home));
+		updateHome(home);
 
+		// this is key
+		giveReknown(MathUtils.random(50));
+		giveReknown(MathUtils.random(50));
+		giveReknown(MathUtils.random(50));
+		
+		if (title == null || title.equals("")) throw new java.lang.AssertionError(this.getName() + " reknown : " + this.getFame() + " " + title);
+		
+		this.updateName();
+		
 		this.calcMaxPartySize();
 	}
 	
 	// generate the initial soldier for this 
-	public ImportantPerson generateGeneral(Location home) {
-		UnitType type = UnitLoader.classTypes.values().iterator().next().units.values().iterator().next();		
-		
-		ImportantPerson general = new ImportantPerson(type, this.party, "Duke", home);
-		
-		// earl, baron, or count
-		general.giveReknown(MathUtils.random(50));
-		general.giveReknown(MathUtils.random(50));
-		general.giveReknown(MathUtils.random(50));
-		return general;
-	}
+//	public General generateFreshGeneral(Location home) {
+//		UnitType type = this.party.
+//		
+//		General general = new General(type, this.party, home);
+//		
+//		// earl, baron, or count
+//		general.giveReknown(MathUtils.random(50));
+//		general.giveReknown(MathUtils.random(50));
+//		general.giveReknown(MathUtils.random(50));
+//		return general;
+//	}
 
 	@Override
 	public void uniqueAct() {
@@ -147,6 +161,44 @@ public class Noble extends Army {
 			// never travel in Unique act!
 		}
 	}
+	
+	public String getTitle() {
+		if (this.home != null) {
+			return this.title + " of " + this.home.getName();			
+		}
+		return this.title;
+	}
+
+	public void updateHome(Location home) {
+		this.home = home;
+	}
+	
+	public void giveReknown(int reknown) {
+		this.getGeneral().fame += reknown;
+		if (getGeneral().fame <= RANKS.length - 1) {
+			if (this.getGeneral().fame >= nextRank) {
+				increaseRank();
+			}
+		}
+//		calcMaxPartySize();
+	}
+
+	private void increaseRank() {
+		this.rank++;
+		updateTitle(RANKS[rank]);
+		nextRank = REKNOWN_RANK[rank+1];
+	}
+
+	public static String getTitleForFame(int fame) {
+		for (int i = 1; i < REKNOWN_RANK.length; i++) {
+			if (REKNOWN_RANK[i] > fame) return RANKS[i-1];
+		}
+		return "God";
+	}
+
+	public void updateTitle(String title) {
+		this.title = getTitleForFame(this.getGeneral().fame);
+	}
 
 	@Override 
 	public void besiege(Location location) {
@@ -157,7 +209,7 @@ public class Noble extends Army {
 	public void returnHome() {
 //		System.out.println(this.getName() + " returning home");
 		if (getHome() == null) {
-			getGeneral().updateHome(this.getFaction().getRandomCity());
+			updateHome(this.getFaction().getRandomCity());
 		}
 		if (getHome() == null) this.destroy();
 		this.specialTargetToBesiege = null;
@@ -201,24 +253,17 @@ public class Noble extends Army {
 	}
 	
 	public int getFame() {
-		return this.party.general.fame;
+		return this.party.getGeneral().fame;
 	}
 	
 	public void calcMaxPartySize() {
 		getParty().maxSize = (int) (getFame() * REKNOWN_PC_FACTOR + BASE_PC);
 	}
 	
-//	public void updateName() {
-////		this.setName(rankName + " of " + home.getName() + " (");
-//	}
+	public void updateName() {
+		this.setName(title + " of " + home.getName());
+	}
 	
-	public String getName() {
-		return this.getGeneral().getFullName();
-	}
-	// for when their old estate no longer belongs to their kingdom.
-	public void giveNewHome() {
-
-	}
 	@Override
 	public void nextTarget() {
 		super.nextTarget();
@@ -238,9 +283,9 @@ public class Noble extends Army {
 	}
 	
 	public Location getHome() {
-		return this.getGeneral().home;
+		return this.home;
 	}
 	public void setHome(Location home) {
-		this.getGeneral().updateHome(home);
+		this.updateHome(home);
 	}
 }

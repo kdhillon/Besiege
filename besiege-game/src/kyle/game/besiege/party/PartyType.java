@@ -39,13 +39,21 @@ public class PartyType { // todo add ability for max party size
 	//private final int maxTroopLevel;
 	//private final int minTotal;
 
-
+	
+	// also add generals!
 	public Party generate() {
+		return generate(false);
+	}
+	
+	public Party generate(boolean player) {
 		Party party = new Party();
+		party.player = player;
 
 //		if (unitTypes != null) {
 	
 		int toGenerate = MathUtils.random(minCount, maxCount);
+
+		party.createFreshGeneral(this.randomBestSoldierType());
 		
 		while (toGenerate > 0) {
 			// generate random unit from available tiers in available class TODO
@@ -53,6 +61,7 @@ public class PartyType { // todo add ability for max party size
 			party.addSoldier(new Soldier(type, party));
 			toGenerate--;
 		}
+//		UnitType unitType, Party party, String title, Location home
 
 		int randomWealth = MathUtils.random(minWealth, maxWealth);
 		party.wealth = randomWealth;
@@ -69,6 +78,7 @@ public class PartyType { // todo add ability for max party size
 		
 		return MathUtils.random(minCount, maxCount);
 	}
+	
 	public UnitType randomSoldierType() {
 		// weighted based on soldier ffrequencies (in max):		
 		
@@ -125,6 +135,18 @@ public class PartyType { // todo add ability for max party size
 		while (!isInTier);
 		
 		return unitType;
+	}
+	
+	public UnitType randomBestSoldierType() {
+		int maxTier = 0;
+		for (int i = 0; i < tiers.length; i++) {
+			if (tiers[i] > maxTier) maxTier = tiers[i];
+		}
+		
+		UnitType best = randomSoldierType();
+		while (best.tier < maxTier)
+			best = randomSoldierType();
+		return best;
 	}
 	
 	// for use by cities and armies created in cities

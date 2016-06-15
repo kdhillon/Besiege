@@ -1,58 +1,38 @@
 package kyle.game.besiege.battle;
 
-import com.badlogic.gdx.utils.Array;
-
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.Subparty;
 
 public class BattleParty {
-
-	public BattleStage stage;
 	public boolean besieging;
 	public boolean player;
-	public Array<Unit> units;
-	public Array<Party> parties;
-//	public Party party;
-	public Stance stance;
-	public Formation formation;
-	public float minSpeed;
+	
 	public boolean retreating;
 	
-	
-//	public void removeUnit(remove, true) {
-//		
-//	}
+	StrictArray<BattleSubParty> subparties;
+	StrictArray<Party> parties;
+	StrictArray<Unit> units; // reflects subparties' units
 
+	public BattleStage stage;
 	
+	
+
 	public BattleParty(BattleStage stage) {
-		this.units = new Array<Unit>();
 		this.stage = stage;
-		this.parties = new Array<Party>();
+		this.parties = new StrictArray<Party>();
+		this.subparties = new StrictArray<BattleSubParty>();
+		this.units = new StrictArray<Unit>();
 	}
-	
 	
 	public void addParty(Party party) {
 		if (party == null) return;
 		this.parties.add(party);
 //		System.out.println("adding " + party.army.getName());
-	}
-
-	public void addUnit(Unit unit) {
-		this.units.add(unit);
-		stage.addActor(unit);
-		this.calcMinSpeed();
-	}
-	
-	public void removeUnit(Unit remove) {
-		units.removeValue(remove, true);
-		if (remove.inMap())
-			if (stage.units[remove.pos_y][remove.pos_x] == remove) stage.units[remove.pos_y][remove.pos_x] = null;
-		stage.removeActor(remove);
-		calcMinSpeed();
-	}
-	public boolean noUnits() {
-		return this.units.size == 0;
+		for (Subparty s : party.sub) {
+			this.subparties.add(new BattleSubParty(this, s));
+		}
 	}
 	
 	public Party first() {
@@ -62,42 +42,21 @@ public class BattleParty {
 	
 	public int getHealthySize() {
 		int total = 0;
-		for (Party p : parties) {
-			total += p.getHealthySize();
+		for (BattleSubParty p : subparties) {
+			if (!p.retreated) {
+				total += p.getHealthySize();
+			}
 		}
 		return total;
 	}
-
-	public Array<Soldier> getHealthyInfantry() {
-		Array<Soldier> healthyInfantry = new Array<Soldier>();
-		for (Party p : parties) {
-			healthyInfantry.addAll(p.getHealthyInfantry());
-		}
-		return healthyInfantry;
-	}
-
-	public Array<Soldier> getHealthyArchers() {
-		Array<Soldier> healthyArchers = new Array<Soldier>();
-		for (Party p : parties) {
-			healthyArchers.addAll(p.getHealthyArchers());
-		}
-		return healthyArchers;
-	}
 	
-	public Array<Soldier> getHealthyCavalry() {
-		Array<Soldier> healthyCavalry = new Array<Soldier>();
-		for (Party p : parties) {
-			healthyCavalry.addAll(p.getHealthyCavalry());
-		}
-		return healthyCavalry;
-	}
-	
-	public Array<Party> getPartiesCopy() {
-		Array<Party> partiesNew = new Array<Party>();
+	public StrictArray<Party> getPartiesCopy() {
+		StrictArray<Party> partiesNew = new StrictArray<Party>();
 		for (Party p : parties) partiesNew.add(p);
 		return partiesNew;
 	}
 	
+
 	public void updatePolygon() {
 		if (parties == null) return;
 		for (Party p : parties) {
@@ -105,18 +64,57 @@ public class BattleParty {
 				p.army.updatePolygon();
 		}
 	}
-
-	public void calcMinSpeed() {
-		float min = Float.MAX_VALUE;
-		for (Unit unit : units) {
-			if (unit.retreating) continue;
-			if (unit.spd < min) min = unit.spd;
+	
+	public void setStance(Stance stance) {
+		for (BattleSubParty s : subparties) {
+			s.stance = stance;
 		}
-		this.minSpeed = min;
+	}
+	
+	public void setGlobalFormation(Formation f) {
+		for (BattleSubParty s : subparties) {
+			s.formation = f;
+		}
+	}
+	
+	public void retreatAll() {
+		for (BattleSubParty s : subparties) {
+			s.retreating = true;
+		}
 	}
 	
 	public void updateHiddenAll() {
-		for (Unit unit : units) unit.updateHidden();
-//		System.out.println("updating hidden");
+		for (BattleSubParty s : subparties) {
+			s.updateHiddenAll();
+		}	
 	}
+	
+	public boolean noUnits() {
+		for (BattleSubParty b : subparties) {
+			if (!b.noUnits()) return false;
+		}
+		return true;
+	}
+	
+	public void removeUnit(Unit u) {
+		u.bsp.removeUnit(u);
+	}
+	
+//	public StrictArray<Soldier> getHealthyInfantry() {
+//		StrictArray<Soldier> healthyArchers = new StrictArray<Soldier>();
+//		for (Party p : parties) {
+//			healthyArchers.addAll(p.root.getHealthyArchers());
+//		}
+//		return healthyArchers;
+//	}
+//	
+//	public StrictArray<Soldier> getHealthyInfantry() {
+//		int total = 0;
+//		for (BattleSubParty p : subparties) {
+//			if (!p.retreated) {
+//				total += p.getHealthyInfantry();
+//			}
+//		}
+//		return total;
+//	}
 }

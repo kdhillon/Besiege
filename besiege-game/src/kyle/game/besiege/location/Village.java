@@ -6,21 +6,19 @@
 package kyle.game.besiege.location;
 
 
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Militia;
-import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.voronoi.Center;
-
-import com.badlogic.gdx.utils.Array;
 
 public class Village extends Location {
 	private final float SCALE = 7;
 	
-	private final int HIGH_WEALTH = 100;
+	private static final int MAX_FARMERS = 5;
 	private final int MED_WEALTH = 50;
 
 	private final String textureRegion = "Village";
@@ -60,6 +58,7 @@ public class Village extends Location {
 	}
 
 	public void createFarmer() {
+		if (this.farmers.size >= MAX_FARMERS) return;
 		Farmer farmer = new Farmer(getKingdom(), getName() + " Farmers", getFaction(), getCenterX(), getCenterY());
 		getKingdom().addArmy(farmer);
 		farmer.setVillage(this);

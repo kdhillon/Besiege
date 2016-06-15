@@ -31,7 +31,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.Panel;
-import kyle.game.besiege.party.ImportantPerson;
+import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Center;
@@ -142,6 +142,10 @@ public class Army extends Actor implements Destination {
 	}
 	
 	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type) {
+		this(kingdom, name, faction, posX, posY, type, false);
+	}
+	
+	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type, boolean player) {
 		this.kingdom = kingdom;
 		this.name = name;
 		this.faction = faction;
@@ -182,7 +186,7 @@ public class Army extends Actor implements Destination {
 //				throw new java.lang.NullPointerException();
 			}
 			this.partyType = PartyType.generatePT(type, containing);
-			this.party = partyType.generate();		
+			this.party = partyType.generate(player);		
 			this.party.army = this;
 		}
 		else {
@@ -484,6 +488,7 @@ public class Army extends Actor implements Destination {
 
 	public void friendlyArmyCollision(Army targetArmy) {
 		//follow
+		
 	}
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
@@ -838,6 +843,10 @@ public class Army extends Actor implements Destination {
 			updatePolygon = 0;
 		}
 		else updatePolygon++;
+	}
+	
+	public void updatePolygonForce() {
+		getKingdom().updateArmyPolygon(this);
 	}
 
 	public void waitFor(double seconds) {
@@ -1210,7 +1219,7 @@ public class Army extends Actor implements Destination {
 				this.target = newTarget;
 				//				if (newTarget != null && this.path.isEmpty()) {
 				if (newTarget != null && this.path.finalGoal != newTarget) {
-					if (this.path.calcPathTo(newTarget)) {
+					if (this.path.calcPathTo(newTarget, this.isPlayer())) {
 						this.lastPathCalc = A_STAR_FREQ;
 						path.next();
 					}
@@ -1321,11 +1330,12 @@ public class Army extends Actor implements Destination {
 	}
 
 	// laziness sake
+	// this is called a fuckton and uses the most time.
 	protected double distToCenter(Destination d) {
 		return getKingdom().distBetween(this, d);
 	}
 	
-	private boolean isPlayer() {
+	public boolean isPlayer() {
 		return this.getParty().player;
 	}
 
@@ -1491,7 +1501,7 @@ public class Army extends Actor implements Destination {
 	public void restoreTexture() {
 		this.setTextureRegion(textureName);
 	}
-	public ImportantPerson getGeneral() {
-		return this.party.general;
+	public General getGeneral() {
+		return this.party.getGeneral();
 	}
 }

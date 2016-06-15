@@ -1,11 +1,10 @@
 package kyle.game.besiege;
 
+import com.badlogic.gdx.math.Polygon;
+
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 import kyle.game.besiege.voronoi.Edge;
-
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.utils.Array;
 
 public class MapUtils {
 	/** reorganizes array disconnectedCenters into separate arrays of 
@@ -14,16 +13,16 @@ public class MapUtils {
 	 * @param disconnectedCenters
 	 * @return
 	 */
-	public static Array<Array<Center>> calcConnectedCenters(Array<Center> original) {
-		Array<Center> disconnectedCenters = new Array<Center>();
+	public static StrictArray<StrictArray<Center>> calcConnectedCenters(StrictArray<Center> original) {
+		StrictArray<Center> disconnectedCenters = new StrictArray<Center>();
 		for (Center c : original) {
 			disconnectedCenters.add(c);
 		}
-		Array<Array<Center>> aaCenters = new Array<Array<Center>>();
+		StrictArray<StrictArray<Center>> aaCenters = new StrictArray<StrictArray<Center>>();
 		// start with random one, calc connected, remove all of those from disconnected, continue until disconnected is empty
 		
 		while (disconnectedCenters.size > 0) {
-			Array<Center> connectedToStart = new Array<Center>();
+			StrictArray<Center> connectedToStart = new StrictArray<Center>();
 			Center start = disconnectedCenters.random();
 			calcConnectedContained(start, connectedToStart, original);
 //			System.out.println("connected " + connectedToStart.size);
@@ -35,7 +34,7 @@ public class MapUtils {
 	}
 	
 	// calc connected components, recursively
-	private static void calcConnectedContained(Center center, Array<Center> connected, Array<Center> container) {
+	private static void calcConnectedContained(Center center, StrictArray<Center> connected, StrictArray<Center> container) {
 		connected.add(center);
 		for (Center neighbor : center.neighbors) {
 			if (container.contains(neighbor, true) && !connected.contains(neighbor, true)) {
@@ -51,7 +50,7 @@ public class MapUtils {
 	 *  
 	 * @param polygonCenters
 	 */
-	public static Polygon centersToPolygon(Array<Center> polygonCenters) {
+	public static Polygon centersToPolygon(StrictArray<Center> polygonCenters) {
 		return edgesToPolygon(getBordersOfCenters(polygonCenters));
 	}
 	
@@ -70,7 +69,7 @@ public class MapUtils {
 	 * @param index
 	 */
 	// recursively find and add adjacent vertex to vertices
-//	private static void getNextVertex(Corner corner, Array<Corner> outsideCorners, Array<Corner> used, float[] vertices, int index) {
+//	private static void getNextVertex(Corner corner, StrictArray<Corner> outsideCorners, StrictArray<Corner> used, float[] vertices, int index) {
 //		for (Corner next : corner.adjacent) {
 //			if (outsideCorners.contains(next, true) && !used.contains(next, true)) {
 //				used.add(next);
@@ -84,9 +83,9 @@ public class MapUtils {
 //		}
 //	}
 	
-	private static Array<Edge> getBordersOfCenters(Array<Center> centers) {
-		Array<Edge> usedMoreThanOnce = new Array<Edge>();
-		Array<Edge> usedOnce = new Array<Edge>();
+	private static StrictArray<Edge> getBordersOfCenters(StrictArray<Center> centers) {
+		StrictArray<Edge> usedMoreThanOnce = new StrictArray<Edge>();
+		StrictArray<Edge> usedOnce = new StrictArray<Edge>();
 		for (Center center : centers) {
 			for (Edge edge : center.borders) {
 				if (usedOnce.contains(edge, true)) {
@@ -103,8 +102,8 @@ public class MapUtils {
 	/** Converts Array of connected edges into a Libgdx polygon
 	 * 
 	 */
-	private static Polygon edgesToPolygon(Array<Edge> edges) {
-		Array<Edge> used = new Array<Edge>();
+	private static Polygon edgesToPolygon(StrictArray<Edge> edges) {
+		StrictArray<Edge> used = new StrictArray<Edge>();
 		int index = 0;
 		float[] vertices = new float[edges.size*2];
 		
@@ -126,7 +125,7 @@ public class MapUtils {
 	 * @param index
 	 * @param vertices
 	 */
-	private static void adjEdge(Corner startC, Edge startE, Array<Edge> allEdges, Array<Edge> used, int index, float[] vertices) {
+	private static void adjEdge(Corner startC, Edge startE, StrictArray<Edge> allEdges, StrictArray<Edge> used, int index, float[] vertices) {
 		used.add(startE);
 		for (Edge adj : startC.protrudes) {
 			if (allEdges.contains(adj, true) && !used.contains(adj, true)) {

@@ -8,9 +8,6 @@ Class:	Basic	WHITE
 2	Clubman			Club				Armor			Hammerman/Maceman
 2	Archer			Shortbow/Dagger		Armor			Crossbowman/Bowman/Longbowman
 
-2	Musketman		Musket				Armor			Rifleman
-3	Rifleman		Rifle				Armor			none
-
 3	Pikeman			Pike				Armor			Pikemaster
 3	Poleman			Halberd				Armor			Blademaster
 3	Swordsman		Shortsword			Armor			Swordmaster

@@ -119,19 +119,31 @@ Day 91: added joining battles, fame
 Day 1xx: added easily customizable unit types, more fluid map, better faction relations, procedurally generated location and soldier names, soldier stats. worked on rivers, 
 
 Features I want to add:
-	Better firearm battles
-		Replace bow walk animation 
-		Filing in to fill in ranks
-		smoke, sound, bullet trails
-		
 	Generals and control structures:
 		General stats that help battles!!! (replaces "character")
 		Squads in battles
 			User placement of squads
 		Promotions/user control
 		AI party management
+		todo:
+			make every party have one general, make a special color in battle 
+			treat his soldiers like his "bodyguard"
 		
-
+	Better faction AI:
+		
+	Customizable party types:
+		Text-file customization with a few simple parameters (size, passive, etc)
+		
+	Different levels of woundedness, medics/doctors in your party
+	
+	Fix militias/raiding/village wealth
+		Add "honor" aka morality
+	
+	Fix bug that makes seiges really slow/expensive
+	
+	Make bandits occupy ruins (and set up camps?)!
+	
+	fix bug that if you're on an edge, you can easily go into the water
 
 BATTLESTAGE:
 finish hiding

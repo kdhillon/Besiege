@@ -57,7 +57,7 @@ public class Projectile extends Actor {
 	private float rotation_offset;
 
 	public int bounceCount;
-	public int damage;
+	public float damage;
 	public float distanceToTravel;
 
 	public float SPEED = 25f;
@@ -93,7 +93,7 @@ public class Projectile extends Actor {
 		initializePosition();
 
 		// calculate damage
-		this.damage = firing.rangedWeapon.atkMod;
+		this.damage = firing.getRangeDmg();
 		this.damage *= DAMAGE_FACTOR;
 
 		// calculate destination (based on accuracy) 

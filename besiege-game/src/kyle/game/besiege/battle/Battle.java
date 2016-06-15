@@ -8,12 +8,12 @@ package kyle.game.besiege.battle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.army.Noble;
@@ -49,16 +49,16 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	// doesn't require a kingdom necessarily
 	private Kingdom kingdom;
-	public Array<Army> aArmies;
-	public Array<Army> dArmies;
-	public Array<Army> aArmiesRet; 
-	public Array<Army> dArmiesRet;
+	public StrictArray<Army> aArmies;
+	public StrictArray<Army> dArmies;
+	public StrictArray<Army> aArmiesRet; 
+	public StrictArray<Army> dArmiesRet;
 	
 	// ONLY USED IN SIMULATION
-	public Array<Party> aParties;
-	public Array<Party> dParties;
-	public Array<Party> aPartiesRet;
-	public Array<Party> dPartiesRet;
+	public StrictArray<Party> aParties;
+	public StrictArray<Party> dParties;
+	public StrictArray<Party> aPartiesRet;
+	public StrictArray<Party> dPartiesRet;
 	
 	public Location siegeOf; // only if a siege
 	
@@ -89,9 +89,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public boolean isOver;
 	public boolean didAtkWin;
 	
-	public Array<WeaponType> weaponLoot;
-	public Array<RangedWeaponType> rangedLoot;
-	public Array<ArmorType> armorLoot;
+	public StrictArray<WeaponType> weaponLoot;
+	public StrictArray<RangedWeaponType> rangedLoot;
+	public StrictArray<ArmorType> armorLoot;
 	
 	// For Kryo
 	public Battle() {
@@ -110,10 +110,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 		Army initAttacker = initAttackerParty.army;
 		Army initDefender = initDefenderParty.army;
 
-		aParties = new Array<Party>();
-		dParties = new Array<Party>();
-		aPartiesRet = new Array<Party>();
-		dPartiesRet = new Array<Party>();
+		aParties = new StrictArray<Party>();
+		dParties = new StrictArray<Party>();
+		aPartiesRet = new StrictArray<Party>();
+		dPartiesRet = new StrictArray<Party>();
 		
 		aParties.add(initAttackerParty);
 		dParties.add(initDefenderParty);
@@ -137,10 +137,10 @@ public class Battle extends Actor implements Destination { // new battle system 
 //			kingdom.getMapScreen().getSidePanel().setActiveBattle(this);
 		
 		if (initAttacker != null && initDefender != null) {
-			aArmies = new Array<Army>();
-			dArmies = new Array<Army>();
-			aArmiesRet = new Array<Army>();
-			dArmiesRet = new Array<Army>();
+			aArmies = new StrictArray<Army>();
+			dArmies = new StrictArray<Army>();
+			aArmiesRet = new StrictArray<Army>();
+			dArmiesRet = new StrictArray<Army>();
 			
 			aArmies.add(initAttacker);
 			dArmies.add(initDefender);
@@ -172,9 +172,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 		aAdvantage = 1; // for now. make influenced by player's attribute as well as morale.
 		dAdvantage = 1;
 		
-		weaponLoot = new Array<WeaponType>();
-		rangedLoot = new Array<RangedWeaponType>();
-		armorLoot = new Array<ArmorType>();
+		weaponLoot = new StrictArray<WeaponType>();
+		rangedLoot = new StrictArray<RangedWeaponType>();
+		armorLoot = new StrictArray<ArmorType>();
 	}
 	
 	@Override
@@ -216,6 +216,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	public void calcStats() {
+//		System.out.println("calculating stats");
 		// calculate advantages
 		if (playerInA)
 			aAdvantage = kingdom.getPlayer().getCharacter().getAttributeFactor("Attacking");
@@ -543,6 +544,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public void killOne(Army army, boolean atkDead) { // kills/wounds one random troop in this army, weighted by the troop's defense
 		// Now choose a random soldier weighted by def
 		Soldier random = army.party.getRandomWeightedInverseDefense();
+		if (random == null) throw new java.lang.AssertionError();
+		
 		casualty(random, atkDead);
 		
 		if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) {
@@ -614,7 +617,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	public Soldier getRandomForKill(boolean atkKill) {
-		Array<Army> armies;
+		StrictArray<Army> armies;
 		if (atkKill) armies = aArmies;
 		else armies = dArmies;
 		
@@ -649,7 +652,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		log(army.getName() + " was defeated!", "green");
 	}
 	
-	public void victory(Array<Army> victor, Array<Army> loser) {
+	public void victory(StrictArray<Army> victor, StrictArray<Army> loser) {
 //		System.out.println("victory in " + name);
 //		System.out.println("battle over");
 //		if (isOver) System.out.println(getName() + " ENDING BATTLE TWICE!!!?!");
@@ -872,7 +875,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	// calculates the hypothetical initial balance (0 - 1.0) in a battle between these armies, for the first set (w/ no advantage)
-	public static double calcBalance(Array<Army> first, double firstAdvantage, Array<Army> second, double secondAdvantage) {
+	public static double calcBalance(StrictArray<Army> first, double firstAdvantage, StrictArray<Army> second, double secondAdvantage) {
 		int firstAtk = 0;
 		int firstSize = 0;
 		for (Army a : first) {
@@ -892,7 +895,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	}
 	
 	// Identical to above, but takes nobles instead of Armies
-	public static double calcBalanceNobles(Array<Noble> first, double firstAdvantage, Array<Army> second, double secondAdvantage) {
+	public static double calcBalanceNobles(StrictArray<Noble> first, double firstAdvantage, StrictArray<Army> second, double secondAdvantage) {
 		int firstAtk = 0;
 		int firstSize = 0;
 		for (Army a : first) {

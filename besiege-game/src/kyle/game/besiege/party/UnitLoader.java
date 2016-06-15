@@ -3,11 +3,10 @@ package kyle.game.besiege.party;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import kyle.game.besiege.voronoi.Biomes;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.voronoi.Biomes;
 
 public class UnitLoader {
 	public static final String PATH = "data/units/";
@@ -140,7 +139,6 @@ public class UnitLoader {
 			WeaponType weapon = new WeaponType();
 			if (!in.hasNext()) return;
 			weapon.name		= in.next();
-			System.out.println(weapon.name);
 			weapon.atkMod 	= in.nextInt();
 			weapon.defMod 	= in.nextInt();
 			weapon.spdMod	= in.nextInt();

@@ -5,25 +5,16 @@
  ******************************************************************************/
 package kyle.game.besiege.location;
 
-import kyle.game.besiege.Assets;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Map;
-import kyle.game.besiege.Point;
 import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
-import kyle.game.besiege.geom.PointH;
-import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.voronoi.Center;
-import kyle.game.besiege.voronoi.Corner;
-
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 
 public class City extends Location {
 	private final static float SCALE = 7;
@@ -113,6 +104,8 @@ public class City extends Location {
 	}
 	
 	public void createPatrol() {
+		if (this.patrols.size >= Location.MAX_PATROLS) return;
+
 		Patrol patrol = new Patrol(getKingdom(), this);
 		patrol.proximityToBase = .5;
 		patrol.patrolAround(this);

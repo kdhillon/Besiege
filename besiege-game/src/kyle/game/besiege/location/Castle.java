@@ -8,15 +8,14 @@
 
 package kyle.game.besiege.location;
 
-import kyle.game.besiege.Assets;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
 import kyle.game.besiege.party.PartyType;
-
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
 
 public class Castle extends Location {
 	private final static int SCOUT_TRAVEL_FACTOR = 5;
@@ -26,15 +25,15 @@ public class Castle extends Location {
 	private  int patrolCost;
 	private int raiderCost;
 	
-//	private Array<Castle> closestFriendlyCities;
-//	private Array<Castle> closestEnemyCities;
+//	private StrictArray<Castle> closestFriendlyCities;
+//	private StrictArray<Castle> closestEnemyCities;
 	
-//	private Array<Patrol> scouts;
-	private Array<RaidingParty> raiders;
+//	private StrictArray<Patrol> scouts;
+	private StrictArray<RaidingParty> raiders;
 	private boolean[] raiderExists;
 	
-//	private Array<Village> villages;
-//	private Array<PointH> villageSpots;
+//	private StrictArray<Village> villages;
+//	private StrictArray<PointH> villageSpots;
 
 	public Castle(){}
 	
@@ -49,14 +48,14 @@ public class Castle extends Location {
 //		
 		this.getFaction().castles.add(this);
 		
-//		scouts = new Array<Patrol>();
+//		scouts = new StrictArray<Patrol>();
 	
-		raiders = new Array<RaidingParty>();
+		raiders = new StrictArray<RaidingParty>();
 		raiderExists = new boolean[Kingdom.castleCount];
 
-//		closestFriendlyCities = new Array<Castle>();
-//		closestEnemyCities = new Array<Castle>();
-//		villages = new Array<Village>();
+//		closestFriendlyCities = new StrictArray<Castle>();
+//		closestEnemyCities = new StrictArray<Castle>();
+//		villages = new StrictArray<Village>();
 		
 //		this.merchantCost = PartyType.MERCHANT.maxWealth;
 //		this.patrolCost = PartyType.PATROL.maxWealth;
@@ -106,6 +105,7 @@ public class Castle extends Location {
 	}
 	
 	public void createScout() {
+		if (this.patrols.size >= Location.MAX_PATROLS) return;
 		Patrol scout = new Patrol(getKingdom(), this);
 		scout.patrolDist = 200;
 		scout.proximityToBase = .1;
@@ -119,7 +119,7 @@ public class Castle extends Location {
 	public void removePatrol(Patrol patrol) {
 		patrols.removeValue(patrol, true);
 	}
-	public Array<Patrol> getPatrols() {
+	public StrictArray<Patrol> getPatrols() {
 		return patrols;
 	}
 //
@@ -170,10 +170,10 @@ public class Castle extends Location {
 //	public Castle getCloseEnemyLocation() {
 //		return closestEnemyCities.random();
 //	}
-//	public Array<Castle> getClosestHostileLocations() {
+//	public StrictArray<Castle> getClosestHostileLocations() {
 //		return closestEnemyCities;
 //	}
-//	public Array<Castle> getClosestFriendlyCities() {
+//	public StrictArray<Castle> getClosestFriendlyCities() {
 //		return closestFriendlyCities;
 //	}
 	// moved to location
@@ -233,11 +233,11 @@ public class Castle extends Location {
 //		this.getKingdom().addActor(village);
 //		village.setParent(this);
 //	}
-//	public Array<Village> getVillages() {
+//	public StrictArray<Village> getVillages() {
 //		return villages;
 //	}
 //	
-	public Array<RaidingParty> getRaiders() {
+	public StrictArray<RaidingParty> getRaiders() {
 		return raiders;
 	}
 

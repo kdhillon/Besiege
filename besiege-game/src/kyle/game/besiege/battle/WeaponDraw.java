@@ -1,8 +1,5 @@
 package kyle.game.besiege.battle;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.party.UnitType;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +7,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.party.UnitType;
 
 public class WeaponDraw extends Actor {
 	private float DEFAULT_OFFSET = 0;
@@ -231,7 +231,12 @@ public class WeaponDraw extends Actor {
 		else batch.setColor(.3f, .3f, 1, .6f);
 		
 		// draw white if selected
-		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) batch.setColor(1, 1, 1, .5f);
+		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) {
+			batch.setColor(1, 1, 1, .5f);
+		}
+		if (this.unit.isGeneral()) {
+			batch.setColor(1, 1, 0, 0.5f);
+		}
 		
 		boolean drawTeams = true;
 		

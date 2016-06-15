@@ -1,0 +1,29 @@
+name			atk	def	spd	1h		blunt	polearm
+
+Pitchfork		1	0	-1	false	false	true
+
+Sickle			1	0	0	true	false	false
+Dagger			1	0	0	true	false	false
+Military Fork	1	1	-1	false	false	true
+
+Club			2	0	0	true	true	false
+Spear			2	1	-1	false	false	true
+Hatchet			2	0	0	true	false	false
+Staff			2	1	-1	false	true	true
+
+Pike			2	3	-2	false	false	true
+Halberd			3	2	-2	false	false	true
+Battle Axe		3	1	-1	false	false	false
+Shortsword		2	1	0	true	false	false
+War Hammer		3	0	0	true	true	false
+War Staff		2	1	0	false	true	true
+Mace			2	1	0	true	true	false
+
+Guisarme		3	3	-2	false	false	true
+Voulge			4	2	-2	false	false	true
+Glaive			4	1	-1	false	false	true
+Longsword		2	2	0	false	false	false
+Maul			3	2	-1	false	true	true
+Morningstar		3	1	0	true	false	false
+
+Greatsword		5	4	0	false	false	false

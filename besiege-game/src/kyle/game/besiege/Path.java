@@ -8,19 +8,16 @@ package kyle.game.besiege;
 //import hoten.geom.Point;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Stack;
 //import java.util.Map;
 
+import com.badlogic.gdx.math.Vector2;
+
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.geom.PointH;
 import kyle.game.besiege.voronoi.Corner;
-import kyle.game.besiege.voronoi.CornerNode;
 import kyle.game.besiege.voronoi.Edge;
-
-import com.badlogic.gdx.math.Vector2;
 
 public class Path {
 	private static final int A_STAR_WAIT = 100;
@@ -33,7 +30,8 @@ public class Path {
 	public Stack<Destination> dStack; // maybe a queue, whatever will be easier.
 	public Destination nextGoal;
 	private Vector2 toTarget;
-	
+	private float prevX, prevY;
+		
 	// how many iterations ago a star failed
 	int lastAStarFail = 0;
 	
@@ -78,8 +76,9 @@ public class Path {
 	 * @param endDest
 	 * @return
 	 */
-	public boolean calcPathTo(Destination endDest) {
-		if (lastAStarFail > 0) {
+	public boolean calcPathTo(Destination endDest, boolean player) {
+//		System.out.println("calcpathto: " + endDest.getName());
+		if (lastAStarFail > 0 && !player) {
 			calcStraightPathTo(endDest);
 			return true;
 		}
@@ -121,6 +120,7 @@ public class Path {
 			if (aStarStack != null) {
 				this.dStack = aStarStack;
 //				System.out.println("a star completed");
+				this.lastAStarFail = A_STAR_WAIT;
 			}
 			else {
 				// this is really broken TODO fix
@@ -297,8 +297,32 @@ public class Path {
 		// make sure only doing detectCollision when close to goal
 		if (nextGoal != null) {
 			army.setRotation(calcRotation());
+			
 			updatePosition();
 			army.updatePolygon();
+			
+			// trying make sure this NEVER happens during "normal" play - ie this should only happen if the player is really trying to fuck around and cheat.
+			// best way is to "push" out corners on the VG map, but not on the one that's drawn.
+			// pushed out by 15 seems to work.
+			
+			// if just moved into water, then move to nearest edge.
+			if (army.isPlayer() && (map.getCenter(army.containingCenter) == null || map.getCenter(army.containingCenter).water)) {
+				// push it towards nearest edge?
+				// push it back
+				army.translate(-toTarget.x, -toTarget.y);
+				army.updatePolygonForce();
+				
+				// once you move back to dry land, cancel path
+				if (map.getCenter(army.containingCenter) != null && !map.getCenter(army.containingCenter).water) {
+					if (!dStack.empty()) {
+						dStack.pop();
+					}
+//					this.finalGoal = null;
+					this.nextGoal = null;
+					System.out.println("clearing");
+				}
+				return;
+			}
 
 			// only do collision detect when close to enemy
 			

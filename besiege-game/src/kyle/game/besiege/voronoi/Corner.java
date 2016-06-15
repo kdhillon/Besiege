@@ -7,11 +7,11 @@ package kyle.game.besiege.voronoi;
 
 import java.util.ArrayList;
 
-import kyle.game.besiege.Map;
-import kyle.game.besiege.geom.PointH;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+
+import kyle.game.besiege.Map;
+import kyle.game.besiege.geom.PointH;
 
 /**
  * Corner.java Function Date Jun 6, 2013
@@ -20,7 +20,7 @@ import com.badlogic.gdx.math.Vector2;
  * modified by Kyle
  */
 public class Corner {
-	private final float PUSH_DIST = 5; //distance corners will be pushed away from convex corners
+	private final float PUSH_DIST = 15; //distance corners will be pushed away from convex corners
 	
 	transient public ArrayList<Center> touches = new ArrayList<Center>(); // can be easily reconstructed from edge
 	transient public ArrayList<Corner> adjacent = new ArrayList<Corner>(); // can be easily reconstructed from edge

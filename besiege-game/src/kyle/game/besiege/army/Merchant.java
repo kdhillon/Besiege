@@ -5,12 +5,8 @@
  ******************************************************************************/
 package kyle.game.besiege.army;
 
-import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.location.City;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.PartyType.Type;
 
 
@@ -106,6 +102,7 @@ public class Merchant extends Army {
 	
 	public void calcMerchantWealth() {
 		this.getParty().wealth = (int) (Merchant.MERCHANT_WEALTH_FACTOR * this.distToCenter(goal) * Army.WEALTH_FACTOR);
+//		System.out.println("merchant wealth: " + this.getParty().wealth);
 	}
 	
 	public void deposit() {
