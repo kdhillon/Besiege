@@ -206,11 +206,23 @@ public class SidePanel extends Group {
 	}
 	public void setActiveUnit(Unit unit) {
 		if (unit.isGeneral()) {
-			PanelGeneral pg = new PanelGeneral(this, unit);
+			PanelGeneral pg = new PanelGeneral(this, unit, unit.soldier);
 			setActive(pg);
 		}
 		else {
 			PanelUnit pu = new PanelUnit(this, unit, unit.soldier);
+			setActive(pu);
+		}
+//		PanelFaction pf = new PanelFaction(this, faction);
+//		setActive(pf);
+	}
+	public void setActiveUnit(Soldier s) {
+		if (s.isGeneral()) {
+			PanelGeneral pg = new PanelGeneral(this, null, s);
+			setActive(pg);
+		}
+		else {
+			PanelUnit pu = new PanelUnit(this, null, s);
 			setActive(pu);
 		}
 //		PanelFaction pf = new PanelFaction(this, faction);

@@ -23,6 +23,7 @@ import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.Subparty;
 
 public class PanelBattle extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
@@ -341,8 +342,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 //					}
 				}
 				else {
-					this.setButton(1, battleStage.currentFormation.name);
-					this.setButton(2, battleStage.getPlayerStanceString());
+//					this.setButton(1, battleStage.currentFormation.name);
+//					this.setButton(2, battleStage.getPlayerStanceString());
 				}
 			}
 		}
@@ -560,51 +561,52 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			//				table.add(count).right();
 			//				table.row();
 			//			}
+			for (Subparty s : party.sub) {
+				StrictArray<StrictArray<Soldier>> consolHealthy = s.getConsolHealthy();
 
-			StrictArray<StrictArray<Soldier>> consolHealthy = party.getConsolHealthy();
+				for (StrictArray<Soldier> as : consolHealthy) {
+					Label name = new Label(as.first().getTypeName(), lsSmall);
 
-			for (StrictArray<Soldier> as : consolHealthy) {
-				Label name = new Label(as.first().getTypeName(), lsSmall);
+					//				name.setWrap(true);
+					//				name.addListener(new ClickListener() {
+					//					public void enter(InputEvent event, float x,
+					//							float y, int pointer, Actor fromActor) {
+					//						setStats(((SoldierLabel) event.getTarget()).soldier);
+					//					}
+					//					public void exit(InputEvent event, float x, float y,
+					//							int pointer, Actor fromActor) {
+					//						clearStats();
+					//					}
+					//				});
+					table.add(name).width(table.getWidth()*3/4).left();
+					Label count = new Label(as.size +"", lsSmall);
+					table.add(count).right();
+					table.row();
+				}
 
-				//				name.setWrap(true);
-				//				name.addListener(new ClickListener() {
-				//					public void enter(InputEvent event, float x,
-				//							float y, int pointer, Actor fromActor) {
-				//						setStats(((SoldierLabel) event.getTarget()).soldier);
-				//					}
-				//					public void exit(InputEvent event, float x, float y,
-				//							int pointer, Actor fromActor) {
-				//						clearStats();
-				//					}
-				//				});
-				table.add(name).width(table.getWidth()*3/4).left();
-				Label count = new Label(as.size +"", lsSmall);
-				table.add(count).right();
-				table.row();
+				StrictArray<StrictArray<Soldier>> consolWounded = s.getConsolWounded();
+
+				for (StrictArray<Soldier> as : consolWounded) {
+					Label name = new Label(as.first().getTypeName(), lsSmallG);
+
+					//				name.setWrap(true);
+					//				name.addListener(new ClickListener() {
+					//					public void enter(InputEvent event, float x,
+					//							float y, int pointer, Actor fromActor) {
+					//						setStats(((SoldierLabel) event.getTarget()).soldier);
+					//					}
+					//					public void exit(InputEvent event, float x, float y,
+					//							int pointer, Actor fromActor) {
+					//						clearStats();
+					//					}
+					//				});
+					table.add(name).width(table.getWidth()*3/4).left();
+					Label count = new Label(as.size +"", lsSmallG);
+					table.add(count).right();
+					table.row();
+				}
+
 			}
-
-			StrictArray<StrictArray<Soldier>> consolWounded = party.getConsolWounded();
-
-			for (StrictArray<Soldier> as : consolWounded) {
-				Label name = new Label(as.first().getTypeName(), lsSmallG);
-
-				//				name.setWrap(true);
-				//				name.addListener(new ClickListener() {
-				//					public void enter(InputEvent event, float x,
-				//							float y, int pointer, Actor fromActor) {
-				//						setStats(((SoldierLabel) event.getTarget()).soldier);
-				//					}
-				//					public void exit(InputEvent event, float x, float y,
-				//							int pointer, Actor fromActor) {
-				//						clearStats();
-				//					}
-				//				});
-				table.add(name).width(table.getWidth()*3/4).left();
-				Label count = new Label(as.size +"", lsSmallG);
-				table.add(count).right();
-				table.row();
-			}
-
 			//			Label woundedC;
 			//			if (party.getWounded().size > 0)
 			//				woundedC = new Label("Wounded", lsSmall);
@@ -646,18 +648,18 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.getBonusAtk() >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
-		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
-		if (s.getBonusDef() >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
-		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
-		if (s.getBonusSpd() >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
-		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
+//		if (s.getBonusAtk() >= 0)
+//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
+//		else 
+//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+//		if (s.getBonusDef() >= 0)
+//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
+//		else 
+//			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+//		if (s.getBonusSpd() >= 0)
+//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
+//		else 
+//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.unitType.melee.name);
 		//		equipmentS.setText(s.equipmentList());
 	}

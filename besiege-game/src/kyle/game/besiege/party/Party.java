@@ -77,10 +77,40 @@ public class Party {
 		}
 		else {
 			// put this guy in a subparty that's not full, or create a new par
-			Subparty p = sub.first();
+			Subparty p = getNonEmptySub();
+			if (p == null) {
+				p = createNewSub();
+			}
 			p.addSoldier(soldier);
+			
+			// for now, just promote new soldier to general
+			if (p.general == null)
+				p.promoteToGeneral(soldier);
 		}
 	}
+	
+	public Subparty getNonEmptySub() {
+		for (Subparty s : sub) {
+			if (s.isFull()) continue;
+			return s;
+		}
+		return null;
+	}
+	
+	// promote an existing soldier to be general of a new subparty
+	public Subparty createNewSub() {
+		Subparty newSub = new Subparty(this);
+		root.addSub(newSub);
+		sub.add(newSub);
+//		Soldier soldierToPromote = getSoldierToPromote();
+//		if (soldierToPromote == null) return null;
+//		newSub.setGeneral(soldierToPromote);
+		return newSub;
+	}
+	
+//	public Soldier getSoldierToPromote() {
+		
+//	}
 	
 	public void removeSoldier(Soldier soldier) {
 		for (Subparty p : sub) {
@@ -134,13 +164,18 @@ public class Party {
 	//	}
 
 	public void givePrisoner(Soldier prisoner, Party recipient) {
+		boolean removed = false;
 		for (Subparty s : sub) {
-			if (s.wounded.contains(prisoner, true))
+			if (s.wounded.contains(prisoner, true)) {
 				s.wounded.removeValue(prisoner, true);
-			else if (s.healthy.contains(prisoner, true))
+				removed = true;
+			}
+			else if (s.healthy.contains(prisoner, true)) {
 				s.healthy.removeValue(prisoner, true);
-			else BottomPanel.log("trying to add invalid prisoner", "red");
+				removed = true;
+			}
 		}
+		if (!removed) BottomPanel.log("trying to add invalid prisoner", "red");
 		recipient.addPrisoner(prisoner);
 	}
 
@@ -195,17 +230,17 @@ public class Party {
 	public void clearPrisoners() {
 		prisoners.clear();
 	}
-	public StrictArray<StrictArray<Soldier>> getConsolHealthy() {
-		return getConsol(getHealthy());
-	}
-	public StrictArray<StrictArray<Soldier>> getConsolWounded() {
-		return getConsol(getWounded());
-	}
+//	public StrictArray<StrictArray<Soldier>> getConsolHealthy() {
+//		return getConsol(getHealthy());
+//	}
+//	public StrictArray<StrictArray<Soldier>> getConsolWounded() {
+//		return getConsol(getWounded());
+//	}
 	public StrictArray<StrictArray<Soldier>> getConsolPrisoners() {
 		return getConsol(prisoners);
 	}
 	// TODO maybe inefficient? can make more by sorting array by name
-	private StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier) {
+	public static StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier) {
 		// first thing: sort arrSoldier by name
 		arrSoldier.sort();
 
@@ -237,11 +272,11 @@ public class Party {
 	}
 
 	public void createFreshGeneral(UnitType type) {
-		this.root.general = new General(type, this);
+		this.root.setGeneral(new General(type, this));
 	}
 
 	public void setGeneral(General general) {
-		root.general = general;
+		root.setGeneral(general);
 	}
 
 //	public Location getHome() {

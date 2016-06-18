@@ -5,14 +5,13 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Character;
-import kyle.game.besiege.voronoi.Center;
-
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.voronoi.Center;
 
 public class PanelCenter extends Panel {
 	private final float PAD = 5;
@@ -23,6 +22,7 @@ public class PanelCenter extends Panel {
 	private Label regionC;
 	private Label biome;
 	private Label faction;
+	private Label height;
 	private Label title;
 	
 	public PanelCenter(SidePanel panel, Center center) {
@@ -42,6 +42,7 @@ public class PanelCenter extends Panel {
 		
 		Label factionC = new Label("Faction:", ls24);
 		Label biomeC = new Label("Biome:", ls24); 
+		Label heightC = new Label("Height:", ls24);
 
 		regionC = new Label("Region", ls24);
 		regionC.setAlignment(0,0);
@@ -50,6 +51,7 @@ public class PanelCenter extends Panel {
 		faction = new Label("", ls24);
 		title = new Label(center.getName(), ls30);
 		title.setAlignment(0,0);
+		height = new Label("", ls24);
 		
 		text.add(title).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
 		text.row();
@@ -61,6 +63,9 @@ public class PanelCenter extends Panel {
 		text.row();
 		text.add(factionC).left();
 		text.add(faction).left().fillX().expandX().padLeft(PAD);
+		text.row();
+		text.add(heightC).left();
+		text.add(height).left().fillX().expandX().padLeft(PAD);
 //		text.row();
 //		text.add(fameC).left();
 //		text.add(fame).right();
@@ -80,6 +85,7 @@ public class PanelCenter extends Panel {
 		biome.setText(center.biome.toString());
 		if (center.faction != null)
 			faction.setText(center.faction.name);
+		height.setText("" + center.elevation);
 		super.act(delta);
 	}
 

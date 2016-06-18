@@ -7,11 +7,11 @@
 
 package kyle.game.besiege;
 
-import kyle.game.besiege.title.MainMenuScreen;
-
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+
+import kyle.game.besiege.title.MainMenuScreen;
 	
 public class BesiegeMain extends Game {
 	public static int WIDTH = 400;
@@ -51,14 +51,14 @@ public class BesiegeMain extends Game {
 	}
 	
 	public void loadMapScreen() {
-		mapScreen = new MapScreen(false);
+		mapScreen = new MapScreen(false, "Default");
 	}
 	
 	
 	public void createMapScreen(String name) {
-		mapScreen = new MapScreen(true);
-		mapScreen.getCharacter().name = name;
-		mapScreen.getKingdom().getPlayer().setName(name);
+		mapScreen = new MapScreen(true, name);
+//		mapScreen.getCharacter().name = name;
+//		mapScreen.getKingdom().getPlayer().setName(name);
 	}
 	
 //	public void setPlayerName(String text) {

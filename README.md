@@ -134,17 +134,18 @@ Features I want to add:
 	Customizable party types:
 		Text-file customization with a few simple parameters (size, passive, etc)
 		
+	Later:
 	Different levels of woundedness, medics/doctors in your party
 	
 	Fix militias/raiding/village wealth
 		Add "honor" aka morality
-	
-	Fix bug that makes seiges really slow/expensive
-	
+		
 	Make bandits occupy ruins (and set up camps?)!
+		
+	Revamp and simplify panel system, remove all duplicate shitty code
 	
-	fix bug that if you're on an edge, you can easily go into the water
-
+	Allow purchasing weapons and armor at cities.
+	
 BATTLESTAGE:
 finish hiding
 add waves and reinforcements to battles

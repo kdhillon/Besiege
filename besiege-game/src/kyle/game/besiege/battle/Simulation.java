@@ -1,21 +1,15 @@
 package kyle.game.besiege.battle;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.BesiegeMain;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.PartyType.Type;
 import kyle.game.besiege.party.UnitLoader;
-import kyle.game.besiege.title.MainMenuScreen;
-
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.*;
 
 public class Simulation extends Game {
 	SpriteBatch batch;
@@ -24,7 +18,6 @@ public class Simulation extends Game {
 	MapScreen mapScreen;
 	BattleStage bs;
 
-	
 	@Override
 	public void create () {
 //		Assets.load();

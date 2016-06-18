@@ -30,7 +30,7 @@ public class WeaponDraw extends Actor {
 	
 	private float offset_x_ranged = 14;
 	private float offset_y_ranged = -.5f;
-	private TextureRegion white;
+
 	public TextureRegion weaponMelee;
 	public TextureRegion weaponRanged;
 	
@@ -45,7 +45,6 @@ public class WeaponDraw extends Actor {
 		mapWeaponTextures();
 		
 //		this.toDraw = new TextureRegion(new Texture(Gdx.files.internal("weapons/axe")));
-		white = new TextureRegion(new Texture("whitepixel.png"));
 		
 		if (unit.horse != null) {
 			Texture walkSheet2 = new Texture(Gdx.files.internal("equipment/horse_brown_walk.png")); 
@@ -225,7 +224,7 @@ public class WeaponDraw extends Actor {
 		c.set(batch.getColor());
 		if (unit.team == 0) {
 			if (unit.party == unit.stage.allies.first())
-				batch.setColor(1, .3f, .3f, .6f); 
+				batch.setColor(1, (2- unit.soldier.subparty.getRank()) * 0.2f, 0, .6f); 
 			else batch.setColor(1, .5f, .5f, .2f);
 		}
 		else batch.setColor(.3f, .3f, 1, .6f);
@@ -235,13 +234,16 @@ public class WeaponDraw extends Actor {
 			batch.setColor(1, 1, 1, .5f);
 		}
 		if (this.unit.isGeneral()) {
-			batch.setColor(1, 1, 0, 0.5f);
+			if (unit.team == 0) 
+				batch.setColor(1, 0.7f, 0, 0.5f);
+			else 
+				batch.setColor(0, 0.7f, 1, 0.5f);
 		}
 		
 		boolean drawTeams = true;
 		
 		if (drawTeams)
-			batch.draw(white, 0, 0, unit.stage.unit_width/2, unit.stage.unit_height/2, unit.stage.unit_width, unit.stage.unit_height, 1, 1, -this.getParent().getRotation());
+			batch.draw(Assets.white, 0, 0, unit.stage.unit_width/2, unit.stage.unit_height/2, unit.stage.unit_width, unit.stage.unit_height, 1, 1, -this.getParent().getRotation());
 //		batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
 		batch.setColor(c);
 		

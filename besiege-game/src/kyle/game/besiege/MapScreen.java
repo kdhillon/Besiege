@@ -38,6 +38,7 @@ import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.SidePanel;
+import kyle.game.besiege.party.Subparty;
 
 public class MapScreen implements Screen {
 	private Kryo kryo;
@@ -56,6 +57,9 @@ public class MapScreen implements Screen {
 
 	//	private final Color backgroundGrass = new Color(0x55aa44ff);
 //	private static final Color backgroundGrass = new Color(0x000000ff);
+	public static SidePanel sidePanelReference;
+	public static Character characterReference;
+	
 	private float speedFactor;
 
 	public Environment environment;
@@ -115,7 +119,7 @@ public class MapScreen implements Screen {
 	//	public PrintWriter out; // accessed by kingdom
 
 	// doesn't necessarily require a kingdom either!
-	public MapScreen(boolean generate) {
+	public MapScreen(boolean generate, String name) {
 		this.kryo = new Kryo();
 		kryo.register(Array.ArrayIterable.class, new Serializer<Array.ArrayIterable>() {
 			public void write (Kryo kryo, Output output, Array.ArrayIterable object) {
@@ -127,8 +131,10 @@ public class MapScreen implements Screen {
 		});
 		// for some reason have to register Castle 
 		kryo.register(Castle.class);
+		kryo.register(Subparty.class);
 
-		character = new Character("Kyle");
+		character = new Character(name);
+		setStaticCharacter(character);
 
 		kingdomCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 
@@ -161,7 +167,8 @@ public class MapScreen implements Screen {
 		uiStage = new Stage();
 		uiStage.addListener(new InputListener());
 		sidePanel = new SidePanel(this);
-
+		storeStaticSidePanel(sidePanel);
+		
 		if (generate)
 			kingdom = new Kingdom(this);
 		else {
@@ -211,7 +218,8 @@ public class MapScreen implements Screen {
 
 	// don't generate kingdom
 	public MapScreen() {
-		character = new Character("Kyle");
+		character = new Character("Default");
+		setStaticCharacter(character);
 
 		// I don't know why but have to set this to 2*Width
 		battleCamera = new OrthographicCamera(2*BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
@@ -227,7 +235,7 @@ public class MapScreen implements Screen {
 		uiStage.addListener(new InputListener());
 		sidePanel = new SidePanel(this);
 
-
+		storeStaticSidePanel(sidePanel);
 		//		sidePanel.setKingdom(kingdom);
 		//			fog = new Fog(this);
 
@@ -259,7 +267,15 @@ public class MapScreen implements Screen {
 		startLog();
 
 	}
+	
+	public static void storeStaticSidePanel(SidePanel sp) {
+		MapScreen.sidePanelReference = sp;
+	}
 
+	public static void setStaticCharacter(Character c) {
+		MapScreen.characterReference = c;
+	}
+	
 	private void startLog() {
 		BottomPanel.log("Welcome to Besiege! This is the alpha release. Enjoy!", "green");
 		BottomPanel.log("Controls: ", "orange");

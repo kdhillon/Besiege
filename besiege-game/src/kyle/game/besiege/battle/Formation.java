@@ -22,6 +22,8 @@ public enum Formation {
 		int iCount = infantry.size;
 		int aCount = archers.size;
 		int cCount = cavalry.size;
+		
+		if (iCount + aCount + cCount == 0) return null;
 
 		// figure out what formation to do
 		// Scramble:  C A I C C I A 
@@ -167,7 +169,6 @@ public enum Formation {
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
 
-
 			int cavalry_left = (int) (cCount/2.0);
 			int cavalry_right = cCount - cavalry_left;
 			//			int infantry_right = (int) (iCount/2.0);
@@ -182,7 +183,6 @@ public enum Formation {
 			for (int i = 0; i < cavalry_right; i++) {
 				formation[formation_height-1][i + top_start_left + infantry.size + cavalry_left] = Soldier.SoldierType.CAVALRY;
 			}
-
 
 			for (int i = 0; i < archers.size; i++) {
 				formation[1][i + bottom_start_left] = Soldier.SoldierType.ARCHER;

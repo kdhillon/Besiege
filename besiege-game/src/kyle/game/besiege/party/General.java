@@ -1,13 +1,15 @@
 package kyle.game.besiege.party;
 
+import com.badlogic.gdx.graphics.Color;
+
+import kyle.game.besiege.battle.BattleSubParty;
+
 public class General extends Soldier {
 	private final static float BONUS_MAX = 2;
 	private final static float BONUS_MIN = -1;
 
 	private final static float RANGE_MAX = 5;
 	private final static float RANGE_MIN = -2;
-
-	public String rank;
 	
 	// fill this in later
 	public String epithet; 	// "great", "hammer", etc 
@@ -20,6 +22,8 @@ public class General extends Soldier {
 	public int preparation; // increases troop health in battle
 	public int loyalty; 	// affects chance of desertion, mutiny
 	
+	public int morality;
+	
 	public int infantryAttack;
 	public int infantryDefense;
 	
@@ -31,13 +35,12 @@ public class General extends Soldier {
 	
 	public General(UnitType unitType, Party party) {
 		super(unitType, party);
+
 		this.isImportant = true;
 		
 		this.subparty = party.root;
 		
 		generateRandomInitStats();
-		
-		rank = "Commander";
 	}
 	
 	// for promoting a soldier to a general
@@ -47,12 +50,16 @@ public class General extends Soldier {
 		generateRandomInitStats();
 	}
 	
+	
+	
 	// all stats are between 0 and 100
 	// they start out between 20 and 80, and can change later.
 	public void generateRandomInitStats() {
 		courage = getRandomInit();
 		preparation = getRandomInit();
 		loyalty = getRandomInit();
+		
+		morality = getRandomInit();
 		
 		infantryAttack = getRandomInit();
 		infantryDefense = getRandomInit();
@@ -63,11 +70,11 @@ public class General extends Soldier {
 		return (int) (Math.random() * 60 + 20);
 	}
 	
-	public float getBonusAtk() {
+	public float getBonusGeneralAtk() {
 		return (BONUS_MAX - BONUS_MIN) * infantryAttack/100.0f + BONUS_MIN;
 	}
 	
-	public float getBonusDef() {
+	public float getBonusGeneralDef() {
 		return (BONUS_MAX - BONUS_MIN) * infantryDefense/100.0f + BONUS_MIN;		
 	}
 	
@@ -75,16 +82,28 @@ public class General extends Soldier {
 		return (BONUS_MAX - BONUS_MIN) * rangedCommand/100.0f + BONUS_MIN;
 	}
 	
-	public float getBonusRange() {
+	public float getBonusGeneralRange() {
 		return (RANGE_MAX - RANGE_MIN) * infantryAttack/100.0f + RANGE_MIN;
 	}
 	
-	public float getHPBonus() {
+	public float getHPBonus() {		
 		return (BONUS_MAX - BONUS_MIN) * preparation/100.0f + BONUS_MIN;
 	}
 	
 	public float getMoraleBonus() {
-		return (BONUS_MAX - BONUS_MIN) * preparation/100.0f + BONUS_MIN;
+		return courage/100.0f * (1-BattleSubParty.BASE_MORALE - (1-BattleSubParty.MAX_MORALE));
+	}
+	
+	public static Color getColor(int value) {
+		if (value < 50) {
+			// interpolate between white and red
+			return new Color(1, value*1f/50, value/50, 1);
+		}
+		else {
+			// interpolate between white and green
+			return new Color((100f - value)/50, 1, (100f-value)/50, 1);			
+		}
+		// 51 should be close to 1, 
 	}
 	
 	@Override
@@ -93,6 +112,21 @@ public class General extends Soldier {
 	}
 	
 	public String getRank() {
-		return rank;
+		if (this.subparty.getRank() == 0) {
+			return "General";
+		}
+		if (this.subparty.getRank() == 1) {
+			return "Lietenant";
+		}
+		if (this.subparty.getRank() == 2) {
+			return "Platoon Leader";
+		}
+		return "None";
+	}
+	
+	public void setName(String name) {
+		System.out.println("Setting name: " + name);
+		if (name != null && name.length() > 0)
+			this.name = name;
 	}
 }

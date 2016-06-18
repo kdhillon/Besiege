@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.party.General;
+import kyle.game.besiege.party.Soldier;
 
 public class PanelGeneral extends PanelUnit { 	
 	private Label fameS;
@@ -21,8 +22,8 @@ public class PanelGeneral extends PanelUnit {
 	
 	// figure out a way to make this visible outside of battle view...
 	// show the general but no temp effects like HP?
-	public PanelGeneral(SidePanel panel, Unit unit) {
-		super(panel, unit, unit.soldier);
+	public PanelGeneral(SidePanel panel, Unit unit, Soldier s) {
+		super(panel, unit, s);
 		
 		General general = (General) soldier;
 		title.setText(general.getRank());
@@ -37,12 +38,17 @@ public class PanelGeneral extends PanelUnit {
 		
 		fameS = new Label("" + general.fame, ls);
 		loyaltyS = new Label("" + general.loyalty, ls);
+		loyaltyS.setColor(General.getColor(general.loyalty));
 		courageS = new Label("" + general.courage, ls);
+		courageS.setColor(General.getColor(general.courage));
 		prepS = new Label("" + general.preparation, ls);
+		prepS.setColor(General.getColor(general.preparation));
 		infAtkS = new Label("" + general.infantryAttack, ls);
+		infAtkS.setColor(General.getColor(general.infantryAttack));
 		infDefS = new Label("" + general.infantryDefense, ls);
+		infDefS.setColor(General.getColor(general.infantryDefense));
 		rngCmdS = new Label("" + general.rangedCommand, ls);
-		
+		rngCmdS.setColor(General.getColor(general.rangedCommand));
 		
 		generalStats.defaults().padTop(NEG).left();
 		generalStats.add(fameS).colspan(4).expandX();

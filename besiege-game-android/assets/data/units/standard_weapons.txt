@@ -3,7 +3,7 @@ name			atk	def	spd	1h		blunt	polearm
 Pitchfork		1	0	-1	false	false	true
 
 Sickle			1	0	0	true	false	false
-Dagger			1	0	0	true	false	false	
+Dagger			1	0	0	true	false	false
 Hammer			1	0	0	true	true	false
 Military Fork	1	1	-1	false	false	true
 

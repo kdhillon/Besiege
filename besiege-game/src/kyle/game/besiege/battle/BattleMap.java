@@ -955,8 +955,12 @@ public class BattleMap extends Actor {
 			batch.draw(texture, x, y, width/2, height/4, width, height, 1, 1, rotation);
 		}
 
-
+		if (stage.selectedUnit != null && stage.placementPhase) {
+			stage.selectedUnit.bsp.drawPlacement(batch);
+		}
+		
 		boolean drawPlacementArea = true; 
+		
 		if (drawPlacementArea && stage.dragging && stage.placementPhase) {
 
 			Color c = batch.getColor();

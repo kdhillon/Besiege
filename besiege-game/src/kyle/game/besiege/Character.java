@@ -5,12 +5,11 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
-import kyle.game.besiege.army.Noble;
+import com.badlogic.gdx.utils.Array;
+
 import kyle.game.besiege.battle.Formation;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
-
-import com.badlogic.gdx.utils.Array;
 
 public class Character {
 	private static final int STARTING_PTS = 5;
@@ -99,6 +98,7 @@ public class Character {
 	
 	public Character(String name) {
 		this.name = name;
+		System.out.println("Character name: " + name);
 //		this.title = "None";
 		this.fame = 0;
 		this.addAvailablePoints(5);
@@ -111,9 +111,10 @@ public class Character {
 		this.availableFormations.add(Formation.LINE);
 		this.availableFormations.add(Formation.DEFENSIVE_LINE);
 		this.availableFormations.add(Formation.FLANKING);
-		this.availableFormations.add(Formation.SCRAMBLE);
+//		this.availableFormations.add(Formation.SCRAMBLE);
 		this.availableFormations.add(Formation.VEE);
-		this.availableFormations.add(Formation.SPREAD_LINE);
+//		this.availableFormations.add(Formation.SPREAD_LINE);
+		this.availableFormations.add(Formation.SQUARE);
 		
 		initAttributes();
 	}

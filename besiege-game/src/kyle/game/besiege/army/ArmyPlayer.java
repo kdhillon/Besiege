@@ -38,7 +38,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, kingdom.getMapScreen().getCharacter().name, faction, posX, posY, PartyType.Type.MERCHANT, true);
+		super(kingdom, "", faction, posX, posY, PartyType.Type.TEST, true);
 //		Location loc = this.detectNearbyFriendlyCity();
 		
 		setTextureRegion(textureRegion);
@@ -57,6 +57,8 @@ public class ArmyPlayer extends Army {
 		// debugging
 		this.getParty().distributeExp(100000);
 		this.getParty().wealth = 100000;
+		
+		this.getParty().getGeneral().setName(getCharacter().name);
 	}
 
 	@Override
@@ -320,6 +322,11 @@ public class ArmyPlayer extends Army {
 	public Character getCharacter() {
 		if (getKingdom() == null) return null;
 		return getKingdom().getMapScreen().getCharacter();
+	}
+	
+	@Override
+	public String getName() {
+		return getCharacter().name + "'s Party";
 	}
 	
 	public void calcMaxPartySize() {

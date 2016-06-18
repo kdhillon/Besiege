@@ -5,15 +5,14 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
-import kyle.game.besiege.battle.Unit;
-import kyle.game.besiege.battle.WeaponDraw;
-import kyle.game.besiege.panels.SidePanel;
-import kyle.game.besiege.party.Soldier;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+
+import kyle.game.besiege.battle.WeaponDraw;
+import kyle.game.besiege.panels.SidePanel;
+import kyle.game.besiege.party.Soldier;
 
 public class MiniMap extends Actor {
 //	private final float BORDER = .04f;
@@ -50,10 +49,16 @@ public class MiniMap extends Actor {
 		
 		/* draw unit preview */
 		if (panel.getActiveCrest() == null && panel.getSoldierInstead() != null) {
+			// first draw white background?
+			batch.setColor(Color.WHITE);
+			batch.draw(Assets.white, getX() - getWidth() / 8, getY(), getOriginX(), getOriginY(), getWidth() + getWidth() / 8, getHeight() * 0.8f, 1, 1, getRotation());
+			
 			Soldier toPreview = panel.getSoldierInstead();
 			
 			float rotation = getRotation();
 			float y = getY() + getWidth()*4f/8;
+			
+			// TODO speed this up
 			TextureRegion weapon = WeaponDraw.GetMeleeWeaponTextureForUnittype(toPreview.unitType);
 			boolean drawInFront = false;
 			if (toPreview.unitType.ranged != null) {

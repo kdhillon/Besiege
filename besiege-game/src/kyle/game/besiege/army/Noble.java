@@ -110,7 +110,7 @@ public class Noble extends Army {
 			// If for some reason at peace with special target, stop going towards it.
 			// This is slow, find a better way to do this.
 			if (!this.specialTargetToBesiege.getFaction().atWar(this.getFaction())) {
-				System.out.println("WHY IS THIS HAPPENING (nOBLE)");
+//				System.out.println("WHY IS THIS HAPPENING (nOBLE)");
 				this.getFaction().endTask(this);
 			}
 

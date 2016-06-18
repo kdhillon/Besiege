@@ -8,10 +8,12 @@ import kyle.game.besiege.party.Soldier.SoldierType;
 
 // contains a general and her bodyguard, as well as any subparties under her control
 public class Subparty {
-	public int MAX_SIZE = 1000;
+	public int MAX_SIZE = 20;
 	
 	private Party party;
 	private Subparty parent; // this is the boss, null usually.
+	
+	private StrictArray<Subparty> children;
 	
 	public General general; // who commands the party!
 	
@@ -23,11 +25,21 @@ public class Subparty {
 	public float defTotal;
 	public float spdTotal;
 	
+	public float randomGreen;
+	public float randomBlue;
+	
+	// for kryo
+	public Subparty() {} ;
+	
 	public Subparty(Party party) {
 		this.party = party;
 		healthy = new StrictArray<Soldier>();
 		wounded = new StrictArray<Soldier>();
 		upgradable = new StrictArray<Soldier>();
+		children = new StrictArray<Subparty>();
+		
+		randomGreen = (float) Math.random() / 2;
+		randomBlue = (float) Math.random() / 2;
 	}
 	
 	// could have this be automatically done! 
@@ -47,7 +59,27 @@ public class Subparty {
 		if (this.healthy.contains(s, true)) this.healthy.removeValue(s, true);
 		if (this.wounded.contains(s, true)) this.wounded.removeValue(s, true);
 
-		general = new General(s);
+		setGeneral(new General(s));
+	}
+	
+	public void setGeneral(General g) {
+		if (this.general != null) {
+			demoteGeneral(general);
+		}
+		this.general = g;
+		g.subparty = this;
+		for (Soldier s : healthy) {
+			s.updateGeneral(g);
+		}
+		for (Soldier s : wounded) {
+			s.updateGeneral(g);
+		}
+	}
+	
+	public void demoteGeneral(General general) {
+		System.out.println("demoting general");
+		this.removeSoldier(general);
+		this.general = null;
 	}
 	
 	public void checkHeal() { // to be called every frame 
@@ -131,9 +163,17 @@ public class Subparty {
 			}
 			soldier.subparty = this;
 			soldier.party = this.party;
+			if (general != null) soldier.updateGeneral(this.general);
 			calcStats();
 		}
 	}
+	
+	public StrictArray<StrictArray<Soldier>> getConsolHealthy() {
+		return Party.getConsol(healthy);
+	}
+	public StrictArray<StrictArray<Soldier>> getConsolWounded() {
+		return Party.getConsol(wounded);
+	} 
 	
 	public int getHealthySize() {
 		return healthy.size;
@@ -189,9 +229,34 @@ public class Subparty {
 		defTotal = 0;
 		spdTotal = 0;
 		for (Soldier s : healthy) {
-			atkTotal += s.baseAtk + s.getBonusAtk();
-			defTotal += s.baseDef + s.getBonusDef();
-			spdTotal += s.baseSpd + s.getBonusSpd();
+			atkTotal += s.getAtk();
+			defTotal += s.getDef();
+			spdTotal += s.getSpd();
 		}
+	}
+	
+	public int getSpotsRemaining() {
+		return MAX_SIZE - this.getTotalSize();
+	}
+	
+	public boolean isFull() {
+		return getSpotsRemaining() == 0;
+	}
+	
+	public void addSub(Subparty s) {
+		this.children.add(s);
+		s.parent = this;
+	}
+	
+	public int getRank() {
+		Subparty p = parent;
+		int count = 0;
+		
+		while (p != null) {
+			p = p.parent;
+			count++;
+		}
+		
+		return count;
 	}
 }

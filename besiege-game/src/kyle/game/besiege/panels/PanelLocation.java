@@ -5,13 +5,6 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Village;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
-
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -26,6 +19,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.army.Army;
+import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.Village;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.Soldier;
 
 public class PanelLocation extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
@@ -75,7 +75,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	private boolean playerTouched;
 	private boolean playerWaiting;
 	private boolean playerBesieging;
-
+	
 	public PanelLocation(SidePanel panel, Location location) {
 		this.panel = panel;
 		this.location = location;
@@ -240,8 +240,10 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		playerIn = false;
 //		this.hireMode = false;
 		this.panelHire = new PanelHire(panel, location);
+				
+		location.needsUpdate = true;
 		
-		this.setButton(4, "Back");
+		this.setButton(4, "Back"); 
 	}
 	
 	@Override
@@ -375,11 +377,13 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			else faction.setText(location.getFactionName());
 		}
 		
-		updateSoldierTable();
+		if (location.needsUpdate)
+			updateSoldierTable();
 		super.act(delta);
 	}
 	
 	public void updateSoldierTable() {
+		location.needsUpdate = false;
 		soldierTable.clear(); // clearing the table is a problem right now. it hides the scroll bar and prevents click-drag scrolling
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
 		
@@ -393,8 +397,10 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			soldierTable.row();
 		}
 		else {
-			PanelParty.updateTableWithTypes(soldierTable, party.getConsolHealthy(), ls);
-			PanelParty.updateTableWithTypes(soldierTable, party.getConsolWounded(), lsG);
+			
+			PanelParty.updateTableWithParty(soldierTable, party, ls, lsG);
+//			PanelParty.updateTableWithTypes(soldierTable, party.getConsolHealthy(), ls);
+//			PanelParty.updateTableWithTypes(soldierTable, party.getConsolWounded(), lsG);
 		}
 		
 		if (!location.ruin) {
@@ -419,8 +425,10 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			soldierTable.add(partyName).colspan(2);
 			soldierTable.row();
 			
-			PanelParty.updateTableWithTypes(soldierTable, garrParty.getConsolHealthy(), ls);
-			PanelParty.updateTableWithTypes(soldierTable, garrParty.getConsolWounded(), lsG);
+			PanelParty.updateTableWithParty(soldierTable, garrParty, ls, lsG);
+
+//			PanelParty.updateTableWithTypes(soldierTable, garrParty.getConsolHealthy(), ls);
+//			PanelParty.updateTableWithTypes(soldierTable, garrParty.getConsolWounded(), lsG);
 			
 			
 			// TODO fix this memory leak
@@ -442,18 +450,18 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.getBonusAtk() >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
-		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
-		if (s.getBonusDef() >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
-		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
-		if (s.getBonusSpd() >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
-		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
+//		if (s.getBonusAtk() >= 0)
+//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
+//		else 
+//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+//		if (s.getBonusDef() >= 0)
+//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
+//		else 
+//			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+//		if (s.getBonusSpd() >= 0)
+//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
+//		else 
+//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.unitType.melee.name);
 	}
 	

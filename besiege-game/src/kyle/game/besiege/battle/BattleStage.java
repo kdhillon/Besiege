@@ -72,7 +72,7 @@ public class BattleStage extends Group {
 
 	public boolean placementPhase;
 
-	private BPoint centerOffset;
+	BPoint centerOffset;
 	private BPoint placementPoint;
 	private BPoint originalPoint;
 
@@ -96,7 +96,7 @@ public class BattleStage extends Group {
 	public int size_x = 128;
 	public int size_y = 128;
 
-
+	BPoint prevMouse;
 
 	private MapScreen mapScreen;
 	private Kingdom kingdom;
@@ -123,23 +123,25 @@ public class BattleStage extends Group {
 	private boolean leftClicked;
 	private boolean rightClicked;
 	private Point mouse;
+	
+	
 	public boolean dragging;
 
 	//	public Formation playerFormationChoice;
 	//	public Formation enemyFormationChoice;
-	public Formation currentFormation; // I need this for some reason for moving units.
-	private Array<Formation> availableFormations;
+//	public Formation currentFormation; // I need this for some reason for moving units.
+//	private Array<Formation> availableFormations;
 
-	private int currentFormationWidth;
-	private int currentFormationHeight;
+//	private int currentFormationWidth;
+//	private int currentFormationHeight;
 
 	// take in battle object containing arrays of armies and stuff
 	public BattleStage(MapScreen mapScreen, Array<Party> allyArray, Array<Party> enemyArray, boolean playerDefending, Location siegeOf) {
 		this.mapScreen = mapScreen;
 		
-		this.allies = new BattleParty(this);
+		this.allies = new BattleParty(this, 0);
 		this.allies.player = true;
-		this.enemies = new BattleParty(this);
+		this.enemies = new BattleParty(this, 1);
 		this.enemies.player = false;
 		
 		if (allyArray != null) {
@@ -216,9 +218,9 @@ public class BattleStage extends Group {
 		allyParty1.player = true;
 		Party enemyParty1 = p2.generate();
 		
-		this.allies = new BattleParty(this);
+		this.allies = new BattleParty(this, 0);
 		this.allies.player = true;
-		this.enemies = new BattleParty(this);
+		this.enemies = new BattleParty(this, 1);
 		this.enemies.player = false;
 		
 		this.allies.addParty(allyParty1);
@@ -297,7 +299,6 @@ public class BattleStage extends Group {
 		this.battlemap = new BattleMap(this);
 		this.addActor(battlemap);
 
-		this.availableFormations = mapScreen.getCharacter().availableFormations;
 		//		if (availableFormations.size == 0) System.out.println("no formations available");
 
 		// set up default formations
@@ -387,10 +388,10 @@ public class BattleStage extends Group {
 	public void addUnits() {
 		// because I was getting nested iterator error...
 		for (int i = 0; i < allies.subparties.size; i++) {
-			addParty(allies.subparties.get(i));
+			addSubparty(allies.subparties.get(i));
 		}
 		for (int i = 0; i < enemies.subparties.size; i++) {
-			addParty(enemies.subparties.get(i));
+			addSubparty(enemies.subparties.get(i));
 		}
 
 		if (siege) {
@@ -402,41 +403,42 @@ public class BattleStage extends Group {
 			}
 		}
 	}
-
+	
 	// add on wall if there is a wall
-	private void addParty(BattleSubParty party) {
+	// online alg, start in middle and move left/right
+	public void addSubparty(BattleSubParty bsp) {
 		Formation choice;
-		choice = party.formation;
-		if (party.isPlayer()) {
-			this.currentFormation = party.formation;
-		}
+		choice = bsp.formation;
+//		if (party.isPlayer()) {
+//			this.currentFormation = party.formation;
+//		}
 
 		int REINFORCEMENT_DIST = 5;
 		Stance partyStance;
-		partyStance = party.stance;
-		if (party.isPlayer()) {
+		partyStance = bsp.stance;
+		if (bsp.isPlayer()) {
 			REINFORCEMENT_DIST = -REINFORCEMENT_DIST;
 		}
 
-		Array<Soldier> infantry = party.getHealthyInfantry();
-		Array<Soldier> cavalry = party.getHealthyCavalry();
-		Array<Soldier> archers = party.getHealthyArchers();
-		Soldier.SoldierType[][] formation = Formation.getFormation(party, choice, size_x, size_y);
-		if (!party.isPlayer()) formation = flipVertical(formation);
+//		Array<Soldier> infantry = bsp.getHealthyInfantry();
+//		Array<Soldier> cavalry = bsp.getHealthyCavalry();
+//		Array<Soldier> archers = bsp.getHealthyArchers();
+		Soldier.SoldierType[][] formation = Formation.getFormation(bsp, choice, size_x, size_y);
+		if (!bsp.isPlayer()) formation = flipVertical(formation);
 
 		int region_height = formation.length;
 		int region_width = formation[0].length;
 
-		if (party.isPlayer()) {
-			currentFormationHeight = region_height;
-			currentFormationWidth = region_width;
-		}
+//		if (party.isPlayer()) {
+//			currentFormationHeight = region_height;
+//			currentFormationWidth = region_width;
+//		}
 
-		int base_x = placementPoint.pos_x - region_width/2;
-		int base_y = placementPoint.pos_y - region_height/2;
-
+		int base_x = placementPoint.pos_x - region_width;
+		int base_y = placementPoint.pos_y - region_height;
+		
 		int team = 0;
-		if (!party.isPlayer()) {
+		if (!bsp.isPlayer()) {
 			base_x = size_x/2 - region_width/2;
 			base_y = (int) (size_y * .7f) - region_height/2;
 			team = 1;
@@ -446,35 +448,112 @@ public class BattleStage extends Group {
 			}
 		}
 
+		if (bsp.currentPosX != 0 && bsp.currentPosY != 0) {
+			base_x = bsp.currentPosX;
+			base_y = bsp.currentPosY;
+		}
+		
+		boolean canPlaceHere = false;
+		int tries = 0;
+		
+		// simplify this to only use bounding boxes.
+		// if won't fit, gently nudge over to the right.
+		while (!canPlaceHere) {
+			tries++;
+			if (tries > 100) break;
+			canPlaceHere = true;
+			System.out.println("trying again to place");
+//			for (BattleSubParty s : bsp.parent.subparties) {
+//				if (s == bsp) continue;
+//				
+//				// make sure this rectangle does not overlap with any other ones.
+//				// check if point is contained inside other point
+//			}
+			
+			for (int i = 0; i < region_height; i++) {
+				for (int j = 0; j < region_width; j++) {
+					if (i + base_y < 0 || j + base_x >= size_x - 1) continue;
+					if (units[i+base_y][j+base_x] != null) {
+						canPlaceHere = false;
+						base_x += (int) (Math.random() * 5);
+//						base_y += (int) (Math.random() * 5);
+						if (base_x >= this.MAX_PLACE_X - region_width) base_x = 0;
+						if (base_y >= this.MAX_PLACE_Y - region_height) {
+							if (bsp.isPlayer())
+								base_y = 20;
+							else 
+								base_y = (int) (size_y * 0.7f) - region_height;
+						}
+						break;
+					}
+				}
+				if (!canPlaceHere) break;
+			}
+		}
+
 		for (int i = 0; i < region_height; i++) {
 			for (int j = 0; j < region_width; j++) {
 				if (formation[i][j] != null) {
-					Soldier toAdd;
-					if (formation[i][j] == Soldier.SoldierType.INFANTRY) toAdd = infantry.pop();
-					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = archers.pop();
-					else if (formation[i][j] == Soldier.SoldierType.CAVALRY) toAdd = cavalry.pop();
+					Unit toAdd;
+					if (formation[i][j] == Soldier.SoldierType.INFANTRY) toAdd = bsp.infantry.pop();
+					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = bsp.archers.pop();
+					else if (formation[i][j] == Soldier.SoldierType.CAVALRY) toAdd = bsp.cavalry.pop();
 					else {
-						toAdd = party.subparty.general;
-						System.out.println("adding general");
+						toAdd = bsp.general;
 					}
-
+					
 					if (canPlaceUnit(base_x + j, base_y + i)) {
-						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, party);
-						unit.setStance( partyStance);
-						if (party.isPlayer() && siege || unit.onWall()) unit.dismount();
-						party.addUnit(unit);
+//						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, bsp);
+						toAdd.setStance( partyStance);
+						if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+						addUnitToField(toAdd, base_x + j, base_y + i);
 					}
 					else if (canPlaceUnit(base_x + j, base_y + i + REINFORCEMENT_DIST)) {
-						Unit unit = new Unit(this, base_x + j, base_y + i + REINFORCEMENT_DIST, team, toAdd, party);
-						unit.setStance( partyStance);
-						if (party .isPlayer() && siege || unit.onWall()) unit.dismount();
-						party.addUnit(unit);
+//						Unit unit = new Unit(this, base_x + j, base_y + i + REINFORCEMENT_DIST, team, toAdd, bsp);
+						if (bsp .isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+						addUnitToField(toAdd, base_x + j, base_y + i + REINFORCEMENT_DIST);
 					}
 				}
 			}
 		}
+//		System.out.println("Base x: " + base_x + " Base y: " + base_y);
+		
+		bsp.currentPosX = base_x;
+		bsp.currentPosY = base_y;
+		bsp.currentRegHeight = region_height;
+		bsp.currentRegWidth = region_width;
+		
 		this.allies.updateHiddenAll();
 		this.enemies.updateHiddenAll();
+	}
+	
+
+	public void addUnitToField(Unit unit, int x, int y) {
+		units[y][x] = unit;
+		unit.pos_x = x;
+		unit.pos_y = y;
+		unit.original_x = x;
+		unit.original_y = y;
+		addActor(unit);
+	}
+	
+	public void removeSubParty(BattleSubParty s) {
+		s.clearAllUnitsFromStage();
+		for (Unit u : s.units) {
+			removeActor(u);
+			
+			// for some weird ass reason this doesn't work to clear the units[] array...
+//			System.out.println("u.pos_x: " + u.pos_x + " u.pos_y: " + u.pos_y);
+			if (units[u.pos_y][u.pos_x] == null) System.out.println("unit is null");
+			units[u.pos_y][u.pos_x] = null;
+		}
+		
+		// so we still have to do this full clear shit until the above bug is fixed
+		for (int i = 0; i < units.length; i++) {
+			for (int j = 0; j < units[0].length; j++) {
+				if (units[i][j] != null && units[i][j].bsp == s) units[i][j] = null;
+			}
+		}
 	}
 
 	//	private void updatePlayerParty() {
@@ -550,30 +629,24 @@ public class BattleStage extends Group {
 	//		return toReturn;
 	//	}
 
-	//	public Formation getNextFormation() {
-	//		int index = availableFormations.indexOf(this.allies.formation, true);
-	//		index++;
-	//		if (index >= availableFormations.size) index = 0;
-	//		return availableFormations.get(index);
-	//	}
-
+		
 	//	public void toNextFormation() {
 	//		changePlayerFormation(getNextFormation());
 	//	}
 
 	// TODO change these to handle individual squads.
-	public void changePlayerFormation(Formation formation) {
-		//		this.allies.formation = formation;
-		//		this.updateFormationLocation();
-	}
+//	public void changePlayerFormation(Formation formation) {
+//		//		this.allies.formation = formation;
+//		//		this.updateFormationLocation();
+//	}
 
-	public String getPlayerStanceString() {
-		//		if (this.allies.setStance(= Stance.AGGRESSIVE) return "Aggressive";
-		//		else if (this.allies.setStance(= Stance.DEFENSIVE) return "Defensive";
-		//		else if (this.allies.setStance(= Stance.INLINE) return "Line";
-		return "Unspecified";
-		//		else return null;
-	}
+//	public String getPlayerStanceString() {
+//		//		if (this.allies.setStance(= Stance.AGGRESSIVE) return "Aggressive";
+//		//		else if (this.allies.setStance(= Stance.DEFENSIVE) return "Defensive";
+//		//		else if (this.allies.setStance(= Stance.INLINE) return "Line";
+//		return "Unspecified";
+//		//		else return null;
+//	}
 
 	private void addSiegeUnits(BattleParty party) {
 		if (party.player) {
@@ -638,34 +711,13 @@ public class BattleStage extends Group {
 	public void chargeAll(boolean player) {
 		if (player) {
 			for (BattleSubParty p : allies.subparties)
-				setStanceForParty(p, Stance.AGGRESSIVE);
+				p.charge();
 		}
 		else {
 			for (BattleSubParty p : enemies.subparties)
-				setStanceForParty(p, Stance.AGGRESSIVE);
+				p.charge();
 		}
 	}
-
-	public void setStanceForParty(BattleSubParty subparty, Stance stance) {
-		//		if (player) {
-		//			allies.setStance( stance);
-		//			for (Unit unit : getAllies()) 
-		//				unit.setStance(stance);
-		//		} 
-		//		else{
-		//			enemies.setStance( stance);
-		//			for (Unit unit : getEnemies()) 
-		//				unit.setStance(stance);
-		//		} 
-		subparty.stance = stance;
-	}
-
-	public void toggleSubpartyStance(BattleSubParty subparty) {
-		if (subparty.stance == Stance.AGGRESSIVE) setStanceForParty(subparty, Stance.DEFENSIVE);
-		else if (subparty.stance == Stance.DEFENSIVE) setStanceForParty(subparty, Stance.INLINE);
-		else if (subparty.stance == Stance.INLINE) setStanceForParty(subparty, Stance.AGGRESSIVE);	
-	}
-
 
 	private static Soldier.SoldierType[][] flipVertical(Soldier.SoldierType[][] formation) {
 		Soldier.SoldierType[][] flipped = new Soldier.SoldierType[formation.length][formation[0].length];
@@ -719,7 +771,7 @@ public class BattleStage extends Group {
 			}
 		}
 		else if (placementPhase) {
-			//			if (dragging) updateFormationLocation();
+			if (dragging && selectedUnit != null) selectedUnit.bsp.updateFormationLocation();
 		}
 		if (leftClicked)
 			leftClicked = false;
@@ -759,7 +811,7 @@ public class BattleStage extends Group {
 	}
 
 	// TODO Make memory efficient
-	private BPoint mouseToPoint() {
+	BPoint mouseToPoint() {
 		float x = this.mouse.getX();
 		float y = this.mouse.getY();
 
@@ -770,51 +822,9 @@ public class BattleStage extends Group {
 	}
 
 
-	// put formation in proper place
-	//	private void updateFormationLocation() {
-	//		// calculate 
-	//		//		if (this.originalPlacePoint.pos_x == this.mou)
-	//		BPoint mousePoint = mouseToPoint();
-	//		//		if (!inMap(mousePoint)) return;
-	//
-	//		if (!dragging) {
-	//			// just pretend that it hasn't been touched
-	//			centerOffset = new BPoint(0, 0);
-	//			mousePoint = placementPoint;
-	//			System.out.println("null center");
-	//		}
-	//
-	//		if (this.currentFormation == allies.formation && mousePoint.pos_x == this.placementPoint.pos_x - centerOffset.pos_x && mousePoint.pos_y == this.placementPoint.pos_y - centerOffset.pos_y) return;
-	//		mousePoint = centerInPlacementRegion(mousePoint);
-	//
-	//		this.updatePlayerParty();
-	//
-	//		//		this.removeParty(player);
-	//		this.placementPoint = new BPoint(mousePoint.pos_x + centerOffset.pos_x, mousePoint.pos_y + centerOffset.pos_y);
-	//		//		this.addParty(player);
-	//	}
+//	// put formation in proper place
+		
 
-	private BPoint centerInPlacementRegion(BPoint mousePoint) {
-		BPoint center = new BPoint(mousePoint.pos_x + centerOffset.pos_x, mousePoint.pos_y + centerOffset.pos_y);
-
-		if (center.pos_x - currentFormationWidth/2 < MIN_PLACE_X)
-			mousePoint.pos_x = MIN_PLACE_X - centerOffset.pos_x + currentFormationWidth/2;
-
-		if (center.pos_y - currentFormationHeight/2 < MIN_PLACE_Y)
-			mousePoint.pos_y = MIN_PLACE_Y - centerOffset.pos_y + currentFormationHeight/2;
-
-		if (center.pos_x + currentFormationWidth/2 >= MAX_PLACE_X)
-			mousePoint.pos_x = MAX_PLACE_X - 1 - centerOffset.pos_x - currentFormationWidth/2;
-
-		if (center.pos_y + currentFormationHeight/2 >= MAX_PLACE_Y) 
-			mousePoint.pos_y = MAX_PLACE_Y - 1 - centerOffset.pos_y - currentFormationHeight/2;
-
-		//		System.out.println(center.pos_x + " " + center.pos_y);
-
-		// set position
-
-		return mousePoint;
-	}
 
 	private void moveUnitTo(Unit unit, BPoint newPoint) {
 		this.units[unit.pos_y][unit.pos_x] = null;
@@ -840,13 +850,14 @@ public class BattleStage extends Group {
 		if (this.placementPhase) {
 			if (!dragging) {
 				Unit u = getUnitAt(mouse);
+				selectedUnit = u;
 				if (u != null && u.team == 0) {
 
 					// just calculate distance from center
 					centerOffset = new BPoint(this.placementPoint.pos_x - u.getPoint().pos_x, this.placementPoint.pos_y - u.getPoint().pos_y); 
 
 					dragging = true;
-					//					updateFormationLocation();
+					u.bsp.updateFormationLocation();
 				}
 			}
 			else {

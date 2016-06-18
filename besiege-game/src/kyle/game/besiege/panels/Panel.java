@@ -5,12 +5,6 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.army.ArmyPlayer;
-import kyle.game.besiege.battle.Unit;
-import kyle.game.besiege.party.Soldier;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -26,6 +20,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.party.Soldier;
 
 public class Panel extends Group {
 	private final float PAD = 5;
@@ -144,19 +142,22 @@ public class Panel extends Group {
 			b.setVisible(true);
 			// can simplify if make button1() button2() etc into one method with int argument
 			if (bc == 1) {
+				b1.clearListeners();
 				b1.addListener(new InputListener() {
 					public boolean touchDown(InputEvent event, float x,
 							float y, int pointer, int button) {
-						System.out.println("clicked b1");
+						System.out.println("touchdown b1");
 						return true;
 					}
 					public void touchUp(InputEvent event, float x, float y,
 							int pointer, int button) {
+						System.out.println("clicking b1");
 						button1();
 					}
 				});
 			} 
 			else if (bc == 2) {
+				b2.clearListeners();
 				b2.addListener(new InputListener() {
 					public boolean touchDown(InputEvent event, float x,
 							float y, int pointer, int button) {
@@ -169,6 +170,7 @@ public class Panel extends Group {
 					}
 				});
 			} else if (bc == 3) {
+				b3.clearListeners();
 				b3.addListener(new InputListener() {
 					public boolean touchDown(InputEvent event, float x,
 							float y, int pointer, int button) {
@@ -181,6 +183,7 @@ public class Panel extends Group {
 					}
 				});
 			} else if (bc == 4) {
+				b4.clearListeners();
 				b4.addListener(new InputListener() {
 					public boolean touchDown(InputEvent event, float x,
 							float y, int pointer, int button) {

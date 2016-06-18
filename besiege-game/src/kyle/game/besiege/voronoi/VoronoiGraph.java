@@ -895,7 +895,7 @@ public class VoronoiGraph {
         if (p.ocean) {
             return Biomes.OCEAN;
         } else if (p.water) {
-            if (p.elevation < 0.1) {
+            if (p.elevation < 0.2) {
                 return Biomes.MARSH;
             }
             if (p.elevation > 0.8) {
@@ -903,16 +903,19 @@ public class VoronoiGraph {
             }
             return Biomes.LAKE;
         } else if (p.coast) {
+        	for (Center adj : p.neighbors) {
+        		if (!adj.water && adj.biome != null && Math.random() < 0.7) return adj.biome;
+        	}
             return Biomes.BEACH;
         } 
         // Kyle modified these values
         // originally 0.8
         else if (p.elevation > 0.5) {
-            if (p.moisture > 0.50) {
+            if (p.moisture > 0.70) {
                 return Biomes.SNOW;
-            } else if (p.moisture > 0.33) {
+            } else if (p.moisture > 0.43) {
                 return Biomes.TUNDRA;
-            } else if (p.moisture > 0.16) {
+            } else if (p.moisture > 0.26) {
                 return Biomes.BARE;
             } else {
                 return Biomes.SCORCHED;
@@ -936,7 +939,7 @@ public class VoronoiGraph {
                 return Biomes.TEMPERATE_DESERT;
             }
         } else {
-            if (p.moisture > 0.66) {
+            if (p.moisture > 0.73) {
                 return Biomes.TROPICAL_RAIN_FOREST;
             } else if (p.moisture > 0.33) {
                 return Biomes.TROPICAL_SEASONAL_FOREST;

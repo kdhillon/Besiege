@@ -5,11 +5,6 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.SoldierLabel;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,6 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.location.Location;
+import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.SoldierLabel;
 
 public class PanelHire extends Panel { // TODO incorporate "list.java" into this and improve layout (consolidate)
 	private final float PAD = 10;
@@ -279,18 +279,18 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-		if (s.getBonusAtk() >= 0)
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
-		else 
-			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
-		if (s.getBonusDef() >= 0)
-			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
-		else 
-			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
-		if (s.getBonusSpd() >= 0)
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
-		else 
-			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
+//		if (s.getBonusAtk() >= 0)
+//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
+//		else 
+//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+//		if (s.getBonusDef() >= 0)
+//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
+//		else 
+//			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+//		if (s.getBonusSpd() >= 0)
+//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
+//		else 
+//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.unitType.melee.name);
 		equipmentS.setText(s.unitType.armor.name);
 

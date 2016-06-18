@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Inventory;
+import kyle.game.besiege.MultiValue;
+import kyle.game.besiege.MultiValue.TypeInfo;
 import kyle.game.besiege.NameGenerator;
 import kyle.game.besiege.panels.BottomPanel;
 
@@ -22,16 +24,17 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 
 	// getTier()  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
-	private final static int[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
+	private final static short[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
 	public final static boolean[] ATK_TIER = {true, false, false, true, false, true, false, false, true, false, false};
 	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, false, true, false, false, false};
 	public final static boolean[] SPD_TIER = {true, false, false, false, false, false, true, false, false, true, false};
 	private static final float LEVEL_FACTOR = 1.1f; // exp needed for next level each time;
 	private static final int INITIAL_NEXT = 20;
 	private static final float HEAL_TIME = 120; // seconds
-	public static final int MAX_LEVEL = 30;
+	public static final short MAX_LEVEL = 30;
 	private static final double COST_FACTOR = 2; // 
 	private static final double UPGRADE_FACTOR = 2;
+	private static final int BASE_HP = 15;
 
 //	private static final String VETERAN = "Vet."; // "Veteran" or maybe invisible
 
@@ -41,33 +44,35 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	// personal attributes
 	public Color skinColor;
 	public boolean female;
-	public int age; // fixed for now, later should change based on year
-	private String name;
+	public short age; // fixed for now, later should change based on year
+	protected String name;
 	public boolean isImportant;
 
 	// like pokemon, should randomize stats (not all be fixed)
 	// can use this to generate epithet (high speed = "the quick", low speed = "the slow")
 	
 	// battle statistics
-	public int kills = 0; // this could start randomized. instead, start at 0.
-	public int battlesWon = 0; // even if wounded
-	public int battlesSurvived = 0;
-	public int battlesFled = 0;
-	public int timesCaptured = 0;
+	public short kills = 0; // this could start randomized. instead, start at 0.
+	public short battlesWon = 0; // even if wounded
+	public short battlesSurvived = 0;
+	public short battlesFled = 0;
+	public short timesCaptured = 0;
 	
 	public Array<General> ipKilled;
 	
 	public Soldier killedBy; // once killed
 
-	public int level;
-	public int exp;
-	public int next;   // exp needed for level up
-	private int nextUpgrade; // next level at which soldier can be upgraded
+	public short level;
+	public short exp;
+	public short next;   // exp needed for level up
+	private short nextUpgrade; // next level at which soldier can be upgraded
 	public boolean canUpgrade; // TODO remove this and check on fly
 	
-	public int baseAtk; // increases with level
-	public int baseDef;
-	public int baseSpd;
+	public MultiValue hp;
+	
+	public MultiValue atk;
+	public MultiValue def;
+	public MultiValue spd;
 	
 	public UnitType unitType; // determines weapon and armor for now.
 
@@ -106,12 +111,18 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.exp = that.exp;
 		this.next = that.next;   // exp needed for level up
 		this.nextUpgrade = that.nextUpgrade; // next level at which soldier can be upgraded
-		this.canUpgrade = that.canUpgrade; // TODO remove this and check on fly
+		this.canUpgrade = that.canUpgrade; // TODO remove this and check on fly	
+		
+		this.atk = that.atk;
+		this.def = that.def;
+		this.spd = that.spd;
+		
+		this.hp = that.hp;
 		
 		// TODO remove this and calculate on fly, based on level.
-		this.baseAtk = that.baseAtk; // increases with level
-		this.baseDef = that.baseDef;
-		this.baseSpd = that.baseSpd;
+//		this.baseAtk = that.baseAtk; // increases with level
+//		this.baseDef = that.baseDef;
+//		this.baseSpd = that.baseSpd;
 		
 		this.unitType = that.unitType; // determines weapon and armor for now.
 
@@ -121,9 +132,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.healTime = that.healTime;
 	}
 	
-	public Soldier(UnitType unitType, Party party) {
-		this.unitType = unitType;
-		
+	public Soldier(UnitType unitType, Party party) {		
 //		this.equipment = Equipment.getBaseEquipment(unitType);
 
 		//		if (rangedWeapon != null) System.out.println(rangedWeapon.name);
@@ -134,24 +143,55 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		//			getTier() = weapon.getTier();
 		//		else getTier() = weapon.getTier() + 1;
 
+		this.atk = new MultiValue("Attack");
+		atk.addSubValue(TypeInfo.S_BASE_ATK);
+		atk.addSubValue(TypeInfo.S_WEAPON);
+		atk.addSubValue(TypeInfo.S_GENERAL);
+		
+		this.def = new MultiValue("Defense");
+		def.addSubValue(TypeInfo.S_BASE_DEF);
+		def.addSubValue(TypeInfo.S_WEAPON);
+		def.addSubValue(TypeInfo.S_ARMOR);
+		def.addSubValue(TypeInfo.S_GENERAL);
+		
+		this.spd = new MultiValue("Speed");
+		spd.addSubValue(TypeInfo.S_BASE_SPD);
+		spd.addSubValue(TypeInfo.S_WEAPON);
+		spd.addSubValue(TypeInfo.S_ARMOR);
+		spd.addSubValue(TypeInfo.S_GENERAL);
+		
+		this.hp = new MultiValue("HP");
+		hp.addSubValue(TypeInfo.S_BASE_HP);
+		hp.addSubValue(TypeInfo.S_HP_DEF);
+		hp.addSubValue(TypeInfo.S_GENERAL);
+		
+		updateUnitType(unitType);
+
 		int tier = getTier();;
 		
-		this.level = LEVEL_TIER[tier] + (int) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier]));
-
-		this.nextUpgrade = LEVEL_TIER[getTier()+1];
-
-		this.exp = 0;
-		this.next = (int) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
-
-		baseAtk = 0;
-		baseDef = 0;
-		baseSpd = 2;
+		int baseAtk = 0;
+		int baseDef = 0;
+		int baseSpd = 2;
 		for (int i = 0; i <= getTier(); i++) {
 			if (ATK_TIER[i]) baseAtk++;
 			if (DEF_TIER[i]) baseDef++;
 			if (SPD_TIER[i]) baseSpd++;
 		}
+		
+		atk.updateValue(TypeInfo.S_BASE_ATK, baseAtk);
+		def.updateValue(TypeInfo.S_BASE_DEF, baseDef);
+		spd.updateValue(TypeInfo.S_BASE_SPD, baseSpd);
+		
+		hp.updateValue(TypeInfo.S_BASE_HP, BASE_HP);
+		hp.updateValue(TypeInfo.S_HP_DEF, def);
+		
+		this.level = (short) (LEVEL_TIER[tier] + (short) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier])));
 
+		this.nextUpgrade = LEVEL_TIER[getTier()+1];
+
+		this.exp = 0;
+		this.next = (short) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
+		
 		wounded = false;
 		this.healTime = (float) (HEAL_TIME + Math.random() * HEAL_TIME - HEAL_TIME/2); //different for all units
 		timeWounded = 0;
@@ -167,7 +207,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		
 		ipKilled = new Array<General>();
 		
-		age = (int) (Math.random() * 20 + 18); // between 17 and 48
+		age = (short) (Math.random() * 20 + 18); // between 17 and 48
 	}
 	
 	public void generateName() {
@@ -181,6 +221,11 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 			lastName = NameGenerator.generateLastName();
 		}
 		name = firstName + " " + lastName;
+	}
+	
+	public String getLastName() {
+		String[] firstLast = this.name.split(" ");
+		return firstLast[firstLast.length - 1];
 	}
 	
 	public String getName() {
@@ -293,40 +338,39 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	//		calcBonus();
 	//		calcStats();
 	//	}
-
-	public float getBonusAtk() {
-		float bonusAtk = 0;
-		bonusAtk += unitType.melee.atkMod;
-		bonusAtk += subparty.getGeneral().getBonusAtk();
-//		for (Equipment e : equipment) {
-//			bonusAtk += e.atkMod;
-//		}
-		return bonusAtk;
+	
+	public void updateUnitType(UnitType unitType) {
+		this.unitType = unitType;
+		this.updateWeapon(unitType.melee);
+		this.updateArmor(unitType.armor);
 	}
 
-	public float getBonusDef() {
-		float bonusDef = 0;
-		bonusDef += unitType.melee.defMod;
-		bonusDef += unitType.armor.defMod;
-		
-		bonusDef += subparty.getGeneral().getBonusAtk();
-		
-//		for (Equipment e : equipment) {
-//			bonusDef += e.defMod;
-//		}
-		return bonusDef;
+	public void updateWeapon(WeaponType weapon) {
+		this.atk.updateValue(TypeInfo.S_WEAPON, weapon.atkMod);
+		this.def.updateValue(TypeInfo.S_WEAPON, weapon.defMod);
+		this.spd.updateValue(TypeInfo.S_WEAPON, weapon.spdMod);
+	}
+	
+	public void updateArmor(ArmorType armor) {
+		this.def.updateValue(TypeInfo.S_ARMOR, armor.defMod);
+		this.spd.updateValue(TypeInfo.S_ARMOR, armor.defMod);
 	}
 
-	public float getBonusSpd() {
-		float bonusSpd = 0;
-		bonusSpd += unitType.melee.spdMod;
-		bonusSpd += unitType.armor.spdMod;
-
-//		for (Equipment e : equipment) {
-//			bonusSpd += e.spdMod;
-//		}
-		return bonusSpd;
+	public void updateGeneral(General general) {
+		this.atk.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralAtk());
+		this.def.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralDef());	
 	}
+
+//	public float getBonusSpd() {
+//		float bonusSpd = 0;
+//		bonusSpd += unitType.melee.spdMod;
+//		bonusSpd += unitType.armor.spdMod;
+//
+////		for (Equipment e : equipment) {
+////			bonusSpd += e.spdMod;
+////		}
+//		return bonusSpd;
+//	}
 
 	public void calcStats() {
 		//		atk = baseAtk + bonusAtk;
@@ -354,7 +398,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		if (this.canUpgrade) return;
 		level++;
 		exp = 0;
-		next = (int) (LEVEL_FACTOR*next);
+		next = (short) (LEVEL_FACTOR*next);
 
 //		System.out.println("levelling up: " + level + " and " + nextUpgrade);
 
@@ -375,24 +419,25 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public boolean upgrade(UnitType unitType, Inventory inventory) {
 		if (party.player && party.army != null) {
 			inventory.equip(unitType);
-			
-			if (unitType != null) {// only if not upgrading to veteran
-				this.unitType = unitType;
-			}
-
-			if (LEVEL_TIER.length <= getTier() + 1) return false;
-
-			this.nextUpgrade = LEVEL_TIER[getTier() + 1];
-
-			if (ATK_TIER[getTier()]) baseAtk++;
-			if (DEF_TIER[getTier()]) baseDef++;
-			if (SPD_TIER[getTier()]) baseSpd++;
-
-			this.canUpgrade = false;
-
-			calcStats();
-		}	
-		return true;
+		}
+		return upgrade(unitType);	
+//			if (unitType != null) {// only if not upgrading to veteran
+//				this.unitType = unitType;
+//			}
+//
+//			if (LEVEL_TIER.length <= getTier() + 1) return false;
+//
+//			this.nextUpgrade = LEVEL_TIER[getTier() + 1];
+//
+//			if (ATK_TIER[getTier()]) atk.updateValue("Base", atk.getValue("Base").getValue() + 1);
+//			if (DEF_TIER[getTier()]) def.updateValue("Base", def.getValue("Base").getValue() + 1);
+//			if (SPD_TIER[getTier()]) spd.updateValue("Base", spd.getValue("Base").getValue() + 1);
+//
+//			this.canUpgrade = false;
+//
+//			calcStats();
+//		}	
+//		return true;
 	}
 
 	// Old upgrade method, maybe delete this.
@@ -418,9 +463,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 			this.nextUpgrade = LEVEL_TIER[getTier() + 1];
 
-			if (ATK_TIER[getTier()]) baseAtk++;
-			if (DEF_TIER[getTier()]) baseDef++;
-			if (SPD_TIER[getTier()]) baseSpd++;
+			if (ATK_TIER[getTier()]) atk.incrementValue(TypeInfo.S_BASE_ATK);
+			if (DEF_TIER[getTier()]) def.incrementValue(TypeInfo.S_BASE_DEF);
+			if (SPD_TIER[getTier()]) spd.incrementValue(TypeInfo.S_BASE_SPD);
 
 			this.canUpgrade = false;
 
@@ -477,22 +522,28 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		wounded = false;
 	}
 
-	public void addStats(int add) {
-		baseAtk += add;
-		baseDef += add;
-		baseSpd += add;
-	}
+//	public void addStats(int add) {
+//		baseAtk += add;
+//		baseDef += add;
+//		baseSpd += add;
+//	}
 	public boolean isWounded() {
 		return wounded;
 	}
+	
+	public float getHp() {
+		return hp.getValue();
+	}
+	
 	public float getAtk() {
-		return baseAtk + getBonusAtk();	
+		return atk.getValue();
+//		return baseAtk + getBonusAtk();	
 	}
 	public float getDef() {
-		return baseDef + getBonusDef();	
+		return def.getValue();	
 	}
 	public float getSpd() {
-		return baseSpd + getBonusSpd();	
+		return spd.getValue();	
 	}
 
 	public Equipment getHorse() {

@@ -10,7 +10,21 @@ Axe
   orig: 3, 12
   offset: 0, 0
   index: -1
+Hatchet
+  rotate: false
+  xy: 2, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
 Bardiche
+  rotate: false
+  xy: 7, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Glaive
   rotate: false
   xy: 7, 2
   size: 3, 12

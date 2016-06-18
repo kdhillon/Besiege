@@ -111,6 +111,9 @@ public class Location extends Actor implements Destination {
 	public int center = -1; // one of these will be null
 	public int corner = -1;
 
+	// do we need to update panel
+	public boolean needsUpdate = true;
+	
 	public Location(){
 		this.region = Assets.atlas.findRegion(textureName);
 	}
@@ -636,6 +639,8 @@ public class Location extends Actor implements Destination {
 
 	// TODO fix for battlestage
 	public void siegeAttack(StrictArray<Army> attackers) {
+		needsUpdate = true;
+
 		//		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
 		//		garrisonArmy.setParty(garrison);
 		//		if (this.location. == null) {
@@ -679,11 +684,15 @@ public class Location extends Actor implements Destination {
 		}
 	}
 	public void beginSiege(Army army) {
+		needsUpdate = true;
+
 		siege = new Siege(this, army.getFaction());
 		siege.add(army);
 		kingdom.addActor(siege);
 	}
 	public void joinSiege(Army army) {
+		needsUpdate = true;
+
 		// htis is never being called
 		System.out.println(army.getName() + " JOINING SIEGE");
 		siege.add(army);
@@ -691,6 +700,8 @@ public class Location extends Actor implements Destination {
 	}
 
 	public void endSiege() {
+		needsUpdate = true;
+
 		kingdom.removeActor(siege);
 		siege = null;
 	}
@@ -713,6 +724,7 @@ public class Location extends Actor implements Destination {
 		if (army.shouldRepair()) {
 			repair(army);
 		}
+		needsUpdate = true;
 		garrisonedArmies.add(army);
 		army.setVisible(false);
 		army.setPosition(this.spawnPoint.getX()-army.getOriginX(), spawnPoint.getY()-army.getOriginY());
@@ -723,6 +735,7 @@ public class Location extends Actor implements Destination {
 	
 	// ejecting armies was duplicating them previously.
 	public void eject(Army army) {
+		needsUpdate = true;
 		garrisonedArmies.removeValue(army, true);
 		army.setGarrisonedIn(null);
 		army.setVisible(true);
@@ -790,6 +803,7 @@ public class Location extends Actor implements Destination {
 	//	}
 	public void changeFaction(Faction newFaction) {
 		if (this.ruin) return;
+		needsUpdate = true;
 		if (this.type == LocationType.CITY) {
 			this.faction.cities.removeValue((City) this, true);
 			newFaction.cities.add((City) this);

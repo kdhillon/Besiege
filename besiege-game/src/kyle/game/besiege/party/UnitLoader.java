@@ -124,7 +124,7 @@ public class UnitLoader {
 			armor.spdMod	= in.nextInt();
 			armor.clothes 	= in.nextBoolean();
 			armorTypes.put(armor.name, armor);
-			//	printArmor(armor);
+				printArmor(armor);
 		}
 		in.close();
 	}
@@ -146,7 +146,7 @@ public class UnitLoader {
 			weapon.blunt 	= in.nextBoolean();
 			weapon.polearm 	= in.nextBoolean();
 			weaponTypes.put(weapon.name, weapon);
-			//			printWeapon(weapon);
+						printWeapon(weapon);
 		}
 		in.close();
 	}

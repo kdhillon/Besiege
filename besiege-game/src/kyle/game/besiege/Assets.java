@@ -7,16 +7,17 @@
 
 package kyle.game.besiege;
 
-//import java.util.Scanner;
-
-import kyle.game.besiege.party.UnitLoader;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+//import java.util.Scanner;
+
+import kyle.game.besiege.party.UnitLoader;
 
 public class Assets {
 
@@ -64,12 +65,16 @@ public class Assets {
 	public static Sound thunder2;
 	public static Sound thunder3;
 	public static Sound thunder4;
+	
+	public static TextureRegion white;
 
 	public static void load() {
 		atlas = new TextureAtlas(Gdx.files.internal("atlas1.atlas"));
 		weapons = new TextureAtlas(Gdx.files.internal("weapons.atlas"));
 		units = new TextureAtlas(Gdx.files.internal("units.atlas"));
 		map = new TextureAtlas(Gdx.files.internal("map.atlas"));
+		
+		white = new TextureRegion(new Texture("whitepixel.png"));
 		
 		NameGenerator.init();
 		

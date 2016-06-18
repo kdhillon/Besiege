@@ -17,13 +17,15 @@ public class BattleParty {
 
 	public BattleStage stage;
 	
-	
+	public int team;
 
-	public BattleParty(BattleStage stage) {
+
+	public BattleParty(BattleStage stage, int team) {
 		this.stage = stage;
 		this.parties = new StrictArray<Party>();
 		this.subparties = new StrictArray<BattleSubParty>();
 		this.units = new StrictArray<Unit>();
+		this.team = team;
 	}
 	
 	public void addParty(Party party) {
@@ -31,7 +33,7 @@ public class BattleParty {
 		this.parties.add(party);
 //		System.out.println("adding " + party.army.getName());
 		for (Subparty s : party.sub) {
-			this.subparties.add(new BattleSubParty(this, s));
+			this.subparties.add(new BattleSubParty(this, s, team));
 		}
 	}
 	
@@ -79,7 +81,7 @@ public class BattleParty {
 	
 	public void retreatAll() {
 		for (BattleSubParty s : subparties) {
-			s.retreating = true;
+			s.retreat();
 		}
 	}
 	

@@ -73,6 +73,7 @@ public class Unit extends Group {
 	public int original_x;
 	public int original_y;
 
+	// these should be set at the beginning of battle and not changed.
 	public float atk;
 	public float def;
 	public float spd;
@@ -82,7 +83,7 @@ public class Unit extends Group {
 	float timer = ATTACK_EVERY;
 	float reloading = 0f;
 	//float lastFace = 0f;
-	public int hp;
+	public float hp;
 
 	//	public float speed = .35f;
 	public float UNIT_BASE_SPEED = .45f;
@@ -144,7 +145,7 @@ public class Unit extends Group {
 	//	Animation swordAttack;
 	private Color c = new Color();
 	
-	public Unit(BattleStage parent, int pos_x, int pos_y, int team, Soldier soldier, BattleSubParty bp) {
+	public Unit(BattleStage parent, int team, Soldier soldier, BattleSubParty bp) {
 		stage = parent;
 
 		//		texture = new TextureRegion(new Texture("red.png"));
@@ -154,6 +155,8 @@ public class Unit extends Group {
 		if (this.team == 0) enemyParty = stage.enemies;
 		else enemyParty = stage.allies;
 
+		
+		
 		this.original_x = pos_x;
 		this.original_y = pos_y;
 		this.setX( pos_x * stage.unit_width);
@@ -174,12 +177,7 @@ public class Unit extends Group {
 
 		ladder_height = 0;
 
-		this.pos_x = pos_x;
-		this.pos_y = pos_y;
-
 		// TODO check if position already occupied before creating
-		stage.units[pos_y][pos_x] = this;
-
 		this.orientation = Orientation.DOWN;
 		if (this.team == 0) this.orientation = Orientation.UP;
 		this.stance = Stance.AGGRESSIVE;
@@ -413,6 +411,7 @@ public class Unit extends Group {
 					}
 					// move to orignial position for infantry
 					else if (!this.bowOut() && this.stance == Stance.DEFENSIVE) {
+						System.out.println("stance is defensive");
 						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new BPoint(original_x, original_y));
 					}
 				}
@@ -501,8 +500,7 @@ public class Unit extends Group {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {		
 
-		if (this.isHidden() && this.team != 0) return;
-
+//		if (this.isHidden() && !this.isDying && this.team != 0) return;
 
 		if (isDying) {
 			drawAnimationTint(batch, dieArmor, timeSinceDeath, false, armorTint);
@@ -565,11 +563,11 @@ public class Unit extends Group {
 		}
 	}
 
-	public int calcHP() {
-		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
-		//		else 
-		return (int) (15 + this.def*3 + soldier.subparty.getGeneral().getHPBonus());
-	}
+//	public int calcHP() {
+//		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
+//		//		else 
+//		return (int) (15 + this.def*3 + soldier.subparty.getGeneral().getHPBonus());
+//	}
 
 	private void moveToEnemy() {
 		if (nearestEnemy != null && !nearestEnemy.inMap()) {
@@ -691,6 +689,8 @@ public class Unit extends Group {
 	}
 
 	private void retreat() {
+		this.bsp.handleUnitRetreating(this);
+
 		nearestCover = null;
 		this.unman();
 		moveToPoint(getNearestExit());
@@ -1162,12 +1162,15 @@ public class Unit extends Group {
 	}
 
 	public void die(float delta) {
+		
 		if (!this.rotationFixed) {
 			this.setRotation(this.rotation + (float) (Math.random() * 120 - 60));
 			this.rotationFixed = true;
 		}
 		timeSinceDeath += delta;
 		if (timeSinceDeath > DEATH_TIME) {
+			this.bsp.handleUnitKilled(this);
+
 			if (this.team == 0)
 				stage.enemies.removeUnit(this);
 			else stage.enemies.removeUnit(this);
@@ -1334,6 +1337,7 @@ public class Unit extends Group {
 		this.currentSpeed = (UNIT_BASE_SPEED) * (float)(1-stage.slow[pos_y][pos_x]);
 		this.currentSpeed *= stage.getStageSlow();
 
+		// better yet, move as a unit. don't keep moving until everyone is in their right place!
 		// either use this speed or everyone's speed
 		if (!retreating && bsp.stance == Stance.INLINE)
 			this.currentSpeed *= bsp.minSpeed;
@@ -1401,7 +1405,7 @@ public class Unit extends Group {
 			this.def -= horse.defMod;
 			this.atk -= horse.atkMod;
 		}
-		this.hp = calcHP();
+		this.hp = soldier.getHp();
 	}
 	
 	public void setStance(Stance s) {
@@ -1440,6 +1444,8 @@ public class Unit extends Group {
 
 	// call this when a soldier retreats
 	public void leaveBattle() {
+//		System.out.println("leaving battle");
+	
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
@@ -1631,7 +1637,6 @@ public class Unit extends Group {
 		return new BPoint(pos_x, pos_y);
 	}
 
-
 	// only 1-handed units and non-mounted
 	public boolean canHide() {
 		if (this.isMounted()) return false;
@@ -1657,11 +1662,16 @@ public class Unit extends Group {
 	
 	public float getBaseRange() {
 		if (!this.isRanged()) return 0;
-		return this.rangedWeapon.range + soldier.subparty.general.getBonusRange();
+		return this.rangedWeapon.range + soldier.subparty.general.getBonusGeneralRange();
 	}
 	
 	public float getRangeDmg() {
 		if (!this.isRanged()) return 0;
 		return this.rangedWeapon.atkMod + soldier.subparty.general.getBonusRangedAtk();
+	}
+	
+	// probably shouldn't be here
+	public boolean shouldDrawPlacementRegion() {
+		return this == stage.selectedUnit;
 	}
 }

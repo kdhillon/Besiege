@@ -65,6 +65,7 @@ public class PartyType { // todo add ability for max party size
 
 		int randomWealth = MathUtils.random(minWealth, maxWealth);
 		party.wealth = randomWealth;
+				
 		return party;
 	}
 
