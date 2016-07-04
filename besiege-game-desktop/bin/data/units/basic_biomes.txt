@@ -8,7 +8,7 @@ Scorched			Basic
 Taiga				Basic
 Shrubland			Basic
 Temperate Desert	Basic
-Coniferous Forest	Basic
+Swamp				Basic
 Deciduous Forest	Basic
 Grassland			Basic
 Desert				Basic

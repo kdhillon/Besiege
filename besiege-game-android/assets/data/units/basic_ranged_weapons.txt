@@ -3,8 +3,12 @@ name			atk	range	acc		rate	type
 Shortbow		3	30		8		5		bow
 
 Crossbow		3	30		9		8		crossbow
-Recurve Bow		3	35		6		4		bow
+Bow				3	35		6		4		bow
 Longbow			3	45		8		5		bow
+
+Hvy Crossbow	3	35		9		7		crossbow
+Recurve Bow		3	40		7		4		bow
+Strongbow		3	50		8		4		bow
 
 Musket			6	35		4		15		firearm
 Rifle			7	35		5		13		firearm

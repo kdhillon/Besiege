@@ -1,7 +1,9 @@
 package kyle.game.besiege.party;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 
+import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.battle.BattleSubParty;
 
 public class General extends Soldier {
@@ -11,19 +13,26 @@ public class General extends Soldier {
 	private final static float RANGE_MAX = 5;
 	private final static float RANGE_MIN = -2;
 	
+	// change for testing
+	private static final int BASE_PC = 1; // base party count
+
+//		private static final int BASE_PC = 35; // base party count
+	private static final float FAME_PC_FACTOR = 1f;
+	
 	// fill this in later
 	public String epithet; 	// "great", "hammer", etc 
 	
 	public General rival;
-	
-	public int fame;
-	
-	public int courage;  // increases morale in battle, but also mutiny chance
-	public int preparation; // increases troop health in battle
+		
 	public int loyalty; 	// affects chance of desertion, mutiny
-	
 	public int morality;
 	
+	private int fame;
+	private int absoluteMaxSize; // hard max, cannot exceed this.
+
+	public int courage;  // increases morale in battle, but also mutiny chance
+	public int preparation; // increases troop health in battle
+
 	public int infantryAttack;
 	public int infantryDefense;
 	
@@ -33,12 +42,20 @@ public class General extends Soldier {
 	public General() {
 	}
 	
-	public General(UnitType unitType, Party party) {
+	public General(UnitType unitType, Party party, PartyType pt) {
 		super(unitType, party);
 
 		this.isImportant = true;
 		
 		this.subparty = party.root;
+		
+		this.absoluteMaxSize = pt.getMaxSize();
+		
+		this.increaseFame(getRandomFameFor(pt));
+
+		
+		// TODO set fame, use that to set stats.
+		// or update stats later.
 		
 		generateRandomInitStats();
 	}
@@ -50,7 +67,14 @@ public class General extends Soldier {
 		generateRandomInitStats();
 	}
 	
-	
+	// use a reverse calculation to figure out how much fame to give this guy.
+	public int getRandomFameFor(PartyType pt) {
+		// count = fame * c + min
+		int minFame = (int) ((pt.getMinSize() - BASE_PC) / FAME_PC_FACTOR);
+		int maxFame = (int) ((pt.getMaxSize() - BASE_PC) / FAME_PC_FACTOR);
+//		System.out.println("Fame: " + minFame + ", " + maxFame);
+		return MathUtils.random(minFame, maxFame);
+	}
 	
 	// all stats are between 0 and 100
 	// they start out between 20 and 80, and can change later.
@@ -63,7 +87,7 @@ public class General extends Soldier {
 		
 		infantryAttack = getRandomInit();
 		infantryDefense = getRandomInit();
-		rangedCommand = getRandomInit();
+		rangedCommand = getRandomInit();	
 	}
 	
 	private int getRandomInit() {
@@ -94,6 +118,47 @@ public class General extends Soldier {
 		return courage/100.0f * (1-BattleSubParty.BASE_MORALE - (1-BattleSubParty.MAX_MORALE));
 	}
 	
+	public void increaseFame(int fame) {
+		this.fame += fame;
+		if (Math.random() * 100 < fame) {
+			increaseRandomStat();
+		}
+		if (this.party.army != null && this.party.army.isNoble()) {
+			((Noble) party.army).updateRank();
+		}
+	}
+	
+	public void increaseRandomStat() {
+		double MAX_VAL = 0.5;
+		double rand = Math.random() * MAX_VAL;
+		int value = (int) (Math.random() * 5 + 1);
+		if (rand < 0.1) {
+			courage += value;
+		}
+		else if (rand < 0.2) {
+			preparation += value;			
+		}
+		else if (rand < 0.3) {
+			infantryAttack += value;
+		}
+		else if (rand < 0.4) {
+			infantryDefense += value;
+		}
+		else if (rand < MAX_VAL) {
+			rangedCommand += value;
+		}
+//		else if (rand < 0.6) {
+//			courage += value;
+//		}
+//		else if (rand < 0.2) {
+//			courage += value;
+//		}
+	}
+	
+	public int getFame() {
+		return fame;
+	}
+	
 	public static Color getColor(int value) {
 		if (value < 50) {
 			// interpolate between white and red
@@ -111,8 +176,17 @@ public class General extends Soldier {
 		return true;
 	}
 	
+	public int getMaxSize() {
+		return Math.min(absoluteMaxSize, getTroopsForFame(fame));
+	}
+	
+	public int getTroopsForFame(int fame) {
+		return (int) (getFame() * FAME_PC_FACTOR + BASE_PC);
+	}
+	
 	public String getRank() {
 		if (this.subparty.getRank() == 0) {
+			if (this.party.army.isNoble()) return ((Noble)this.party.army).title;
 			return "General";
 		}
 		if (this.subparty.getRank() == 1) {
@@ -125,7 +199,7 @@ public class General extends Soldier {
 	}
 	
 	public void setName(String name) {
-		System.out.println("Setting name: " + name);
+//		System.out.println("Setting name: " + name);
 		if (name != null && name.length() > 0)
 			this.name = name;
 	}

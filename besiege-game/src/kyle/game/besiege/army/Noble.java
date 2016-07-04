@@ -22,11 +22,7 @@ public class Noble extends Army {
 	public Location home;
 	public String title; 	// "earl of x", "bandit warlord"
 	
-	// change for testing
-	private static final int BASE_PC = 350; // base party count
-
-//	private static final int BASE_PC = 35; // base party count
-	private static final float REKNOWN_PC_FACTOR = .5f;
+	
 	private final float WAIT = 30;
 	//	private static final int MAX_LEVEL = 25;
 //	public Location home;
@@ -52,6 +48,7 @@ public class Noble extends Army {
 //		reknown = 0;
 		updateTitle(RANKS[rank]);
 		nextRank = REKNOWN_RANK[rank + 1];
+//		System.out.println("next rank: " + nextRank);
 		
 		String region = "knightFlail";
 		double random = Math.random();
@@ -63,18 +60,25 @@ public class Noble extends Army {
 		kingdom.addArmy(this);
 		this.type = ArmyType.NOBLE;
 		
+		updateRank();
 		updateHome(home);
 
+		// TODO make this based on fame general already has.
 		// this is key
-		giveReknown(MathUtils.random(50));
-		giveReknown(MathUtils.random(50));
-		giveReknown(MathUtils.random(50));
+//		updateRank(MathUtils.random(100));
+//		updateRank(MathUtils.random(100));
+//		updateRank(MathUtils.random(100));
+//		giveReknown(MathUtils.random(100));
+	
+//		giveReknown(MathUtils.random(50));
+//		giveReknown(MathUtils.random(50));
+//		giveReknown(MathUtils.random(50));
+//		giveReknown(MathUtils.random(50));
+		
 		
 		if (title == null || title.equals("")) throw new java.lang.AssertionError(this.getName() + " reknown : " + this.getFame() + " " + title);
 		
 		this.updateName();
-		
-		this.calcMaxPartySize();
 	}
 	
 	// generate the initial soldier for this 
@@ -173,14 +177,15 @@ public class Noble extends Army {
 		this.home = home;
 	}
 	
-	public void giveReknown(int reknown) {
-		this.getGeneral().fame += reknown;
-		if (getGeneral().fame <= RANKS.length - 1) {
-			if (this.getGeneral().fame >= nextRank) {
+	public void updateRank() {
+//		System.out.println("fame of this noble is : " + this.getGeneral().getFame());
+		while (this.getGeneral().getFame() >= nextRank) {
+			if (rank <= RANKS.length - 1) {
 				increaseRank();
+//				System.out.println("increasing rank to: " + this.rank);
 			}
 		}
-//		calcMaxPartySize();
+		//		calcMaxPartySize();
 	}
 
 	private void increaseRank() {
@@ -195,9 +200,10 @@ public class Noble extends Army {
 		}
 		return "God";
 	}
-
+	
+	// TODO move this stuff to General class?
 	public void updateTitle(String title) {
-		this.title = getTitleForFame(this.getGeneral().fame);
+		this.title = getTitleForFame(this.getGeneral().getFame());
 	}
 
 	@Override 
@@ -253,12 +259,12 @@ public class Noble extends Army {
 	}
 	
 	public int getFame() {
-		return this.party.getGeneral().fame;
+		return this.party.getGeneral().getFame();
 	}
 	
-	public void calcMaxPartySize() {
-		getParty().maxSize = (int) (getFame() * REKNOWN_PC_FACTOR + BASE_PC);
-	}
+//	public void calcMaxPartySize() {
+//		getParty().getMaxSize();
+//	}
 	
 	public void updateName() {
 		this.setName(title + " of " + home.getName());

@@ -23,7 +23,7 @@ public class Siege extends Actor {
 	public boolean inBattle;
 	private boolean empty; // no armies present;
 	private float countdown; // if no armies
-	private Battle battle;
+	public Battle battle;
 	public Faction besieging; // faction besieging this city
 	
 	private boolean hasChecked;

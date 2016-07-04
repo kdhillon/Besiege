@@ -33,6 +33,7 @@ public class BattleParty {
 		this.parties.add(party);
 //		System.out.println("adding " + party.army.getName());
 		for (Subparty s : party.sub) {
+			System.out.println("adding subparty of " + party.getName());
 			this.subparties.add(new BattleSubParty(this, s, team));
 		}
 	}
@@ -95,11 +96,12 @@ public class BattleParty {
 		for (BattleSubParty b : subparties) {
 			if (!b.noUnits()) return false;
 		}
+		System.out.println("no units!!!");
 		return true;
 	}
 	
-	public void removeUnit(Unit u) {
-		u.bsp.removeUnit(u);
+	public void removeUnit(Unit u, boolean dying) {
+		u.bsp.removeUnit(u, dying);
 	}
 	
 //	public StrictArray<Soldier> getHealthyInfantry() {

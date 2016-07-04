@@ -41,8 +41,8 @@ public class Simulation extends Game {
 		
 //		mapScreen.resize(width, height);
 		// create fake battlestage
-		bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.TEST, UnitLoader.classTypes.get("Basic")), 
-										PartyType.getPartyType(Type.TEST, UnitLoader.classTypes.get("Basic"))); 
+		bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.VILLAGE_HIRE, UnitLoader.classTypes.get("Basic")), 
+										PartyType.getPartyType(Type.ELITE, UnitLoader.classTypes.get("Basic"))); 
 		mapScreen.switchToBattleView(bs);
 		
 //		mapTest = new MapTest();

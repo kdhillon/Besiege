@@ -2,11 +2,8 @@ package kyle.game.besiege;
 
 import java.util.HashMap;
 
-import com.badlogic.gdx.utils.Array;
-
 import kyle.game.besiege.party.ArmorType;
 import kyle.game.besiege.party.RangedWeaponType;
-import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.party.UnitType;
 import kyle.game.besiege.party.WeaponType;
 
@@ -23,18 +20,18 @@ public class Inventory {
 		armors = new HashMap<ArmorType, Integer>();
 		
 		// testing:
-		addWeapons(UnitLoader.weaponTypes.values());
-		addWeapons(UnitLoader.weaponTypes.values());
-		addWeapons(UnitLoader.weaponTypes.values());
-	addRanged(UnitLoader.rangedWeaponTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
-		addArmor(UnitLoader.armorTypes.values());
+//		addWeapons(UnitLoader.weaponTypes.values());
+//		addWeapons(UnitLoader.weaponTypes.values());
+//		addWeapons(UnitLoader.weaponTypes.values());
+//	addRanged(UnitLoader.rangedWeaponTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
+//		addArmor(UnitLoader.armorTypes.values());
 	}
 	
 	// Add these to inventory
@@ -116,7 +113,7 @@ public class Inventory {
 		return true;
 	}
 	
-	public boolean canEquip(UnitType type) {
+	public boolean canEquip(UnitType type) {		
 //		System.out.println(hasWeapon(type) + " " + hasRanged(type) + " " + hasArmor(type));
 		return hasWeapon(type) && hasRanged(type) && hasArmor(type);
 	}

@@ -186,8 +186,11 @@ public class Battle extends Actor implements Destination { // new battle system 
 //		}
 		
 		if (this.aArmies == null) {
-			this.destroy();
+//			throw new java.lang.AssertionError();
+//			System.out.println("Destroying battle (act) " + this.getName());
 			return;
+//			this.destroy();
+//			return;
 		}
 		
 		calcStats();
@@ -556,7 +559,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	// main thing called by battlestage?
 	public void casualty(Soldier soldier, boolean atkDead) {
-		boolean killed = soldier.party.casualty(soldier);
+		boolean killed = soldier.subparty.casualty(soldier);
 		
 		// add soldier's loot to loot drop
 		if (killed) {
@@ -726,12 +729,12 @@ public class Battle extends Actor implements Destination { // new battle system 
 //		}
 	
 		//	log("battle ended");
+		System.out.println("Destroying battle victory(army, army) " + this.getName());
 		
 		destroy();
 	}
 	
 	public void destroy() {
-		System.out.println("Destroying battle " + this.getName());
 		if (playerInA || playerInD)
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
 		
@@ -756,6 +759,16 @@ public class Battle extends Actor implements Destination { // new battle system 
 		dPartiesRet = null;
 		this.isOver = true;
 		
+		if (this.siegeOf != null) {
+			if (this.siegeOf.siege != null) {
+//				this.siegeOf.siege.destroy();
+				this.siegeOf.siege.battle = null;
+			}
+			else {
+				this.siegeOf = null;
+			}
+		}
+			
 		this.kingdom.removeBattle(this);
 		this.remove();
 	}
@@ -793,9 +806,11 @@ public class Battle extends Actor implements Destination { // new battle system 
 			log(army.getName() + " receives " + moraleReward + " morale, " + fameReward + " fame, " + reward + " gold and " + expReward + " experience!", "green");
 			
 			// Add collected loot
-			kingdom.getMapScreen().getCharacter().inventory.addWeapons(weaponLoot);
-			kingdom.getMapScreen().getCharacter().inventory.addRanged(rangedLoot);
-			kingdom.getMapScreen().getCharacter().inventory.addArmor(armorLoot);
+			if (Soldier.WEAPON_NEEDED) {
+				kingdom.getMapScreen().getCharacter().inventory.addWeapons(weaponLoot);
+				kingdom.getMapScreen().getCharacter().inventory.addRanged(rangedLoot);
+				kingdom.getMapScreen().getCharacter().inventory.addArmor(armorLoot);
+			}
 			
 			if (weaponLoot.size > 0 || rangedLoot.size > 0 || armorLoot.size > 0) {
 				String lootString = army.getName() + " looted ";

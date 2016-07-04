@@ -411,7 +411,6 @@ public class Unit extends Group {
 					}
 					// move to orignial position for infantry
 					else if (!this.bowOut() && this.stance == Stance.DEFENSIVE) {
-						System.out.println("stance is defensive");
 						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new BPoint(original_x, original_y));
 					}
 				}
@@ -699,7 +698,7 @@ public class Unit extends Group {
 		if (this.pos_x == 0 || this.pos_y == 0 || this.pos_x == stage.size_x-1 || this.pos_y == stage.size_y-1) {
 			//			leaveField();
 			soldier.subparty.wound(soldier);
-			leaveBattle();
+			retreatDone();
 			//			System.out.println("Safe");
 		}
 	}
@@ -1144,12 +1143,15 @@ public class Unit extends Group {
 
 		this.isHit = true;
 		if (this.hp <= 0) {
-			if (this.soldier != null && attacker != null && attacker.soldier != null)
+			if (this.soldier != null && attacker != null && attacker.soldier != null) {
 				this.soldier.killedBy = attacker.soldier;
+				attacker.bsp.handleKilledEnemy();
+			}
 			this.isDying = true;
 			
 			// this takes care of exp
 			this.kill();
+			
 			//			this.destroy();
 //			if (attacker != null) {
 //				if (attacker.attacking == this) attacker.attacking = null;
@@ -1168,12 +1170,9 @@ public class Unit extends Group {
 			this.rotationFixed = true;
 		}
 		timeSinceDeath += delta;
+		
 		if (timeSinceDeath > DEATH_TIME) {
-			this.bsp.handleUnitKilled(this);
-
-			if (this.team == 0)
-				stage.enemies.removeUnit(this);
-			else stage.enemies.removeUnit(this);
+			
 		}
 	}
 
@@ -1269,7 +1268,6 @@ public class Unit extends Group {
 	}
 
 	public boolean moveForward() {
-
 		return startMove(this.orientation);
 	}
 
@@ -1428,7 +1426,12 @@ public class Unit extends Group {
 	// call this when a soldier dies from wounds
 	public void kill() {
 		this.unman();
+		this.bsp.handleUnitKilled(this);
 
+		if (this.team == 0)
+			stage.allies.removeUnit(this, true);
+		else stage.enemies.removeUnit(this, true);
+		
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
@@ -1443,14 +1446,14 @@ public class Unit extends Group {
 	}
 
 	// call this when a soldier retreats
-	public void leaveBattle() {
+	public void retreatDone() {
 //		System.out.println("leaving battle");
 	
 		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
-		if (this.team == 0) stage.allies.removeUnit(this);
-		if (this.team == 1) stage.enemies.removeUnit(this);
+		if (this.team == 0) stage.allies.removeUnit(this, false);
+		if (this.team == 1) stage.enemies.removeUnit(this, false);
 
 		stage.retreated.add(this);
 		stage.battle.calcBalancePlayer();
@@ -1662,12 +1665,12 @@ public class Unit extends Group {
 	
 	public float getBaseRange() {
 		if (!this.isRanged()) return 0;
-		return this.rangedWeapon.range + soldier.subparty.general.getBonusGeneralRange();
+		return this.rangedWeapon.range + soldier.subparty.getBonusGeneralRange();
 	}
 	
 	public float getRangeDmg() {
 		if (!this.isRanged()) return 0;
-		return this.rangedWeapon.atkMod + soldier.subparty.general.getBonusRangedAtk();
+		return this.rangedWeapon.atkMod + soldier.subparty.getBonusRangedAtk();
 	}
 	
 	// probably shouldn't be here

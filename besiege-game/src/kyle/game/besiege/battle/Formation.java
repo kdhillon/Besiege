@@ -23,7 +23,10 @@ public enum Formation {
 		int aCount = archers.size;
 		int cCount = cavalry.size;
 		
-		if (iCount + aCount + cCount == 0) return null;
+		// no soldiers
+		if (iCount + aCount + cCount == 0) {
+			formation = new Soldier.SoldierType[1][1];
+		};
 
 		// figure out what formation to do
 		// Scramble:  C A I C C I A 
@@ -164,7 +167,7 @@ public enum Formation {
 			int bottom_start_left = Math.max(0, top_row - bottom_row)/2;
 			int top_start_left = Math.max(0, bottom_row - top_row)/2;
 
-			int formation_width = Math.max(top_row, bottom_row);
+			int formation_width = Math.max(1, Math.max(top_row, bottom_row));
 			int formation_height = 3;
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
@@ -289,11 +292,12 @@ public enum Formation {
 			}
 
 			for (int i = 0; i < archers.size; i++) {
-				formation[0][i + bottom_start_left] = Soldier.SoldierType.ARCHER;
+				formation[1][i + bottom_start_left] = Soldier.SoldierType.ARCHER;
 			}
 			
-			formation[1][formation_width/2] = Soldier.SoldierType.GENERAL;
+			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
 		} 
+		
 		// Square: 
 		//				CCCCCII
 		//				IIIIIII
@@ -304,7 +308,7 @@ public enum Formation {
 		//				AAA
 		//				   G
 		else if (formationChoice == Formation.SQUARE) {
-			int formation_width = (int) (Math.sqrt(iCount + aCount + cCount));
+			int formation_width = (int) (Math.max(1, Math.sqrt(iCount + aCount + cCount)));
 			double remaining = Math.sqrt(iCount + aCount + cCount) - formation_width;
 			if (remaining > 0) formation_width += 1;
 			int formation_height = formation_width + 1;

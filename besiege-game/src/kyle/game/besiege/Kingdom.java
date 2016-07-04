@@ -330,7 +330,7 @@ public class Kingdom extends Group {
 		
 		player.train();
 		
-		printArmyStats();
+//		printArmyStats();
 	}
 
 	private void mouseOver(Point mouse) {
@@ -1086,13 +1086,15 @@ public class Kingdom extends Group {
 		this.armies = armies;
 	}
 	public void addBattle(Battle battle) {
-		battles.add(battle);
+		if (!battles.contains(battle, true)) {
+			System.out.println("Adding battle " + battle.getName());
+			battles.add(battle);
+			addActor(battle);
+		}
 	}
 	public void removeBattle(Battle battle) {
 		battles.removeValue(battle, true);
-		
-		// is this what's taking so long?
-//		this.removeActor(battle);
+		removeActor(battle);
 	}
 	public StrictArray<City> getCities() {
 		return cities;
@@ -1203,19 +1205,19 @@ public class Kingdom extends Group {
 		return null;
 	}
 	
-	public void printArmyStats() {
-		System.out.println("Total soldiers " + getTotalSoldiers());
-		Soldier champ = getSoldierWithMostKills();
-//		if (champ.kills > 10) {
-			System.out.println("Most kills: " + champ.getTypeName() + " (" + champ.party.getName() + ") with " + champ.kills + 
-				" kills after " + champ.battlesWon + " wins, " + champ.battlesFled + " retreats out of " + champ.battlesSurvived + " total battles");
-			System.out.println();
-//		}
-		Soldier champ2 = getSoldierWithMostCaptures();
-			System.out.println("Most times captured: " + champ2.getTypeName() + " (" + champ2.party.getName() + ") with " + champ2.timesCaptured + 
-				" times captured after " + champ2.battlesWon + " wins, " + champ2.battlesFled + " retreats out of " + champ2.battlesSurvived + " total battles");
-			System.out.println();
-	}
+//	public void printArmyStats() {
+//		System.out.println("Total soldiers " + getTotalSoldiers());
+//		Soldier champ = getSoldierWithMostKills();
+////		if (champ.kills > 10) {
+//			System.out.println("Most kills: " + champ.getTypeName() + " (" + champ.party.getName() + ") with " + champ.kills + 
+//				" kills after " + champ.battlesWon + " wins, " + champ.battlesFled + " retreats out of " + champ.battlesSurvived + " total battles");
+//			System.out.println();
+////		}
+//		Soldier champ2 = getSoldierWithMostCaptures();
+//			System.out.println("Most times captured: " + champ2.getTypeName() + " (" + champ2.party.getName() + ") with " + champ2.timesCaptured + 
+//				" times captured after " + champ2.battlesWon + " wins, " + champ2.battlesFled + " retreats out of " + champ2.battlesSurvived + " total battles");
+//			System.out.println();
+//	}
 	
 	
 	private int getTotalSoldiers() {

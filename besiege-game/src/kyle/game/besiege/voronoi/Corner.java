@@ -55,6 +55,8 @@ public class Corner {
 	
 	public Color lerpColor; // linear interpolation of land colors
 	
+	public int textureInt; // for drawing textures on map
+	
 	public void init() {
 		locPushed = new PointH(this.loc.x, this.loc.y);
 		locNew = new PointH(this.loc.x, Map.HEIGHT-this.loc.y);

@@ -38,119 +38,140 @@ Battleaxe
   orig: 3, 12
   offset: 0, 0
   index: -1
-Claymore
+Bow
   rotate: false
   xy: 17, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Club
+Recurve Bow
+  rotate: false
+  xy: 17, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Claymore
   rotate: false
   xy: 22, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Crossbow
+Club
   rotate: false
   xy: 27, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Dagger
+Crossbow
   rotate: false
   xy: 32, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Falchion
+Hvy Crossbow
+  rotate: false
+  xy: 32, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Dagger
   rotate: false
   xy: 37, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Guisarme
+Falchion
   rotate: false
   xy: 42, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Halberd
+Guisarme
   rotate: false
   xy: 47, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Lance
+Halberd
   rotate: false
   xy: 52, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Longbow
+Lance
   rotate: false
   xy: 57, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Longsword
+Longbow
   rotate: false
   xy: 62, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Mace
+Strongbow
+  rotate: false
+  xy: 62, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Longsword
   rotate: false
   xy: 67, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Maul
+Mace
   rotate: false
   xy: 72, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Military Fork
+Maul
   rotate: false
   xy: 77, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Morningstar
+Military Fork
   rotate: false
   xy: 82, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Pike
+Morningstar
   rotate: false
   xy: 87, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Pitchfork
+Pike
   rotate: false
   xy: 92, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Recurve Bow
+Pitchfork
   rotate: false
   xy: 97, 2
   size: 3, 12

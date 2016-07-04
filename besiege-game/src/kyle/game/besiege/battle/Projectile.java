@@ -41,7 +41,7 @@ public class Projectile extends Actor {
 	private static final float SPEED_SCALE_SIEGE = .4f; // how much does speed decrease when unit is hit.
 	
 	private static int MAX_BOUNCES = 5;
-	private final float DAMAGE_FACTOR = 5f;
+	private final float DAMAGE_FACTOR = 3f;
 	private final float STUCK_Y = -6f;
 
 	float BOUNCE_DEPRECIATION = .4f; // can randomize for more fun
@@ -271,19 +271,18 @@ public class Projectile extends Actor {
 		Unit collided = null; 
 		if (inMap()) {
 			collided = stage.units[pos_y_int][pos_x_int];
-			if (collided != null && this.height < collided.getZHeight() && this.height > collided.getZHeight() - Unit.UNIT_HEIGHT_GROUND)
-				collision(stage.units[pos_y_int][pos_x_int]);
+			if (collided != null && this.height < collided.getZHeight() && this.height > collided.getZHeight() - Unit.UNIT_HEIGHT_GROUND) {
+				if (!goingUp())
+					collision(stage.units[pos_y_int][pos_x_int]);
+			}
 		}
 
-		if (inMap() && (wallHeightCheck()) && 
+		if (inMap() && (wallHeightCheck()) &&
 				(height < stage.heights[pos_y_int][pos_x_int]) && stage.battlemap.objects[pos_y_int][pos_x_int] == null) {
 			
 			if (this.isArrow() || this.bounceCount <= 0 || this.stage.battlemap.objects[pos_y_int][pos_x_int] != null) {
 				this.stopped = true;
-
-				// move forward a bit if stuck in an object
-				this.pos_x += velocity.x*.2f*delta;
-				this.pos_y += velocity.y*.2f*delta;
+				
 				if (Math.random() < .2) this.broken = true;
 			}
 			else {
@@ -299,7 +298,7 @@ public class Projectile extends Actor {
 			}
 		}
 		// collide with object
-		else if (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && 
+		else if (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && !goingUp() && 
 				height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]) {
 			
 			BattleMap.Object object = stage.battlemap.objects[pos_y_int][pos_x_int];
@@ -309,13 +308,11 @@ public class Projectile extends Actor {
 				}
 			}
 			this.stopped = true;
-//			this.destroy();
 			
-
 			// move forward a bit if stuck in an object
 			if (this.isArrow()) {
-				this.pos_x += velocity.x*-.51f*delta;
-				this.pos_y += velocity.y*-.5f*delta;
+				this.pos_x += velocity.x*.018f;
+				this.pos_y += velocity.y*.019f;
 			}
 			else { 
 				if (Math.random() < .3) this.destroy();
@@ -324,6 +321,10 @@ public class Projectile extends Actor {
 			}
 			if (Math.random() < .2) this.broken = true;
 		}
+	}
+	
+	public boolean goingUp() {
+		return vz > 0;
 	}
 	
 	// if standing above 0, don't intersect with anything at that height... dicey but works, kind of OP can fix later TODO
@@ -361,8 +362,6 @@ public class Projectile extends Actor {
 		else if (!stopped) {
 			setRotation(getRotation() + this.spin);
 		}
-		
-		
 	
 		this.setScaleX(scaleX);
 		this.setScaleY(scaleY);

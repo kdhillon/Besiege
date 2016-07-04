@@ -499,6 +499,12 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			}
 			else if (playerBesieging && !location.playerWaiting) {
 				BottomPanel.log("charge!");
+				
+				// TODO temp fix
+				if (location.getSiege() == null) {
+					playerBesieging = false;
+					return; 
+				}
 				location.getSiege().attack();
 				System.out.println("ATTACKING ");
 			}

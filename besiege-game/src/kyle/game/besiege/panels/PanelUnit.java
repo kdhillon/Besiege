@@ -245,8 +245,10 @@ public class PanelUnit extends Panel {
 		levelS.setText("" + soldier.level);
 
 		hpS.setText(df.format(soldier.hp.getValue()));
-		if (unit != null)
-			moraleS.setText(df.format(unit.bsp.getCurrentMorale()));
+		if (unit != null) {
+			moraleS.setText(unit.bsp.getCurrentMoraleString());
+			moraleS.setColor(unit.bsp.moraleColor);
+		}
 		
 //		expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
 

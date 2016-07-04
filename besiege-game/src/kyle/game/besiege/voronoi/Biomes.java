@@ -12,7 +12,7 @@ package kyle.game.besiege.voronoi;
 public enum Biomes {
 
     OCEAN, LAKE, BEACH, SNOW, TUNDRA, BARE, SCORCHED, TAIGA, SHURBLAND, TEMPERATE_DESERT,
-    TEMPERATE_RAIN_FOREST, TEMPERATE_DECIDUOUS_FOREST, GRASSLAND, SUBTROPICAL_DESERT,
+    SWAMP, TEMPERATE_DECIDUOUS_FOREST, GRASSLAND, SUBTROPICAL_DESERT,
     SHRUBLAND, ICE, MARSH, TROPICAL_RAIN_FOREST, TROPICAL_SEASONAL_FOREST, COAST,
     LAKESHORE;
     
@@ -29,7 +29,7 @@ public enum Biomes {
     	case TAIGA: return "Taiga";
     	case SHURBLAND: return "Shrubland";
     	case TEMPERATE_DESERT: return "Temperate Desert";
-    	case TEMPERATE_RAIN_FOREST: return "Coniferous Forest";
+    	case SWAMP: return "Swamp";
     	case TEMPERATE_DECIDUOUS_FOREST: return "Deciduous Forest";
     	case GRASSLAND: return "Grassland";
     	case SUBTROPICAL_DESERT: return "Desert";

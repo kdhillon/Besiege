@@ -15,7 +15,8 @@ import kyle.game.besiege.NameGenerator;
 import kyle.game.besiege.panels.BottomPanel;
 
 public class Soldier implements Comparable<Soldier> { // should create a heal-factor, so garrisonning will heal faster
-
+	public static boolean WEAPON_NEEDED = false;
+		
 	//testing
 	static int namesGenerated = 0;
 	
@@ -224,6 +225,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 	
 	public String getLastName() {
+		if (name == null) this.name = getName();
 		String[] firstLast = this.name.split(" ");
 		return firstLast[firstLast.length - 1];
 	}
@@ -417,7 +419,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	
 	// Upgrades with items from inventory
 	public boolean upgrade(UnitType unitType, Inventory inventory) {
-		if (party.player && party.army != null) {
+		if (WEAPON_NEEDED && party.player && party.army != null) {
 			inventory.equip(unitType);
 		}
 		return upgrade(unitType);	

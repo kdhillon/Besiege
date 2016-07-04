@@ -52,7 +52,6 @@ public class ArmyPlayer extends Army {
 		
 		// debugging
 		sr = new ShapeRenderer();
-		this.calcMaxPartySize();
 		
 		// debugging
 		this.getParty().distributeExp(100000);
@@ -327,11 +326,6 @@ public class ArmyPlayer extends Army {
 	@Override
 	public String getName() {
 		return getCharacter().name + "'s Party";
-	}
-	
-	public void calcMaxPartySize() {
-//		getParty().maxSize = (int) (character.famereknown * REKNOWN_PC_FACTOR + BASE_PC);
-		getParty().maxSize = 10000;
 	}
 	
 	public String getTitle() {

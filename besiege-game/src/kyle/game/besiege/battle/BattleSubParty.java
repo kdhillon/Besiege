@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Stance;
+import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Soldier.SoldierType;
 import kyle.game.besiege.party.Subparty;
@@ -17,7 +18,7 @@ import kyle.game.besiege.party.Subparty;
 // make BattleSubParty - for controlling individual parties.
 public class BattleSubParty {
 	public static float BASE_MORALE = 0.4f;
-	public static float MAX_MORALE = 0.8f;
+	public static float MAX_MORALE = 0.9f;
 	
 	Subparty subparty;
 	BattleParty parent;
@@ -35,6 +36,11 @@ public class BattleSubParty {
 
 	public int startingCount;
 	public int currentCount;
+	public int killCount; 
+	private float currentMorale;
+	private String currentMoraleString;
+	public Color moraleColor;
+	public boolean generalOut;
 	
 	public Stance stance;
 	public Formation formation;
@@ -65,7 +71,7 @@ public class BattleSubParty {
 
 		this.availableFormations = MapScreen.characterReference.availableFormations;
 		
-		startingCount = subparty.getHealthySize();
+		startingCount = subparty.getHealthySize() + 1;
 		currentCount = startingCount;
 		
 		battleMoraleThreshold = BASE_MORALE + subparty.general.getMoraleBonus();
@@ -79,44 +85,63 @@ public class BattleSubParty {
 		c = new Color();
 		
 		createAllUnits();
+		updateCurrentMorale();
 	}
 	
 	public void createAllUnits() {
 		for (Soldier s : subparty.healthy) {
 			Unit unit = new Unit(stage, team, s, this);
 			this.units.add(unit);
-			addUnitsToArrays();
 			this.parent.units.add(unit);
 			unit.setStance(stance);
 		}
+		addUnitsToArrays();
+
 		this.general = new Unit(stage, team, subparty.general, this);
+		this.units.add(general);
+		this.parent.units.add(general);
+		general.setStance(stance);
+		
 		this.calcMinSpeed();
 	}
 	
 	public void addUnitsToArrays() {
 		for (Unit unit : units) {
+			if (unit.isGeneral()) continue;
 			if (unit.soldier.getType() == SoldierType.ARCHER) archers.add(unit);
 			if (unit.soldier.getType() == SoldierType.CAVALRY) cavalry.add(unit);
 			if (unit.soldier.getType() == SoldierType.INFANTRY) infantry.add(unit);
 		}
 	}
 
-	public void removeUnit(Unit remove) {
+	public void removeUnit(Unit remove, boolean dying) {
 		units.removeValue(remove, true);
 		parent.units.removeValue(remove, true);
 		if (remove.inMap())
 			if (stage.units[remove.pos_y][remove.pos_x] == remove) stage.units[remove.pos_y][remove.pos_x] = null;
-		stage.removeActor(remove);
+		
+		if (!dying) stage.removeActor(remove);
 		calcMinSpeed();
 	}
+	
 	public boolean noUnits() {
-		return this.units.size == 0;
+		return this.units.size == 0 && generalOut;
+	}
+	
+	public void handleKilledEnemy() {
+		this.killCount++;
+		updateCurrentMorale();
 	}
 	
 	// decide if should retreat
 	public void handleUnitKilled(Unit unit) {
-		if (unit.isGeneral()) battleMoraleThreshold -= 0.2f;
+//		System.out.println("handle unit killed");
+		if (unit.isGeneral()) {
+			battleMoraleThreshold -= 0.2f;
+			this.generalOut = true;
+		}
 		this.currentCount--;
+		updateCurrentMorale();
 		retreatIfNecessary();
 	}
 	
@@ -124,18 +149,54 @@ public class BattleSubParty {
 		if (this.retreatingUnits.contains(unit, true)) return;
 		retreatingUnits.add(unit);
 		
-		if (unit.isGeneral()) battleMoraleThreshold -= 0.2f;
+		if (unit.isGeneral()) {
+			battleMoraleThreshold -= 0.2f;
+			this.generalOut = true;
+		}
 		this.currentCount--;
+		updateCurrentMorale();
 		retreatIfNecessary();		
 	}
 	
 	// multiply by courage of general
 	public void retreatIfNecessary() {
-		if (getCurrentMorale() < 0) retreat();
+		if (currentMorale < 0) retreat();
 	}
 	
-	public float getCurrentMorale() {
-		return currentCount * 1.0f / startingCount - (1-battleMoraleThreshold);
+	public void updateCurrentMorale() {
+		currentMorale = (currentCount * 1.0f + killCount) / startingCount - (1-battleMoraleThreshold);
+		updateMoraleString();
+		updateMoraleColor();
+	}
+	
+	public void updateMoraleString() {
+		if (currentMorale < 0) {
+			currentMoraleString = "Defeated";
+		}
+		else if (currentMorale < 0.25) {
+			currentMoraleString = "Terrified";			
+		}
+		else if (currentMorale < 0.5) {
+			currentMoraleString = "Nervous";
+		}
+		else if (currentMorale < 0.75) {
+			currentMoraleString = "Ready";
+		}
+		else if (currentMorale < 1) {
+			currentMoraleString = "Excited";
+		}
+		else {
+			currentMoraleString = "Inspired";
+		}
+	}
+	
+	public void updateMoraleColor() {
+//		if (team == 0) System.out.println(currentMorale);
+		this.moraleColor = General.getColor((int) (Math.min(99, Math.max(1, 100 * currentMorale))));
+	}
+	
+	public String getCurrentMoraleString() {
+		return currentMoraleString;
 	}
 
 	public int getHealthySize() {
@@ -346,6 +407,7 @@ public class BattleSubParty {
 		for (Unit u : units) {
 			u.setStance(s);
 		}
+		general.setStance(s);
 	}
 
 }

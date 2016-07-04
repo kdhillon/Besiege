@@ -186,8 +186,7 @@ public class Army extends Actor implements Destination {
 //				throw new java.lang.NullPointerException();
 			}
 			this.partyType = PartyType.generatePT(type, containing);
-			this.party = partyType.generate(player);		
-			this.party.army = this;
+			generateParty(player);
 		}
 		else {
 			System.out.println("NULL TYPE!!!");
@@ -220,6 +219,11 @@ public class Army extends Actor implements Destination {
 		this.setWidth(region.getRegionWidth()*getScaleX());
 		this.setHeight(region.getRegionHeight()*getScaleY());
 		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
+	}
+	
+	public void generateParty(boolean player) {
+		this.party = partyType.generate(player);		
+		this.party.army = this;
 	}
 
 	@Override
@@ -492,6 +496,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
+		if (this.battle != null) return;
 		//		System.out.println(this.getName() + " creating battle");
 		if (this == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
@@ -547,7 +552,6 @@ public class Army extends Actor implements Destination {
 			this.setBattle(b);
 			targetArmy.setBattle(b);
 			getKingdom().addBattle(b);
-			getKingdom().addActor(b);
 		}
 		//shouldJoinBattle();
 	}
@@ -1093,6 +1097,7 @@ public class Army extends Actor implements Destination {
 		
 		int base = 0;
 		int party_bonus = Math.min(25, 100 - getTroopCount());
+		party_bonus = 25;
 		int free_bonus = 25;
 		int momentum_bonus = Math.min(50, momentum);
 		

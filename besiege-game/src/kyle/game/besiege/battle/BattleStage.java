@@ -26,6 +26,7 @@ import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.Subparty;
 import kyle.game.besiege.voronoi.Biomes;
 
 public class BattleStage extends Group {
@@ -460,29 +461,31 @@ public class BattleStage extends Group {
 		// if won't fit, gently nudge over to the right.
 		while (!canPlaceHere) {
 			tries++;
-			if (tries > 100) break;
+			if (tries > 10000) {
+//				throw new java.lang.AssertionError();
+				break;
+			}
 			canPlaceHere = true;
-			System.out.println("trying again to place");
-//			for (BattleSubParty s : bsp.parent.subparties) {
-//				if (s == bsp) continue;
-//				
-//				// make sure this rectangle does not overlap with any other ones.
-//				// check if point is contained inside other point
-//			}
 			
 			for (int i = 0; i < region_height; i++) {
 				for (int j = 0; j < region_width; j++) {
+					if (formation[i][j] == null) continue;
 					if (i + base_y < 0 || j + base_x >= size_x - 1) continue;
-					if (units[i+base_y][j+base_x] != null) {
+					// change to handle rocks, trees, beach... 
+					if (units[i+base_y][j+base_x] != null || (!canPlaceUnitPlacement(j+base_x, i+base_y, team) && !canPlaceUnitPlacement(j+base_x, i+base_y+REINFORCEMENT_DIST, team))) {
 						canPlaceHere = false;
-						base_x += (int) (Math.random() * 5);
-//						base_y += (int) (Math.random() * 5);
-						if (base_x >= this.MAX_PLACE_X - region_width) base_x = 0;
-						if (base_y >= this.MAX_PLACE_Y - region_height) {
-							if (bsp.isPlayer())
-								base_y = 20;
-							else 
-								base_y = (int) (size_y * 0.7f) - region_height;
+						
+						base_x += (int) (Math.random() * 10);
+						if (base_x >= this.MAX_PLACE_X - region_width) {
+							base_x = (int) (Math.random() * 20);
+							base_y += (int) (Math.random() * 5);
+						}
+						
+						if (bsp.isPlayer() && base_y >= this.MAX_PLACE_Y - region_height) {
+							base_y = this.MIN_PLACE_Y;
+						}
+						else if (!bsp.isPlayer() && base_y >= size_y - this.MIN_PLACE_Y - region_height) {
+							base_y = (int) (size_y - this.MAX_PLACE_Y);
 						}
 						break;
 					}
@@ -510,6 +513,7 @@ public class BattleStage extends Group {
 					}
 					else if (canPlaceUnit(base_x + j, base_y + i + REINFORCEMENT_DIST)) {
 //						Unit unit = new Unit(this, base_x + j, base_y + i + REINFORCEMENT_DIST, team, toAdd, bsp);
+						toAdd.setStance( partyStance);
 						if (bsp .isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
 						addUnitToField(toAdd, base_x + j, base_y + i + REINFORCEMENT_DIST);
 					}
@@ -840,7 +844,7 @@ public class BattleStage extends Group {
 			for (int i = 0; i < size_x; i++) {
 				for (int j = 0; j < size_y; j++) {
 					if (units[j][i] != null && units[j][i].team == 0)
-						allies.removeUnit(units[j][i]);
+						allies.removeUnit(units[j][i], false);
 				}
 			}
 		}
@@ -910,7 +914,7 @@ public class BattleStage extends Group {
 	//	}
 
 	public void victory(Army winner, Army loser) {
-
+		System.out.println("Battle over!");
 		if (winner != kingdom.getPlayer() && loser != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
 
 		this.isOver = true;
@@ -956,6 +960,9 @@ public class BattleStage extends Group {
 			p.army.endBattle();
 			p.army.setStopped(false);
 			p.army.setTarget(null);
+			for (Subparty s : p.sub) {
+				s.handleBattleEnded();
+			}
 		}
 		for (Party p : enemies.parties) {
 			if (!((p.getHealthySize() <= Battle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
@@ -963,6 +970,9 @@ public class BattleStage extends Group {
 			p.army.endBattle();
 			p.army.setStopped(false);
 			p.army.setTarget(null);
+			for (Subparty s : p.sub) {
+				s.handleBattleEnded();
+			}
 		}
 
 		loser.waitFor(0);
@@ -1123,6 +1133,22 @@ public class BattleStage extends Group {
 		if (units[pos_y][pos_x] != null) return false;
 		return true;
 	}
+	
+	public boolean canPlaceUnitPlacement(int pos_x, int pos_y, int team) {
+		if (!canPlaceUnit(pos_x, pos_y)) return false;
+//		if (pos_x < MIN_PLACE_X) return false;
+//		if (pos_x > MAX_PLACE_X) return false;
+//		if (team == 0) {
+//			if (pos_y <= MIN_PLACE_Y) return false;
+//			if (pos_y >= MAX_PLACE_Y) return false;
+//		}
+//		else {
+//			if (pos_y <= size_y - MAX_PLACE_Y) return false;
+//			if (pos_y >= size_y - MIN_PLACE_Y) return false;
+//		}
+		return true;
+	}
+	
 	public boolean canPlaceUnitIgnoreUnits(int pos_x, int pos_y) {
 		if (pos_x < 0 || pos_y < 0 || pos_x >= size_x || pos_y >= size_x) return false;
 		if (closed[pos_y][pos_x]) return false;

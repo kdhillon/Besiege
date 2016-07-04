@@ -85,7 +85,7 @@ public class Map extends Actor {
 	private Color riverColorToDraw = new Color();
 
 	public Center selectedCenter;
-
+	
 	// testing
 	//	transient public Array<Polygon> testPolygons = new Array<Polygon>();
 	//	transient public Array<Corner> testCorners = new Array<Corner>();
@@ -96,6 +96,7 @@ public class Map extends Actor {
 	public Map() {
 		this.sr = new ShapeRenderer();
 		shader = createMeshShader();
+		loadTextures();
 		batchColor = new float[3];
 	}
 
@@ -104,6 +105,7 @@ public class Map extends Actor {
 		this.kingdom = kingdom;
 		sr = new ShapeRenderer();
 		shader = createMeshShader();
+		loadTextures();
 		batchColor = new float[3];
 
 		testIndex = 1;
@@ -768,23 +770,44 @@ public class Map extends Actor {
 	//		
 	//	}
 	public static final String VERT_SHADER =  
-			"attribute vec3 a_position;\n" +
-					"attribute vec4 a_color;\n" +			
+					"#version 120\n" + 
+					"attribute vec3 a_position;\n" +
+					"attribute vec4 a_color;\n" +	
+					"attribute vec2 a_texCoord0;\n" + 
 					"uniform mat4 u_projTrans;\n" + 
 					"uniform vec3 u_batchColor;\n" +
-					"varying vec4 vColor;\n" +			
+					"varying vec4 vColor;\n" +		
+					"varying vec2 v_texCoords;\n" +			
 					"void main() {\n" +  
 					"	vColor = vec4(u_batchColor, 1.0) * a_color;\n" +
 					"	gl_Position =  u_projTrans * vec4(a_position, 1.0);\n" +
+					"	v_texCoords = a_texCoord0;\n" +
+					// what I have to do is subtract each triangles minimum from the max, pass in a value that's basically 
+					// FUCK YEAH pretend theres a box around each triangle, pass in [0,1] for each vertex. 
+					// values interpolated by frag shader will be correct.
 					"}";
 	public static final String FRAG_SHADER = 
-			"#ifdef GL_ES\n" +
+					"#version 120\n" + 
+					"#ifdef GL_ES\n" +
 					"precision mediump float;\n" +
 					"#endif\n" +
-					"varying vec4 vColor;\n" + 			
+					"varying vec4 vColor;\n" + 	
+					"varying vec2 v_texCoords;\n" + 			
+
+					"uniform sampler2D u_texture;\n" + 		
+//					"uniform vec2 screenSize;\n" + 		
+
 					"void main() {\n" +  
-					"	gl_FragColor = vColor;\n" + 
-					"}";
+//					"	gl_FragColor = vColor;\n" + 
+//					"	gl_FragColor = texture2D( u_texture, gl_FragCoord.st/100);\n" + 
+//					"	gl_FragColor = texture2D( u_texture, vec2(2f/3, 2f/3));\n" + 
+//					"	gl_FragColor = mix(vColor, texture2D( u_texture, v_texCoords.st), 0.1);\n" + 
+					"	gl_FragColor = vColor * texture2D( u_texture, v_texCoords.st).s;\n" + 
+
+//					"	gl_FragColor = vec4(v_texCoords.s, v_texCoords.t,1.0, 1.0);"+ 
+					"}"; // 2/3, 1/3 is bright purple
+						// so counts down from top
+				
 	// from https://gist.github.com/mattdesl/5793041
 	protected static ShaderProgram createMeshShader() {
 		ShaderProgram.pedantic = false;
@@ -796,10 +819,29 @@ public class Map extends Actor {
 			System.out.println("Shader Log: "+log);
 		return shader;
 	}
+	
+	protected static void loadTextures() {
+		
+		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
+//	    Gdx.gl.glEnable(34913);
+//	    Gdx.gl20.glEnable(GL11.GL_POINT_SPRITE_OES);
+
+//	    Gdx.gl.glEnable(GL20.GL_POIN);
+	    // this is not doing anything
+	    Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, GL20.GL_REPEAT);
+	    Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, GL20.GL_REPEAT);
+	}
 
 	// draws the center (with a mesh!)
 	private void drawCenter(Center center, Matrix4 projTrans, float[] batchColor) {
 		shader.begin();
+//		Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE);
+//		Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE);
+//	    Gdx.gl.glEnable(34913);
+
+	    Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, GL20.GL_REPEAT);
+	    Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, GL20.GL_REPEAT);
+	    center.biomeTexture.bind();
 		center.draw(projTrans, shader, batchColor);
 		shader.end();
 	}
@@ -1035,9 +1077,9 @@ public class Map extends Actor {
 				Edge e = getEdge(edgeIndex);
 				for (int i = -1; i < e.subEdges.length; i++) {
 					b = !b;
-					if (b) {
-						continue;
-					}
+//					if (b) {
+//						continue;
+//					}
 					PointH start, end;
 					if (i == -1) {
 						start = e.v0.loc;

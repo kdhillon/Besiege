@@ -11,7 +11,7 @@ public class Subparty {
 	public int MAX_SIZE = 20;
 	
 	private Party party;
-	private Subparty parent; // this is the boss, null usually.
+	Subparty parent; // this is the boss, null usually.
 	
 	private StrictArray<Subparty> children;
 	
@@ -56,6 +56,8 @@ public class Subparty {
 			System.out.println("you haven't demoted this general yet");
 		}
 		
+//		System.out.println("promoting " + s.getName() + " of " + s.party.getName() + " to general");
+		
 		if (this.healthy.contains(s, true)) this.healthy.removeValue(s, true);
 		if (this.wounded.contains(s, true)) this.wounded.removeValue(s, true);
 
@@ -79,7 +81,9 @@ public class Subparty {
 	public void demoteGeneral(General general) {
 		System.out.println("demoting general");
 		this.removeSoldier(general);
+		
 		this.general = null;
+		general.subparty = null;
 	}
 	
 	public void checkHeal() { // to be called every frame 
@@ -102,9 +106,11 @@ public class Subparty {
 	}
 	
 	public boolean casualty(Soldier soldier) { // returns true if killed, false if wounded
+//		System.out.println("casualty: " + soldier.unitType.name);
 		// wound chance = base_chance*heal factor + (level of unit / max level)/2
 		double thisWoundChance = party.woundChance + (soldier.level / Soldier.MAX_LEVEL) / 2;
-		if (Math.random() < party.woundChance) {
+		thisWoundChance = 0; //TODO remove
+		if (Math.random() < thisWoundChance) {
 			wound(soldier);
 			return false;
 		}
@@ -127,10 +133,58 @@ public class Subparty {
 	}
 	
 	public void kill(Soldier soldier) {
+//		System.out.println("Killing "  + soldier.unitType.name);
 		removeSoldier(soldier); //can be used to kill both healthy and wounded soldiers.
 		wounded.sort();
 		healthy.sort();
+		
+		// TODO this isn't getting called enough or something
+		// subparties aren't being destroyed and still aren't being displayed in panel
+		// check if the party is dead
+		if (wounded.size == 0 & healthy.size == 0 && general == null) {
+			this.destroy();
+			return;
+		}
+//		else {
+//			System.out.println("wounded: " + wounded.size + " healthy: " + healthy.size);
+//		}
 	}
+	
+	public void handleBattleEnded() {
+		if (general == null) promoteNextGeneral();
+		if (general == null) throw new java.lang.AssertionError();
+	}
+	
+	// kill this subparty
+	public void destroy() {	
+		System.out.println("destroying subparty");
+		this.party.destroySub(this);
+	}
+	
+	public void promoteNextGeneral() {
+		int maxTier = 0;
+		for (Soldier s : healthy) {
+			if (s.getTier() > maxTier) maxTier = s.getTier();
+		}
+		for (Soldier s : wounded) {
+			if (s.getTier() > maxTier) maxTier = s.getTier();
+		}
+		
+		for (Soldier s : healthy) {
+			if (s.getTier() == maxTier) {
+				promoteToGeneral(s);
+				return;
+			}
+		}
+		for (Soldier s : wounded) {
+			if (s.getTier() == maxTier) {
+				promoteToGeneral(s);
+				return;
+			}
+		}
+		throw new java.lang.AssertionError("Couldn't promote general");
+	}
+	
 	public void wound(Soldier soldier) {
 //		if (army != null)
 		soldier.wound();
@@ -186,6 +240,7 @@ public class Subparty {
 	}
 	
 	public void removeSoldier(Soldier soldier) {
+//		System.out.println("removing " + soldier.getName());
 		party.updated = true;
 		if (healthy.contains(soldier, true)) {
 			healthy.removeValue(soldier, true);
@@ -194,6 +249,11 @@ public class Subparty {
 		else if (wounded.contains(soldier, true)) {
 			wounded.removeValue(soldier, true);
 			calcStats();
+		}
+		if (soldier == general) {
+//			System.out.println("setting general to be null");
+			if (soldier != general) throw new java.lang.AssertionError();
+			this.general = null;
 		}
 	}
 
@@ -259,4 +319,29 @@ public class Subparty {
 		
 		return count;
 	}
+	
+	public float getBonusGeneralAtk() {
+		if (general == null) return 0;
+		return general.getBonusGeneralAtk();
+	}
+	
+	public float getBonusGeneralDef() {
+		if (general == null) return 0;
+		return general.getBonusGeneralDef();	}
+	
+	public float getBonusRangedAtk() {
+		if (general == null) return 0;
+		return general.getBonusRangedAtk();	}
+	
+	public float getBonusGeneralRange() {
+		if (general == null) return 0;
+		return general.getBonusGeneralRange();	}
+	
+	public float getHPBonus() {		
+		if (general == null) return 0;
+		return general.getHPBonus();	}
+	
+	public float getMoraleBonus() {
+		if (general == null) return 0;
+		return general.getMoraleBonus();	}
 }

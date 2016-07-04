@@ -5,17 +5,6 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.battle.Unit;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.RangedWeaponType;
-import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.SoldierLabel;
-import kyle.game.besiege.party.UnitType;
-import kyle.game.besiege.party.UpgradeButton;
-import kyle.game.besiege.party.WeaponType;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,6 +19,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.army.Army;
+import kyle.game.besiege.party.Party;
+import kyle.game.besiege.party.RangedWeaponType;
+import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.SoldierLabel;
+import kyle.game.besiege.party.UnitType;
+import kyle.game.besiege.party.UpgradeButton;
+import kyle.game.besiege.party.WeaponType;
 
 public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into this and improve layout (consolidate)
 	private final float PAD = 10;
@@ -436,7 +435,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 				upgrade1StatsS.setText(s.getUpgradeCost() + "");
 				//upgrade1StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up1)));
 			}
-			if (!this.panel.getMapScreen().getCharacter().inventory.canEquip(up1)) {
+			if (!this.panel.getMapScreen().getCharacter().canEquip(up1)) {
 				up1B.setTouchable(Touchable.disabled);
 				up1B.setDisabled(true);
 			}
@@ -464,7 +463,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 				upgrade2StatsS.setText(s.getUpgradeCost() + "");
 				//upgrade2StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up2)));
 			}
-			if (!this.panel.getMapScreen().getCharacter().inventory.canEquip(up2)) {
+			if (!this.panel.getMapScreen().getCharacter().canEquip(up2)) {
 				up2B.setTouchable(Touchable.disabled);
 				up2B.setDisabled(true);
 			}
@@ -492,7 +491,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 				upgrade3StatsS.setText(s.getUpgradeCost() + "");
 				//upgrade3StatsS.setText(statDif(s.rangedWeapon, Weapon.getRanged(up3)));
 			}
-			if (!this.panel.getMapScreen().getCharacter().inventory.canEquip(up3)) {
+			if (!this.panel.getMapScreen().getCharacter().canEquip(up3)) {
 				up3B.setTouchable(Touchable.disabled);
 				up3B.setDisabled(true);
 			}
@@ -601,7 +600,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		for (Soldier s : possibleToUpgrade) {
 			if (s.unitType.upgrades.length == 1) {
 				select(s);
-				if (this.panel.getMapScreen().getCharacter().inventory.canEquip(s.unitType.upgrades[0]))
+				if (this.panel.getMapScreen().getCharacter().canEquip(s.unitType.upgrades[0]))
 					upgradeCurrent((s.unitType.upgrades[0]));
 			}
 			System.out.println("in upgrade loop: " + possibleToUpgrade.size);

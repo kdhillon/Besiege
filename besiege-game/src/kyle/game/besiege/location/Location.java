@@ -635,8 +635,6 @@ public class Location extends Actor implements Destination {
 		if (this.population > POP_MAX) this.population = POP_MAX;
 	}
 
-
-
 	// TODO fix for battlestage
 	public void siegeAttack(StrictArray<Army> attackers) {
 		needsUpdate = true;
@@ -664,11 +662,13 @@ public class Location extends Actor implements Destination {
 		else {
 			attackers.first().createBattleWith(garrison, this);
 			Battle b = garrison.getBattle();
-			b.siegeOf = this;
+			if (b != null) {
+				b.siegeOf = this;
 
-//			System.out.println("siegeOf = " + this.getName());
-			b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
-			b.dAdvantage = this.getDefenseFactor();
+				//			System.out.println("siegeOf = " + this.getName());
+				b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
+				b.dAdvantage = this.getDefenseFactor();
+			}
 			for (Army a : attackers) {
 				if (a.getParty().player) ;
 				// bring up option to attack, pause/stay etc
@@ -683,6 +683,7 @@ public class Location extends Actor implements Destination {
 			}
 		}
 	}
+	
 	public void beginSiege(Army army) {
 		needsUpdate = true;
 
@@ -704,6 +705,7 @@ public class Location extends Actor implements Destination {
 
 		kingdom.removeActor(siege);
 		siege = null;
+		playerBesieging = false;
 	}
 	public boolean underSiege() {
 		return siege != null;

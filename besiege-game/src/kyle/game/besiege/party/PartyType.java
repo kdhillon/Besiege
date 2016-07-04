@@ -47,13 +47,18 @@ public class PartyType { // todo add ability for max party size
 	
 	public Party generate(boolean player) {
 		Party party = new Party();
+		party.pt = this;
+				
 		party.player = player;
 
 //		if (unitTypes != null) {
-	
-		int toGenerate = MathUtils.random(minCount, maxCount);
 
-		party.createFreshGeneral(this.randomBestSoldierType());
+		// generate general first, use their fame to determine max party size.
+		party.createFreshGeneral(this.randomBestSoldierType(), this);
+		
+		// generate a general first, with random fame. then generate party size based on that.
+		int toGenerate = party.getMaxSize();
+//		int toGenerate = MathUtils.random(minCount, party.getMaxSize());
 		
 		while (toGenerate > 0) {
 			// generate random unit from available tiers in available class TODO
@@ -231,8 +236,8 @@ public class PartyType { // todo add ability for max party size
 			break;
 		case NOBLE:
 			pt.name = "Noble";
-			pt.maxCount = 100;
-			pt.minCount = 50;
+			pt.maxCount = 200;
+			pt.minCount = 20;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
 		case RAIDING_PARTY:
@@ -245,7 +250,7 @@ public class PartyType { // todo add ability for max party size
 			pt.name = "Elite";
 			pt.maxCount = 40;
 			pt.minCount = 40;
-			pt.tiers = new int[]{1, 2, 3, 4, 5};
+			pt.tiers = new int[]{3, 4, 5};
 			break;
 		case VILLAGE_HIRE:
 			pt.name = "For Hire";

@@ -56,7 +56,7 @@ public class MiniMap extends Actor {
 			Soldier toPreview = panel.getSoldierInstead();
 			
 			float rotation = getRotation();
-			float y = getY() + getWidth()*4f/8;
+			float y = getY() + getWidth()*3f/8;
 			
 			// TODO speed this up
 			TextureRegion weapon = WeaponDraw.GetMeleeWeaponTextureForUnittype(toPreview.unitType);
@@ -68,7 +68,7 @@ public class MiniMap extends Actor {
 //				drawInFront = true;
 			}
 			else if (toPreview.unitType.melee.polearm) { //&& !toPreview.weapon.troopName.startsWith("Sword")
-				y -= getWidth()*4f/8;
+				y -= getWidth()*3f/8;
 //				drawInFront = false;
 			}
 			

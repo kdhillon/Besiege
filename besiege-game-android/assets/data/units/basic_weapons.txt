@@ -26,4 +26,4 @@ Longsword		2	2	0	false	false	false
 Maul			3	2	-1	false	true	true
 Morningstar		3	1	0	true	false	false
 
-Greatsword		5	4	0	false	false	false
+Claymore		5	4	0	false	false	false

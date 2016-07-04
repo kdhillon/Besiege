@@ -17,11 +17,13 @@ public class Party {
 	public boolean updated; // does the panel need to be updated.
 	public int wealth;
 	public int minWealth; // keeps the party out of debt, of course!
-	public int maxSize; // current max size of the party
+//	public int maxSize; // current max size of the party
 
 	public boolean player;
 	public Army army;
 
+	public PartyType pt;
+	
 	public Subparty root;
 
 	private StrictArray<Soldier> prisoners;
@@ -47,7 +49,6 @@ public class Party {
 		spdTotal = 0;
 		calcStats();		
 
-		maxSize = 10000;
 		wealth = 0;
 
 		woundChance = BASE_CHANCE;
@@ -71,7 +72,7 @@ public class Party {
 	}
 
 	public void addSoldier(Soldier soldier) {
-		if (this.getTotalSize() >= maxSize) {
+		if (this.getTotalSize() >= getMaxSize()) {
 			System.out.println("trying to add more than max size");
 			return;
 		}
@@ -87,6 +88,10 @@ public class Party {
 			if (p.general == null)
 				p.promoteToGeneral(soldier);
 		}
+	}
+	
+	public int getMaxSize() {
+		return getGeneral().getMaxSize();
 	}
 	
 	public Subparty getNonEmptySub() {
@@ -107,6 +112,56 @@ public class Party {
 //		newSub.setGeneral(soldierToPromote);
 		return newSub;
 	}
+//	
+//	// root is probably dead, move a subparty to be root and kill root.
+//	public void rearrangeSubs() {
+//		
+//	}
+	
+	public void destroySub(Subparty toDestroy) {
+		// first check if any sub has this as its parent
+		// for now, everything is a child of the root sub. 
+		// so this should only happen if s is a root.
+		
+		StrictArray<Subparty> children = new StrictArray<Subparty>();
+		
+		for (Subparty s : sub) {
+			if (s.parent == s) continue;
+			
+			if (s.parent == toDestroy) {
+				children.add(s);
+			}
+		}
+		
+		// if we're removing a root
+		if (children.size > 0) {
+			Subparty newRoot = children.first();
+			promoteToRoot(newRoot);
+			children.removeValue(newRoot, true);
+			
+			for (Subparty s : children) {
+				s.parent = newRoot;
+			}
+		}	
+		
+		sub.removeValue(toDestroy, true);
+	}
+	
+	public void promoteToRoot(Subparty s) {
+		s.parent = null;
+		
+		// verify
+		for (Subparty that : sub) {
+			if (root == that) {
+				if (that.parent != null) throw new java.lang.AssertionError();
+			}
+			else {
+				if (that.parent != root) throw new java.lang.AssertionError();
+			}
+		}
+		this.root = s;
+
+	}
 	
 //	public Soldier getSoldierToPromote() {
 		
@@ -118,13 +173,17 @@ public class Party {
 		}
 	}
 
-	public boolean casualty(Soldier soldier) {
-		for (Subparty p : sub) {
-			if (p.healthy.contains(soldier, true))
-				return p.casualty(soldier);
-		}
-		return false;
-	}
+//	public boolean casualty(Soldier soldier) {
+//		System.out.println("casualty 1 : " + soldier.unitType.name);
+//		for (Subparty p : sub) {
+//			if (p.healthy.contains(soldier, true))
+//				return p.casualty(soldier);
+//			if (p.general == soldier) {
+//				return p.casualty(soldier);
+//			}
+//		}
+//		return false;
+//	}
 
 	public void addPrisoner(Soldier soldier) {
 		updated = true;
@@ -268,11 +327,12 @@ public class Party {
 
 	public String getName() {
 		if (army != null) return army.getName();
-		return "";
+//		throw new java.lang.AssertionError();
+		return "New Party";
 	}
 
-	public void createFreshGeneral(UnitType type) {
-		this.root.setGeneral(new General(type, this));
+	public void createFreshGeneral(UnitType type, PartyType pt) {
+		this.root.setGeneral(new General(type, this, pt));
 	}
 
 	public void setGeneral(General general) {
@@ -318,6 +378,8 @@ public class Party {
 		//		healthy.sort();
 	}
 
+	
+	// TODO adjust to be fair, based on fame.
 	// repairs an army as much as its wealth will allow it.
 	public void repair(PartyType pt) { // returns a repair cost
 		int newSize = pt.getRandomSize();
@@ -347,6 +409,7 @@ public class Party {
 			for (Soldier s : p.wounded) {
 				s.registerBattleVictory();
 			}
+			p.handleBattleEnded();
 		}
 	}
 
@@ -358,6 +421,7 @@ public class Party {
 			for (Soldier s : p.wounded) {
 				s.registerBattleLoss();
 			}
+			p.handleBattleEnded();
 		}	
 	}
 

@@ -41,20 +41,20 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	private SidePanel panel;
 	private Army army;
 	private Party party;
-	
+
 	private Table text;
 	private Label title;
 	private Label faction;
 	private Label general;
 	private Label action;
-	
+
 	private Label size;
 	private Label morale;
 	private Label money;
 	private Label atk;
 	private Label def;
 	private Label spd;
-	
+
 	private Table stats;
 	private Label nameS;
 	private Label levelS;
@@ -65,39 +65,39 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	private Label spdS;
 	private Label weaponS;
 	private Label equipmentS;
-	
+
 	private Table soldierTable;
 	private ScrollPane soldierPane;
-	
+
 	private LabelStyle ls;
 	private LabelStyle lsG;	// wounded
 	private LabelStyle lsY; // upgrade
-	
+
 	public boolean playerTouched;
-	
+
 	public PanelParty(SidePanel panel, Army army) {
 		this.panel = panel;
 		this.army = army;
 		this.party = army.getParty();
 		this.addParentPanel(panel);
-		
+
 		LabelStyle lsBig = new LabelStyle();
 		lsBig.font = Assets.pixel24;
-		
+
 		LabelStyle lsFaction = new LabelStyle();
 		lsFaction.font = Assets.pixel18;
-		
+
 		ls = new LabelStyle();
 		ls.font = Assets.pixel16;
-		
+
 		lsG = new LabelStyle();
 		lsG.font = Assets.pixel16;
 		lsG.fontColor = Color.GRAY;
-		
+
 		lsY = new LabelStyle();
 		lsY.font = Assets.pixel16;
 		lsY.fontColor = Color.YELLOW;
-		
+
 		Label sizeC = new Label("Size:", ls);
 		Label moraleC = new Label("Morale:",ls);
 		Label moneyC = new Label("Wealth:",ls);
@@ -111,15 +111,15 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
 		faction = new Label("", lsFaction);
 		faction.setAlignment(0,0);
-		
+
 		general = new Label("", ls);
 		general.setAlignment(0,0);
-		
+
 		// testing
 		title.setText(army.getName());
-//		if (army.isNoble()) {
-//			title.setText(army.getGeneral().getTitle());
-//		}
+		//		if (army.isNoble()) {
+		//			title.setText(army.getGeneral().getTitle());
+		//		}
 
 		general.setText(army.party.getGeneral().getName());
 		faction.setText(army.getFactionName());
@@ -143,12 +143,12 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		atk = new Label("" ,ls);
 		def = new Label("", ls);
 		spd = new Label("", ls);
-		
+
 		// Create text
 		text = new Table();
 		//text.debug();
 		text.defaults().padTop(NEG).left();
-		
+
 		title.addListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
@@ -186,7 +186,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		text.add(money);
 		text.add(spdC).padLeft(PAD);
 		text.add(spd);
-		
+
 		soldierTable = new Table();
 		//soldierTable.debug();
 		soldierTable.defaults().padTop(NEG);
@@ -195,18 +195,18 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		text.row();
 		text.add().colspan(4).padBottom(PAD);
 		text.row();
-		
+
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);
 		text.add(soldierPane).colspan(4).top().padTop(0);
-		
+
 		text.row();
-		
+
 		// Soldier's stats
 		stats = new Table();
 		stats.setVisible(false);
-		
+
 		Label levelSC = new Label("Level:", ls);
 		Label expSC = new Label("Exp:",ls);
 		Label nextSC = new Label("Next:",ls);
@@ -226,7 +226,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		spdS = new Label("", ls);
 		weaponS = new Label("", ls);
 		equipmentS = new Label("", ls);
-		
+
 		stats.defaults().left().padTop(NEG);
 		stats.add(nameS).colspan(4).width(SidePanel.WIDTH-PAD*2).fillX().expandX().padBottom(MINI_PAD);
 		stats.row();
@@ -253,26 +253,28 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		stats.row();
 		stats.add(equipmentSC).colspan(2).padLeft(MINI_PAD).padTop(0).top();
 		stats.add(equipmentS).colspan(2).padTop(0);
-		
+
 		//stats.debug();
-		
+
 		text.add(stats).colspan(4).padTop(PAD);
 
 		this.addTopTable(text);
-		
+
 		if (this.army == panel.getPlayer()) {
 			this.setButton(1, "Upgrades");
-			this.setButton(2, "Inventory");
+
+			if (Soldier.WEAPON_NEEDED)
+				this.setButton(2, "Inventory");
 			this.setButton(3, "Character");
 			this.setButton(4, "Save");
 		}		
 		playerTouched = false;
-		
+
 		updateSoldierTable();
-		
+
 		if (!this.party.player) this.setButton(4, "Back");
 	}
-	
+
 	@Override
 	public void act(float delta) {
 		if (army.playerTouched && !playerTouched) {
@@ -291,40 +293,40 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			faction.setText(army.getFactionName()); 
 			title.setText(army.getName());
 		}
-		
+
 		// for testing targetOf
-//		if (army.targetOf.size > 0) {
-//			title.setText(army.getName() + "<-" + army.targetOf.random().getName());
-//		}
-//		else {
-//			title.setText(army.getName() + " " + army.isGarrisoned());
-//		}
-		
+		//		if (army.targetOf.size > 0) {
+		//			title.setText(army.getName() + "<-" + army.targetOf.random().getName());
+		//		}
+		//		else {
+		//			title.setText(army.getName() + " " + army.isGarrisoned());
+		//		}
+
 		if (army.getKingdom().getPlayer().isAtWar(army)) faction.setText(army.getFactionName() + " (at war)");
 		else faction.setText(army.getFactionName());
-		
+
 		action.setText(army.getAction());
 		morale.setText(army.getMoraleString() + "");
-		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
+		size.setText(party.getHealthySize()+"/"+party.getTotalSize()+"/"+party.getMaxSize());
 		money.setText("" + army.getParty().wealth);
 		atk.setText(""+ party.getAtk());
 		def.setText(Panel.format(""+party.getAvgDef(), 2));
-		
+
 		// set speed to be current travel speed, not party speed
 		spd.setText(Panel.format(""+party.army.getSpeed()*Army.SPEED_DISPLAY_FACTOR, 2));
 		//spd.setText(Panel.format(""+party.getAvgSpd(), 2));
-		
+
 		// don't call this every frame.
 		if (party.updated) {
 			updateSoldierTable();
 			if (!army.isInBattle())
 				party.updated = false;
 		}
-		
+
 		// minor leak is not here?
 		super.act(delta);
 	}
-	
+
 	// DO NOT CALL THIS EVERY FRAME - TODO Fix for other panels
 	// I am a god.
 	public void updateSoldierTable() {
@@ -332,13 +334,13 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
 		soldierTable.row();
 		// This method is very leaky. Should only call when update to party occurs necessary.
-//		updateTableWithTypes(soldierTable, party.getConsolHealthy(), ls);
-//		updateTableWithTypes(soldierTable, party.getConsolWounded(), lsG);
+		//		updateTableWithTypes(soldierTable, party.getConsolHealthy(), ls);
+		//		updateTableWithTypes(soldierTable, party.getConsolWounded(), lsG);
 		updateTableWithParty(soldierTable, party, ls, lsG);
 		Label prisonersC;
-		
+
 		// LEAK IS ABOVE
-		
+
 		if (party.getPrisoners().size > 0)
 			prisonersC = new Label("Captured", ls);
 		else prisonersC = new Label("",ls);
@@ -347,13 +349,13 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		soldierTable.row();
 		updateTableWithTypes(soldierTable, party.getConsolPrisoners(), lsG);
 	}
-	
-	
+
+
 	public static class TypeLabel extends Label {
 		StrictArray<Soldier> type;
 		Table expand;
 		boolean expanded = false;
-		
+
 		public TypeLabel(String name, LabelStyle ls) {
 			super(name, ls);
 			expand = new Table();
@@ -380,7 +382,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				SoldierLabel soldierName = new SoldierLabel(s.getName(), this.getStyle(), s);
 				soldierName.setColor(Color.GRAY);
 				expand.add(soldierName).left().padBottom(PanelUnit.NEG).expandX();
-				
+
 				soldierName.addListener(new ClickListener() {
 					public boolean touchDown(InputEvent event, float x,
 							float y, int pointer, int button) {
@@ -398,12 +400,19 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			expand.clear();
 		}
 	}
-	
+
 	public static void updateTableWithParty(Table table, Party party, LabelStyle style, LabelStyle wounded) {
 		System.out.println("starting update");
 		for (Subparty s : party.sub) {
-			System.out.println(s.general.getName());
-			SoldierLabel general = new SoldierLabel(s.general.getRank() + " " + s.general.getLastName(), style, s.general);
+			SoldierLabel general;
+			if (s.general != null) {
+				System.out.println(s.general.getName());
+				general = new SoldierLabel(s.general.getRank() + " " + s.general.getLastName(), style, s.general);
+			}
+			else {
+				general = new SoldierLabel("No general!", style, s.general);
+			}
+
 			general.addListener(new ClickListener() {
 				public boolean touchDown(InputEvent event, float x,
 						float y, int pointer, int button) {
@@ -416,16 +425,21 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			});
 			table.add(general).left().expandX();
 			general.setColor(Color.CYAN);
+			
+			Label generalCount = new Label(s.getHealthySize() + "", style);
+			table.add(generalCount).right();
+			generalCount.setColor(Color.CYAN);
 			table.row();
-					
+
+
 			updateTableWithTypes(table, s.getConsolHealthy(), style);
 			updateTableWithTypes(table, s.getConsolWounded(), wounded);
 		}
 	}
-	
+
 	// this method is evil don't call this frequently
 	public static void updateTableWithTypes(Table table, StrictArray<StrictArray<Soldier>> types, LabelStyle style) {
-//		table.debug();
+		//		table.debug();
 		for (StrictArray<Soldier> type : types) {
 			TypeLabel name = new TypeLabel(type.first().getTypeName(), style);
 			name.type = type;
@@ -436,7 +450,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			table.row();
 
 			float indent = 15;
-			
+
 			table.add(name.expand).expandX().left().padLeft(indent);
 			table.row();
 			name.expand.padBottom(-PanelUnit.NEG);
@@ -462,32 +476,32 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			table.row();
 		}
 	}
-	
+
 	public void setStats(Soldier s) {
 		stats.setVisible(true);
 		nameS.setText(s.getTypeName() + "");
 		levelS.setText(s.level + "");
 		expS.setText(s.exp + "");
 		nextS.setText(s.next + "");
-//		if (s.getBonusAtk() >= 0)
-//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
-//		else 
-//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
-//		if (s.getBonusDef() >= 0)
-//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
-//		else 
-//			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
-//		if (s.getBonusSpd() >= 0)
-//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
-//		else 
-//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
+		//		if (s.getBonusAtk() >= 0)
+		//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
+		//		else 
+		//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
+		//		if (s.getBonusDef() >= 0)
+		//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
+		//		else 
+		//			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
+		//		if (s.getBonusSpd() >= 0)
+		//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
+		//		else 
+		//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
 		weaponS.setText(s.unitType.melee.name);
 	}
-	
+
 	public void clearStats() {
 		stats.setVisible(false);
 	}
-	
+
 	public void setActiveFaction() {
 		panel.setActiveFaction(army.getFaction());
 	}
@@ -495,13 +509,13 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	public static void switchToPanel(Soldier s) {
 		MapScreen.sidePanelReference.setActiveUnit(s);
 	}
-	
+
 	public void centerCamera() {
 		Camera camera = panel.getKingdom().getMapScreen().getCamera();
-//		camera.translate(new Vector2(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y));
+		//		camera.translate(new Vector2(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y));
 		camera.translate(new Vector3(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y, 0));
 	}
-	
+
 	@Override
 	public void resize() { // problem with getting scroll bar to appear...
 		Cell cell = text.getCell(soldierPane);
@@ -514,7 +528,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		cell.setWidget(soldierPane);
 		super.resize();
 	}
-	
+
 	@Override
 	public void button1() {
 		if (this.getButton(1).isVisible()) {
@@ -531,7 +545,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	@Override
 	public void button2() {
 		if (this.getButton(2).isVisible()) {
-			if (party == panel.getKingdom().getPlayer().getParty()) {
+			if (party == panel.getKingdom().getPlayer().getParty() && Soldier.WEAPON_NEEDED) {
 				panel.setPanelInventory();
 			}
 			else {
@@ -553,12 +567,12 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		if (party.player) {
 			this.panel.getMapScreen().save();
 		}
-//		else 
-//			panel.returnToPrevious();
+		//		else 
+		//			panel.returnToPrevious();
 		if (!this.party.player) 
 			panel.returnToPrevious();
 	}
-	
+
 	@Override
 	public TextureRegion getCrest() {
 		return army.getFaction().crest;

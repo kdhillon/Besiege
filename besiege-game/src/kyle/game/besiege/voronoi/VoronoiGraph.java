@@ -10,9 +10,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Random;
 
+import com.badlogic.gdx.Gdx;
 //import java.awt.Color;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.ext.PerlinNoiseGenerator;
@@ -86,6 +88,7 @@ public class VoronoiGraph {
         assignCornerMoisture();
         redistributeMoisture(landCorners());
         assignPolygonMoisture();
+        initBiomeTextures();
         assignBiomes();
         calculateAreas();
         
@@ -246,69 +249,74 @@ public class VoronoiGraph {
 
         //draw via triangles
         if (drawBg) {
-            g.setColor(new Color(OCEAN));
-//        	System.out.println(bounds.width + " width and height is " + bounds.height);
-        	g.fillRectangle(0, 0, (int) bounds.width, (int)bounds.height);
-        	// first cover bg with ocean (to eliminate black corners and white edges)
+//            g.setColor(new Color(OCEAN));
+////        	System.out.println(bounds.width + " width and height is " + bounds.height);
+//        	g.fillRectangle(0, 0, (int) bounds.width, (int)bounds.height);
+//        	// first cover bg with ocean (to eliminate black corners and white edges)
             for (Center c : centers) {                
-            	
-            	g.setColor(key[c.index]);
-                if (c.ocean) {
-                    g.setColor(new Color(OCEAN));
-                } else if (c.water) {
-                    g.setColor(new Color(LAKE));
-                } else if (c.coast) {
-                    g.setColor(new Color(BEACH));
-                } else {
-                    Color color = null;
-                    switch (c.biome) {
-                        case TUNDRA:
-                            color = new Color(TUNDRA);
-                            break;
-                        case TROPICAL_SEASONAL_FOREST:
-                            color = new Color(TROPICAL_SEASONAL_FOREST);
-                            break;
-                        case TROPICAL_RAIN_FOREST:
-                            color = new Color(TROPICAL_RAIN_FOREST);
-                            break;
-                        case SUBTROPICAL_DESERT:
-                            color = new Color(SUBTROPICAL_DESERT);
-                            break;
-                        case SNOW:
-                            color = new Color(SNOW);
-                            break;
-                        case SCORCHED:
-                            color = new Color(SCORCHED);
-                            break;
-                        case LAKESHORE:
-                            color = new Color(LAKESHORE);
-                            break;
-                        case ICE:
-                            color = new Color(ICE);
-                            break;
-                        case BEACH:
-                            color = new Color(BEACH);
-                            break;
-                        case COAST:
-                            color = new Color(COAST);
-                            break;
-                        case BARE:
-                            color = new Color(BARE);
-                            break;
-                        case SHRUBLAND:
-                            color = new Color(SHRUBLAND);
-                            break;
-                        case TAIGA:
-                            color = new Color(TAIGA);
-                            break;
-                        case MARSH:
-                            color = new Color(MARSH);
-                            break;
-                        default:
-                            color = new Color(GRASSLAND);
-                    }
-                    g.setColor(color);
-                }
+//            	
+//            	g.setColor(key[c.index]);
+//                if (c.ocean) {
+//                    g.setColor(new Color(OCEAN));
+//                } else if (c.water) {
+//                    g.setColor(new Color(LAKE));
+//                } else if (c.coast) {
+//                    g.setColor(new Color(BEACH));
+//                } else {
+//                    Color color = null;
+//                    switch (c.biome) {
+//                        case TUNDRA:
+//                            color = new Color(TUNDRA);
+//                            break;
+//                        case TROPICAL_SEASONAL_FOREST:
+//                            color = new Color(TROPICAL_SEASONAL_FOREST);
+//                            break;
+//                        case TROPICAL_RAIN_FOREST:
+//                            color = new Color(TROPICAL_RAIN_FOREST);
+//                            break;
+//                        case SUBTROPICAL_DESERT:
+//                            color = new Color(SUBTROPICAL_DESERT);
+//                            break;
+//                        case SNOW:
+//                            color = new Color(SNOW);
+//                            break;
+//                        case SCORCHED:
+//                            color = new Color(SCORCHED);
+//                            break;
+//                        case LAKESHORE:
+//                            color = new Color(LAKESHORE);
+//                            break;
+//                        case ICE:
+//                            color = new Color(ICE);
+//                            break;
+//                        case BEACH:
+//                            color = new Color(BEACH);
+//                            break;
+//                        case COAST:
+//                            color = new Color(COAST);
+//                            break;
+//                        case BARE:
+//                            color = new Color(BARE);
+//                            break;
+//                        case SHRUBLAND:
+//                            color = new Color(SHRUBLAND);
+//                            break;
+//                        case TAIGA:
+//                            color = new Color(TAIGA);
+//                            break;
+//                        case MARSH:
+//                            color = new Color(MARSH);
+//                            break;
+//                        case SWAMP:
+//                        	System.out.println("Painting swamp");
+//                            color = new Color(SWAMP);
+//                            break;
+//                        default:
+//                            color = new Color(GRASSLAND);
+//                            throw new java.lang.AssertionError();
+//                    }
+//                    g.setColor(color);
+//                }
 
                 //only used if Center c is on the edge of the graph. allows for completely filling in the outer polygons
                 Corner edgeCorner1 = null;
@@ -428,8 +436,14 @@ public class VoronoiGraph {
     	case TROPICAL_RAIN_FOREST:
     		color = new Color(TROPICAL_RAIN_FOREST);
     		break;
+    	case TEMPERATE_DECIDUOUS_FOREST:
+    		color = new Color(TEMPERATE_DECIDUOUS_FOREST);
+    		break;
     	case SUBTROPICAL_DESERT:
     		color = new Color(SUBTROPICAL_DESERT);
+    		break;
+    	case TEMPERATE_DESERT:
+    		color = new Color(TEMPERATE_DESERT);
     		break;
     	case SNOW:
     		color = new Color(SNOW);
@@ -461,7 +475,15 @@ public class VoronoiGraph {
     	case MARSH:
     		color = new Color(MARSH);
     		break;
+    	case SWAMP:
+    		color = new Color(SWAMP);
+    		break;
+    	case GRASSLAND:
+    		color = new Color(GRASSLAND);
+    		break;
     	default:
+//    		throw new java.lang.AssertionError("No color for " + c.biome);
+    		System.out.println(("No color for " + c.biome));
     		color = new Color(GRASSLAND);
     	}
     	return color;
@@ -894,13 +916,15 @@ public class VoronoiGraph {
     private Biomes getBiome(Center p) {
         if (p.ocean) {
             return Biomes.OCEAN;
-        } else if (p.water) {
+        } 
+        // this could be fucking up pathfinding?
+        else if (p.water) {
             if (p.elevation < 0.2) {
                 return Biomes.MARSH;
             }
-            if (p.elevation > 0.8) {
-                return Biomes.ICE;
-            }
+//            if (p.elevation > 0.8) {
+//                return Biomes.ICE;
+//            }
             return Biomes.LAKE;
         } else if (p.coast) {
         	for (Center adj : p.neighbors) {
@@ -930,7 +954,7 @@ public class VoronoiGraph {
             }
         } else if (p.elevation > 0.3) {
             if (p.moisture > 0.83) {
-                return Biomes.TEMPERATE_RAIN_FOREST;
+                return Biomes.TROPICAL_RAIN_FOREST;
             } else if (p.moisture > 0.50) {
                 return Biomes.TEMPERATE_DECIDUOUS_FOREST;
             } else if (p.moisture > 0.16) {
@@ -940,7 +964,7 @@ public class VoronoiGraph {
             }
         } else {
             if (p.moisture > 0.73) {
-                return Biomes.TROPICAL_RAIN_FOREST;
+                return Biomes.SWAMP;
             } else if (p.moisture > 0.33) {
                 return Biomes.TROPICAL_SEASONAL_FOREST;
             } else if (p.moisture > 0.16) {
@@ -951,25 +975,129 @@ public class VoronoiGraph {
         }
     }
 
+//    int textureIndex;
+    public HashMap<Biomes, Texture> biomeMap;
+//    public HashMap<Texture, Integer> textureMap;
+    
+    // test
+    Texture texture8;
+    Texture texture16;
+    Texture texture16trees;
+    Texture texture16treeslight;
+
+    Texture texture64;
+    Texture texture64inv;
+//    Texture texture8;
+
+    private void initBiomeTextures() {
+//    	textureMap = new HashMap<Texture, Integer>();
+    	texture8 = addTexture("8.png");
+    	texture16 = addTexture("16.png");
+    	texture16trees = addTexture("8trees.png");
+    	texture16treeslight = addTexture("8treeslight.png");
+    	texture64 = addTexture("64.png");
+    	texture64inv = addTexture("64inv.png");
+		Texture grass = addTexture("grass.png");
+		Texture sand = addTexture("sand.png");
+		Texture sandlight = addTexture("sandlight.png");
+		Texture flowers = addTexture("flowers.png");
+		Texture darkgrass = addTexture("darkgrass.png");
+		Texture dirt = addTexture("dirt.png");
+		Texture mud = addTexture("mud.png");
+		Texture snow = addTexture("snow.png");
+		Texture swamp = addTexture("swamp.png");
+		Texture swampdark = addTexture("swamp2.png");
+		Texture water = addTexture("water.png");
+		Texture lightgrass = addTexture("lightgrass.png");
+		Texture rock = addTexture("rock.png");
+
+    	biomeMap = new HashMap<Biomes, Texture>();
+//    	mapBiome(Biomes.OCEAN, water);
+//    	mapBiome(Biomes.LAKE, water);
+//    	mapBiome(Biomes.TUNDRA, dirt);
+//    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, flowers);
+//    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, darkgrass);
+//    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, grass);
+//    	mapBiome(Biomes.SUBTROPICAL_DESERT, sand);
+//    	mapBiome(Biomes.TEMPERATE_DESERT, sand);
+//    	mapBiome(Biomes.SNOW, snow);
+//    	mapBiome(Biomes.SCORCHED, mud);
+//    	mapBiome(Biomes.LAKESHORE, sandlight);
+//    	mapBiome(Biomes.BEACH, sandlight);
+//    	mapBiome(Biomes.COAST, sandlight);
+//    	mapBiome(Biomes.ICE, snow);
+//    	mapBiome(Biomes.BARE, rock);
+//    	mapBiome(Biomes.SHRUBLAND, lightgrass);
+//    	mapBiome(Biomes.TAIGA, water);
+//    	mapBiome(Biomes.MARSH, swampdark);
+//    	mapBiome(Biomes.SWAMP, swamp);
+//    	mapBiome(Biomes.GRASSLAND, lightgrass);
+    	
+    	mapBiome(Biomes.OCEAN, texture8);
+    	mapBiome(Biomes.LAKE, texture8);
+    	mapBiome(Biomes.TUNDRA, texture16);
+    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture16treeslight);
+    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture16trees);
+    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture16treeslight);
+    	mapBiome(Biomes.SUBTROPICAL_DESERT, texture16);
+    	mapBiome(Biomes.TEMPERATE_DESERT, texture16);
+    	mapBiome(Biomes.SNOW, texture8);
+    	mapBiome(Biomes.SCORCHED, texture64);
+    	mapBiome(Biomes.LAKESHORE, texture16);
+    	mapBiome(Biomes.BEACH, texture64);
+    	mapBiome(Biomes.COAST, texture64);
+    	mapBiome(Biomes.ICE, texture8);
+    	mapBiome(Biomes.BARE, texture16);
+    	mapBiome(Biomes.SHRUBLAND, texture64inv);
+    	mapBiome(Biomes.TAIGA, texture8);
+    	mapBiome(Biomes.MARSH, texture8);
+    	mapBiome(Biomes.SWAMP, texture16);
+    	mapBiome(Biomes.GRASSLAND, texture64inv);
+    }
+    
+    public Texture addTexture(String name) {
+    	Texture ok = new Texture(Gdx.files.internal("ground/" + name));
+    	
+//    	textureMap.put(ok, textureIndex++);
+    	return ok;
+    }
+    
+    public void mapBiome(Biomes b, Texture t) {
+    	biomeMap.put(b, t);
+
+//    	biomeMap.put(b, t);
+    }
+    
+    
     private void assignBiomes() {
         for (Center center : centers) {
             center.biome = getBiome(center);
+//            center.textureIndex = getTexture(center);
+            center.biomeTexture = biomeMap.get(center.biome);
+            if (center.biomeTexture == null) throw new java.lang.AssertionError("Cannot find biome texture for: " + center.biome);
         }
     }
+    
+//    public int getTexture(Center center) {
+//    	return biomeMap.get(center.biome);
+//    }
+    
     //
     //
     public static int OCEAN = 0x44447aff;
     public static int COAST = 0x33335aff;
+//    public static int LAKESHORE = 0xff5588ff;
     public static int LAKESHORE = 0x225588ff;
     public static int LAKE = 0x336699ff;
-    public static int RIVER = 0x225588ff;
+//    public static int RIVER = 0x225588ff;
     public static int MARSH = 0x2f6666ff;
+    public static int SWAMP = 0x309066ff;
     public static int ICE = 0x99ffffff;
     public static int BEACH = 0xa09077ff;
     public static int ROAD1 = 0x442211ff;
     public static int ROAD2 = 0x553322ff;
     public static int ROAD3 = 0x664433ff;
-    public static int vBRIDGE = 0x686860ff;
+//    public static int vBRIDGE = 0x686860ff;
     public static int LAVA = 0xcc3333ff;
     // Terrain
     public static int SNOW = 0xffffffff;
@@ -987,38 +1115,38 @@ public class VoronoiGraph {
     public static int SUBTROPICAL_DESERT = 0xd2b98bff;
     public static int TROPICAL_RAIN_FOREST = 0x337755ff;
     public static int TROPICAL_SEASONAL_FOREST = 0x559944ff;
-    public static HashMap<Integer, String> colorBiomeMap = new HashMap();
-    public static HashMap<String, Integer> biomeColorMap = new HashMap();
+//    public static HashMap<Integer, String> colorBiomeMap = new HashMap();
+//    public static HashMap<String, Integer> biomeColorMap = new HashMap();
 
     static {
-        addColor("OCEAN", 0x44447aff);
-        addColor("COAST", 0x33335aff);
-        addColor("LAKESHORE", 0x225588ff);
-        addColor("LAKE", 0x336699ff);
-        addColor("RIVER", 0x225588ff);
-        addColor("MARSH", 0x2f6666ff);
-        addColor("MARSH", 0x2f6666ff);
-        addColor("ICE", 0x99ffffff);
-        addColor("BEACH", 0xa09077ff);
-        addColor("SNOW", 0xffffffff);
-        addColor("TUNDRA", 0xbbbbaaff);
-        addColor("BARE", 0x888888ff);
-        addColor("SCORCHED", 0x555555ff);
-        addColor("TAIGA", 0x99aa77ff);
-        addColor("SHRUBLAND", 0x889977ff);
-        addColor("TEMPERATE_DESERT", 0xc9d29bff);
-        addColor("TEMPERATE_RAIN_FOREST", 0x448855ff);
-        addColor("TEMPERATE_DECIDUOUS_FOREST", 0x679459ff);
-        addColor("GRASSLAND", 0x88aa55ff);
-        addColor("SUBTROPICAL_DESERT", 0xd2b98bff);
-        addColor("TROPICAL_RAIN_FOREST", 0x337755);
-        addColor("TROPICAL_SEASONAL_FOREST", 0x559944);
+//        addColor("OCEAN", 0x44447aff);
+//        addColor("COAST", 0x33335aff);
+//        addColor("LAKESHORE", 0x225588ff);
+//        addColor("LAKE", 0x336699ff);
+//        addColor("RIVER", 0x225588ff);
+//        addColor("MARSH", 0x2f6688ff);
+//        addColor("SWAMP", 0x2f6666ff);
+//        addColor("ICE", 0x99ffffff);
+//        addColor("BEACH", 0xa09077ff);
+//        addColor("SNOW", 0xffffffff);
+//        addColor("TUNDRA", 0xbbbbaaff);
+//        addColor("BARE", 0x888888ff);
+//        addColor("SCORCHED", 0x555555ff);
+//        addColor("TAIGA", 0x99aa77ff);
+//        addColor("SHRUBLAND", 0x889977ff);
+//        addColor("TEMPERATE_DESERT", 0xc9d29bff);
+////        addColor("TEMPERATE_RAIN_FOREST", 0x448855ff);
+//        addColor("TEMPERATE_DECIDUOUS_FOREST", 0x679459ff);
+//        addColor("GRASSLAND", 0x88aa55ff);
+//        addColor("SUBTROPICAL_DESERT", 0xd2b98bff);
+//        addColor("TROPICAL_RAIN_FOREST", 0x337755);
+//        addColor("TROPICAL_SEASONAL_FOREST", 0x559944);
     }
 
-    private static void addColor(String name, int color) {
-        colorBiomeMap.put(color, name);
-        biomeColorMap.put(name, color);
-    }
+//    private static void addColor(String name, int color) {
+//        colorBiomeMap.put(color, name);
+//        biomeColorMap.put(name, color);
+//    }
     
     
     // call this after restoring the map to bridge the graph

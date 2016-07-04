@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -55,8 +56,13 @@ public class Center {
 	public float elevation;
 	public double moisture;
 	public Biomes biome;
+	public Texture biomeTexture;
+	public int textureIndex;
+
 	public double area;
 	public Faction faction; // controlling faction - can be recalculated
+
+	float minX = 999999, minY = 999999, maxX = -999999, maxY = -99999, absMax = -999;
 
 	// For kryo
 	public Center() {
@@ -78,9 +84,10 @@ public class Center {
 
 				vertices[4] = (float) loc.x; // center
 				vertices[5] = (float) (Map.HEIGHT-loc.y);
-				triangles.add(vertices);
+				triangles.add(vertices);	
 			}
 		}
+		System.out.println("center max: " + maxX + ", " + maxY);
 	}
 
 	public Center(PointH loc) {
@@ -124,19 +131,21 @@ public class Center {
 	}
 
 	void initMesh(VoronoiGraph vg) {
+
 		// just hijacking this method 
-		int numVerts = getSubVertices() * 3 * 7;
+		int numVerts = getSubVertices() * 3 * 9;
 		this.verts = new float[numVerts];
 		//		System.out.println("borders are " + this.borders.size());
 		// need one per triangle
 
 		VertexAttribute position = new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position");
 		VertexAttribute colorAttribute = new VertexAttribute(VertexAttributes.Usage.Color, 4, "a_color");
+		VertexAttribute textureCoordinates = new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord0");
 
 		// This depends on the size of Edge.subEdges
 		float estTriangles = 200;
 		// I dont' know why 12 is the magic number for triangles, maybe 6 each side? duplicate triangles?
-		mesh = new Mesh(true, true, 200 * 3, 6 * 3 * 7, new VertexAttributes(position, colorAttribute));
+		mesh = new Mesh(true, true, 200 * 3, 6 * 3 * 9, new VertexAttributes(position, colorAttribute, textureCoordinates));
 		// somehow meshes can have up to 13 triangles. make this 15 just to be safe?
 
 		Color color = VoronoiGraph.getColor(this);
@@ -176,6 +185,10 @@ public class Center {
 
 		// draw all triangles
 		int idx = 0;
+
+
+		calcAbsoluteMinMax(vg);
+
 		for (int edgeIndex : this.adjEdges) {		
 			Edge e = vg.edges.get(edgeIndex);
 			if (e == null) {
@@ -211,7 +224,7 @@ public class Center {
 					x1 = e.subEdges[i].x;
 					y1 = (float) vg.bounds.height-e.subEdges[i].y;
 				}
-//				z1 = e.v0.elevation * ELEVATION_FACTOR;
+				//				z1 = e.v0.elevation * ELEVATION_FACTOR;
 				z1 = 0;
 
 				// case where last vertex is corner
@@ -235,123 +248,212 @@ public class Center {
 				verts[idx++] = x0; 			//Position(x, y) 
 				verts[idx++] = y0;
 				verts[idx++] = z0;
-//				verts[idx++] = z0 * 0.05f - 100;
+				//				verts[idx++] = z0 * 0.05f - 100;
 				verts[idx++] = current.r; 	//Color(r, g, b, a)
 				verts[idx++] = current.g;
 				verts[idx++] = current.b;
 				verts[idx++] = current.a;
+
+
+				verts[idx++] = getTextureX(x0); 	//Texture coordinates (r, g, b, a)
+				verts[idx++] = getTextureY(y0); 	//Texture coordinates (r, g, b, a)
 
 				//top left vertex
 				verts[idx++] = x1; 			//Position(x, y) 
 				verts[idx++] = y1;
 				verts[idx++] = z1;
-//				verts[idx++] = z1 * 0.05f - 100;
+				//				verts[idx++] = z1 * 0.05f - mod0;
 				verts[idx++] = current.r; 	//Color(r, g, b, a)
 				verts[idx++] = current.g;
 				verts[idx++] = current.b;
 				verts[idx++] = current.a;
 
+				// TODO I don't really need to pass in texture coordinates
+				// I should be able to calculate where to sample from 
+				// if I am smart about using x1, y1 values 
+
+				verts[idx++] = getTextureX(x1); 	//Texture coordinates (r, g, b, a)
+				verts[idx++] = getTextureY(y1); 	//Texture coordinates (r, g, b, a)
+
 				//bottom right vertex
 				verts[idx++] = x2;	 //Position(x, y) 
 				verts[idx++] = y2;
-//				verts[idx++] = z2 * 0.05f - 100;
+				//				verts[idx++] = z2 * 0.05f - mod0;
 				verts[idx++] = z2;
 				verts[idx++] = current.r;		 //Color(r, g, b, a)
 				verts[idx++] = current.g;
 				verts[idx++] = current.b;
 				verts[idx++] = current.a; // gotta do this every frame to multiply this by the batch color.
+
+				verts[idx++] = getTextureX(x2); 	//Texture coordinates (r, g, b, a)
+				verts[idx++] = getTextureY(y2);
 			}
 		}
 		this.mesh.setVertices(verts);
-
-		// draw all triangles
-//		idx = 0;
-//		for (int edgeIndex : this.adjEdges) {		
-//			Edge e = vg.edges.get(edgeIndex);
-//			if (e == null) {
-//				//						System.out.println("e is null");
-//				continue;
-//			}
-//			if (e.v0 == null) {
-//				//						System.out.println("e v0 is null");
-//				continue;
-//			}
-//			if (e.v1 == null) {
-//				//						System.out.println("e v1 is null");
-//				continue;
-//			}
-//
-//			Center adjacent = vg.centers.get(e.adjCenter0);
-//			if (adjacent == this) adjacent = vg.centers.get(e.adjCenter1);
-//
-//			//					Color adjColor = VoronoiGraph.getColor(adjacent);
-//			//					Color current = new Color(color.r * 0.7f + adjColor.r * 0.3f, color.g * 0.7f + adjColor.g * 0.3f, color.b * 0.7f + adjColor.b * 0.3f, 1);
-//			Color current = color;
-//
-//			// draw all 4 or 8 sub-triangles
-//			for (int i = -1; i < e.subEdges.length; i++) {
-//				float x1, y1, z1, x2, y2, z2;
-//				// case with first vertex and second edge
-//				if (i < 0) {
-//					x1 = e.v0.loc.x;
-//					y1 = (float) vg.bounds.height-e.v0.loc.y-1;
-//				}
-//				else {
-//					//							if (e.subEdges[i] == null) return;
-//					x1 = e.subEdges[i].x;
-//					y1 = (float) vg.bounds.height-e.subEdges[i].y;
-//				}
-//				z1 = e.v0.elevation * ELEVATION_FACTOR;
-//				//						z1 = 0;
-//
-//				// case where last vertex is corner
-//				if (i >= e.subEdges.length - 1) {
-//					x2 = e.v1.loc.x;
-//					y2 = (float) vg.bounds.height-e.v1.loc.y-1;	
-//				}
-//				else {
-//					//							if (e.subEdges[i + 1] == null) return;
-//					x2 = e.subEdges[i + 1].x;
-//					y2 = (float) vg.bounds.height - e.subEdges[i + 1].y;
-//				}
-//				z2 = e.v1.elevation * ELEVATION_FACTOR;
-//				//						z2 = 0;
-//
-//				//			System.out.println(x1 + " " + y1 + " " + z1);
-//				//now we push the vertex data into our array
-//				//we are assuming (0, 0) is lower left, and Y is up
-//
-//				//bottom right vertex
-//				verts[idx++] = x2;	 //Position(x, y) 
-//				verts[idx++] = y2;
-//				verts[idx++] = z2 * 0.0001f;
-//				verts[idx++] = current.r;		 //Color(r, g, b, a)
-//				verts[idx++] = current.g;
-//				verts[idx++] = current.b;
-//				verts[idx++] = current.a; // gotta do this every frame to multiply this by the batch color.
-//
-//				//top left vertex
-//				verts[idx++] = x1; 			//Position(x, y) 
-//				verts[idx++] = y1;
-//				verts[idx++] = z1 * 0.0001f;
-//				verts[idx++] = current.r; 	//Color(r, g, b, a)
-//				verts[idx++] = current.g;
-//				verts[idx++] = current.b;
-//				verts[idx++] = current.a;
-//
-//						//bottom left vertex
-//				verts[idx++] = x0; 			//Position(x, y) 
-//				verts[idx++] = y0;
-//				verts[idx++] = z0 * 0.0001f;
-//				verts[idx++] = current.r; 	//Color(r, g, b, a)
-//				verts[idx++] = current.g;
-//				verts[idx++] = current.b;
-//				verts[idx++] = current.a;
-//			}
-//		}
-//		this.mesh.setVertices(verts);
-
 	}
+
+	public void calcAbsoluteMinMax(VoronoiGraph vg) {
+		// get absolute min and max of entire center, to be used for drawing texture
+		float x0 = this.loc.x;
+		float y0 = (float) vg.bounds.height-this.loc.y-1;
+
+		for (int edgeIndex : this.adjEdges) {
+			Edge e = vg.edges.get(edgeIndex);
+			if (e == null) {
+				//				System.out.println("e is null");
+				continue;
+			}
+			if (e.v0 == null) {
+				//				System.out.println("e v0 is null");
+				continue;
+			}
+			if (e.v1 == null) {
+				//				System.out.println("e v1 is null");
+				continue;
+			}
+			for (int i = -1; i < e.subEdges.length; i++) {
+				float x1, y1, x2, y2;
+				// case with first vertex and second edge
+				if (i < 0) {
+					x1 = e.v0.loc.x;
+					y1 = (float) vg.bounds.height-e.v0.loc.y-1;
+				}
+				else {
+					//					if (e.subEdges[i] == null) return;
+					x1 = e.subEdges[i].x;
+					y1 = (float) vg.bounds.height-e.subEdges[i].y;
+				}
+				// case where last vertex is corner
+				if (i >= e.subEdges.length - 1) {
+					x2 = e.v1.loc.x;
+					y2 = (float) vg.bounds.height-e.v1.loc.y-1;	
+				}
+				else {
+					//					if (e.subEdges[i + 1] == null) return;
+					x2 = e.subEdges[i + 1].x;
+					y2 = (float) vg.bounds.height - e.subEdges[i + 1].y;
+				}
+				minX = Math.min(minX, Math.min(x0, Math.min(x1, x2)));
+				minY = Math.min(minY, Math.min(y0, Math.min(y1, y2)));
+				maxX = Math.max(maxX, Math.max(x0, Math.max(x1, x2)));
+				maxY = Math.max(maxY, Math.max(y0, Math.max(y1, y2)));	
+				
+				absMax = Math.max(maxX - minX, maxY - minY);
+				
+			}
+		}
+	}
+
+	public float getTextureX(float x) {
+		float scale = 2;// *  (maxY - minY) / (maxX - minX);
+
+		float texX = (x - minX) / (absMax);
+		//		float texX = (x/Map.WIDTH * scale) % 1;
+		//		if (texX < 0) texX = 1- texX;
+		System.out.println("x: " + texX);
+		return texX * scale;
+	}
+
+	public float getTextureY(float y) {
+		float scale = 2;
+		//		System.out.println("y: " + y);
+
+		float texY = (y - minY) / (absMax);
+
+		//		float texY = (y/Map.HEIGHT * scale) % 1;
+		//		if (texY < 0) texY = 1- texY;
+
+		System.out.println("y: " + texY);
+		return texY * scale;
+	}
+	//	this.mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
+	// draw all triangles
+	//	idx = 0;
+	//	for (int edgeIndex : this.adjEdges) {		
+	//		Edge e = vg.edges.get(edgeIndex);
+	//		if (e == null) {
+	//			//						System.out.println("e is null");
+	//			continue;
+	//		}
+	//		if (e.v0 == null) {
+	//			//						System.out.println("e v0 is null");
+	//			continue;
+	//		}
+	//		if (e.v1 == null) {
+	//			//						System.out.println("e v1 is null");
+	//			continue;
+	//		}
+	//
+	//		Center adjacent = vg.centers.get(e.adjCenter0);
+	//		if (adjacent == this) adjacent = vg.centers.get(e.adjCenter1);
+	//
+	//		//					Color adjColor = VoronoiGraph.getColor(adjacent);
+	//		//					Color current = new Color(color.r * 0.7f + adjColor.r * 0.3f, color.g * 0.7f + adjColor.g * 0.3f, color.b * 0.7f + adjColor.b * 0.3f, 1);
+	//		Color current = color;
+	//
+	//		// draw all 4 or 8 sub-triangles
+	//		for (int i = -1; i < e.subEdges.length; i++) {
+	//			float x1, y1, z1, x2, y2, z2;
+	//			// case with first vertex and second edge
+	//			if (i < 0) {
+	//				x1 = e.v0.loc.x;
+	//				y1 = (float) vg.bounds.height-e.v0.loc.y-1;
+	//			}
+	//			else {
+	//				//							if (e.subEdges[i] == null) return;
+	//				x1 = e.subEdges[i].x;
+	//				y1 = (float) vg.bounds.height-e.subEdges[i].y;
+	//			}
+	//			z1 = e.v0.elevation * ELEVATION_FACTOR;
+	//			//						z1 = 0;
+	//
+	//			// case where last vertex is corner
+	//			if (i >= e.subEdges.length - 1) {
+	//				x2 = e.v1.loc.x;
+	//				y2 = (float) vg.bounds.height-e.v1.loc.y-1;	
+	//			}
+	//			else {
+	//				//							if (e.subEdges[i + 1] == null) return;
+	//				x2 = e.subEdges[i + 1].x;
+	//				y2 = (float) vg.bounds.height - e.subEdges[i + 1].y;
+	//			}
+	//			z2 = e.v1.elevation * ELEVATION_FACTOR;
+	//			//						z2 = 0;
+	//
+	//			//			System.out.println(x1 + " " + y1 + " " + z1);
+	//			//now we push the vertex data into our array
+	//			//we are assuming (0, 0) is lower left, and Y is up
+	//
+	//			//bottom right vertex
+	//			verts[idx++] = x2;	 //Position(x, y) 
+	//			verts[idx++] = y2;
+	//			verts[idx++] = z2 * 0.0001f;
+	//			verts[idx++] = current.r;		 //Color(r, g, b, a)
+	//			verts[idx++] = current.g;
+	//			verts[idx++] = current.b;
+	//			verts[idx++] = current.a; // gotta do this every frame to multiply this by the batch color.
+	//
+	//			//top left vertex
+	//			verts[idx++] = x1; 			//Position(x, y) 
+	//			verts[idx++] = y1;
+	//			verts[idx++] = z1 * 0.0001f;
+	//			verts[idx++] = current.r; 	//Color(r, g, b, a)
+	//			verts[idx++] = current.g;
+	//			verts[idx++] = current.b;
+	//			verts[idx++] = current.a;
+	//
+	//					//bottom left vertex
+	//			verts[idx++] = x0; 			//Position(x, y) 
+	//			verts[idx++] = y0;
+	//			verts[idx++] = z0 * 0.0001f;
+	//			verts[idx++] = current.r; 	//Color(r, g, b, a)
+	//			verts[idx++] = current.g;
+	//			verts[idx++] = current.b;
+	//			verts[idx++] = current.a;
+	//		}
+	//	}
+	//	this.mesh.setVertices(verts);
+
 
 	//
 	//	void initMesh(VoronoiGraph vg) {
@@ -447,6 +549,8 @@ public class Center {
 		shader.setUniformMatrix("u_projTrans", projTrans);
 		// set the batch color
 		shader.setUniform3fv("u_batchColor", batchColor, 0, 3);
+		shader.setUniformi("u_texture", 0);
+		
 		mesh.render(shader, GL20.GL_TRIANGLES, 0, vertexCount);
 		//		shader.end();
 	}

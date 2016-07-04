@@ -29,7 +29,7 @@ public class WeaponDraw extends Actor {
 	private int offset_y = 4;
 	
 	private float offset_x_ranged = 14;
-	private float offset_y_ranged = -.5f;
+	private float offset_y_ranged = -.1f; // .5 before
 
 	public TextureRegion weaponMelee;
 	public TextureRegion weaponRanged;
@@ -220,24 +220,26 @@ public class WeaponDraw extends Actor {
 		if (unit.isHidden() && unit.team != 0) return;
 
 		//this.toFront();
+		
+		float alpha = 0.4f;
 		this.toBack();
 		c.set(batch.getColor());
 		if (unit.team == 0) {
 			if (unit.party == unit.stage.allies.first())
-				batch.setColor(1, (2- unit.soldier.subparty.getRank()) * 0.2f, 0, .6f); 
-			else batch.setColor(1, .5f, .5f, .2f);
+				batch.setColor(1, Math.max(0, (1 - unit.soldier.subparty.getRank())) * 0.3f, 0, alpha); 
+			else batch.setColor(1, .5f, .5f, alpha);
 		}
-		else batch.setColor(.3f, .3f, 1, .6f);
+		else batch.setColor(.3f, .3f, 1, alpha);
 		
 		// draw white if selected
 		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) {
-			batch.setColor(1, 1, 1, .5f);
+			batch.setColor(1, 1, 1, alpha);
 		}
 		if (this.unit.isGeneral()) {
 			if (unit.team == 0) 
-				batch.setColor(1, 0.7f, 0, 0.5f);
+				batch.setColor(1, 0.7f, 0, alpha);
 			else 
-				batch.setColor(0, 0.7f, 1, 0.5f);
+				batch.setColor(0, 0.7f, 1, alpha);
 		}
 		
 		boolean drawTeams = true;

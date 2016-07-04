@@ -36,7 +36,7 @@ public class PanelGeneral extends PanelUnit {
 		Label infDefSC = new Label("Inf Def:", ls);		
 		Label rngCmdSC = new Label("Rng Cmd:", ls);		
 		
-		fameS = new Label("" + general.fame, ls);
+		fameS = new Label("" + general.getFame(), ls);
 		loyaltyS = new Label("" + general.loyalty, ls);
 		loyaltyS.setColor(General.getColor(general.loyalty));
 		courageS = new Label("" + general.courage, ls);

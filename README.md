@@ -126,10 +126,30 @@ Features I want to add:
 		Promotions/user control
 		AI party management
 		todo:
-			make every party have one general, make a special color in battle 
-			treat his soldiers like his "bodyguard"
+			brainstorm general management for player
+			add subparty destruction and rearranging.
+			// after this we can fix main map shit.
 		
 	Better faction AI:
+		Wealth - start randomly
+			ways to change:
+				increase slowly with population (town wealth)
+				increases from region wealth?
+				increases from merchancts to towns and nearby villages
+				
+				
+			have farmers go from villages -> cities and back
+			
+			More wealth means:
+				more troops available for hire
+				add taxes that build up and can be collected
+				nobles can only recruit based on their wealth
+				
+		Fix militias/raiding/village wealth
+		Add "honor" aka morality
+		
+	Fix navigation bugs in A*:
+		when close to ocean, sometimes prefers far route.
 		
 	Customizable party types:
 		Text-file customization with a few simple parameters (size, passive, etc)
@@ -137,8 +157,7 @@ Features I want to add:
 	Later:
 	Different levels of woundedness, medics/doctors in your party
 	
-	Fix militias/raiding/village wealth
-		Add "honor" aka morality
+	
 		
 	Make bandits occupy ruins (and set up camps?)!
 		

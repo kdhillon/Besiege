@@ -94,7 +94,8 @@ public class SidePanel extends Group {
 	public void initializePanels() {
 		//main = new PanelMain(this);
 		character = new PanelCharacter(this);
-		inventory = new PanelInventory(this);
+		if (Soldier.WEAPON_NEEDED)
+			inventory = new PanelInventory(this);
 		party = new PanelParty(this, kingdom.getPlayer());
 		attributes = new PanelAttributes(this);
 		upgrades = new PanelUpgrades(this, kingdom.getPlayer());
@@ -233,9 +234,12 @@ public class SidePanel extends Group {
 		kingdom.map.selectedCenter = center;
 		setActive(pc);
 	}
+	
 	public void setPanelInventory() {
+		if (Soldier.WEAPON_NEEDED) return;
 		setActive(inventory);
 	}
+	
 	public void setDefault() {
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());

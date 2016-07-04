@@ -84,7 +84,7 @@ public class BattleMap extends Actor {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.07f), SMALL_WALL_H(.06f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f);
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -126,8 +126,8 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.ALPINE;
-
+		this.maptype = MapType.ALPINE;
+		
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
 		this.total_size_y = (int) (mainmap.size_y * SIZE_FACTOR);
@@ -155,7 +155,7 @@ public class BattleMap extends Actor {
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
-		if (this.maptype == MapType.ALPINE && Math.random() < .9) snowing = true;
+		if (this.maptype == MapType.ALPINE && Math.random() < .75) snowing = true;
 
 		if (isRaining() || isSnowing()) {
 			int raindrop_count = 20 + (int) (Math.random() * 400);
@@ -477,7 +477,7 @@ public class BattleMap extends Actor {
 		case TAIGA :			return MapType.FOREST;
 		case SHURBLAND : 		return MapType.MEADOW;
 		case TEMPERATE_DESERT : return MapType.DESERT;
-		case TEMPERATE_RAIN_FOREST : 		return MapType.SWAMP;
+		case SWAMP : 			return MapType.SWAMP;
 		case TEMPERATE_DECIDUOUS_FOREST : 	return MapType.FOREST;
 		case GRASSLAND : 					return MapType.BEACH;
 		case SUBTROPICAL_DESERT : 			return MapType.DESERT;
