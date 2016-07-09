@@ -476,7 +476,7 @@ public class BattleMap extends Actor {
 		case SCORCHED :			return MapType.CRAG;
 		case TAIGA :			return MapType.FOREST;
 		case SHURBLAND : 		return MapType.MEADOW;
-		case TEMPERATE_DESERT : return MapType.DESERT;
+		case PLATEAU : return MapType.DESERT;
 		case SWAMP : 			return MapType.SWAMP;
 		case TEMPERATE_DECIDUOUS_FOREST : 	return MapType.FOREST;
 		case GRASSLAND : 					return MapType.BEACH;
@@ -486,7 +486,6 @@ public class BattleMap extends Actor {
 		case MARSH : 						return MapType.MEADOW;
 		case TROPICAL_RAIN_FOREST : 		return MapType.SWAMP;
 		case TROPICAL_SEASONAL_FOREST : 	return MapType.SWAMP;
-		case COAST : 						return MapType.BEACH;
 		case LAKESHORE: 					return MapType.BEACH;
 		default : 							return MapType.GRASSLAND;
 		}

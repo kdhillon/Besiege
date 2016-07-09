@@ -26,6 +26,8 @@ public enum Formation {
 		// no soldiers
 		if (iCount + aCount + cCount == 0) {
 			formation = new Soldier.SoldierType[1][1];
+			formation[0][0] = Soldier.SoldierType.GENERAL;
+			return formation;
 		};
 
 		// figure out what formation to do

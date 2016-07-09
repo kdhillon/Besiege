@@ -35,6 +35,8 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Location extends Actor implements Destination {
 	private final float SCALE = .06f;
+	private final float MIN_ZOOM = 1.5f;
+	private final float MAX_ZOOM = 10f;
 	private final int offset = 30;
 	private final int HIRE_REFRESH = 600; // seconds it takes for soldiers to refresh in city
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
@@ -48,8 +50,8 @@ public class Location extends Actor implements Destination {
 
 	protected int DAILY_WEALTH_INCREASE_BASE;
 	protected double DAILY_POP_INCREASE_BASE;
-	protected int POP_MIN;
-	protected int POP_MAX;
+	public int POP_MIN;
+	public int POP_MAX;
 
 	transient private TextureRegion region;
 	public String textureName;
@@ -317,13 +319,64 @@ public class Location extends Actor implements Destination {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
+		if (!shouldDraw()) return;
+		
 		setRotation(kingdom.getMapScreen().rotation);
+		float scale = getKingdom().getZoom();
+		scale *= this.getSizeFactor();
+		if (scale < MIN_ZOOM) scale = MIN_ZOOM;
+		if (scale > MAX_ZOOM) scale = MAX_ZOOM;
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+				getWidth(), getHeight(), 10 * scale, 10 * scale, getRotation());
+	}
+	
+	public float getSizeFactor() { 
+		if (this.isCastle()) return 0.75f;
+		else if (this.ruin) return 0.75f;
+		
+		float MAX_SCALE = 1;
+		float MIN_SCALE = 0.5f;
+		
+		float scale = (float) (this.population - this.POP_MIN) / (this.POP_MAX - this.POP_MIN);
+		
+
+		
+//		float scale = (float) population / ((this.POP_MIN + this.POP_MAX)/ 2);
+//		if (scale > 1.5f) return 1.5f;
+//		if (scale < 0.5) return 0.5f;
+		
+		scale = scale * (MAX_SCALE - MIN_SCALE) + MIN_SCALE;
+		
+		return scale;
+		
+//		if (this.isCastle()) {
+//			return 1;
+//		}
+//		else if (this.ruin) return 1;
+//		else if (this.isVillage()) { 
+//			float scale = (float) (population / this.POP_MIN);
+//			if (scale > 2) return 2;
+//			if (scale < 0.5) return 0.5f;
+//			return scale;
+//		}
+//		else {
+//			float scale = (float) (population / 10000);
+//			if (scale > 2) return 2;
+//			if (scale < 0.5) return 0.5f;
+//			return scale;
+//		}
 	}
 
+	// lets be smart about this
+	// how exactly do we want to have cities etc disappear as you zoom out?
+	
+	// first off lets do city scale/size. are sizes appropriate? Max size should be smaller
+	
+	
 	public void drawCrest(SpriteBatch batch) {
 		float size_factor = 1.4f;
+		size_factor *= this.getSizeFactor();
+
 
 		if ((this.type == LocationType.VILLAGE))
 			size_factor = .5f * size_factor;
@@ -334,59 +387,10 @@ public class Location extends Actor implements Destination {
 		float zoom = getKingdom().getZoom();
 		zoom *= size_factor; 
 
-		// TODO do some vector calculations to make this rotate	
-		// TODO create a bunch more fonts for smoother scrolling!
-		// TODO do this in Kingdom at the end of everything
-		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !(this.type == LocationType.CASTLE && zoom > 9)) {			
-			BitmapFont font;
-
-			if (zoom > 7) {
-				font = Assets.pixel150;
-				zoom = 7;
-			}
-			else if (zoom > 5) {
-				font = Assets.pixel100;
-				zoom = 5;
-			}
-			else if (zoom > 4) {
-				font = Assets.pixel80;
-				zoom = 4;
-			}
-			else if (zoom > 3) {
-				font = Assets.pixel64;
-				zoom = 3;
-			}
-			// add some fonts here for smoothness
-			else if (zoom > 2.5) {
-				font = Assets.pixel50;
-				zoom = 2.5f;
-			}
-			else if (zoom > 2) {
-				font = Assets.pixel40;
-				zoom = 2f;
-			}
-			else if (zoom > 1.5) {
-				font = Assets.pixel30;
-				zoom = 1.5f;
-			}
-			else if (zoom > 1.2) {
-				font = Assets.pixel24;
-				zoom = 1.2f;
-			}
-			else if (zoom > 1) {
-				font = Assets.pixel20;
-				zoom = 1f;
-			}
-			else if (zoom > .75) {
-				font = Assets.pixel15;
-				zoom = .75f;
-			}
-			else {
-				font = Assets.pixel12;
-				zoom = .6f;
-			}
-
+		if (shouldDraw()) {	
+			if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;	
+			if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;	
+		
 			// draw crest			
 			batch.setColor(clear_white);
 
@@ -400,11 +404,23 @@ public class Location extends Actor implements Destination {
 			batch.setColor(temp);
 
 			batch.setTransformMatrix(tempMatrix);
-			//			// draw text
-			//			font.setColor(clear_white);
-			//			String toDraw = getName();
-			//			font.draw(batch, toDraw, getX() - (int) (4.3*toDraw.length())*zoom, getY()-5-5*zoom);
 		}
+	}
+	
+	public boolean shouldDraw() {
+		float zoom = getKingdom().getZoom();
+
+		if (this.type == LocationType.VILLAGE) {
+			if (zoom > 6 * getSizeFactor()) return false;
+		}
+		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 8)
+			return false;
+		
+		if (this.type == LocationType.CITY) {
+			if (zoom > 14 * getSizeFactor()) return false;
+		}
+		
+		return true;
 	}
 
 	public void drawText(SpriteBatch batch) {
@@ -424,7 +440,7 @@ public class Location extends Actor implements Destination {
 		// TODO create a bunch more fonts for smoother scrolling!
 		// TODO do this in Kingdom at the end of everything
 		// don't draw village names at a certain point.
-		if (!(this.type == LocationType.VILLAGE && zoom > 4) && !((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 9)) {			
+		if (shouldDraw()) {			
 			BitmapFont font;			
 
 //			if (zoom > 7) {
@@ -453,15 +469,15 @@ public class Location extends Actor implements Destination {
 //				zoom = 2f;
 //			}
 //			else if (zoom > 1.5) {
-				font = Assets.pixel30;
-				zoom = 1.5f;
+//				font = Assets.pixel30;
+//				zoom = 1.5f;
 //			}
 //			else if (zoom > 1.2) {
 //				font = Assets.pixel24;
 //				zoom = 1.2f;
 //			}
 //			else if (zoom > 1) {
-//				font = Assets.pixel20;
+				font = Assets.pixel20forCities;
 //				zoom = 1f;
 //			}
 //			else if (zoom > .75) {
@@ -472,6 +488,10 @@ public class Location extends Actor implements Destination {
 //				font = Assets.pixel12;
 //				zoom = .6f;
 //			}
+				
+			if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;	
+			if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;	
+
 			String toDraw = getName();
 
 			mx4Font.idt();
@@ -487,8 +507,8 @@ public class Location extends Actor implements Destination {
 
 			// draw text
 			font.setColor(clear_white);
+			font.setScale(zoom);
 			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom, -8*zoom);
-
 			batch.setTransformMatrix(tempMatrix);
 		}
 	}
@@ -837,6 +857,9 @@ public class Location extends Actor implements Destination {
 			for (Farmer f : ((Village) this).farmers) {
 				f.setFaction(newFaction);
 			}
+			if (this.faction != null)
+				this.faction.villages.removeValue((Village) this, true);
+			newFaction.villages.add((Village) this);
 			//			((Village) this).farmers = new StrictArray<Farmer>(((Village) this).farmers);
 			// TODO undo this
 		}

@@ -5,14 +5,14 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Character;
 import kyle.game.besiege.army.ArmyPlayer;
-
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 
 public class PanelCharacter extends Panel {
 	private final float PAD = 5;
@@ -40,7 +40,7 @@ public class PanelCharacter extends Panel {
 		LabelStyle ls30 = new LabelStyle();
 		ls30.font = Assets.pixel30;
 		LabelStyle ls24 = new LabelStyle();
-		ls24.font = Assets.pixel20;
+		ls24.font = Assets.pixel18;
 		
 		Label honorC = new Label("Honor:", ls24);
 		Label factionC = new Label("Faction:", ls24);

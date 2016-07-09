@@ -52,6 +52,7 @@ public class Map extends Actor {
 	public static boolean debug;
 	public static boolean drawSpheres;
 	public static boolean drawBorders;
+	public static boolean drawWealth;
 
 	//	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 	//	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
@@ -241,7 +242,7 @@ public class Map extends Actor {
 	private void calcConnected(Center center, HashSet<Center> connected) {
 		connected.add(center);
 		for (Center neighbor : center.neighbors) {
-			if (!neighbor.water && !connected.contains(neighbor)) {
+			if (!neighbor.ocean && !connected.contains(neighbor)) {
 				calcConnected(neighbor, connected);
 			}
 		}
@@ -324,6 +325,7 @@ public class Map extends Actor {
 	private void calcCitySpots() {
 		// populate available city and village positions (centers and corners)
 		for (Center center : connected) {
+			if (center.water) continue;
 			if (!cityCenters.contains(center)) {
 				addToAvailableCenters(center);
 				cityCenters.add(center);
@@ -1141,7 +1143,7 @@ public class Map extends Actor {
 			sr.end();
 			batch.begin();
 		}
-		
+				
 		
 		drawBorders = drawSpheres;
 		if (drawBorders) {
@@ -1181,6 +1183,53 @@ public class Map extends Actor {
 			//			}
 			sr.end();
 			batch.begin();
+		}
+		
+//		if (drawWealth) {
+//			batch.end();
+//			sr.begin(ShapeType.Filled);
+//			sr.setProjectionMatrix(batch.getProjectionMatrix());
+//			Gdx.gl.glEnable(GL20.GL_BLEND);			
+//
+//			// draw spheres of influence
+//			// note, when drawing to subedges, there is some overlap when the lines turn inward enough
+//			for (Center c : connected) {
+//				sr.setColor(0, Math.max(0, c.wealth/80), 0, .4f);
+//
+//				for (int edgeIndex : c.adjEdges) {
+//					Edge e = this.getEdge(edgeIndex);
+//					if (e.subEdges == null) continue;
+//
+//					for (int i = -1; i < e.subEdges.length; i++) {
+//						PointH start, end;
+//						if (i == -1) {
+//							start = e.v0.loc;
+//						}
+//						else start = e.subEdges[i];
+//						if (i == e.subEdges.length - 1) {
+//							end = e.v1.loc;
+//						}
+//						else end = e.subEdges[i + 1];
+//
+//						sr.triangle(c.loc.x, HEIGHT - c.loc.y, (float)start.x,(float)(HEIGHT-start.y),(float) end.x, (float)(HEIGHT-end.y));
+//					}
+//
+//				}
+//
+//				//					for (float[] vertices : c.triangles) {
+//				//						sr.triangle(vertices[0], vertices[1], vertices[2], 
+//				//								vertices[3], vertices[4], vertices[5]);
+//				//					}
+//			}
+//			sr.end();
+//			batch.begin();
+//		}
+	}
+	
+	public void updateAllCenterColors() {
+		for (Center c : connected) {
+			if (!c.water)
+				c.changeColor(vg);
 		}
 	}
 

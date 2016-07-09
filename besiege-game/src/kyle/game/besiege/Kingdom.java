@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
@@ -33,15 +34,12 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
 	public static int cityCount = 30;
-	public static int castleCount = 10;
-	public static int ruinCount = 10;
-	public static int villageCount = 21;
+	public static int castleCount = 5;
+	public static int ruinCount = 5;
+	public static int villageCount = 40;
 	
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
-	public static final int CITY_START_WEALTH = 500;
-	public static final int VILLAGE_START_WEALTH = 10;
-	public static final int CASTLE_START_WEALTH = 100;
 	public static final int BANDIT_FREQ = 1000;
 	public static final int MAX_BANDITS = 5;
 	public static boolean drawCrests = true;
@@ -207,6 +205,7 @@ public class Kingdom extends Group {
 		}
 		// container is null (slow during initialization stages - plan is to initialize armies with accurate center)
 		for (Center center : map.connected) {
+			if (center.water) continue;
 			Polygon p = center.polygon;
 			if (p.contains(army.getCenterX(), army.getCenterY())) {
 				center.armies.add(army);
@@ -411,10 +410,10 @@ public class Kingdom extends Group {
 		// check if a center 
 		if (d.getType() == Destination.DestType.POINT) {
 			Center containing = null;
-			Point army = (Point) d;
+			Point testPoint = (Point) d;
 			for (Center center : map.connected) {
 				Polygon p = center.polygon;
-				if (p.contains(army.getCenterX(), army.getCenterY())) {
+				if (p.contains(testPoint.getCenterX(), testPoint.getCenterY())) {
 					containing = center;
 					break;
 				}
@@ -422,7 +421,21 @@ public class Kingdom extends Group {
 			if (containing != null)
 				getMapScreen().getSidePanel().setActiveCenter(containing);
 			else {
+				// just for fun, do water as well
+//				for (Center center : map.vg.centers) {
+//					Polygon p = center.polygon;
+//					if (p.contains(testPoint.getCenterX(), testPoint.getCenterY())) {
+//						containing = center;
+//						System.out.println("setting center to water");
+//						break;
+//					}
+//				}
+//				if (containing != null)
+//					getMapScreen().getSidePanel().setActiveCenter(containing);
+				
 //				System.out.println("containing is null");
+//				else 
+				getMapScreen().getSidePanel().setDefault();
 			}
 		}
 		
@@ -455,11 +468,11 @@ public class Kingdom extends Group {
 	private Destination getDestAt(Point mouse) {
 		Destination dest = new Point(mouse.getCenterX(), mouse.getCenterY());
 		for (City city : cities) {
-			if (Kingdom.distBetween(city, mouse) <= MOUSE_DISTANCE)
+			if (Kingdom.distBetween(city, mouse) <= MOUSE_DISTANCE * city.getSizeFactor() * 2 * getZoom())
 				dest = city;
 		}
 		for (Village village : villages) {
-			if (Kingdom.distBetween(village, mouse) <= MOUSE_DISTANCE)
+			if (Kingdom.distBetween(village, mouse) <= MOUSE_DISTANCE  * village.getSizeFactor() * 1 * this.getZoom())
 				dest = village;
 		}
 		for (Castle castle : castles) {
@@ -605,7 +618,12 @@ public class Kingdom extends Group {
 	 */
 	private void updateFactionCenters() {
 		// update each faction's centers
-		for (Center c : getMap().connected) calcInfluence(c);
+		for (Center c : getMap().connected)  {
+			// remove later to include lakes
+			boolean shouldIncludeLakes = true;
+			if (!shouldIncludeLakes) if (c.water) continue;
+			calcInfluence(c);
+		}
 		getMap().calcBorderEdges();
 		for (Faction f : factions) {
 			f.territory.clear();
@@ -878,7 +896,7 @@ public class Kingdom extends Group {
 			
 			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 			
-			city = new City(this, NameGenerator.generateCity(), -1, closestFaction, x, Map.HEIGHT-y, CITY_START_WEALTH);
+			city = new City(this, NameGenerator.generateCity(), -1, closestFaction, x, Map.HEIGHT-y);
 
 			if (center != null)
 				city.setCenter(center);
@@ -902,7 +920,7 @@ public class Kingdom extends Group {
 			map.availableCenters.remove(center);
 
 			//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
-			Village village = new Village(this,  NameGenerator.generateVillage(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
+			Village village = new Village(this,  NameGenerator.generateVillage(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y));			
 			villages.add(village);
 			village.setCenter(center);
 //			village.center = center.index;
@@ -947,7 +965,7 @@ public class Kingdom extends Group {
 			
 			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 			
-			Castle castle = new Castle(this, NameGenerator.generateCastle(), -1, closestFaction, x, y, CASTLE_START_WEALTH);			
+			Castle castle = new Castle(this, NameGenerator.generateCastle(), -1, closestFaction, x, y);			
 			castles.add(castle);
 			castle.setCorner(corner);
 			
@@ -1021,6 +1039,11 @@ public class Kingdom extends Group {
 		
 		if (faction.centers.size > 0) {
 			center = faction.centers.random();
+			while (center.water) {
+				System.out.println("player center is water");
+				center = faction.centers.random();
+			}
+			
 			pos_x = (int) center.loc.x;
 			pos_y = (int) (Map.HEIGHT-center.loc.y);
 			System.out.println("player created in faction center");
@@ -1150,8 +1173,9 @@ public class Kingdom extends Group {
 		return day;
 	}
 	public float getZoom() {
-//		return getMapScreen().getCamera().zoom;
-		return 1;
+		return ((OrthographicCamera) getMapScreen().getCamera()).zoom;
+//		return zoom;
+//		return 1;
 	}
 	public void setMouseOver(boolean b) {
 		mouseOver = b;

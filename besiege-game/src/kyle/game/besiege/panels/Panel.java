@@ -228,6 +228,7 @@ public class Panel extends Group {
 		topPane.setScrollingDisabled(true, false);
 		topPane.setFadeScrollBars(false);
 		topPane.setBounds(PAD, PAD + BUTTONHEIGHT, SidePanel.WIDTH - PAD*2, sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2);
+
 		this.addActor(topPane);
 	}
 
@@ -245,7 +246,9 @@ public class Panel extends Group {
 		topPane.setX(0);
 		topPane.setWidth(SidePanel.WIDTH-PAD*2);
 		topPane.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
+
 		topPane.setScrollingDisabled(true, false);
+
 		this.addActor(topPane);
 	}
 

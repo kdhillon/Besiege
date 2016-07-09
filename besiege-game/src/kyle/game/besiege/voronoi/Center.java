@@ -31,6 +31,9 @@ import kyle.game.besiege.geom.PointH;
 public class Center {
 
 	private final float ELEVATION_FACTOR = 700f;
+//	private final float BASE_WEALTH_MAX = 100f;
+//	private final float BASE_WEALTH_MIN = 50;
+
 	// max number of verts is 3 * 6
 	public int index;
 	public PointH loc;
@@ -47,6 +50,8 @@ public class Center {
 	public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
 
 	private float[] verts;
+	private Color ogColor;
+	
 	// used for serialization
 	public ArrayList<Integer> adjEdges = new ArrayList<Integer>();
 
@@ -61,6 +66,8 @@ public class Center {
 
 	public double area;
 	public Faction faction; // controlling faction - can be recalculated
+	
+	public float wealth;
 
 	float minX = 999999, minY = 999999, maxX = -999999, maxY = -99999, absMax = -999;
 
@@ -92,6 +99,29 @@ public class Center {
 
 	public Center(PointH loc) {
 		this.loc = loc;
+	}
+	
+	public void setBiome(Biomes biome, Texture biomeTexture) {
+		this.biome = biome;
+		//       center.textureIndex = getTexture(center);
+		this.biomeTexture = biomeTexture;
+		if (biomeTexture == null) throw new java.lang.AssertionError("Cannot find biome texture for: " + biome);
+		this.wealth = calculateInitWealth();
+	}
+	
+	public float calculateInitWealth() {
+		// wealth should be between 0 and 100, basically gaussian?
+		float randomMax = 0.2f;
+		
+		float base = 1 - randomMax;
+		
+		float bonus = (float) Math.random() * randomMax - (randomMax/2);
+		
+		float toRet = biome.getWealthFactor() * base + bonus;
+		if (toRet < 0) toRet = 0;
+		if (toRet > 1) toRet = 1;
+		
+		return toRet;
 	}
 
 	public void restoreFromVoronoi(VoronoiGraph vg) {
@@ -174,6 +204,8 @@ public class Center {
 			color.r = mixedR * divFactor + color.r * strength;
 			color.g = mixedG * divFactor + color.g * strength;
 			color.b = mixedB * divFactor + color.b * strength;
+			
+			ogColor = new Color(color);
 		}
 
 		// do some color blending for each polygon...
@@ -291,6 +323,44 @@ public class Center {
 		}
 		this.mesh.setVertices(verts);
 	}
+	
+	public void changeColor(VoronoiGraph vg) {
+		Color newColor = new Color();
+		
+		if (Map.drawWealth) {
+			newColor.r = 0;
+			newColor.g = wealth;
+			newColor.b = 0;
+		}
+		else {
+			newColor = ogColor;
+		}
+		
+		int idx = 0;
+		for (int edgeIndex : this.adjEdges) {		
+			Edge e = vg.edges.get(edgeIndex);
+			if (e == null) {
+				continue;
+			}
+			if (e.v0 == null) {
+				continue;
+			}
+			if (e.v1 == null) {
+				continue;
+			}
+			for (int i = -1; i < e.subEdges.length; i++) {
+				for (int j = 0; j < 3; j++) {
+					idx+=3;
+					verts[idx++] = newColor.r; 	//Color(r, g, b, a)
+					verts[idx++] = newColor.g;
+					verts[idx++] = newColor.b;
+					verts[idx++] = newColor.a;
+					idx+=2;
+				}
+			}
+		}
+		this.mesh.setVertices(verts);
+	}
 
 	public void calcAbsoluteMinMax(VoronoiGraph vg) {
 		// get absolute min and max of entire center, to be used for drawing texture
@@ -365,6 +435,10 @@ public class Center {
 
 		System.out.println("y: " + texY);
 		return texY * scale;
+	}
+	
+	public int getAvgElevation() {
+		return (int) (elevation * ELEVATION_FACTOR);
 	}
 	//	this.mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
 	// draw all triangles

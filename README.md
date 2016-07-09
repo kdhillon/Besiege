@@ -136,28 +136,33 @@ Features I want to add:
 				increase slowly with population (town wealth)
 				increases from region wealth?
 				increases from merchancts to towns and nearby villages
-				
+				decreases from seiges and raids (anytime garrison is defeated)
+				decreases to hire troops for garrison
 				
 			have farmers go from villages -> cities and back
 			
 			More wealth means:
+				more troops in garrison
 				more troops available for hire
 				add taxes that build up and can be collected
 				nobles can only recruit based on their wealth
 				
 		Fix militias/raiding/village wealth
 		Add "honor" aka morality
-		
+	
 	Fix navigation bugs in A*:
 		when close to ocean, sometimes prefers far route.
 		
 	Customizable party types:
 		Text-file customization with a few simple parameters (size, passive, etc)
 		
+		
 	Later:
+	Random faction generation (crests, names, eventually city names)
+	
+	Add historical markers to map where epic battles were fought.
+	
 	Different levels of woundedness, medics/doctors in your party
-	
-	
 		
 	Make bandits occupy ruins (and set up camps?)!
 		

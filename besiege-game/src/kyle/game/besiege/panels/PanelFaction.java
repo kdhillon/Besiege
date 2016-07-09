@@ -163,8 +163,9 @@ public class PanelFaction extends Panel {
 		locations.add().width((SidePanel.WIDTH-PAD*2)/2);
 		locations.add().width((SidePanel.WIDTH-PAD*2)/2);
 		locations.row();
-		locations.add(cities).width((SidePanel.WIDTH-PAD*2)/2);
-		locations.add(castles).width((SidePanel.WIDTH-PAD*2)/2);
+		locations.add(cities).width((SidePanel.WIDTH-PAD*2));
+		locations.row();
+		locations.add(castles).width((SidePanel.WIDTH-PAD*2));
 		locationPane = new ScrollPane(locations);
 		locationPane.setScrollbarsOnTop(true);
 		locationPane.setFadeScrollBars(false);
@@ -230,7 +231,7 @@ public class PanelFaction extends Panel {
 		if (faction.cities.size != 0) {	
 			for (City c : faction.cities) {
 				if (c.label == null) {
-					c.label = new ObjectLabel(c.getName(), ls, c);
+					c.label = new ObjectLabel(c.getName() + " (" + c.getWealth() + ")", ls, c);
 					c.label.addListener(new InputListener() {
 						public boolean touchDown(InputEvent event, float x,
 								float y, int pointer, int button) {
@@ -329,7 +330,9 @@ public class PanelFaction extends Panel {
 						}
 					});
 				}
-				relations.add(f.label);
+				
+				relations.add(f.miniCrest).height(24).width(16).left().padRight(3).expandY();
+				relations.add(f.label).left().expandX();
 
 				// only intialize new when text is wrong or something like that
 				if (f.label2 == null || !f.label2.getText().toString().equals(f.calcRelations(faction) +"")) {
@@ -346,7 +349,7 @@ public class PanelFaction extends Panel {
 					Color labelColor = new Color(R/255f, G/255f, B/255f, 1);
 					f.label2.setColor(labelColor);
 				}
-				relations.add(f.label2).right();
+				relations.add(f.label2).right().padLeft(-25);
 				relations.row();
 			}
 		}

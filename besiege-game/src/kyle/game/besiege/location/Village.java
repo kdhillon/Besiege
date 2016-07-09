@@ -14,12 +14,14 @@ import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Militia;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Center;
 
 public class Village extends Location {
 	private final float SCALE = 7;
 	
+	private final static float VILLAGE_WEALTH_FACTOR = 0.2f; // arbitrary, this times pop = wealth
 	private static final int MAX_FARMERS = 5;
-	private final int MED_WEALTH = 50;
+//	private final int MED_WEALTH = 50;
 
 	private final String textureRegion = "Village";
 		
@@ -28,11 +30,10 @@ public class Village extends Location {
 	public Village(){}
 	
 	public Village(Kingdom kingdom, String name, int index, Faction faction,
-			float posX, float posY, int wealth) {
+			float posX, float posY) {
 		super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON);
 		this.type = LocationType.VILLAGE;
-		getParty().wealth = wealth;
-		
+				
 		this.DAILY_WEALTH_INCREASE_BASE = 1;
 		this.DAILY_POP_INCREASE_BASE = 0.01;
 
@@ -40,12 +41,23 @@ public class Village extends Location {
 		POP_MAX = 1000;
 		
 		this.population = Math.random()*(POP_MAX - POP_MIN) + POP_MIN;
-		
+				
 		setTextureRegion(textureRegion);
 		
 		farmers = new Array<Farmer>();
 		setScale(SCALE);
 		initializeBox();
+	}
+	
+	@Override
+	public void setCenter(Center c) {
+		super.setCenter(c);
+		getParty().wealth = calcInitialWealth();
+	}
+
+	// only do this when center has been set.
+	public int calcInitialWealth() {
+		return (int) ((VILLAGE_WEALTH_FACTOR + getKingdom().getMap().getCenter(this.center).wealth) * population);
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ package kyle.game.besiege;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.battle.Battle;
@@ -80,6 +81,8 @@ public class Faction {
 	public Color color;
 	public StrictArray<City> cities;
 	public StrictArray<Castle> castles;
+	public StrictArray<Village> villages;
+	
 	public StrictArray<City> closeEnemyCities;
 	public StrictArray<Castle> closeEnemyCastles;
 	public StrictArray<Village> closeEnemyVillages;
@@ -105,6 +108,7 @@ public class Faction {
 	// NOTE: KRYO ERRORS READ BOTTOM TO TOP
 	public transient ObjectLabel label;
 	public transient ObjectLabel label2;
+	public transient Image miniCrest;
 
 	//	private double timeSinceIncrease;  // can make more efficient by moving this to Kingdom
 	private boolean hasChecked;
@@ -125,12 +129,15 @@ public class Faction {
 		this.kingdom = kingdom;
 		this.name = name;
 		crest = Assets.atlas.findRegion(textureRegion);
+		this.miniCrest = new Image(crest);
 		this.color = color;
 
 		nobles = new StrictArray<Noble>();
 		unoccupiedNobles = new StrictArray<Noble>();
 		cities = new StrictArray<City>();
 		castles = new StrictArray<Castle>();
+		villages = new StrictArray<Village>();
+
 		centers = new StrictArray<Center>();
 		territory = new StrictArray<Polygon>();
 		//		closeEnemyLocations = new StrictArray<Location>();
@@ -406,6 +413,7 @@ public class Faction {
 
 	public void restoreCrest() {
 		this.crest = Assets.atlas.findRegion(textureName);
+		this.miniCrest = new Image(crest);
 	}
 
 	/** First updates each city's lists of close friendly and 
@@ -798,6 +806,8 @@ public class Faction {
 		int total = 0;
 		for (City c : cities)
 			total += c.getParty().wealth;
+		for (Village v : villages)
+			total += v.getParty().wealth;
 		return total;
 	}
 

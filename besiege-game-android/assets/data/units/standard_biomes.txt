@@ -7,15 +7,13 @@ Bare				Desert
 Scorched			Desert
 Taiga				Forest
 Shrubland			Valley
-Temperate Desert	Valley
+Plateau				Valley
 Coniferous Forest	Forest
 Deciduous Forest	Forest
 Grassland			Valley
 Desert				Desert
-Shurbland			Swamp
 Ice					Inuit
 Marsh				Swamp
-Tropical Rainforest	Swamp
+Rainforest			Swamp
 Seasonal Forest		Forest
-Coast				Khmer
 Lakeshore			Khmer

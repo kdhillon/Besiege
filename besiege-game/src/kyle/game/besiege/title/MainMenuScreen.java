@@ -6,14 +6,10 @@
 package kyle.game.besiege.title;
 
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.BesiegeMain;
-import kyle.game.besiege.MapScreen;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -30,6 +26,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.MapScreen;
 
 //import com.esotericsoftware.kryo.io.Input;
 
@@ -307,6 +307,9 @@ public class MainMenuScreen implements Screen {
 	
 	private void enterName(String text) {
 		System.out.println("User entered: " + text); 
+		
+		if (text.equals("")) text = "Defacto";
+		
 		main.createMapScreen(text);
 //		main.setPlayerName(text);
 		main.setScreen(main.mapScreen);

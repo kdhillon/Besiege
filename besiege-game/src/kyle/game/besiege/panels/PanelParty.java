@@ -202,7 +202,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		text.add(soldierPane).colspan(4).top().padTop(0);
 
 		text.row();
-
+		
 		// Soldier's stats
 		stats = new Table();
 		stats.setVisible(false);
@@ -259,6 +259,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		text.add(stats).colspan(4).padTop(PAD);
 
 		this.addTopTable(text);
+//		text.debug();
 
 		if (this.army == panel.getPlayer()) {
 			this.setButton(1, "Upgrades");
@@ -307,7 +308,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 		action.setText(army.getAction());
 		morale.setText(army.getMoraleString() + "");
-		size.setText(party.getHealthySize()+"/"+party.getTotalSize()+"/"+party.getMaxSize());
+		size.setText(party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+party.getMaxSize());
 		money.setText("" + army.getParty().wealth);
 		atk.setText(""+ party.getAtk());
 		def.setText(Panel.format(""+party.getAvgDef(), 2));
@@ -333,6 +334,8 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		soldierTable.clear(); // clearing the table is a problem right now. it hides the scroll bar and prevents click-drag scrolling
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
 		soldierTable.row();
+		
+//		soldierTable.debug();
 		// This method is very leaky. Should only call when update to party occurs necessary.
 		//		updateTableWithTypes(soldierTable, party.getConsolHealthy(), ls);
 		//		updateTableWithTypes(soldierTable, party.getConsolWounded(), lsG);

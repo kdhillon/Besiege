@@ -5,23 +5,23 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Character;
-import kyle.game.besiege.army.ArmyPlayer;
-
 import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.Assets;
+import kyle.game.besiege.Character;
+import kyle.game.besiege.army.ArmyPlayer;
 
 
 public class PanelAttributes extends Panel {
@@ -77,7 +77,7 @@ public class PanelAttributes extends Panel {
 		lsSmall.font = Assets.pixel16;
 		
 		ls = new LabelStyle();
-		ls.font = Assets.pixel20;
+		ls.font = Assets.pixel18;
 		
 		bs = new ButtonStyle();
 		bs.up = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(upTexture), r,r,r,r));

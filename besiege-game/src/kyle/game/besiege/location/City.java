@@ -17,9 +17,13 @@ import kyle.game.besiege.army.RaidingParty;
 import kyle.game.besiege.party.PartyType;
 
 public class City extends Location {
+	private final static float CITY_WEALTH_FACTOR = 0.42f; // arbitrary, this times pop = wealth
+	private final static float INITIAL_WEALTH_VARIANCE_MIN = 0.6f;
+	private final static float INITIAL_WEALTH_VARIANCE_MAX = 2f;	
+	
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
-//	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest number of cities possible
+//	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
@@ -37,16 +41,16 @@ public class City extends Location {
 	public City() {}
 	
 	public City(Kingdom kingdom, String name, int index, Faction faction, float posX,
-			float posY, int wealth) {
+			float posY) {
 		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CITY_GARRISON);
 		this.type = LocationType.CITY;
-				
-		getParty().wealth = wealth;
-		
+						
 		POP_MIN = 2000;
 		POP_MAX = 15000;
 		
 		this.population = Math.random()*(POP_MAX - POP_MIN) + POP_MIN;
+		
+		getParty().wealth = calcInitialWealth();
 		
 		this.DAILY_WEALTH_INCREASE_BASE = 5;
 		this.DAILY_POP_INCREASE_BASE = 5;
@@ -74,6 +78,14 @@ public class City extends Location {
 		initializeBox();
 	}
 	
+	public int calcInitialWealth() {
+		return (int) (calcPopWealth() * ((Math.random() * (INITIAL_WEALTH_VARIANCE_MAX - INITIAL_WEALTH_VARIANCE_MIN)) + INITIAL_WEALTH_VARIANCE_MIN));
+	}
+	
+	public int calcPopWealth() {
+		return (int) (this.population * CITY_WEALTH_FACTOR);
+	}
+	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		super.draw(batch, parentAlpha);
@@ -86,10 +98,18 @@ public class City extends Location {
 		if (getPatrols().size < patrolCount) {
 			createPatrol();
 		}
+		
+		// this is an overly complicated way of doing it
+		
+		// instead: 
+		// generate one merchant every x turns depending on city wealth.
+		// 		merchant will decide where to travel on its own. 
+		// 		can use a random decision with weighting to pick friendly city or village:
+		
 		// Organize merchants
 		for (City city : closestFriendlyCities) {
 			if (!merchantExists[closestFriendlyCities.indexOf(city, true)]) {
-				createMerchant(city);
+//				createMerchant(city);
 			}
 		}
 		// do raiders later
@@ -114,16 +134,16 @@ public class City extends Location {
 		setContainerForArmy(patrol);
 	}
 	
-	public void createMerchant(City goal) {
-		if (this != goal) {
-			Merchant merchant = new Merchant(getKingdom(), this, goal);
-			this.changeWealth((int) (-merchant.getWealth()*MERCHANT_COST_FACTOR));
-			getKingdom().addArmy(merchant);
-			merchants.add(merchant);
-			merchantExists[closestFriendlyCities.indexOf(goal, true)] = true;
-			setContainerForArmy(merchant);
-		}
-	}
+//	public void createMerchant(City goal) {
+//		if (this != goal) {
+//			Merchant merchant = new Merchant(getKingdom(), this, goal);
+//			this.changeWealth((int) (-merchant.getWealth()*MERCHANT_COST_FACTOR));
+//			getKingdom().addArmy(merchant);
+//			merchants.add(merchant);
+//			merchantExists[closestFriendlyCities.indexOf(goal, true)] = true;
+//			setContainerForArmy(merchant);
+//		}
+//	}
 	
 	public void removeMerchant(Merchant merchant) {
 		// could make if not -1, but this will stress test

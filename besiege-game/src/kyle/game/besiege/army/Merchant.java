@@ -25,6 +25,23 @@ public class Merchant extends Army {
 
 	public Merchant() {}
 	
+	// think of a better merchant system.
+	// merchants shouldn't belong to a party?
+	// should there be a "unaligned" faction for units that are independent?
+	//		merchants
+	//		bandits
+	//		nomads
+	//		monks/zealots
+	// do this later, for now, merchants should belong to factions
+	
+	// instead, make them more autonomous:
+	//		Merchants "think" rationally and will travel routes that provide the most wealth
+	//			this is ambiguous without "resources" but could just be rich city to poor city
+	//			or they're anchored to one city/village and must decide where else to trade (richest nearby city)
+	
+	// wealth flows from villages to cities:
+	// 
+	
 	public Merchant(Kingdom kingdom,
 			City defaultTarget, City goal) {
 		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.MERCHANT);

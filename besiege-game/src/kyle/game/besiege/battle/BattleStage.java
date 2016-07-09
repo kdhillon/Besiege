@@ -498,9 +498,9 @@ public class BattleStage extends Group {
 			for (int j = 0; j < region_width; j++) {
 				if (formation[i][j] != null) {
 					Unit toAdd;
-					if (formation[i][j] == Soldier.SoldierType.INFANTRY) toAdd = bsp.infantry.pop();
-					else if (formation[i][j] == Soldier.SoldierType.ARCHER) toAdd = bsp.archers.pop();
-					else if (formation[i][j] == Soldier.SoldierType.CAVALRY) toAdd = bsp.cavalry.pop();
+					if (formation[i][j] == Soldier.SoldierType.INFANTRY && bsp.infantry.size > 0) toAdd = bsp.infantry.pop();
+					else if (formation[i][j] == Soldier.SoldierType.ARCHER && bsp.archers.size > 0) toAdd = bsp.archers.pop();
+					else if (formation[i][j] == Soldier.SoldierType.CAVALRY && bsp.cavalry.size > 0) toAdd = bsp.cavalry.pop();
 					else {
 						toAdd = bsp.general;
 					}

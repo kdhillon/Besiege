@@ -442,7 +442,7 @@ public class VoronoiGraph {
     	case SUBTROPICAL_DESERT:
     		color = new Color(SUBTROPICAL_DESERT);
     		break;
-    	case TEMPERATE_DESERT:
+    	case PLATEAU:
     		color = new Color(TEMPERATE_DESERT);
     		break;
     	case SNOW:
@@ -459,9 +459,6 @@ public class VoronoiGraph {
     		break;
     	case BEACH:
     		color = new Color(BEACH);
-    		break;
-    	case COAST:
-    		color = new Color(COAST);
     		break;
     	case BARE:
     		color = new Color(BARE);
@@ -950,7 +947,7 @@ public class VoronoiGraph {
             } else if (p.moisture > 0.33) {
                 return Biomes.SHRUBLAND;
             } else {
-                return Biomes.TEMPERATE_DESERT;
+                return Biomes.PLATEAU;
             }
         } else if (p.elevation > 0.3) {
             if (p.moisture > 0.83) {
@@ -960,7 +957,7 @@ public class VoronoiGraph {
             } else if (p.moisture > 0.16) {
                 return Biomes.GRASSLAND;
             } else {
-                return Biomes.TEMPERATE_DESERT;
+                return Biomes.PLATEAU;
             }
         } else {
             if (p.moisture > 0.73) {
@@ -976,15 +973,20 @@ public class VoronoiGraph {
     }
 
 //    int textureIndex;
+
     public HashMap<Biomes, Texture> biomeMap;
 //    public HashMap<Texture, Integer> textureMap;
     
     // test
     Texture texture8;
     Texture texture16;
+    Texture texture8trees;
+    Texture texture8treeslight;
+    Texture texture12trees;
+    Texture texture12treeslight;
     Texture texture16trees;
     Texture texture16treeslight;
-
+    
     Texture texture64;
     Texture texture64inv;
 //    Texture texture8;
@@ -993,8 +995,13 @@ public class VoronoiGraph {
 //    	textureMap = new HashMap<Texture, Integer>();
     	texture8 = addTexture("8.png");
     	texture16 = addTexture("16.png");
-    	texture16trees = addTexture("8trees.png");
-    	texture16treeslight = addTexture("8treeslight.png");
+    	texture16trees = addTexture("16trees.png");
+    	texture16treeslight = addTexture("16treeslight.png");
+    	texture12trees = addTexture("12trees.png");
+    	texture12treeslight = addTexture("12treeslight.png");
+    	texture8trees = addTexture("8trees.png");
+    	texture8treeslight = addTexture("8treeslight.png");
+    	
     	texture64 = addTexture("64.png");
     	texture64inv = addTexture("64inv.png");
 		Texture grass = addTexture("grass.png");
@@ -1036,23 +1043,22 @@ public class VoronoiGraph {
     	mapBiome(Biomes.OCEAN, texture8);
     	mapBiome(Biomes.LAKE, texture8);
     	mapBiome(Biomes.TUNDRA, texture16);
-    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture16treeslight);
-    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture16trees);
-    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture16treeslight);
+    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture12treeslight);
+    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture8trees);
+    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture12trees);
     	mapBiome(Biomes.SUBTROPICAL_DESERT, texture16);
-    	mapBiome(Biomes.TEMPERATE_DESERT, texture16);
-    	mapBiome(Biomes.SNOW, texture8);
+    	mapBiome(Biomes.PLATEAU, texture16);
+    	mapBiome(Biomes.SNOW, texture64);
     	mapBiome(Biomes.SCORCHED, texture64);
     	mapBiome(Biomes.LAKESHORE, texture16);
     	mapBiome(Biomes.BEACH, texture64);
-    	mapBiome(Biomes.COAST, texture64);
-    	mapBiome(Biomes.ICE, texture8);
+    	mapBiome(Biomes.ICE, texture64);
     	mapBiome(Biomes.BARE, texture16);
-    	mapBiome(Biomes.SHRUBLAND, texture64inv);
+    	mapBiome(Biomes.SHRUBLAND, texture8treeslight);
     	mapBiome(Biomes.TAIGA, texture8);
     	mapBiome(Biomes.MARSH, texture8);
     	mapBiome(Biomes.SWAMP, texture16);
-    	mapBiome(Biomes.GRASSLAND, texture64inv);
+    	mapBiome(Biomes.GRASSLAND, texture64);
     }
     
     public Texture addTexture(String name) {
@@ -1071,10 +1077,7 @@ public class VoronoiGraph {
     
     private void assignBiomes() {
         for (Center center : centers) {
-            center.biome = getBiome(center);
-//            center.textureIndex = getTexture(center);
-            center.biomeTexture = biomeMap.get(center.biome);
-            if (center.biomeTexture == null) throw new java.lang.AssertionError("Cannot find biome texture for: " + center.biome);
+        	center.setBiome(getBiome(center), biomeMap.get(getBiome(center)));
         }
     }
     
@@ -1085,7 +1088,6 @@ public class VoronoiGraph {
     //
     //
     public static int OCEAN = 0x44447aff;
-    public static int COAST = 0x33335aff;
 //    public static int LAKESHORE = 0xff5588ff;
     public static int LAKESHORE = 0x225588ff;
     public static int LAKE = 0x336699ff;

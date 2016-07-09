@@ -46,7 +46,7 @@ public class Assets {
 	public static BitmapFont pixel16neg;
 	public static BitmapFont pixel17;
 	public static BitmapFont pixel18;
-	public static BitmapFont pixel20;
+	public static BitmapFont pixel20forCities;
 	public static BitmapFont pixel22;
 	public static BitmapFont pixel24;
 	public static BitmapFont pixel30;
@@ -333,7 +333,7 @@ public class Assets {
 		pixel16neg = new BitmapFont(Gdx.files.internal("data/droid16neg.fnt"), false);
 		pixel17 = new BitmapFont(Gdx.files.internal("data/droid17.fnt"), false);
 		pixel18 = new BitmapFont(Gdx.files.internal("data/droid18.fnt"), false);
-		pixel20 = new BitmapFont(Gdx.files.internal("data/droid20.fnt"), false);
+		pixel20forCities = new BitmapFont(Gdx.files.internal("data/droid20.fnt"), false);
 		pixel22 = new BitmapFont(Gdx.files.internal("data/droid22.fnt"), false);
 		pixel24 = new BitmapFont(Gdx.files.internal("data/droid24neg.fnt"), false);
 		pixel30 = new BitmapFont(Gdx.files.internal("data/droid30.fnt"), false);

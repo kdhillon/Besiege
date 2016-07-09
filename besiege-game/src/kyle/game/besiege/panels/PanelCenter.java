@@ -23,6 +23,7 @@ public class PanelCenter extends Panel {
 	private Label biome;
 	private Label faction;
 	private Label height;
+	private Label wealth;
 	private Label title;
 	
 	public PanelCenter(SidePanel panel, Center center) {
@@ -36,29 +37,31 @@ public class PanelCenter extends Panel {
 		text.defaults().padTop(NEG);
 		
 		LabelStyle ls30 = new LabelStyle();
-		ls30.font = Assets.pixel30;
+		ls30.font = Assets.pixel24;
 		LabelStyle ls24 = new LabelStyle();
-		ls24.font = Assets.pixel20;
+		ls24.font = Assets.pixel18;
 		
 		Label factionC = new Label("Faction:", ls24);
-		Label biomeC = new Label("Biome:", ls24); 
-		Label heightC = new Label("Height:", ls24);
+//		Label biomeC = new Label("Biome:", ls24); 
+		Label heightC = new Label("Elvtn:", ls24);
+		Label wealthC = new Label("Resources:", ls24);
 
 		regionC = new Label("Region", ls24);
 		regionC.setAlignment(0,0);
 
-		biome = new Label("" ,ls24);
+//		biome = new Label(center.biome.toString() ,ls24);
 		faction = new Label("", ls24);
-		title = new Label(center.getName(), ls30);
+		title = new Label(center.biome.toString(), ls30);
 		title.setAlignment(0,0);
-		height = new Label("", ls24);
+		height = new Label(""+center.getAvgElevation(), ls24);
+		wealth = new Label(""+(int)(100*center.wealth), ls24);
 		
 		text.add(title).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
+		title.setWrap(true);
 		text.row();
-		text.add(regionC).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
-		text.row();
-		text.add(biomeC).left();
-		biome.setWrap(true);
+//		text.add(regionC).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
+//		text.row();
+//		text.add(biomeC).left();
 		text.add(biome).left().fillX().expandX().padLeft(PAD);
 		text.row();
 		text.add(factionC).left();
@@ -66,6 +69,9 @@ public class PanelCenter extends Panel {
 		text.row();
 		text.add(heightC).left();
 		text.add(height).left().fillX().expandX().padLeft(PAD);
+		text.row();
+		text.add(wealthC).left();
+		text.add(wealth).left().fillX().expandX().padLeft(PAD);
 //		text.row();
 //		text.add(fameC).left();
 //		text.add(fame).right();
@@ -82,10 +88,9 @@ public class PanelCenter extends Panel {
 	
 	@Override
 	public void act(float delta) {
-		biome.setText(center.biome.toString());
+//		biome.setText(center.biome.toString());
 		if (center.faction != null)
 			faction.setText(center.faction.name);
-		height.setText("" + center.elevation);
 		super.act(delta);
 	}
 

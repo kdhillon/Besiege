@@ -6,16 +6,14 @@ Tundra				Basic
 Bare				Basic
 Scorched			Basic
 Taiga				Basic
-Shrubland			Basic
-Temperate Desert	Basic
+Plateau				Basic
 Swamp				Basic
 Deciduous Forest	Basic
 Grassland			Basic
 Desert				Basic
-Shurbland			Basic
+Shrubland			Basic
 Ice					Basic
 Marsh				Basic
-Tropical Rainforest	Basic
+Rainforest			Basic
 Seasonal Forest		Basic
-Coast				Basic
 Lakeshore			Basic

@@ -38,11 +38,11 @@ public class Castle extends Location {
 	public Castle(){}
 	
 	public Castle(Kingdom kingdom, String name, int index, Faction faction, float posX,
-			float posY, int wealth) {
+			float posY) {
 		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CASTLE_GARRISON);
 		this.type = LocationType.CASTLE;
 				
-		getParty().wealth = wealth;
+		getParty().wealth = calcInitialWealth();
 		
 		this.DAILY_WEALTH_INCREASE_BASE = 0;
 //		
@@ -64,9 +64,16 @@ public class Castle extends Location {
 		this.patrolCost = 10; // PartyType.PATROL.maxWealth;
 		this.raiderCost = 10; //
 		
+//		this.POP_MIN = 100;
+//		this.POP_MAX = 100;
+		
 		setTextureRegion("Castle");
 		setScale(SCALE);
 		initializeBox();
+	}
+	
+	public int calcInitialWealth() {
+		return 0;
 	}
 	
 	@Override

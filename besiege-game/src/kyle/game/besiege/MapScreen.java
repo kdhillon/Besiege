@@ -109,6 +109,7 @@ public class MapScreen implements Screen {
 	private boolean editToggle;
 	private boolean nightToggle;
 
+	private boolean wealthToggle;
 	private boolean territoryToggle;
 	private boolean crestsToggle;
 	private boolean armyCrestsToggle;
@@ -670,7 +671,7 @@ public class MapScreen implements Screen {
 			if (Gdx.input.isKeyPressed(Keys.B))
 				nightToggle = true;
 			else if (nightToggle) {
-				load();
+//				load();
 
 				if (kingdom != null) kingdom.toggleNight();
 				nightToggle = false;
@@ -681,6 +682,14 @@ public class MapScreen implements Screen {
 				Map.drawSpheres = !Map.drawSpheres;
 				territoryToggle = false;
 			}
+			if (Gdx.input.isKeyPressed(Keys.R))
+				wealthToggle = true;
+			else if (wealthToggle) {
+				Map.drawWealth = !Map.drawWealth;
+				kingdom.map.updateAllCenterColors();
+				wealthToggle = false;
+			}
+			
 			if (Gdx.input.isKeyPressed(Keys.G))
 				debugToggle = true;
 			else if (debugToggle) {
