@@ -41,7 +41,7 @@ public class Kingdom extends Group {
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
-	public static final int MAX_BANDITS = 5;
+	public static final int MAX_BANDITS = 50;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
 	
@@ -57,7 +57,7 @@ public class Kingdom extends Group {
 	private final int DUSK = 21;
 	private final double RAIN_CHANCE = 5000; // higher is less likely
 	public final double THUNDER_CHANCE = 800;
-
+	
 	public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
 	private int day;
@@ -93,48 +93,112 @@ public class Kingdom extends Group {
 	private boolean rightClicked;
 	private Point mouse;
 
+	public boolean initialized;
+	public int initCount;
+	
+	public int citiesLeft;
+	public int villagesLeft;
+	public int castlesLeft;
+	
 	// for loading kingdom
 	public Kingdom() {
 		
 	}
 	
 	public Kingdom(MapScreen mapScreen) {
-		map = new Map(this, true);
-
-		clock = 0; // set initial clock
-		timeOfDay = 0;
-		day = 0;
-		startRain();
-		//		raining = false;
-
-		this.time(0);
-		
-		//		currentDarkness = NIGHT_FLOAT;
-		currentDarkness = 0; // fade in
-		if (this.night)
-			this.targetDarkness = NIGHT_FLOAT;
-		else this.targetDarkness = 1f;
 		this.mapScreen = mapScreen;
+		initCount = -1;
+	}
+	
+	public void initStep() {
+		if (initCount < 0) {
+			map = new Map(this, true);
 
-		addActor(map);
+			clock = 0; // set initial clock
+			timeOfDay = 0;
+			day = 0;
+			startRain();
+			//		raining = false;
 
-		armies = new StrictArray<Army>();
-		cities = new StrictArray<City>();
-		castles = new StrictArray<Castle>();
-		villages = new StrictArray<Village>();
-		ruins = new StrictArray<Ruin>();
-		battles = new StrictArray<Battle>();
+			this.time(0);
+			
+			//		currentDarkness = NIGHT_FLOAT;
+			currentDarkness = 0; // fade in
+			
+			if (this.night)
+				this.targetDarkness = NIGHT_FLOAT;
+			else this.targetDarkness = 1f;
+			
+			// testing
+			currentDarkness = targetDarkness;
 
-		initializeFactions(this);
+			addActor(map);
 
-//		assignFactionCenters();
-		
-		initializeCities();
-		initializeVillages();
-		initializeCastles();
-		initializeRuins();
-		
-		initializeFactionCityInfo();
+			armies = new StrictArray<Army>();
+			cities = new StrictArray<City>();
+			castles = new StrictArray<Castle>();
+			villages = new StrictArray<Village>();
+			ruins = new StrictArray<Ruin>();
+			battles = new StrictArray<Battle>();
+			
+			System.out.println("initializing factions");
+			initializeFactions(this);
+			
+			initCount++;
+			return;
+		}
+		if (initCount < 1) {
+			
+		}
+		if (initCount < 2) {
+			System.out.println("initializing cities");
+			if (cities.size == 0) initializeCities();
+//			while (scanner.hasNextLine() && (map.cityCorners.size > 0 && map.cityCenters.size > 0)) {
+			if (citiesLeft > 0 && (map.cityCorners.size() > 0 && map.cityCenters.size() > 0)) {
+				initCitiesStep();
+				return;
+			}
+
+			System.out.println("Number cities: " + cities.size);
+			initCount++;
+			return;
+		}
+		if (initCount < 3) {
+			System.out.println("initializing villages");
+			if (villages.size == 0) initializeVillages();
+			if (villagesLeft > 0 && map.availableCenters.size() > 0) {
+				initVillagesStep();
+				return;
+			}
+			System.out.println("Number villages: " + villages.size);
+
+			initCount++;
+			return;
+		}
+		if (initCount < 4) {
+			System.out.println("initializing castles");
+			if (castles.size == 0) initializeCastles();
+			if (castlesLeft > 0 && map.availableCorners.size() > 0) {
+				initCastlesStep();
+				return;
+			}
+			System.out.println("Number castles: " + castles.size);
+			
+			initCount++;
+			return;
+		}
+		if (initCount < 5) {
+			System.out.println("initializing ruins");
+			initializeRuins();
+			initCount++;
+			return;
+		}
+		if (initCount < 6) {
+			System.out.println("initializing faction city info");
+			initializeFactionCityInfo();
+			initCount++;
+			return;
+		}
 
 		for (int i = 0; i < cities.size; i++)
 			cities.get(i).findCloseLocations();
@@ -142,6 +206,8 @@ public class Kingdom extends Group {
 		mouse = new Point(0,0);
 		banditCount = 0;
 		currentPanel = new Point(0,0);
+		
+		initialized = true;
 	}
 
 
@@ -157,13 +223,29 @@ public class Kingdom extends Group {
 			time(delta);
 			super.act(delta);
 
-			manageBandits();
+			if (player != null)
+				manageBandits();
 			factionAct(delta);
+		}
+		else {
+			for (Location c : cities) {
+				c.fireAct(delta);
+			}
+			for (Location c : villages) {
+				c.fireAct(delta);
+			}
+			for (Location c : ruins) {
+				c.fireAct(delta);
+			}
+			for (Location c : castles) {
+				c.fireAct(delta);
+			}
 		}
 		if (leftClicked) leftClicked = false;
 		if (rightClicked) rightClicked = false;
 		
 	}
+	
 
 	public void manageBandits() {
 		if (banditCount <= MAX_BANDITS && cities.size != 0) {
@@ -395,18 +477,26 @@ public class Kingdom extends Group {
 	// this is actually left click right now
 	private void rightClick(Point mouse) {		
 		Destination d = getDestAt(mouse);
-		if (d.getType() == Destination.DestType.LOCATION) {
-			Location location = (Location) d;
-			getMapScreen().getSidePanel().setActiveLocation(location);
+		System.out.println("rightclick()");
+		
+		mapScreen.getSidePanel().setSoftStay(false);
+
+		if (d.getType() == Destination.DestType.BATTLE) { //battle
+			Battle battle = (Battle) d;
+			getMapScreen().getSidePanel().setActiveBattle(battle);
+			mapScreen.getSidePanel().setSoftStay(true);
 		}
 		if (d.getType() == Destination.DestType.ARMY) { // army
 			Army destinationArmy = (Army) d;
 			getMapScreen().getSidePanel().setActiveArmy(destinationArmy);
+			mapScreen.getSidePanel().setSoftStay(true);
 		}
-		if (d.getType() == Destination.DestType.BATTLE) { //battle
-			Battle battle = (Battle) d;
-			getMapScreen().getSidePanel().setActiveBattle(battle);
+		if (d.getType() == Destination.DestType.LOCATION) {
+			Location location = (Location) d;
+			getMapScreen().getSidePanel().setActiveLocation(location);
+			mapScreen.getSidePanel().setSoftStay(true);
 		}
+				
 		// check if a center 
 		if (d.getType() == Destination.DestType.POINT) {
 			Center containing = null;
@@ -418,8 +508,10 @@ public class Kingdom extends Group {
 					break;
 				}
 			}
-			if (containing != null)
+			if (containing != null) {
 				getMapScreen().getSidePanel().setActiveCenter(containing);
+				mapScreen.getSidePanel().setSoftStay(true);
+			}
 			else {
 				// just for fun, do water as well
 //				for (Center center : map.vg.centers) {
@@ -435,10 +527,11 @@ public class Kingdom extends Group {
 				
 //				System.out.println("containing is null");
 //				else 
-				getMapScreen().getSidePanel().setDefault();
+				getMapScreen().getSidePanel().setDefault(true);
+				
+				// deselect 
 			}
-		}
-		
+		}		
 	}
 
 	public void click(int pointer) {
@@ -538,6 +631,8 @@ public class Kingdom extends Group {
 	
 
 	public void initializeFactions(Kingdom kingdom) {
+		RandomCrest.initialize();
+		
 		factions = new StrictArray<Faction>();
 
 //		factionRelations = new StrictArray<StrictArray<Integer>>();
@@ -797,185 +892,183 @@ public class Kingdom extends Group {
 		
 //		int currentFaction = 2; // no bandits or player 
 //		int factionRepeats = 0;
-		
+
 //		int maxRepeats = (int) (Math.random()*3) + 1; // max 2, min 0
 		int maxRepeats = 4;
-		int citiesLeft = cityCount;
+		citiesLeft = cityCount;
+	}
+	
+	public void initCitiesStep() {
+//		System.out.println("adding city");
+		City city = null;
+		int x, y;
+		boolean useCorner = true; // later allow to use center
+		if (Math.random() > .5)
+			useCorner = false; // later allow to use center
 		
-		//		while (scanner.hasNextLine() && (map.cityCorners.size > 0 && map.cityCenters.size > 0)) {
-		while (citiesLeft > 0 && (map.cityCorners.size() > 0 && map.cityCenters.size() > 0)) {
-			//			System.out.println("adding city");
-			City city = null;
-			int x, y;
-			boolean useCorner = true; // later allow to use center
-			if (Math.random() > .5)
-				useCorner = false; // later allow to use center
+		Corner corner = null;
+		Center center = null;
+		
+		// make with corner
+		if (useCorner) {
 			
-			Corner corner = null;
-			Center center = null;
-			
-			// make with corner
-			if (useCorner) {
-				
-				corner = Kingdom.getRandom(map.cityCorners);
-				x = (int) corner.getLoc().x;
-				y = (int) corner.getLoc().y;
-				map.cityCorners.remove(corner);
-				map.availableCorners.remove(corner);
+			corner = Kingdom.getRandom(map.cityCorners);
+			x = (int) corner.getLoc().x;
+			y = (int) corner.getLoc().y;
+			map.cityCorners.remove(corner);
+			map.availableCorners.remove(corner);
 
-				// remove neighboring corners 2 levels deep!
-				for (Corner adj : corner.adjacent) {
-					if (adj != null) {
-						map.cityCorners.remove(adj);
-						map.availableCorners.remove(adj);
-						for (int i = 0; i < adj.adjacent.size(); i++) {
-							// two levels deep
-							if (adj.adjacent.get(i) != null) 
-								map.cityCorners.remove(adj.adjacent.get(i));
-						}
-					}
-				}
-				// remove neighboring centers
-				for (Center adj : corner.touches) {
-					if (adj != null) {
-						map.cityCenters.remove(adj);
-						map.availableCenters.remove(adj);
+			// remove neighboring corners 2 levels deep!
+			for (Corner adj : corner.adjacent) {
+				if (adj != null) {
+					map.cityCorners.remove(adj);
+					map.availableCorners.remove(adj);
+					for (int i = 0; i < adj.adjacent.size(); i++) {
+						// two levels deep
+						if (adj.adjacent.get(i) != null) 
+							map.cityCorners.remove(adj.adjacent.get(i));
 					}
 				}
 			}
-			// make with center
-			else {
-				center = Kingdom.getRandom(map.cityCenters);
-				x = (int) center.loc.x;
-				y = (int) center.loc.y;
-				map.cityCenters.remove(center);
-				map.availableCenters.remove(center);
-
-				for (Corner adj : center.corners) {
-					if (adj != null) {
-						map.cityCorners.remove(adj);
-						//						map.availableLocationSites.remove(adj.loc, false);
-						for (int i = 0; i < adj.adjacent.size(); i++) {
-							// two levels deep
-							if (adj.adjacent.get(i) != null)  {
-								map.cityCorners.remove(adj.adjacent.get(i));
-								//								map.availableLocationSites.remove(adj.adjacent.get(i).loc, false);
-							}
-						}
-					}
+			// remove neighboring centers
+			for (Center adj : corner.touches) {
+				if (adj != null) {
+					map.cityCenters.remove(adj);
+					map.availableCenters.remove(adj);
 				}
-				for (Center adjCenter : center.neighbors) {
-					if (adjCenter != null) {
-						map.cityCenters.remove(adjCenter);
-						//						map.availableLocationSites.remove(adjCenter.loc, false);
-					}
-				}
-				int index = -1;
 			}
-			
-			// calculate the closest faction center
-			double closestDistance = 99999999;
-			Faction closestFaction = null;
-			for (Faction f : factions) {
-				if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
-				if (f == null) continue;
-				
-				if (!f.hasNewCenter()) {
-					f.faction_center_x = x;
-					f.faction_center_y = Map.HEIGHT-y;
-					closestFaction = f;
-					break;
-				}
-				
-				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, Map.HEIGHT-y));
-				if (distance < closestDistance) {
-					closestFaction = f;
-					closestDistance = distance;
-				}	
-			}
-			
-			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
-			
-			city = new City(this, NameGenerator.generateCity(), -1, closestFaction, x, Map.HEIGHT-y);
-
-			if (center != null)
-				city.setCenter(center);
-			if (corner != null)
-				city.setCorner(corner);
-
-			addCity(city);
-			citiesLeft--;
 		}
+		// make with center
+		else {
+			center = Kingdom.getRandom(map.cityCenters);
+			x = (int) center.loc.x;
+			y = (int) center.loc.y;
+			map.cityCenters.remove(center);
+			map.availableCenters.remove(center);
 
-		System.out.println("Number cities: " + cities.size);
+			for (Corner adj : center.corners) {
+				if (adj != null) {
+					map.cityCorners.remove(adj);
+					//						map.availableLocationSites.remove(adj.loc, false);
+					for (int i = 0; i < adj.adjacent.size(); i++) {
+						// two levels deep
+						if (adj.adjacent.get(i) != null)  {
+							map.cityCorners.remove(adj.adjacent.get(i));
+							//								map.availableLocationSites.remove(adj.adjacent.get(i).loc, false);
+						}
+					}
+				}
+			}
+			for (Center adjCenter : center.neighbors) {
+				if (adjCenter != null) {
+					map.cityCenters.remove(adjCenter);
+					//						map.availableLocationSites.remove(adjCenter.loc, false);
+				}
+			}
+			int index = -1;
+		}
+		
+		// calculate the closest faction center
+		double closestDistance = 99999999;
+		Faction closestFaction = null;
+		for (Faction f : factions) {
+			if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
+			if (f == null) continue;
+			
+			if (!f.hasNewCenter()) {
+				f.faction_center_x = x;
+				f.faction_center_y = Map.HEIGHT-y;
+				closestFaction = f;
+				break;
+			}
+			
+			double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, Map.HEIGHT-y));
+			if (distance < closestDistance) {
+				closestFaction = f;
+				closestDistance = distance;
+			}	
+		}
+		
+		if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+		
+		city = new City(this, NameGenerator.generateCity(), -1, closestFaction, x, Map.HEIGHT-y);
+
+		if (center != null)
+			city.setCenter(center);
+		if (corner != null)
+			city.setCorner(corner);
+
+		addCity(city);
+		citiesLeft--;
+		System.out.println("citiesLeft: " + citiesLeft);
 	}
 
 	// villages only spawn at centers (for influence purposes)
 	public void initializeVillages() {
 		//		Scanner scanner = Assets.villageList;
-		int villagesLeft = villageCount;
+		villagesLeft = villageCount;
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
-		while (villagesLeft > 0 && map.availableCenters.size() > 0) {
-			Center center = getRandom(map.availableCenters);
-			map.availableCenters.remove(center);
+		
+	}
+	
+	public void initVillagesStep() {
+		Center center = getRandom(map.availableCenters);
+		map.availableCenters.remove(center);
 
-			//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
-			Village village = new Village(this,  NameGenerator.generateVillage(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y));			
-			villages.add(village);
-			village.setCenter(center);
-//			village.center = center.index;
-			addActor(village);
-			villagesLeft--;
-		}
-		System.out.println("Number villages: " + villages.size);
+		//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
+		Village village = new Village(this,  NameGenerator.generateVillage(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y));			
+		villages.add(village);
+		village.setCenter(center);
+//		village.center = center.index;
+		addActor(village);
+		villagesLeft--;
 	}
 	
 	public void initializeCastles() {
-		int castlesLeft = castleCount;
+		castlesLeft = castleCount;
 		//		while (scanner.hasNextLine() && map.availableCenters.size > 0) {
-		while (castlesLeft > 0 && map.availableCorners.size() > 0) {
-			
-			Corner corner;
-			do {
-				//System.out.println(map.availableCorners.size);
-				corner = getRandom(map.availableCorners);
-				map.availableCorners.remove(corner);
-			} while (corner == null && map.availableCorners.size() > 0);
-			
-			if (corner == null) {
-				System.out.println("no corners left");
-				break;
-			}
-			
-			float x = (float) corner.getLoc().x;
-			float y = (float) (Map.HEIGHT-corner.getLoc().y);
-			
-			
-			double closestDistance = Double.MAX_VALUE;
-			Faction closestFaction = null;
-			for (Faction f : factions) {
-				if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
-				if (f == null) continue;
-				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
-				if (distance < closestDistance) {
-					closestFaction = f;
-					closestDistance = distance;
-				}	
-			}
-			
-			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
-			
-			Castle castle = new Castle(this, NameGenerator.generateCastle(), -1, closestFaction, x, y);			
-			castles.add(castle);
-			castle.setCorner(corner);
-			
-			addActor(castle);
-			castlesLeft--;
-		}
 		
-		System.out.println("Number castles: " + castles.size);
 	}
 
+	public void initCastlesStep() {
+		Corner corner;
+		do {
+			//System.out.println(map.availableCorners.size);
+			corner = getRandom(map.availableCorners);
+			map.availableCorners.remove(corner);
+		} while (corner == null && map.availableCorners.size() > 0);
+		
+		if (corner == null) {
+			System.out.println("no corners left");
+			castlesLeft = 0;
+			return;
+		}
+		
+		float x = (float) corner.getLoc().x;
+		float y = (float) (Map.HEIGHT-corner.getLoc().y);
+		
+		double closestDistance = Double.MAX_VALUE;
+		Faction closestFaction = null;
+		for (Faction f : factions) {
+			if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
+			if (f == null) continue;
+			double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
+			if (distance < closestDistance) {
+				closestFaction = f;
+				closestDistance = distance;
+			}	
+		}
+		
+		if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+		
+		Castle castle = new Castle(this, NameGenerator.generateCastle(), -1, closestFaction, x, y);			
+		castles.add(castle);
+		castle.setCorner(corner);
+		
+		addActor(castle);
+		castlesLeft--;
+	}
+	
 	public void initializeRuins() {		
 		int ruinsLeft = ruinCount;
 		while (ruinsLeft > 0 && map.availableCorners.size() > 0) {
@@ -1030,6 +1123,7 @@ public class Kingdom extends Group {
 		//add.postAdd();
 	}
 	public void addPlayer() {
+		System.out.println("adding player");
 		Faction faction = factions.get(5);
 //		faction = ;
 		Center center = map.reference;
@@ -1116,6 +1210,7 @@ public class Kingdom extends Group {
 		}
 	}
 	public void removeBattle(Battle battle) {
+		System.out.println("removing battle: " + battle.getName());
 		battles.removeValue(battle, true);
 		removeActor(battle);
 	}
@@ -1127,6 +1222,7 @@ public class Kingdom extends Group {
 	}
 
 	public void setPaused(boolean paused) {
+//		System.out.println("setting paused: " + paused);
 		this.paused = paused;
 	}
 

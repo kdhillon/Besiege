@@ -21,6 +21,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.Party;
@@ -234,7 +235,6 @@ public class BattleStage extends Group {
 		else 
 			this.battle = new Battle(null, allyParty1, enemyParty1);
 		
-
 		int rand = (int) (Math.random() * Biomes.values().length);
 		this.biome = Biomes.values()[rand];
 		System.out.println("biome: " + this.biome.toString());
@@ -736,6 +736,12 @@ public class BattleStage extends Group {
 
 	@Override
 	public void act(float delta) {
+		// try to slow things down
+		if (mapScreen.slowDown) {
+			delta = 0.005f;
+		}
+		
+		battlemap.actSpecial(delta);
 		if (mouseOver) {
 			if (leftClicked)
 				leftClick(mouse);
@@ -922,7 +928,7 @@ public class BattleStage extends Group {
 		boolean didAtkWin;
 		if (winner.getParty().player) {
 			battle.logDefeat(loser);
-			kingdom.getMapScreen().getSidePanel().setStay(false);
+			kingdom.getMapScreen().getSidePanel().setHardStay(false);
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(winner);
 			if (!playerDefending) didAtkWin = true;
 			else didAtkWin = false;
@@ -935,7 +941,7 @@ public class BattleStage extends Group {
 		this.battle.didAtkWin = didAtkWin;
 
 		if (winner.getParty().player) {
-			kingdom.getMapScreen().getSidePanel().setStay(false);
+			kingdom.getMapScreen().getSidePanel().setHardStay(false);
 		}
 
 		// log(army.getName() + " has won a battle", "cyan");
@@ -982,6 +988,8 @@ public class BattleStage extends Group {
 			System.out.println("managing siege");
 			battle.handleSiegeVictory();
 		}
+		if (didAtkWin && battle.siegeOf != null && battle.siegeOf.isVillage())
+			((Village) battle.siegeOf).handleRaidVictory(winner);
 
 		battle.distributeRewards(winner, 1, didAtkWin);
 		battle.destroy();

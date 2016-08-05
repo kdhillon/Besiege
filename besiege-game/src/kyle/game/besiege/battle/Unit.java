@@ -198,6 +198,8 @@ public class Unit extends Group {
 				quiver = 15;
 			if (rangedWeapon.type == Type.THROWN)
 				quiver = 1;
+			if (rangedWeapon.type == Type.FIRE)
+				quiver = 20;
 		}
 		//		if (rangedWeapon != null) 
 		//			this.stance = Stance.DEFENSIVE;
@@ -1427,12 +1429,14 @@ public class Unit extends Group {
 	public void kill() {
 		this.unman();
 		this.bsp.handleUnitKilled(this);
+		if (this.isDying) 
 
 		if (this.team == 0)
 			stage.allies.removeUnit(this, true);
 		else stage.enemies.removeUnit(this, true);
+		if (pos_y >= 0 && pos_x >= 0)
+			stage.units[pos_y][pos_x] = null;
 		
-		stage.units[pos_y][pos_x] = null;
 		this.pos_x = -100;
 		this.pos_y = -100;
 		if (this.team == 0) stage.allies.units.removeValue(this, true);

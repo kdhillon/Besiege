@@ -6,15 +6,16 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.voronoi.Biomes;
 
 
-public class BattleMap extends Actor {
+public class BattleMap extends Group {
 	private TextureRegion white;
 	private static final float SIZE_FACTOR = 1f;
 	private static final float WALL_SLOW = .5f;
@@ -84,7 +85,7 @@ public class BattleMap extends Actor {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f);
+		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -116,6 +117,8 @@ public class BattleMap extends Actor {
 
 	private float rainDrawOffsetX;
 	private float rainDrawOffsetY;
+	
+	private StrictArray<FireContainer> fc;
 
 //	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
 	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump;
@@ -126,7 +129,7 @@ public class BattleMap extends Actor {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-		this.maptype = MapType.ALPINE;
+//		this.maptype = MapType.CRAG;
 		
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -154,6 +157,8 @@ public class BattleMap extends Actor {
 		ladder = 			Assets.map.findRegion("ladder");
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
+		
+		fc = new StrictArray<FireContainer>();
 
 		if (this.maptype == MapType.ALPINE && Math.random() < .75) snowing = true;
 
@@ -324,6 +329,7 @@ public class BattleMap extends Actor {
 			if (stage.siege)
 				addWall();
 
+			addFire(.001);
 			addStumps(.01);
 			bgColor = new Color(58/256f, 47/256f, 45/256f, 1);
 		}
@@ -651,6 +657,27 @@ public class BattleMap extends Actor {
 			}
 		}
 	}
+	
+	private void addFire(double probability) {
+		for (int i = 0; i < stage.size_x; i++) {
+			for (int j = 0; j < stage.size_y; j++) {
+				if (Math.random() < probability && objects[j][i] == null) {
+					objects[j][i] = Object.FIRE_SMALL;
+					stage.closed[j][i] = true;
+					
+					FireContainer fireContainer = new FireContainer();
+					Fire fire = new Fire(600, 800, stage.getMapScreen(), null);
+					fireContainer.addFire(fire);
+					fireContainer.setPosition(i * stage.unit_width + stage.unit_width / 2, j * stage.unit_height + stage.unit_height/2);
+					fc.add(fireContainer);
+//					fire.setPosition(0, 0);
+//					System.out.println("adding fire: " + j + " " + i);
+
+					this.addActor(fireContainer);
+				}	
+			}
+		}
+	}
 
 	private void addStumps(double probability) {
 		for (int i = 0; i < stage.size_x; i++) {
@@ -847,9 +874,15 @@ public class BattleMap extends Actor {
 		return stage.unit_height*SIZE;
 	}
 
+	
+//	@Override
+	public void actSpecial(float delta) {
+		super.act(delta);
+	}
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
+		super.draw(batch, parentAlpha);
 		TextureRegion texture;
 
 		if (false) return;
@@ -883,6 +916,10 @@ public class BattleMap extends Actor {
 			}
 		}
 
+		
+		for (FireContainer f : fc) {
+			f.updateRotation(stage.getMapScreen().getRotation());
+		}
 
 		// TODO: make this happen first
 		// create an array of textures of size SIZE. For each one,
@@ -993,6 +1030,7 @@ public class BattleMap extends Actor {
 //					drawRange(drawRange, batch);
 //			}
 //		}
+	
 
 		// draw cover
 		boolean drawCover = false;
@@ -1119,7 +1157,7 @@ public class BattleMap extends Actor {
 		}
 
 		//gray out unplayable area
-
+		super.draw(batch, parentAlpha);
 	}
 
 	public boolean isSnowing() {
@@ -1142,6 +1180,10 @@ public class BattleMap extends Actor {
 				}
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
 			}
+		}
+		
+		for (FireContainer f : fc) {
+			f.draw(batch, 1);
 		}
 	}
 

@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
@@ -726,13 +725,13 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		//panel.returnToPrevious();
 	}
 	
-	@Override
-	public TextureRegion getCrest() {
-//		if (party.army != null)
-//			return party.army.getFaction().crest;
+//	@Override
+//	public RandomCrest getCrest() {
+////		if (party.army != null)
+////			return party.army.getFaction().crest;
+////		return null;
 //		return null;
-		return null;
-	}
+//	}
 	
 	@Override
 	public Soldier getSoldierInsteadOfCrest() {

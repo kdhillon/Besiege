@@ -15,9 +15,12 @@ public class General extends Soldier {
 	
 	// change for testing
 	private static final int BASE_PC = 1; // base party count
+	private static final int BASE_SUBPARTY = 5; // base party count
 
 //		private static final int BASE_PC = 35; // base party count
 	private static final float FAME_PC_FACTOR = 1f;
+	
+	private static final int GENERAL_THRESHOLD = 100;
 	
 	// fill this in later
 	public String epithet; 	// "great", "hammer", etc 
@@ -29,7 +32,7 @@ public class General extends Soldier {
 	
 	private int fame;
 	private int absoluteMaxSize; // hard max, cannot exceed this.
-
+	
 	public int courage;  // increases morale in battle, but also mutiny chance
 	public int preparation; // increases troop health in battle
 
@@ -64,6 +67,10 @@ public class General extends Soldier {
 	public General(Soldier s) {
 		super(s); // copy constructor
 		this.isImportant = true;
+	
+		if (s.party != null)
+			this.increaseFame(getRandomFameFor(s.party.pt));
+		
 		generateRandomInitStats();
 	}
 	
@@ -83,7 +90,7 @@ public class General extends Soldier {
 		preparation = getRandomInit();
 		loyalty = getRandomInit();
 		
-		morality = getRandomInit();
+		morality = getRandomInit();		
 		
 		infantryAttack = getRandomInit();
 		infantryDefense = getRandomInit();
@@ -180,18 +187,38 @@ public class General extends Soldier {
 		return Math.min(absoluteMaxSize, getTroopsForFame(fame));
 	}
 	
+	public int getMaxSubPartySize() {
+		return Math.min(Subparty.HARD_MAX, getBodyguardForFame(fame));
+	}
+	
 	public int getTroopsForFame(int fame) {
 		return (int) (getFame() * FAME_PC_FACTOR + BASE_PC);
 	}
 	
+	public int getBodyguardForFame(int fame) {
+		return (int) (getFame() * FAME_PC_FACTOR + BASE_SUBPARTY);
+	}
+	
 	public String getRank() {
 		if (this.subparty.getRank() == 0) {
-			if (this.party.army.isNoble()) return ((Noble)this.party.army).title;
-			return "General";
+			if (this.party.army != null && this.party.army.isNoble()) return ((Noble)this.party.army).title;
+			
+//			if (this.fame > GENERAL_THRESHOLD)
+//				return "General";
+					
+			if (this.party.sub.size > 1) {
+				if (this.party.army != null && this.party.army.isBandit())
+					return "Warlord";
+				return "General";
+			}
+			
+			return "Commander";
 		}
 		if (this.subparty.getRank() == 1) {
-			return "Lietenant";
+			return "Captain";
 		}
+		
+		// not active yet
 		if (this.subparty.getRank() == 2) {
 			return "Platoon Leader";
 		}

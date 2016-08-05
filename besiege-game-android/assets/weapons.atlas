@@ -199,16 +199,30 @@ Spear
   orig: 3, 12
   offset: 0, 0
   index: -1
-Voulge
+Staff
   rotate: false
   xy: 117, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-War Hammer
+Unarmed
   rotate: false
   xy: 122, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Voulge
+  rotate: false
+  xy: 127, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+War Hammer
+  rotate: false
+  xy: 132, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0

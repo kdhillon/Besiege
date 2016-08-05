@@ -149,16 +149,20 @@ Features I want to add:
 				
 		Fix militias/raiding/village wealth
 		Add "honor" aka morality
+		Add betrayals/rebellions
+		
+	Add bandits
 	
 	Fix navigation bugs in A*:
 		when close to ocean, sometimes prefers far route.
 		
-	Customizable party types:
-		Text-file customization with a few simple parameters (size, passive, etc)
-		
 		
 	Later:
 	Random faction generation (crests, names, eventually city names)
+	
+	Customizable party types:
+		Text-file customization with a few simple parameters (size, passive, etc)
+		
 	
 	Add historical markers to map where epic battles were fought.
 	
@@ -169,6 +173,8 @@ Features I want to add:
 	Revamp and simplify panel system, remove all duplicate shitty code
 	
 	Allow purchasing weapons and armor at cities.
+	
+	Add ability to hide and set up ambushes
 	
 BATTLESTAGE:
 finish hiding

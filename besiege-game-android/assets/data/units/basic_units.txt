@@ -1,32 +1,38 @@
-tier name 			weapon				armor			upgrades_to
+tier name 			weapon				armor		hide	upgrades_to
 
 Class:	Basic	WHITE
-1	Farmer			Pitchfork			Clothes			Spearman/Axeman/Clubman/Archer
+1	Farmer			Pitchfork			Clothes		false	Poleman/Archer
+1	Peasant			Sickle				Clothes		false		Poleman/Clubman
+1	Woodsman		Hatchet				Clothes		false		Clubman/Archer
+1	Hunter			Shortbow/Unarmed	Clothes		false		Archer
 
-2	Spearman		Spear				Clothes			Pikeman/Poleman
-2	Woodsman		Hatchet				Clothes			Swordsman/Axeman
-2	Clubman			Club				Clothes			Hammerman/Maceman
-2	Archer			Shortbow/Dagger		Clothes			Crossbowman/Bowman/Longbowman
+2	Poleman			Staff				Clothes		false	Pikeman/Spearman
+2	Clubman			Club				Clothes		false	Swordsman/Axeman
+2	Archer			Bow/Dagger			Clothes		false	Crossbowman/Longbowman
 
-3	Pikeman			Pike				Studded			Pikemaster
-3	Poleman			Halberd				Studded			Blademaster
-3	Swordsman		Shortsword			Studded			Swordmaster
-3	Axeman			Battle Axe			Leather			Axemaster
-3	Hammerman		War Hammer			Leather			Hammermaster
-3	Maceman			Mace				Leather			Macemaster
-3	Bowman			Bow/Dagger			Clothes			none
-3	Crossbowman		Crossbow/Dagger		Clothes			none
-3	Longbowman		Longbow/Dagger		Clothes			none
+3	Pikeman			Pike				Studded		false	Pikemaster
+3	Spearman		Spear/Shield		Studded		false	Spearmaster
 
-4	Pikemaster		Guisarme			Platemail		none
-4	Blademaster		Voulge				Platemail		none
-4	Swordmaster		Longsword			Chainmail		none
-4	Axemaster		Glaive				Chainmail		none
-4	Hammermaster	Maul				Chainmail		none
-4	Macemaster		Morningstar			Chainmail		none
+3	Swordsman		Shortsword/Shield	Studded		false	Swordmaster
+3	Axeman			Battle Axe			Leather		true	Axemaster
 
-4	Boltmaster		Hvy Crossbow/Dagger	Chainmail		none
-4	Marksman		Strongbow/Dagger	Chainmail		none
-4	Ranger			Recurve Bow/Dagger	Chainmail		none
+6	Hammerman		War Hammer/Shield	Leather		false	Hammermaster
+6	Maceman			Mace				Leather		false	Macemaster
 
-5	Legend			Claymore			Chainmail		none
+3	Crossbowman		Crossbow/Dagger		Clothes		false	Boltmaster
+3	Longbowman		Longbow/Dagger		Clothes		false	Marksman
+
+4	Pikemaster		Guisarme			Platemail	false	none
+4	Spearmaster		Voulge/Shield		Platemail	false	none
+4	Swordmaster		Longsword/Shield	Chainmail	false	none
+4	Axemaster		Glaive				Chainmail	true	none
+
+6	Hammermaster	Maul				Chainmail	false	none
+6	Macemaster		Morningstar			Chainmail	false	none
+
+4	Boltmaster		Hvy Crossbow/Dagger	Chainmail	false	none
+4	Marksman		Strongbow/Dagger	Chainmail	false	none
+
+6	Ranger			Bow/Dagger			Chainmail	false	none
+
+5	Legend			Claymore			Chainmail	false	none

@@ -10,22 +10,24 @@ import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.army.Army.ArmyType;
+import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
-import kyle.game.besiege.army.Militia;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Center;
 
 public class Village extends Location {
 	private final float SCALE = 7;
 	
-	private final static float VILLAGE_WEALTH_FACTOR = 0.2f; // arbitrary, this times pop = wealth
+	private final static float VILLAGE_WEALTH_FACTOR = 0.5f; // arbitrary, this times pop = wealth
 	private static final int MAX_FARMERS = 5;
+	private static final float RAID_COUNTDOWN = 120;
 //	private final int MED_WEALTH = 50;
 
 	private final String textureRegion = "Village";
 		
 	public Array<Farmer> farmers;
+	
+	public float raidTimer = 0;
 
 	public Village(){}
 	
@@ -52,18 +54,18 @@ public class Village extends Location {
 	@Override
 	public void setCenter(Center c) {
 		super.setCenter(c);
-		getParty().wealth = calcInitialWealth();
+		setWealth(calcInitialWealth());
 	}
 
 	// only do this when center has been set.
 	public int calcInitialWealth() {
-		return (int) ((VILLAGE_WEALTH_FACTOR + getKingdom().getMap().getCenter(this.center).wealth) * population);
+		return (int) ((VILLAGE_WEALTH_FACTOR + this.getCenter().wealth) * population);
 	}
 	
 	@Override
 	public void autoManage() {
 		// Organize farmers
-		int farmerCount = (int) getParty().wealth/100 + 1; // arbitrary
+		int farmerCount = (int) getWealth()/100 + 1; // arbitrary
 		if (farmers.size < farmerCount) {
 			createFarmer();
 		}
@@ -89,16 +91,32 @@ public class Village extends Location {
 		return true;
 	}
 	
-	public Militia createMilitia() {
-		Militia militia = new Militia(getKingdom(), getName() + " Militia", getFaction(), getCenterX(), getCenterY());
-		militia.setVillage(this);
-		// transfer all wealth to militia
-		militia.getParty().wealth = this.getParty().wealth;
-		// also decrease village wealth temporarily.
-		this.getParty().wealth = 0;
-		militia.type = ArmyType.MILITIA;
-		return militia;
+	
+	public void handleRaidVictory(Army raider) {
+		this.raidTimer = RAID_COUNTDOWN;
+		System.out.println("handling raid victory");
+		this.addFire();
 	}
+	
+	@Override
+	public void act(float delta) {
+		super.act(delta);
+		if (this.raidTimer > 0) {
+			this.raidTimer -= delta;
+			if (this.raidTimer < 0) this.removeFire();
+		}
+	}
+	
+//	public Militia createMilitia() {
+//		Militia militia = new Militia(getKingdom(), getName() + " Militia", getFaction(), getCenterX(), getCenterY());
+//		militia.setVillage(this);
+//		// transfer all wealth to militia
+//		militia.getParty().wealth = this.getParty().wealth;
+//		// also decrease village wealth temporarily.
+//		this.getParty().wealth = 0;
+//		militia.type = ArmyType.MILITIA;
+//		return militia;
+//	}
 	
 	@Override
 	public void updateToHire() {

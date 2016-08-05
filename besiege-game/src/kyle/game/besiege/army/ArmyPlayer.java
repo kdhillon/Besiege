@@ -67,9 +67,12 @@ public class ArmyPlayer extends Army {
 
 		if (isStopped() && !isWaiting()) {
 //			System.out.println("is stopped and isn't waiting");
-			setPaused(true);
+//			System.out.println("is stopped");
+			// STOPPED ISN"T WORKING
+//			setPaused(true);
 		}
 		if (isWaiting()) {
+//			System.out.println("is waiting");
 			setStopped(true);
 			this.hiding = true;
 			//this.wait(delta);
@@ -94,8 +97,8 @@ public class ArmyPlayer extends Army {
 			}
 //			System.out.println(getTarget().getName());
 		}
-		if (!getKingdom().isPaused() && !isInBattle())
-			getKingdom().getMapScreen().getSidePanel().setStay(false);
+//		if (!getKingdom().isPaused() && !isInBattle())
+//			getKingdom().getMapScreen().getSidePanel().setStay(false);
 			
 		this.speedFactor = (float) (this.ORIGINAL_SPEED_FACTOR * getCharacter().getAttributeFactor("Marching"));
 		setLOS(calcLOS());
@@ -117,13 +120,14 @@ public class ArmyPlayer extends Army {
 				if (hasTarget() && !isStopped() && !isInBattle()) {
 					if (targetLost())
 					{
+						System.out.println("target lost");
 						// only display if target is still alive!
 						if (getTarget() != null && getTarget().getType() == DestType.ARMY && getKingdom().getArmies().contains((Army) getTarget(), true))
 							BottomPanel.log("Target lost!", "yellow");
 
 						setTarget(null);
 						getKingdom().setPaused(true);
-						getKingdom().getMapScreen().getSidePanel().setDefault();
+						getKingdom().getMapScreen().getSidePanel().setDefault(false);
 					}
 					else {
 						path.travel();
@@ -183,7 +187,7 @@ public class ArmyPlayer extends Army {
 		this.setTarget(null);
 		targetLocation.hostilePlayerTouched = true;
 		getKingdom().getMapScreen().getSidePanel().setActiveLocation(targetLocation);
-		getKingdom().getMapScreen().getSidePanel().setStay(true);
+		getKingdom().getMapScreen().getSidePanel().setHardStay(true);
 	}
 	
 	@Override
@@ -198,6 +202,7 @@ public class ArmyPlayer extends Army {
 	public boolean detectPointCollision() {
 		if (distToCenter(getTarget()) < 1) {
 			setStopped(true);
+			System.out.println("point collision detected");
 			setPaused(true);
 			return true;
 		}
@@ -211,13 +216,19 @@ public class ArmyPlayer extends Army {
 //		return false;
 	}
 	
+	@Override 
+	public void setStopped(boolean stopped) {
+		super.setStopped(stopped);
+//		System.out.println("player setting stopped: " + stopped);
+	}
+	
 	@Override
 	public void enemyArmyCollision(Army targetArmy) {
 		setPaused(true);
 		if (!targetArmy.isInBattle() && !this.isInBattle() && targetArmy.getTarget() != this) {
 			targetArmy.playerTouched = true;
 			getKingdom().getMapScreen().getSidePanel().setActiveArmy(targetArmy);
-			getKingdom().getMapScreen().getSidePanel().setStay(true); // when an army is reached, force a user decision
+			getKingdom().getMapScreen().getSidePanel().setHardStay(true); // when an army is reached, force a user decision
 		}
 		else if (targetArmy.isInBattle() && !this.isInBattle()){
 			// join battle?
@@ -282,8 +293,8 @@ public class ArmyPlayer extends Army {
 
 	@Override 
 	public boolean setTarget(Destination target) {
-//		if (target != null)
-//			System.out.println("setting target " + target.getName());
+		if (target != null)
+			System.out.println("setting target " + target.getName());
 		boolean toReturn = super.setTarget(target);
 		setStopped(false);
 		return toReturn;
@@ -306,7 +317,7 @@ public class ArmyPlayer extends Army {
 	}
 	@Override
 	public void nextTarget() {
-//		System.out.println("next target");
+		System.out.println("next target player");
 		setTarget(null);
 		setPaused(true);
 	}

@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
@@ -25,7 +25,9 @@ import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.Fire;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.PanelLocation;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
@@ -33,12 +35,15 @@ import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
-public class Location extends Actor implements Destination {
+public class Location extends Group implements Destination {
 	private final float SCALE = .06f;
-	private final float MIN_ZOOM = 1.5f;
-	private final float MAX_ZOOM = 10f;
+	public final float MIN_ZOOM = 1.5f;
+	public final float MAX_ZOOM = 10f;
 	private final int offset = 30;
 	private final int HIRE_REFRESH = 600; // seconds it takes for soldiers to refresh in city
+	private final float garrisonBudget = 0.20f; // this percent of wealth can be used to buy/upgrade garrison
+	private final float GARRISON_DISCOUNT = .25f; // it's cheap to replenish your garrison 
+
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
@@ -110,16 +115,23 @@ public class Location extends Actor implements Destination {
 	public boolean playerBesieging;
 
 	private Point spawnPoint; // point where armies and farmers should spawn if on water
-	public int center = -1; // one of these will be null
-	public int corner = -1;
-
+	private int center = -1; // one of these will be null
+	private int corner = -1;
+	
+	// TODO make wealth belong to location, not garrison. doesn't make sense when changing factions.
+	
+	public PartyType.Type pType;
+	private int wealth;
+	
 	// do we need to update panel
 	public boolean needsUpdate = true;
+	public PanelLocation panel;
+	
+	public Fire fire;
 	
 	public Location(){
 		this.region = Assets.atlas.findRegion(textureName);
 	}
-
 
 	// constructor for Ruins (location with no faction, garrison, etc)
 	public Location(Kingdom kingdom, String name, int index, float posX, float posY) {
@@ -148,6 +160,7 @@ public class Location extends Actor implements Destination {
 		
 		setTextureRegion("Castle"); // default location textureRegion
 		initializeBox();
+	
 	}
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType) {
@@ -155,8 +168,8 @@ public class Location extends Actor implements Destination {
 
 		basicConstruct(kingdom, name, index, posX, posY);		
 
-		this.garrison = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), pType);
-		this.garrison.isGarrison = true;
+		this.pType = pType;
+		createGarrison();
 		//		this.garrison.setParty(garrison);
 		//		this.garrison(this.garrison);
 
@@ -179,6 +192,15 @@ public class Location extends Actor implements Destination {
 		nextHire = new Party(); //empty
 	}
 
+	public void createGarrison() {
+		String name = this.getName() + " Garrison";
+		if (getFaction() != null) name = this.getName() + " Garrison " + getFaction().name;
+		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType);
+		this.garrison.isGarrison = true;
+//		manageGarrison();
+		this.needsUpdate = true;
+	}
+	
 	public void initializeBiomeDistributions() {
 		Biomes[] biomes = Biomes.values();
 		biomeDistribution = new float[biomes.length];
@@ -294,8 +316,19 @@ public class Location extends Actor implements Destination {
 			// nothing here
 		}
 		else {
-			if (this.garrison.getKingdom() != null)
+			if (this.garrison.getKingdom() != null) {
 				this.garrison.act(delta);
+			}
+			
+			if (this.garrison == null || this.garrison.getFaction() != this.getFaction()) {
+				System.out.println("garrison of " + this.getName() + " is null");
+				createGarrison();
+			}
+			
+			if (!this.garrison.isInBattle()) {
+				manageGarrison();
+			}
+			
 
 			if (autoManage) {
 				autoManage();
@@ -310,7 +343,39 @@ public class Location extends Actor implements Destination {
 				hostilePlayerTouched = false; // only can be selected when game is paused;
 			}
 		}
-		super.act(delta);
+		fireAct(delta);
+	}
+	
+	public void fireAct(float delta) {
+		if (fire == null) return;
+		super.act(delta);	
+		fire.setPosition(this.getWidth()/2, this.getHeight()/2);
+	}
+	
+	// make sure garrison is at least size it should be
+	public void manageGarrison() {
+		while (shouldIncreaseGarrison()) {
+			if (!increaseGarrison()) break;
+		}
+	}
+	
+	// sometimes this decreases the size of the party?
+	public boolean increaseGarrison() {
+		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.party.getAtk());
+		Soldier rand = new Soldier(this.garrison.getPartyType().randomSoldierType(), this.garrison.party);
+		if (this.garrison.party.addSoldier(rand, true)) {
+			if (!this.isCastle())
+				this.loseWealth((int) (rand.getBuyCost() * GARRISON_DISCOUNT));
+			System.out.println(" to " + this.garrison.party.getAtk());
+			return true;
+		}
+		else return false;
+	}
+	
+	// do this for villages and cities, but not for castles
+	public boolean shouldIncreaseGarrison() {
+		return this.garrison.party.getAtk() < this.getWealth() * garrisonBudget;
+//		return this.getWealth() > 100;
 	}
 
 	public void autoManage() {
@@ -319,15 +384,18 @@ public class Location extends Actor implements Destination {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		if (!shouldDraw()) return;
-		
+//		if (!shouldDraw()) return;		
 		setRotation(kingdom.getMapScreen().rotation);
 		float scale = getKingdom().getZoom();
 		scale *= this.getSizeFactor();
-		if (scale < MIN_ZOOM) scale = MIN_ZOOM;
-		if (scale > MAX_ZOOM) scale = MAX_ZOOM;
+		
+		scale = adjustScale(scale);
+		
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), 10 * scale, 10 * scale, getRotation());
+		
+		// for drawing candles
+		super.draw(batch, parentAlpha);
 	}
 	
 	public float getSizeFactor() { 
@@ -338,8 +406,6 @@ public class Location extends Actor implements Destination {
 		float MIN_SCALE = 0.5f;
 		
 		float scale = (float) (this.population - this.POP_MIN) / (this.POP_MAX - this.POP_MIN);
-		
-
 		
 //		float scale = (float) population / ((this.POP_MIN + this.POP_MAX)/ 2);
 //		if (scale > 1.5f) return 1.5f;
@@ -366,15 +432,21 @@ public class Location extends Actor implements Destination {
 //			return scale;
 //		}
 	}
+	
+	public float adjustScale(float scale) {
+		if (scale < MIN_ZOOM) scale = MIN_ZOOM;
+		if (scale > MAX_ZOOM) scale = MAX_ZOOM;	
+		return scale;
+	}
 
 	// lets be smart about this
 	// how exactly do we want to have cities etc disappear as you zoom out?
 	
 	// first off lets do city scale/size. are sizes appropriate? Max size should be smaller
-	
-	
 	public void drawCrest(SpriteBatch batch) {
-		float size_factor = 1.4f;
+		if (this.getFaction() == null) return;
+		
+		float size_factor = 1.f;
 		size_factor *= this.getSizeFactor();
 
 
@@ -399,8 +471,13 @@ public class Location extends Actor implements Destination {
 			mx4Font.trn(getCenterX(), getCenterY(), 0);
 			Matrix4 tempMatrix = batch.getTransformMatrix();
 			batch.setTransformMatrix(mx4Font);
-
-			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+			
+//			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+			faction.randomCrest.setPosition(-15*zoom , 5 + 5*zoom);
+			faction.randomCrest.setSize(30*zoom, 45*zoom);
+//			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+			faction.randomCrest.draw(batch, clear_white.a);
+			
 			batch.setColor(temp);
 
 			batch.setTransformMatrix(tempMatrix);
@@ -411,9 +488,9 @@ public class Location extends Actor implements Destination {
 		float zoom = getKingdom().getZoom();
 
 		if (this.type == LocationType.VILLAGE) {
-			if (zoom > 6 * getSizeFactor()) return false;
+			if (zoom > 8 * getSizeFactor()) return false;
 		}
-		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 8)
+		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 9)
 			return false;
 		
 		if (this.type == LocationType.CITY) {
@@ -710,6 +787,8 @@ public class Location extends Actor implements Destination {
 		siege = new Siege(this, army.getFaction());
 		siege.add(army);
 		kingdom.addActor(siege);
+		
+		this.addFire();
 	}
 	public void joinSiege(Army army) {
 		needsUpdate = true;
@@ -726,12 +805,22 @@ public class Location extends Actor implements Destination {
 		kingdom.removeActor(siege);
 		siege = null;
 		playerBesieging = false;
+		
+		this.removeFire();
 	}
 	public boolean underSiege() {
 		return siege != null;
 	}
 	public Siege getSiege() {
 		return siege;
+	}
+	public void addFire() {
+		this.fire = new Fire(this.getWidth() * 20, this.getHeight() * 20, kingdom.getMapScreen(), this);
+		this.addActor(fire);
+	}
+	public void removeFire() {
+		this.removeActor(fire);
+		this.fire = null;
 	}
 	public void updateToHire() {
 		//		if (this.toHire.size == 0) toHire.add(new Soldier(Weapon.PITCHFORK, null));
@@ -790,11 +879,11 @@ public class Location extends Actor implements Destination {
 		getKingdom().setPaused(true);
 	}
 	public boolean hire(Party party, Soldier s) { // returns true if hired successfully, false if not (not enough money?)
-		if (toHire.getHealthy().contains(s, true)) {
+		if (toHire.getHealthy().contains(s, true) && !party.isFull()) {
 			if (party.wealth - s.getHireCost() >= party.minWealth) {
 				party.wealth -= s.getHireCost();
 				toHire.removeSoldier(s);
-				party.addSoldier(s);
+				party.addSoldier(s, false);
 				s.party = party;
 				return true;
 			}
@@ -864,6 +953,16 @@ public class Location extends Actor implements Destination {
 			// TODO undo this
 		}
 
+		this.faction = newFaction;
+		if (this.garrison != null) {
+			if (this.type == LocationType.VILLAGE) {
+				this.garrison.setFaction(newFaction);
+			}
+			else createGarrison();
+//			this.garrison.setFaction(newFaction);
+		}
+		
+
 		if (this.type != LocationType.VILLAGE) {
 			// swap captured and garrison
 			StrictArray<Soldier> oldCaptured = new StrictArray<Soldier>(garrison.getParty().getPrisoners());
@@ -879,7 +978,6 @@ public class Location extends Actor implements Destination {
 
 			kingdom.updateFactionCityInfo();
 		}
-		this.faction = newFaction;
 //		if (playerWaiting) {
 //			kingdom.getPlayer().garrisonIn(null);
 //			this.playerWaiting = false;
@@ -910,10 +1008,12 @@ public class Location extends Actor implements Destination {
 		return population;
 	}
 	public void addWealth(int wealth) {
-		this.getParty().wealth += wealth;
+//		this.getParty().wealth += wealth;
+		this.wealth += wealth;
 	}
 	public void loseWealth(int wealth) {
-		this.getParty().wealth -= wealth;
+//		this.getParty().wealth -= wealth;
+		this.wealth -= wealth;
 	}
 
 	public double distTo(Location location) {
@@ -926,12 +1026,15 @@ public class Location extends Actor implements Destination {
 				(this.getCenterX() - x)*(this.getCenterX() - x));
 	}
 
+	public void setWealth(int wealth) {
+		this.wealth = wealth;
+	}
+	
 	public int getWealth() {
-		return this.getParty().wealth;
+//		return this.getParty().wealth;
+		return this.wealth;
 	}
-	public void changeWealth(int delta) {
-		if (this.getParty().wealth + delta > 0) this.getParty().wealth += delta;
-	}
+
 	//	public int getWealth() {
 	//		return wealth;
 	//	}

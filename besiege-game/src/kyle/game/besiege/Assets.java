@@ -14,8 +14,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-//import java.util.Scanner;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 import kyle.game.besiege.party.UnitLoader;
 
@@ -37,6 +36,8 @@ public class Assets {
 //	public static Texture map3;
 //	public static Texture map4;
 
+	public static FreeTypeFontGenerator droidGen;
+	
 	public static BitmapFont pixel12;
 	public static BitmapFont pixel13neg;
 	public static BitmapFont pixel14;
@@ -323,7 +324,7 @@ public class Assets {
 		//		cityList = new Scanner(Gdx.files.internal("map40.txt").readString());
 
 		//		villageList = new Scanner(Gdx.files.internal("villages60.txt").readString());
-
+		
 		pixel12 = new BitmapFont(Gdx.files.internal("data/droid12.fnt"), false);
 		pixel13neg = new BitmapFont(Gdx.files.internal("data/droid13neg.fnt"),false);
 		pixel14 = new BitmapFont(Gdx.files.internal("data/droid14.fnt"), false);
@@ -347,6 +348,14 @@ public class Assets {
 		pixel200 = new BitmapFont(Gdx.files.internal("data/droid200.fnt"), false);
 		pixel256 = new BitmapFont(Gdx.files.internal("data/droid256.fnt"), false);
 
+		// can't use this until all of gdx is updated probably... todo later
+//		droidGen = new FreeTypeFontGenerator(Gdx.files.internal("data/droid100.fnt"));
+//		FreeTypeFontParameter p = new FreeTypeFontParameter();
+//		p.size = 128;
+//		p.borderColor = Color.BLACK;
+//		p.color = Color.RED;
+//		pixel128 = droidGen.generateFont(p);
+		
 		//		Weapon.load();
 	}
 

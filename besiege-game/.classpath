@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="libs/minlog-1.2.jar"/>
 	<classpathentry kind="lib" path="libs/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="libs/reflectasm-1.09-shaded.jar"/>
+	<classpathentry kind="lib" path="A:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/libs/gdx-freetype-1.8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -8,7 +8,6 @@ package kyle.game.besiege.panels;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -24,6 +23,7 @@ import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.party.Party;
@@ -266,10 +266,12 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 			if (Soldier.WEAPON_NEEDED)
 				this.setButton(2, "Inventory");
-			this.setButton(3, "Character");
+//			this.setButton(3, "Character");
 			this.setButton(4, "Save");
 		}		
 		playerTouched = false;
+		
+		System.out.println("created new panelparty");
 
 		updateSoldierTable();
 
@@ -404,12 +406,13 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		}
 	}
 
+	// sometimes this runs a ton of times...
 	public static void updateTableWithParty(Table table, Party party, LabelStyle style, LabelStyle wounded) {
-		System.out.println("starting update");
+		System.out.println("starting panelparty update: " + party.getName());
 		for (Subparty s : party.sub) {
 			SoldierLabel general;
 			if (s.general != null) {
-				System.out.println(s.general.getName());
+//				System.out.println(s.general.getName());
 				general = new SoldierLabel(s.general.getRank() + " " + s.general.getLastName(), style, s.general);
 			}
 			else {
@@ -540,7 +543,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				panel.setActive(panel.upgrades);
 			}
 			else {
-				panel.setStay(false); // allows changing panel to panelbattle (attack)
+				panel.setHardStay(false); // allows changing panel to panelbattle (attack)
 				panel.getKingdom().getPlayer().attack((Army) panel.getKingdom().getPlayer().getTarget());
 			}
 		}
@@ -552,18 +555,18 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				panel.setPanelInventory();
 			}
 			else {
-				panel.setStay(false); // withdraw
-				panel.setDefault();
+				panel.setHardStay(false); // withdraw
+				panel.setDefault(true);
 			}
 		}
 	}
 	@Override
 	public void button3() {
-		if (this.getButton(3).isVisible()) {
-			if (party == panel.getKingdom().getPlayer().getParty()) {
-				panel.setActive(panel.character);
-			}
-		}
+//		if (this.getButton(3).isVisible()) {
+//			if (party == panel.getKingdom().getPlayer().getParty()) {
+////				panel.setActive(panel.character);
+//			}
+//		}
 	}
 	@Override
 	public void button4() {
@@ -577,7 +580,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	}
 
 	@Override
-	public TextureRegion getCrest() {
-		return army.getFaction().crest;
+	public RandomCrest getCrest() {
+		return army.getFaction().randomCrest;
 	}
 }

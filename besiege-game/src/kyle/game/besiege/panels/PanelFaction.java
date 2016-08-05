@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -19,11 +18,13 @@ import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Faction;
+import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.ObjectLabel;
+import kyle.game.besiege.location.Village;
 
 // Displays basic info about the faction including relations with all others.
 /* Should contain:
@@ -55,11 +56,15 @@ public class PanelFaction extends Panel {
 	private Label citiesC;
 	private Table castles;
 	private Label castlesC;
+	private Table villages;
+	private Label villagesC;
 	private Table locations;
 	private ScrollPane locationPane;
 	private Table nobles;
 	private Label noblesC;
-	private Label empty;
+	private Label emptyCities;
+	private Label emptyCastles;
+	private Label emptyVillages;
 	private ScrollPane noblesPane;
 	private Table relations;
 	private Label relationsC;
@@ -103,8 +108,11 @@ public class PanelFaction extends Panel {
 
 		citiesC = new Label("Cities:", ls);
 		castlesC = new Label("Castles:", ls);
+		villagesC = new Label("Villages:", ls);
 		noblesC = new Label("Nobles:", ls);
-		empty = new Label("None",ls);
+		emptyCastles = new Label("None",ls);
+		emptyCities = new Label("None",ls);
+		emptyVillages = new Label("None",ls);
 		relationsC = new Label("Faction Relations:", ls);
 		Label wealthC = new Label("Wealth:",ls); // maybe give this a mouseover for description.
 
@@ -155,6 +163,10 @@ public class PanelFaction extends Panel {
 		castles.top();
 		castles.defaults().left().padTop(NEG).expandX();
 
+		villages = new Table();
+		villages.top();
+		villages.defaults().left().padTop(NEG).expandX();		
+	
 		locations = new Table();
 		//		locations.debug();
 		locations.top();
@@ -166,6 +178,8 @@ public class PanelFaction extends Panel {
 		locations.add(cities).width((SidePanel.WIDTH-PAD*2));
 		locations.row();
 		locations.add(castles).width((SidePanel.WIDTH-PAD*2));
+		locations.row();
+		locations.add(villages).width((SidePanel.WIDTH-PAD*2));
 		locationPane = new ScrollPane(locations);
 		locationPane.setScrollbarsOnTop(true);
 		locationPane.setFadeScrollBars(false);
@@ -217,6 +231,7 @@ public class PanelFaction extends Panel {
 		// TODO clean up memory leaks
 		updateCities();
 		updateCastles();
+		updateVillages();
 		updateNobles();
 		updateRelations();
 		super.act(delta);
@@ -248,7 +263,7 @@ public class PanelFaction extends Panel {
 			}
 		}
 		else {
-			cities.add(empty).top().center();	
+			cities.add(emptyCities).top().left();	
 		}	
 	}
 	public void updateCastles() {
@@ -276,10 +291,39 @@ public class PanelFaction extends Panel {
 			}
 		}
 		else {
-			castles.add(empty).expandY().fillY().center();	
+			castles.add(emptyCastles).expandY().fillY().left();	
 		}	
 	}
 
+	public void updateVillages() {
+		villages.clear(); // clearing the table is a problem right now. it hides the scroll bar and prevents click-drag scrolling
+		villages.padLeft(MINI_PAD).padRight(MINI_PAD);
+		villages.add(villagesC).center();
+		villages.row();
+		if (faction.villages.size > 0) {
+			for (Village c : faction.villages) {
+				if (c.label == null) {
+					c.label = new ObjectLabel(c.getName() + " (" + c.getWealth() +")", ls, c);
+					c.label.addListener(new InputListener() {
+						public boolean touchDown(InputEvent event, float x,
+								float y, int pointer, int button) {
+							return true;
+						}
+						public void touchUp(InputEvent event, float x, float y,
+								int pointer, int button) {
+							setActiveLocation((Location) ((ObjectLabel) event.getTarget()).object);
+						}
+					});
+				}
+				villages.add(c.label);
+				villages.row();
+			}
+		}
+		else {
+			villages.add(emptyVillages).expandY().fillY().left();	
+		}	
+	}
+	
 	public void updateNobles() {
 		nobles.clear(); 
 		nobles.padLeft(MINI_PAD).padRight(MINI_PAD);
@@ -439,8 +483,8 @@ public class PanelFaction extends Panel {
 	}
 
 	@Override
-	public TextureRegion getCrest() {
-		return faction.crest;
+	public RandomCrest getCrest() {
+		return faction.randomCrest;
 	}
 }
 

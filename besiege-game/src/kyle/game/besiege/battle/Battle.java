@@ -18,6 +18,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.ArmorType;
@@ -93,6 +94,8 @@ public class Battle extends Actor implements Destination { // new battle system 
 	public StrictArray<RangedWeaponType> rangedLoot;
 	public StrictArray<ArmorType> armorLoot;
 	
+	// garrison battles are slow for some reason
+	
 	// For Kryo
 	public Battle() {
 		
@@ -159,14 +162,14 @@ public class Battle extends Actor implements Destination { // new battle system 
 			this.setHeight(region.getRegionHeight()*getScaleY());
 			this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
 			
-			if (initAttacker.getFaction().crest == null) {
-				System.out.println("No crest found for " + initAttacker.getFaction());
-			}
-			if (initDefender.getFaction().crest == null) {
-				System.out.println("No crest found for " + initDefender.getFaction());
-			}
-			TextureRegion[][] split = initAttacker.getFaction().crest.split(initDefender.getFaction().crest.getRegionWidth()/2, initAttacker.getFaction().crest.getRegionHeight());
-			this.halfCrest = split[0][1];
+//			if (initAttacker.getFaction().crest == null) {
+//				System.out.println("No crest found for " + initAttacker.getFaction());
+//			}
+//			if (initDefender.getFaction().crest == null) {
+//				System.out.println("No crest found for " + initDefender.getFaction());
+//			}
+//			TextureRegion[][] split = initAttacker.getFaction().crest.split(initDefender.getFaction().crest.getRegionWidth()/2, initAttacker.getFaction().crest.getRegionHeight());
+//			this.halfCrest = split[0][1];
 		}
 		
 		aAdvantage = 1; // for now. make influenced by player's attribute as well as morale.
@@ -184,6 +187,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //				setVisible(false);
 //			else setVisible(true);
 //		}
+		System.out.println(this.getName() + " acting");
 		
 		if (this.aArmies == null) {
 //			throw new java.lang.AssertionError();
@@ -334,8 +338,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 		if (army == kingdom.getPlayer()) {
 			playerInA = false;
 			playerInD = false;
-			kingdom.getMapScreen().getSidePanel().setStay(false);
-			kingdom.getMapScreen().getSidePanel().setDefault();
+			kingdom.getMapScreen().getSidePanel().setDefault(true);
 			this.act(.001f);// arbitrary time
 		}
 	}
@@ -685,8 +688,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			army.setStopped(false);
 			army.forceWait(WAIT);
 			if (army.getParty().player) {
-				kingdom.getMapScreen().getSidePanel().setStay(false);
-				kingdom.getMapScreen().getSidePanel().setDefault();
+				kingdom.getMapScreen().getSidePanel().setDefault(true);
 			}
 		
 			//	log(army.getName() + " has won a battle", "cyan");
@@ -715,6 +717,9 @@ public class Battle extends Actor implements Destination { // new battle system 
 			Army army = loser.get(i);
 			army.party.registerBattleLoss();
 		}
+		
+		if (didAtkWin && siegeOf != null && siegeOf.isVillage())
+			((Village) siegeOf).handleRaidVictory(victor.first());
 				
 //		// TESTING
 //		if (victor == aArmies) {

@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import kyle.game.besiege.geom.PointH;
 import kyle.game.besiege.geom.Rectangle;
+import kyle.game.besiege.panels.PanelCenter;
 import kyle.game.besiege.utils.MyRandom;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
@@ -38,8 +39,8 @@ public class Map extends Actor {
 	private static final Color roadColor = new Color(0.4f, 0.2f, .1f, 1);
 	private static final Color riverColor = new Color(0.2f, 0.4f, .9f, 1);
 
-	public static final int WIDTH = 7000;
-	public static final int HEIGHT = 7000;
+	public static int WIDTH = 7000; // what if we randomized this?
+	public static int HEIGHT = 7000;
 
 	// using new int technique, can sfupport infinite sites - tested up to 3200
 	private static final int NUM_SITES = 300;
@@ -61,7 +62,8 @@ public class Map extends Actor {
 
 	public int testIndex;
 	public int totalVisibilityLines;
-
+	public Center selectedCenter;
+	
 	//transient public Texture bg;
 	public HashSet<Corner> cityCorners;
 	public HashSet<Center> cityCenters;
@@ -84,8 +86,6 @@ public class Map extends Actor {
 	private float[] batchColor;
 
 	private Color riverColorToDraw = new Color();
-
-	public Center selectedCenter;
 	
 	// testing
 	//	transient public Array<Polygon> testPolygons = new Array<Polygon>();
@@ -111,6 +111,8 @@ public class Map extends Actor {
 
 		testIndex = 1;
 		totalVisibilityLines = 0;
+		
+//		WIDTH = (int) (Math.random() * 3000 + 5000);
 
 		final ArrayList<PointH> pointHs = new ArrayList<PointH>();
 		long seed = (long) (Math.random()*1000000);
@@ -126,8 +128,12 @@ public class Map extends Actor {
 		//now make the initial underlying voronoi structure
 		final Voronoi v = new Voronoi(pointHs, null, new Rectangle(0, 0, WIDTH, HEIGHT));
 
+		// draw voronoi graph?
+		
+		// stagger this so it draws one color before and after to test.
+		
 		//assemble the voronoi structure into a usable graph object representing a map
-		this.vg = new VoronoiGraph(v, 2, r);
+		this.vg = new VoronoiGraph(v, 1, r);
 
 		// eventually should be able to:
 		// 		draw continent outline
@@ -219,13 +225,13 @@ public class Map extends Actor {
 	}
 
 	private void calcReference() {
-		double BOUND = .1; // *100 = percent range
+		double BOUND = .20; // *100 = percent range
 		// think of a way to guarantee it's in the middle of the island
 		for (Center c : vg.centers) {
 			if (!c.water) {
 				// check within a box in center of screen
 				if (c.loc.x >= Map.WIDTH*(.5-BOUND) && c.loc.x <= Map.WIDTH*(.5+BOUND)){
-					if (Map.HEIGHT-c.loc.y >= Map.HEIGHT*(.5-BOUND) && Map.HEIGHT-c.loc.y <= Map.WIDTH*(.5+BOUND)){
+					if (Map.HEIGHT-c.loc.y >= Map.HEIGHT*(.5-BOUND) && Map.HEIGHT-c.loc.y <= Map.HEIGHT*(.5+BOUND)){
 						reference = c;
 						break;
 					}
@@ -775,13 +781,17 @@ public class Map extends Actor {
 					"#version 120\n" + 
 					"attribute vec3 a_position;\n" +
 					"attribute vec4 a_color;\n" +	
+					"attribute vec4 adj_color;\n" +	
 					"attribute vec2 a_texCoord0;\n" + 
 					"uniform mat4 u_projTrans;\n" + 
 					"uniform vec3 u_batchColor;\n" +
+//					"uniform vec3 u_adjColor;\n" +
 					"varying vec4 vColor;\n" +		
+					"varying vec4 adjColor;\n" +		
 					"varying vec2 v_texCoords;\n" +			
 					"void main() {\n" +  
 					"	vColor = vec4(u_batchColor, 1.0) * a_color;\n" +
+					"	adjColor = vec4(u_batchColor, 1.0) * adj_color;\n" +
 					"	gl_Position =  u_projTrans * vec4(a_position, 1.0);\n" +
 					"	v_texCoords = a_texCoord0;\n" +
 					// what I have to do is subtract each triangles minimum from the max, pass in a value that's basically 
@@ -794,6 +804,7 @@ public class Map extends Actor {
 					"precision mediump float;\n" +
 					"#endif\n" +
 					"varying vec4 vColor;\n" + 	
+					"varying vec4 adjColor;\n" + 	
 					"varying vec2 v_texCoords;\n" + 			
 
 					"uniform sampler2D u_texture;\n" + 		
@@ -804,7 +815,12 @@ public class Map extends Actor {
 //					"	gl_FragColor = texture2D( u_texture, gl_FragCoord.st/100);\n" + 
 //					"	gl_FragColor = texture2D( u_texture, vec2(2f/3, 2f/3));\n" + 
 //					"	gl_FragColor = mix(vColor, texture2D( u_texture, v_texCoords.st), 0.1);\n" + 
-					"	gl_FragColor = vColor * texture2D( u_texture, v_texCoords.st).s;\n" + 
+//					"	float dist = sqrt(abs(0.5 - v_texCoords.s) * abs(0.5 - v_texCoords.s) + abs(0.5 - v_texCoords.t) * abs(0.5 - v_texCoords.t));" +
+//					"	dist = max(0, dist - 0.3);" +
+//					"	dist = dist * 1.4;" +
+
+					"	float dist = 0;" +
+					"	gl_FragColor = mix(vColor, adjColor, 1 * dist) * texture2D( u_texture, v_texCoords.st).s;\n" + 
 
 //					"	gl_FragColor = vec4(v_texCoords.s, v_texCoords.t,1.0, 1.0);"+ 
 					"}"; // 2/3, 1/3 is bright purple
@@ -893,9 +909,6 @@ public class Map extends Actor {
 
 		batch.end();
 
-		// draw map using shaperenderer
-		//		sr.begin(ShapeType.Filled);
-		//		sr.setProjectionMatrix(batch.getProjectionMatrix());
 		batchColor[0] = batch.getColor().r;
 		batchColor[1] = batch.getColor().g;
 		batchColor[2] = batch.getColor().b;
@@ -1068,7 +1081,9 @@ public class Map extends Actor {
 		batch.begin();
 
 		// draw selected center
-		if (selectedCenter != null) {
+		if (kingdom.getMapScreen().getSidePanel().getActivePanel() != null && kingdom.getMapScreen().getSidePanel().getActivePanel().getClass() == PanelCenter.class) {
+			Center selectedCenter = ((PanelCenter) kingdom.getMapScreen().getSidePanel().getActivePanel()).center;
+					
 			sr.begin(ShapeType.Line);
 			Gdx.gl20.glLineWidth(3);
 			sr.setColor(Color.RED);

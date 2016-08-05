@@ -6,7 +6,6 @@
 package kyle.game.besiege;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
@@ -77,7 +76,9 @@ public class Faction {
 	public int index; // for keeping track of relations
 	public String name; 
 	public String textureName;
-	transient public TextureRegion crest; // will have to load this separately
+//	transient public TextureRegion crest; // will have to load this separately
+	public RandomCrest randomCrest;
+	
 	public Color color;
 	public StrictArray<City> cities;
 	public StrictArray<Castle> castles;
@@ -128,10 +129,25 @@ public class Faction {
 		this.textureName = textureRegion;
 		this.kingdom = kingdom;
 		this.name = name;
-		crest = Assets.atlas.findRegion(textureRegion);
-		this.miniCrest = new Image(crest);
+//		crest = Assets.atlas.findRegion(textureRegion);
+		randomCrest = new RandomCrest();
+		
+//		this.miniCrest = new Image(crest);
+		
+		
+		// replaced!
 		this.color = color;
-
+		
+		this.color = randomCrest.base;
+		if (this.color.equals(Color.WHITE)) {
+			if (randomCrest.cDetail != null) {
+				this.color = randomCrest.cDetail;
+			}
+			else if (randomCrest.cOverlay != null) {
+				this.color = randomCrest.cOverlay;
+			}
+		}
+		
 		nobles = new StrictArray<Noble>();
 		unoccupiedNobles = new StrictArray<Noble>();
 		cities = new StrictArray<City>();
@@ -412,8 +428,8 @@ public class Faction {
 	}
 
 	public void restoreCrest() {
-		this.crest = Assets.atlas.findRegion(textureName);
-		this.miniCrest = new Image(crest);
+//		this.crest = Assets.atlas.findRegion(textureName);
+//		this.miniCrest = new Image(crest);
 	}
 
 	/** First updates each city's lists of close friendly and 
@@ -801,13 +817,18 @@ public class Faction {
 			}
 		}
 	}
+	
+	public boolean isBandit() {
+		return this == Faction.BANDITS_FACTION;
+	}
 
 	public int getTotalWealth() {
 		int total = 0;
 		for (City c : cities)
-			total += c.getParty().wealth;
+			total += c.getWealth();
 		for (Village v : villages)
-			total += v.getParty().wealth;
+			total += v.getWealth();
+//		System.out.println("total wealth is : " + total);
 		return total;
 	}
 

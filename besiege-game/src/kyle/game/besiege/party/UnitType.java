@@ -1,7 +1,5 @@
 package kyle.game.besiege.party;
 
-import com.badlogic.gdx.utils.Array;
-
 /* contains information about a specific unit type */
 public class UnitType {
 	
@@ -12,6 +10,8 @@ public class UnitType {
 	public WeaponType melee;
 	public RangedWeaponType ranged;
 	public ArmorType armor;
+	public boolean hideBonus;
+	public boolean mounted;
 	
 	public String[]		upgradeStrings;
 	public UnitType[]	upgrades;

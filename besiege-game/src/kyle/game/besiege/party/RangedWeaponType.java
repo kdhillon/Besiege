@@ -2,7 +2,7 @@ package kyle.game.besiege.party;
 
 /* contains information about a specific weapon type */
 public class RangedWeaponType {
-	public enum Type {BOW, CROSSBOW, THROWN, FIREARM};
+	public enum Type {BOW, CROSSBOW, THROWN, FIREARM, FIRE};
 	
 	public String name;
 	
@@ -10,10 +10,7 @@ public class RangedWeaponType {
 	public int range;
 	public int accuracy;
 	public int rate;
-	
-	public boolean oneHand;
-	public boolean blunt;
-	 
+		 
 	public Type type;
 	
 	public void setType(String typeString) {
@@ -25,5 +22,7 @@ public class RangedWeaponType {
 			type = Type.THROWN;
 		if (typeString.equals("firearm"))
 			type = Type.FIREARM;
+		if (typeString.equals("fire"))
+			type = Type.FIRE;
 	}
 }

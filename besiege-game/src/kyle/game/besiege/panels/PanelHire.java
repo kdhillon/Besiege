@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -22,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
@@ -363,9 +363,9 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		panel.returnToPrevious();
 	}
 	@Override
-	public TextureRegion getCrest() {
+	public RandomCrest getCrest() {
 		if (selected == null)
-			return location.getFaction().crest;
+			return location.getFaction().randomCrest;
 		else return null;
 	}
 	@Override

@@ -5,19 +5,19 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.voronoi.Center;
 
 public class PanelCenter extends Panel {
 	private final float PAD = 5;
 	private final float NEG = -5;
 	private SidePanel panel;
-	private Center center;
+	public Center center;
 	private Table text;
 	private Label regionC;
 	private Label biome;
@@ -96,13 +96,13 @@ public class PanelCenter extends Panel {
 
 	@Override
 	public void button4() {
-		panel.setDefault();
+		panel.setDefault(true);
 	}
 	
 	@Override
-	public TextureRegion getCrest() {
+	public RandomCrest getCrest() {
 		if (center.faction != null)
-			return center.faction.crest;
+			return center.faction.randomCrest;
 		else return null;
 	}
 }

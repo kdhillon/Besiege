@@ -3,13 +3,13 @@ package kyle.game.besiege.battle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.party.RangedWeaponType.Type;
 
-public class Projectile extends Actor {
+public class Projectile extends Group {
 	public BattleStage stage;	
 	private TextureRegion texture;
 	private TextureRegion halfArrow;
@@ -60,7 +60,8 @@ public class Projectile extends Actor {
 	public float damage;
 	public float distanceToTravel;
 
-	public float SPEED = 25f;
+//	public float SPEED = 10f;
+	public float SPEED = 20f;
 	public float FIREARM_SPEED = 100f;
 //			public float SPEED = 200f; // basically gunfire
 
@@ -83,13 +84,17 @@ public class Projectile extends Actor {
 
 	public float dest_x;
 	public float dest_y;
+	
+	public FireContainer fc;
 
 	// create new arrow with target
 	public Projectile(Unit firing, Unit target) {
 		texture = Assets.map.findRegion("arrow");
 		halfArrow = Assets.map.findRegion("half_arrow");
+		
 		this.firing = firing;
 
+		
 		initializePosition();
 
 		// calculate damage
@@ -135,6 +140,17 @@ public class Projectile extends Actor {
 		accuracy_factor = 10 - accuracy_factor;
 		
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
+		
+		if (firing.rangedWeapon.type == Type.FIRE) {
+//			System.out.println("creating fire");
+			fc = new FireContainer();
+			Fire fire = new Fire(300, 200, firing.stage.getMapScreen(), null);
+			fc.setPosition(this.getWidth()/2, this.getHeight());
+			fc.addActor(fire);
+			fc.setRotation(180);
+			fc.toFront();
+			this.addActor(fc);
+		}
 	}
 
 	// create new siege projectile with target
@@ -246,6 +262,7 @@ public class Projectile extends Actor {
 	@Override
 	public void act(float delta) {
 		if (this.stopped) return;
+		super.act(delta);
 
 		time_since_shot += delta;
 		// update height based on time
@@ -335,15 +352,16 @@ public class Projectile extends Actor {
 
 
 	@Override
-	public void draw(SpriteBatch batch, float parentAlpha) {	
+	public void draw(SpriteBatch batch, float parentAlpha) {
 		if (!this.inMap()) return;
 		if (!this.stopped && this.stuck == null) this.toFront();
+		if (!this.stopped) super.draw(batch, parentAlpha);
 
 		this.setX(pos_x * stage.unit_width);
 		this.setY(pos_y * stage.unit_height);
 
-		float stoppedScale = .8f;
-		if (stopped || stuck != null) stoppedScale = .4f;
+		float stoppedScale = 0.5f;
+		if (stopped || stuck != null) stoppedScale = .5f;
 
 		float drawHeight = Math.min(height, MAX_DRAW_HEIGHT);
 
@@ -385,6 +403,8 @@ public class Projectile extends Actor {
 			if (texture != null)
 				batch.draw(halfArrow, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());	
 		}
+		
+//		if (fc != null && !this.stopped) this.fc.draw(batch, parentAlpha);
 	}
 
 	public void collision(Unit that) {

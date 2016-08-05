@@ -8,7 +8,6 @@ package kyle.game.besiege.panels;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -21,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
@@ -35,8 +35,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	private final int r = 3;
 	private final String tablePatch = "grey-d9";
 	private SidePanel panel;
-	private Location location;
-	private Party party;
+	public Location location;
 	
 	private Table text;
 	private Label title;
@@ -49,6 +48,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 
 	private Label garrisonC;
 	private Label emptyC;
+	private Label nullC;
 	private Label prisonersC;
 	
 	private Table stats;
@@ -79,7 +79,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	public PanelLocation(SidePanel panel, Location location) {
 		this.panel = panel;
 		this.location = location;
-		this.party = location.getParty();
+		
 		this.addParentPanel(panel);
 		this.playerTouched = false;
 		
@@ -128,6 +128,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 
 		garrisonC = new Label("Garrison", ls);
 		emptyC = new Label("No troops garrisoned!",ls);
+		nullC = new Label("Garrison is null!",ls);
 		prisonersC = new Label("Captured", ls);
 		
 		// Create text
@@ -242,6 +243,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		this.panelHire = new PanelHire(panel, location);
 				
 		location.needsUpdate = true;
+		System.out.println("just created new panellocation");
 		
 		this.setButton(4, "Back"); 
 	}
@@ -336,7 +338,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 //		else if (location.underSiege() && location.getKingdom().getPlayer().isInSiege() && location.getKingdom().getPlayer().getSiege().location == location) {
 
 		if (!location.ruin) {
-			String garrStr = party.getHealthySize() + "";
+			String garrStr = getParty().getHealthySize() + "";
 
 			int totalGarr = 0;
 			for (Army a: location.getGarrisoned()) {
@@ -350,7 +352,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			garrisonSize.setText(garrStr);
 
 			population.setText((int) location.getPop() + "");
-			wealth.setText("" + party.wealth);
+			wealth.setText("" + location.getWealth());
 		}
 		else {
 			String garrStr = "";
@@ -391,26 +393,31 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
 		soldierTable.add(garrisonC).colspan(2);
 		soldierTable.row();
-		if (party == null || party.getTotalSize() == 0) {
+		if (getParty() == null) {
+			emptyC.setAlignment(Align.center);
+			soldierTable.add(nullC).colspan(2).center().width(SidePanel.WIDTH - PAD*2);
+			soldierTable.row();
+		}
+		else if (getParty().getTotalSize() == 0) {
 			emptyC.setAlignment(Align.center);
 			soldierTable.add(emptyC).colspan(2).center().width(SidePanel.WIDTH - PAD*2);
 			soldierTable.row();
 		}
 		else {
 			
-			PanelParty.updateTableWithParty(soldierTable, party, ls, lsG);
+			PanelParty.updateTableWithParty(soldierTable, getParty(), ls, lsG);
 //			PanelParty.updateTableWithTypes(soldierTable, party.getConsolHealthy(), ls);
 //			PanelParty.updateTableWithTypes(soldierTable, party.getConsolWounded(), lsG);
 		}
 		
 		if (!location.ruin) {
-			if (party != null && party.getPrisoners().size > 0)
+			if (getParty() != null && getParty().getPrisoners().size > 0)
 				prisonersC.setText("Captured");
 			else prisonersC.setText("");
 			prisonersC.setAlignment(0,0);
 			soldierTable.add(prisonersC).colspan(2).width(SidePanel.WIDTH - PAD*2).expandX().fillX().padTop(0);
 			soldierTable.row();
-			PanelParty.updateTableWithTypes(soldierTable, party.getConsolPrisoners(), ls);
+			PanelParty.updateTableWithTypes(soldierTable, getParty().getConsolPrisoners(), ls);
 		}
 		// For Garrisoned armies
 		for (Army a : location.getGarrisoned()) {
@@ -465,6 +472,10 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		weaponS.setText(s.unitType.melee.name);
 	}
 	
+	public Party getParty() {
+		return this.location.getParty();
+	}
+	
 	public void clearStats() {
 		stats.setVisible(false);
 	}
@@ -509,7 +520,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 				System.out.println("ATTACKING ");
 			}
 			else { // besiege/raid
-				panel.setStay(false);
+				panel.setHardStay(false);
 				if (!location.underSiege()) {
 					if (location.isVillage()) {
 						panel.getKingdom().getPlayer().raid((Village) location);
@@ -542,8 +553,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 				location.startWait();
 			}
 			else {
-				panel.setStay(false);
-				panel.setDefault();		
+				panel.setHardStay(false);
+				panel.setDefault(true);		
 			}
 		}
 	}
@@ -561,13 +572,13 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			BottomPanel.log("Withdraw!");
 		}
 		else {
-			panel.setDefault();
+			panel.setDefault(true);
 		}
 	}
 	
 	@Override
-	public TextureRegion getCrest() {
+	public RandomCrest getCrest() {
 		if (location.getFaction() == null) return null;
-		return location.getFaction().crest;
+		return location.getFaction().randomCrest;
 	}
 }

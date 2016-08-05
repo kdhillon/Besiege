@@ -42,7 +42,7 @@ public class Castle extends Location {
 		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CASTLE_GARRISON);
 		this.type = LocationType.CASTLE;
 				
-		getParty().wealth = calcInitialWealth();
+		setWealth(calcInitialWealth());
 		
 		this.DAILY_WEALTH_INCREASE_BASE = 0;
 //		
@@ -88,7 +88,7 @@ public class Castle extends Location {
 	@Override
 	public void autoManage() {
 		// Organize patrols
-		int patrolCount = (int) (getParty().wealth/(100));
+		int patrolCount = (int) (getWealth()/(100));
 		if (getPatrols().size < patrolCount) {
 			this.loseWealth(patrolCost);
 			createScout();
@@ -109,6 +109,13 @@ public class Castle extends Location {
 //				createRaider();
 //			}
 //		}
+	}
+	
+	@Override
+	public boolean shouldIncreaseGarrison() {
+		if (this.garrison.party.getAtk() > 1000) return false;
+		return this.garrison.party.getAtk() < (this.getFaction().getTotalWealth() * 0.1 / this.getFaction().castles.size);
+//		return this.getWealth() > 100;
 	}
 	
 	public void createScout() {

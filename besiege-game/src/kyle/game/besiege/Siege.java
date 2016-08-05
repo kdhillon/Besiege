@@ -99,7 +99,7 @@ public class Siege extends Actor {
 	}
 	
 	public void attack() {
-//		System.out.println("attack at " + location.getName());
+		System.out.println("attack at " + location.getName() + " which has " + location.getWealth());
 		location.siegeAttack(armies);
 		// make sure siege is set
 		location.siege = this;
@@ -116,11 +116,14 @@ public class Siege extends Actor {
 		if (this.battle.siegeOf.siege != this) System.out.println("THIS IS REALLY FUCKED");
 	}
 	public void endAttack() {
-//		System.out.println("ending attack at " + location.getName());
+		System.out.println("ending attack at " + location.getName() + " which has "  + location.getWealth());
 		inBattle = false;
 	}
 	
+	// handle a wealth transfer from city to victors
 	public void siegeSuccess() {
+		System.out.println("siege success at " + location.getName() + " which has "  + location.getWealth());
+
 		location.changeFaction(besieging);
 		if (location.playerBesieging) {
 			location.getKingdom().getPlayer().garrisonIn(location);

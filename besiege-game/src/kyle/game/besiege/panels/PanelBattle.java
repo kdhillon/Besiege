@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Battle;
@@ -740,9 +741,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	}
 
 	@Override
-	public TextureRegion getCrest() {
+	public RandomCrest getCrest() {
 		if (battle != null && battle.aArmies != null && battle.aArmies.size > 0)
-			return battle.aArmies.first().getFaction().crest;
+			return battle.aArmies.first().getFaction().randomCrest;
 		return null;
 	}
 	@Override

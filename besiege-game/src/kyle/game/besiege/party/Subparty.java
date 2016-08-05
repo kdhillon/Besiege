@@ -8,7 +8,7 @@ import kyle.game.besiege.party.Soldier.SoldierType;
 
 // contains a general and her bodyguard, as well as any subparties under her control
 public class Subparty {
-	public int MAX_SIZE = 20;
+	public static int HARD_MAX = 20;
 	
 	private Party party;
 	Subparty parent; // this is the boss, null usually.
@@ -47,19 +47,19 @@ public class Subparty {
 	// player has option to "demote" them - but lowers morale, and chance of mutiny if popular!
 	public void promoteToGeneral(Soldier s) {
 		// can promote any soldier
-		if (!this.healthy.contains(s, true) && !this.wounded.contains(s, true)) {
-			System.out.println("trying to promote a soldier not in this subparty!!!");
-			return;
-		}
-		
-		if (general != null) {
-			System.out.println("you haven't demoted this general yet");
-		}
-		
-//		System.out.println("promoting " + s.getName() + " of " + s.party.getName() + " to general");
-		
-		if (this.healthy.contains(s, true)) this.healthy.removeValue(s, true);
-		if (this.wounded.contains(s, true)) this.wounded.removeValue(s, true);
+//		if (!this.healthy.contains(s, true) && !this.wounded.contains(s, true)) {
+//			System.out.println("trying to promote a soldier not in this subparty!!!");
+//			return;
+//		}
+//		
+//		if (general != null) {
+//			System.out.println("you haven't demoted this general yet");
+//		}
+//		
+////		System.out.println("promoting " + s.getName() + " of " + s.party.getName() + " to general");
+//		
+//		if (this.healthy.contains(s, true)) this.healthy.removeValue(s, true);
+//		if (this.wounded.contains(s, true)) this.wounded.removeValue(s, true);
 
 		setGeneral(new General(s));
 	}
@@ -199,7 +199,7 @@ public class Subparty {
 	}
 	
 	public void addSoldier(Soldier soldier) {
-		if (this.getTotalSize() >= MAX_SIZE) {
+		if (general != null && this.getTotalSize() >= general.getMaxSubPartySize()) {
 			System.out.println("trying to add more than max size to subparty");
 			return;
 		}
@@ -252,7 +252,6 @@ public class Subparty {
 		}
 		if (soldier == general) {
 //			System.out.println("setting general to be null");
-			if (soldier != general) throw new java.lang.AssertionError();
 			this.general = null;
 		}
 	}
@@ -296,10 +295,11 @@ public class Subparty {
 	}
 	
 	public int getSpotsRemaining() {
-		return MAX_SIZE - this.getTotalSize();
+		return this.general.getMaxSubPartySize() - this.getTotalSize();
 	}
 	
 	public boolean isFull() {
+		System.out.println("max subparty size: " + this.general.getMaxSubPartySize() + " total size: " + this.getTotalSize() + " max party size: " + this.party.getHealthySize());
 		return getSpotsRemaining() == 0;
 	}
 	

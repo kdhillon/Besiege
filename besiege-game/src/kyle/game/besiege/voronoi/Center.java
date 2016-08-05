@@ -67,10 +67,13 @@ public class Center {
 	public double area;
 	public Faction faction; // controlling faction - can be recalculated
 	
-	public float wealth;
+	public float wealth; // always between 0 and 1
 
-	float minX = 999999, minY = 999999, maxX = -999999, maxY = -99999, absMax = -999;
-
+//	float minX = 999999, minY = 999999, maxX = -999999, maxY = -99999, absMax = -999;
+	float maxDistFromCenter;
+	
+	float x0, y0; //center
+	
 	// For kryo
 	public Center() {
 		armies = new Array<Army>();
@@ -94,7 +97,7 @@ public class Center {
 				triangles.add(vertices);	
 			}
 		}
-		System.out.println("center max: " + maxX + ", " + maxY);
+//		System.out.println("center max: " + maxX + ", " + maxY);
 	}
 
 	public Center(PointH loc) {
@@ -110,7 +113,6 @@ public class Center {
 	}
 	
 	public float calculateInitWealth() {
-		// wealth should be between 0 and 100, basically gaussian?
 		float randomMax = 0.2f;
 		
 		float base = 1 - randomMax;
@@ -163,55 +165,55 @@ public class Center {
 	void initMesh(VoronoiGraph vg) {
 
 		// just hijacking this method 
-		int numVerts = getSubVertices() * 3 * 9;
+		int numVerts = getSubVertices() * 3 * (3 + 4 + 4 + 2);
 		this.verts = new float[numVerts];
 		//		System.out.println("borders are " + this.borders.size());
 		// need one per triangle
 
 		VertexAttribute position = new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position");
 		VertexAttribute colorAttribute = new VertexAttribute(VertexAttributes.Usage.Color, 4, "a_color");
+		VertexAttribute adjColorAttribute = new VertexAttribute(VertexAttributes.Usage.Generic, 4, "adj_color");
 		VertexAttribute textureCoordinates = new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord0");
 
 		// This depends on the size of Edge.subEdges
 		float estTriangles = 200;
 		// I dont' know why 12 is the magic number for triangles, maybe 6 each side? duplicate triangles?
-		mesh = new Mesh(true, true, 200 * 3, 6 * 3 * 9, new VertexAttributes(position, colorAttribute, textureCoordinates));
+		mesh = new Mesh(true, true, 200 * 3, 6 * 3 * 13, new VertexAttributes(position, colorAttribute, adjColorAttribute, textureCoordinates));
 		// somehow meshes can have up to 13 triangles. make this 15 just to be safe?
 
 		Color color = VoronoiGraph.getColor(this);
 
-
 		// The following makes each center a bit discolored to account for neighbors, provides some differentition between centers
-		float strength = 0.6f;
-		float mixedR = 0;
-		float mixedG = 0;
-		float mixedB = 0;
-
-		int colorCount = 0;
-
-		if (!this.water) {
-			// Average with neighbor colors
-			for (Center c : this.neighbors) {
-				if (c.water) continue;
-				Color nColor = VoronoiGraph.getColor(c);
-				mixedR += nColor.r;
-				mixedG += nColor.g;
-				mixedB += nColor.b;
-				colorCount++;
-			}
-			float divFactor = (1 - strength) / colorCount;
-
-			color.r = mixedR * divFactor + color.r * strength;
-			color.g = mixedG * divFactor + color.g * strength;
-			color.b = mixedB * divFactor + color.b * strength;
-			
-			ogColor = new Color(color);
-		}
+//		float strength = 0.6f;
+//		float mixedR = 0;
+//		float mixedG = 0;
+//		float mixedB = 0;
+//
+//		int colorCount = 0;
+//
+//		if (!this.water) {
+//			// Average with neighbor colors
+//			for (Center c : this.neighbors) {
+//				if (c.water) continue;
+//				Color nColor = VoronoiGraph.getColor(c);
+//				mixedR += nColor.r;
+//				mixedG += nColor.g;
+//				mixedB += nColor.b;
+//				colorCount++;
+//			}
+//			float divFactor = (1 - strength) / colorCount;
+//
+//			color.r = mixedR * divFactor + color.r * strength;
+//			color.g = mixedG * divFactor + color.g * strength;
+//			color.b = mixedB * divFactor + color.b * strength;
+//			
+//			ogColor = new Color(color);
+//		}
+		
+		ogColor = new Color(color);
 
 		// do some color blending for each polygon...
 		// for now, 0.7 * color  + 0.3 * adjacent color, weighted average. 
-		float x0 = this.loc.x;
-		float y0 = (float) vg.bounds.height-this.loc.y-1;
 		float z0 = this.elevation * ELEVATION_FACTOR;
 		z0 = 0; // if you wanna draw 3D you gotta switch to a perspective camera from orthographic.
 
@@ -238,10 +240,13 @@ public class Center {
 
 			Center adjacent = vg.centers.get(e.adjCenter0);
 			if (adjacent == this) adjacent = vg.centers.get(e.adjCenter1);
-
+			
+			Color adjColor = VoronoiGraph.getColor(adjacent);
+			if (adjacent.water || this.water) adjColor = color;
+			
 			//			Color adjColor = VoronoiGraph.getColor(adjacent);
 			//			Color current = new Color(color.r * 0.7f + adjColor.r * 0.3f, color.g * 0.7f + adjColor.g * 0.3f, color.b * 0.7f + adjColor.b * 0.3f, 1);
-			Color current = color;
+//			Color current = color;
 
 			// draw all 4 or 8 sub-triangles
 			for (int i = -1; i < e.subEdges.length; i++) {
@@ -281,11 +286,17 @@ public class Center {
 				verts[idx++] = y0;
 				verts[idx++] = z0;
 				//				verts[idx++] = z0 * 0.05f - 100;
-				verts[idx++] = current.r; 	//Color(r, g, b, a)
-				verts[idx++] = current.g;
-				verts[idx++] = current.b;
-				verts[idx++] = current.a;
-
+				verts[idx++] = color.r; 	//Color(r, g, b, a)
+				verts[idx++] = color.g;
+				verts[idx++] = color.b;
+				verts[idx++] = color.a;
+				
+				verts[idx++] = adjColor.r; 	//Secondary Color(r, g, b, a)
+				verts[idx++] = adjColor.g;
+				verts[idx++] = adjColor.b;
+				verts[idx++] = adjColor.a;				
+				// TODO try doing two colors, primary and secondary. secondary color can create a cool blend into the neighboring triangle
+				
 
 				verts[idx++] = getTextureX(x0); 	//Texture coordinates (r, g, b, a)
 				verts[idx++] = getTextureY(y0); 	//Texture coordinates (r, g, b, a)
@@ -295,10 +306,17 @@ public class Center {
 				verts[idx++] = y1;
 				verts[idx++] = z1;
 				//				verts[idx++] = z1 * 0.05f - mod0;
-				verts[idx++] = current.r; 	//Color(r, g, b, a)
-				verts[idx++] = current.g;
-				verts[idx++] = current.b;
-				verts[idx++] = current.a;
+				verts[idx++] = color.r; 	//Color(r, g, b, a)
+				verts[idx++] = color.g;
+				verts[idx++] = color.b;
+				verts[idx++] = color.a;
+				
+				verts[idx++] = adjColor.r; 	//Secondary Color(r, g, b, a)
+				verts[idx++] = adjColor.g;
+				verts[idx++] = adjColor.b;
+				verts[idx++] = adjColor.a;	
+				
+				
 
 				// TODO I don't really need to pass in texture coordinates
 				// I should be able to calculate where to sample from 
@@ -312,10 +330,16 @@ public class Center {
 				verts[idx++] = y2;
 				//				verts[idx++] = z2 * 0.05f - mod0;
 				verts[idx++] = z2;
-				verts[idx++] = current.r;		 //Color(r, g, b, a)
-				verts[idx++] = current.g;
-				verts[idx++] = current.b;
-				verts[idx++] = current.a; // gotta do this every frame to multiply this by the batch color.
+				
+				verts[idx++] = color.r; 	//Color(r, g, b, a)
+				verts[idx++] = color.g;
+				verts[idx++] = color.b;
+				verts[idx++] = color.a;
+				
+				verts[idx++] = adjColor.r; 	//Secondary Color(r, g, b, a)
+				verts[idx++] = adjColor.g;
+				verts[idx++] = adjColor.b;
+				verts[idx++] = adjColor.a;	
 
 				verts[idx++] = getTextureX(x2); 	//Texture coordinates (r, g, b, a)
 				verts[idx++] = getTextureY(y2);
@@ -355,6 +379,7 @@ public class Center {
 					verts[idx++] = newColor.g;
 					verts[idx++] = newColor.b;
 					verts[idx++] = newColor.a;
+					idx+=4;
 					idx+=2;
 				}
 			}
@@ -364,9 +389,9 @@ public class Center {
 
 	public void calcAbsoluteMinMax(VoronoiGraph vg) {
 		// get absolute min and max of entire center, to be used for drawing texture
-		float x0 = this.loc.x;
-		float y0 = (float) vg.bounds.height-this.loc.y-1;
-
+		x0 = this.loc.x;
+		y0 = (float) vg.bounds.height-this.loc.y-1;
+		
 		for (int edgeIndex : this.adjEdges) {
 			Edge e = vg.edges.get(edgeIndex);
 			if (e == null) {
@@ -403,24 +428,40 @@ public class Center {
 					x2 = e.subEdges[i + 1].x;
 					y2 = (float) vg.bounds.height - e.subEdges[i + 1].y;
 				}
-				minX = Math.min(minX, Math.min(x0, Math.min(x1, x2)));
-				minY = Math.min(minY, Math.min(y0, Math.min(y1, y2)));
-				maxX = Math.max(maxX, Math.max(x0, Math.max(x1, x2)));
-				maxY = Math.max(maxY, Math.max(y0, Math.max(y1, y2)));	
+//				minX = Math.min(minX, Math.min(x0, Math.min(x1, x2)));
+//				minY = Math.min(minY, Math.min(y0, Math.min(y1, y2)));
+//				maxX = Math.max(maxX, Math.max(x0, Math.max(x1, x2)));
+//				maxY = Math.max(maxY, Math.max(y0, Math.max(y1, y2)));			
+//				
+//				absMax = Math.max(maxX - minX, maxY - minY);
 				
-				absMax = Math.max(maxX - minX, maxY - minY);
+				// or do a more complex way that maintains the center at (0.5, 0.5)
 				
+				maxDistFromCenter = Math.max(maxDistFromCenter, Math.abs(x0 - x1));
+				maxDistFromCenter = Math.max(maxDistFromCenter, Math.abs(y0 - y1));
+
+				maxDistFromCenter = Math.max(maxDistFromCenter, Math.abs(x0 - x2));
+				maxDistFromCenter = Math.max(maxDistFromCenter, Math.abs(y0 - y2));
+
+//				maxDistFromCenter = Math.max(maxDistFromCenter, Math.abs(centerX - x0));
+//				maxDistFromCenter = Math.max(maxDistFromCenter, Math.abs(centerY - y0));
 			}
 		}
 	}
 
+	
+	
 	public float getTextureX(float x) {
 		float scale = 2;// *  (maxY - minY) / (maxX - minX);
 
-		float texX = (x - minX) / (absMax);
+		float posInSquare = x - (x0 - maxDistFromCenter);
+		
+		float texX = posInSquare / (2 * maxDistFromCenter);
+//		float texX = (x - minX) / (absMax);
+		
 		//		float texX = (x/Map.WIDTH * scale) % 1;
 		//		if (texX < 0) texX = 1- texX;
-		System.out.println("x: " + texX);
+//		System.out.println("x: " + texX);
 		return texX * scale;
 	}
 
@@ -428,12 +469,14 @@ public class Center {
 		float scale = 2;
 		//		System.out.println("y: " + y);
 
-		float texY = (y - minY) / (absMax);
+		float posInSquare = y - (y0 - maxDistFromCenter);
+		
+		float texY = posInSquare / (2 * maxDistFromCenter);//		float texY = (y - minY) / (absMax);
 
 		//		float texY = (y/Map.HEIGHT * scale) % 1;
 		//		if (texY < 0) texY = 1- texY;
 
-		System.out.println("y: " + texY);
+//		System.out.println("y: " + texY);
 		return texY * scale;
 	}
 	
@@ -623,6 +666,8 @@ public class Center {
 		shader.setUniformMatrix("u_projTrans", projTrans);
 		// set the batch color
 		shader.setUniform3fv("u_batchColor", batchColor, 0, 3);
+		shader.setUniform3fv("u_adjColor", batchColor, 0, 3);
+		
 		shader.setUniformi("u_texture", 0);
 		
 		mesh.render(shader, GL20.GL_TRIANGLES, 0, vertexCount);

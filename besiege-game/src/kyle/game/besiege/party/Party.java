@@ -71,10 +71,10 @@ public class Party {
 		}
 	}
 
-	public void addSoldier(Soldier soldier) {
-		if (this.getTotalSize() >= getMaxSize()) {
+	public boolean addSoldier(Soldier soldier, boolean force) {
+		if (isFull() && !force) {
 			System.out.println("trying to add more than max size");
-			return;
+			return false;
 		}
 		else {
 			// put this guy in a subparty that's not full, or create a new par
@@ -82,12 +82,28 @@ public class Party {
 			if (p == null) {
 				p = createNewSub();
 			}
-			p.addSoldier(soldier);
 			
-			// for now, just promote new soldier to general
-			if (p.general == null)
-				p.promoteToGeneral(soldier);
+			p.addSoldier(soldier);
 		}
+		return true;
+	}
+	
+	public Soldier getBestSoldier() {
+		Soldier best = null;
+		int maxLevel = 0;
+		for (Subparty sub : sub) {
+			for (Soldier soldier : sub.healthy) {
+				if (soldier.level > maxLevel && !soldier.isGeneral()) {
+					best = soldier;
+					maxLevel = soldier.level;
+				}
+			}
+		}
+		return best;
+	}
+	
+	public boolean isFull() {
+		return this.getTotalSize() >= getMaxSize();
 	}
 	
 	public int getMaxSize() {
@@ -95,7 +111,8 @@ public class Party {
 	}
 	
 	public Subparty getNonEmptySub() {
-		for (Subparty s : sub) {
+		for (int i = 0; i < sub.size; i++) {
+			Subparty s = sub.get(i);
 			if (s.isFull()) continue;
 			return s;
 		}
@@ -107,8 +124,14 @@ public class Party {
 		Subparty newSub = new Subparty(this);
 		root.addSub(newSub);
 		sub.add(newSub);
-//		Soldier soldierToPromote = getSoldierToPromote();
-//		if (soldierToPromote == null) return null;
+		
+		// promote best soldier to general
+		if (newSub.general == null) {
+			Soldier s = this.getBestSoldier();
+			s.subparty.removeSoldier(s);
+			newSub.promoteToGeneral(s);
+		}
+		
 //		newSub.setGeneral(soldierToPromote);
 		return newSub;
 	}
@@ -156,16 +179,11 @@ public class Party {
 				if (that.parent != null) throw new java.lang.AssertionError();
 			}
 			else {
-				if (that.parent != root) throw new java.lang.AssertionError();
+				if (that.parent != null && that.parent != root) throw new java.lang.AssertionError();
 			}
 		}
 		this.root = s;
-
 	}
-	
-//	public Soldier getSoldierToPromote() {
-		
-//	}
 	
 	public void removeSoldier(Soldier soldier) {
 		for (Subparty p : sub) {
@@ -242,7 +260,7 @@ public class Party {
 		if (this.prisoners.contains(prisoner, true))
 			this.prisoners.removeValue(prisoner, true);
 		else BottomPanel.log("trying to remove invalid prisoner", "red");
-		recipient.addSoldier(prisoner);
+		recipient.addSoldier(prisoner, false);
 	}
 
 	public int getHealthySize() {
@@ -378,7 +396,6 @@ public class Party {
 		//		healthy.sort();
 	}
 
-	
 	// TODO adjust to be fair, based on fame.
 	// repairs an army as much as its wealth will allow it.
 	public void repair(PartyType pt) { // returns a repair cost
@@ -390,7 +407,7 @@ public class Party {
 			Soldier newSoldier = new Soldier(pt.randomSoldierType(), this);
 			int cost = newSoldier.getCost();
 			if (this.wealth > cost) {
-				this.addSoldier(newSoldier);
+				this.addSoldier(newSoldier, false);
 				this.wealth -= cost;
 				missing--;
 			}

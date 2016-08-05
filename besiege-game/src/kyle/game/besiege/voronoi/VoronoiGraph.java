@@ -51,12 +51,15 @@ public class VoronoiGraph {
     
     public VoronoiGraph(Voronoi v, int numLloydRelaxations, MyRandom r) {
         this.r = r;
+        System.out.println("initializing Perlin generator");
 	    perlin = new PerlinNoiseGenerator(r.seed);
         bumps = r.nextInt(1, 6);
         startAngle = r.nextDouble(0, 2 * Math.PI);
         dipAngle = r.nextDouble(0, 2 * Math.PI);
         dipWidth = r.nextDouble(0.2, 0.7);
         bounds = v.get_plotBounds();
+        
+        System.out.println("Performing lloyd relaxations");
         for (int i = 0; i < numLloydRelaxations; i++) {
             ArrayList<PointH> pointHs = v.siteCoords();
             for (PointH p : pointHs) {
@@ -74,14 +77,19 @@ public class VoronoiGraph {
             }
             v = new Voronoi(pointHs, null, v.get_plotBounds());
         }
+                
+        System.out.println("building graph");
         buildGraph(v);
+        System.out.println("improving corners");        
         improveCorners();
 
+        System.out.println("assigning elevations, coast, and more elevations");
         assignCornerElevations();
         assignOceanCoastAndLand();
         redistributeElevations(landCorners());
         assignPolygonElevations();
 
+        System.out.println("doing downslopes and moistures and biomes");
         calculateDownslopes();
         //calculateWatersheds();
 //        createRivers();
@@ -90,9 +98,12 @@ public class VoronoiGraph {
         assignPolygonMoisture();
         initBiomeTextures();
         assignBiomes();
+        
+        System.out.println("doing areas");
         calculateAreas();
         
         // added by Kyle
+        System.out.println("initializing meshes");
         initMeshes();
     }
     
@@ -931,7 +942,7 @@ public class VoronoiGraph {
         } 
         // Kyle modified these values
         // originally 0.8
-        else if (p.elevation > 0.5) {
+        else if (p.elevation > 0.55) {
             if (p.moisture > 0.70) {
                 return Biomes.SNOW;
             } else if (p.moisture > 0.43) {

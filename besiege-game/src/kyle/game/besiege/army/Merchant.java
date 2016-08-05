@@ -123,7 +123,7 @@ public class Merchant extends Army {
 	}
 	
 	public void deposit() {
-		goal.getParty().wealth += getParty().wealth;
+		goal.addWealth(getParty().wealth);
 		this.destroy();
 	}
 	

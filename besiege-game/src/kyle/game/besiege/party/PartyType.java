@@ -15,8 +15,8 @@ import kyle.game.besiege.voronoi.Center;
 public class PartyType { // todo add ability for max party size
 	public static Array<PartyType> types;
 
-	public enum Type {FARMERS, PATROL, MERCHANT, CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, 
-						SCOUT, MILITIA, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST};
+	public enum Type {FARMERS, PATROL, MERCHANT, CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
+						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST};
 	
 	//	private final Weapon[] troopTypes;
 	public String name;
@@ -63,7 +63,7 @@ public class PartyType { // todo add ability for max party size
 		while (toGenerate > 0) {
 			// generate random unit from available tiers in available class TODO
 			UnitType type = randomSoldierType();
-			party.addSoldier(new Soldier(type, party));
+			party.addSoldier(new Soldier(type, party), false);
 			toGenerate--;
 		}
 //		UnitType unitType, Party party, String title, Location home
@@ -206,21 +206,21 @@ public class PartyType { // todo add ability for max party size
 			break;
 		case CITY_GARRISON:
 			pt.name = "Garrison";
-			pt.maxCount = 90;
-			pt.minCount = 50;
+			pt.maxCount = 100;
+			pt.minCount = 1;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
 		case CASTLE_GARRISON:
 			pt.name = "Garrison";
-			pt.maxCount = 90;
-			pt.minCount = 50;
+			pt.maxCount = 100;
+			pt.minCount = 1;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
 		case VILLAGE_GARRISON:
 			pt.name = "Village Garrison";
-			pt.maxCount = 5;
-			pt.minCount = 2;
-			pt.tiers = new int[]{1};
+			pt.maxCount = 20;
+			pt.minCount = 1;
+			pt.tiers = new int[]{1, 2};
 			break;
 		case SCOUT:
 			pt.name = "Scout";
@@ -228,12 +228,18 @@ public class PartyType { // todo add ability for max party size
 			pt.minCount = 10;
 			pt.tiers = new int[]{2, 3};
 			break;
-		case MILITIA:
-			pt.name = "Militia";
-			pt.maxCount = 50;
-			pt.minCount = 30;
-			pt.tiers = new int[]{1, 2};
+		case BANDIT:
+			pt.name = "Bandit";
+			pt.maxCount = 60;
+			pt.minCount = 5;
+			pt.tiers = new int[]{2, 3};
 			break;
+//		case MILITIA:
+//			pt.name = "Militia";
+//			pt.maxCount = 50;
+//			pt.minCount = 30;
+//			pt.tiers = new int[]{1, 2};
+//			break;
 		case NOBLE:
 			pt.name = "Noble";
 			pt.maxCount = 200;

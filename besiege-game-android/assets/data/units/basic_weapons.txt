@@ -1,16 +1,17 @@
 name			atk	def	spd	1h		blunt	polearm
 
 Pitchfork		1	0	-1	false	false	true
+Sickle			1	-1	0	false	false	false
+Hatchet			1	-1	0	false	false	false
+Unarmed			1	0	0	true	false	false
 
-Sickle			1	0	0	true	false	false
-Dagger			1	0	0	true	false	false
 Military Fork	1	1	-1	false	false	true
 
 Club			2	0	0	true	true	false
-Spear			2	1	-1	false	false	true
-Hatchet			2	0	0	true	false	false
 Staff			2	1	-1	false	true	true
+Dagger			1	0	0	true	false	false
 
+Spear			2	1	-1	true	false	true
 Pike			2	3	-2	false	false	true
 Halberd			3	2	-2	false	false	true
 Battle Axe		3	1	-1	false	false	false

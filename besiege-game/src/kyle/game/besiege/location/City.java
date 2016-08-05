@@ -15,9 +15,11 @@ import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Center;
+import kyle.game.besiege.voronoi.Corner;
 
 public class City extends Location {
-	private final static float CITY_WEALTH_FACTOR = 0.42f; // arbitrary, this times pop = wealth
+	private final static float CITY_WEALTH_FACTOR = 0.6f; // arbitrary, this times pop = wealth
 	private final static float INITIAL_WEALTH_VARIANCE_MIN = 0.6f;
 	private final static float INITIAL_WEALTH_VARIANCE_MAX = 2f;	
 	
@@ -49,9 +51,7 @@ public class City extends Location {
 		POP_MAX = 15000;
 		
 		this.population = Math.random()*(POP_MAX - POP_MIN) + POP_MIN;
-		
-		getParty().wealth = calcInitialWealth();
-		
+				
 		this.DAILY_WEALTH_INCREASE_BASE = 5;
 		this.DAILY_POP_INCREASE_BASE = 5;
 		
@@ -78,8 +78,21 @@ public class City extends Location {
 		initializeBox();
 	}
 	
+	@Override
+	public void setCenter(Center center) {
+		super.setCenter(center);
+		setWealth(calcInitialWealth());
+	}
+	
+	@Override
+	public void setCorner(Corner corner) {
+		super.setCorner(corner);
+		setWealth(calcInitialWealth());
+	}
+	
 	public int calcInitialWealth() {
-		return (int) (calcPopWealth() * ((Math.random() * (INITIAL_WEALTH_VARIANCE_MAX - INITIAL_WEALTH_VARIANCE_MIN)) + INITIAL_WEALTH_VARIANCE_MIN));
+		// TODO base this off of nearby land, like surrounding land.
+		return (int) ((CITY_WEALTH_FACTOR + this.getAvgAdjacentWealth()) * population);
 	}
 	
 	public int calcPopWealth() {
@@ -94,10 +107,11 @@ public class City extends Location {
 	@Override
 	public void autoManage() {
 		// Organize patrols
-		int patrolCount = Math.min((int) (getParty().wealth/(500)), MAX_PATROLS);
+		int patrolCount = Math.min((int) (getWealth()/(500)), MAX_PATROLS);
 		if (getPatrols().size < patrolCount) {
 			createPatrol();
 		}
+		
 		
 		// this is an overly complicated way of doing it
 		
@@ -157,6 +171,32 @@ public class City extends Location {
 		assert(!this.nobles.contains(noble, true));
 		this.nobles.add(noble);
 		noble.setHome(this);
+	}
+	
+	public float getAvgAdjacentWealth() {
+		float sum = 0;
+		int count = 0;
+		if (this.getCenter() != null) {
+			count++;
+			sum += this.getCenter().wealth;
+			for (Center c : getCenter().neighbors) {
+				if (c.wealth > 0) {
+					count++;
+					sum += c.wealth;
+				}
+			}
+		}
+		else if (this.getCorner() != null) {
+			for (Center c : getCorner().touches) {
+				if (c.wealth > 0) {
+					count++;
+					sum += c.wealth;
+				}
+			}
+		}
+		float avg = (sum / count);
+		System.out.println("adjacent wealth: " + avg);
+		return avg;
 	}
 	
 //	public void createRaider() {

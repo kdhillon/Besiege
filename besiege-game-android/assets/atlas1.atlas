@@ -5,7 +5,7 @@ filter: Nearest,Nearest
 repeat: none
 Bandit
   rotate: false
-  xy: 239, 117
+  xy: 182, 39
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
@@ -26,35 +26,35 @@ City
   index: -1
 Farmer
   rotate: false
-  xy: 86, 83
+  xy: 193, 39
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
 KnightHorse
   rotate: false
-  xy: 210, 116
+  xy: 74, 4
   size: 27, 10
   orig: 27, 10
   offset: 0, 0
   index: -1
 Merchant
   rotate: false
-  xy: 210, 88
+  xy: 164, 34
   size: 16, 14
   orig: 16, 14
   offset: 0, 0
   index: -1
 Player
   rotate: false
-  xy: 102, 92
+  xy: 110, 16
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
 Raider
   rotate: false
-  xy: 129, 92
+  xy: 103, 6
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
@@ -68,21 +68,21 @@ Village
   index: -1
 battle
   rotate: false
-  xy: 54, 44
+  xy: 137, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 black9
   rotate: false
-  xy: 86, 73
+  xy: 246, 118
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 fog
   rotate: false
-  xy: 86, 73
+  xy: 246, 118
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
@@ -94,184 +94,366 @@ crestBandits
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestBlank
+crestBase
   rotate: false
   xy: 20, 2
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestBlueRose
+crestBlank
   rotate: false
   xy: 68, 68
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestGreenStripe
+crestBlueRose
   rotate: false
   xy: 102, 102
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestGreenTree
+crestGreenStripe
   rotate: false
   xy: 36, 36
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestOrangeCross
+crestGreenTree
   rotate: false
   xy: 120, 102
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestRedAxe
+crestOrangeCross
   rotate: false
   xy: 138, 102
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestRedCross
+crestRedAxe
   rotate: false
   xy: 156, 102
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestWhiteLion
+crestRedCross
   rotate: false
   xy: 174, 102
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-crestYellowStar
+crestWhiteLion
   rotate: false
   xy: 192, 102
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
+crestYellowStar
+  rotate: false
+  xy: 210, 102
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail1
+  rotate: false
+  xy: 228, 102
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail10
+  rotate: false
+  xy: 86, 68
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail11
+  rotate: false
+  xy: 54, 36
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail12
+  rotate: false
+  xy: 72, 42
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail2
+  rotate: false
+  xy: 90, 42
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail3
+  rotate: false
+  xy: 38, 10
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail4
+  rotate: false
+  xy: 56, 10
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail5
+  rotate: false
+  xy: 74, 16
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail6
+  rotate: false
+  xy: 92, 16
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail7
+  rotate: false
+  xy: 104, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail8
+  rotate: false
+  xy: 122, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+detail9
+  rotate: false
+  xy: 140, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
 green9
   rotate: false
-  xy: 228, 94
+  xy: 246, 108
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-d9
   rotate: false
-  xy: 54, 34
+  xy: 204, 40
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-dm9
   rotate: false
-  xy: 64, 34
+  xy: 214, 40
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-light
   rotate: false
-  xy: 250, 123
+  xy: 38, 5
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-lm
   rotate: false
-  xy: 36, 31
+  xy: 155, 33
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-lm9
   rotate: false
-  xy: 228, 84
+  xy: 224, 40
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-md9
   rotate: false
-  xy: 86, 63
+  xy: 234, 40
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-med
   rotate: false
-  xy: 68, 63
+  xy: 246, 103
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-med9
   rotate: false
-  xy: 97, 82
+  xy: 244, 40
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-mmd9
   rotate: false
-  xy: 107, 82
+  xy: 130, 6
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-xl
   rotate: false
-  xy: 137, 87
+  xy: 251, 103
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 knightFlail
   rotate: false
-  xy: 210, 104
+  xy: 110, 38
   size: 25, 10
   orig: 25, 10
   offset: 0, 0
   index: -1
 knightLance
   rotate: false
-  xy: 156, 90
+  xy: 110, 26
   size: 25, 10
   orig: 25, 10
   offset: 0, 0
   index: -1
 knightSword
   rotate: false
-  xy: 183, 90
+  xy: 137, 38
   size: 25, 10
   orig: 25, 10
   offset: 0, 0
   index: -1
 lightFog
   rotate: false
-  xy: 117, 82
+  xy: 140, 10
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
+over1
+  rotate: false
+  xy: 158, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over10
+  rotate: false
+  xy: 176, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over11
+  rotate: false
+  xy: 194, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over12
+  rotate: false
+  xy: 212, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over13
+  rotate: false
+  xy: 230, 76
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over2
+  rotate: false
+  xy: 108, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over3
+  rotate: false
+  xy: 126, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over4
+  rotate: false
+  xy: 144, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over5
+  rotate: false
+  xy: 162, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over6
+  rotate: false
+  xy: 180, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over7
+  rotate: false
+  xy: 198, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over8
+  rotate: false
+  xy: 216, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over9
+  rotate: false
+  xy: 234, 50
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
 panelBG
   rotate: false
-  xy: 36, 28
+  xy: 137, 17
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
   index: -1
 red9
   rotate: false
-  xy: 127, 82
+  xy: 182, 29
   size: 8, 8
   orig: 8, 8
   offset: 0, 0

@@ -8,7 +8,6 @@ package kyle.game.besiege.army;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Point;
-import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.party.PartyType;
 
 public class Bandit extends Army {
@@ -19,7 +18,7 @@ public class Bandit extends Army {
 	
 	public Bandit(Kingdom kingdom, String name,
 			float posX, float posY) {
-		super(kingdom, name, Faction.BANDITS_FACTION, posX, posY, PartyType.Type.FARMERS);
+		super(kingdom, name, Faction.BANDITS_FACTION, posX, posY, PartyType.Type.BANDIT);
 		
 		if (getParty().getTotalSize() >= MID_SIZE)
 			texture = "Raider";
@@ -31,8 +30,14 @@ public class Bandit extends Army {
 	}
 	
 	@Override
+	public void act(float delta) {
+//		System.out.println("Bandit act");
+		super.act(delta);
+	}
+	
+	@Override
 	public void uniqueAct() {
-		if (path.isEmpty()) { //key
+		if (!this.hasTarget()) { //key
 			// create new random target
 			float dx = (float) ((Math.random()*2-1)*getLineOfSight()); //number btw -1 and 1
 			float dy = (float) ((Math.random()*2-1)*getLineOfSight());

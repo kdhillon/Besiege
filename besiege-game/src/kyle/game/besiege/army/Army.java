@@ -382,12 +382,19 @@ public class Army extends Actor implements Destination {
 		}
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), 1, 1, getRotation());
+		
+		// draw los
+		drawLOS();
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
 	}
 
+	public void drawLOS() {
+		
+	}
+	
 	public void drawCrest(SpriteBatch batch) {
 		if (this.isInBattle() || this.isGarrisoned() || !this.isVisible() || (this.getFaction() == null)) return;
-		float size_factor = .4f;
+		float size_factor = .7f;
 
 		size_factor +=  .004*this.party.getTotalSize();
 
@@ -408,7 +415,10 @@ public class Army extends Actor implements Destination {
 		Matrix4 tempMatrix = batch.getTransformMatrix();
 		batch.setTransformMatrix(mx4Font);
 		
-		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+		faction.randomCrest.setPosition(-15*zoom , 5 + 5*zoom);
+		faction.randomCrest.setSize(30*zoom, 45*zoom);
+//		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+		faction.randomCrest.draw(batch, clear_white.a);
 		
 		batch.setTransformMatrix(tempMatrix);
 		batch.setColor(temp);
@@ -672,6 +682,7 @@ public class Army extends Actor implements Destination {
 
 		// wait/pause AFTER garrisoning!
 		if (party.player) {
+			System.out.println("garrisoning player");
 			getKingdom().setPaused(true);
 			this.setWaiting(false);
 		}
@@ -795,11 +806,11 @@ public class Army extends Actor implements Destination {
 			// central one
 			closeCenters.add(containingCenter);
 			for (Center levelOne : containing.neighbors) {
-				if (!closeCenters.contains(levelOne.index, false)) // level one
+				if (!closeCenters.contains(levelOne.index, false) && !levelOne.water) // level one
 					closeCenters.add(levelOne.index);
 				for (int i = 0; i < levelOne.neighbors.size(); i++) {
 					Center levelTwo = levelOne.neighbors.get(i);
-					if (!closeCenters.contains(levelTwo.index, false)) // level two
+					if (!closeCenters.contains(levelTwo.index, false) && !levelTwo.water) // level two
 						closeCenters.add(levelTwo.index);
 				}
 			}
@@ -814,19 +825,21 @@ public class Army extends Actor implements Destination {
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
 
 			for (Army army : closeArmies) {
-				if (this.distToCenter(army) < lineOfSight && !army.isGarrisoned() && !army.hiding) {
+				if (army.isGarrisoned() || army.hiding) continue;
+				double distToCenter = this.distToCenter(army);
+				if (distToCenter < lineOfSight) {
 					// hostile troop
 					if (isAtWar(army)) {
 						if (shouldRunFrom(army)) {
-							if (this.distToCenter(army) < closestDistance) {
+							if (distToCenter < closestDistance) {
 								shouldRun = true;
-								closestDistance = this.distToCenter(army);
+								closestDistance = distToCenter;
 								currentArmy = army;
 							}
 						}
 						else if (!shouldRun) {
-							if (this.distToCenter(army) < closestDistance) {
-								closestDistance = this.distToCenter(army);
+							if (distToCenter < closestDistance) {
+								closestDistance = distToCenter;
 								currentArmy = army;
 							}
 						}
@@ -1049,9 +1062,9 @@ public class Army extends Actor implements Destination {
 
 	public void raid(Village village) {
 		//System.out.println(this.name + " is raiding " + village.getName());
-		Militia militia = village.createMilitia();
-		getKingdom().addArmy(militia);
-		createBattleWith(militia, village);
+//		Militia militia = village.createMilitia();
+//		getKingdom().addArmy(militia);
+		createBattleWith(village.garrison, village);
 	}
 	
 	public void calcInitWealth() {
@@ -1492,12 +1505,17 @@ public class Army extends Actor implements Destination {
 		return (this.type == ArmyType.PATROL);
 	}
 	
+	public boolean isBandit() {
+		if (this.faction == null) return false;
+		return this.faction.isBandit();
+	}
+	
 	public boolean withinLOSRange() {
 		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared);
 	}
 	
 	public boolean withinActingRange() {
-		if (this.isNoble() || this.isMerchant()) return true;
+		if (this.isNoble() || this.isMerchant() || this.isBandit() || getKingdom().getPlayer() == null) return true;
 		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared*ACTING_RANGE_FACTOR);
 	}
 	public Center getContaining() {

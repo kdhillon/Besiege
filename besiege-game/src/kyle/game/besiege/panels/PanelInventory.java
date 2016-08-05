@@ -7,7 +7,6 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -180,7 +179,7 @@ public class PanelInventory extends Panel {
 	}
 	
 	public Inventory getInventory() {
-		return panel.character.getCharacter().inventory;
+		return panel.character.inventory;
 	}
 
 	@Override
@@ -342,9 +341,9 @@ public class PanelInventory extends Panel {
 		panel.returnToPrevious();
 	}
 
-	@Override
-	public TextureRegion getCrest() {
-		return null; // TODO try to draw current weapon
-	}
+//	@Override
+//	public RandomCrest getCrest() {
+//		return null; // TODO try to draw current weapon
+//	}
 }
 

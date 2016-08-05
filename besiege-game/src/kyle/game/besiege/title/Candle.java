@@ -279,6 +279,7 @@ public class Candle extends Actor {
 //		System.out.println("drawing");
 		for (Particle p : particles) {
 //			System.out.println("drawing");
+//			Color c = new Color();
 			batch.setColor(p.color);
 			
 			batch.draw(region, p._x, -p._y, 8, 8);

@@ -44,6 +44,7 @@ public class MapScreen implements Screen {
 	private Kryo kryo;
 	public boolean SIMULATE = false;
 
+	private static final boolean VIEW_GENESIS = true; // without this, takes about 5 seconds to run.
 	private static final boolean FORCERUN = false;
 	private static final float SCROLL_SPEED = 2f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
@@ -91,12 +92,20 @@ public class MapScreen implements Screen {
 
 	private SidePanel sidePanel;
 	private boolean mouseOverPanel;
+	
+	private boolean generate;
+	private boolean worldInitialized;
+	private boolean kingdomInitialized;
+	private int worldInitCount = 0;
 
 	public boolean fastForward;
 	public boolean shouldFastForward;
 	public boolean superFastForward;
 	public boolean shouldSuperFastForward;
 	public boolean crazyFastForward;
+//	public boolean shouldSlowDown;
+	public boolean slowDown;
+
 	public boolean shouldLetRun; // for "waiting" and " ing", in location
 	public boolean shouldCenter;
 
@@ -116,6 +125,8 @@ public class MapScreen implements Screen {
 	private boolean debugToggle;
 
 	private boolean toggleNextFormation;
+	
+	public static float wind;
 
 	//	public PrintWriter out; // accessed by kingdom
 
@@ -134,6 +145,8 @@ public class MapScreen implements Screen {
 		kryo.register(Castle.class);
 		kryo.register(Subparty.class);
 
+		System.out.println("initializing mapscreen");
+		
 		character = new Character(name);
 		setStaticCharacter(character);
 
@@ -158,63 +171,31 @@ public class MapScreen implements Screen {
 		kingdomStage = new Stage(0, 0, false, kingdomBatch);
 		kingdomStage.setCamera(kingdomCamera);
 		//		kingdomStage.setCamera(kingdomPerspectiveCamera);
+		currentStage = kingdomStage;
 
 		battleStage = new Stage(0, 0, false, kingdomBatch);
 		battleStage.setCamera(battleCamera);
 
 		//		this.currentCamera = kingdomPerspectiveCamera;
 		this.currentCamera = kingdomCamera;
-
+		
+		// will this draw blank before kingdom loads?
+//		kingdomStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);	
+//		kingdomStage.act();
+//		kingdomStage.draw();
+	
 		uiStage = new Stage();
 		uiStage.addListener(new InputListener());
+
 		sidePanel = new SidePanel(this);
 		storeStaticSidePanel(sidePanel);
 		
-		if (generate)
-			kingdom = new Kingdom(this);
-		else {
-			this.load();
-			if (kingdom == null) System.out.println("kingdom still null");
-		}
-
-
-		sidePanel.setKingdom(kingdom);
-		//		fog = new Fog(this);
-
-		mapControllerAndroid = new MapControllerAndroid(currentCamera, this);
-		mapControllerDesktop = new MapControllerDesktop(currentCamera, this);
-		kingdomStage.addActor(kingdom);
-		currentStage = kingdomStage;
-
-		//		kingdomStage.addActor(fog); // test to see if this is slowing things down
-		mousePos = new Vector2(0,0);
-		rotation = 0;
-		speedFactor = 1;
-
-		uiStage.addActor(sidePanel);
-		mouseOverPanel = false;
-		keydown = 0;
-
-		if (generate) kingdom.addPlayer();
-		sidePanel.initializePanels();
-
-		shouldCenter = false;
-		shouldFastForward = false;
-		shouldLetRun = false;
-
-		fogOn = false;
-		losOn = false;
-		fogToggle = false;
-		losToggle = true;
-
-		toggleNextFormation = false;
-
-		startLog();
-
+		// key to start initializing world;
+		this.generate = generate;
+		worldInitialized = false;
 		//		environment = new Environment();
 		//        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
 		//        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
-
 	}
 
 	// don't generate kingdom
@@ -234,6 +215,7 @@ public class MapScreen implements Screen {
 
 		uiStage = new Stage();
 		uiStage.addListener(new InputListener());
+		
 		sidePanel = new SidePanel(this);
 
 		storeStaticSidePanel(sidePanel);
@@ -266,7 +248,132 @@ public class MapScreen implements Screen {
 		toggleNextFormation = false;
 
 		startLog();
+		
+//		this.generate = true;
+		
+		worldInitialized = true;
+		
+		center();
+		//		fog = new Fog(this);
 
+		mapControllerAndroid = new MapControllerAndroid(currentCamera, this);
+		mapControllerDesktop = new MapControllerDesktop(currentCamera, this);
+
+		//		kingdomStage.addActor(fog); // test to see if this is slowing things down
+		mousePos = new Vector2(0,0);
+		rotation = 0;
+		speedFactor = 1;
+
+		uiStage.addActor(sidePanel);
+		mouseOverPanel = false;
+		keydown = 0;
+
+//		if (generate)
+//		sidePanel.initializePanels();
+//		
+//		rotate((float) (360 * Math.random()));
+
+		shouldCenter = false;
+		shouldFastForward = false;
+		shouldLetRun = false;
+
+		fogOn = false;
+		losOn = false;
+		fogToggle = false;
+		losToggle = true;
+
+		toggleNextFormation = false;
+		
+//		sidePanel.setActiveArmy(battleStage.);
+
+		startLog();
+	}
+	
+	
+	public void initializeWorldStep() {
+//		System.out.println("initializeWorldStep");
+		// just to make sure the kingdom is getting drawn
+		if (VIEW_GENESIS && worldInitCount < 10) {
+			worldInitCount++; return;
+		}
+		
+		if (!VIEW_GENESIS || worldInitCount < 11) {
+			if (generate) {
+				if (kingdom == null) {
+					kingdom = new Kingdom(this);
+					kingdomStage.addActor(kingdom);
+					sidePanel.setKingdom(kingdom);
+				}
+				if (VIEW_GENESIS) {
+					if (!kingdom.initialized) {
+						kingdom.initStep();
+						if (kingdom.getPlayer() == null) {
+							if (generate) kingdom.addPlayer();
+						}
+
+						center();
+
+						return;
+					}
+				}
+				else {
+					while (!kingdom.initialized) {
+						kingdom.initStep();
+					}
+					if (generate) kingdom.addPlayer();
+					center();
+				}
+			}
+			else {
+				this.load();
+				if (kingdom == null) System.out.println("kingdom still null");
+			}
+			
+			center();
+			//		fog = new Fog(this);
+
+			mapControllerAndroid = new MapControllerAndroid(currentCamera, this);
+			mapControllerDesktop = new MapControllerDesktop(currentCamera, this);
+
+			//		kingdomStage.addActor(fog); // test to see if this is slowing things down
+			mousePos = new Vector2(0,0);
+			rotation = 0;
+			speedFactor = 1;
+
+			uiStage.addActor(sidePanel);
+			mouseOverPanel = false;
+			keydown = 0;
+
+			sidePanel.initializePanels();
+		}
+		if (VIEW_GENESIS && worldInitCount < 15) {
+			center();
+			worldInitCount++; return;
+		}
+		if (!VIEW_GENESIS || worldInitCount < 16) {
+			center();
+//			rotate((float) (360 * Math.random()));
+
+			shouldCenter = false;
+			shouldFastForward = false;
+			shouldLetRun = false;
+
+			fogOn = false;
+			losOn = false;
+			fogToggle = false;
+			losToggle = true;
+
+			toggleNextFormation = false;
+
+			startLog();
+
+		}
+		if (VIEW_GENESIS && worldInitCount < 20) {
+			worldInitCount++; return;
+		}
+		center();
+		
+		worldInitialized = true;
 	}
 	
 	public static void storeStaticSidePanel(SidePanel sp) {
@@ -314,10 +421,11 @@ public class MapScreen implements Screen {
 	}
 
 	@Override
-	public void render(float delta) {		
+	public void render(float delta) {			
 		//		kingdomPerspectiveCamera.rotate(new Vector3(0,0.5f,0.5f), .1f);
 		//		kingdomPerspectiveCamera.update();
-		handleInput();
+		if ((kingdom != null && kingdom.getPlayer() != null) || battle != null)
+			handleInput();
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 
 		// have to really be careful if we want to do backface culling and draw vertices in order.
@@ -327,13 +435,16 @@ public class MapScreen implements Screen {
 		// keys for preventing slow display with SwapBuffers taking a 
 		// long time: disable vsync. maybe a better solution somewhere.
 
-		if (currentCamera == kingdomCamera)
+		if (currentCamera == kingdomCamera && kingdom != null)
 			//		if (currentCamera == kingdomPerspectiveCamera)
 			Gdx.gl.glClearColor(background.r*kingdom.currentDarkness, background.g*kingdom.currentDarkness, 
 					background.b*kingdom.currentDarkness, background.a);
-		else {
+		else if (battle != null) {
 			Gdx.gl.glClearColor(battle.battlemap.bgColor.r*battle.currentDarkness, battle.battlemap.bgColor.g*battle.currentDarkness, 
 					battle.battlemap.bgColor.b*battle.currentDarkness, battle.battlemap.bgColor.a);
+		}
+		else {
+			Gdx.gl.glClearColor(background.r, background.g, background.b, background.a);	
 		}
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		if (crazyFastForward) crazyFastForward(delta);
@@ -401,13 +512,19 @@ public class MapScreen implements Screen {
 		if (kingdom != null) 
 			if (kingdom.raining) kingdom.rain();
 		if (battle != null) battle.updateColor(currentStage.getSpriteBatch());
-		else kingdom.updateColor(currentStage.getSpriteBatch());
+		else if (kingdom != null) kingdom.updateColor(currentStage.getSpriteBatch());
 
+		updateWind(delta);
+		
 		currentStage.draw();
 		uiStage.draw();
 
 		// if (shouldCenter && !kingdom.isPaused()) center(); // maybe should be in kingdom
 		if (shouldCenter) center(); // maybe should be in kingdom
+		
+		if (!worldInitialized) {
+			initializeWorldStep();
+		}
 	}
 
 	private void crazyFastForward(float delta) {
@@ -444,6 +561,14 @@ public class MapScreen implements Screen {
 		currentStage.act(delta);
 		currentStage.act(delta);
 		uiStage.act(delta);
+	}
+	
+	public void updateWind(float delta) {
+		float WIND_CHANGE = 10f;
+		wind += (Math.random() * WIND_CHANGE - WIND_CHANGE /2) * delta ;
+//		System.out.println("wind: " + wind);
+		if (wind > 1) wind = 1;
+		if (wind < -1) wind = -1;
 	}
 
 	public float getSpeed() {
@@ -514,6 +639,7 @@ public class MapScreen implements Screen {
 		if (battle == null) {
 			kingdom.getPlayer().setWaiting(false);
 			kingdom.setPaused(true);
+			System.out.println("end run");
 		}
 		//		else {
 		//			battle.setPaused(true);
@@ -524,18 +650,26 @@ public class MapScreen implements Screen {
 		else kingdom.click(pointer);
 	}
 	public void center() {
-		if (currentCamera == kingdomCamera)
+		if (currentCamera == battleCamera) {
+			if (battle != null) battle.centerCameraOnPlayer();
+		}
+		else if (currentCamera == kingdomCamera && kingdom != null && kingdom.getPlayer() != null && worldInitialized) {
 			//		if (currentCamera == kingdomPerspectiveCamera)
 			//			currentCamera.translate(new Vector2(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y));
 			currentCamera.translate(new Vector3(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y, 0));
-		else if (currentCamera == battleCamera) {
-			if (battle != null) battle.centerCameraOnPlayer();
 		}
+		else if (kingdom != null && kingdom.map != null) {
+			System.out.println("centering on reference point");
+			currentCamera.translate(new Vector3(Map.WIDTH/2-currentCamera.position.x, Map.HEIGHT/2-currentCamera.position.y, 0));			
+			kingdomCamera.zoom = 10f;;		
+		}
+		
 	}
 	public void handleInput() {
+		if (mousePos == null) return;
 		mousePos.x = Gdx.input.getX();
 		mousePos.y = Gdx.input.getY();
-		//		BottomPanel.log("mouse at " + mousePos.x + ", " + mousePos.y);
+//				BottomPanel.log("mouse at " + mousePos.x + ", " + mousePos.y);
 
 		if (mousePos.x > BesiegeMain.WIDTH-SidePanel.WIDTH || mousePos.y > BesiegeMain.HEIGHT - BottomPanel.HEIGHT) {
 			mouseOverPanel = true;
@@ -643,6 +777,11 @@ public class MapScreen implements Screen {
 				superFastForward = true;
 			else if (superFastForward)
 				superFastForward = false;
+			
+			if (Gdx.input.isKeyPressed(Keys.H))
+				slowDown = true;
+			else if (slowDown)
+				slowDown = false;
 
 			if (SIMULATE)
 				crazyFastForward = true;
@@ -711,7 +850,7 @@ public class MapScreen implements Screen {
 			}
 
 			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-				sidePanel.setDefault();
+				sidePanel.setDefault(true);
 				if (battle != null) battle.selectedUnit = null;
 			}
 			//			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
@@ -779,6 +918,7 @@ public class MapScreen implements Screen {
 		this.battleCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 		this.battleStage.setCamera(battleCamera);
 		this.currentCamera = battleCamera;
+		this.sidePanel.setActiveBattle(battle.battle);
 		this.shouldCenter = false;
 		center();
 		battleCamera.zoom = 1f;
@@ -797,9 +937,10 @@ public class MapScreen implements Screen {
 		center();
 
 		this.sidePanel.clean();
-		this.sidePanel.setDefault();
+		this.sidePanel.setDefault(true);
 		kingdom.currentDarkness = kingdom.targetDarkness;
 
+		System.out.println("switching to kingdom view");
 		if (!kingdom.getPlayer().forceWait) kingdom.setPaused(true);
 	}
 
@@ -919,6 +1060,8 @@ public class MapScreen implements Screen {
 
 	@Override
 	public void hide() {
+		System.out.println("hiding");
+
 		Gdx.input.setInputProcessor(null);	
 		if (kingdom != null) kingdom.setPaused(true);
 	}

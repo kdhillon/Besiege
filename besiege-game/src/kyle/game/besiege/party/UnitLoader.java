@@ -241,6 +241,10 @@ public class UnitLoader {
 			if (unit.armor == null) {
 				throw new java.lang.NullPointerException(armorString + " can't be found");
 			}
+			
+			String hideString = in.next();
+			if (hideString.equals("true"))
+				unit.hideBonus = true;
 
 			String upgradeString = in.next();
 			if (!upgradeString.equals("none")) {
