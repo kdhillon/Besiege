@@ -85,8 +85,10 @@ public class Siege extends Actor {
 		}
 		else if (hasChecked) hasChecked = false;
 	}
-	// TODO change back to have some chance of maintaining
+
+	
 	public void attackOrDestroy() {
+		if (Math.random() < 0.8f) return;
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
 		double balance = Battle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
@@ -112,6 +114,7 @@ public class Siege extends Actor {
 //		if (armies.size >= 1) 
 		this.battle = armies.first().getBattle();
 //		else System.out.println("trying to attack with no armies!");
+		if (battle == null) return;
 		this.battle.siegeOf = location;
 		if (this.battle.siegeOf.siege != this) System.out.println("THIS IS REALLY FUCKED");
 	}
@@ -169,7 +172,7 @@ public class Siege extends Actor {
 	}
 	
 	public void destroy() {
-//		System.out.println("destroying siege of " + location.getName());
+		System.out.println("destroying siege of " + location.getName());
 		for (Army a : armies) {
 			a.leaveSiege();
 		}

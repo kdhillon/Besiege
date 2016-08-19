@@ -28,7 +28,7 @@ import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.WeaponType;
 
 public class Battle extends Actor implements Destination { // new battle system involving Party
-	private static final float SPEED = 2000; //lower is faster
+	private static final float SPEED = 200; //lower is faster
 	private static final int EXP_FACTOR = 47; // how much more exp is given to winning party than total atk of enemies
 	private static final int BASE_EXP = 1;
 	private static final int MIN_EXP = 500;
@@ -37,7 +37,6 @@ public class Battle extends Actor implements Destination { // new battle system 
 	private static final int BASE_RETREAT_TIME = 5;
 	private static final double RETREAT_WEALTH_FACTOR = .7; // this is how much of the retreating parties wealth will be lost
 	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
-	public static final int WAIT = 3; // time army must wait after winning a battle to give the retreater a head start? maybe a better way to do this.
 	public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
 	public static final float BASE_WEAPON_DROP_CHANCE = 0.2f; 
 	public static final float BASE_ARMOR_DROP_CHANCE = 0.2f;
@@ -187,7 +186,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 //				setVisible(false);
 //			else setVisible(true);
 //		}
-		System.out.println(this.getName() + " acting");
+//		System.out.println(this.getName() + " acting");
 		
 		if (this.aArmies == null) {
 //			throw new java.lang.AssertionError();
@@ -522,10 +521,20 @@ public class Battle extends Actor implements Destination { // new battle system 
 		}
 	}
 	
+	// TODO
+//	public void meleeStep() {
+//		// pretend theres some bar with defense of both parties, select at random and kill one weighted by inv defense
+//		
+//		if (!defense.getParty().player && balanceD < RETREAT_THRESHOLD) {
+//			if (defense.type != ArmyType.MILITIA)
+//				retreat(defense);
+//		}
+//	}
+	
 	public void attackStep() {
 		for (Army defense : dArmies) {
 			double defenseRoll = Math.random() * SPEED * defense.getParty().getAvgDef();
-			//System.out.println("defense roll of defender : " + defenseRoll);
+			System.out.println("defense roll of defender : " + defenseRoll);
 			if (aAtk*aAdvantage > defenseRoll)
 				killOne(defense, false);
 			if (!defense.getParty().player && balanceD < RETREAT_THRESHOLD) {
@@ -549,8 +558,13 @@ public class Battle extends Actor implements Destination { // new battle system 
 	
 	public void killOne(Army army, boolean atkDead) { // kills/wounds one random troop in this army, weighted by the troop's defense
 		// Now choose a random soldier weighted by def
+		System.out.println("killing one");
 		Soldier random = army.party.getRandomWeightedInverseDefense();
-		if (random == null) throw new java.lang.AssertionError();
+//		if (random == null) throw new java.lang.AssertionError();
+		if (random == null) {
+			this.destroy(army);
+			return;
+		}
 		
 		casualty(random, atkDead);
 		
@@ -686,7 +700,7 @@ public class Battle extends Actor implements Destination { // new battle system 
 			Army army = victor.get(i);
 			army.endBattle();
 			army.setStopped(false);
-			army.forceWait(WAIT);
+			army.forceWait(army.getForceWait());
 			if (army.getParty().player) {
 				kingdom.getMapScreen().getSidePanel().setDefault(true);
 			}

@@ -145,6 +145,7 @@ public class UnitLoader {
 			weapon.oneHand	= in.nextBoolean();
 			weapon.blunt 	= in.nextBoolean();
 			weapon.polearm 	= in.nextBoolean();
+			weapon.cavalryBonus	= in.nextBoolean();
 			weaponTypes.put(weapon.name, weapon);
 						printWeapon(weapon);
 		}

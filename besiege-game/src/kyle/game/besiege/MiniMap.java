@@ -5,7 +5,9 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -23,10 +25,13 @@ public class MiniMap extends Actor {
 	private TextureRegion unitArmor;
 	private TextureRegion unitSkin;
 	
+	private TextureRegion unitShield;
+	
 	public MiniMap(SidePanel panel) {
 		this.panel = panel;
 		unitArmor = Assets.units.findRegion("preview_armor");
 		unitSkin = Assets.units.findRegion("preview_skin");
+		unitShield = new TextureRegion(new Texture(Gdx.files.internal("equipment/shield_side_wd.png"))); 
 	}
 	
 	@Override
@@ -56,10 +61,14 @@ public class MiniMap extends Actor {
 		/* draw unit preview */
 		if (panel.getActiveCrest() == null && panel.getSoldierInstead() != null) {
 			// first draw white background?
-			batch.setColor(Color.WHITE);
-			batch.draw(Assets.white, getX() - getWidth() / 8, getY(), getOriginX(), getOriginY(), getWidth() + getWidth() / 8, getHeight() * 0.8f, 1, 1, getRotation());
-			
 			Soldier toPreview = panel.getSoldierInstead();
+
+			if (toPreview.party.getFaction() != null)
+				batch.setColor(toPreview.party.getFaction().color);
+			else batch.setColor(Color.WHITE);
+			batch.draw(Assets.white, getX() - getWidth() / 8, getY(), getOriginX(), getOriginY(), getWidth() + getWidth() / 8, getWidth() +  getWidth() * 3f/ 8, 1, 1, getRotation());
+			batch.setColor(Color.WHITE);
+
 			
 			float rotation = getRotation();
 			float y = getY() + getWidth()*3f/8;
@@ -93,6 +102,10 @@ public class MiniMap extends Actor {
 			batch.setColor(c);
 			if (drawInFront) {
 				batch.draw(weapon, getX() - getWidth()/8f, y, getWidth() * 3f/16, getWidth()*12f/16, getWidth() * 3f/8, getWidth()*12f/8, 1, 1, rotation);		
+			}
+			
+			if (toPreview.unitType.shield) {
+				batch.draw(unitShield, getX() + getWidth()*10f/16 - getWidth()/8f, getY() + getWidth()*0f/8 + getWidth() * 4f/16, 0, 0, getWidth() * 4f/8, getWidth()*4f/8, 1, 1, 0);		
 			}
 		}
 	}

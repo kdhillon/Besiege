@@ -18,8 +18,9 @@ public class MultiValue implements Value {
 		S_BASE_HP("Base", "Base HP"),
 		S_WEAPON("Weapon", "Weapon Bonus"),
 		S_ARMOR("Armor", "Armor Bonus"),
-		S_GENERAL("Weapon", "Weapon Bonus"),
+		S_GENERAL("General", "General Bonus"),
 		S_HP_DEF("Def", "Defense Bonus"),
+		S_SHIELD("Shield", "Shield Bonus"),
 ;
 		
 		String name, desc;

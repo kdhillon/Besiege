@@ -313,16 +313,31 @@ public class BattleSubParty {
 			shouldUpdate = true;
 		}
 			
-		if (y + currentRegHeight > stage.MAX_PLACE_Y) {
-			if (currentPosY != stage.MAX_PLACE_Y - currentRegHeight) {
-				currentPosY = stage.MAX_PLACE_Y - currentRegHeight;
+		if (this.team == 0 && y + currentRegHeight > stage.MAX_PLACE_Y_1) {
+			if (currentPosY != stage.MAX_PLACE_Y_1 - currentRegHeight) {
+				currentPosY = stage.MAX_PLACE_Y_1 - currentRegHeight;
 				shouldUpdate = true;
 			}
 			yWorks = false;
 		}
-		if (y < stage.MIN_PLACE_Y) {
-			if (currentPosY != stage.MAX_PLACE_Y) { 
-				currentPosY = stage.MIN_PLACE_Y;
+		if (this.team == 1 && y + currentRegHeight > stage.MAX_PLACE_Y_2) {
+			if (currentPosY != stage.MAX_PLACE_Y_2 - currentRegHeight) {
+				currentPosY = stage.MAX_PLACE_Y_2 - currentRegHeight;
+				shouldUpdate = true;
+			}
+			yWorks = false;
+		}
+		
+		if (this.team == 0 && y < stage.MIN_PLACE_Y_1) {
+			if (currentPosY != stage.MAX_PLACE_Y_1) { 
+				currentPosY = stage.MIN_PLACE_Y_1;
+				shouldUpdate = true;
+			}
+			yWorks = false;
+		}
+		if (this.team == 1 && y < stage.MIN_PLACE_Y_2) {
+			if (currentPosY != stage.MAX_PLACE_Y_2) { 
+				currentPosY = stage.MIN_PLACE_Y_2;
 				shouldUpdate = true;
 			}
 			yWorks = false;
@@ -332,6 +347,7 @@ public class BattleSubParty {
 			shouldUpdate = true;
 		}
 		
+
 		if (shouldUpdate && (!xWorks || !yWorks)) updateFormation();
 		return xWorks && yWorks;
 	}

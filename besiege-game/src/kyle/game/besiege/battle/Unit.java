@@ -32,7 +32,7 @@ public class Unit extends Group {
 	static public float NEAR_COVER_DISTANCE = 6;
 	static public float HEIGHT_RANGE_FACTOR = 6;
 	static public float MAN_SIEGE_DISTANCE = 40;
-	static public float HIDE_DISTANCE = 30;
+	static public float HIDE_DISTANCE = 40;
 
 	static final float DEATH_TIME = 300;
 	static final float BASE_SPEED = .2f;
@@ -42,9 +42,10 @@ public class Unit extends Group {
 
 	static final float CLIMB_HEIGHT = .1f; // how high can units climb
 
-	final static float POLARM_BONUS = 4f;
+	final static float CAVALRY_BONUS = 4f;
 	
 	final static float BASE_FIRE_RATE = 1.5f;
+	final static float INIT_RELOAD = 2f;
 
 	public BattleStage stage;	
 	public Unit attacking;
@@ -81,12 +82,12 @@ public class Unit extends Group {
 	boolean rotationFixed;
 
 	float timer = ATTACK_EVERY;
-	float reloading = 0f;
+	float reloading;
 	//float lastFace = 0f;
 	public float hp;
 
 	//	public float speed = .35f;
-	public float UNIT_BASE_SPEED = .45f;
+	public float UNIT_BASE_SPEED = .75f; // .45
 
 	public float currentSpeed = 0;
 	public int team;
@@ -154,8 +155,6 @@ public class Unit extends Group {
 		this.team = team;
 		if (this.team == 0) enemyParty = stage.enemies;
 		else enemyParty = stage.allies;
-
-		
 		
 		this.original_x = pos_x;
 		this.original_y = pos_y;
@@ -239,7 +238,7 @@ public class Unit extends Group {
 
 		firingStateTime = 0f;
 		stateTime = 0f;
-		if (rangedWeapon != null) reloading = 0; // initial reload time
+		if (rangedWeapon != null) reloading = INIT_RELOAD; // initial reload time
 
 		//		this.height = 0;
 
@@ -398,7 +397,7 @@ public class Unit extends Group {
 
 					if (this.bowOut() && !shouldMove()) {
 						if (nearestTarget != null) {
-							if (nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
+							if (reloading < 0 && nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
 								fireAtEnemy();
 							}
 							else {
@@ -1117,10 +1116,9 @@ public class Unit extends Group {
 		double bonusDamage = 0;
 
 		// polearm against cavalry
-		if (!weapon.oneHand && attacking.isMounted()) {
-			bonusDamage += POLARM_BONUS;
+		if (weapon.cavalryBonus && attacking.horse != null) {
+			bonusDamage += CAVALRY_BONUS;
 		}
-
 
 		attacking.hurt(damage + bonusDamage, this);
 	}
@@ -1129,11 +1127,11 @@ public class Unit extends Group {
 		if (damage <= 0) return;
 
 		// shield splits damage in half
-		if (this.shieldUp() && attacker != null && this.orientation == attacker.getOppositeOrientation()) {
-			this.shield_hp -= damage/2.0;
-			damage /= 2.0;
-			if (shield_hp <= 0) destroyShield();
-		}
+//		if (this.shieldUp() && attacker != null && this.orientation == attacker.getOppositeOrientation()) {
+//			this.shield_hp -= damage/2.0;
+//			damage /= 2.0;
+//			if (shield_hp <= 0) destroyShield();
+//		}
 
 		if (this.isMounted()) {
 			this.horse_hp -= damage/2.0;
@@ -1377,6 +1375,7 @@ public class Unit extends Group {
 //		soldier.equipment.removeValue(shield, true);
 		this.shield = null;
 		this.weaponDraw.shield = null;
+		this.weaponDraw.clear();
 		soldier.calcStats();
 		calcStats();
 	}
@@ -1647,7 +1646,7 @@ public class Unit extends Group {
 	// only 1-handed units and non-mounted
 	public boolean canHide() {
 		if (this.isMounted()) return false;
-		return this.weapon.oneHand; 
+		return !this.weapon.polearm; 
 	}
 
 	public void updateHidden() {

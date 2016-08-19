@@ -28,7 +28,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	private final static short[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
 	public final static boolean[] ATK_TIER = {true, false, false, true, false, true, false, false, true, false, false};
 	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, false, true, false, false, false};
-	public final static boolean[] SPD_TIER = {true, false, false, false, false, false, true, false, false, true, false};
+	public final static boolean[] SPD_TIER = {true, true, true, false, false, false, true, false, false, true, false};
 	private static final float LEVEL_FACTOR = 1.1f; // exp needed for next level each time;
 	private static final int INITIAL_NEXT = 20;
 	private static final float HEAL_TIME = 120; // seconds
@@ -151,15 +151,17 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		
 		this.def = new MultiValue("Defense");
 		def.addSubValue(TypeInfo.S_BASE_DEF);
-		def.addSubValue(TypeInfo.S_WEAPON);
+//		def.addSubValue(TypeInfo.S_WEAPON);
 		def.addSubValue(TypeInfo.S_ARMOR);
 		def.addSubValue(TypeInfo.S_GENERAL);
-		
+		def.addSubValue(TypeInfo.S_SHIELD);
+
 		this.spd = new MultiValue("Speed");
 		spd.addSubValue(TypeInfo.S_BASE_SPD);
 		spd.addSubValue(TypeInfo.S_WEAPON);
 		spd.addSubValue(TypeInfo.S_ARMOR);
 		spd.addSubValue(TypeInfo.S_GENERAL);
+		spd.addSubValue(TypeInfo.S_SHIELD);
 		
 		this.hp = new MultiValue("HP");
 		hp.addSubValue(TypeInfo.S_BASE_HP);
@@ -179,6 +181,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 			if (SPD_TIER[i]) baseSpd++;
 		}
 		
+		System.out.println("base speed: " + baseSpd);
 		atk.updateValue(TypeInfo.S_BASE_ATK, baseAtk);
 		def.updateValue(TypeInfo.S_BASE_DEF, baseDef);
 		spd.updateValue(TypeInfo.S_BASE_SPD, baseSpd);
@@ -345,17 +348,25 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.unitType = unitType;
 		this.updateWeapon(unitType.melee);
 		this.updateArmor(unitType.armor);
+//		if (unitType.shield)
+		this.updateShield(this.getShield());
 	}
 
 	public void updateWeapon(WeaponType weapon) {
 		this.atk.updateValue(TypeInfo.S_WEAPON, weapon.atkMod);
-		this.def.updateValue(TypeInfo.S_WEAPON, weapon.defMod);
+//		this.def.updateValue(TypeInfo.S_WEAPON, weapon.defMod);
 		this.spd.updateValue(TypeInfo.S_WEAPON, weapon.spdMod);
 	}
 	
 	public void updateArmor(ArmorType armor) {
 		this.def.updateValue(TypeInfo.S_ARMOR, armor.defMod);
-		this.spd.updateValue(TypeInfo.S_ARMOR, armor.defMod);
+		this.spd.updateValue(TypeInfo.S_ARMOR, armor.spdMod);
+	}
+	
+	public void updateShield(Equipment shield) {
+		if (shield == null) return;
+		this.def.updateValue(TypeInfo.S_SHIELD, shield.defMod);
+		this.spd.updateValue(TypeInfo.S_SHIELD, shield.spdMod);
 	}
 
 	public void updateGeneral(General general) {

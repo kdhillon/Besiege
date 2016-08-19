@@ -10,5 +10,5 @@ public class WeaponType {
 	public boolean oneHand; // can support a shield
 	public boolean blunt;
 	public boolean polearm; // is it a polearm?
-
+	public boolean cavalryBonus;
 }

@@ -81,6 +81,10 @@ public class NameGenerator {
 		return  lowercase(tgLast.gen(5, 10, 5));
 	}
 	
+	public static String generateFactionName() {
+		return  lowercase(tgLast.gen(5, 8, 5));
+	}
+	
 	public static void main(String[] args) {
 //		init();
 //		System.out.println(generateFirstNameMale());

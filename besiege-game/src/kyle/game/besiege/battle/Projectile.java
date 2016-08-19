@@ -16,7 +16,9 @@ public class Projectile extends Group {
 	//	private final float THRESHOLD = .5f;
 	//	private final float UNIT_HEIGHT = .1f;
 	private final float GRAVITY = -1;
-	
+	private final float CROSSBOW_BONUS = 2; // bonus factor against shields
+	private final float SHIELD_BLOCK_PROB = 0.8f; // bonus factor against shields
+
 	private final static boolean FRIENDLY_FIRE = true; // if true, arrows can hurt own team. note that siege hurts own team by default
 	
 	private float SCALE = 3;
@@ -48,6 +50,7 @@ public class Projectile extends Group {
 
 	private boolean broken;
 	private boolean stopped;
+	private WeaponDraw stuckShield;
 	private Unit stuck;
 	private Unit firing;
 	private SiegeUnit siegeFiring;
@@ -61,7 +64,7 @@ public class Projectile extends Group {
 	public float distanceToTravel;
 
 //	public float SPEED = 10f;
-	public float SPEED = 20f;
+	public float SPEED = 40f;
 	public float FIREARM_SPEED = 100f;
 //			public float SPEED = 200f; // basically gunfire
 
@@ -394,6 +397,15 @@ public class Projectile extends Group {
 			if (toDraw != null)
 				batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
 		}
+		else if (stuckShield != null && !stuck.isDying){
+			setScaleY(getScaleY()*2f);
+			setX(stuck.getOriginX() + temp_offset_x + stuckShield.shieldOffset);
+			setY(stuck.getOriginY() + temp_offset_y + stuckShield.shieldOffset);
+			this.setRotation(-rotation_offset);
+
+			if (texture != null)
+				batch.draw(halfArrow, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());	
+		}
 		else if (!stuck.isDying || stuck.timeSinceDeath > .75f){
 						setScaleY(getScaleY()*2f);
 			setX(stuck.getOriginX() + temp_offset_x);
@@ -420,10 +432,32 @@ public class Projectile extends Group {
 		
 		if (this.isArrow()) {
 		// test killing horses
-			if (that.shieldUp() && that.getOppositeOrientation() == this.orientation) {
+			if (that.shieldUp() && that.getOppositeOrientation() == this.orientation && Math.random() < SHIELD_BLOCK_PROB) {
+				if (this.firing.rangedWeapon.type == Type.CROSSBOW) {
+					damage *= CROSSBOW_BONUS;
+				}
 				that.shield_hp -= damage;
 				if (that.shield_hp <= 0) that.destroyShield();
-				this.destroy();
+				else {
+					this.stopped = true;
+					this.stuckShield = that.weaponDraw;
+					this.stuck = that;
+					//				this.temp_offset_x = (float) Math.random() - .5f;h
+					//				this.temp_offset_y = (float) Math.random() - .5f;
+//					this.setPosition(100, 0);
+//					this.setRotation(0);
+					//				//		
+					//				this.temp_offset_x *= 5;
+//					this.temp_offset_y *= 5;
+
+					this.temp_offset_y += STUCK_Y / 2;
+					this.temp_offset_x += STUCK_Y * 1.5f;
+
+					this.rotation_offset = that.getRotation() - this.getRotation();
+					that.weaponDraw.addActor(this);
+
+				}
+//				this.destroy();
 			}
 			else {
 				that.hurt(Math.max(0, damage - that.def*Math.random()), firing);

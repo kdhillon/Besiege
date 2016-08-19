@@ -123,28 +123,34 @@ public class Faction {
 	//	private static StrictArray<StrictArray<Integer>> factionNearbyCities; // not needed, calced in real time?
 	//	private static StrictArray<StrictArray<Integer>> factionTrade;
 
+	public static RandomCrest rc = new RandomCrest();
+	
 	public Faction() {}
 
 	public Faction(Kingdom kingdom, String name, String textureRegion, Color color) {
 		this.textureName = textureRegion;
 		this.kingdom = kingdom;
-		this.name = name;
+		
+		if (name == null) {
+			this.name = NameGenerator.generateFactionName();
+		}
+		else 
+			this.name = name;
 //		crest = Assets.atlas.findRegion(textureRegion);
 		randomCrest = new RandomCrest();
 		
 //		this.miniCrest = new Image(crest);
-		
 		
 		// replaced!
 		this.color = color;
 		
 		this.color = randomCrest.base;
 		if (this.color.equals(Color.WHITE)) {
-			if (randomCrest.cDetail != null) {
-				this.color = randomCrest.cDetail;
+			if (randomCrest.cOverlay != -1) {
+				this.color = RandomCrest.getColor(randomCrest.cOverlay);
 			}
-			else if (randomCrest.cOverlay != null) {
-				this.color = randomCrest.cOverlay;
+			else if (randomCrest.cDetail != -1) {
+				this.color = RandomCrest.getColor(randomCrest.cDetail);
 			}
 		}
 		

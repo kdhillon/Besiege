@@ -17,7 +17,7 @@ import kyle.game.besiege.voronoi.Biomes;
 
 public class BattleMap extends Group {
 	private TextureRegion white;
-	private static final float SIZE_FACTOR = 1f;
+	private static final float SIZE_FACTOR = 1f; //  change this to increase the drawn area around the battlefield. Cannot exceed 2
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
 	private static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
@@ -35,7 +35,7 @@ public class BattleMap extends Group {
 	public static final float CASTLE_WALL_HEIGHT_DEFAULT = .5f;
 
 	public Color bgColor = new Color();
-	
+
 	private enum MapType {
 		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, ALPINE, MEADOW, CRAG, RIVER, VILLAGE
 	}
@@ -117,10 +117,10 @@ public class BattleMap extends Group {
 
 	private float rainDrawOffsetX;
 	private float rainDrawOffsetY;
-	
+
 	private StrictArray<FireContainer> fc;
 
-//	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
+	//	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
 	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump;
 
 
@@ -129,18 +129,15 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.CRAG;
-		
+		//		this.maptype = MapType.CRAG;
+
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
 		this.total_size_y = (int) (mainmap.size_y * SIZE_FACTOR);
 
-		this.total_height = total_size_y/SIZE;
-		this.total_width = total_size_x/SIZE;
-
 		this.edge_size_percent = (SIZE_FACTOR - 1) / SIZE_FACTOR / 2;
 
-		ground = new GroundType[total_height][total_width];
+		ground = new GroundType[mainmap.size_x/SIZE][mainmap.size_y/SIZE];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
 		ladders = new Array<Ladder>();
 		entrances = new Array<BPoint>();
@@ -157,7 +154,7 @@ public class BattleMap extends Group {
 		ladder = 			Assets.map.findRegion("ladder");
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
-		
+
 		fc = new StrictArray<FireContainer>();
 
 		if (this.maptype == MapType.ALPINE && Math.random() < .75) snowing = true;
@@ -313,7 +310,7 @@ public class BattleMap extends Group {
 			}
 			if (stage.siege)
 				addWall();
-			 bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
+			bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
 		}
 		if (maptype == MapType.CRAG) {
 			for (int i = 0; i < ground.length; i++) {
@@ -367,46 +364,47 @@ public class BattleMap extends Group {
 	}
 
 	public void initializeGround() {
-//		Texture[][] baseTextures = new Texture[ground.length][ground[0].length];
+		//		Texture[][] baseTextures = new Texture[ground.length][ground[0].length];
 		groundTexture = new TextureRegion[ground.length][ground[0].length];
-		
-//		// create base texture, first test this
-//		for (int i = 0; i < groundTexture.length; i++) {
-//			for (int j = 0; j < groundTexture[0].length; j++) {
-////				Pixmap base = this.getTexture(ground[i][j]);
-////				
-////				Pixmap mask = this.getTexture(ground[0][0]);
-////
-////				Color c;
-////								
-////				for (int x = 0; x < base.getWidth(); x++) {
-////					for (int y = 0; y < base.getHeight(); y++) {
-////						int maskColor = mask.getPixel(x, y);
-////						System.out.println(maskColor);
-////						c = new Color(maskColor);
-////						c = new Color(c.r, c.g, c.b, 0.5f);
-////						base.setColor(c);						
-////						base.drawPixel(x, y);
-////					}
-////				}	
-////				
-////				groundTexture[i][j] = new TextureRegion(new Texture(base));
-//				groundTexture[i][j] = new TextureRegion(new Texture(this.getTexture(ground[i][j])));
-//			}
-//		}
 
-//		int half_width = (int) (getDrawWidth()/2);
-//		int half_height = (int) (getDrawHeight()/2);
-		
+		//		// create base texture, first test this
+		//		for (int i = 0; i < groundTexture.length; i++) {
+		//			for (int j = 0; j < groundTexture[0].length; j++) {
+		////				Pixmap base = this.getTexture(ground[i][j]);
+		////				
+		////				Pixmap mask = this.getTexture(ground[0][0]);
+		////
+		////				Color c;
+		////								
+		////				for (int x = 0; x < base.getWidth(); x++) {
+		////					for (int y = 0; y < base.getHeight(); y++) {
+		////						int maskColor = mask.getPixel(x, y);
+		////						System.out.println(maskColor);
+		////						c = new Color(maskColor);
+		////						c = new Color(c.r, c.g, c.b, 0.5f);
+		////						base.setColor(c);						
+		////						base.drawPixel(x, y);
+		////					}
+		////				}	
+		////				
+		////				groundTexture[i][j] = new TextureRegion(new Texture(base));
+		//				groundTexture[i][j] = new TextureRegion(new Texture(this.getTexture(ground[i][j])));
+		//			}
+		//		}
+
+		//		int half_width = (int) (getDrawWidth()/2);
+		//		int half_height = (int) (getDrawHeight()/2);
+
 		// apply pixmap layers
-		boolean blend = true;
-		if (blend) {
-			// then add blend textures (shift down and right 1)
-			for (int i = 0; i < ground[0].length; i++) {
-				for (int j = 0; j < ground.length; j++) {
-					Pixmap current = getTexture(ground[j][i]);
-//					current.
-					
+
+		// then add blend textures (shift down and right 1)
+		for (int i = 0; i < ground[0].length; i++) {
+			for (int j = 0; j < ground.length; j++) {
+				Pixmap current = getTexture(ground[j][i]);
+				//					current.
+
+				boolean blend = true;
+				if (blend) {
 					// now for each of the 8 (9) adjacent textures, blend them with appropriate corners of this guy 
 					for (int x = -1; x <= 1; x++) {
 						for (int y = -1; y <=1 ; y++) {
@@ -416,61 +414,62 @@ public class BattleMap extends Group {
 							Color c;
 
 							float MAX_ALPHA = 0.45f;
-//							float MAX_ALPHA = 0.6f;
-							
+							//							float MAX_ALPHA = 0.6f;
+
 							// apply larger alpha if closer to neighbor
 							// eg, if x == -1 and y == 0, lower values of x_pix are weighted more
 							// (-1, 0): x_pix = 0 should have MAX_ALPHA and x_pix = current.getWidth() should be 0
 							// eg, if x == 1 and y == 1, higher values of x_pix and y_pix are weighted more
 							// x_percent = x_pix / (current.getWidth())
 							// alpha = xpercent * MAX_ALPHA
-							
+
 							for (int x_pix = 0; x_pix < current.getWidth(); x_pix++) {
 								for (int y_pix = 0; y_pix < current.getHeight(); y_pix++) {
-//									if (Math.random() < 0.25) continue; // just try
+									//									if (Math.random() < 0.25) continue; // just try
 									// add some randomness
 									int random_x = (int) (Math.random() * current.getWidth());
 									int random_y = (int) (Math.random() * current.getHeight());
-									
+
 									int maskColor = mask.getPixel(random_x, random_y);
 									c = new Color(maskColor);
-									
+
 									// calculate appropriate alpha for smooth blending
 									float x_percent = (float) x_pix / current.getWidth();
 									float y_percent = (float) y_pix / current.getHeight();
-									
+
 									// invert for negative
 									if (x < 0) x_percent = 1-x_percent;
 									if (y > 0) y_percent = 1-y_percent;
-									
+
 									float alpha_x = x_percent * MAX_ALPHA;
 									float alpha_y = y_percent * MAX_ALPHA;
-									
+
 									if (x == 0) alpha_x = MAX_ALPHA;
 									if (y == 0) alpha_y = MAX_ALPHA;
-									
+
 									// try taking the minimum for smoothness?
 									c.a = Math.min(alpha_x, alpha_y);
-//									c.a = .f;
-//									System.out.println(alpha_x + alpha_y);
-									
+									//									c.a = .f;
+									//									System.out.println(alpha_x + alpha_y);
+
 									current.setColor(c);						
 									current.drawPixel(x_pix, y_pix);
 								}
 							}	
 						}
 					}
-					groundTexture[j][i] = new TextureRegion(new Texture(current));
 				}
+				groundTexture[j][i] = new TextureRegion(new Texture(current));
 			}
 		}
-		
-//		// convert to textureRegions
-//		for (int i = 0; i < groundTexture.length; i++) {
-//			for (int j = 0; j < groundTexture[0].length; j++) {
-//				groundTexture[i][j] = new TextureRegion(baseTextures[i][j]);
-//			}
-//		}
+
+
+		//		// convert to textureRegions
+		//		for (int i = 0; i < groundTexture.length; i++) {
+		//			for (int j = 0; j < groundTexture[0].length; j++) {
+		//				groundTexture[i][j] = new TextureRegion(baseTextures[i][j]);
+		//			}
+		//		}
 	}
 
 	public static MapType getMapTypeForBiome(Biomes biome) {
@@ -531,7 +530,7 @@ public class BattleMap extends Group {
 					entrances.add(entrance);
 				}
 			} 
-			
+
 		}
 		if (wallRight != Integer.MAX_VALUE) {
 			for (int i = Math.max(0, wallBottom); i < Math.min(total_size_x/SIZE_FACTOR, wallTop); i++) {
@@ -657,21 +656,21 @@ public class BattleMap extends Group {
 			}
 		}
 	}
-	
+
 	private void addFire(double probability) {
 		for (int i = 0; i < stage.size_x; i++) {
 			for (int j = 0; j < stage.size_y; j++) {
 				if (Math.random() < probability && objects[j][i] == null) {
 					objects[j][i] = Object.FIRE_SMALL;
 					stage.closed[j][i] = true;
-					
+
 					FireContainer fireContainer = new FireContainer();
 					Fire fire = new Fire(600, 800, stage.getMapScreen(), null);
 					fireContainer.addFire(fire);
 					fireContainer.setPosition(i * stage.unit_width + stage.unit_width / 2, j * stage.unit_height + stage.unit_height/2);
 					fc.add(fireContainer);
-//					fire.setPosition(0, 0);
-//					System.out.println("adding fire: " + j + " " + i);
+					//					fire.setPosition(0, 0);
+					//					System.out.println("adding fire: " + j + " " + i);
 
 					this.addActor(fireContainer);
 				}	
@@ -874,8 +873,8 @@ public class BattleMap extends Group {
 		return stage.unit_height*SIZE;
 	}
 
-	
-//	@Override
+
+	//	@Override
 	public void actSpecial(float delta) {
 		super.act(delta);
 	}
@@ -891,22 +890,20 @@ public class BattleMap extends Group {
 
 		//		System.out.println(ground.length);
 		//		System.out.println(stage.size_x);
-
 		//		// draw base layer textures
 		for (int i = 0; i < ground[0].length; i++) {
 			for (int j = 0; j < ground.length; j++) {
 				texture = groundTexture[j][i];
-				
-				// TODO something is off here with the /3
+
 				boolean offMap = false;
 				if (i < ground[0].length * this.edge_size_percent - 1|| i >= ground[0].length - ground[0].length * this.edge_size_percent) offMap = true;
 				if (j < ground.length * this.edge_size_percent - 1 || j >= ground.length - ground.length * this.edge_size_percent) offMap = true;
 
 				Color c = batch.getColor();
 				groundcolor.set(c);
-
+//
 				if (offMap) {
-					groundcolor.a = c.a*0.4f;
+					groundcolor.a = c.a*0.6f;
 					batch.setColor(groundcolor);
 				}
 				batch.draw(texture, getDrawX(j), getDrawY(i), getDrawWidth(), getDrawHeight());
@@ -916,7 +913,7 @@ public class BattleMap extends Group {
 			}
 		}
 
-		
+
 		for (FireContainer f : fc) {
 			f.updateRotation(stage.getMapScreen().getRotation());
 		}
@@ -994,9 +991,9 @@ public class BattleMap extends Group {
 		if (stage.selectedUnit != null && stage.placementPhase) {
 			stage.selectedUnit.bsp.drawPlacement(batch);
 		}
-		
+
 		boolean drawPlacementArea = true; 
-		
+
 		if (drawPlacementArea && stage.dragging && stage.placementPhase) {
 
 			Color c = batch.getColor();
@@ -1004,10 +1001,17 @@ public class BattleMap extends Group {
 			batch.setColor(groundcolor);
 
 			for (int i = stage.MIN_PLACE_X; i < stage.MAX_PLACE_X; i++) {
-				for (int j = stage.MIN_PLACE_Y; j < stage.MAX_PLACE_Y; j++) {
+				for (int j = stage.MIN_PLACE_Y_1; j < stage.MAX_PLACE_Y_1; j++) {
 					batch.draw(white, (i*stage.unit_width), (j*stage.unit_height), stage.unit_width, stage.unit_height);
 				}
 			}
+
+			for (int i = stage.MIN_PLACE_X; i < stage.MAX_PLACE_X; i++) {
+				for (int j = stage.MIN_PLACE_Y_2; j < stage.MAX_PLACE_Y_2; j++) {
+					batch.draw(white, (i*stage.unit_width), (j*stage.unit_height), stage.unit_width, stage.unit_height);
+				}
+			}
+
 
 			batch.setColor(c);
 		}
@@ -1020,17 +1024,17 @@ public class BattleMap extends Group {
 			Unit drawRange = stage.currentPanel;
 			drawRange(drawRange, batch);
 		}
-//		else if (drawAll && stage.currentPanel != null) {
-//			if (stage.currentPanel.team == 0) {
-//				for (Unit drawRange : stage.getAllies()) 
-//					drawRange(drawRange, batch);
-//			}
-//			else if (stage.currentPanel.team == 1) {
-//				for (Unit drawRange : stage.getEnemies())
-//					drawRange(drawRange, batch);
-//			}
-//		}
-	
+		//		else if (drawAll && stage.currentPanel != null) {
+		//			if (stage.currentPanel.team == 0) {
+		//				for (Unit drawRange : stage.getAllies()) 
+		//					drawRange(drawRange, batch);
+		//			}
+		//			else if (stage.currentPanel.team == 1) {
+		//				for (Unit drawRange : stage.getEnemies())
+		//					drawRange(drawRange, batch);
+		//			}
+		//		}
+
 
 		// draw cover
 		boolean drawCover = false;
@@ -1181,7 +1185,7 @@ public class BattleMap extends Group {
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
 			}
 		}
-		
+
 		for (FireContainer f : fc) {
 			f.draw(batch, 1);
 		}
@@ -1191,7 +1195,7 @@ public class BattleMap extends Group {
 		if (drawRange.bowOut() && !drawRange.retreating) {
 			Color c = batch.getColor();
 			groundcolor.set(RANGE_COLOR);
-			
+
 			float max_alpha = .3f;
 			float base_alpha = .1f;
 
@@ -1229,7 +1233,7 @@ public class BattleMap extends Group {
 
 			// draw target
 			if (drawRange.nearestTarget != null) {
-//				System.out.println("drawing nearest target");
+				//				System.out.println("drawing nearest target");
 				batch.draw(white, (drawRange.nearestTarget.getX()), (drawRange.nearestTarget.getY()), stage.unit_width, stage.unit_height);
 			}
 			batch.setColor(c);
@@ -1257,29 +1261,29 @@ public class BattleMap extends Group {
 		return addObject(pos_x, pos_y, object, null, 0);
 	}
 
-//	private Pixmap getTexture(GroundType ground) {
-//		Pixmap texture;
-//		if (ground == GroundType.GRASS) texture = grass;
-//		else if (ground == GroundType.DARKGRASS) texture = darkgrass;
-//		else if (ground == GroundType.LIGHTGRASS) texture = lightgrass;
-//		else if (ground == GroundType.SAND) texture = sand;
-//		else if (ground == GroundType.WATER) texture = water;
-//		else if (ground == GroundType.MUD) texture = mud;
-//		else if (ground == GroundType.ROCK) texture = rock;
-//		else if (ground == GroundType.DARKROCK) texture = darkrock;
-//		else if (ground == GroundType.SNOW) texture = snow;
-//		else if (ground == GroundType.LIGHTSAND) texture = lightsand;
-//		else if (ground == GroundType.LIGHTSNOW) texture = lightsnow;
-//		else if (ground == GroundType.FLOWERS) texture = flowers;
-//		else if (ground == GroundType.FLOWERS2) texture = flowers2;
-//		else if (ground == GroundType.SWAMP) texture = swamp;
-//		else if (ground == GroundType.SWAMP2) texture = swamp2;
-//		else texture = dirt;
-//
-//		return texture;
-//	}
+	//	private Pixmap getTexture(GroundType ground) {
+	//		Pixmap texture;
+	//		if (ground == GroundType.GRASS) texture = grass;
+	//		else if (ground == GroundType.DARKGRASS) texture = darkgrass;
+	//		else if (ground == GroundType.LIGHTGRASS) texture = lightgrass;
+	//		else if (ground == GroundType.SAND) texture = sand;
+	//		else if (ground == GroundType.WATER) texture = water;
+	//		else if (ground == GroundType.MUD) texture = mud;
+	//		else if (ground == GroundType.ROCK) texture = rock;
+	//		else if (ground == GroundType.DARKROCK) texture = darkrock;
+	//		else if (ground == GroundType.SNOW) texture = snow;
+	//		else if (ground == GroundType.LIGHTSAND) texture = lightsand;
+	//		else if (ground == GroundType.LIGHTSNOW) texture = lightsnow;
+	//		else if (ground == GroundType.FLOWERS) texture = flowers;
+	//		else if (ground == GroundType.FLOWERS2) texture = flowers2;
+	//		else if (ground == GroundType.SWAMP) texture = swamp;
+	//		else if (ground == GroundType.SWAMP2) texture = swamp2;
+	//		else texture = dirt;
+	//
+	//		return texture;
+	//	}
 
-	
+
 	private Pixmap getTexture(GroundType ground) {
 		switch (ground) {
 		case GRASS: 	return new Pixmap(Gdx.files.internal("ground/grass.png")); 
@@ -1301,7 +1305,7 @@ public class BattleMap extends Group {
 		}
 		return null;
 	}
-	
+
 	private MapType randomMapType() {
 		int count = MapType.values().length;
 		int index = (int) (Math.random() * count);

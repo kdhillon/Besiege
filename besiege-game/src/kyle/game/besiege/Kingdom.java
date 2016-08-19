@@ -656,7 +656,11 @@ public class Kingdom extends Group {
 		createFaction("Halmera", "crestBlueRose", Faction.BLUE);
 
 		createFaction("Fernel", "crestRedAxe", Color.LIGHT_GRAY);
-	//	createFaction("Draekal", "crestBlank", Color.BLACK);
+		createFaction("Draekal", "crestBlank", Color.BLACK);
+		createFaction("Earntly", "crestBlank", Color.BLACK);
+		createFaction("Robkin", "crestBlank", Color.BLACK);
+		createFaction("Arfaith", "crestBlank", Color.BLACK);
+		createFaction("Braga", "crestBlank", Color.BLACK);
 
 		for (int i = 0; i < factions.size; i++) {
 			Faction f = factions.get(i);
@@ -674,7 +678,7 @@ public class Kingdom extends Group {
 			factions.get(i).act(delta);
 	}
 	public void createFaction(String name, String textureRegion, Color color) {
-		Faction faction = new Faction(this, name, textureRegion, color);
+		Faction faction = new Faction(this, null, textureRegion, color);
 		factions.add(faction);
 		faction.index = factions.indexOf(faction, true);
 	}

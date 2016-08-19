@@ -507,6 +507,10 @@ public class Army extends Actor implements Destination {
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
 		if (this.battle != null) return;
+		
+//		if (true) return;
+		
+		
 		//		System.out.println(this.getName() + " creating battle");
 		if (this == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
@@ -881,9 +885,14 @@ public class Army extends Actor implements Destination {
 				forceWait = false;
 				this.stopped = false;
 			}
+			if (this.isPlayer()) getKingdom().setPaused(true);
 		}
 	}
 
+	public float getForceWait() {
+		return 6 / party.getAvgSpd();
+	}
+	
 	public void forceWait(float seconds) {
 		this.forceWait = true; 
 		this.waitFor(seconds);
@@ -1187,6 +1196,9 @@ public class Army extends Actor implements Destination {
 	}
 	public void leaveSiege() {
 		//		System.out.println(this.getName() + " is ending siege");
+		// force wait to see if it fixes slow siege end
+		this.forceWait(this.getForceWait());
+		
 		nextTarget();
 		if (siege != null) {
 			if (siege.location == this.getTarget()) nextTarget();

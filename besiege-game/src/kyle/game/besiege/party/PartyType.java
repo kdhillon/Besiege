@@ -16,12 +16,13 @@ public class PartyType { // todo add ability for max party size
 	public static Array<PartyType> types;
 
 	public enum Type {FARMERS, PATROL, MERCHANT, CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
-						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST};
+						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST, TEST_1, TEST_2};
 	
 	//	private final Weapon[] troopTypes;
 	public String name;
 	
-	private UnitClass unitClass; // if this is null, use distributions
+	private UnitClass unitClass; // if this is null, use distribution
+	private UnitType unitType; // force one unit type
 	private float[] biomeWeights;
 	
 	
@@ -86,6 +87,7 @@ public class PartyType { // todo add ability for max party size
 	}
 	
 	public UnitType randomSoldierType() {
+		if (this.unitType != null) return unitType;
 		// weighted based on soldier ffrequencies (in max):		
 		
 		// use rejection sampling because why not
@@ -98,13 +100,21 @@ public class PartyType { // todo add ability for max party size
 			double random = Math.random();
 			double current = 0;
 			int currentIndex = -1;
-			while (current < random) {
-				currentIndex++;
-				current += biomeWeights[currentIndex];
-//				System.out.println(biomeWeights[currentIndex]);
+			Biomes biome;
+			
+			if (biomeWeights != null) {
+
+				while (current < random) {
+					currentIndex++;
+					current += biomeWeights[currentIndex];
+					//				System.out.println(biomeWeights[currentIndex]);
+				}
+				biome = Biomes.values()[currentIndex];
 			}
-			Biomes biome = Biomes.values()[currentIndex];
-//			System.out.println(biome.name());
+			else biome = Biomes.GRASSLAND;
+
+			
+			//			System.out.println(biome.name());
 			classToUse = UnitLoader.biomeClasses.get(biome);
 			if (classToUse == null) {
 //				System.out.println(biome.toString());
@@ -281,6 +291,20 @@ public class PartyType { // todo add ability for max party size
 			pt.maxCount = 100;
 			pt.minCount = 100;
 			pt.tiers = new int[]{2, 3};
+			break;
+		case TEST_1:
+			pt.name = "Test1";
+			pt.maxCount = 20;
+			pt.minCount = 20;
+			pt.tiers = new int[]{3};
+			pt.unitType = UnitLoader.classTypes.get("Basic").units.get("Crossbowman");
+			break;
+		case TEST_2:
+			pt.name = "Test2";
+			pt.maxCount = 20;
+			pt.minCount = 20;
+			pt.tiers = new int[]{3};
+			pt.unitType = UnitLoader.classTypes.get("Basic").units.get("Longbowman");
 			break;
 //		case ENLIGHTENMENT:
 //			pt.name = "Enlightenment";

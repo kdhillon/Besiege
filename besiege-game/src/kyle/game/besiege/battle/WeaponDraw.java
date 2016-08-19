@@ -6,12 +6,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.party.UnitType;
 
-public class WeaponDraw extends Actor {
+public class WeaponDraw extends Group { // can have arrows.
 	private float DEFAULT_OFFSET = 0;
 	private float FIRST_OFFSET = 2;
 	private float ATTACK_ROTATION = 30;
@@ -27,6 +27,8 @@ public class WeaponDraw extends Actor {
 	private Unit unit;
 	private int offset_x = 12;
 	private int offset_y = 4;
+	
+	public float shieldOffset;
 	
 	private float offset_x_ranged = 14;
 	private float offset_y_ranged = -.1f; // .5 before
@@ -216,6 +218,7 @@ public class WeaponDraw extends Actor {
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {	
+		super.draw(batch, parentAlpha);
 		if (!unit.inMap()) return;
 		if (unit.isHidden() && unit.team != 0) return;
 
@@ -231,10 +234,6 @@ public class WeaponDraw extends Actor {
 		}
 		else batch.setColor(.3f, .3f, 1, alpha);
 		
-		// draw white if selected
-		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) {
-			batch.setColor(1, 1, 1, alpha);
-		}
 		if (this.unit.isGeneral()) {
 			if (unit.team == 0) 
 				batch.setColor(1, 0.7f, 0, alpha);
@@ -242,6 +241,12 @@ public class WeaponDraw extends Actor {
 				batch.setColor(0, 0.7f, 1, alpha);
 		}
 		
+		
+		// draw white if selected
+		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) {
+				batch.setColor(1, 1, 1, alpha);
+		}
+	
 		boolean drawTeams = true;
 		
 		if (drawTeams)
@@ -278,9 +283,9 @@ public class WeaponDraw extends Actor {
 		
 		// draw shield
 		if (shield != null && !unit.bowOut()) {
-			float offset_to_use = FIRST_OFFSET;
-			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) offset_to_use = DEFAULT_OFFSET;
-			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+offset_to_use), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);		
+			shieldOffset = FIRST_OFFSET;
+			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) shieldOffset = DEFAULT_OFFSET;
+			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+shieldOffset), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);		
 		}
 		
 		float offset_x_to_use = offset_x;

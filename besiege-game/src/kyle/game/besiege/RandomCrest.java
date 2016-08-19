@@ -1,7 +1,6 @@
 package kyle.game.besiege;
 
 import java.util.List;
-import java.util.Stack;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,7 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 // Code from  http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
 public class RandomCrest extends Actor {
-	static Stack<Color> colors;
+//	static Stack<Color> colors;
+	static Color[] colors;
+	static int colorsPopped;
 	static Color orig;
 	static boolean initialized;
 	static TextureRegion basic;
@@ -19,54 +20,86 @@ public class RandomCrest extends Actor {
 	static TextureRegion[][] doubleOverlays;
 	static TextureRegion[] details;
 	static boolean detailUsed[];
+	static Color[] colorsUsed;
 	
-	static int SINGLE_OVERLAYS = 13;
+	static int COLORS = 50;
+	static int OVERLAYS = 1;
 //	static int DOUBLE_OVERLAYS = 0;
-	static int DETAILS = 12;
+	static int DETAILS = 19;
 
-	Color base;
+	static Color base = Color.WHITE;
+
 	int overlay = -1;
 	
 //	Color accent;
-	Color cOverlay;
+	int cOverlay;
 //	Color cOverlay2;
 	int detail = -1;
-	Color cDetail;
+	int cDetail;
 	
 	boolean doubleOverlay;
 	
 	public RandomCrest() { //StrictArray<RandomCrest> alreadyGenerated
-//		if (Math.random() < 0.3) {
-			base = Color.WHITE;
-			
+		colorsPopped += (int) (Math.random() * 2);
+		
+//		overlay = (int) (Math.random() * OVERLAYS);
+//		if (Math.random() < 0.4) overlay = 0;
+		overlay = 0;
+		
+		cOverlay = getNextColor();
+//		if (overlay == 0 && Math.random() < 0.0) cOverlay = -1;
+
+//		if (Math.random() < 0.6 || (cOverlay == -1 && overlay == 0)) {
+			detail = getUnusedDetail();
+//			detail = -1;
+			cDetail = getNextColor();
 //		}
-//		else 
-//			base = Color.WHITE;
 		
-		if (Math.random() < .5) {
-			// do a single overlay
-//			if (Math.random() * (SINGLE_OVERLAYS + DOUBLE_OVERLAYS) < SINGLE_OVERLAYS) {
-				overlay = (int) (Math.random() * SINGLE_OVERLAYS);
-				if (Math.random() < 0.3) overlay = 0;
-				cOverlay = colors.pop();
-//			}
-			// do a double overlay
-//			else {
-//				overlay = (int) (Math.random() * DOUBLE_OVERLAYS);
-//				cOverlay = colors.pop();
-//				cOverlay2 = colors.pop();
-//				doubleOverlay = true;
-//			}
-		}
-		
-		if (overlay < 0 || Math.random() < 0.6) {
-			do {
-				detail = (int) (Math.random() * DETAILS);
+//		if (detail < 0) {
+//			overlay = (int) (Math.random() * OVERLAYS);
+//		}
+	}
+	
+	// Create variant
+	public RandomCrest(RandomCrest original) { //StrictArray<RandomCrest> alreadyGenerated
+		this.detail = original.detail;
+		this.cDetail = original.cDetail;
+		this.overlay = original.overlay;
+		this.cOverlay = original.cOverlay;
+
+		// change detail color or change detail
+		if (Math.random() < 0.6) {
+			if (detail < 0) {
+				this.detail = getUnusedDetail();				
+				this.cDetail = getNextColor();
 			}
-			while (detailUsed[detail]);
-			detailUsed[detail] = true;
-			cDetail = colors.pop();
+			else {
+				// change color
+				if (Math.random() < 0.5) {
+					this.cDetail = getNextColor();
+				}
+				// change detail
+				else {
+					this.detail = getUnusedDetail();
+				}
+			}
 		}
+		else {
+			if (Math.random() < 0.5) {
+				// change overlay color
+				this.cOverlay = getNextColor();
+			}
+			else {
+				do {
+					this.overlay = (int) (Math.random() * OVERLAYS);
+				} while (this.overlay == original.overlay);
+			}
+		}
+	}
+	
+	public static int getNextColor() {
+		System.out.println("using color: " + colorsPopped);
+		return colorsPopped++;
 	}
 	
 	// call this only once.
@@ -75,29 +108,27 @@ public class RandomCrest extends Actor {
 		int coloursToGenerate = 50;
 
 		// The colours at the start that you don't want (White and Black are the first 2)
-		int coloursToSkip = 1;
+		int coloursToSkip = 0;
 
 		List<Color> colours = ColorGenerator.generate(coloursToGenerate, coloursToSkip);
-		colors = new Stack<Color>();
+		colors = new Color[COLORS];
+		int j = 0;
 		for (Color c: colours) {
 			if (c == null ) throw new java.lang.AssertionError();
 			System.out.println("creating color: " + c.r + ", " + c.g + ", " + c.b);
-			colors.push(c);
+			colors[j] = c;
+			j++;
 		}
+		
+		compareAllColors();
 		
 		basic = Assets.atlas.findRegion("crestBase");
 		
-		singleOverlays = new TextureRegion[SINGLE_OVERLAYS];
-		for (int i = 0; i < SINGLE_OVERLAYS; i++) {
+		singleOverlays = new TextureRegion[OVERLAYS];
+		for (int i = 0; i < OVERLAYS; i++) {
 			singleOverlays[i] = Assets.atlas.findRegion("over" + (i + 1));
 			if (singleOverlays[i] == null) throw new java.lang.AssertionError();
 		}
-		
-//		doubleOverlays = new TextureRegion[DOUBLE_OVERLAYS][2];
-//		for (int i = 0; i < DOUBLE_OVERLAYS; i++) {
-//			doubleOverlays[i][0] = Assets.atlas.findRegion("overd" + (i+1) + "a");
-//			doubleOverlays[i][1] = Assets.atlas.findRegion("overd" + (i+1) + "b");
-//		}
 		
 		details = new TextureRegion[DETAILS];
 		for (int i = 0; i < DETAILS; i++) {
@@ -107,6 +138,27 @@ public class RandomCrest extends Actor {
 		detailUsed = new boolean[DETAILS];
 		
 		initialized = true;
+	}
+	
+	public static int getUnusedDetail() {
+		boolean allUsed = true;
+		for (int i = 0; i < details.length; i++) {
+			if (!detailUsed[i]) allUsed = false;
+		}
+		if (allUsed) return -1;
+		
+		int detail;
+		do {
+			detail = (int) (Math.random() * DETAILS);
+		}
+		while (detailUsed[detail]);
+		detailUsed[detail] = true;
+		return detail;
+	}
+	
+	public static Color getColor(int i) {
+		if (i < 0) return Color.WHITE;
+		return colors[i];
 	}
 	
 	@Override
@@ -122,28 +174,53 @@ public class RandomCrest extends Actor {
 		batch.draw(basic, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		
 		if (overlay >= 0) {
-//			if (doubleOverlay) {
-//				batch.setColor(cOverlay.r, cOverlay.g, cOverlay.b, parentAlpha);
-//
-//				batch.draw(doubleOverlays[overlay][0], this.getX(), this.getY(), this.getWidth(), this.getHeight());
-//				batch.setColor(cOverlay2.r, cOverlay2.g, cOverlay2.b, parentAlpha);
-//
-//				batch.draw(doubleOverlays[overlay][1], this.getX(), this.getY(), this.getWidth(), this.getHeight());
-//			}
-//			else {
-				batch.setColor(cOverlay.r, cOverlay.g, cOverlay.b, parentAlpha);
-				batch.draw(singleOverlays[overlay], this.getX(), this.getY(), this.getWidth(), this.getHeight());
-				if (singleOverlays[overlay] == null) throw new java.lang.AssertionError();
-//			}
+			batch.setColor(getColor(cOverlay).r, getColor(cOverlay).g, getColor(cOverlay).b, parentAlpha);
+			batch.draw(singleOverlays[overlay], this.getX(), this.getY(), this.getWidth(), this.getHeight());
+			if (singleOverlays[overlay] == null) throw new java.lang.AssertionError();
 		}
 		
 		if (detail >= 0) {
-			batch.setColor(cDetail.r, cDetail.g, cDetail.b, parentAlpha);
+			batch.setColor(getColor(cDetail).r, getColor(cDetail).g, getColor(cDetail).b, parentAlpha);
 
 			batch.draw(details[detail], this.getX(), this.getY(), this.getWidth(), this.getHeight());
 			if (details[detail] == null) throw new java.lang.AssertionError();
 		}
 		
 		batch.setColor(orig);
+	}
+	
+	public static boolean tooSimilar(Color a, Color b) {
+//		Color aY = toYUV(a);
+//		Color bY = toYUV(b);
+		Color aY = a;
+		Color bY = b;
+		
+		float d = (float) Math.sqrt((aY.r-bY.r) * (aY.r-bY.r) + (aY.g-bY.g) *(aY.g-bY.g) + (aY.b-bY.b) * (aY.b-bY.b));
+		System.out.println("distance: " + d);
+		return d < 0.4f;
+	}
+	
+	public static void compareAllColors() {
+		for (int i = 0; i < COLORS; i++) {
+			for (int j = 0; j < COLORS; j++) {
+				if (i == j) continue;
+				if (tooSimilar(colors[i], colors[j])) {
+					System.out.println("colors: " + colors[i].toString() + " " + i + ", " + colors[j].toString() + " " + j + " are too similar");
+				}
+			}
+		}
+	}
+	
+	public static Color toYUV(Color in) {
+		Color out = new Color();
+		// y
+		out.r = 0.299f * in.r + 0.587f * in.g + 0.114f * in.b;
+		
+		// u
+		out.g = -0.14713f * in.r + -0.28886f * in.g + 0.436f * in.b;
+		
+		// v
+		out.b = 0.615f * in.r + -0.51499f * in.g + -0.10001f * in.b;
+		return out;
 	}
 }

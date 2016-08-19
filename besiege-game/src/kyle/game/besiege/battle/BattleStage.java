@@ -56,12 +56,14 @@ public class BattleStage extends Group {
 	static final float RAIN_SLOW = .8f;
 	static final float SNOW_SLOW = .7f;
 
-
 	public int MIN_PLACE_X;
 	public int MAX_PLACE_X;
 
-	public int MIN_PLACE_Y;
-	public int MAX_PLACE_Y;
+	public int MIN_PLACE_Y_1;
+	public int MAX_PLACE_Y_1;
+	
+	public int MIN_PLACE_Y_2;
+	public int MAX_PLACE_Y_2;
 
 	// from mouse to register
 
@@ -95,8 +97,8 @@ public class BattleStage extends Group {
 
 	// two sizes: one for battle map, one for map to draw
 	// this is battle map, map to draw is twice as big
-	public int size_x = 128;
-	public int size_y = 128;
+	public int size_x;
+	public int size_y;
 
 	BPoint prevMouse;
 
@@ -277,7 +279,7 @@ public class BattleStage extends Group {
 		size *= SIZE_FACTOR;
 		size += MIN_SIZE;
 		this.size_x = size;
-		this.size_y = size; // square for now
+		this.size_y = 200; // square for now
 
 		// round to nearest number divisible by 8, for drawing purposes
 		this.size_x += (BattleMap.SIZE - this.size_x % BattleMap.SIZE);
@@ -323,8 +325,11 @@ public class BattleStage extends Group {
 		MIN_PLACE_X = SIDE_PAD;
 		MAX_PLACE_X = size_x - SIDE_PAD;
 
-		MIN_PLACE_Y = BOTTOM_PAD;
-		MAX_PLACE_Y = PLACE_HEIGHT + BOTTOM_PAD;
+		MIN_PLACE_Y_1 = BOTTOM_PAD;
+		MAX_PLACE_Y_1 = PLACE_HEIGHT + BOTTOM_PAD;
+
+		MIN_PLACE_Y_2 = size_y - this.MAX_PLACE_Y_1;
+		MAX_PLACE_Y_2 = size_y - this.MIN_PLACE_Y_1;
 
 		// set up orignal base points
 		originalPoint =  new BPoint(size_x/2, BOTTOM_PAD + PLACE_HEIGHT/2);
@@ -441,7 +446,7 @@ public class BattleStage extends Group {
 		int team = 0;
 		if (!bsp.isPlayer()) {
 			base_x = size_x/2 - region_width/2;
-			base_y = (int) (size_y * .7f) - region_height/2;
+			base_y = (MAX_PLACE_Y_2 - MIN_PLACE_Y_2)/2 + MIN_PLACE_Y_2;
 			team = 1;
 
 			if (siege && battlemap.wallBottom > 0) {
@@ -481,16 +486,20 @@ public class BattleStage extends Group {
 							base_y += (int) (Math.random() * 5);
 						}
 						
-						if (bsp.isPlayer() && base_y >= this.MAX_PLACE_Y - region_height) {
-							base_y = this.MIN_PLACE_Y;
+						if (bsp.isPlayer() && base_y >= this.MAX_PLACE_Y_1 - region_height) {
+							base_y = this.MIN_PLACE_Y_1;
 						}
-						else if (!bsp.isPlayer() && base_y >= size_y - this.MIN_PLACE_Y - region_height) {
-							base_y = (int) (size_y - this.MAX_PLACE_Y);
+						else if (!bsp.isPlayer() && base_y >= this.MIN_PLACE_Y_2 - region_height) {
+							base_y = (int) (this.MAX_PLACE_Y_2);
+							System.out.println("base y: " + base_y);
 						}
 						break;
 					}
 				}
-				if (!canPlaceHere) break;
+				if (!canPlaceHere) {
+					System.out.println("cant place yo");
+					break;
+				}
 			}
 		}
 
@@ -736,6 +745,10 @@ public class BattleStage extends Group {
 
 	@Override
 	public void act(float delta) {
+		
+		// TODO better way to do this?
+		delta = 0.0125f;
+		
 		// try to slow things down
 		if (mapScreen.slowDown) {
 			delta = 0.005f;
@@ -982,7 +995,7 @@ public class BattleStage extends Group {
 		}
 
 		loser.waitFor(0);
-		winner.forceWait(Battle.WAIT);
+		winner.forceWait(winner.getForceWait());
 
 		if (battle.siegeOf != null && !battle.siegeOf.isVillage()) {
 			System.out.println("managing siege");
@@ -1136,13 +1149,23 @@ public class BattleStage extends Group {
 	}
 
 	public boolean canPlaceUnit(int pos_x, int pos_y) {
-		if (pos_x < 0 || pos_y < 0 || pos_x >= size_x || pos_y >= size_x) return false;
-		if (closed[pos_y][pos_x]) return false;
-		if (units[pos_y][pos_x] != null) return false;
+		if (pos_x < 0 || pos_y < 0 || pos_x >= size_x || pos_y >= size_y) {
+			System.out.println("outside of size");
+			return false;
+		}
+		if (closed[pos_y][pos_x]) {
+			System.out.println("area closed");
+			return false;
+		}
+		if (units[pos_y][pos_x] != null) {
+			System.out.println("already occupied");
+			return false;
+		}
 		return true;
 	}
 	
 	public boolean canPlaceUnitPlacement(int pos_x, int pos_y, int team) {
+		System.out.println("pos_x:" + pos_x + " pos_y: " + pos_y);
 		if (!canPlaceUnit(pos_x, pos_y)) return false;
 //		if (pos_x < MIN_PLACE_X) return false;
 //		if (pos_x > MAX_PLACE_X) return false;

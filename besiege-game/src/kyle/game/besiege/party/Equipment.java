@@ -8,10 +8,10 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.utils.Array;
 
 public enum Equipment {
-	WOOD_SHIELD ("Wood Shield", Type.SHIELD, 0, 1, -1, 15),
-	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 20),
-	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
-	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 10),
+	WOOD_SHIELD ("Wood Shield", Type.SHIELD, 0, 1, -1, 20),
+//	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 40),
+//	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
+//	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 10),
 	WORK_HORSE ("Workhorse", Type.HORSE, 0, 0, 4, 20),
 	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 6, 30);
 	
