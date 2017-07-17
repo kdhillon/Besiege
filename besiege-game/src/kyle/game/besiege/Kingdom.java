@@ -12,7 +12,6 @@ import static kyle.game.besiege.Kingdom.getRandom;
 import java.util.HashSet;
 import java.util.Random;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Polygon;
@@ -347,6 +346,7 @@ public class Kingdom extends Group {
 	public void updateColor(SpriteBatch batch) {
 //		System.out.println("target darkness: " + this.targetDarkness);
 		if (this.currentDarkness != this.targetDarkness) adjustDarkness();
+		
 		batch.setColor(this.currentDarkness, this.currentDarkness, this.currentDarkness, 1f);
 	}
 	
@@ -631,7 +631,7 @@ public class Kingdom extends Group {
 	
 
 	public void initializeFactions(Kingdom kingdom) {
-		RandomCrest.initialize();
+		RandomCrestGenerator rcg = new RandomCrestGenerator();
 		
 		factions = new StrictArray<Faction>();
 
@@ -640,27 +640,18 @@ public class Kingdom extends Group {
 
 		// add player faction (index 0) 
 		
-		Faction.BANDITS_FACTION = new Faction(this, "Bandits", "crestBandits", Color.BLACK);
-		Faction.ROGUE_FACTION = new Faction(this,"Rogue", "crestBlank", Color.WHITE);
+		Faction.BANDITS_FACTION = new Faction(this, "Bandit", Crest.BANDIT_CREST);
+		Faction.ROGUE_FACTION = new Faction(this,"Rogue", Crest.ROGUE_CREST);
 		
-		createFaction(Faction.ROGUE_FACTION);
+		addFaction(Faction.ROGUE_FACTION);
 		// add bandits faction (index 1)
-		createFaction(Faction.BANDITS_FACTION);	
+		addFaction(Faction.BANDITS_FACTION);	
 
-		createFaction("Geinever", "crestWhiteLion", Color.DARK_GRAY);
-		createFaction("Weyvel", "crestGreenTree", Faction.OLIVE);
-		createFaction("Rolade", "crestOrangeCross", Faction.BROWN);
-		createFaction("Myrnfar", "crestYellowStar", Faction.TAN);
-		createFaction("Corson", "crestRedCross", Faction.RED);
-		createFaction("Selven", "crestGreenStripe", Faction.GREEN);
-		createFaction("Halmera", "crestBlueRose", Faction.BLUE);
+		int FACTION_COUNT = 13;
+		for (int i = 0; i < FACTION_COUNT; i++) {
+			createFaction();
+		}
 
-		createFaction("Fernel", "crestRedAxe", Color.LIGHT_GRAY);
-		createFaction("Draekal", "crestBlank", Color.BLACK);
-		createFaction("Earntly", "crestBlank", Color.BLACK);
-		createFaction("Robkin", "crestBlank", Color.BLACK);
-		createFaction("Arfaith", "crestBlank", Color.BLACK);
-		createFaction("Braga", "crestBlank", Color.BLACK);
 
 		for (int i = 0; i < factions.size; i++) {
 			Faction f = factions.get(i);
@@ -677,12 +668,12 @@ public class Kingdom extends Group {
 		for (int i = 0; i < factions.size; i++)
 			factions.get(i).act(delta);
 	}
-	public void createFaction(String name, String textureRegion, Color color) {
-		Faction faction = new Faction(this, null, textureRegion, color);
+	public void createFaction() {
+		Faction faction = new Faction(this, null, null);
 		factions.add(faction);
 		faction.index = factions.indexOf(faction, true);
 	}
-	public void createFaction(Faction faction) {
+	public void addFaction(Faction faction) {
 		factions.add(faction);
 		faction.index = factions.indexOf(faction, true);		
 	}
@@ -1132,8 +1123,8 @@ public class Kingdom extends Group {
 //		faction = ;
 		Center center = map.reference;
 		
-		int pos_x = (int) map.reference.loc.x;
-		int pos_y = (int) (Map.HEIGHT-map.reference.loc.y);
+		int pos_x = (int) center.loc.x;
+		int pos_y = (int) (Map.HEIGHT-center.loc.y);
 		
 		if (faction.centers.size > 0) {
 			center = faction.centers.random();
@@ -1244,10 +1235,6 @@ public class Kingdom extends Group {
 	}
 	public void setMapScreen(MapScreen mapScreen) {
 		this.mapScreen = mapScreen;
-	}
-	public void nullifyForSave() {
-		this.mapScreen = null;
-		this.map = null;
 	}
 
 	public float clock() {

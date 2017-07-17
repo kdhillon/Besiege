@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.RandomCrest;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
@@ -419,7 +419,7 @@ public class PanelUnit extends Panel {
 	}
 
 	@Override
-	public RandomCrest getCrest() {
+	public Crest getCrest() {
 		//		if (party.army != null)
 		//			return party.army.getFaction().crest;
 		//		return null;

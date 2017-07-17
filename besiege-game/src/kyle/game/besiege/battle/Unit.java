@@ -1270,50 +1270,55 @@ public class Unit extends Group {
 	public boolean moveForward() {
 		return startMove(this.orientation);
 	}
+	
+	// return -1 if failure, 0 if success, 1 if enemy, 2 if friend
+	public int tryMoveTo(int x, int y) {
+		if (!canMove(x, y)) return -1;
+		Unit other = stage.units[y][x];
+		if (other != null) {
+			boolean enemy = collision(other);
+			if (enemy) return 1;
+			else {
+				// see if should push friend forward:
+				if (other.orientation == this.orientation && other.canMoveForward() && !other.moving) {
+					//					System.out.println("should move");
+					other.moveForward();
+				}
+				return 2;
+			}
+		}
+		if (pos_y < stage.units.length && pos_x < stage.units[0].length)
+			stage.units[pos_y][pos_x] = null;
+		pos_y = y;
+		pos_x = x;
+		stage.units[pos_y][pos_x] = this;
 
+		return 0;
+	}
+	
 	// returns false if move failed, true otherwise
 	public boolean startMove(Orientation direction) {
 		if (this.hp < 0) return false;
 		prev_x = pos_x;
 		prev_y = pos_y;
+		this.orientation = direction;
+
+		int moveResult = -1;
 		if (direction == Orientation.DOWN) {
-			if (!canMove(pos_x, pos_y-1)) return false;
-			if (stage.units[pos_y-1][pos_x] != null) {
-				this.orientation = direction;
-				return collision(stage.units[pos_y-1][pos_x]);
-			}
-			stage.units[pos_y][pos_x] = null;
-			pos_y -= 1;
+			moveResult = tryMoveTo(pos_x, pos_y-1);
 		}
 		else if (direction == Orientation.UP) {
-			if (!canMove(pos_x, pos_y+1)) return false;
-			if (stage.units[pos_y+1][pos_x] != null) {
-				this.orientation = direction;
-				return collision(stage.units[pos_y+1][pos_x]);
-			}
-			stage.units[pos_y][pos_x] = null;
-			pos_y += 1;
+			moveResult = tryMoveTo(pos_x, pos_y+1);
 		}
 		else if (direction == Orientation.LEFT) {
-			if (!canMove(pos_x-1, pos_y)) return false;
-			if (stage.units[pos_y][pos_x-1] != null) {
-				this.orientation = direction;
-				return collision(stage.units[pos_y][pos_x-1]);
-			}
-			stage.units[pos_y][pos_x] = null;
-			pos_x -= 1;
+			moveResult = tryMoveTo(pos_x-1, pos_y);
 		}
 		else if (direction == Orientation.RIGHT) {
-			if (!canMove(pos_x+1, pos_y)) return false;
-			if (stage.units[pos_y][pos_x+1] != null) { 
-				this.orientation = direction;
-				return collision(stage.units[pos_y][pos_x+1]);
-			}
-			stage.units[pos_y][pos_x] = null;
-			pos_x += 1;
+			moveResult = tryMoveTo(pos_x+1, pos_y);	
 		}
-
-		stage.units[pos_y][pos_x] = this;
+		if (moveResult == -1) return false;
+		if (moveResult == 1) return true;
+		if (moveResult == 2) return false;
 
 		moving = true;
 		moveSmooth = true;
@@ -1342,6 +1347,26 @@ public class Unit extends Group {
 		else this.currentSpeed *= spd;
 	}
 
+	public boolean canMoveForward() {
+		int next_x = this.pos_x;
+		int next_y = this.pos_y;
+		if (this.orientation == Orientation.DOWN) {
+			next_y--;
+		}
+		else if (this.orientation == Orientation.UP) {
+			next_y++;
+		}
+		else if (this.orientation == Orientation.LEFT) {
+			next_x--;
+		}
+		else if (this.orientation == Orientation.RIGHT) {
+			next_x++;
+		}
+		if (!stage.inMap(next_x, next_y)) return false;
+		if (stage.units[next_y][next_x] != null) return false;
+		return canMove(next_x, next_y);
+	}
+	
 	public boolean canMove(int pos_x, int pos_y) {
 		if (pos_x < 0 || pos_y < 0 || pos_x >= stage.size_x || pos_y >= stage.size_y) return false;
 		if (stage.closed[pos_y][pos_x]) return false;

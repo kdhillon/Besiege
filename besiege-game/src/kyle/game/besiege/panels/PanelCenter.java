@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.RandomCrest;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.voronoi.Center;
 
 public class PanelCenter extends Panel {
@@ -100,9 +100,9 @@ public class PanelCenter extends Panel {
 	}
 	
 	@Override
-	public RandomCrest getCrest() {
+	public Crest getCrest() {
 		if (center.faction != null)
-			return center.faction.randomCrest;
+			return center.faction.crest;
 		else return null;
 	}
 }

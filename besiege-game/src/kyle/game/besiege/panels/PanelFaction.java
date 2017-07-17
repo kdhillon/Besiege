@@ -17,8 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.Faction;
-import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
@@ -483,8 +483,8 @@ public class PanelFaction extends Panel {
 	}
 
 	@Override
-	public RandomCrest getCrest() {
-		return faction.randomCrest;
+	public Crest getCrest() {
+		return faction.crest;
 	}
 }
 

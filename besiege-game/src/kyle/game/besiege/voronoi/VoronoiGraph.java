@@ -47,6 +47,7 @@ public class VoronoiGraph {
 
     // for serialization
     public VoronoiGraph() {
+    	// need to reinitialize biome textures.
     }
     
     public VoronoiGraph(Voronoi v, int numLloydRelaxations, MyRandom r) {
@@ -113,14 +114,6 @@ public class VoronoiGraph {
     	}
     }
     
-//    public BufferedImage img; // may have to change for web use
-//    public RenderableGraphics rg;
-
-//    public Center getCenterOf(int x, int y) {
-//    	return null;
-////        return centers.get(img.getRGB(x, y) & 0xffffffff);
-//    }
-
     private void calculateAreas() {
      Pixmap g = new Pixmap((int) bounds.width, (int) bounds.height, Pixmap.Format.RGB888);
      
@@ -985,21 +978,21 @@ public class VoronoiGraph {
 
 //    int textureIndex;
 
-    public HashMap<Biomes, Texture> biomeMap;
+    public transient HashMap<Biomes, Texture> biomeMap;
 //    public HashMap<Texture, Integer> textureMap;
     
     // test
-    Texture texture8;
-    Texture texture16;
-    Texture texture8trees;
-    Texture texture8treeslight;
-    Texture texture12trees;
-    Texture texture12treeslight;
-    Texture texture16trees;
-    Texture texture16treeslight;
+    transient Texture texture8;
+    transient Texture texture16;
+    transient Texture texture8trees;
+    transient Texture texture8treeslight;
+    transient Texture texture12trees;
+    transient Texture texture12treeslight;
+    transient Texture texture16trees;
+    transient Texture texture16treeslight;
     
-    Texture texture64;
-    Texture texture64inv;
+    transient Texture texture64;
+    transient Texture texture64inv;
 //    Texture texture8;
 
     private void initBiomeTextures() {
@@ -1088,16 +1081,11 @@ public class VoronoiGraph {
     
     private void assignBiomes() {
         for (Center center : centers) {
-        	center.setBiome(getBiome(center), biomeMap.get(getBiome(center)));
+        	center.setBiome(getBiome(center));
+        	center.setBiomeTexture(biomeMap.get(getBiome(center)));
         }
     }
     
-//    public int getTexture(Center center) {
-//    	return biomeMap.get(center.biome);
-//    }
-    
-    //
-    //
     public static int OCEAN = 0x44447aff;
 //    public static int LAKESHORE = 0xff5588ff;
     public static int LAKESHORE = 0x225588ff;
@@ -1164,6 +1152,8 @@ public class VoronoiGraph {
     
     // call this after restoring the map to bridge the graph
     public void restore() {
+        initBiomeTextures();
+
     	for (Edge edge : edges) {
     		edge.restoreFromVoronoi(this);
     	}

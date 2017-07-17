@@ -22,8 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.party.Soldier;
 
 public class Panel extends Group {
@@ -277,7 +277,7 @@ public class Panel extends Group {
 			return b4;
 		else return b1;
 	}
-	public RandomCrest getCrest() {
+	public Crest getCrest() {
 		return null;
 //		return Assets.atlas.findRegion("crestBlank");
 	}

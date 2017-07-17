@@ -20,6 +20,7 @@ public class BattleMap extends Group {
 	private static final float SIZE_FACTOR = 1f; //  change this to increase the drawn area around the battlefield. Cannot exceed 2
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
+	public static final Color SHADOW_COLOR = new Color(0, 0, 0, .2f);
 	private static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
 	private static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 	private static final Color CLEAR_WHITE = new Color(1, 1, 1, .5f);
@@ -72,6 +73,9 @@ public class BattleMap extends Group {
 	public Array<Wall> walls;
 
 	//	private Array<Object> walls;
+	
+	public float sunRotation;
+	public float sunStretch;
 
 	public int wallTop; 
 	public int wallLeft;
@@ -123,13 +127,12 @@ public class BattleMap extends Group {
 	//	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
 	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump;
 
-
 	public BattleMap(BattleStage mainmap) {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-		//		this.maptype = MapType.CRAG;
+				this.maptype = MapType.FOREST;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -155,6 +158,9 @@ public class BattleMap extends Group {
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
+		this.sunStretch = (float) Math.random() * 2 + 0.5f;
+		this.sunRotation = (float) Math.random() * 360;
+		
 		fc = new StrictArray<FireContainer>();
 
 		if (this.maptype == MapType.ALPINE && Math.random() < .75) snowing = true;
@@ -170,7 +176,7 @@ public class BattleMap extends Group {
 
 			if (isRaining()) {
 				this.rainColor = RAINDROP_COLOR;
-				this.rainColor.mul(stage.targetDarkness*1.5f);
+				this.rainColor.mul(stage.targetColor*1.5f);
 			}
 			else {
 				this.rainColor = SNOW_COLOR;
@@ -321,7 +327,7 @@ public class BattleMap extends Group {
 					else if (random < 1) ground[i][j] = GroundType.ROCK;
 				}
 			}
-			stage.targetDarkness = .5f;
+			stage.targetColor = .5f;
 
 			if (stage.siege)
 				addWall();
@@ -710,7 +716,7 @@ public class BattleMap extends Group {
 	// first draw wall at position, then floor, then
 	private void addSingleWall(int pos_x, int pos_y, int width, Orientation orientation, boolean withLadder) {
 		if (!inMap(new BPoint(pos_x, pos_y))) return;
-		if (addObject(pos_x, pos_y, Object.CASTLE_WALL, orientation, width)) {
+		if (addWall(pos_x, pos_y, Object.CASTLE_WALL, orientation, width)) {
 			stage.heights[pos_y][pos_x] = CASTLE_WALL_HEIGHT_DEFAULT; // close random middle row
 			stage.closed[pos_y][pos_x] = true;
 		}
@@ -725,7 +731,7 @@ public class BattleMap extends Group {
 
 		// add floor behind wall
 		for (int i = 1; i < width; i++) {
-			if (addObject(pos_x + horFactor*i, pos_y + vertFactor*i, Object.CASTLE_WALL_FLOOR, orientation, width)) {
+			if (addWall(pos_x + horFactor*i, pos_y + vertFactor*i, Object.CASTLE_WALL_FLOOR, orientation, width)) {
 				stage.heights[pos_y + vertFactor*i][pos_x + horFactor*i] = CASTLE_WALL_HEIGHT_DEFAULT; 
 			}
 			if (i == 1) {
@@ -961,7 +967,14 @@ public class BattleMap extends Group {
 					}
 				}
 
-				if (texture != null) batch.draw(texture, (j*stage.unit_width), (i*stage.unit_height), texture.getRegionWidth()*stage.unit_width/8, texture.getRegionHeight()*stage.unit_height/8);
+				float stretch = this.sunStretch;
+				float rotation = this.sunRotation;
+
+				if (texture != null) { 
+					// TODO 
+					drawShadow(batch, texture, (j*stage.unit_width), (i*stage.unit_height), texture.getRegionWidth()*stage.unit_width/8, texture.getRegionHeight()*stage.unit_height/8);
+					batch.draw(texture, (j*stage.unit_width), (i*stage.unit_height), texture.getRegionWidth()*stage.unit_width/8, texture.getRegionHeight()*stage.unit_height/8);
+				}
 				if (flashWhite) {
 					Color c = batch.getColor();
 					groundcolor.set(CLEAR_WHITE);
@@ -1182,6 +1195,18 @@ public class BattleMap extends Group {
 					//					System.out.println("drawing trees");
 					texture = tree;
 				}
+				if (texture != null) drawShadow(batch, texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
+			}
+		}
+		
+		// draw actual trees
+		for (int i = 0; i < stage.size_y; i++) {
+			for (int j = 0; j < stage.size_x; j++) {
+				texture = null;
+				if (objects[i][j] == Object.TREE) {
+					//					System.out.println("drawing trees");
+					texture = tree;
+				}
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
 			}
 		}
@@ -1191,6 +1216,19 @@ public class BattleMap extends Group {
 		}
 	}
 
+	public void drawShadow(SpriteBatch batch, TextureRegion texture, float x, float y, float width, float height) {
+		boolean drawShadows = true;
+		if (!drawShadows) {
+			batch.draw(texture, x, y, width, height);
+			return;
+		}
+
+		Color o = batch.getColor();
+		batch.setColor(SHADOW_COLOR);
+		batch.draw(texture, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, sunStretch, sunRotation);
+		batch.setColor(o);
+	}
+	
 	private void drawRange(Unit drawRange, SpriteBatch batch) {
 		if (drawRange.bowOut() && !drawRange.retreating) {
 			Color c = batch.getColor();
@@ -1240,7 +1278,7 @@ public class BattleMap extends Group {
 		}
 	}
 
-	private boolean addObject(int pos_x, int pos_y, Object object, Orientation orientation, int width) {
+	private boolean addWall(int pos_x, int pos_y, Object object, Orientation orientation, int width) {
 		if (objects[pos_y][pos_x] == null && !stage.closed[pos_y][pos_x]) {
 			objects[pos_y][pos_x] = object;
 			if (object == Object.CASTLE_WALL || object == Object.CASTLE_WALL_FLOOR) {
@@ -1258,7 +1296,7 @@ public class BattleMap extends Group {
 	}
 
 	private boolean addObject(int pos_x, int pos_y, Object object) {
-		return addObject(pos_x, pos_y, object, null, 0);
+		return addWall(pos_x, pos_y, object, null, 0);
 	}
 
 	//	private Pixmap getTexture(GroundType ground) {

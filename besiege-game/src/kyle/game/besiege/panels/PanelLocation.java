@@ -20,7 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.RandomCrest;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
@@ -577,8 +577,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	}
 	
 	@Override
-	public RandomCrest getCrest() {
+	public Crest getCrest() {
 		if (location.getFaction() == null) return null;
-		return location.getFaction().randomCrest;
+		return location.getFaction().crest;
 	}
 }

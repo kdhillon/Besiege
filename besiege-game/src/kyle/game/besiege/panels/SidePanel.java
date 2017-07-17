@@ -14,12 +14,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
 import kyle.game.besiege.Character;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.MiniMap;
-import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
@@ -275,6 +275,9 @@ public class SidePanel extends Group {
 //		}
 	}
 	public void setKingdom(Kingdom kingdom) {
+		if (kingdom == null) {
+			throw new java.lang.AssertionError();
+		}
 		this.kingdom = kingdom;
 	}
 	public Kingdom getKingdom() {
@@ -298,7 +301,7 @@ public class SidePanel extends Group {
 	public boolean getStay() {
 		return hardStay;
 	}
-	public RandomCrest getActiveCrest() {
+	public Crest getActiveCrest() {
 		if (activePanel == null) return null;
 		return activePanel.getCrest();
 	}

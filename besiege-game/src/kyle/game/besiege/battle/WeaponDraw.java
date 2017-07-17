@@ -40,6 +40,9 @@ public class WeaponDraw extends Group { // can have arrows.
 	public TextureRegion shield;
 //	private Animation hors
 	private Color c = new Color();
+	
+	public static TextureRegion shadowTexture1 = Assets.units.findRegion("preview_armor");
+	public static TextureRegion shadowTexture2 = Assets.units.findRegion("preview_skin");
 
 	public WeaponDraw(Unit unit) {
 		this.unit = unit;
@@ -216,15 +219,28 @@ public class WeaponDraw extends Group { // can have arrows.
 //		}
 	}
 	
+	public void drawShadow(SpriteBatch batch, float x, float y, float width, float height) {
+		Color o = batch.getColor();
+		width *= 0.8f;
+		height *= 0.8f;
+		batch.setColor(BattleMap.SHADOW_COLOR);
+		batch.draw(shadowTexture1, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, unit.stage.battlemap.sunStretch, unit.stage.battlemap.sunRotation);
+		batch.draw(shadowTexture2, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, unit.stage.battlemap.sunStretch, unit.stage.battlemap.sunRotation);
+		batch.setColor(o);
+	}
+	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {	
 		super.draw(batch, parentAlpha);
 		if (!unit.inMap()) return;
 		if (unit.isHidden() && unit.team != 0) return;
 
+		// draw shadow
+		drawShadow(batch, 0, 0, unit.getWidth() * unit.getScaleX(), unit.getHeight() * unit.getScaleY());
+		
 		//this.toFront();
 		
-		float alpha = 0.4f;
+		float alpha = 0.2f;
 		this.toBack();
 		c.set(batch.getColor());
 		if (unit.team == 0) {

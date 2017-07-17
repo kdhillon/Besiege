@@ -415,10 +415,10 @@ public class Army extends Actor implements Destination {
 		Matrix4 tempMatrix = batch.getTransformMatrix();
 		batch.setTransformMatrix(mx4Font);
 		
-		faction.randomCrest.setPosition(-15*zoom , 5 + 5*zoom);
-		faction.randomCrest.setSize(30*zoom, 45*zoom);
+		faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
+		faction.crest.setSize(30*zoom, 45*zoom);
 //		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-		faction.randomCrest.draw(batch, clear_white.a);
+		faction.crest.draw(batch, clear_white.a);
 		
 		batch.setTransformMatrix(tempMatrix);
 		batch.setColor(temp);

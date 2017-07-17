@@ -125,7 +125,7 @@ public class Location extends Group implements Destination {
 	
 	// do we need to update panel
 	public boolean needsUpdate = true;
-	public PanelLocation panel;
+	public transient PanelLocation panel;
 	
 	public Fire fire;
 	
@@ -473,10 +473,10 @@ public class Location extends Group implements Destination {
 			batch.setTransformMatrix(mx4Font);
 			
 //			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-			faction.randomCrest.setPosition(-15*zoom , 5 + 5*zoom);
-			faction.randomCrest.setSize(30*zoom, 45*zoom);
+			faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
+			faction.crest.setSize(30*zoom, 45*zoom);
 //			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-			faction.randomCrest.draw(batch, clear_white.a);
+			faction.crest.draw(batch, clear_white.a);
 			
 			batch.setColor(temp);
 
@@ -512,59 +512,9 @@ public class Location extends Group implements Destination {
 		float zoom =  getKingdom().getZoom();
 		zoom *= size_factor; 
 
-
-		// TODO do some vector calculations to make this rotate	
-		// TODO create a bunch more fonts for smoother scrolling!
-		// TODO do this in Kingdom at the end of everything
-		// don't draw village names at a certain point.
 		if (shouldDraw()) {			
 			BitmapFont font;			
-
-//			if (zoom > 7) {
-//				font = Assets.pixel150;
-//				zoom = 7;
-//			}
-//			else if (zoom > 5) {
-//				font = Assets.pixel100;
-//				zoom = 5;
-//			}
-//			else if (zoom > 4) {
-//				font = Assets.pixel80;
-//				zoom = 4;
-//			}
-//			else if (zoom > 3) {
-//				font = Assets.pixel64;
-//				zoom = 3;
-//			}
-//			// add some fonts here for smoothness
-//			else if (zoom > 2.5) {
-//				font = Assets.pixel50;
-//				zoom = 2.5f;
-//			}
-//			else if (zoom > 2) {
-//				font = Assets.pixel40;
-//				zoom = 2f;
-//			}
-//			else if (zoom > 1.5) {
-//				font = Assets.pixel30;
-//				zoom = 1.5f;
-//			}
-//			else if (zoom > 1.2) {
-//				font = Assets.pixel24;
-//				zoom = 1.2f;
-//			}
-//			else if (zoom > 1) {
-				font = Assets.pixel20forCities;
-//				zoom = 1f;
-//			}
-//			else if (zoom > .75) {
-//				font = Assets.pixel15;
-//				zoom = .75f;
-//			}
-//			else {
-//				font = Assets.pixel12;
-//				zoom = .6f;
-//			}
+			font = Assets.pixel20forCities;
 				
 			if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;	
 			if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;	
@@ -577,11 +527,8 @@ public class Location extends Group implements Destination {
 			Matrix4 tempMatrix = batch.getTransformMatrix();
 			batch.setTransformMatrix(mx4Font);
 
-			//			// draw crest
-			//			batch.setColor(clear_white);
-			//			batch.draw(this.getFaction().crest, getCenterX() - 14*zoom, getCenterY() + 13, 30*zoom, 45*zoom);
-			//			batch.setColor(temp);
-
+			// TODO draw with stroke, or with dark background
+			
 			// draw text
 			font.setColor(clear_white);
 			font.setScale(zoom);

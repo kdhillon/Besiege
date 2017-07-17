@@ -31,6 +31,7 @@ public class Path {
 	public Destination nextGoal;
 	private Vector2 toTarget;
 	private float prevX, prevY;
+	private Corner startCorner, endCorner;
 		
 	// how many iterations ago a star failed
 	int lastAStarFail = 0;
@@ -47,6 +48,8 @@ public class Path {
 		}
 	}	
 	
+	//TODO - reuse Path for each army, don't create everything from scratch every time.
+	
 	// for Kyro
 	public Path() {
 		
@@ -57,6 +60,8 @@ public class Path {
 		this.map = k.getMap();
 		dStack = new Stack<Destination>();
 		toTarget = new Vector2();
+		startCorner = new Corner();
+		endCorner = new Corner();
 	}
 	
 //	public Path(Army army) {
@@ -88,10 +93,8 @@ public class Path {
 //		if (army.getParty().player) System.out.println("player getting new path");
 		// TODO remove news?
 		dStack.clear();
-		Corner startCorner = new Corner();
 		startCorner.loc = new PointH(start.getCenterX(), Map.HEIGHT-start.getCenterY());
 		startCorner.init();
-		Corner endCorner = new Corner();
 		endCorner.loc = new PointH(endDest.getCenterX(), Map.HEIGHT-endDest.getCenterY());
 		endCorner.init();
 		
@@ -144,63 +147,6 @@ public class Path {
 			return false;
 		}
 	}
-
-//	public Stack<Destination> BFS(Corner start, Corner goal) {
-//		ArrayList<Corner> visited = new ArrayList<Corner>(); 	// should only visit each corner once
-//		//ArrayList<Corner> notVisited = new ArrayList<Corner>(); // should visit all corners 
-//		PriorityQueue<SearchNode> pq = new PriorityQueue<SearchNode>();
-//
-//		// can iterate if fails
-//		//for (Corner c : map.borderCorners)
-//		//	notVisited.add(c);
-//
-//		SearchNode first = new SearchNode();
-//
-//		first.curr = start;
-//		first.prev = null;
-//		first.H = 0; // hamming/manhattan distance corresponds to H
-//		first.G = 0; // moves corresponds to G, we're trying to minimize G
-//
-//		pq = new PriorityQueue<SearchNode>();
-//		pq.add(first);
-//
-//		SearchNode min; 
-//
-//		while (pq.peek().curr != goal) { // || notVisited.isEmpty()) {
-//			min = pq.remove();
-//		//	notVisited.remove(min.curr);
-//			visited.add(min.curr);
-//
-//			for (Corner corner : min.curr.visibleCorners) {
-//				if (!visited.contains(corner)) {
-//					SearchNode s = new SearchNode();
-//					s.curr = corner;
-//					s.prev = min;
-//					s.G = min.G + heuristicDist(s.curr, min.curr);
-//					s.H = 0; // don't worry about heuristic
-//					pq.add(s);
-//				}
-//			}
-//		}
-//		
-//		//if (notVisited.isEmpty()) {
-//		//	System.out.println("can't get to goal");
-//		//	return null;
-//		//}
-//
-//		min = pq.remove();
-//		double minG = min.G;
-//		System.out.println("dist is " + minG);
-//		
-//		Stack<Destination> path = new Stack<Destination>();
-//		SearchNode tracker = min;
-//		while (tracker != null) {
-//			path.push(cornerToPoint(tracker.curr));
-//			tracker = tracker.prev;
-//		}
-//		return path;
-//	}
-
 	
 	// serious lag occurs when army calls this repeatedly.
 	// TODO remove news

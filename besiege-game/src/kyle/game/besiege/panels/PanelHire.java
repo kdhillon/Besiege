@@ -21,7 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.RandomCrest;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
@@ -363,9 +363,9 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 		panel.returnToPrevious();
 	}
 	@Override
-	public RandomCrest getCrest() {
+	public Crest getCrest() {
 		if (selected == null)
-			return location.getFaction().randomCrest;
+			return location.getFaction().crest;
 		else return null;
 	}
 	@Override

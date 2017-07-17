@@ -1,5 +1,6 @@
 package kyle.game.besiege.battle;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -29,6 +30,7 @@ import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Subparty;
 import kyle.game.besiege.voronoi.Biomes;
+import kyle.game.besiege.voronoi.VoronoiGraph;
 
 public class BattleStage extends Group {
 	public Biomes biome;
@@ -37,7 +39,9 @@ public class BattleStage extends Group {
 	//	public float scale = 1f;
 	public float MIN_SIZE = 40;
 	public float SIZE_FACTOR = .3f; // how much does the size of the parties
-	public float targetDarkness;
+	public float targetColor;
+	public Color biomeColor;
+	public Color currentColor;
 	public float currentDarkness;
 	public boolean raining;
 	// affect the size of battlefield?
@@ -161,7 +165,6 @@ public class BattleStage extends Group {
 		this.playerDefending = playerDefending;
 		//		this.isPlayer()Defending = false;
 
-
 		boolean forceSiege = false;
 		//		boolean forceSiege = true;
 
@@ -186,9 +189,11 @@ public class BattleStage extends Group {
 
 		this.raining = getMapScreen().getKingdom().raining;
 
-		this.currentDarkness = kingdom.currentDarkness;
-		this.targetDarkness = kingdom.targetDarkness; // TODO change depending on biome
-		
+		this.currentColor = VoronoiGraph.getColor(allies.first().army.getContaining());
+		biomeColor = currentColor;
+		this.targetColor = kingdom.currentDarkness;		
+		currentDarkness = kingdom.currentDarkness;
+
 		init();
 		
 		allies.updatePolygon();
@@ -243,8 +248,12 @@ public class BattleStage extends Group {
 
 		this.raining = false;
 
-		this.currentDarkness = 1;
-		this.targetDarkness = 1;	
+		this.currentColor = new Color(Color.WHITE);
+		currentDarkness = 1;
+		biomeColor = currentColor;
+		biomeColor = new Color(1, 0.9f, 0.7f, 1); // orange
+		
+		this.targetColor = 1;
 		
 		init();
 
@@ -363,7 +372,7 @@ public class BattleStage extends Group {
 
 	public void rain() {
 		//		System.out.println("raining");
-		this.targetDarkness = kingdom.RAIN_FLOAT;
+		this.currentDarkness = kingdom.RAIN_FLOAT;
 		if (Math.random() < 1/kingdom.THUNDER_CHANCE) thunder();
 	}
 
@@ -374,19 +383,27 @@ public class BattleStage extends Group {
 
 	public void updateColor(SpriteBatch batch) {
 		//		System.out.println("target darkness: " + this.targetDarkness);
-		if (this.currentDarkness != this.targetDarkness) adjustDarkness();
-		batch.setColor(this.currentDarkness, this.currentDarkness, this.currentDarkness, 1f);
+		if (this.currentDarkness != this.targetColor) adjustDarkness();
+		
+		this.currentColor.r = this.currentDarkness * biomeColor.r;
+		this.currentColor.g = this.currentDarkness * biomeColor.g;
+		this.currentColor.b = this.currentDarkness * biomeColor.b;
+		this.currentColor.a = 1;
+		
+//		System.out.println(currentColor.r + " " + currentColor.g + " " + currentColor.b);
+		
+		batch.setColor(this.currentColor);
 	}
 
 	private void adjustDarkness() {
 		if (this.kingdom == null) return;
 		if (this.raining) {
-			if (this.targetDarkness - this.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += kingdom.LIGHT_ADJUST_SPEED/2;
-			else if (this.currentDarkness - this.targetDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED/2;
+			if (this.targetColor - this.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += kingdom.LIGHT_ADJUST_SPEED/2;
+			else if (this.currentDarkness - this.targetColor > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED/2;
 		}
 		else {
-			if (this.targetDarkness - this.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += kingdom.LIGHT_ADJUST_SPEED;
-			else if (this.currentDarkness - this.targetDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED;
+			if (this.targetColor - this.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += kingdom.LIGHT_ADJUST_SPEED;
+			else if (this.currentDarkness - this.targetColor > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED;
 		}
 	}
 
@@ -710,6 +727,13 @@ public class BattleStage extends Group {
 				p.pos_y < size_y && 
 				p.pos_x >= 0 && 
 				p.pos_y >= 0;
+	}
+	
+	public boolean inMap(int x, int y) {
+		return x < size_x &&
+				y < size_y && 
+				x >= 0 && 
+				y >= 0;
 	}
 
 	public void retreatAll(boolean player) {	

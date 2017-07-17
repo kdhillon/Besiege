@@ -61,7 +61,7 @@ public class Center {
 	public float elevation;
 	public double moisture;
 	public Biomes biome;
-	public Texture biomeTexture;
+	public transient Texture biomeTexture;
 	public int textureIndex;
 
 	public double area;
@@ -104,12 +104,15 @@ public class Center {
 		this.loc = loc;
 	}
 	
-	public void setBiome(Biomes biome, Texture biomeTexture) {
+	public void setBiome(Biomes biome) {
 		this.biome = biome;
-		//       center.textureIndex = getTexture(center);
+		this.wealth = calculateInitWealth();
+	}
+	
+	public void setBiomeTexture(Texture biomeTexture) {
+//      center.textureIndex = getTexture(center);
 		this.biomeTexture = biomeTexture;
 		if (biomeTexture == null) throw new java.lang.AssertionError("Cannot find biome texture for: " + biome);
-		this.wealth = calculateInitWealth();
 	}
 	
 	public float calculateInitWealth() {
@@ -150,6 +153,7 @@ public class Center {
 				this.corners.add(edge.v1);
 		}
 		initMesh(vg);
+		setBiomeTexture(vg.biomeMap.get(biome));
 	}
 
 	public int getSubVertices() {

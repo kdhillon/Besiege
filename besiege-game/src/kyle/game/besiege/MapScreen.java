@@ -307,12 +307,7 @@ public class MapScreen implements Screen {
 				if (VIEW_GENESIS) {
 					if (!kingdom.initialized) {
 						kingdom.initStep();
-						if (kingdom.getPlayer() == null) {
-							if (generate) kingdom.addPlayer();
-						}
-
 						center();
-
 						return;
 					}
 				}
@@ -323,6 +318,11 @@ public class MapScreen implements Screen {
 					if (generate) kingdom.addPlayer();
 					center();
 				}
+				if (kingdom.initialized && kingdom.getPlayer() == null) {
+					if (generate)
+						kingdom.addPlayer();
+				}
+				center();
 			}
 			else {
 				this.load();
@@ -1003,7 +1003,7 @@ public class MapScreen implements Screen {
 
 		Date date = new Date();
 		kryo.writeObjectOrNull(output, date, date.getClass());
-
+		kingdom.setPaused(true);
 		kingdom.remove();
 		kryo.writeObjectOrNull(output, this.kingdom, this.kingdom.getClass());
 
@@ -1049,6 +1049,8 @@ public class MapScreen implements Screen {
 		// restore faction crests()
 		kingdom.restoreFactionCrests();
 		this.sidePanel.setActiveArmy(kingdom.getPlayer());
+		this.sidePanel.setKingdom(kingdom);
+		storeStaticSidePanel(sidePanel);
 
 		this.center();
 		System.out.println("Loaded save from " + date.toString());

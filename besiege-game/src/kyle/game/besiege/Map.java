@@ -59,6 +59,7 @@ public class Map extends Actor {
 	//	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
 
 	public VoronoiGraph vg;
+		
 
 	public int testIndex;
 	public int totalVisibilityLines;
@@ -78,7 +79,10 @@ public class Map extends Actor {
 
 	public Center reference; // center on main map
 	public Point referencePoint;
+	
+	transient Voronoi v;
 
+	private MyRandom r;
 	/** Borders between faction territory */
 	public Array<Edge> factionBorderEdges; 
 
@@ -118,7 +122,7 @@ public class Map extends Actor {
 		long seed = (long) (Math.random()*1000000);
 
 		//final long see = System.nanoTime();
-		final MyRandom r = new MyRandom(seed);
+		r = new MyRandom(seed);
 		System.out.println("seed: " + seed);
 
 		//let's create a bunch of random points
@@ -126,11 +130,9 @@ public class Map extends Actor {
 			pointHs.add(new PointH((float) r.nextDouble(0, WIDTH), (float) r.nextDouble(0, HEIGHT)));
 
 		//now make the initial underlying voronoi structure
-		final Voronoi v = new Voronoi(pointHs, null, new Rectangle(0, 0, WIDTH, HEIGHT));
+		v = new Voronoi(pointHs, null, new Rectangle(0, 0, WIDTH, HEIGHT));
 
-		// draw voronoi graph?
-		
-		// stagger this so it draws one color before and after to test.
+		// TODO offload this to another thread, then we can check in with it as it loads. 
 		
 		//assemble the voronoi structure into a usable graph object representing a map
 		this.vg = new VoronoiGraph(v, 1, r);
@@ -139,14 +141,11 @@ public class Map extends Actor {
 		// 		draw continent outline
 		// 		continent is automatically divided into polygons
 		// 		you can assign biomes (and names!) to the polygons
-		// 		
-
+		
 		// also, should display something at your destination, and show path at all times
 		// also, when traveling to a center, should display center name.
 		// should allow "regions" to be groups of centers?!?! too complicated? allows advanced shapes, but kinda defeats the purpose of biomes
 		// could define regions to be adjacent centers with same biome? let's see how that would look
-
-
 
 		// can load a pre-made VG here, calculate everything, and it should work.
 		// first step is to save a randomly generated VG, then try to load it here.
@@ -155,16 +154,6 @@ public class Map extends Actor {
 
 		impassable = new HashSet<Edge>();
 		impBorders = new HashSet<Edge>();
-
-		//		this.initialize();
-
-		// testing: works
-		//		neighborAdj = new HashSet<Center>();
-		//		neighborAdj.add(reference);
-		//		for (Center c : reference.neighbors) {
-		//			neighborAdj.add(c);
-		//		}this.vg.restore();
-
 
 		cityCorners = new HashSet<Corner>();
 		cityCenters = new HashSet<Center>();
@@ -192,9 +181,9 @@ public class Map extends Actor {
 		calcVisibilityGraph();
 		cleanImpassable();
 		calcCitySpots();
-		assignRoads();
+		assignRoads();		
 	}
-
+	
 	public void initialize() {
 		this.vg.restore();
 	}
@@ -225,6 +214,7 @@ public class Map extends Actor {
 	}
 
 	private void calcReference() {
+		System.out.println("Calculating reference");
 		double BOUND = .20; // *100 = percent range
 		// think of a way to guarantee it's in the middle of the island
 		for (Center c : vg.centers) {
@@ -237,6 +227,9 @@ public class Map extends Actor {
 					}
 				}
 			}
+		}
+		if (reference == null) {
+			
 		}
 	}
 

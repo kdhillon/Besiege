@@ -31,7 +31,7 @@ public class MultiValue implements Value {
 	}
 	
 	
-	public class SubValue {
+	public static class SubValue {
 		TypeInfo typeInfo;
 		
 		// this can be either a "live" or a "dead" value
@@ -41,6 +41,11 @@ public class MultiValue implements Value {
 		
 		/**  */
 		float factor; 
+		
+		// for kryo
+		public SubValue() {
+			
+		}
 		
 		public SubValue(TypeInfo type, float initValue, float factor) {
 			this.typeInfo = type;
@@ -64,6 +69,11 @@ public class MultiValue implements Value {
 	}
 	
 	private StrictArray<SubValue> values; 
+	
+	// for kryo
+	public MultiValue() {
+		
+	}
 	
 	public MultiValue(String name) {
 		super();

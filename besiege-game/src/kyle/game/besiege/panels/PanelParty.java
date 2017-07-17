@@ -22,8 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.Crest;
 import kyle.game.besiege.MapScreen;
-import kyle.game.besiege.RandomCrest;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.party.Party;
@@ -580,7 +580,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	}
 
 	@Override
-	public RandomCrest getCrest() {
-		return army.getFaction().randomCrest;
+	public Crest getCrest() {
+		return army.getFaction().crest;
 	}
 }

@@ -77,7 +77,7 @@ public class Faction {
 	public String name; 
 	public String textureName;
 //	transient public TextureRegion crest; // will have to load this separately
-	public RandomCrest randomCrest;
+	public Crest crest;
 	
 	public Color color;
 	public StrictArray<City> cities;
@@ -123,12 +123,20 @@ public class Faction {
 	//	private static StrictArray<StrictArray<Integer>> factionNearbyCities; // not needed, calced in real time?
 	//	private static StrictArray<StrictArray<Integer>> factionTrade;
 
-	public static RandomCrest rc = new RandomCrest();
+	public static RandomCrestGenerator rc = new RandomCrestGenerator();
 	
-	public Faction() {}
+	// for Kryo
+	public Faction() {
+		// need to load crest after this is created.
+	}
 
-	public Faction(Kingdom kingdom, String name, String textureRegion, Color color) {
-		this.textureName = textureRegion;
+	/**
+	 * Creates a faction. if name is null, will generate a random name. If crest is null, will generate a random crest. 
+	 * @param kingdom
+	 * @param name
+	 * @param crest
+	 */
+	public Faction(Kingdom kingdom, String name, Crest crestIn) {
 		this.kingdom = kingdom;
 		
 		if (name == null) {
@@ -136,23 +144,23 @@ public class Faction {
 		}
 		else 
 			this.name = name;
-//		crest = Assets.atlas.findRegion(textureRegion);
-		randomCrest = new RandomCrest();
-		
-//		this.miniCrest = new Image(crest);
-		
-		// replaced!
-		this.color = color;
-		
-		this.color = randomCrest.base;
+
+		if (crestIn == null) {
+			this.crest = rc.create();
+		}
+		else {
+			this.crest = crestIn;
+		}
+		this.color = this.crest.base;
 		if (this.color.equals(Color.WHITE)) {
-			if (randomCrest.cOverlay != -1) {
-				this.color = RandomCrest.getColor(randomCrest.cOverlay);
+			if (crest.cOverlay != -1) {
+				this.color = rc.getColor(crest.cOverlay);
 			}
-			else if (randomCrest.cDetail != -1) {
-				this.color = RandomCrest.getColor(randomCrest.cDetail);
+			else if (crest.cDetail != -1) {
+				this.color = rc.getColor(crest.cDetail);
 			}
 		}
+		crest.loadFromInts(rc);
 		
 		nobles = new StrictArray<Noble>();
 		unoccupiedNobles = new StrictArray<Noble>();
@@ -434,8 +442,7 @@ public class Faction {
 	}
 
 	public void restoreCrest() {
-//		this.crest = Assets.atlas.findRegion(textureName);
-//		this.miniCrest = new Image(crest);
+		crest.loadFromInts(rc);
 	}
 
 	/** First updates each city's lists of close friendly and 
