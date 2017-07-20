@@ -359,10 +359,6 @@ public class PanelHire extends Panel { // TODO incorporate "list.java" into this
 	}
 	
 	@Override
-	public void button4() {
-		panel.returnToPrevious();
-	}
-	@Override
 	public Crest getCrest() {
 		if (selected == null)
 			return location.getFaction().crest;

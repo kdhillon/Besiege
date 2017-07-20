@@ -718,12 +718,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			}
 		}
 	}
-	@Override
-	public void button4() {
-		
-		panel.returnToPrevious();
-		//panel.returnToPrevious();
-	}
+	
 	
 //	@Override
 //	public RandomCrest getCrest() {

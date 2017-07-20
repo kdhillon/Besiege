@@ -652,7 +652,6 @@ public class Kingdom extends Group {
 			createFaction();
 		}
 
-
 		for (int i = 0; i < factions.size; i++) {
 			Faction f = factions.get(i);
 			f.kingdom = kingdom;

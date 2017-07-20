@@ -201,7 +201,6 @@ public class Panel extends Group {
 		}
 	}
 
-	// LEAK IS NOT HERE
 	@Override
 	public void act(float delta) {	
 		if (topPane.getHeight() != sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2) {
@@ -218,9 +217,6 @@ public class Panel extends Group {
 			pausedLabel.setText(PAUSED + " (" + Gdx.graphics.getFramesPerSecond() + ")");
 		else
 			pausedLabel.setText(" (" + Gdx.graphics.getFramesPerSecond() + ")");
-		//		else pausedLabel.setText(SAVING);
-
-		//		System.out.println(pausedLabel.getText());
 	}
 
 	public void resize() {
@@ -279,7 +275,6 @@ public class Panel extends Group {
 	}
 	public Crest getCrest() {
 		return null;
-//		return Assets.atlas.findRegion("crestBlank");
 	}
 	public Soldier getSoldierInsteadOfCrest() {
 		return null;
@@ -323,9 +318,8 @@ public class Panel extends Group {
 	}
 
 	public void beginSaving() {
-		//		System.out.println("begin saving in panel");
-		////		this.pausedLabel.setText(SAVING);
-		//		saving = true;
+		// TODO set back button to unclickable
+		saving = true;
 	}
 	public void endSaving() {
 		saving = false;

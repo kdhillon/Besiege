@@ -25,43 +25,18 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Soldier;
 
 public class PanelLocation extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
 	private final float MINI_PAD = 5;
 	private final float NEG = -5;
-	private final float DESC_HEIGHT = 530;
+	private final float DESC_HEIGHT = 300;
 	private final int r = 3;
 	private final String tablePatch = "grey-d9";
 	private SidePanel panel;
 	public Location location;
 	
-	private Table text;
-	private Label title;
-	private Label faction;
-	private Label type;
-	
-	private Label garrisonSize;
-	private Label population;
-	private Label wealth;
-
-	private Label garrisonC;
-	private Label emptyC;
-	private Label nullC;
-	private Label prisonersC;
-	
-	private Table stats;
-	private Label nameS;
-	private Label levelS;
-	private Label expS;
-	private Label nextS;
-	private Label atkS;
-	private Label defS;
-	private Label spdS;
-	private Label weaponS;
-	private Label equipmentS;
-	
+	private TopTable topTable;
 	
 	private Table soldierTable;
 	private ScrollPane soldierPane;
@@ -75,6 +50,11 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	private boolean playerTouched;
 	private boolean playerWaiting;
 	private boolean playerBesieging;
+	
+	private Label garrisonC;
+	private Label emptyC;
+	private Label nullC;
+	private Label prisonersC;
 	
 	public PanelLocation(SidePanel panel, Location location) {
 		this.panel = panel;
@@ -96,15 +76,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		lsG.font = Assets.pixel16;
 		lsG.fontColor = Color.GRAY;
 		
-		Label garrisonSizeC = new Label("Garrison:", ls);
-		Label populationC = new Label("Pop:",ls);
-		Label wealthC = new Label("Wealth:",ls);
-		
-		title = new Label(location.getName(), lsBig);
-		title.setAlignment(0,0);
-//		title.setWrap(true); // wrapping messes up click listeners... WTF?
-		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
-		title.addListener(new InputListener() {
+		topTable = new TopTable(2);
+		topTable.updateTitle(location.getName(), new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -114,28 +87,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 				centerCamera();
 			}
 		});
-		faction = new Label("", ls);
-		faction.setAlignment(0,0);
-		faction.setText(location.getFactionName());
-		type = new Label("",ls);
-		type.setAlignment(Align.center); // large city, village, etc
-		type.setText(location.getTypeStr());
-		
-		garrisonSize = new Label("", ls);
-		garrisonSize.setWrap(false);
-		population = new Label("", ls);
-		wealth = new Label("", ls);
-
-		garrisonC = new Label("Garrison", ls);
-		emptyC = new Label("No troops garrisoned!",ls);
-		nullC = new Label("Garrison is null!",ls);
-		prisonersC = new Label("Captured", ls);
-		
-		// Create text
-		text = new Table();
-//		text.debug();
-		text.defaults().padTop(NEG).left();
-		faction.addListener(new InputListener() {
+		topTable.updateSubtitle(location.getFactionName(), new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -145,98 +97,33 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 				setActiveFaction();
 			}
 		});
-		text.add(title).colspan(4).center().padBottom(0);
-		text.row();
-		text.add().width((SidePanel.WIDTH-PAD*2)/4);
-		text.add().width((SidePanel.WIDTH-PAD*2)/4);
-		text.add().width((SidePanel.WIDTH-PAD*2)/4);
-		text.add().width((SidePanel.WIDTH-PAD*2)/4);
-		text.row();
-		text.add(faction).colspan(4).fillX().expandX();
-		text.row();
-		text.add(type).colspan(4).fillX().expandX();
-		text.row();
-		text.add(garrisonSizeC).colspan(2).padLeft(MINI_PAD);
-		text.add(garrisonSize).colspan(2).center();
-		text.row();
-		text.add(populationC).padLeft(MINI_PAD);
-		text.add(population).center();
-		text.add(wealthC).padLeft(PAD);
-		text.add(wealth).center();
+		topTable.updateSubtitle2(location.getTypeStr(),  null);
+		
+		topTable.addBigLabel("Garrison", "Garrison:");
+		topTable.addSmallLabel("Pop", "Pop:");
+		topTable.addSmallLabel("Wealth", "Pop:");
+
+		garrisonC = new Label("Garrison", ls);
+		emptyC = new Label("No troops garrisoned!",ls);
+		nullC = new Label("Garrison is null!",ls);
+		prisonersC = new Label("Captured", ls);
 
 		soldierTable = new Table();
-		//soldierTable.debug();
+
 		soldierTable.defaults().padTop(NEG);
 		soldierTable.top();
 		soldierTable.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
-		text.row();
-		text.add().colspan(4).padBottom(PAD);
-		text.row();
-		
+	
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);
-		text.add(soldierPane).colspan(4).top().padTop(0);
+		topTable.add(soldierPane).colspan(4).top().padTop(0);
 		
-		text.row();
-		
-		// Soldier's stats
-		stats = new Table();
-		stats.setVisible(false);
-		
-		Label levelSC = new Label("Level:", ls);
-		Label expSC = new Label("Exp:",ls);
-		Label nextSC = new Label("Next:",ls);
-		Label atkSC = new Label("Atk:", ls);
-		Label defSC = new Label("Def:", ls);
-		Label spdSC = new Label("Spd:", ls); 
-		Label weaponSC = new Label("Weapon: ", ls);
-		Label equipmentSC = new Label("Armor: ", ls);
-
-		nameS = new Label("", ls);
-		nameS.setAlignment(0,0);
-		levelS = new Label("", ls);
-		expS = new Label("", ls);
-		nextS = new Label("", ls);
-		atkS = new Label("" ,ls);
-		defS = new Label("", ls);
-		spdS = new Label("", ls);
-		weaponS = new Label("", ls);
-		equipmentS = new Label("", ls);
-		
-		stats.defaults().left().padTop(NEG);
-		stats.add(nameS).colspan(4).width(SidePanel.WIDTH-PAD*2).fillX().expandX().padBottom(MINI_PAD);
-		stats.row();
-		stats.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
-		stats.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
-		stats.row();
-		stats.add(levelSC).padLeft(MINI_PAD);
-		stats.add(levelS);
-		stats.add(atkSC).padLeft(PAD);
-		stats.add(atkS);
-		stats.row();
-		stats.add(expSC).padLeft(MINI_PAD);
-		stats.add(expS);
-		stats.add(defSC).padLeft(PAD);
-		stats.add(defS);
-		stats.row();
-		stats.add(nextSC).padLeft(MINI_PAD);
-		stats.add(nextS);
-		stats.add(spdSC).padLeft(PAD);
-		stats.add(spdS);
-		stats.row();
-		stats.add(weaponSC).colspan(2).padLeft(MINI_PAD).padTop(0);
-		stats.add(weaponS).colspan(2).padTop(0);
-		stats.row();
-		stats.add(equipmentSC).colspan(2).padLeft(MINI_PAD).padTop(0).top();
-		stats.add(equipmentS).colspan(2).padTop(0);
+		topTable.row();
 		
 		//stats.debug();
-		
-		text.add(stats).colspan(4).padTop(PAD);
-
-		text.padLeft(MINI_PAD);
-		this.addTopTable(text);
+		topTable.padLeft(MINI_PAD);
+		this.addTopTable(topTable);
 
 		playerIn = false;
 //		this.hireMode = false;
@@ -349,10 +236,10 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			}
 			//		if (totalGarr > 0) garrStr += "+" + totalGarr;
 			if (totalGarr > 0) garrStr = totalGarr + location.garrison.getParty().getHealthySize() + " (" + garrStr + "+" + totalGarr + ")";
-			garrisonSize.setText(garrStr);
+			topTable.update("Garrison", garrStr);
 
-			population.setText((int) location.getPop() + "");
-			wealth.setText("" + location.getWealth());
+			topTable.update("Pop", (int) location.getPop() + "");
+			topTable.update("Wealth", ""+ location.getWealth());
 		}
 		else {
 			String garrStr = "";
@@ -366,17 +253,17 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 			}
 			//		if (totalGarr > 0) garrStr += "+" + totalGarr;
 			if (totalGarr > 0) garrStr = totalGarr + " (" + garrStr + "+" + totalGarr + ")";
-			garrisonSize.setText(garrStr);
+			topTable.update("Garrison", garrStr);
 
-			population.setText((int) location.getPop() + "");
-			wealth.setText("0");
+			topTable.update("Pop", (int) location.getPop() + "");
+			topTable.update("Wealth", "0");
 		}
 		
 		if (location.underSiege())
-			faction.setText("Under Siege!");
+			topTable.updateSubtitle("Under Siege!", null);
 		else {
-			if (location.getKingdom().getPlayer().isAtWar(location)) faction.setText(location.getFactionName() + " (at war)");
-			else faction.setText(location.getFactionName());
+			if (location.getKingdom().getPlayer().isAtWar(location)) topTable.updateSubtitle(location.getFactionName() + " (at war)", null);
+			else topTable.updateSubtitle(location.getFactionName(), null);
 		}
 		
 		if (location.needsUpdate)
@@ -451,33 +338,8 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		}
 	}
 	
-	public void setStats(Soldier s) {
-		stats.setVisible(true);
-		nameS.setText(s.getTypeName() + "");
-		levelS.setText(s.level + "");
-		expS.setText(s.exp + "");
-		nextS.setText(s.next + "");
-//		if (s.getBonusAtk() >= 0)
-//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.getBonusAtk() + ")");
-//		else 
-//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.getBonusAtk() + ")");
-//		if (s.getBonusDef() >= 0)
-//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.getBonusDef() + ")");
-//		else 
-//			defS.setText(s.getDef() + " (" + s.baseDef + s.getBonusDef() + ")");
-//		if (s.getBonusSpd() >= 0)
-//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.getBonusSpd() + ")");
-//		else 
-//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.getBonusSpd() + ")");
-		weaponS.setText(s.unitType.melee.name);
-	}
-	
 	public Party getParty() {
 		return this.location.getParty();
-	}
-	
-	public void clearStats() {
-		stats.setVisible(false);
 	}
 	
 	public void setActiveFaction() {
@@ -491,7 +353,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 	
 	@Override
 	public void resize() { // problem with getting scroll bar to appear...
-		Cell cell = text.getCell(soldierPane);
+		Cell cell = topTable.getCell(soldierPane);
 		cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setHeight(panel.getHeight() - DESC_HEIGHT);

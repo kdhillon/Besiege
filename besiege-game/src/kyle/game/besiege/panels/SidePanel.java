@@ -38,9 +38,6 @@ public class SidePanel extends Group {
 	private Kingdom kingdom;
 	private OrthographicCamera camera;
 	
-//	private OrthographicCamera miniCam;
-//	private Stage miniStage;
-//	private SpriteBatch miniBatch;
 	private MiniMap minimap;
 	private BottomPanel bottom;
 	
@@ -48,32 +45,21 @@ public class SidePanel extends Group {
 	private transient Panel previousPanel;
 	
 	public Character character;
-	
-	//public PanelMain main;
-//	public PanelCharacter character;
-//	public PanelAttributes attributes;
 	public PanelParty party;
 	public PanelUpgrades upgrades;
 	public PanelInventory inventory;
 		
 	private boolean hardStay; // stay on current panel until set false
-//	private boolean softStay; // for when clicking
 		
+	// 5767 lines in Panels. \n[\s]* in *panel*.java
+	// lets see how much we can reduce.
+	
 	public SidePanel(MapScreen mapScreen) {
 		this.mapScreen = mapScreen;
 		this.camera = (OrthographicCamera) mapScreen.getUICamera();	
 		
 		this.region = new TextureRegion(Assets.atlas.findRegion(textureRegion));
-		
-//		this.miniCam = new OrthographicCamera(BesiegeMain.WIDTH,BesiegeMain.HEIGHT);
-//		miniCam.zoom = MINI_ZOOM;
-//		this.miniStage = new Stage();
-//		miniStage.setCamera(miniCam);
-//		this.miniBatch = new SpriteBatch();
-//		System.out.println("gutter" + miniStage.getGutterHeight());
-//		// orient miniStage
-//		miniCam.position.set(-3700, -2500, 0);
-		
+
 		bottom = new BottomPanel(this);
 		this.addActor(bottom);
 		
@@ -84,25 +70,10 @@ public class SidePanel extends Group {
 		hardStay = false;
 	}
 
-	// hopefully will prevent stupid kryo errors
-	// nope was totally different
-//	public void purgeBeforeSave() {
-//		this.clearChildren();
-//	}
-//	
-//	public void restoreAfterSave() {
-//		this.addActor(bottom);
-//		this.addActor(minimap);
-//		this.addActor(activePanel);
-//	}
-	
 	public void initializePanels() {
-		//main = new PanelMain(this);
-//		character = new PanelCharacter(this);
 		if (Soldier.WEAPON_NEEDED)
 			inventory = new PanelInventory(this);
 		party = new PanelParty(this, kingdom.getPlayer());
-//		attributes = new PanelAttributes(this);
 		upgrades = new PanelUpgrades(this, kingdom.getPlayer());
 		this.setActive(party);
 	}
@@ -120,23 +91,11 @@ public class SidePanel extends Group {
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
-		// draw minimap
-		//minimap.clipBegin(100, 100, 100, 100);
+		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());	
 		super.draw(batch, parentAlpha);
-		//minimap.clipEnd();
 		Table.drawDebug(getMapScreen().getUIStage());
-
-//		miniCam.update();
-//		miniStage.addActor(kingdom);
-//		kingdom.clipBegin(kingdom.getX(), kingdom.getY(),kingdom.getWidth(), kingdom.getHeight());
-//		miniBatch.setProjectionMatrix(miniCam.combined);
-//		miniBatch.begin();
-//		kingdom.draw(miniBatch, 1);
-//		miniBatch.end();
-//		miniStage.clear();
-//		mapScreen.getStage().addActor(kingdom);
 	}
+	
 	public void clean() {
 		this.clearChildren();
 		this.addActor(this.minimap);
@@ -145,13 +104,14 @@ public class SidePanel extends Group {
 		this.activePanel = null;
 	}
 	
-	public void setPreviousPanel(Panel previousPanel) {
-			this.previousPanel = previousPanel;
-	}
 	public void returnToPrevious() {
-//		System.out.println("returning to previous");
-		if (previousPanel != null && !hardStay)
+		if (!hardStay) {
 			setActive(previousPanel);
+//			System.out.println("Returning to previous " + ("" + previousPanel == null) + " " + hardStay + " " + previousPanel.getClass());
+//			if (previousPanel.getClass() == PanelParty.class) {
+//				System.out.println(((PanelParty) previousPanel).party.getName());
+//			}
+		}
 	}
 	public OrthographicCamera getCamera() {
 		return camera;
@@ -163,7 +123,16 @@ public class SidePanel extends Group {
 		return mapScreen;
 	}
 	public void setActive(Panel newActivePanel) {
-		if (this.activePanel == newActivePanel) return;
+		System.out.println("Setting new active panel");
+		if (newActivePanel == null) {
+			System.out.println("Returning to null panel");
+			setActive(party);
+			return;
+		}
+		if (this.activePanel == newActivePanel) {
+			setActive(party);
+			return;
+		};
 		if (newActivePanel == upgrades) upgrades.updateSoldierTable();
 		if (newActivePanel.getClass() == PanelParty.class) {
 			((PanelParty) newActivePanel).updateSoldierTable();
@@ -174,12 +143,11 @@ public class SidePanel extends Group {
 		}
 		
 		if (!hardStay) {
-//			if (activePanel != null) {
-//				setPreviousPanel(activePanel);
 			this.removeActor(this.activePanel);
-//			}
+			this.previousPanel = this.activePanel;
 			this.activePanel = newActivePanel;
 
+		
 			this.addActor(activePanel);
 		}
 	}
@@ -201,9 +169,6 @@ public class SidePanel extends Group {
 	}
 	
 	public void setActiveLocation(Location location) {
-//		if (this.activePanel.getClass() == PanelLocation.class) {
-//			if (((PanelLocation) activePanel).location == location) return;
-//		}
 		if (location.panel == null) 
 			location.panel = new PanelLocation(this, location);
 		setActive(location.panel);
@@ -225,8 +190,6 @@ public class SidePanel extends Group {
 			PanelUnit pu = new PanelUnit(this, unit, unit.soldier);
 			setActive(pu);
 		}
-//		PanelFaction pf = new PanelFaction(this, faction);
-//		setActive(pf);
 	}
 	public void setActiveUnit(Soldier s) {
 		if (s.isGeneral()) {
@@ -237,8 +200,6 @@ public class SidePanel extends Group {
 			PanelUnit pu = new PanelUnit(this, null, s);
 			setActive(pu);
 		}
-//		PanelFaction pf = new PanelFaction(this, faction);
-//		setActive(pf);
 	}
 	public void setActiveCenter(Center center) {
 		PanelCenter pc = new PanelCenter(this, center);
@@ -257,13 +218,8 @@ public class SidePanel extends Group {
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());
 		else setActive(party); // can change
-		
-		// testing for leaks?
-		// leaks still occur with character!
-//		setActive(character);
 	}
 	public void press(int button) {
-//		if (activePanel.getButton(button).isVisible()) {
 			if (button == 1)
 				activePanel.button1();
 			else if (button == 2)
@@ -272,8 +228,7 @@ public class SidePanel extends Group {
 				activePanel.button3();
 			else if (button == 4)
 				activePanel.button4();
-//		}
-	}
+			}
 	public void setKingdom(Kingdom kingdom) {
 		if (kingdom == null) {
 			throw new java.lang.AssertionError();
@@ -290,12 +245,12 @@ public class SidePanel extends Group {
 	// it shuldn't really be a boolean, should be handled with previousPanel
 	// if you click a panel, it becomes active and previous
 	public void setSoftStay(boolean b) {
-//		softStay = b;
 		System.out.println("setting soft stay");
 		this.previousPanel = this.activePanel;
 	}
 	
 	public void setHardStay(boolean b) {
+		System.out.println("setting hard stay");		
 		hardStay = b;
 	}
 	public boolean getStay() {

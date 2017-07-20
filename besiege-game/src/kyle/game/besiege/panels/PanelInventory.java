@@ -336,10 +336,7 @@ public class PanelInventory extends Panel {
 	public void button3() {
 
 	}
-	@Override
-	public void button4() {
-		panel.returnToPrevious();
-	}
+
 
 //	@Override
 //	public RandomCrest getCrest() {

@@ -477,10 +477,6 @@ public class PanelFaction extends Panel {
 	public void button3() {
 
 	}
-	@Override
-	public void button4() {
-		panel.returnToPrevious();
-	}
 
 	@Override
 	public Crest getCrest() {
