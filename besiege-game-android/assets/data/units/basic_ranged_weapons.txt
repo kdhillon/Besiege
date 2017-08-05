@@ -7,7 +7,7 @@ Bow				3	30		7		6		bow
 Crossbow		4	35		8		6		crossbow
 Longbow			3	45		8		4		bow
 
-Hvy Crossbow	4	40		8		6		crossbow
+Hvy_Crossbow	4	40		8		6		crossbow
 Strongbow		3	50		9		4		fire
 
 Musket			6	35		4		15		firearm

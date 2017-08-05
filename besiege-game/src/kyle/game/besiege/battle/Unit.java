@@ -499,7 +499,6 @@ public class Unit extends Group {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {		
-
 //		if (this.isHidden() && !this.isDying && this.team != 0) return;
 
 		if (isDying) {
@@ -1449,7 +1448,7 @@ public class Unit extends Group {
 		return true;
 	}
 
-	// call this when a soldier dies from wounds
+	// call this when a soldier's health goes to 0
 	public void kill() {
 		this.unman();
 		this.bsp.handleUnitKilled(this);
@@ -1484,7 +1483,7 @@ public class Unit extends Group {
 		if (this.team == 1) stage.enemies.removeUnit(this, false);
 
 		stage.retreated.add(this);
-		stage.battle.calcBalancePlayer();
+		stage.battle.updateBalance();
 
 		String status = soldier.getTypeName();
 		String color = "white";

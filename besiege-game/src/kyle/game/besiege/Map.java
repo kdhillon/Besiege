@@ -59,7 +59,6 @@ public class Map extends Actor {
 	//	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
 
 	public VoronoiGraph vg;
-		
 
 	public int testIndex;
 	public int totalVisibilityLines;

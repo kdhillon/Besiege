@@ -32,9 +32,9 @@ import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
  * (modified by Kyle Dhillon)
  */
 public class VoronoiGraph {
-	private static final double ROUNDNESS = .46; // increase for more centralized (~.5)
-	private static final double WATER_FREQ = .14; // increase for a little more wild (~.2)
-	private static final double LAND_FREQ = .43; // increase for overall land mass (sensitive) (~.4)
+	private static final double ROUNDNESS = .3; // increase for more centralized (~.5) (.46 is good)
+	private static final double WATER_FREQ = .2; // increase for a little more wild (~.2) (.14 is good)
+	private static final double LAND_FREQ = .35; // increase for overall land mass (sensitive) (~.4) (.43 is good)
 	private static final double TURBULENCE = 4; // (~5)
 
     public ArrayList<Corner> corners = new ArrayList<Corner>();

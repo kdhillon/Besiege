@@ -59,7 +59,7 @@ public class UnitLoader {
 			biomes.put(b.toString(), b);
 		}
 		
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").reader()).useDelimiter("\\t\\t*|\r\n[\r\n]*");
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").reader());
 		in.nextLine(); // skip first line
 
 		biomeClasses = new HashMap<Biomes, UnitClass>();
@@ -68,7 +68,7 @@ public class UnitLoader {
 		while(in.hasNextLine()) {			
 			if (!in.hasNext()) return;
 			
-			String strBiome 		= in.next();
+			String strBiome 		=     addSpaces(in.next());
 			String strClass			= in.next();
 			
 			Biomes biome 			= biomes.get(strBiome);
@@ -84,13 +84,12 @@ public class UnitLoader {
 			
 			biomeClasses.put(biome, classType);
 		}
-		in.close();
-		
+		in.close();	
 	}
 
 	public static void loadColors() {
 		colors = new HashMap<String, Color>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_colors.txt").reader()).useDelimiter("\\t\\t*|\r\n[\r\n]*");
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_colors.txt").reader()); //.useDelimiter("\\t\\t*|\r\n[\r\n]*|")
 		in.nextLine(); // skip first line
 
 		// read one line of input from the 
@@ -109,7 +108,7 @@ public class UnitLoader {
 
 	public static void loadArmors() {
 		armorTypes = new HashMap<String, ArmorType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_armors.txt").reader()).useDelimiter("\\t\\t*|\r\n[\r\n]*");
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_armors.txt").reader());
 		in.nextLine(); // skip first line
 
 		// read one line of input from the 
@@ -131,14 +130,15 @@ public class UnitLoader {
 
 	public static void loadWeapons() {
 		weaponTypes = new HashMap<String, WeaponType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_weapons.txt").reader()).useDelimiter("\\t\\t*|\r\n[\r\n]*");
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_weapons.txt").reader());
 		in.nextLine(); // skip first line
 
 		// read one line of input from the 
 		while(in.hasNextLine()) {			
 			WeaponType weapon = new WeaponType();
 			if (!in.hasNext()) return;
-			weapon.name		= in.next();
+			weapon.name		= addSpaces(in.next());
+			System.out.println("name: " + weapon.name);
 			weapon.atkMod 	= in.nextInt();
 			weapon.defMod 	= in.nextInt();
 			weapon.spdMod	= in.nextInt();
@@ -151,17 +151,21 @@ public class UnitLoader {
 		}
 		in.close();
 	}
+	
+	private static String addSpaces(String input) {
+		return input.replace("_",  " " );
+	}
 
 	public static void loadRangedWeapons() {
 		rangedWeaponTypes = new HashMap<String, RangedWeaponType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_ranged_weapons.txt").reader()).useDelimiter("\\t\\t*|\r\n[\r\n]*");
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_ranged_weapons.txt").reader());
 		in.nextLine(); // skip first line
 
 		// read one line of input from the 
 		while(in.hasNextLine()) {			
 			RangedWeaponType weapon = new RangedWeaponType();
 			if (!in.hasNext()) return;
-			weapon.name		= in.next();
+			weapon.name		= addSpaces(in.next());
 			weapon.atkMod 	= in.nextInt();
 			weapon.range 	= in.nextInt();
 			weapon.accuracy	= in.nextInt();
@@ -175,7 +179,7 @@ public class UnitLoader {
 
 	public static void loadUnits() {
 //		unitTypes = new HashMap<String, NewUnitType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_units.txt").reader()).useDelimiter("\\t\\t*|\\t*\r\n\\t*[\r\n]*\\t*");
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_units.txt").reader());
 		in.nextLine(); // skip first line
 
 		String currentClass = "NO CLASS";
@@ -211,7 +215,7 @@ public class UnitLoader {
 //			System.out.println(unit.name);
 			unit.unitClass 	= classType;
 			classType.units.put(unit.name, unit);
-			String weaponString = in.next();
+			String weaponString = addSpaces(in.next());
 			String[] weapons = weaponString.split("/");
 
 			// supports only two weapons (1 ranged 1 not) for now.

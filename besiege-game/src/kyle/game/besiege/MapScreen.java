@@ -714,7 +714,7 @@ public class MapScreen implements Screen {
 				moveLeft();
 				shouldCenter = false;
 			}
-
+			
 			if (Gdx.input.isKeyPressed(Keys.Q)) 
 				rotate(.5f);
 			if (Gdx.input.isKeyPressed(Keys.E)) 
@@ -752,7 +752,9 @@ public class MapScreen implements Screen {
 			//				if (Gdx.input.isButtonPressed(0) && !kingdom.getPlayer().isGarrisoned()) // allows holding down mouse.
 			//					click(0);
 			//			}
-
+			if (Gdx.input.isKeyPressed(Keys.ENTER)) {
+				click(1);
+			}
 			if (Gdx.input.justTouched()) {
 				if (!editOn) {
 					if (Gdx.input.isButtonPressed(0)) {

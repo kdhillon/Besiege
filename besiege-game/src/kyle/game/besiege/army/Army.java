@@ -25,7 +25,10 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Path;
 import kyle.game.besiege.Point;
 import kyle.game.besiege.Siege;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleActor;
+import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
@@ -105,7 +108,7 @@ public class Army extends Actor implements Destination {
 	public enum ArmyType {PATROL, NOBLE, MERCHANT, BANDIT, FARMER, MILITIA}; // 3 for patrol, 
 	public ArmyType type;
 
-	private Battle battle;
+	private BattleActor battleActor;
 	public float retreatCounter; // needed in battles
 	private Siege siege;
 	private Destination target;
@@ -158,7 +161,7 @@ public class Army extends Actor implements Destination {
 		this.waitUntil = 0;
 		this.hiding = false;
 
-		this.battle = null;
+		this.battleActor = null;
 		this.siege = null;	
 		this.runFrom = null;
 		this.garrisonedIn = null;
@@ -490,9 +493,12 @@ public class Army extends Actor implements Destination {
 		}
 		else {
 			// join battle
-			if (targetArmy.getBattle().shouldJoin(this) != 0) {
-				targetArmy.getBattle().add(this);
-				this.setBattle(targetArmy.getBattle());
+			if (targetArmy.getBattle().shouldJoinAttackers(this)) {
+				targetArmy.getBattle().addToAttackers(this);
+				this.setBattleActor(targetArmy.getBattleActor());
+			} else if (targetArmy.getBattle().shouldJoinDefenders(this)) {
+				targetArmy.getBattle().addToDefenders(this);
+				this.setBattleActor(targetArmy.getBattleActor());
 			}
 			else {
 				this.nextTarget();
@@ -506,7 +512,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
-		if (this.battle != null) return;
+		if (this.battleActor != null) return;
 		
 //		if (true) return;
 		
@@ -562,9 +568,9 @@ public class Army extends Actor implements Destination {
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else {
-			Battle b = new Battle(getKingdom(), this.party, targetArmy.party);
-			this.setBattle(b);
-			targetArmy.setBattle(b);
+			BattleActor b = new BattleActor(getKingdom(), this.party, targetArmy.party);
+			this.setBattleActor(b);
+			targetArmy.setBattleActor(b);
 			getKingdom().addBattle(b);
 		}
 		//shouldJoinBattle();
@@ -572,55 +578,68 @@ public class Army extends Actor implements Destination {
 
 	public boolean detectBattleCollision() {
 		if (distToCenter(getTarget()) < battleCollisionDistance) {
-			Battle targetBattle = (Battle) target;
+			BattleActor targetBattle = (BattleActor) target;
 			this.joinBattle(targetBattle);
 			return true;
 		}
 		return false;
 	}
 
-	public void joinBattle(Battle battle) {
+	public void joinBattle(BattleActor battleActor) {
 		if (this.party.player) {
 			
 			Array<Party> allies = new Array<Party>();
 			Array<Party> enemies = new Array<Party>();
+			Battle battle = battleActor.getBattle();
 			
 			allies.add(this.party);
 			
 			boolean defending = false;
 			
 			// should join defenders
-			if (battle.shouldJoin(this) == 1) {
+			if (battle.shouldJoinDefenders(this)) {
 				defending = true;
-				for (Army army : battle.dArmies)
-					allies.add(army.party);
-				for (Army army : battle.aArmies)
-					enemies.add(army.party);
+				StrictArray<Party> defendingParties = battle.getDefendingParties();
+				StrictArray<Party> attackingParties = battle.getAttackingParties();
+				for (Party party : attackingParties)
+					enemies.add(party);
+				for (Party party : defendingParties)
+					allies.add(party);
 			}
-			else if (battle.shouldJoin(this) == 2) {
+			else if (battle.shouldJoinAttackers(this)) {
 				defending = false;
-				for (Army army : battle.dArmies)
-					enemies.add(army.party);
-				for (Army army : battle.aArmies)
-					allies.add(army.party);
+				StrictArray<Party> defendingParties = battle.getDefendingParties();
+				StrictArray<Party> attackingParties = battle.getAttackingParties();
+				for (Party party : defendingParties)
+					enemies.add(party);
+				for (Party party : attackingParties)
+					allies.add(party);
 			}
 			else return;
-			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, battle.siegeOf);
+			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, battleActor.getSiegeLocation());
 			
-			BottomPanel.log("Joining " + battle.getName());
+			BottomPanel.log("Joining " + battleActor.getName());
 		}
 		else {
-			if (battle == null) {
+			if (battleActor == null || battleActor.getBattle() == null) {
 				System.out.println("joining null battle");
 				return;
 			}
-			if (this.battle != null) {
+			Battle battle = battleActor.getBattle();
+			if (this.battleActor != null) {
 				System.out.println("already in battle");
 				return;
 			}
-			battle.add(this);
+			if (battle.shouldJoinAttackers(this)) {
+				battle.addToAttackers(this);				
+			} else if (battle.shouldJoinDefenders(this)) {
+				battle.addToDefenders(this);
+			} else {
+				System.out.println("shouldn't join battle");
+				return;
+			}
 			this.setVisible(false);
-			this.setBattle(battle);
+			this.setBattleActor(battleActor);
 		}
 	}
 
@@ -902,7 +921,9 @@ public class Army extends Actor implements Destination {
 //		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 //			return true; 
 		// TODO take into account nearby parties
-		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1) && (this.getTroopCount() <= that.getTroopCount()*2) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
+		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1)
+				&& (this.getTroopCount() <= that.getTroopCount() * 2)
+				&& (that.getBattle() == null || that.getBattle().shouldJoinAttackers(this)))
 			return true; 
 		return false;
 	}
@@ -932,7 +953,7 @@ public class Army extends Actor implements Destination {
 			if (distToCenter(target) > lineOfSight || !targetArmy.hasParent() || targetArmy.isGarrisoned())
 				return true;
 			if (targetArmy.isInBattle()) {
-				if (targetArmy.getBattle().shouldJoin(this) == 0) // shouldn't join
+				if (!targetArmy.getBattle().shouldJoinAttackers(this) && !targetArmy.getBattle().shouldJoinDefenders(this)) // shouldn't join
 					return true;
 			}
 		}
@@ -1167,16 +1188,19 @@ public class Army extends Actor implements Destination {
 	public DestType getType() {
 		return Destination.DestType.ARMY; // army type
 	}
-	public void setBattle(Battle battle) {
-		this.battle = battle;
+	public void setBattleActor(BattleActor battle) {
+		this.battleActor = battle;
+	}
+	public BattleActor getBattleActor() {
+		return battleActor;
 	}
 	public Battle getBattle() {
-		return battle;
+		if (battleActor == null) return null;
+		return battleActor.getBattle();
 	}
 	public void endBattle() {
-		//		path.travel();
 		if (siege != null) leaveSiege();
-		battle = null;
+		battleActor = null;
 		//		if (type == ArmyType.MERCHANT) System.out.println(getName() + " ending battle");
 	}
 	public void besiege(Location location) {
@@ -1406,7 +1430,7 @@ public class Army extends Actor implements Destination {
 		return runFrom != null;
 	}
 	public boolean isInBattle() {
-		return battle != null;
+		return battleActor != null && battleActor.getBattle() != null;
 	}
 	@Override
 	public void setMouseOver(boolean mouseOver) {

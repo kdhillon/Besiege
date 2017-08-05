@@ -232,8 +232,15 @@ public class ArmyPlayer extends Army {
 		}
 		else if (targetArmy.isInBattle() && !this.isInBattle()){
 			// join battle?
-			targetArmy.getBattle().add(this);
-			this.setBattle(targetArmy.getBattle());
+			if (targetArmy.getBattle().shouldJoinAttackers(this)) {
+				targetArmy.getBattle().addToAttackers(this);
+				getKingdom().getMapScreen().getSidePanel().setActiveBattle(targetArmy.getBattle());
+				this.setBattleActor(targetArmy.getBattleActor());
+			} else if (targetArmy.getBattle().shouldJoinDefenders(this)) {
+				targetArmy.getBattle().addToDefenders(this);
+				this.setBattleActor(targetArmy.getBattleActor());
+				getKingdom().getMapScreen().getSidePanel().setActiveBattle(targetArmy.getBattle());
+			}
 		}
 	}
 	
@@ -253,7 +260,7 @@ public class ArmyPlayer extends Army {
 				return true;
 			}
 			if (targetArmy.isInBattle()){
-					this.joinBattle(targetArmy.getBattle());
+					this.joinBattle(targetArmy.getBattleActor());
 				//if (targetArmy.getBattle().shouldJoin(this) == 0) // Player should get to choose what battles to join!
 					return true;
 			}

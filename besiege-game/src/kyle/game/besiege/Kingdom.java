@@ -6,7 +6,6 @@
 // group of actors, contains bg, all cities and all armies
 package kyle.game.besiege;
 
-
 import static kyle.game.besiege.Kingdom.getRandom;
 
 import java.util.HashSet;
@@ -21,7 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.army.Bandit;
-import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleActor;
+import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
@@ -32,10 +32,10 @@ import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
-	public static int cityCount = 30;
+	public static int cityCount = 10;
 	public static int castleCount = 5;
 	public static int ruinCount = 5;
-	public static int villageCount = 40;
+	public static int villageCount = 20;
 	
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
@@ -78,7 +78,7 @@ public class Kingdom extends Group {
 	public StrictArray<Village> villages;
 	public StrictArray<Ruin> ruins;
 	
-	private StrictArray<Battle> battles;
+	private StrictArray<BattleActor> battles;
 	private ArmyPlayer player;
 
 	public int banditCount;
@@ -89,7 +89,7 @@ public class Kingdom extends Group {
 	private boolean paused;
 
 	private boolean leftClicked;
-	private boolean rightClicked;
+	public boolean rightClicked;
 	private Point mouse;
 
 	public boolean initialized;
@@ -138,7 +138,7 @@ public class Kingdom extends Group {
 			castles = new StrictArray<Castle>();
 			villages = new StrictArray<Village>();
 			ruins = new StrictArray<Ruin>();
-			battles = new StrictArray<Battle>();
+			battles = new StrictArray<BattleActor>();
 			
 			System.out.println("initializing factions");
 			initializeFactions(this);
@@ -430,8 +430,7 @@ public class Kingdom extends Group {
 		}
 	}
 
-	private void leftClick(Point mouse) {
-		
+	private void rightClick(Point mouse) {
 		Destination d = getDestAt(mouse);
 //		System.out.println("left click");
 		
@@ -474,27 +473,26 @@ public class Kingdom extends Group {
 		}
 	}
 	
-	// this is actually left click right now
-	private void rightClick(Point mouse) {		
+	private void leftClick(Point mouse) {		
 		Destination d = getDestAt(mouse);
-		System.out.println("rightclick()");
+		System.out.println("leftclick()");
 		
-		mapScreen.getSidePanel().setSoftStay(false);
+		mapScreen.getSidePanel().setHardStay(false);
 
 		if (d.getType() == Destination.DestType.BATTLE) { //battle
-			Battle battle = (Battle) d;
+			OldBattle battle = (OldBattle) d;
 			getMapScreen().getSidePanel().setActiveBattle(battle);
-			mapScreen.getSidePanel().setSoftStay(true);
+			mapScreen.getSidePanel().setHardStay(true);
 		}
 		if (d.getType() == Destination.DestType.ARMY) { // army
 			Army destinationArmy = (Army) d;
 			getMapScreen().getSidePanel().setActiveArmy(destinationArmy);
-			mapScreen.getSidePanel().setSoftStay(true);
+			mapScreen.getSidePanel().setHardStay(true);
 		}
 		if (d.getType() == Destination.DestType.LOCATION) {
 			Location location = (Location) d;
 			getMapScreen().getSidePanel().setActiveLocation(location);
-			mapScreen.getSidePanel().setSoftStay(true);
+			mapScreen.getSidePanel().setHardStay(true);
 		}
 				
 		// check if a center 
@@ -510,7 +508,7 @@ public class Kingdom extends Group {
 			}
 			if (containing != null) {
 				getMapScreen().getSidePanel().setActiveCenter(containing);
-				mapScreen.getSidePanel().setSoftStay(true);
+				mapScreen.getSidePanel().setHardStay(true);
 			}
 			else {
 				// just for fun, do water as well
@@ -538,15 +536,15 @@ public class Kingdom extends Group {
 		this.armies.iterator();
 		
 //		if (pointer == 0)
-//			leftClicked = true;
+//			ed = true;
 //		else if (pointer == 1) 
 //			rightClicked = true;
 //		else if (pointer == 4)
 //			writeCity();
 		// try switching them
-		if (pointer == 1)
+		if (pointer == 0)
 			leftClicked = true;
-		else if (pointer == 0) 
+		else if (pointer == 1) 
 			rightClicked = true;
 		else if (pointer == 4)
 			writeCity();
@@ -585,7 +583,7 @@ public class Kingdom extends Group {
 				else
 					dest = army;
 		}
-		for (Battle battle : battles) {
+		for (BattleActor battle : battles) {
 			if (Kingdom.distBetween(battle, mouse) <= MOUSE_DISTANCE) {
 				dest = battle;
 			}
@@ -1196,14 +1194,14 @@ public class Kingdom extends Group {
 	public void setArmies(StrictArray<Army> armies) {
 		this.armies = armies;
 	}
-	public void addBattle(Battle battle) {
+	public void addBattle(BattleActor battle) {
 		if (!battles.contains(battle, true)) {
 			System.out.println("Adding battle " + battle.getName());
 			battles.add(battle);
 			addActor(battle);
 		}
 	}
-	public void removeBattle(Battle battle) {
+	public void removeBattle(BattleActor battle) {
 		System.out.println("removing battle: " + battle.getName());
 		battles.removeValue(battle, true);
 		removeActor(battle);

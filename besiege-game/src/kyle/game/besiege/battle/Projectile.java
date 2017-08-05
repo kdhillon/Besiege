@@ -353,7 +353,6 @@ public class Projectile extends Group {
 		return stage.heights[pos_y_int][pos_x_int] != firing.getFloorHeight() || firing.getFloorHeight() == 0f;
 	}
 
-
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		if (!this.inMap()) return;

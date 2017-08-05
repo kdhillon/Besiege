@@ -10,7 +10,7 @@ Class:	Basic	WHITE
 4	Blademaster		Voulge				Armor			none
 4	Swordmaster		Longsword			Armor			none
 4	Axemaster		Glaive				Armor			none
-4	Hammermaster	Maul				Armor			none
+4	Hammermaster 	Maul				Armor			none
 4	Macemaster		Morningstar			Armor			none
 
 5	Legend			Greatsword			Armor			none

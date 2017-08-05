@@ -24,7 +24,8 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Patrol;
-import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.OldBattle;
+import kyle.game.besiege.battle.BattleActor;
 import kyle.game.besiege.battle.Fire;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelLocation;
@@ -705,25 +706,25 @@ public class Location extends Group implements Destination {
 		}
 		else {
 			attackers.first().createBattleWith(garrison, this);
-			Battle b = garrison.getBattle();
-			if (b != null) {
-				b.siegeOf = this;
+			BattleActor battleActor = garrison.getBattleActor();
+			if (battleActor != null) {
+				battleActor.setSiegeLocation(this);
 
 				//			System.out.println("siegeOf = " + this.getName());
-				b.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
-				b.dAdvantage = this.getDefenseFactor();
+				battleActor.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
+				battleActor.getBattle().setDefensiveAdvantage(this.getDefenseFactor());
 			}
 			for (Army a : attackers) {
 				if (a.getParty().player) ;
 				// bring up option to attack, pause/stay etc
 				if (a != attackers.first()) {
-					a.joinBattle(b);
+					a.joinBattle(battleActor);
 				}
 			}
 			for (Army a : garrisonedArmies) {
 				//			System.out.println("adding " + a.getName() + " to siege battle");
 				if (a.passive) continue; // don't add passive armies to defenders
-				a.joinBattle(b);
+				a.joinBattle(battleActor);
 			}
 		}
 	}
@@ -743,7 +744,13 @@ public class Location extends Group implements Destination {
 		// htis is never being called
 		System.out.println(army.getName() + " JOINING SIEGE");
 		siege.add(army);
-		if (garrison.getBattle() != null) garrison.getBattle().add(army);
+		if (garrison.getBattle() != null) {
+			if (garrison.getBattle().shouldJoinAttackers(army)) {
+				garrison.getBattle().addToAttackers(army);
+			} else if (garrison.getBattle().shouldJoinDefenders(army)) {
+				garrison.getBattle().addToDefenders(army);
+			}
+		}
 	}
 
 	public void endSiege() {

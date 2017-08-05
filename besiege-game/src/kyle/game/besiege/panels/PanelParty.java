@@ -38,8 +38,8 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	private final int r = 3;
 	private final String tablePatch = "grey-d9";
 	private SidePanel panel;
-	private Army army;
 	public Party party;
+	public Army army; // may be null
 
 	private TopTable topTable;
 	
@@ -70,10 +70,10 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	public boolean playerTouched;
 
-	public PanelParty(SidePanel panel, Army army) {
+	public PanelParty(SidePanel panel, Party party) {
 		this.panel = panel;
-		this.army = army;
-		this.party = army.getParty();
+		this.party = party;
+		this.army = party.army;
 		this.addParentPanel(panel);
 
 		LabelStyle lsBig = new LabelStyle();
@@ -94,7 +94,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		lsY.fontColor = Color.YELLOW;
 
 		topTable = new TopTable(3);
-		topTable.updateTitle(army.getName(), new InputListener() {
+		topTable.updateTitle(party.getName(), new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -104,7 +104,11 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				centerCamera();
 			}
 		});
-		topTable.updateSubtitle(army.getFactionName(), new InputListener() {
+		String factionName = "default faction";
+		if (party.getFaction() != null) {
+			factionName = party.getFaction().name;
+		}
+		topTable.updateSubtitle(factionName, new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -114,8 +118,9 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				setActiveFaction();
 			}
 		});
+		
 		if (!party.player) {
-			topTable.updateSubtitle2(army.party.getGeneral().getName(), null);
+			topTable.updateSubtitle2(party.getGeneral().getName(), null);
 		}
 		
 		topTable.addSmallLabel("Size", "Size:");
@@ -199,7 +204,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		this.addTopTable(topTable);
 //		text.debug();
 
-		if (this.army == panel.getPlayer()) {
+		if (this.army != null && this.army == panel.getPlayer()) {
 			this.setButton(1, "Upgrades");
 
 			if (Soldier.WEAPON_NEEDED)
@@ -218,50 +223,56 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	@Override
 	public void act(float delta) {
-		if (army.playerTouched && !playerTouched) {
-			setButton(1, "Attack!");
-			setButton(2, "Withdraw");
-			setButton(4, null);
-			playerTouched = true;
-		}
-		else if (!army.playerTouched && playerTouched) {
-			setButton(1, null);
-			setButton(2, null);
-			setButton(4, "Back");
-			playerTouched = false;
-		}
-		if (party.player) {
-			topTable.updateSubtitle(army.getFactionName(), null); 
-			topTable.updateTitle(army.getName(), null);
-		}
+		if (army != null) {
+			if (army.playerTouched && !playerTouched) {
+				setButton(1, "Attack!");
+				setButton(2, "Withdraw");
+				setButton(4, null);
+				playerTouched = true;
+			} else if (!army.playerTouched && playerTouched) {
+				setButton(1, null);
+				setButton(2, null);
+				setButton(4, "Back");
+				playerTouched = false;
+			}
+			if (party.player) {
+				topTable.updateSubtitle(army.getFactionName(), null);
+				topTable.updateTitle(army.getName(), null);
+			}
 
-		// for testing targetOf
-		//		if (army.targetOf.size > 0) {
-		//			title.setText(army.getName() + "<-" + army.targetOf.random().getName());
-		//		}
-		//		else {
-		//			title.setText(army.getName() + " " + army.isGarrisoned());
-		//		}
+			// for testing targetOf
+			// if (army.targetOf.size > 0) {
+			// title.setText(army.getName() + "<-" + army.targetOf.random().getName());
+			// }
+			// else {
+			// title.setText(army.getName() + " " + army.isGarrisoned());
+			// }
 
-		if (army.getKingdom().getPlayer().isAtWar(army)) topTable.updateSubtitle(army.getFactionName() + " (at war)", null);
-		else topTable.updateSubtitle(army.getFactionName(), null);
+			if (army.getKingdom().getPlayer().isAtWar(army))
+				topTable.updateSubtitle(army.getFactionName() + " (at war)", null);
+			else
+				topTable.updateSubtitle(army.getFactionName(), null);
 
-		topTable.updateSubtitle3(army.getAction(), null);
-		topTable.update("Morale", army.getMoraleString() + "");
-		topTable.update("Size", party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+party.getMaxSize());
-		topTable.update("Wealth", "" + army.getParty().wealth);
+			topTable.updateSubtitle3(army.getAction(), null);
+			topTable.update("Morale", army.getMoraleString() + "");
+			topTable.update("Wealth", "" + army.getParty().wealth);
+
+			// set speed to be current travel speed, not party speed
+			topTable.update("Spd", Panel.format("" + army.getSpeed() * Army.SPEED_DISPLAY_FACTOR, 2));
+		}
+		topTable.update("Size", party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+party.getMaxSize());		
 		topTable.update("Atk", ""+ party.getAtk());
 		topTable.update("Def", Panel.format(""+party.getAvgDef(), 2));
-
-		// set speed to be current travel speed, not party speed
-		topTable.update("Spd", Panel.format(""+party.army.getSpeed()*Army.SPEED_DISPLAY_FACTOR, 2));
+		
 		//spd.setText(Panel.format(""+party.getAvgSpd(), 2));
 
-		// don't call this every frame.
-		if (party.updated) {
-			updateSoldierTable();
-			if (!army.isInBattle())
-				party.updated = false;
+		if (army != null) {
+			// don't call this every frame.
+			if (party.updated) {
+				updateSoldierTable();
+				if (!army.isInBattle())
+					party.updated = false;
+			}
 		}
 
 		// minor leak is not here?
@@ -516,6 +527,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	@Override
 	public Crest getCrest() {
+		if (army == null) return null;
 		return army.getFaction().crest;
 	}
 }

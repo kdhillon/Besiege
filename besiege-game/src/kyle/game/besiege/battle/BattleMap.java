@@ -132,7 +132,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-				this.maptype = MapType.FOREST;
+				this.maptype = MapType.ALPINE;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);

@@ -492,6 +492,67 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return unitType.upgrades;
 	}
 	
+	public void casualty(boolean atkDead) {
+boolean killed = subparty.casualty(;
+		
+		// add s loot to loot drop
+		if (killed) {
+			if (Math.random() < BASE_WEAPON_DROP_CHANCE)
+				this.weaponLoot.add(getWeapon());
+			if (getRanged() != null && Math.random() < BASE_WEAPON_DROP_CHANCE)
+				this.rangedLoot.add(getRanged());
+			if (!getArmor().clothes && Math.random() < BASE_ARMOR_DROP_CHANCE) 
+				this.armorLoot.add(getArmor());
+		}
+		
+		// add to total exp sum
+		if (atkDead) expD += getExpForKill();
+		else expA += getExpForKill();
+		
+		// randomize who gets the kill
+		if (killedBy == null) {
+			killedBy = getRandomForKill(!atkDead);
+		}
+		
+		if (killedBy ==  killedBy = null;
+		
+		// randomize killedby
+		if (killedBy != null) {
+			if (killedBy.kills > 20) 
+				System.out.println("casualty for " + killedBy.getTypeName() + " of " + killedBy.party.getName() +" killing " + getTypeName() + " of " + party.getName());
+			killedBy.registerKill(;
+		}
+		
+		if (playerInD || playerInA) {
+			String status = getTypeName();
+			if (killedBy != null) {
+				if (killed) status += " was killed by " + killedBy.getTypeName() + "!";
+				else status += " was wounded by " + killedBy.getTypeName() + "!";
+			}
+			else {
+				if (killed) status += " was killed!";
+				else status += " was wounded!";
+			}
+
+			String color = "white";
+			// determines color of logged text (yellw if wounded, orange if killed, blue if enemy killed)
+			if (playerInD == atkDead) {
+				if (killed) color = "red";
+				else color = "orange";
+			}
+//			else if (aArmies.contains(army, true)) {
+//				if (playerInD)
+//					color = "cyan";
+//				else color = "purple";
+//			}
+			else if (playerInA == atkDead)
+				color = "cyan";
+			//	else color = "purple";
+			
+			log(status, color);
+		}
+	}
+	
 	// change later
 	public int getCost() {
 		return 10;

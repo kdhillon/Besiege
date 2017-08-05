@@ -2,9 +2,15 @@ package kyle.game.besiege.battle;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Array;
+
+import kyle.game.besiege.Assets;
 
 /*******************************************************************************
  * Besiege
@@ -15,9 +21,11 @@ import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.BesiegeMain;
 import kyle.game.besiege.Destination;
+import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.Point;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
@@ -32,9 +40,9 @@ import kyle.game.besiege.party.Subparty;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.VoronoiGraph;
 
-public class BattleStage extends Group {
+public class BattleStage extends Group implements Battle {
 	public Biomes biome;
-	public Battle battle;
+//	public OldBattle battle;
 	private PanelBattle pb;
 	//	public float scale = 1f;
 	public float MIN_SIZE = 40;
@@ -119,6 +127,7 @@ public class BattleStage extends Group {
 	private boolean mouseOver; // is mouse over Battle screen?
 	//	private boolean paused;
 	public boolean isOver; // is the battle over?
+	public boolean didAtkWin;
 	public double retreatTimerPlayer;
 	public double retreatTimerEnemy;
 
@@ -178,12 +187,13 @@ public class BattleStage extends Group {
 		// force siege off for now
 		siege = false;
 
-		if (playerDefending) {
-			this.battle = new Battle(mapScreen.getKingdom(), enemies.first(), allies.first());
-		}
-		else  {
-			this.battle = new Battle(mapScreen.getKingdom(), allies.first(), enemies.first());
-		}
+		// Todo, refactor this so BattleStage implements Battle :D
+//		if (playerDefending) {
+//			this.battle = new OldBattle(mapScreen.getKingdom(), enemies.first(), allies.first());
+//		}
+//		else  {
+//			this.battle = new OldBattle(mapScreen.getKingdom(), allies.first(), enemies.first());
+//		}
 		
 		this.biome = allies.first().army.getContaining().biome;
 
@@ -198,26 +208,34 @@ public class BattleStage extends Group {
 		
 		allies.updatePolygon();
 
-		allies.first().army.setBattle(this.battle);
-		enemies.first().army.setBattle(this.battle);
+//		allies.first().army.setBattle(this.battle);
+//		enemies.first().army.setBattle(this.battle);
 
-		for (Party p : enemies.getPartiesCopy()) {
-			if (p != enemies.first())
-				this.battle.add(p.army);
-			p.army.setBattle(this.battle);
-		}
-		for (Party p : allies.getPartiesCopy()) {
-			if (p != allies.first())
-				this.battle.add(p.army);
-			p.army.setBattle(this.battle);
-		}
+//		for (Party p : enemies.getPartiesCopy()) {
+//			if (p != enemies.first()) {
+//				if (playerDefending) {
+//					this.battle.addToAttackers(p.army);
+//				} else {
+//					this.battle.addToDefenders(p.army);
+//				}
+//			}
+////			p.army.setBattle(this.battle);
+//		}
+//		for (Party p : allies.getPartiesCopy()) {
+//			if (p != allies.first()) {
+//				if (!playerDefending) {
+//					this.battle.addToAttackers(p.army);
+//				} else {
+//					this.battle.addToDefenders(p.army);
+//				}			}
+////			p.army.setBattle(this.battle);
+//		}
 
-		if (battle.siegeOf == null) this.battle.siegeOf = siegeOf;
-		else System.out.println("YES SIEGE");
+//		if (battle.getSiegeLocation() == null) this.battle.setSiegeLocation(siegeOf);
+//		else System.out.println("YES SIEGE");
 
 		addUnits();
 	}
-
 
 	// constructor for simulations
 	public BattleStage(MapScreen mapScreen, PartyType p1, PartyType p2) {
@@ -235,12 +253,12 @@ public class BattleStage extends Group {
 		this.allies.addParty(allyParty1);
 		this.enemies.addParty(enemyParty1);
 
-		// must modify battle so it can support a null kingdom
-		// attacker, defender
-		if (playerDefending)
-			this.battle = new Battle(null, enemyParty1, allyParty1);
-		else 
-			this.battle = new Battle(null, allyParty1, enemyParty1);
+//		// must modify battle so it can support a null kingdom
+//		// attacker, defender
+//		if (playerDefending)
+//			this.battle = new OldBattle(null, enemyParty1, allyParty1);
+//		else 
+//			this.battle = new OldBattle(null, allyParty1, enemyParty1);
 		
 		int rand = (int) (Math.random() * Biomes.values().length);
 		this.biome = Biomes.values()[rand];
@@ -288,7 +306,7 @@ public class BattleStage extends Group {
 		size *= SIZE_FACTOR;
 		size += MIN_SIZE;
 		this.size_x = size;
-		this.size_y = 200; // square for now
+		this.size_y = size; // square for now
 
 		// round to nearest number divisible by 8, for drawing purposes
 		this.size_x += (BattleMap.SIZE - this.size_x % BattleMap.SIZE);
@@ -302,10 +320,13 @@ public class BattleStage extends Group {
 		slow = new double[size_y][size_x];
 		heights = new float[size_y][size_x];
 
-		battle.calcBalancePlayer();
+		//  We want something shared between this and battle, because we should have a similar panel system.
+		// Put all stats code in the panel class (calculating balance, total atk, etc). Then just have simple methods to 
+		// access all soldiers in the battle in these classes.
+		this.updateBalance();
 
 		// try this
-		pb = new PanelBattle(mapScreen.getSidePanel(), battle);
+		pb = new PanelBattle(mapScreen.getSidePanel(), this);
 		pb.battleStage = this;
 
 		this.battlemap = new BattleMap(this);
@@ -349,13 +370,35 @@ public class BattleStage extends Group {
 
 	}
 
-
 	public void centerCamera() {
 		// translate to center of screen?
 		mapScreen.battleCamera.translate((this.size_x)*this.unit_width/2 - mapScreen.getCamera().position.x, (this.size_y*.4f)*this.unit_height - mapScreen.getCamera().position.y);
 		//		mapScreen.getCamera().translate(6, 0);
 
 		//mapScreen.getCamera().translate(new Vector2((this.size_x)*this.unit_width/2, (this.size_y)*this.unit_height/2));
+	}
+	
+	@Override
+	public double getBalanceDefenders() {
+		double balanceAllies = allies.getLevelSum();
+		double balanceEnemies = enemies.getLevelSum();
+			
+		double total = balanceAllies + balanceEnemies;
+		balanceAllies = balanceAllies / total; // balanceA + balanceD = 1
+		balanceEnemies = 1-balanceAllies;
+		
+		if (playerDefending) {
+			return balanceAllies;
+		} else {
+			return balanceEnemies;
+		}
+		// TODO move to victory handler class, shared by both battles.
+//		if (!firstTimeInit) {
+//			initBalanceA = balanceA;
+//			initBalanceD = balanceD;
+////			System.out.println(initBalanceA + " " + initBalanceD);
+//			firstTimeInit = true;
+//		}
 	}
 
 	public void centerCameraOnPlayer() {
@@ -792,10 +835,10 @@ public class BattleStage extends Group {
 			this.retreatTimerPlayer -= delta;
 			this.retreatTimerEnemy -= delta;
 
-			if ((playerDefending && battle.balanceA < Battle.RETREAT_THRESHOLD/2) || (!playerDefending && battle.balanceD < Battle.RETREAT_THRESHOLD/2)) {
+			if ((playerDefending && (1 - getBalanceDefenders()) < OldBattle.RETREAT_THRESHOLD/2) || (!playerDefending && getBalanceDefenders() < OldBattle.RETREAT_THRESHOLD/2)) {
 				retreatAll(false);
 			}
-			if ((playerDefending && battle.balanceA > CHARGE_THRESHOLD) || (!playerDefending && battle.balanceD > CHARGE_THRESHOLD)) {
+			if ((playerDefending && (1 - getBalanceDefenders()) > CHARGE_THRESHOLD) || (!playerDefending && getBalanceDefenders() > CHARGE_THRESHOLD)) {
 				chargeAll(false);
 			}
 
@@ -807,12 +850,15 @@ public class BattleStage extends Group {
 				}
 			}
 			else {
-				if (allies.noUnits()) {
-					BottomPanel.log("Defeat", "green");
+				if (allies.noUnits() && !placementPhase) {
+//				/	BottomPanel.log("Defeat", "green");
+					displayVictoryText("Defeat");
 					this.placementPhase = true;
 				}
-				else if (enemies.noUnits()) {
-					BottomPanel.log("Victory", "green");
+				else if (enemies.noUnits() && !placementPhase) {
+					// display "Victory" text. 
+					displayVictoryText("Victory");
+//					BottomPanel.log("Victory", "green");
 					this.placementPhase = true;
 				}
 			}
@@ -956,15 +1002,15 @@ public class BattleStage extends Group {
 	//		if (unit.team == 1) enemies.addUnit(unit);
 	//	}
 
+	// TODO don't have this be separate from the other victory.
 	public void victory(Army winner, Army loser) {
 		System.out.println("Battle over!");
 		if (winner != kingdom.getPlayer() && loser != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
 
 		this.isOver = true;
 
-		boolean didAtkWin;
 		if (winner.getParty().player) {
-			battle.logDefeat(loser);
+//			battle.logDefeat(loser);
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(winner);
 			if (!playerDefending) didAtkWin = true;
@@ -974,8 +1020,7 @@ public class BattleStage extends Group {
 			else didAtkWin = false;
 		}
 
-
-		this.battle.didAtkWin = didAtkWin;
+//		this.battle.didAtkWin = didAtkWin;
 
 		if (winner.getParty().player) {
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
@@ -989,16 +1034,16 @@ public class BattleStage extends Group {
 
 		boolean loserDestroyed = false;
 
-		// figure out if totally destroyed or if units retreated
-		if ((loser.getParty().getHealthySize() <= Battle.DESTROY_THRESHOLD && !loser.getParty().player) || loser.getParty().getHealthySize() <= 0) {
-			battle.increaseSpoilsForKill(loser);
-			loserDestroyed = true;
-			loser.destroy();
-		} else battle.increaseSpoilsForRetreat(loser);
+//		// figure out if totally destroyed or if units retreated
+//		if ((loser.getParty().getHealthySize() <= OldBattle.DESTROY_THRESHOLD && !loser.getParty().player) || loser.getParty().getHealthySize() <= 0) {
+//			battle.increaseSpoilsForKill(loser);
+//			loserDestroyed = true;
+//			loser.destroy();
+//		} else battle.increaseSpoilsForRetreat(loser);
 
 
 		for (Party p : allies.parties) {
-			if (!((p.getHealthySize() <= Battle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+			if (!((p.getHealthySize() <= OldBattle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
 				p.army.setVisible(true);
 			p.army.endBattle();
 			p.army.setStopped(false);
@@ -1008,7 +1053,7 @@ public class BattleStage extends Group {
 			}
 		}
 		for (Party p : enemies.parties) {
-			if (!((p.getHealthySize() <= Battle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+			if (!((p.getHealthySize() <= OldBattle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
 				p.army.setVisible(true);
 			p.army.endBattle();
 			p.army.setStopped(false);
@@ -1021,15 +1066,15 @@ public class BattleStage extends Group {
 		loser.waitFor(0);
 		winner.forceWait(winner.getForceWait());
 
-		if (battle.siegeOf != null && !battle.siegeOf.isVillage()) {
-			System.out.println("managing siege");
-			battle.handleSiegeVictory();
-		}
-		if (didAtkWin && battle.siegeOf != null && battle.siegeOf.isVillage())
-			((Village) battle.siegeOf).handleRaidVictory(winner);
+//		if (battle.getSiegeLocation() != null && !battle.getSiegeLocation().isVillage()) {
+//			System.out.println("managing siege");
+//			battle.handleSiegeVictory();
+//		}
+//		if (didAtkWin && battle.getSiegeLocation() != null && battle.getSiegeLocation().isVillage())
+//			((Village) battle.getSiegeLocation()).handleRaidVictory(winner);
 
-		battle.distributeRewards(winner, 1, didAtkWin);
-		battle.destroy();
+//		battle.distributeRewards(winner, 1, didAtkWin);
+//		battle.destroy();
 
 		this.pb = null;
 
@@ -1095,8 +1140,13 @@ public class BattleStage extends Group {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		// batch.setColor(Color.WHITE);
-		// batch.setColor(kingdom.currentDarkness, kingdom.currentDarkness,
+		// This is yellow if you don't correct it... find out why.
+		float color = 1;
+		if (kingdom != null) {
+			color = kingdom.currentDarkness;
+		}
+		batch.setColor(color, color, color, 1);
+
 		// kingdom.currentDarkness, 1f);
 		super.draw(batch, parentAlpha);
 
@@ -1215,6 +1265,151 @@ public class BattleStage extends Group {
 		return battlemap.insideWalls(pos_x, pos_y);
 	}
 
+	public void displayVictoryText(String text) {
+		LabelStyle ls = new LabelStyle();
+		ls.font = Assets.pixel100;
+		Label victoryText = new Label(text, ls);
+		victoryText.addAction(Actions.fadeIn(2000, Interpolation.sine));
+		victoryText.setFillParent(true);
+		victoryText.setX(BesiegeMain.WIDTH * 0.4f);
+		mapScreen.getUIStage().addActor(victoryText);
+	}
+
+	@Override
+	public boolean addToAttackers(Army army) {
+		// No-op
+		return false;
+	}
+
+	@Override
+	public boolean addToDefenders(Army army) {
+		// No-op
+		return false;
+	}
+
+	@Override
+	public StrictArray<Party> getAttackingParties() {
+		return getAttacking().parties;
+	}
+
+	@Override
+	public StrictArray<Party> getDefendingParties() {
+		return getDefending().parties;
+	}
+
+	@Override
+	public StrictArray<Party> getAttackingRetreatingParties() {
+		// TODO
+//		return getAttacking();
+		return new StrictArray<Party>();
+	}
+
+	@Override
+	public StrictArray<Party> getDefendingRetreatingParties() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean shouldJoinAttackers(Army army) {
+		// no-op
+		return false;
+	}
+
+	@Override
+	public boolean shouldJoinDefenders(Army army) {
+		// no-op
+		return false;
+	}
+
+	@Override
+	public void setDefensiveAdvantage(double advantage) {
+		// TODO
+	}
+
+	@Override
+	public Faction getAttackingFactionOrNull() {
+		return getAttacking().parties.first().getFaction();
+	}
+
+	@Override
+	public Faction getDefendingFactionOrNull() {
+		return getDefending().parties.first().getFaction();
+	}
+	
+	public BattleParty getAttacking() {
+		if (!playerDefending) {
+			return enemies;
+		} else {
+			return allies;
+		}	
+	}
+	
+	public BattleParty getDefending() {
+		if (!playerDefending) {
+			return enemies;
+		} else {
+			return allies;
+		}	
+	}
+
+	@Override
+	public float getAttackingAtk() {
+		// TODO Auto-generated method stub
+		return getAttacking().getAtk();
+	}
+
+	@Override
+	public float getDefendingAtk() {
+		return getDefending().getAtk();
+	}
+
+	@Override
+	public void simulate(float delta) {
+		// no-op?
+	}
+
+	@Override
+	public void forceRetreat(Army army) {
+		// no-op
+	}
+
+	@Override
+	public void forceRetreatAllAttackers() {
+		// no-op
+	}
+
+	@Override
+	public void casualty(Soldier soldier, boolean atkDead) {
+		// 
+	}
+
+	@Override
+	public boolean playerAttacking() {
+		return !playerDefending;
+	}
+
+	@Override
+	public boolean playerDefending() {
+		return playerDefending;
+	}
+
+	@Override
+	public boolean isOver() {
+		return isOver;
+	}
+
+	@Override
+	public boolean didAttackersWin() {
+		return didAtkWin;
+	}
+
+	@Override
+	public void updateBalance() {
+		// TODO why does this exist
+		// no-op
+	}
+	
 	//	public Array<Unit> getAllies() {
 	//		return this.allies.units;
 	//	}

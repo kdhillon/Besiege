@@ -101,7 +101,7 @@ public class PanelLocation extends Panel { // TODO organize soldier display to c
 		
 		topTable.addBigLabel("Garrison", "Garrison:");
 		topTable.addSmallLabel("Pop", "Pop:");
-		topTable.addSmallLabel("Wealth", "Pop:");
+		topTable.addSmallLabel("Wealth", "Wealth:");
 
 		garrisonC = new Label("Garrison", ls);
 		emptyC = new Label("No troops garrisoned!",ls);

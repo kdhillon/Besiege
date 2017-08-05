@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
-import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.battle.Unit.Stance;
@@ -33,7 +33,7 @@ public class PanelUnit extends Panel {
 	private final String redPatch = "red9";
 	private final String greenPatch = "green9";
 	private BattleStage battleStage;
-	private Battle battle;
+	private OldBattle battle;
 	private SidePanel panel;
 	private Unit unit;
 	protected Soldier soldier;
@@ -159,7 +159,7 @@ public class PanelUnit extends Panel {
 
 		levelS = new Label("" + soldier.level, ls);
 		hpS = new Label("", ls);
-		moraleS = new Label("" + soldier.next, ls);
+		moraleS = new Label("", ls);
 		atkS = new Label("" + df.format(soldier.getAtk()), ls);
 		defS = new Label("" + df.format(soldier.getDef()), ls);
 		spdS = new Label("" + df.format(soldier.getSpd()), ls);
@@ -291,7 +291,7 @@ public class PanelUnit extends Panel {
 		}
 
 		if (battleStage != null) {
-			if (battle.playerInA || battle.playerInD) {
+			if (battle.playerAttacking() || battle.playerDefending()) {
 				if (!battleStage.placementPhase) {
 					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
 						this.setButton(1, "Retreat!");

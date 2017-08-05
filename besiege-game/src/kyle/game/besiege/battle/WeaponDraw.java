@@ -242,6 +242,7 @@ public class WeaponDraw extends Group { // can have arrows.
 		
 		float alpha = 0.2f;
 		this.toBack();
+		
 		c.set(batch.getColor());
 		if (unit.team == 0) {
 			if (unit.party == unit.stage.allies.first())

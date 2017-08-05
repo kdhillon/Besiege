@@ -1,33 +1,33 @@
 name			atk	def	spd	1h		blunt	polearm	cavbonus
 
-Pitchfork		2	0	-1	false	false	true	false
+Pitchfork		2	0	-1	false	false	true	  false
 Sickle			1	0	0	false	false	false	false
 Hatchet			1	0	0	false	false	false	false
-Unarmed			1	0	-1	true	false	false	false
+Unarmed			1	0	-1	true	 false	false	false
 
-Military Fork	1	0	-1	false	false	true	false
+MilitaryFork	1	0	-1	false	false	true	 false
 
-Club			2	0	0	true	true	false	false
-Staff			2	0	-1	false	true	true	true
-Dagger			1	0	0	true	false	false	false
+Club			2	0	0	true 	true	 false	false
+Staff			2	0	-1	false	true 	true	 true
+Dagger			1	0	0	true 	false	false	false
 
-Spear			3	0	-1	true	false	true	true
-Pike			4	0	-2	false	false	true	true
-Shortsword		3	0	0	true	false	false	false
-Battle Axe		3	0	1	false	false	false	false
+Spear			3	0	-1	true	 false	true 	true
+Pike			4	0	-2	false	false	true	 true
+Shortsword		3	0	0	true	 false	false	false
+Battle_Axe		3	0	1	false	false	false	false
 
-Voulge			4	0	-1	false	false	true	true
-Guisarme		5	0	-2	false	false	true	true
+Voulge			4	0	-1	false	false	true 	true
+Guisarme		5	0	-2	false	false	true 	true
 Longsword		4	0	0	false	false	false	false
-Glaive			4	0	-1	false	false	true	false
+Glaive			4	0	-1	false	false	true	 false
 
-Halberd			3	2	-2	false	false	true	false
-War Hammer		3	0	0	true	true	false	false
-War Staff		2	1	0	false	true	true	false
-Mace			2	1	0	true	true	false	false
+Halberd			3	2	-2	false	false	true 	false
+War_Hammer		3	0	0	true	 true	false	false
+WarStaff		2	1	0	false	true	 true	 false
+Mace			2	1	0	true 	true	 false	false
 
 
-Maul			3	2	-1	false	true	true	false
-Morningstar		3	1	0	true	false	false	false
+Maul			3	2	-1	false	true	 true	false
+Morningstar		3	1	0	true	 false	false	false
 
 Claymore		5	4	0	false	false	false	false

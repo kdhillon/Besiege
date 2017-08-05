@@ -238,6 +238,19 @@ public class Subparty {
 	public int getTotalSize() {
 		return getHealthySize() + getWoundedSize();
 	}
+	public int getHealthyLevelSum() {
+		int levelSum = 0;
+		for (Soldier s : getHealthyInfantry()) {
+			levelSum += s.level;
+		}
+		for (Soldier s : getHealthyArchers()) {
+			levelSum += s.level;
+		}
+		for (Soldier s : getHealthyCavalry()) {
+			levelSum += s.level;
+		}
+		return levelSum;
+	}
 	
 	public void removeSoldier(Soldier soldier) {
 //		System.out.println("removing " + soldier.getName());

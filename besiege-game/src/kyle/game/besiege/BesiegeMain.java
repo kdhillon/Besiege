@@ -67,7 +67,8 @@ public class BesiegeMain extends Game {
 
 	@Override
 	public void dispose() {
-		mapScreen.dispose();
+		if (mapScreen != null) 
+		    mapScreen.dispose();
 		mainMenuScreen.dispose();
 		Assets.dispose();
 	}

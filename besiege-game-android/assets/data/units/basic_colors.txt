@@ -1,39 +1,39 @@
-name		red	grn	blu
+name        red    grn    blu
 
-RED			255	0	0
-GREEN		0	255	0
-BLUE		0	0	255
+RED            255    0    0
+GREEN        0    255    0
+BLUE        0    0    255
 
-TAN			150	104	37
-LT_BROWN	100	68	20
-MD_BROWN	77	55	33
-DK_BROWN	64	50	40
-DKR_BROWN	47	30	5
+TAN            150    104    37
+LT_BROWN    100    68    20
+MD_BROWN    77    55    33
+DK_BROWN    64    50    40
+DKR_BROWN    47    30    5
 
-BROWN_G		56	50	33
-BROWN_R		85	15	18
-BROWN_Y		85	63	18
+BROWN_G        56    50    33
+BROWN_R        85    15    18
+BROWN_Y        85    63    18
 
-LT_GRAY		102	102	102
-MD_GRAY		77	77	90
-DK_GRAY		51	51	51
-DKR_GRAY	34	34	34
+LT_GRAY        102    102    102
+MD_GRAY        77    77    90
+DK_GRAY        51    51    51
+DKR_GRAY    34    34    34
 
-DK_RED		77	51	51
-DK_BLUE		51	51	77
-DK_GREEN	51	77	51
+DK_RED        77    51    51
+DK_BLUE        51    51    77
+DK_GREEN    51    77    51
 
-FOREST_GR	31	85	18
+FOREST_GR    31    85    18
 
-BLACK		0	0	0
-WHITE		255	255	255
-OFF_WHITE	220	220	220
-OFF_BLACK	20	20	20
-ICE			180	180	255
+BLACK        0    0    0
+WHITE        255    255    255
+OFF_WHITE    220    220    220
+OFF_BLACK    20    20    20
+ICE            180    180    255
 
-ORANGE		255	128	0
-YELLOW		255	255	0
-PURPLE		171	0	255
-CYAN		0	255	255
-MAGENTA		255	0	255
+ORANGE        255    128    0
+YELLOW        255    255    0
+PURPLE        171    0    255
+CYAN        0    255    255
+MAGENTA        255    0    255
 

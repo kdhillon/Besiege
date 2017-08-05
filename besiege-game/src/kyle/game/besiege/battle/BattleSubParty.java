@@ -180,10 +180,10 @@ public class BattleSubParty {
 			currentMoraleString = "Nervous";
 		}
 		else if (currentMorale < 0.75) {
-			currentMoraleString = "Ready";
+			currentMoraleString = "Steady";
 		}
 		else if (currentMorale < 1) {
-			currentMoraleString = "Excited";
+			currentMoraleString = "Eager";
 		}
 		else {
 			currentMoraleString = "Inspired";
@@ -205,6 +205,9 @@ public class BattleSubParty {
 
 	public StrictArray<Soldier> getHealthyInfantry() {
 		return subparty.getHealthyInfantry();
+	}
+	public double getHealthyLevelSum() {
+		return subparty.getHealthyLevelSum();
 	}
 	//
 	public StrictArray<Soldier> getHealthyArchers() {

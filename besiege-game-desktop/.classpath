@@ -3,13 +3,20 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="assets"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/besiege-game"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl-sources.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-natives.jar"/>
-	<classpathentry kind="lib" path="/besiege-game/libs/gdx-sources.jar"/>
-	<classpathentry kind="lib" path="/besiege-game/libs/gdx-tools.jar"/>
-	<classpathentry kind="lib" path="/besiege-game/libs/gdx.jar" sourcepath="/besiege-game/libs/gdx-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-android.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-gwt.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-jglfw-natives.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-jglfw.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-lwjgl-natives.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-lwjgl.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-backend-robovm.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-natives.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx-openal.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/gdx.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/extensions/gdx-tools/gdx-tools.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/extensions/gdx-freetype/gdx-freetype-natives.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/extensions/gdx-freetype/gdx-freetype.jar"/>
+	<classpathentry kind="lib" path="/Users/mac/Downloads/libgdx-0-6/extensions/gdx-jnigen/gdx-jnigen.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 6 [1.6.0_65-b14-468]"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -8,7 +8,8 @@ package kyle.game.besiege;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import kyle.game.besiege.army.Army;
-import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleActor;
+import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 
@@ -23,7 +24,7 @@ public class Siege extends Actor {
 	public boolean inBattle;
 	private boolean empty; // no armies present;
 	private float countdown; // if no armies
-	public Battle battle;
+	public BattleActor battleActor;
 	public Faction besieging; // faction besieging this city
 	
 	private boolean hasChecked;
@@ -91,7 +92,7 @@ public class Siege extends Actor {
 		if (Math.random() < 0.8f) return;
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
-		double balance = Battle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
+		double balance = OldBattle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
 		if (balance >= MIN_BALANCE_TO_ATTACK && !inBattle) attack();
 		else if (balance <= MAX_BALANCE_TO_BREAK && !inBattle) destroy(); // end siege if no chance
 		else {
@@ -112,11 +113,11 @@ public class Siege extends Actor {
 //		}f
 		inBattle = true;
 //		if (armies.size >= 1) 
-		this.battle = armies.first().getBattle();
+		this.battleActor = armies.first().getBattleActor();
 //		else System.out.println("trying to attack with no armies!");
-		if (battle == null) return;
-		this.battle.siegeOf = location;
-		if (this.battle.siegeOf.siege != this) System.out.println("THIS IS REALLY FUCKED");
+		if (battleActor == null) return;
+		this.battleActor.setSiegeLocation(location);
+		if (this.battleActor.getSiegeLocation().siege != this) System.out.println("THIS IS REALLY FUCKED");
 	}
 	public void endAttack() {
 		System.out.println("ending attack at " + location.getName() + " which has "  + location.getWealth());
@@ -138,12 +139,12 @@ public class Siege extends Actor {
 			location.getKingdom().getPlayer().garrisonIn(null);
 		}
 		location.siege = null;
-		battle = null;
+		battleActor = null;
 	}
 	
 	// siege attack failed
 	public void siegeFailure() {
-		battle = null;
+		battleActor = null;
 		this.destroy();
 	}
 	
@@ -176,9 +177,9 @@ public class Siege extends Actor {
 		for (Army a : armies) {
 			a.leaveSiege();
 		}
-		if (battle != null) {
-			battle.victory(battle.dArmies, battle.aArmies);
-			battle = null;
+		if (battleActor != null) {
+			battleActor.getBattle().forceRetreatAllAttackers();
+			battleActor = null;
 		}
 		location.endSiege();
 		besieging.cancelSiegeOf(location);

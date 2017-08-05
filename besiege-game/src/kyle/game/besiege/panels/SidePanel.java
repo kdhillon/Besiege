@@ -23,8 +23,11 @@ import kyle.game.besiege.MiniMap;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
+import kyle.game.besiege.battle.BattleActor;
+import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Center;
 
@@ -73,8 +76,16 @@ public class SidePanel extends Group {
 	public void initializePanels() {
 		if (Soldier.WEAPON_NEEDED)
 			inventory = new PanelInventory(this);
-		party = new PanelParty(this, kingdom.getPlayer());
+		party = new PanelParty(this, kingdom.getPlayer().party);
 		upgrades = new PanelUpgrades(this, kingdom.getPlayer());
+		this.setActive(party);
+	}
+	
+	// For battlestage
+	public void initializePanels(Party partyType) {
+		if (Soldier.WEAPON_NEEDED)
+			inventory = new PanelInventory(this);
+		party = new PanelParty(this, partyType);
 		this.setActive(party);
 	}
 	
@@ -129,8 +140,9 @@ public class SidePanel extends Group {
 			setActive(party);
 			return;
 		}
-		if (this.activePanel == newActivePanel) {
-			setActive(party);
+		if (this.activePanel == newActivePanel && this.activePanel != party) {
+			System.out.println("Resetting active panel");
+//			setActive(/party);
 			return;
 		};
 		if (newActivePanel == upgrades) upgrades.updateSoldierTable();
@@ -142,14 +154,14 @@ public class SidePanel extends Group {
 			kingdom.map.selectedCenter = null;
 		}
 		
-		if (!hardStay) {
+//		if (!hardStay) {
 			this.removeActor(this.activePanel);
 			this.previousPanel = this.activePanel;
 			this.activePanel = newActivePanel;
 
 		
 			this.addActor(activePanel);
-		}
+//		}s
 	}
 	public void setActiveDestination(Destination destination) {
 		Destination.DestType type = destination.getType();
@@ -158,12 +170,12 @@ public class SidePanel extends Group {
 		}
 		else if (type == Destination.DestType.LOCATION) setActiveLocation((Location) destination);
 		else if (type == Destination.DestType.ARMY) setActiveArmy((Army) destination);
-		else if (type == Destination.DestType.BATTLE) setActiveBattle((Battle) destination);
+		else if (type == Destination.DestType.BATTLE) setActiveBattle(((BattleActor) destination).getBattle());
 	}
 	public void setActiveArmy(Army army) {
 		if (army.getParty().player) setActive(party);
 		else {
-			PanelParty pp = new PanelParty(this, army);
+			PanelParty pp = new PanelParty(this, army.party);
 			setActive(pp);
 		}
 	}
@@ -213,7 +225,7 @@ public class SidePanel extends Group {
 	}
 	
 	public void setDefault(boolean force) {
-		if (force) this.setSoftStay(false);
+		if (force) this.setHardStay(false);
 			
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());
@@ -239,16 +251,18 @@ public class SidePanel extends Group {
 		return kingdom;
 	}
 	public ArmyPlayer getPlayer() {
-		return kingdom.getPlayer();
+		if (kingdom != null) {
+			return kingdom.getPlayer();
+		} else return null;
 	}
 	
 	// it shuldn't really be a boolean, should be handled with previousPanel
 	// if you click a panel, it becomes active and previous
-	public void setSoftStay(boolean b) {
-		System.out.println("setting soft stay");
-		this.previousPanel = this.activePanel;
-	}
-	
+//	public void setSoftStay(boolean b) {
+//		System.out.println("setting soft stay");
+//		this.previousPanel = this.activePanel;
+//	}
+//	
 	public void setHardStay(boolean b) {
 		System.out.println("setting hard stay");		
 		hardStay = b;
