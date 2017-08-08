@@ -33,7 +33,6 @@ public class PanelUnit extends Panel {
 	private final String redPatch = "red9";
 	private final String greenPatch = "green9";
 	private BattleStage battleStage;
-	private OldBattle battle;
 	private SidePanel panel;
 	private Unit unit;
 	protected Soldier soldier;
@@ -93,7 +92,6 @@ public class PanelUnit extends Panel {
 
 		if (unit != null) {
 			this.battleStage = unit.stage;
-			this.battle = this.battleStage.battle;
 			this.soldier = unit.soldier;
 			soldier = unit.soldier;
 			this.max_hp = soldier.getHp();
@@ -291,7 +289,7 @@ public class PanelUnit extends Panel {
 		}
 
 		if (battleStage != null) {
-			if (battle.playerAttacking() || battle.playerDefending()) {
+			if (battleStage.playerAttacking() || battleStage.playerDefending()) {
 				if (!battleStage.placementPhase) {
 					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
 						this.setButton(1, "Retreat!");

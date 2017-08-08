@@ -1306,8 +1306,7 @@ public class BattleStage extends Group implements Battle {
 
 	@Override
 	public StrictArray<Party> getDefendingRetreatingParties() {
-		// TODO Auto-generated method stub
-		return null;
+		return new StrictArray<Party>();
 	}
 
 	@Override
@@ -1338,7 +1337,7 @@ public class BattleStage extends Group implements Battle {
 	}
 	
 	public BattleParty getAttacking() {
-		if (!playerDefending) {
+		if (playerDefending) {
 			return enemies;
 		} else {
 			return allies;

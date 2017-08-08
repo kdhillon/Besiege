@@ -482,7 +482,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 	}
 	
-	private void killOne(Army army, boolean atkDead) { // kills/wounds one random troop in this army, weighted by the troop's defense
+	private void killOne(Army army, boolean wasInAttackers) { // kills/wounds one random troop in this army, weighted by the troop's defense
 		// Now choose a random soldier weighted by def
 		System.out.println("killing one");
 		Soldier random = army.party.getRandomWeightedInverseDefense();
@@ -492,7 +492,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			return;
 		}
 		
-		casualty(random, atkDead);
+		casualty(random, wasInAttackers);
 		
 		if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) {
 			log(army.getName() + " lost all troops and was removed from battle", "red");
@@ -501,8 +501,23 @@ public class OldBattle implements Battle { // new battle system involving Party
 	}
 	
 	// main thing called by battlestage?
-	public void casualty(Soldier soldier, boolean atkDead) {
-		soldier.casualty(atkDead);
+	public void casualty(Soldier soldier, boolean wasInAttackers) {
+		Soldier killer = getRandomForKill(!wasInAttackers);
+		boolean killed = soldier.casualty(wasInAttackers, killer, playerInA, playerInD);
+		// add s loot to loot drop
+		if (killed) {
+			if (Math.random() < BASE_WEAPON_DROP_CHANCE)
+				this.weaponLoot.add(soldier.getWeapon());
+			if (soldier.getRanged() != null && Math.random() < BASE_WEAPON_DROP_CHANCE)
+				this.rangedLoot.add(soldier.getRanged());
+			if (!soldier.getArmor().clothes && Math.random() < BASE_ARMOR_DROP_CHANCE) 
+				this.armorLoot.add(soldier.getArmor());
+		}
+		
+		// add to total exp sum
+		if (wasInAttackers) expD += soldier.getExpForKill();
+		else expA += soldier.getExpForKill();
+		
 	}
 	
 	private Soldier getRandomForKill(boolean atkKill) {

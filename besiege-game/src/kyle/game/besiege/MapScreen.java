@@ -920,7 +920,7 @@ public class MapScreen implements Screen {
 		this.battleCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 		this.battleStage.setCamera(battleCamera);
 		this.currentCamera = battleCamera;
-		this.sidePanel.setActiveBattle(battle.battle);
+		this.sidePanel.setActiveBattle(battle);
 		this.shouldCenter = false;
 		center();
 		battleCamera.zoom = 1f;

@@ -1466,7 +1466,7 @@ public class Unit extends Group {
 		if (this.team == 1) stage.enemies.units.removeValue(this, true);
 		this.removeActor(weaponDraw);
 
-		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
+		stage.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 
 		//		System.out.println("DESTROYED");
 		//party.casualty(soldier);
@@ -1483,7 +1483,7 @@ public class Unit extends Group {
 		if (this.team == 1) stage.enemies.removeUnit(this, false);
 
 		stage.retreated.add(this);
-		stage.battle.updateBalance();
+		stage.updateBalance();
 
 		String status = soldier.getTypeName();
 		String color = "white";
