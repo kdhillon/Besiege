@@ -4,6 +4,20 @@ by Kyle Dhillon
 
 May 2013 - present
 
+New description (Chiefdom: Bloodlands): 
+
+Warchief is a real-time strategy and conquest game for PC and Mac.
+Command a pre-Columbian army in a massive, procedurally generated world of rivaling tribes and empires.
+Lead your warriors into battle to destroy and capture your enemies. Make blood sacrifices to the gods to win 
+their blessings. Explore new lands, and lead your tribe to dominate the continent. 
+
+AI:
+Besiege's AI is fully-automated, meaning if left alone without player participation the world can run smoothly forever.
+Rival factions will develop, kingdoms will fall and new ones will arise to take their place.
+
+
+Old description:
+
 Besiege is a single-player real-time strategy and conquest game, written in Java for desktop and Android.
 Command a custom army in a fully automated procedurally generated world of rivaling factions and kingdoms.
 Win battles and earn glory, conquer cities and castles, and declare yourself ruler of your very own faction.
@@ -116,7 +130,8 @@ Day 89: fixed button bug, added formation options
 Day 90: fixed cover bug, added scramble, inline stance
 Day 91: added joining battles, fame
 
-Day 1xx: added easily customizable unit types, more fluid map, better faction relations, procedurally generated location and soldier names, soldier stats. worked on rivers, 
+Day 10x: added easily customizable unit types, more fluid map, better faction relations, procedurally generated location and soldier names, soldier stats. worked on rivers, 
+Day 11x: added generals, squads, including general stats. Procedurally generated factions and crests.
 
 Features I want to add:
 	Generals and control structures:
@@ -128,9 +143,9 @@ Features I want to add:
 		todo:
 			brainstorm general management for player
 			add subparty destruction and rearranging.
-			// after this we can fix main map shit.
-		
-	Better faction AI:
+			 after this we can fix main map shit.
+
+Better faction AI:
 		Wealth - start randomly
 			ways to change:
 				increase slowly with population (town wealth)
@@ -139,65 +154,62 @@ Features I want to add:
 				decreases from seiges and raids (anytime garrison is defeated)
 				decreases to hire troops for garrison
 				
-			have farmers go from villages -> cities and back
+have farmers go from villages -> cities and back
 			
-			More wealth means:
+More wealth means:
 				more troops in garrison
 				more troops available for hire
 				add taxes that build up and can be collected
-				nobles can only recruit based on their wealth
-				
-		Fix militias/raiding/village wealth
-		Add "honor" aka morality
-		Add betrayals/rebellions
-		
-	Add bandits
+				nobles can only recruit based on their wealth	
 	
-	Fix navigation bugs in A*:
+Necessary features:
+  Fix navigation bugs in A*:
 		when close to ocean, sometimes prefers far route.
+		armies on the edge can go right into the water and cross it
+  Fix militias/raiding/village wealth
+  Revamp and simplify panel system, remove all duplicate shitty code
+  add safeguards against BattleStage getting stuck
+  Make new tribal unit tree
+  fix bugs:
+   if you resize during a battle, fucks everything up, your mouse is not registered to be at the proper spot.	
+   units in battle sometimes focus on an invisible unit in the bottom left corner (0, 0) position.	
+  make labels for cities look better (add gray background?)
+  make title cooler
+  add cancelling and reforming of sieges?
+  add garrison repairing
 		
 		
-	Later:
-	Random faction generation (crests, names, eventually city names)
-	
-	Customizable party types:
-		Text-file customization with a few simple parameters (size, passive, etc)
 		
-	
-	Add historical markers to map where epic battles were fought.
-	
-	Different levels of woundedness, medics/doctors in your party
 		
-	Make bandits occupy ruins (and set up camps?)!
-		
-	Revamp and simplify panel system, remove all duplicate shitty code
+Fun (not necessary) features:
+  Add historical markers to map where epic battles were fought.
+  Different levels of woundedness, medics/doctors in your party
+  Make bandits occupy ruins (and set up camps?)!
+  Add "honor" aka morality
+	Add betrayals/rebellions
+  Allow purchasing weapons and armor at cities.
+  Add ability to hide and set up ambushes
+    Have AI do this intelligently.
+  BATTLESTAGE:
+    add waves and reinforcements to battles	
+  Customizable party types:
+		Text-file customization with a few simple parameters (size, passive, etc)	
 	
-	Allow purchasing weapons and armor at cities.
-	
-	Add ability to hide and set up ambushes
-	
-BATTLESTAGE:
-finish hiding
-add waves and reinforcements to battles
-add safeguards against battles getting stuck
-get austin to start making cool art for additional units
 
-later:
-make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
-make walls not flat
-add towers
-add villages and ruins
-add ballistas
-add some randomness to which ladder is chosen
-design new unit tree
-add mist to certain battlemaps
+BattleMap: 
+  Sieges (Deprecated);
+    make archers not shoot at enemies behind a wall... can do simple test but won't account for entrances.
+    make walls not flat
+    add towers
+    add ballistas
+    add some randomness to which ladder is chosen
+  
+  add mist to certain battlemaps
+  add villages and ruins
 
-bugs:
-if you resize during a battle, fucks everything up, your mouse is not registered to be at the proper spot.
 
 MAP:
 now:
-make labels for cities look better (add gray background?)
 
 test some optimizations -
     see if A* is what's making big maps slow. if it is, optimize a* by only looking at nearby points
@@ -207,10 +219,7 @@ bug:
 after upgrade, units don't display in list
 
 later:
-add garrison repairing
-add cancelling and reforming of sieges
-make title cooler
-add severe woundedness
+
 
 gameplay:
 
