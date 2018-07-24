@@ -24,7 +24,6 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleActor;
-import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.Party;
@@ -48,7 +47,7 @@ public class SidePanel extends Group {
 	private transient Panel previousPanel;
 	
 	public Character character;
-	public PanelParty party;
+	public PanelParty playerPartyPanel;
 	public PanelUpgrades upgrades;
 	public PanelInventory inventory;
 		
@@ -76,18 +75,22 @@ public class SidePanel extends Group {
 	public void initializePanels() {
 		if (Soldier.WEAPON_NEEDED)
 			inventory = new PanelInventory(this);
-		party = new PanelParty(this, kingdom.getPlayer().party);
+		playerPartyPanel = new PanelParty(this, kingdom.getPlayer().party);
 		upgrades = new PanelUpgrades(this, kingdom.getPlayer());
-		this.setActive(party);
+		this.setActive(playerPartyPanel);
+		kingdom.currentPanel = getPlayer();
 	}
 	
 	// For battlestage
 	public void initializePanels(Party partyType) {
 		if (Soldier.WEAPON_NEEDED)
 			inventory = new PanelInventory(this);
-		party = new PanelParty(this, partyType);
-		this.setActive(party);
-	}
+		playerPartyPanel = new PanelParty(this, partyType);
+		this.setActive(playerPartyPanel);
+		if (kingdom != null) {
+            kingdom.currentPanel = getPlayer();
+        }
+    }
 	
 	@Override
 	public void act(float delta) {
@@ -115,12 +118,14 @@ public class SidePanel extends Group {
 		this.activePanel = null;
 	}
 	
-	public void returnToPrevious() {
-		if (!hardStay) {
+	public void returnToPrevious(boolean force) {
+	    System.out.println("returning to previous");
+		if (!hardStay || force) {
+            System.out.println("setting prev to active");
 			setActive(previousPanel);
 //			System.out.println("Returning to previous " + ("" + previousPanel == null) + " " + hardStay + " " + previousPanel.getClass());
 //			if (previousPanel.getClass() == PanelParty.class) {
-//				System.out.println(((PanelParty) previousPanel).party.getName());
+//				System.out.println(((PanelParty) previousPanel).playerPartyPanel.getName());
 //			}
 		}
 	}
@@ -134,20 +139,22 @@ public class SidePanel extends Group {
 		return mapScreen;
 	}
 	public void setActive(Panel newActivePanel) {
-		System.out.println("Setting new active panel");
 		if (newActivePanel == null) {
 			System.out.println("Returning to null panel");
-			setActive(party);
+			if (playerPartyPanel != null && activePanel != playerPartyPanel) {
+                setActive(playerPartyPanel);
+                kingdom.currentPanel = getPlayer();
+			}
 			return;
 		}
-		if (this.activePanel == newActivePanel && this.activePanel != party) {
-			System.out.println("Resetting active panel");
-//			setActive(/party);
+		if (this.activePanel == newActivePanel) {
+//			setActive(/playerPartyPanel);
 			return;
 		};
 		if (newActivePanel == upgrades) upgrades.updateSoldierTable();
 		if (newActivePanel.getClass() == PanelParty.class) {
-			((PanelParty) newActivePanel).updateSoldierTable();
+		    // Force an update of the panel
+			((PanelParty) newActivePanel).party.updated = true;
 			System.out.println("just setactive");
 		}
 		if (newActivePanel.getClass() != PanelCenter.class && kingdom != null) {
@@ -157,15 +164,17 @@ public class SidePanel extends Group {
 //		if (!hardStay) {
 			this.removeActor(this.activePanel);
 			this.previousPanel = this.activePanel;
-			this.activePanel = newActivePanel;
+			if (previousPanel != null)
+			System.out.println("previous panel is now: " + previousPanel.getClass());
 
+			this.activePanel = newActivePanel;
 		
 			this.addActor(activePanel);
 //		}s
 	}
 	public void setActiveDestination(Destination destination) {
 		Destination.DestType type = destination.getType();
-		if (type == Destination.DestType.POINT) { returnToPrevious();
+		if (type == Destination.DestType.POINT) { returnToPrevious(false);
 		System.out.println("setting active destination to a point...");
 		}
 		else if (type == Destination.DestType.LOCATION) setActiveLocation((Location) destination);
@@ -173,7 +182,10 @@ public class SidePanel extends Group {
 		else if (type == Destination.DestType.BATTLE) setActiveBattle(((BattleActor) destination).getBattle());
 	}
 	public void setActiveArmy(Army army) {
-		if (army.getParty().player) setActive(party);
+		if (army.getParty().player) {
+		    setActive(playerPartyPanel);
+		    kingdom.currentPanel = getPlayer();
+        }
 		else {
 			PanelParty pp = new PanelParty(this, army.party);
 			setActive(pp);
@@ -229,7 +241,10 @@ public class SidePanel extends Group {
 			
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());
-		else setActive(party); // can change
+		else {
+            setActive(playerPartyPanel); // can change
+            kingdom.currentPanel = getPlayer();
+        }
 	}
 	public void press(int button) {
 			if (button == 1)

@@ -31,7 +31,7 @@ public class BattleParty {
 	public void addParty(Party party) {
 		if (party == null) return;
 		this.parties.add(party);
-//		System.out.println("adding " + party.army.getName());
+//		System.out.println("adding " + playerPartyPanel.army.getName());
 		for (Subparty s : party.sub) {
 			System.out.println("adding subparty of " + party.getName());
 			this.subparties.add(new BattleSubParty(this, s, team));
@@ -124,7 +124,7 @@ public class BattleParty {
 		u.bsp.removeUnit(u, dying);
 	}
 	
-//	public StrictArray<Soldier> getHealthyInfantry() {
+//	public StrictArray<Soldier> getHealthyInfantry() {ppp
 //		StrictArray<Soldier> healthyArchers = new StrictArray<Soldier>();
 //		for (Party p : parties) {
 //			healthyArchers.addAll(p.root.getHealthyArchers());

@@ -6,14 +6,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class Crest extends Actor {
-	private static TextureRegion basic = Assets.atlas.findRegion("crestBase");;
+	private static TextureRegion basic = Assets.crests.findRegion("crestbase");;
 
 	public static Crest BANDIT_CREST;
 	public static Crest ROGUE_CREST;
 	
 	int overlay;
 	int cOverlay;
-	int detail;
+	String detail; // detail name
 	int cDetail;
 		
 	private Color orig;
@@ -31,7 +31,7 @@ public class Crest extends Actor {
 	}
 	
 	
-	public Crest(int overlay, int cOverlay, int detail, int cDetail) {
+	public Crest(int overlay, int cOverlay, String detail, int cDetail) {
 		this.overlay = overlay;
 		this.cOverlay = cOverlay;
 		this.detail = detail;
@@ -40,7 +40,7 @@ public class Crest extends Actor {
 	
 	public void loadFromInts(RandomCrestGenerator rcg) {
 		this.overlayRegion = rcg.singleOverlays[overlay];
-		this.details = rcg.details[detail];
+		this.details = Assets.crests.findRegion(detail);
 		this.overlayColor = rcg.getColor(cOverlay);
 		if (overlayColor == null) {
 			throw new java.lang.AssertionError();
@@ -57,17 +57,18 @@ public class Crest extends Actor {
 		parentAlpha = 1;
 		
 		orig = batch.getColor();
-		
+
+		base = overlayColor;
 		batch.setColor(base.r, base.g, base.b, parentAlpha);
 		batch.draw(basic, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		
-		if (overlay >= 0) {
-			batch.setColor(overlayColor.r, overlayColor.g, overlayColor.b, parentAlpha);
-			batch.draw(overlayRegion, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-			if (overlayRegion == null) throw new java.lang.AssertionError();
-		}
+//		if (overlay >= 0) {
+//			batch.setColor(overlayColor.r, overlayColor.g, overlayColor.b, parentAlpha);
+//			batch.draw(overlayRegion, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+//			if (overlayRegion == null) throw new java.lang.AssertionError();
+//		}
 		
-		if (detail >= 0) {
+		if (detail != null) {
 			batch.setColor(detailColor.r, detailColor.g, detailColor.b, parentAlpha);
 
 			batch.draw(details, this.getX(), this.getY(), this.getWidth(), this.getHeight());

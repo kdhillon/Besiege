@@ -24,7 +24,8 @@ public class PanelCenter extends Panel {
 	private Label faction;
 	private Label height;
 	private Label wealth;
-	private Label title;
+    private Label temp;
+    private Label title;
 	
 	public PanelCenter(SidePanel panel, Center center) {
 		this.panel = panel;
@@ -44,6 +45,7 @@ public class PanelCenter extends Panel {
 		Label factionC = new Label("Faction:", ls24);
 //		Label biomeC = new Label("Biome:", ls24); 
 		Label heightC = new Label("Elvtn:", ls24);
+        Label tempC = new Label("Temperature:", ls24);
 		Label wealthC = new Label("Resources:", ls24);
 
 		regionC = new Label("Region", ls24);
@@ -55,8 +57,9 @@ public class PanelCenter extends Panel {
 		title.setAlignment(0,0);
 		height = new Label(""+center.getAvgElevation(), ls24);
 		wealth = new Label(""+(int)(100*center.wealth), ls24);
-		
-		text.add(title).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
+        temp = new Label(""+((int)(100*(1-center.temperature))), ls24);
+
+        text.add(title).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
 		title.setWrap(true);
 		text.row();
 //		text.add(regionC).colspan(2).padBottom(PAD).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
@@ -69,6 +72,9 @@ public class PanelCenter extends Panel {
 		text.row();
 		text.add(heightC).left();
 		text.add(height).left().fillX().expandX().padLeft(PAD);
+		text.row();
+        text.add(tempC).left();
+        text.add(temp).left().fillX().expandX().padLeft(PAD);
 		text.row();
 		text.add(wealthC).left();
 		text.add(wealth).left().fillX().expandX().padLeft(PAD);

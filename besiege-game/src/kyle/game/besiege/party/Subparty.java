@@ -15,7 +15,7 @@ public class Subparty {
 	
 	private StrictArray<Subparty> children;
 	
-	public General general; // who commands the party!
+	public General general; // who commands the playerPartyPanel!
 	
 	public StrictArray<Soldier> healthy;
 	public StrictArray<Soldier> wounded;
@@ -46,22 +46,9 @@ public class Subparty {
 	// player clicks "promote new general" - randomly generates new general from an existing soldier?
 	// player has option to "demote" them - but lowers morale, and chance of mutiny if popular!
 	public void promoteToGeneral(Soldier s) {
-		// can promote any soldier
-//		if (!this.healthy.contains(s, true) && !this.wounded.contains(s, true)) {
-//			System.out.println("trying to promote a soldier not in this subparty!!!");
-//			return;
-//		}
-//		
-//		if (general != null) {
-//			System.out.println("you haven't demoted this general yet");
-//		}
-//		
-////		System.out.println("promoting " + s.getName() + " of " + s.party.getName() + " to general");
-//		
-//		if (this.healthy.contains(s, true)) this.healthy.removeValue(s, true);
-//		if (this.wounded.contains(s, true)) this.wounded.removeValue(s, true);
-
-		setGeneral(new General(s));
+        General g = (new General(s));
+		addSoldier(g);
+        setGeneral(g);
 	}
 	
 	public void setGeneral(General g) {
@@ -140,7 +127,7 @@ public class Subparty {
 		
 		// TODO this isn't getting called enough or something
 		// subparties aren't being destroyed and still aren't being displayed in panel
-		// check if the party is dead
+		// check if the playerPartyPanel is dead
 		if (wounded.size == 0 & healthy.size == 0 && general == null) {
 			this.destroy();
 			return;
@@ -211,7 +198,7 @@ public class Subparty {
 				wounded.sort();
 			}
 			else {
-				if (!healthy.contains(soldier, true))
+                if (!healthy.contains(soldier, true))
 					healthy.add(soldier);
 				healthy.sort();
 			}
@@ -308,11 +295,12 @@ public class Subparty {
 	}
 	
 	public int getSpotsRemaining() {
-		return this.general.getMaxSubPartySize() - this.getTotalSize();
+	    if (this.general != null)
+		    return this.general.getMaxSubPartySize() - this.getTotalSize();
+	    else return HARD_MAX - this.getTotalSize();
 	}
 	
 	public boolean isFull() {
-		System.out.println("max subparty size: " + this.general.getMaxSubPartySize() + " total size: " + this.getTotalSize() + " max party size: " + this.party.getHealthySize());
 		return getSpotsRemaining() == 0;
 	}
 	
@@ -320,7 +308,11 @@ public class Subparty {
 		this.children.add(s);
 		s.parent = this;
 	}
-	
+
+	// Returns rank of this subparty
+    // 0 is root.
+    // 1 is first level
+    // etc.
 	public int getRank() {
 		Subparty p = parent;
 		int count = 0;

@@ -14,10 +14,10 @@ public class General extends Soldier {
 	private final static float RANGE_MIN = -2;
 	
 	// change for testing
-	private static final int BASE_PC = 1; // base party count
-	private static final int BASE_SUBPARTY = 5; // base party count
+	private static final int BASE_PC = 1; // base playerPartyPanel count
+	private static final int BASE_SUBPARTY = 5; // base playerPartyPanel count
 
-//		private static final int BASE_PC = 35; // base party count
+//		private static final int BASE_PC = 35; // base playerPartyPanel count
 	private static final float FAME_PC_FACTOR = 1f;
 	
 	private static final int GENERAL_THRESHOLD = 100;
@@ -44,18 +44,17 @@ public class General extends Soldier {
 	// for Kryo
 	public General() {
 	}
-	
+
 	public General(UnitType unitType, Party party, PartyType pt) {
 		super(unitType, party);
 
 		this.isImportant = true;
-		
-		this.subparty = party.root;
+
+//		System.out.println("pt.getMaxSize " + pt.getMaxSize());
 		
 		this.absoluteMaxSize = pt.getMaxSize();
 		
 		this.increaseFame(getRandomFameFor(pt));
-
 		
 		// TODO set fame, use that to set stats.
 		// or update stats later.
@@ -64,14 +63,17 @@ public class General extends Soldier {
 	}
 	
 	// for promoting a soldier to a general
+    // MAKE SURE TO COPY STUFF FROM ABOVE CONSTRUCTOR
 	public General(Soldier s) {
 		super(s); // copy constructor
 		this.isImportant = true;
 	
-		if (s.party != null)
-			this.increaseFame(getRandomFameFor(s.party.pt));
-		
-		generateRandomInitStats();
+		if (s.party != null) {
+            this.increaseFame(getRandomFameFor(s.party.pt));
+            this.absoluteMaxSize = s.party.pt.getMaxSize();
+        }
+
+        generateRandomInitStats();
 	}
 	
 	// use a reverse calculation to figure out how much fame to give this guy.
@@ -131,7 +133,8 @@ public class General extends Soldier {
 			increaseRandomStat();
 		}
 		if (this.party.army != null && this.party.army.isNoble()) {
-			((Noble) party.army).updateRank();
+		    // Increase the Noble's status.
+//			((Noble) party.army).updateRank();
 		}
 	}
 	
@@ -184,7 +187,8 @@ public class General extends Soldier {
 	}
 	
 	public int getMaxSize() {
-		return Math.min(absoluteMaxSize, getTroopsForFame(fame));
+	    return absoluteMaxSize;
+//		return Math.min(absoluteMaxSize, getTroopsForFame(fame));
 	}
 	
 	public int getMaxSubPartySize() {

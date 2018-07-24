@@ -3,13 +3,13 @@
 //import kyle.game.besiege.Faction;
 //import kyle.game.besiege.StrictArray;
 //import kyle.game.besiege.army.Army;
-//import kyle.game.besiege.party.Party;
-//import kyle.game.besiege.party.Soldier;
+//import kyle.game.besiege.playerPartyPanel.Party;
+//import kyle.game.besiege.playerPartyPanel.Soldier;
 //
 //public class NewBattle implements Battle {
 //
-//	// Adds the given party to the list of attackers. Disables the army until they leave the battle or are destroyed.
-//	// Returns true if party was added successfully, false otherwise.
+//	// Adds the given playerPartyPanel to the list of attackers. Disables the army until they leave the battle or are destroyed.
+//	// Returns true if playerPartyPanel was added successfully, false otherwise.
 //	public boolean addToAttackers(Army army) {
 //		return true;
 //	}

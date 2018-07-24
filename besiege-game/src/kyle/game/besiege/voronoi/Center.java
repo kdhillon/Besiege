@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g2d.PolygonSprite;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
@@ -22,6 +23,7 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Map;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.geom.PointH;
+import kyle.game.besiege.party.CultureType;
 
 /**
  * Center.java Function Date Jun 6, 2013
@@ -29,7 +31,6 @@ import kyle.game.besiege.geom.PointH;
  * @author Connor
  */
 public class Center {
-
 	private final float ELEVATION_FACTOR = 700f;
 //	private final float BASE_WEALTH_MAX = 100f;
 //	private final float BASE_WEALTH_MIN = 50;
@@ -52,6 +53,9 @@ public class Center {
 	private float[] verts;
 	private Color ogColor;
 	
+	public boolean discovered; // Has the player been close enough to this center to "discover" it?
+	public float fogOpacity = 0;
+
 	// used for serialization
 	public ArrayList<Integer> adjEdges = new ArrayList<Integer>();
 
@@ -59,8 +63,12 @@ public class Center {
 
 	// used to be double but I changed it
 	public float elevation;
+
+	public float temperature;
 	public double moisture;
 	public Biomes biome;
+	public CultureType cultureType;
+
 	public transient Texture biomeTexture;
 	public int textureIndex;
 
@@ -108,6 +116,10 @@ public class Center {
 		this.biome = biome;
 		this.wealth = calculateInitWealth();
 	}
+
+    public void setCultureType(CultureType cultureType) {
+        this.cultureType = cultureType;
+    }
 	
 	public void setBiomeTexture(Texture biomeTexture) {
 //      center.textureIndex = getTexture(center);
@@ -121,6 +133,7 @@ public class Center {
 		float base = 1 - randomMax;
 		
 		float bonus = (float) Math.random() * randomMax - (randomMax/2);
+		if (coast) bonus += 0.1;
 		
 		float toRet = biome.getWealthFactor() * base + bonus;
 		if (toRet < 0) toRet = 0;
@@ -166,8 +179,15 @@ public class Center {
 		return total;
 	}
 
-	void initMesh(VoronoiGraph vg) {
+	public void discover() {
+	    if (this.discovered) {
+            return;
+        }
+	    this.discovered = true;
+	    this.fogOpacity = 0.1f;
+    }
 
+	void initMesh(VoronoiGraph vg) {
 		// just hijacking this method 
 		int numVerts = getSubVertices() * 3 * (3 + 4 + 4 + 2);
 		this.verts = new float[numVerts];
@@ -680,26 +700,27 @@ public class Center {
 
 	public int getBiomeIndex() {
 		Biomes[] biomes = Biomes.values();
-		int biomeIndex = -1;
 		for (int i = 0; i < biomes.length; i++) {
 			if (biomes[i] == this.biome)
-				biomeIndex = i;
+				return i;
 		}
-		return biomeIndex;
+		return -1;
 	}
 
+	// Used when a playerPartyPanel is constructed in a center. Contains duplicate code from Location biomeDistribution.
+    // Should consolidate.
 	public float[] getBiomeDistribution() {
 		Biomes[] biomes = Biomes.values();
 		float[] biomeDistribution = new float[biomes.length];
 		int thisIndex = this.getBiomeIndex();
-		biomeDistribution[thisIndex] += 3; // arbitrary
+		biomeDistribution[thisIndex] += 15; // arbitrary/
 
-		for (Center neighbor : this.neighbors) {
-			if (!neighbor.water) {
-				int biomeIndex = neighbor.getBiomeIndex();
-				biomeDistribution[biomeIndex]++;
-			}
-		}
+//		for (Center neighbor : this.neighbors) {
+//			if (!neighbor.water) {
+//				int biomeIndex = neighbor.getBiomeIndex();
+//				biomeDistribution[biomeIndex]++;
+//			}
+//		}
 		// normalize biome distribution
 		float total = 0;
 		for (int i = 0; i < biomeDistribution.length; i++) {

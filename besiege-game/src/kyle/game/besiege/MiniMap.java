@@ -19,6 +19,7 @@ import kyle.game.besiege.party.Soldier;
 public class MiniMap extends Actor {
 //	private final float BORDER = .04f;
 	private final float BORDER = .1f;
+	private final Color skyBlue = new Color(135f/256,206/256f,250f/256, 1);
 
 	private SidePanel panel;
 	
@@ -29,17 +30,19 @@ public class MiniMap extends Actor {
 	
 	public MiniMap(SidePanel panel) {
 		this.panel = panel;
-		unitArmor = Assets.units.findRegion("preview_armor");
-		unitSkin = Assets.units.findRegion("preview_skin");
-		unitShield = new TextureRegion(new Texture(Gdx.files.internal("equipment/shield_side_wd.png"))); 
+		unitArmor = Assets.units.findRegion("preview-armor");
+		unitSkin = Assets.units.findRegion("preview-skin");
+		unitShield = new TextureRegion(new Texture(Gdx.files.internal("equipment/shieldsidewd.png")));
 	}
-	
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 //		this.setWidth(panel.getWidth()*(1-BORDER));
 		this.setHeight(panel.getWidth()*(1-BORDER));
-		this.setWidth(getHeight()*2/3);
-		this.setPosition(panel.getWidth()*(BORDER/2) + getWidth()/4, (panel.getHeight()-this.getHeight())-panel.getWidth()*(BORDER/2));
+//		this.setWidth(getHeight()*2/3);
+        this.setWidth(getHeight());
+//		this.setPosition(panel.getWidth()*(BORDER/2) + getWidth()/4, (panel.getHeight()-this.getHeight())-panel.getWidth()*(BORDER/2));
+        this.setPosition(panel.getWidth()*(BORDER/2), (panel.getHeight()-this.getHeight())-panel.getWidth()*(BORDER/2));
 //		this.setOrigin(this.getWidth()/2, this.getWidth()/2);
 //		this.setOrigin(0, 0);
 		
@@ -47,7 +50,7 @@ public class MiniMap extends Actor {
 		//this.setRotation(panel.getRotation());
 //		batch.draw(Assets.map.findRegion("smallMap"), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
 		if (panel.getActiveCrest() != null) {
-			panel.getActiveCrest().setPosition(getX(), getY());
+            panel.getActiveCrest().setPosition(getX(), getY());
 			panel.getActiveCrest().setSize(getWidth(), getHeight());
 			panel.getActiveCrest().draw(batch, parentAlpha);
 //			batch.draw(panel.getActiveCrest(), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
@@ -56,7 +59,6 @@ public class MiniMap extends Actor {
 			System.out.println("ignoring second crest");
 //			batch.draw(panel.getSecondCrest(), getX()+getWidth()/2, getY(), getOriginX(), getOriginY(), getWidth()/2, getHeight(), 1, 1, getRotation());
 		}
-	
 		
 		/* draw unit preview */
 		if (panel.getActiveCrest() == null && panel.getSoldierInstead() != null) {
@@ -64,16 +66,15 @@ public class MiniMap extends Actor {
 			Soldier toPreview = panel.getSoldierInstead();
 
 			if (toPreview.party.getFaction() != null)
-				batch.setColor(toPreview.party.getFaction().color);
+				batch.setColor(skyBlue);
 			else batch.setColor(Color.WHITE);
-			batch.draw(Assets.white, getX() - getWidth() / 8, getY(), getOriginX(), getOriginY(), getWidth() + getWidth() / 8, getWidth() +  getWidth() * 3f/ 8, 1, 1, getRotation());
+			batch.draw(Assets.white, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
 			batch.setColor(Color.WHITE);
-
 			
 			float rotation = getRotation();
 			float y = getY() + getWidth()*3f/8;
 			
-			// TODO speed this up
+			// TODO speed this up by not looking this stuff up every frame
 			TextureRegion weapon = WeaponDraw.GetMeleeWeaponTextureForUnittype(toPreview.unitType);
 			boolean drawInFront = false;
 			if (toPreview.unitType.ranged != null) {
@@ -89,13 +90,25 @@ public class MiniMap extends Actor {
 			
 			// weapons are 3x12			
 			Color c = batch.getColor();
-			batch.setColor(toPreview.unitType.armor.color);
+			if (toPreview.unitType.armor.naked) {
+				// highly inefficient
+				Color bodySkin = new Color(toPreview.skinColor);
+				bodySkin.r += 0.05f;
+				bodySkin.g += 0.05f;
+				bodySkin.b += 0.05f;
+				batch.setColor(bodySkin);
+			} else {
+				batch.setColor(toPreview.unitType.armor.color);
+			}
 			batch.draw(unitArmor, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getWidth(), 1, 1, getRotation());
 
 			batch.setColor(c);
 			if (!drawInFront) 
 				batch.draw(weapon, getX() - getWidth()/8f, y, getWidth() * 3f/16, getWidth()*12f/16, getWidth() * 3f/8, getWidth()*12f/8, 1, 1, rotation);	
-			
+
+//			if (toPreview == panel.getMapScreen().getKingdom().getPlayer().getGeneral()) {
+//			    System.out.println("previewing general");
+//            }
 			batch.setColor(toPreview.skinColor);
 			batch.draw(unitSkin, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getWidth(), 1, 1, getRotation());	
 	

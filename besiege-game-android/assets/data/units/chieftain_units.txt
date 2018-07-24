@@ -1,0 +1,115 @@
+tier name 			weapon				armor		hide	upgrades_to
+
+Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
+1	Hunter			Sling/Unarmed		None		false	Slinger
+1	Farmer			Spear				Clothes		false	Spearman
+
+2	Slinger			Sling/Dagger		Clothes		false	Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
+2	Spearman		Spear				Clothes		false	Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
+
+3	Jaguar_Spearman    	Spear				Clothes		false	Jaguar_Maceman/Jaguar_Spearman
+4	Jaguar_Maceman		Atlatl/Mace			Clothes		false	Jaguar_Nagual
+4	Jaguar_Spearman 	Spear/Shield		Clothes		false	Jaguar_Nagual
+5	Jaguar_Nagual		War_Axe				Clothes		false	none
+
+3	Eagle_Slinger		Sling/Dagger		Clothes		false	Eagle_Bowman/Eagle_Warrior
+4	Eagle_Bowman    	Bow/Dagger			Clothes		false	Eagle_Nagual
+4	Eagle_Warrior		Atlatl/Dagger		Clothes		false	Eagle_Nagual
+5	Eagle_Nagual		War_Axe				Clothes		false	none
+
+3	Serpent_Axeman		War_Axe				Clothes		false	Serpent_Axeman/Serpent_Swordsman
+4	Serpent_Axeman		War_Axe/Shield		Clothes		false	Serpent_Nagual
+4	Serpent_Swordsman	Broadsword			Clothes		false	Serpent_Nagual
+5	Serpent_Nagual		War_Axe				Clothes		false	none
+
+
+Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
+1	Hunter			Sling/Unarmed		None		false	Slinger
+1	Villager		Staff				None		false	Spearman
+
+2	Slinger			Sling/Dagger		Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+2	Spearman		Spear				Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+
+3	Axeman(W)		War_Axe				Clothes		false	Axeman(W)/Spearman(W)
+4	Axeman(W)		War_Axe/Tomahawk	Clothes		false	Nagual(W)
+4	Spearman(W)		Spear/Shield		Clothes		false	Nagual(W)
+5	Nagual(W)		War_Axe				Clothes		false	none
+
+3	Bowman(H)		Bow/Dagger			Clothes		false	Bowman(H)/Warrior(H)
+4	Bowman(H)		Bow/Dagger			Clothes		false	Nagual(H)
+4	Warrior(H)		Tomahawk/Dagger		Clothes		false	Nagual(H)
+5	Nagual(H)		War_Axe				Clothes		false	none
+
+3	Clubman(B)		Club				Clothes		false	Clubman(B)/Spearman(B)
+4	Clubman(B)		Club/Tomahawk		Clothes		false	Nagual(B)
+4	Spearman(B)		Spear/Shield		Clothes		false	Nagual(B)
+5	Nagual(B)		War_Axe				Clothes		false	none
+
+
+Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
+1	Hunter			Sling/Unarmed		None		false	Slinger
+1	Villager		Staff				None		false	Spearman
+
+2	Slinger			Sling/Dagger		Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+2	Spearman		Spear				Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+
+3	Axeman(W)		War_Axe				Clothes		false	Axeman(W)/Spearman(W)
+4	Axeman(W)		War_Axe/Tomahawk	Clothes		false	Nagual(W)
+4	Spearman(W)		Spear/Shield		Clothes		false	Nagual(W)
+5	Nagual(W)		War_Axe				Clothes		false	none
+
+3	Bowman(H)		Bow/Dagger			Clothes		false	Bowman(H)/Warrior(H)
+4	Bowman(H)		Bow/Dagger			Clothes		false	Nagual(H)
+4	Warrior(H)		Tomahawk/Dagger		Clothes		false	Nagual(H)
+5	Nagual(H)		War_Axe				Clothes		false	none
+
+3	Clubman(B)		Club				Clothes		false	Clubman(B)/Spearman(B)
+4	Clubman(B)		Club/Tomahawk		Clothes		false	Nagual(B)
+4	Spearman(B)		Spear/Shield		Clothes		false	Nagual(B)
+5	Nagual(B)		War_Axe				Clothes		false	none
+
+
+Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
+1	Hunter			Bow/Unarmed			None		false	Bowman
+1	Fisher			Spear				None		false	Spearman
+
+2	Bowman			Sling/Dagger		Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+2	Spearman		Spear				Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+
+3	Axeman(W)		War_Axe				None		false	Axeman(W)/Spearman(W)
+4	Axeman(W)		War_Axe/Tomahawk	None		false	Nagual(W)
+4	Spearman(W)		Spear/Shield		None		false	Nagual(W)
+5	Nagual(W)		War_Axe				Clothes		false	none
+
+3	Bowman(H)		Bow/Dagger			Clothes		false	Bowman(H)/Warrior(H)
+4	Bowman(H)		Bow/Dagger			Clothes		false	Nagual(H)
+4	Warrior(H)		Tomahawk/Dagger		Clothes		false	Nagual(H)
+5	Nagual(H)		War_Axe				Clothes		false	none
+
+3	Clubman(B)		Club				Clothes		false	Clubman(B)/Spearman(B)
+4	Clubman(B)		Club/Tomahawk		Clothes		false	Nagual(B)
+4	Spearman(B)		Spear/Shield		Clothes		false	Nagual(B)
+5	Nagual(B)		War_Axe				Clothes		false	none
+
+
+Class:	Coast		LT_YELLOW   YELLOW  hawaii.txt
+1	Hunter			Bow/Unarmed			None		false	Bowman
+1	Fisher			Spear				None		false	Spearman
+
+2	Bowman			Sling/Dagger		Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+2	Spearman		Spear				Clothes		false	Axeman(W)/Bowman(H)/Clubman(B)
+
+3	Axeman(W)		War_Axe				Clothes		false	Axeman(W)/Spearman(W)
+4	Axeman(W)		War_Axe/Tomahawk	Clothes		false	Nagual(W)
+4	Spearman(W)		Spear/Shield		Clothes		false	Nagual(W)
+5	Nagual(W)		War_Axe				Clothes		false	none
+
+3	Bowman(H)		Bow/Dagger			Clothes		false	Bowman(H)/Warrior(H)
+4	Bowman(H)		Bow/Dagger			Clothes		false	Nagual(H)
+4	Warrior(H)		Tomahawk/Dagger		Clothes		false	Nagual(H)
+5	Nagual(H)		War_Axe				Clothes		false	none
+
+3	Clubman(B)		Club				Clothes		false	Clubman(B)/Spearman(B)
+4	Clubman(B)		Club/Tomahawk		Clothes		false	Nagual(B)
+4	Spearman(B)		Spear/Shield		Clothes		false	Nagual(B)
+5	Nagual(B)		War_Axe				Clothes		false	none

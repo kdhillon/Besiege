@@ -16,8 +16,8 @@ public class Party {
 
 	public boolean updated; // does the panel need to be updated.
 	public int wealth;
-	public int minWealth; // keeps the party out of debt, of course!
-//	public int maxSize; // current max size of the party
+	public int minWealth; // keeps the playerPartyPanel out of debt, of course!
+//	public int maxSize; // current max size of the playerPartyPanel
 
 	public boolean player;
 	public Army army;
@@ -80,10 +80,11 @@ public class Party {
 			// put this guy in a subparty that's not full, or create a new par
 			Subparty p = getNonEmptySub();
 			if (p == null) {
-				p = createNewSub();
-			}
-			
-			p.addSoldier(soldier);
+				createNewSubWithGeneral(soldier);
+			} else {
+                // Some soldiers are being added, but not getting counted in total size... suspicious. generals?
+                p.addSoldier(soldier);
+            }
 		}
 		return true;
 	}
@@ -107,7 +108,9 @@ public class Party {
 	}
 	
 	public int getMaxSize() {
-		return getGeneral().getMaxSize();
+	    if (this.getGeneral() != null)
+		    return getGeneral().getMaxSize();
+	    else return pt.getMaxSize();
 	}
 	
 	public Subparty getNonEmptySub() {
@@ -119,22 +122,26 @@ public class Party {
 		return null;
 	}
 	
-	// promote an existing soldier to be general of a new subparty
-	public Subparty createNewSub() {
-		Subparty newSub = new Subparty(this);
-		root.addSub(newSub);
-		sub.add(newSub);
-		
-		// promote best soldier to general
-		if (newSub.general == null) {
-			Soldier s = this.getBestSoldier();
-			s.subparty.removeSoldier(s);
-			newSub.promoteToGeneral(s);
-		}
-		
-//		newSub.setGeneral(soldierToPromote);
-		return newSub;
-	}
+	// promote an existing soldier from another party to be general of a new subparty
+    public void createNewSubWithExistingGeneral() {
+	    Soldier s = this.getBestSoldier();
+	    s.subparty.removeSoldier(s);
+	    createNewSubWithGeneral(s);
+    }
+
+    // create new subparty with the given soldier as general (should be a fresh soldier in no other subparty)
+    public void createNewSubWithGeneral(Soldier soldier) {
+        Subparty newSub = new Subparty(this);
+        root.addSub(newSub);
+        sub.add(newSub);
+
+        // promote best soldier to general
+        if (newSub.general == null && !pt.hire) {
+            if (soldier.subparty != null)
+                soldier.subparty.removeSoldier(soldier);
+            newSub.promoteToGeneral(soldier);
+        }
+    }
 //	
 //	// root is probably dead, move a subparty to be root and kill root.
 //	public void rearrangeSubs() {
@@ -325,14 +332,14 @@ public class Party {
 		StrictArray<String> names = new StrictArray<String>();
 		StrictArray<StrictArray<Soldier>> consol = new StrictArray<StrictArray<Soldier>>();
 		for (Soldier s : arrSoldier) {
-			if (!names.contains(s.getTypeName() + s.getUnitClass(), false)) {
-				names.add(s.getTypeName() + s.getUnitClass());
+			if (!names.contains(s.getTypeName() + s.getCulture(), false)) {
+				names.add(s.getTypeName() + s.getCulture());
 				StrictArray<Soldier> type = new StrictArray<Soldier>();
 				type.add(s);
 				consol.add(type);
 			}
 			else {
-				consol.get(names.indexOf(s.getTypeName() + s.getUnitClass(), false)).add(s);
+				consol.get(names.indexOf(s.getTypeName() + s.getCulture(), false)).add(s);
 			}
 		}
 		return consol;	
@@ -349,11 +356,23 @@ public class Party {
 		return "New Party";
 	}
 
-	public void createFreshGeneral(UnitType type, PartyType pt) {
-		this.root.setGeneral(new General(type, this, pt));
+	public General createFreshGeneral(UnitType type, PartyType pt) {
+	    General general = new General(type, this, pt);
+
+        // promote best soldier to general
+        if (root.general == null && !pt.hire) {
+            if (general.subparty != null)
+                general.subparty.removeSoldier(general);
+            root.promoteToGeneral(general);
+        }
+
+		return general;
 	}
 
 	public void setGeneral(General general) {
+	    if (pt.hire) {
+	        throw new AssertionError();
+        }
 		root.setGeneral(general);
 	}
 
@@ -415,7 +434,7 @@ public class Party {
 				canAfford = false;
 			}
 		}
-		System.out.println("party repaired");
+//		System.out.println("playerPartyPanel repaired");
 	}
 
 	public void registerBattleVictory() {

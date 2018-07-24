@@ -1,0 +1,199 @@
+
+units1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+die1-skin
+  rotate: false
+  xy: 2, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+die1-armor
+  rotate: false
+  xy: 36, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+walk-skin
+  rotate: false
+  xy: 70, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+walk-armor
+  rotate: false
+  xy: 88, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firing-skin
+  rotate: false
+  xy: 106, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firing-armor
+  rotate: false
+  xy: 2, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firearm-skin
+  rotate: false
+  xy: 2, 22
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firearm-armor
+  rotate: false
+  xy: 2, 32
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+shadow
+  rotate: false
+  xy: 2, 42
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-skin
+  rotate: false
+  xy: 2, 52
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-armor
+  rotate: false
+  xy: 2, 62
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+
+old1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+knight
+  rotate: false
+  xy: 2, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+knight
+  rotate: false
+  xy: 36, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+farmer
+  rotate: false
+  xy: 70, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 2, 12
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 36, 12
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+knight
+  rotate: false
+  xy: 104, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+knight
+  rotate: false
+  xy: 70, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+farmer
+  rotate: false
+  xy: 88, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 106, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 2, 22
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 2, 32
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 2, 42
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+marshman
+  rotate: false
+  xy: 2, 52
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+knight
+  rotate: false
+  xy: 2, 62
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+farmer
+  rotate: false
+  xy: 2, 72
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+bandit
+  rotate: false
+  xy: 2, 82
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1

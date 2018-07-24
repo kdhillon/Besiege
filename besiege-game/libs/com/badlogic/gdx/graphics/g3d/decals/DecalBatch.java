@@ -173,7 +173,7 @@ public class DecalBatch implements Disposable {
 		}
 	}
 
-	/** Flushes vertices[0,verticesPosition[ to GL verticesPosition % Decal.SIZE must equal 0
+	/** Flushes vertices[0,verticesPosition[ to GL verticesPosition % Decal.BLOCK_SIZE must equal 0
 	 * 
 	 * @param verticesPosition Amount of elements from the vertices array to flush */
 	protected void flush (ShaderProgram shader, int verticesPosition) {

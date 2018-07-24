@@ -1,0 +1,11 @@
+name			atk	range	acc		rate	type
+
+Sling			2	30		6		2		bow
+Bow				3	35		6		3		bow
+
+Atlatl			5	15		8		6		thrown
+Tomahawk		3	10		7		3		thrown
+
+Blowgun			2	10		8		6		bow
+
+Poison_Sling	4	10		6		4		bow

@@ -544,7 +544,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			retreat = true;
 
 		for (Party party : parties) {
-//			Party party = a.getParty();
+//			Party playerPartyPanel = a.getParty();
 			Label partyName;
 			if (party.army != null) {
 				partyName = new Label(party.army.getName(),ls);
@@ -621,7 +621,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 
 			}
 			//			Label woundedC;
-			//			if (party.getWounded().size > 0)
+			//			if (playerPartyPanel.getWounded().size > 0)
 			//				woundedC = new Label("Wounded", lsSmall);
 			//			else woundedC = new Label("",lsSmall);
 			//			woundedC.setAlignment(0,0);
@@ -629,7 +629,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			//			table.row();
 
 
-			//			for (Soldier s : party.getWounded()) {
+			//			for (Soldier s : playerPartyPanel.getWounded()) {
 			//				SoldierLabel name = new SoldierLabel(s.name, lsSmallG, s);
 			//				if (table == dTable)
 			//					name.setAlignment(Align.right);
@@ -745,7 +745,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	}
 	@Override
 	public void button4() {
-		//		if (party == panel.getKingdom().getPlayer().getParty())
+		//		if (playerPartyPanel == panel.getKingdom().getPlayer().getParty())
 
 		//			sidePanel.setDefault();
 		//		else 

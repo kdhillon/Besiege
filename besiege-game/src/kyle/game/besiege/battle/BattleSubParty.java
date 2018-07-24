@@ -27,7 +27,7 @@ public class BattleSubParty {
 	public Array<Formation> availableFormations;
 
 	// for placement
-	public StrictArray<Unit> infantry, cavalry, archers;
+	private StrictArray<Unit> infantry, cavalry, archers;
 	public Unit general;
 	
 	public StrictArray<Unit> units;
@@ -70,10 +70,21 @@ public class BattleSubParty {
 		this.team = team;
 
 		this.availableFormations = MapScreen.characterReference.availableFormations;
-		
+		if (this.availableFormations == null) {
+		    this.availableFormations = new Array<Formation>();
+		    this.availableFormations.add(Formation.DEFENSIVE_LINE);
+		    this.availableFormations.add(Formation.SQUARE);
+		    this.availableFormations.add(Formation.SCRAMBLE);
+        }
+        // this isn't ideal, should be changed.
+        this.formation = availableFormations.random();
+
 		startingCount = subparty.getHealthySize() + 1;
 		currentCount = startingCount;
-		
+
+		if (subparty.general == null) {
+		    System.out.println("Subparty of " + parent.parties.first().army.getName() + " is null");
+        }
 		battleMoraleThreshold = BASE_MORALE + subparty.general.getMoraleBonus();
 		
 		archers = new StrictArray<Unit>();
@@ -89,15 +100,20 @@ public class BattleSubParty {
 	}
 	
 	public void createAllUnits() {
+	    int count = 0;
 		for (Soldier s : subparty.healthy) {
+		    if (s.isGeneral()) continue;
+
 			Unit unit = new Unit(stage, team, s, this);
 			this.units.add(unit);
 			this.parent.units.add(unit);
+			count++;
 			unit.setStance(stance);
 		}
 		addUnitsToArrays();
 
 		this.general = new Unit(stage, team, subparty.general, this);
+
 		this.units.add(general);
 		this.parent.units.add(general);
 		general.setStance(stance);
@@ -210,6 +226,10 @@ public class BattleSubParty {
 		return subparty.getHealthyLevelSum();
 	}
 	//
+    public boolean isRoot() {
+	    return subparty.getRank() == 0;
+    }
+
 	public StrictArray<Soldier> getHealthyArchers() {
 		//		StrictArray<Soldier> healthyArchers = new StrictArray<Soldier>();
 		//		for (Party p : parties) {
@@ -395,7 +415,10 @@ public class BattleSubParty {
 	// create three arrays of UNITS, inf, cav, archers, and keep them alive for redistribution.
 	public void updateFormation() {
 		stage.removeSubParty(this);
-		stage.addSubparty(this);
+
+		// re-add subparty at it's current position.
+        stage.addUnitsFromSubparty(this, this.currentPosX, this.currentPosY);
+//		stage.add(this, this.parent.subparties.indexOf(this, true));
 	}
 	
 	public void clearAllUnitsFromStage() {
@@ -413,7 +436,25 @@ public class BattleSubParty {
 		this.setStance(Stance.AGGRESSIVE);
 		this.charging = true;
 	}
-	
+
+	public int infantrySizeWithoutGeneral() {
+	    int size = infantry.size;
+	    if (infantry.contains(general, true)) size--;
+	    return size;
+    }
+
+    public int archersSizeWithoutGeneral() {
+        int size = archers.size;
+        if (archers.contains(general, true)) size--;
+        return size;
+    }
+
+    public int cavalrySizeWithoutGeneral() {
+        int size = cavalry.size;
+        if (cavalry.contains(general, true)) size--;
+        return size;
+    }
+
 	public void retreat() {
 		this.retreating = true;
 		for (Unit s : units) {
@@ -429,4 +470,15 @@ public class BattleSubParty {
 		general.setStance(s);
 	}
 
+    public StrictArray<Unit> getInfantry() {
+        return infantry;
+    }
+
+    public StrictArray<Unit> getArchers() {
+        return archers;
+    }
+
+    public StrictArray<Unit> getCavalry() {
+        return cavalry;
+    }
 }

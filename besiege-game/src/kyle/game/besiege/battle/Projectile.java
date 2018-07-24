@@ -93,11 +93,10 @@ public class Projectile extends Group {
 	// create new arrow with target
 	public Projectile(Unit firing, Unit target) {
 		texture = Assets.map.findRegion("arrow");
-		halfArrow = Assets.map.findRegion("half_arrow");
+		halfArrow = Assets.map.findRegion("half arrow");
 		
 		this.firing = firing;
 
-		
 		initializePosition();
 
 		// calculate damage
@@ -159,7 +158,7 @@ public class Projectile extends Group {
 	// create new siege projectile with target
 	public Projectile(SiegeUnit siegeFiring, BPoint target) {
 		texture = Assets.map.findRegion("rock");
-		halfArrow = Assets.map.findRegion("half_rock");
+		halfArrow = Assets.map.findRegion("half rock");
 		
 		SCALE = SCALE_SIEGE;
 		

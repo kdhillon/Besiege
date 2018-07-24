@@ -8,12 +8,12 @@
 //import kyle.game.besiege.Assets;
 //import kyle.game.besiege.SidePanel;
 //import kyle.game.besiege.army.Army;
-//import kyle.game.besiege.party.Party;
-//import kyle.game.besiege.party.RangedWeapon;
-//import kyle.game.besiege.party.Soldier;
-//import kyle.game.besiege.party.SoldierLabel;
-//import kyle.game.besiege.party.Weapon;
-//import kyle.game.besiege.party.WeaponButton;
+//import kyle.game.besiege.playerPartyPanel.Party;
+//import kyle.game.besiege.playerPartyPanel.RangedWeapon;
+//import kyle.game.besiege.playerPartyPanel.Soldier;
+//import kyle.game.besiege.playerPartyPanel.SoldierLabel;
+//import kyle.game.besiege.playerPartyPanel.Weapon;
+//import kyle.game.besiege.playerPartyPanel.WeaponButton;
 //
 //import com.badlogic.gdx.graphics.Color;
 //import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -41,7 +41,7 @@
 //	private final String tablePatch = "grey-d9";
 //	private SidePanel panel;
 //	private Army army;
-//	private Party party;
+//	private Party playerPartyPanel;
 //
 //	private Table text;
 //	private Label title;
@@ -81,7 +81,7 @@
 //	public PanelUpgradesOld(SidePanel panel, Army army) {
 //		this.panel = panel;
 //		this.army = army;
-//		this.party = army.getParty();
+//		this.playerPartyPanel = army.getParty();
 //		this.addParentPanel(panel);
 //
 //		LabelStyle lsBig = new LabelStyle();
@@ -165,7 +165,7 @@
 //
 //		text.row();
 //
-//		upgradable = new Array<Soldier>(party.getUpgradable()); // use copy constructor to avoid problems later
+//		upgradable = new Array<Soldier>(playerPartyPanel.getUpgradable()); // use copy constructor to avoid problems later
 //
 //		// Soldier's stats
 //		upgrades = new Table();
@@ -289,28 +289,28 @@
 //	//	@Override
 //	//	public void act(float delta) {
 //	//		morale.setText(army.getMorale() + "");
-//	//		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
+//	//		size.setText(playerPartyPanel.getHealthySize()+"/"+playerPartyPanel.getTotalSize());
 //	//		money.setText("" + army.getParty().wealth);
-//	//		atk.setText(""+ party.getAtk());
-//	//		def.setText(String.format("%.2f", party.getAvgDef()));
-//	//		spd.setText(String.format("%.2f", party.getAvgSpd()));
+//	//		atk.setText(""+ playerPartyPanel.getAtk());
+//	//		def.setText(String.format("%.2f", playerPartyPanel.getAvgDef()));
+//	//		spd.setText(String.format("%.2f", playerPartyPanel.getAvgSpd()));
 //	//		updateSoldierTable();
 //	//		super.act(delta);
 //	//	}
 //	
 //	public void update() {
-//		this.upgradable = party.getUpgradable();
+//		this.upgradable = playerPartyPanel.getUpgradable();
 //	}
 //
 //	// use this for web
 //	@Override
 //	public void act(float delta) {
 //		morale.setText(army.getMorale() + "");
-//		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
+//		size.setText(playerPartyPanel.getHealthySize()+"/"+playerPartyPanel.getTotalSize());
 //		money.setText("" + army.getParty().wealth);
-//		atk.setText(""+ party.getAtk());
-//		def.setText(Panel.format(""+ party.getAvgDef(),2));
-//		spd.setText(Panel.format(""+ party.getAvgSpd(),2));
+//		atk.setText(""+ playerPartyPanel.getAtk());
+//		def.setText(Panel.format(""+ playerPartyPanel.getAvgDef(),2));
+//		spd.setText(Panel.format(""+ playerPartyPanel.getAvgSpd(),2));
 //		updateSoldierTable();
 //		super.act(delta);
 //	}
@@ -496,7 +496,7 @@
 //	}
 //
 //	private void upgradeCurrent(Weapon weapon) {
-//		//int index = party.getUpgradable().indexOf(selected, true);
+//		//int index = playerPartyPanel.getUpgradable().indexOf(selected, true);
 //		String first = selected.getName();
 //		if (selected.upgrade(weapon)) { // only if successfully upgrades
 //			String next = selected.getName();
@@ -506,9 +506,9 @@
 //			upgradable.removeValue(prev_selected, true);
 //		}
 //		//		if (index > 0)
-//		//			selected = party.getUpgradable().get(index-1);
-//		//		else if (party.getUpgradable().size > 0)
-//		//			selected = party.getUpgradable().get(index);
+//		//			selected = playerPartyPanel.getUpgradable().get(index-1);
+//		//		else if (playerPartyPanel.getUpgradable().size > 0)
+//		//			selected = playerPartyPanel.getUpgradable().get(index);
 //		//else
 //	}
 //

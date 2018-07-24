@@ -4,7 +4,7 @@ package kyle.game.besiege.party;
 // * by Kyle Dhillon
 // * Source Code available under a read-only license. Do not copy, modify, or distribute.
 // ******************************************************************************/
-//package kyle.game.besiege.party;
+//package kyle.game.besiege.playerPartyPanel;
 //
 //import java.util.Iterator;
 //
@@ -12,7 +12,7 @@ package kyle.game.besiege.party;
 //import kyle.game.besiege.Faction;
 //import kyle.game.besiege.army.Army;
 //import kyle.game.besiege.panels.BottomPanel;
-//import kyle.game.besiege.party.Soldier.SoldierType;
+//import kyle.game.besiege.playerPartyPanel.Soldier.SoldierType;
 //
 //import com.badlogic.gdx.utils.Array;
 //
@@ -22,8 +22,8 @@ package kyle.game.besiege.party;
 //
 //	public boolean updated; // does the panel need to be updated.
 //	public int wealth;
-//	public int minWealth; // keeps the party out of debt, of course!
-//	public int maxSize; // current max size of the party
+//	public int minWealth; // keeps the playerPartyPanel out of debt, of course!
+//	public int maxSize; // current max size of the playerPartyPanel
 //
 //	public boolean player;
 //	public Army army;
@@ -325,7 +325,7 @@ package kyle.game.besiege.party;
 //				canAfford = false;
 //			}
 //		}
-//		System.out.println("party repaired");
+//		System.out.println("playerPartyPanel repaired");
 //	}
 //
 //}

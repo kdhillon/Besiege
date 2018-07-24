@@ -44,16 +44,20 @@ public class MapScreen implements Screen {
 	private Kryo kryo;
 	public boolean SIMULATE = false;
 
-	private static final boolean VIEW_GENESIS = true; // without this, takes about 5 seconds to run.
+	private static final boolean VIEW_GENESIS = false; // without this, takes about 5 seconds to run.
 	private static final boolean FORCERUN = false;
 	private static final float SCROLL_SPEED = 2f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
 	private static final float ZOOM_MAX = 10;
 	private static final float ZOOM_MIN = .05f;
 	private static final float ZOOM_RATE_Z = 500;
-	//	private final Color background = new Color(0, 109.0f/255, 185.0f/255, 1);
+	private static final float CENTER_SPEED = 0.07f;
+    private static final float MIN_CENTER_SPEED = 0.1f;
+
+    //	private final Color background = new Color(0, 109.0f/255, 185.0f/255, 1);
 	//	private final Color background = new Color(VoronoiGraph.OCEAN);
-	private static final Color background = new Color(0x44447aff); // water
+    private static final Color background = Color.BLACK;
+//    private static final Color background = new Color(0x44447aff); // water
 	//	private static final Color background = new Color(0x55aa44ff); // grass
 
 	//	private final Color backgroundGrass = new Color(0x55aa44ff);
@@ -95,7 +99,6 @@ public class MapScreen implements Screen {
 	
 	private boolean generate;
 	private boolean worldInitialized;
-	private boolean kingdomInitialized;
 	private int worldInitCount = 0;
 
 	public boolean fastForward;
@@ -103,7 +106,6 @@ public class MapScreen implements Screen {
 	public boolean superFastForward;
 	public boolean shouldSuperFastForward;
 	public boolean crazyFastForward;
-//	public boolean shouldSlowDown;
 	public boolean slowDown;
 
 	public boolean shouldLetRun; // for "waiting" and " ing", in location
@@ -120,7 +122,8 @@ public class MapScreen implements Screen {
 
 	private boolean wealthToggle;
 	private boolean territoryToggle;
-	private boolean crestsToggle;
+    private boolean cultureToggle;
+    private boolean crestsToggle;
 	private boolean armyCrestsToggle;
 	private boolean debugToggle;
 
@@ -219,42 +222,14 @@ public class MapScreen implements Screen {
 		sidePanel = new SidePanel(this);
 
 		storeStaticSidePanel(sidePanel);
-		//		sidePanel.setKingdom(kingdom);
-		//			fog = new Fog(this);
-
-		mapControllerAndroid = new MapControllerAndroid(currentCamera, this);
-		mapControllerDesktop = new MapControllerDesktop(currentCamera, this);
 
 		currentStage = battleStage;
 
-		//			kingdomStage.addActor(fog); // test to see if this is slowing things down
-		mousePos = new Vector2(0,0);
-		rotation = 0;
-		speedFactor = 1;
-
-		uiStage.addActor(sidePanel);
-		mouseOverPanel = false;
-		keydown = 0;
-
-		shouldCenter = false;
-		shouldFastForward = false;
-		shouldLetRun = false;
-
-		fogOn = false;
-		losOn = false;
-		fogToggle = false;
-		losToggle = true;
-
-		toggleNextFormation = false;
-
 		startLog();
-		
-//		this.generate = true;
-		
+
 		worldInitialized = true;
 		
 		center();
-		//		fog = new Fog(this);
 
 		mapControllerAndroid = new MapControllerAndroid(currentCamera, this);
 		mapControllerDesktop = new MapControllerDesktop(currentCamera, this);
@@ -267,24 +242,6 @@ public class MapScreen implements Screen {
 		uiStage.addActor(sidePanel);
 		mouseOverPanel = false;
 		keydown = 0;
-
-//		if (generate)
-//		sidePanel.initializePanels();
-//		
-//		rotate((float) (360 * Math.random()));
-
-		shouldCenter = false;
-		shouldFastForward = false;
-		shouldLetRun = false;
-
-		fogOn = false;
-		losOn = false;
-		fogToggle = false;
-		losToggle = true;
-
-		toggleNextFormation = false;
-		
-//		sidePanel.setActiveArmy(battleStage.);
 
 		startLog();
 	}
@@ -354,7 +311,7 @@ public class MapScreen implements Screen {
 			center();
 //			rotate((float) (360 * Math.random()));
 
-			shouldCenter = false;
+			shouldCenter = true;
 			shouldFastForward = false;
 			shouldLetRun = false;
 
@@ -366,14 +323,19 @@ public class MapScreen implements Screen {
 			toggleNextFormation = false;
 
 			startLog();
-
 		}
 		if (VIEW_GENESIS && worldInitCount < 20) {
 			worldInitCount++; return;
 		}
-		center();
 		
 		worldInitialized = true;
+		kingdom.setPaused(true);
+		center();
+		if (!VIEW_GENESIS) {
+			kingdomCamera.zoom = 0.5f;
+			fogOn = true;
+			
+		}
 	}
 	
 	public static void storeStaticSidePanel(SidePanel sp) {
@@ -656,7 +618,18 @@ public class MapScreen implements Screen {
 		else if (currentCamera == kingdomCamera && kingdom != null && kingdom.getPlayer() != null && worldInitialized) {
 			//		if (currentCamera == kingdomPerspectiveCamera)
 			//			currentCamera.translate(new Vector2(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y));
-			currentCamera.translate(new Vector3(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y, 0));
+            float xSpeed = (kingdom.getPlayer().getCenterX() - currentCamera.position.x) * CENTER_SPEED;
+            if (xSpeed < MIN_CENTER_SPEED && xSpeed > -MIN_CENTER_SPEED)
+                 xSpeed = 0;
+
+            float ySpeed = (kingdom.getPlayer().getCenterY() - currentCamera.position.y) * CENTER_SPEED;
+            if (ySpeed < MIN_CENTER_SPEED && ySpeed > -MIN_CENTER_SPEED)
+                ySpeed = 0;
+
+                //                ySpeed = Math.max(ySpeed, MIN_CENTER_SPEED);
+//            else if (ySpeed < -0.1) ySpeed = Math.min(ySpeed, -MIN_CENTER_SPEED);
+
+            currentCamera.translate(new Vector3(xSpeed, ySpeed, 0));
 		}
 		else if (kingdom != null && kingdom.map != null) {
 			System.out.println("centering on reference point");
@@ -802,7 +775,7 @@ public class MapScreen implements Screen {
 				toggleLOS();
 				losToggle = false;
 			}
-			//			if (Gdx.input.isKeyPressed(Keys.E))
+			//			if (Gdx.input.isKeyPressed(Keys.E)
 			//				editToggle = true;
 			//			else if (editToggle) {
 			////				save();
@@ -823,11 +796,18 @@ public class MapScreen implements Screen {
 				Map.drawSpheres = !Map.drawSpheres;
 				territoryToggle = false;
 			}
+            if (Gdx.input.isKeyPressed(Keys.V))
+                cultureToggle = true;
+            else if (cultureToggle) {
+                Map.drawCultures = !Map.drawCultures;
+                cultureToggle = false;
+            }
 			if (Gdx.input.isKeyPressed(Keys.R))
 				wealthToggle = true;
 			else if (wealthToggle) {
 				Map.drawWealth = !Map.drawWealth;
-				kingdom.map.updateAllCenterColors();
+				if (kingdom != null)
+				    kingdom.map.updateAllCenterColors();
 				wealthToggle = false;
 			}
 			
@@ -1039,7 +1019,8 @@ public class MapScreen implements Screen {
 
 		if (this.kingdom == null) System.out.println("loaded null kingdom");
 
-		for (Army army : kingdom.getArmies()) army.restoreTexture();
+		for (Army army : kingdom.getArmies()) army.restoreAnimation();
+
 		Array<Location> locations = kingdom.getAllLocationsCopy();
 		for (Location location : locations) {
 			location.restoreTexture();

@@ -11,11 +11,11 @@ public class MainActivity extends AndroidApplication {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
-        cfg.useGL20 = false;
-        cfg.useAccelerometer = false;
-        cfg.useCompass = false;
-        
-        initialize(new BesiegeMain(), cfg);
+//        AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
+//        cfg.useGL20 = false;
+//        cfg.useAccelerometer = false;
+//        cfg.useCompass = false;
+//
+//        initialize(new BesiegeMain(), cfg);
     }
 }

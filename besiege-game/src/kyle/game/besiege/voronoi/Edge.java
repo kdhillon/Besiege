@@ -108,7 +108,7 @@ public class Edge {
 	}
 	// returns true if factions on either side are at war
 	public boolean war(Map map) {
-		if (map.getCenter(this.adjCenter0).faction.atWar(map.getCenter(this.adjCenter1).faction)) return true;
+		if (map.getCenter(this.adjCenter0).faction != null && map.getCenter(this.adjCenter1).faction != null && map.getCenter(this.adjCenter0).faction.atWar(map.getCenter(this.adjCenter1).faction)) return true;
 		return false;
 	}
 }

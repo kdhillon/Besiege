@@ -11,6 +11,7 @@ import static kyle.game.besiege.Kingdom.getRandom;
 import java.util.HashSet;
 import java.util.Random;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Polygon;
@@ -32,12 +33,21 @@ import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
-	public static int cityCount = 10;
+    // Actual values
+	public static int cityCount = 80;
 	public static int castleCount = 5;
 	public static int ruinCount = 5;
-	public static int villageCount = 20;
-	
-	public static final double DECAY = .1;
+	public static int villageCount = 100;
+	int FACTION_COUNT = 25;
+
+	// Fast values
+//    public static int cityCount = 10;
+//    public static int castleCount = 10;
+//    public static int ruinCount = 10;
+//    public static int villageCount = 20;
+//    int FACTION_COUNT = 10;
+
+    public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
 	public static final int MAX_BANDITS = 50;
@@ -98,8 +108,12 @@ public class Kingdom extends Group {
 	public int citiesLeft;
 	public int villagesLeft;
 	public int castlesLeft;
-	
-	// for loading kingdom
+
+	private Fog fog;
+
+    StrictArray<StrictArray<Center>> connectedCenters;
+
+    // for loading kingdom
 	public Kingdom() {
 		
 	}
@@ -113,16 +127,16 @@ public class Kingdom extends Group {
 		if (initCount < 0) {
 			map = new Map(this, true);
 
-			clock = 0; // set initial clock
-			timeOfDay = 0;
+            clock = 12 * HOUR_TIME; // set initial time as noon
+			night = false;
 			day = 0;
-			startRain();
+//			startRain();
 			//		raining = false;
 
 			this.time(0);
 			
 			//		currentDarkness = NIGHT_FLOAT;
-			currentDarkness = 0; // fade in
+//			currentDarkness = 0; // fade in
 			
 			if (this.night)
 				this.targetDarkness = NIGHT_FLOAT;
@@ -139,6 +153,8 @@ public class Kingdom extends Group {
 			villages = new StrictArray<Village>();
 			ruins = new StrictArray<Ruin>();
 			battles = new StrictArray<BattleActor>();
+
+			fog = new Fog(this);
 			
 			System.out.println("initializing factions");
 			initializeFactions(this);
@@ -256,6 +272,17 @@ public class Kingdom extends Group {
 		}
 	}
 	
+	public boolean centerContainsDestination(Center center, Destination army) {
+		// checks if in connected (all connected have polygon)
+		if (center.polygon != null) {
+			Polygon p = center.polygon;
+			if (p.contains(army.getCenterX(), army.getCenterY())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	// just check adjacent centers!
 	public void updateArmyPolygon(Army army) {
 		if (army.isGarrison) return;
@@ -271,32 +298,35 @@ public class Kingdom extends Group {
 			army.getContaining().armies.removeValue(army, true);
 
 			for (Center adjacent : army.getContaining().neighbors) {
-				// checks if in connected (all connected have polygon)
-				if (adjacent.polygon != null) {
-					Polygon p = adjacent.polygon;
-					if (p.contains(army.getCenterX(), army.getCenterY())) {
-						adjacent.armies.add(army);
-						army.containingCenter = adjacent.index;
-						return;
-					}
+				if (centerContainsDestination(adjacent, army)) {
+					updateContainingCenter(army, adjacent);
 				}
 			}
 			army.containingCenter = -1;
 			//			System.out.println("nothing adjacent found for " + army.getName());
 		}
+		
 		// container is null (slow during initialization stages - plan is to initialize armies with accurate center)
 		for (Center center : map.connected) {
 			if (center.water) continue;
 			Polygon p = center.polygon;
 			if (p.contains(army.getCenterX(), army.getCenterY())) {
-				center.armies.add(army);
-				army.containingCenter = center.index;
+				updateContainingCenter(army, center);
 				//						System.out.println("completely differnt polygon");
 				return;
 			}
 		}
 	}
 
+	public void updateContainingCenter(Army army, Center center) {
+		center.armies.add(army);
+		army.containingCenter = center.index;
+		if (army.isPlayer()) {
+			System.out.println("ARMY PLAYER");
+			fog.playerIn(center);
+		}
+	}
+	
 	// update time
 	public void time(float delta) {
 		clock += delta;
@@ -388,9 +418,7 @@ public class Kingdom extends Group {
 			System.out.println("bandits: " + banditCount);
 			System.out.println();
 		}
-		
-		
-		
+
 		// increase village wealth
 		for (Village v : villages) {
 			v.dailyWealthIncrease();
@@ -467,7 +495,7 @@ public class Kingdom extends Group {
 			
 			
 			if (d.getType() == Destination.DestType.POINT) {
-				getMapScreen().getSidePanel().setActiveArmy(player);
+				getMapScreen().getSidePanel().setDefault(false);
 			}
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}
@@ -500,6 +528,7 @@ public class Kingdom extends Group {
 			Center containing = null;
 			Point testPoint = (Point) d;
 			for (Center center : map.connected) {
+			    if (!center.discovered && mapScreen.fogOn) continue;
 				Polygon p = center.polygon;
 				if (p.contains(testPoint.getCenterX(), testPoint.getCenterY())) {
 					containing = center;
@@ -508,7 +537,7 @@ public class Kingdom extends Group {
 			}
 			if (containing != null) {
 				getMapScreen().getSidePanel().setActiveCenter(containing);
-				mapScreen.getSidePanel().setHardStay(true);
+				mapScreen.getSidePanel().setHardStay(false);
 			}
 			else {
 				// just for fun, do water as well
@@ -559,19 +588,24 @@ public class Kingdom extends Group {
 	private Destination getDestAt(Point mouse) {
 		Destination dest = new Point(mouse.getCenterX(), mouse.getCenterY());
 		for (City city : cities) {
+		    if (getMapScreen().fogOn && !city.isDiscovered()) continue;
 			if (Kingdom.distBetween(city, mouse) <= MOUSE_DISTANCE * city.getSizeFactor() * 2 * getZoom())
 				dest = city;
 		}
 		for (Village village : villages) {
-			if (Kingdom.distBetween(village, mouse) <= MOUSE_DISTANCE  * village.getSizeFactor() * 1 * this.getZoom())
+            if (getMapScreen().fogOn && !village.isDiscovered()) continue;
+            if (Kingdom.distBetween(village, mouse) <= MOUSE_DISTANCE  * village.getSizeFactor() * 1 * this.getZoom())
 				dest = village;
 		}
 		for (Castle castle : castles) {
-			if (Kingdom.distBetween(castle, mouse) <= MOUSE_DISTANCE)
-				dest = castle;
+            if (getMapScreen().fogOn && !castle.isDiscovered()) continue;
+            if (Kingdom.distBetween(castle, mouse) <= MOUSE_DISTANCE) {
+                dest = castle;
+            }
 		}
 		for (Ruin ruin : ruins) {
-			if (Kingdom.distBetween(ruin, mouse) <= MOUSE_DISTANCE)
+            if (getMapScreen().fogOn && !ruin.isDiscovered()) continue;
+            if (Kingdom.distBetween(ruin, mouse) <= MOUSE_DISTANCE)
 				dest = ruin;
 		}
 		for (Army army : armies) {
@@ -584,10 +618,11 @@ public class Kingdom extends Group {
 					dest = army;
 		}
 		for (BattleActor battle : battles) {
-			if (Kingdom.distBetween(battle, mouse) <= MOUSE_DISTANCE) {
+			if (battle.isVisible() && Kingdom.distBetween(battle, mouse) <= MOUSE_DISTANCE) {
 				dest = battle;
 			}
 		}
+
 		return dest;
 	}
 
@@ -638,14 +673,13 @@ public class Kingdom extends Group {
 
 		// add player faction (index 0) 
 		
-		Faction.BANDITS_FACTION = new Faction(this, "Bandit", Crest.BANDIT_CREST);
-		Faction.ROGUE_FACTION = new Faction(this,"Rogue", Crest.ROGUE_CREST);
+		Faction.BANDITS_FACTION = new Faction(this, "Bandit", Crest.BANDIT_CREST, Color.BLACK);
+		Faction.ROGUE_FACTION = new Faction(this,"Rogue", Crest.ROGUE_CREST, Color.BLACK);
 		
 		addFaction(Faction.ROGUE_FACTION);
 		// add bandits faction (index 1)
 		addFaction(Faction.BANDITS_FACTION);	
 
-		int FACTION_COUNT = 13;
 		for (int i = 0; i < FACTION_COUNT; i++) {
 			createFaction();
 		}
@@ -666,7 +700,7 @@ public class Kingdom extends Group {
 			factions.get(i).act(delta);
 	}
 	public void createFaction() {
-		Faction faction = new Faction(this, null, null);
+		Faction faction = new Faction(this);
 		factions.add(faction);
 		faction.index = factions.indexOf(faction, true);
 	}
@@ -714,8 +748,8 @@ public class Kingdom extends Group {
 		getMap().calcBorderEdges();
 		for (Faction f : factions) {
 			f.territory.clear();
-			StrictArray<StrictArray<Center>> aaCenters = MapUtils.calcConnectedCenters(f.centers);				
-			for (StrictArray<Center> centers : aaCenters) {
+			connectedCenters = MapUtils.calcConnectedCenters(f.centers);
+			for (StrictArray<Center> centers : connectedCenters) {
 				//				System.out.println("working");
 				
 				f.territory.add(MapUtils.centersToPolygon(centers));
@@ -735,26 +769,41 @@ public class Kingdom extends Group {
 	 */
 	private void calcInfluence(Center center) {
 		Point centerPoint = new Point(center.loc.x, Map.HEIGHT - center.loc.y);
+		if (center.water) return;
+
 		Faction bestFaction = null;
 		double minDist = Double.POSITIVE_INFINITY;
+
+		// Actually, have a minimum distance of influence.
+        minDist = 500f;
+
+        System.out.println("center: " + centerPoint.toString());
+
+        // TODO even with fast mode, this is one of the slowest parts of the pipeline
+        boolean FAST_MODE = true;
 
 		// go through factions and calc influence, saving it if it's the highest
 		for (Faction faction : factions) {
 			double dist; // score is inverse of city distance (birds eye, but should be path-based)
 
 			for (City city : faction.cities) {
-//				dist = pathDistBetween(city, centerPoint);
-				dist = distBetween(city, centerPoint);
-				if (dist < minDist) {
+			    if (FAST_MODE)
+    				dist = distBetween(city, centerPoint);
+			    else
+                    dist = pathDistBetween(city, centerPoint);
+
+                if (dist < minDist) {
 					minDist = dist;
 					bestFaction = faction;
 				}
 			}
 			for (Castle castle : faction.castles) {
 				// path dist between is pretty slow rn
-//				dist = pathDistBetween(castle, centerPoint);
-				dist = distBetween(castle, centerPoint);
-				if (dist < minDist) {
+				if (FAST_MODE)
+    				dist = distBetween(castle, centerPoint);
+                else
+                    dist = pathDistBetween(castle, centerPoint);
+                if (dist < minDist) {
 					minDist = dist;
 					bestFaction = faction;
 				}
@@ -794,14 +843,6 @@ public class Kingdom extends Group {
 		return faction1.calcRelations(faction2);
 		
 	}
-	
-	/** return whether or not these two factions are at war. 
-	 * note that the same faction can't be at war with itself.
-	 * @param faction1
-	 * @param faction2
-	 * @return
-	 */
-	
 	
 	
 //	public boolean isAtWar(Faction faction1, Faction faction2) {
@@ -932,7 +973,7 @@ public class Kingdom extends Group {
 		}
 		// make with center
 		else {
-			center = Kingdom.getRandom(map.cityCenters);
+			center = Kingdom.getRandomCenter(map.cityCenters);
 			x = (int) center.loc.x;
 			y = (int) center.loc.y;
 			map.cityCenters.remove(center);
@@ -974,7 +1015,7 @@ public class Kingdom extends Group {
 				break;
 			}
 			
-			double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, Map.HEIGHT-y));
+			double distance = pathDistBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, Map.HEIGHT-y));
 			if (distance < closestDistance) {
 				closestFaction = f;
 				closestDistance = distance;
@@ -983,12 +1024,7 @@ public class Kingdom extends Group {
 		
 		if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 		
-		city = new City(this, NameGenerator.generateCity(), -1, closestFaction, x, Map.HEIGHT-y);
-
-		if (center != null)
-			city.setCenter(center);
-		if (corner != null)
-			city.setCorner(corner);
+		city = new City(this, null, -1, closestFaction, x, Map.HEIGHT-y, center, corner);
 
 		addCity(city);
 		citiesLeft--;
@@ -1004,13 +1040,12 @@ public class Kingdom extends Group {
 	}
 	
 	public void initVillagesStep() {
-		Center center = getRandom(map.availableCenters);
+		Center center = getRandomCenter(map.availableCenters);
 		map.availableCenters.remove(center);
 
 		//			Village village = new Village(this, scanner.next(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), VILLAGE_START_WEALTH);			
-		Village village = new Village(this,  NameGenerator.generateVillage(), -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y));			
+		Village village = new Village(this,  null, -1, null, (float) center.loc.x, (float) (Map.HEIGHT-center.loc.y), center);
 		villages.add(village);
-		village.setCenter(center);
 //		village.center = center.index;
 		addActor(village);
 		villagesLeft--;
@@ -1044,19 +1079,21 @@ public class Kingdom extends Group {
 		for (Faction f : factions) {
 			if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
 			if (f == null) continue;
-			double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
+			double distance = this.pathDistBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
 			if (distance < closestDistance) {
 				closestFaction = f;
 				closestDistance = distance;
 			}	
 		}
 		
-		if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+		if (closestFaction == null) {
+		    System.out.println("NULL CLOSEST FACTION");
+		    throw new AssertionError();
+        }
 		
-		Castle castle = new Castle(this, NameGenerator.generateCastle(), -1, closestFaction, x, y);			
+		Castle castle = new Castle(this, null, -1, closestFaction, x, y, null, corner);
 		castles.add(castle);
-		castle.setCorner(corner);
-		
+
 		addActor(castle);
 		castlesLeft--;
 	}
@@ -1094,10 +1131,9 @@ public class Kingdom extends Group {
 			
 			if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
 			
-			Ruin ruin = new Ruin(this, NameGenerator.generateRuins(), -1, x, y);			
+			Ruin ruin = new Ruin(this, null, -1, x, y, null, corner);
 			ruins.add(ruin);
-			ruin.setCorner(corner);
-			
+
 			addActor(ruin);
 			ruinsLeft--;
 		}
@@ -1137,7 +1173,9 @@ public class Kingdom extends Group {
 		
 		player = new ArmyPlayer(this, faction, pos_x, pos_y, 6);
 		player.containingCenter = center.index;
+		
 		addArmy(player);
+		fog.playerIn(center);
 		//		player.initializeBox(); // otherwise line of sight will be 0!
 		//getMapScreen().center(); doesn't do anything bc of auto resize
 		//player.getParty().wound(player.getParty().getHealthy().random());
@@ -1272,13 +1310,14 @@ public class Kingdom extends Group {
 	}
 	
 	public double pathDistBetween(Destination d1, Destination d2) {
-		System.out.println("path dist between");
+//		System.out.println("path dist between");
 		Path path = new Path(d1, this);
 		path.calcPathTo(d2, false);
 		double ret =  path.getRemainingDistance();
 //		if (ret == 0) System.out.println("RET IS 0 KiNGDOM");
 		return ret;
 	}
+
 	public static double distBetween(Destination d1, Destination d2) {
 		// TODO optimize by computing getCenter only once per
 		return Math.sqrt((d1.getCenterX()-d2.getCenterX())*(d1.getCenterX()-d2.getCenterX())+(d1.getCenterY()-d2.getCenterY())*(d1.getCenterY()-d2.getCenterY()));
@@ -1300,7 +1339,8 @@ public class Kingdom extends Group {
 		}
 		return null;
 	}
-	public static Center getRandom(HashSet<Center> myHashSet) {
+
+	public static Center getRandomCenter(HashSet<Center> myHashSet) {
 		int size = myHashSet.size();
 		int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
 		int i = 0;
@@ -1317,12 +1357,12 @@ public class Kingdom extends Group {
 //		System.out.println("Total soldiers " + getTotalSoldiers());
 //		Soldier champ = getSoldierWithMostKills();
 ////		if (champ.kills > 10) {
-//			System.out.println("Most kills: " + champ.getTypeName() + " (" + champ.party.getName() + ") with " + champ.kills + 
+//			System.out.println("Most kills: " + champ.getTypeName() + " (" + champ.playerPartyPanel.getName() + ") with " + champ.kills +
 //				" kills after " + champ.battlesWon + " wins, " + champ.battlesFled + " retreats out of " + champ.battlesSurvived + " total battles");
 //			System.out.println();
 ////		}
 //		Soldier champ2 = getSoldierWithMostCaptures();
-//			System.out.println("Most times captured: " + champ2.getTypeName() + " (" + champ2.party.getName() + ") with " + champ2.timesCaptured + 
+//			System.out.println("Most times captured: " + champ2.getTypeName() + " (" + champ2.playerPartyPanel.getName() + ") with " + champ2.timesCaptured +
 //				" times captured after " + champ2.battlesWon + " wins, " + champ2.battlesFled + " retreats out of " + champ2.battlesSurvived + " total battles");
 //			System.out.println();
 //	}

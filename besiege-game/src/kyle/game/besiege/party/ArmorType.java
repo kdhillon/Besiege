@@ -10,4 +10,5 @@ public class ArmorType {
 	public int defMod;
 	public int spdMod;
 	public boolean clothes;
+	public boolean naked;
 }

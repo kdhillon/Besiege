@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.geom.PointH;
+import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 import kyle.game.besiege.voronoi.Edge;
 
@@ -82,6 +83,15 @@ public class Path {
 	 * @return
 	 */
 	public boolean calcPathTo(Destination endDest, boolean player) {
+		// testing
+//		if (player) {
+//			 System.out.println("player in a*");
+//		}
+//		else {
+//			return false;
+//		}
+
+		
 //		System.out.println("calcpathto: " + endDest.getName());
 		if (lastAStarFail > 0 && !player) {
 			calcStraightPathTo(endDest);
@@ -98,7 +108,22 @@ public class Path {
 		endCorner.loc = new PointH(endDest.getCenterX(), Map.HEIGHT-endDest.getCenterY());
 		endCorner.init();
 		
-		Edge edgeBlock = map.openPath(startCorner, endCorner);
+		// VERY IMPORTANT
+		// need to add any adjacent "border" corners to the new corner's "Protrudes" list
+		// First step, find containing center
+//		Point point = new Point(startCorner.loc.x, startCorner.loc.y);
+//		for (Center center : map.vg.centers) { 
+//			if (map.kingdom.centerContainsDestination(center, point)) {
+//				for (Integer edgeIndex : center.adjEdges) {
+//					startCorner.protrudes.add(map.getEdge(edgeIndex));
+//					System.out.println("Adding protruding edge to start corner");
+//				}
+//				break;
+//			}
+//		}
+	
+		
+		Edge edgeBlock = map.openPathInit(startCorner, endCorner);
 //		if (army.getParty().player) {
 //			if (map.isInWater(endDest))
 //				System.out.println("destination in water!!!");
@@ -107,6 +132,7 @@ public class Path {
 		// allow armies off island to travel directly to destination on island
 		// TODO Make armies off island head towards closest land
 		if (edgeBlock == null || map.isInWater(start)) {
+			
 //			if (army.getParty().player) {
 //				map.testIndex = 1;
 //				//				System.out.println("open path");
@@ -116,7 +142,9 @@ public class Path {
 		}
 		else if (pathExists(endDest.getCenterX(), endDest.getCenterY())) {
 			map.addCorner(endCorner);
-//			map.addCorner(startCorner);
+			
+			// This was the bug that was causing paths to not go through 
+			map.addCorner(startCorner);
 			map.calcVisible(startCorner);
 //			map.calcVisible(endCorner);
 			Stack<Destination> aStarStack = aStar(startCorner, endCorner, endDest);
@@ -151,8 +179,6 @@ public class Path {
 	// serious lag occurs when army calls this repeatedly.
 	// TODO remove news
 	public Stack<Destination> aStar(Corner start, Corner goal, Destination endDest) {
-//		if (army.getParty().player) System.out.println("player in a*");
-
 		PriorityQueue<SearchNode> pq;
 		ArrayList<Corner> notVisited = new ArrayList<Corner>(); // should visit all corners 
 		ArrayList<Corner> visited = new ArrayList<Corner>();
@@ -242,7 +268,7 @@ public class Path {
 		Army army = (Army) start;
 		// make sure only doing detectCollision when close to goal
 		if (nextGoal != null) {
-			army.setRotation(calcRotation());
+            army.setRotation(calcRotation());
 			
 			updatePosition();
 			army.updatePolygon();
@@ -290,7 +316,7 @@ public class Path {
 	public float calcRotation() {
 		toTarget.x = nextGoal.getCenterX()-start.getCenterX();
 		toTarget.y = nextGoal.getCenterY()-start.getCenterY();
-		return toTarget.angle();
+		return toTarget.angle() - 90;
 	}
 	public void updatePosition() {
 		Army army = (Army) start;

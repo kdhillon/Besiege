@@ -3,11 +3,11 @@
 //import kyle.game.besiege.Assets;
 //import kyle.game.besiege.battle.BattleMap.Ladder;
 //import kyle.game.besiege.panels.BottomPanel;
-//import kyle.game.besiege.party.Equipment;
-//import kyle.game.besiege.party.Party;
-//import kyle.game.besiege.party.RangedWeapon;
-//import kyle.game.besiege.party.Soldier;
-//import kyle.game.besiege.party.Weapon;
+//import kyle.game.besiege.playerPartyPanel.Equipment;
+//import kyle.game.besiege.playerPartyPanel.Party;
+//import kyle.game.besiege.playerPartyPanel.RangedWeapon;
+//import kyle.game.besiege.playerPartyPanel.Soldier;
+//import kyle.game.besiege.playerPartyPanel.Weapon;
 //
 //import com.badlogic.gdx.Gdx;
 //import com.badlogic.gdx.graphics.Color;
@@ -50,7 +50,7 @@
 //	public SiegeUnit attackingSiege;
 //
 //	public BattleParty bp;
-//	public Party party;
+//	public Party playerPartyPanel;
 //	public Soldier soldier;
 //	public Weapon weapon;
 //	public RangedWeapon rangedWeapon;
@@ -147,7 +147,7 @@
 //
 //		//		texture = new TextureRegion(new Texture("red.png"));
 //		this.bp = bp;
-//		this.party = soldier.party;
+//		this.playerPartyPanel = soldier.playerPartyPanel;
 //		this.team = team;
 //		if (this.team == 0) enemyParty = stage.enemies;
 //		else enemyParty = stage.allies;
@@ -654,7 +654,7 @@
 //	public boolean unitMovingOutOfWay() {
 //		UnitOld inWay = stage.units[this.getAdjacentPoint().pos_y][this.getAdjacentPoint().pos_x];
 //		if (inWay == null) return false;
-//		if (inWay.party != this.party) return false; // should attack if a foe
+//		if (inWay.playerPartyPanel != this.playerPartyPanel) return false; // should attack if a foe
 //		if (inWay.moveSmooth && inWay.orientation == this.orientation) {
 //
 //			//			System.out.println("unit moving out of way");
@@ -671,7 +671,7 @@
 //		// effectively wound soldier until after battle
 //		if (this.pos_x == 0 || this.pos_y == 0 || this.pos_x == stage.size_x-1 || this.pos_y == stage.size_y-1) {
 //			//			leaveField();
-//			soldier.party.wound(soldier);
+//			soldier.playerPartyPanel.wound(soldier);
 //			leaveBattle();
 //			//			System.out.println("Safe");
 //		}
@@ -1112,7 +1112,7 @@
 //			//			this.destroy();
 //			if (attacker != null) {
 //				if (attacker.attacking == this) attacker.attacking = null;
-//				// usually full level, but spread some out to party
+//				// usually full level, but spread some out to playerPartyPanel
 //				attacker.soldier.addExp(this.soldier.getExpForKill());;
 //			}
 //		}
@@ -1389,7 +1389,7 @@
 //		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 //
 //		//		System.out.println("DESTROYED");
-//		//party.casualty(soldier);
+//		//playerPartyPanel.casualty(soldier);
 //	}
 //
 //	// call this when a soldier retreats

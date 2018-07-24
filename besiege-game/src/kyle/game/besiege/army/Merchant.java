@@ -16,7 +16,6 @@ public class Merchant extends Army {
 	public static int MERCHANT_WAIT = 60;
 	public static double MERCHANT_WEALTH_FACTOR = .2f; // this is how much more wealth merchants have than regular armies
 //	private final double waitTime = 10;
-	private final String textureRegion = "Merchant";
 	public City goal;
 	
 	// if garrisoned not in goal, delete after this.
@@ -26,7 +25,7 @@ public class Merchant extends Army {
 	public Merchant() {}
 	
 	// think of a better merchant system.
-	// merchants shouldn't belong to a party?
+	// merchants shouldn't belong to a playerPartyPanel?
 	// should there be a "unaligned" faction for units that are independent?
 	//		merchants
 	//		bandits
@@ -44,8 +43,7 @@ public class Merchant extends Army {
 	
 	public Merchant(Kingdom kingdom,
 			City defaultTarget, City goal) {
-		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.MERCHANT);
-		this.setTextureRegion(textureRegion);
+		super(kingdom, "Merchant of " + defaultTarget.getName(), defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.MERCHANT, defaultTarget);
 		this.type = ArmyType.MERCHANT;
 		this.passive = true;
 		

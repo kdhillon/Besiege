@@ -30,8 +30,7 @@ public class Farmer extends Army {
 	
 	public Farmer(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
-		super(kingdom, name, faction, posX, posY, Type.FARMERS);
-		setTextureRegion(textureRegion);
+		super(kingdom, name, faction, posX, posY, Type.FARMERS, null);
 		crops = 0;
 //		this.shouldEject = false;
 		this.type = ArmyType.FARMER;

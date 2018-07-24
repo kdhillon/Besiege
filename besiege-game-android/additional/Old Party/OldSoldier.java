@@ -4,7 +4,7 @@ package kyle.game.besiege.party;
 // * by Kyle Dhillon
 // * Source Code available under a read-only license. Do not copy, modify, or distribute.
 // ******************************************************************************/
-//package kyle.game.besiege.party;
+//package kyle.game.besiege.playerPartyPanel;
 //
 //import kyle.game.besiege.army.Army;
 //import kyle.game.besiege.Kingdom;
@@ -34,7 +34,7 @@ package kyle.game.besiege.party;
 //
 //	private static final String VETERAN = ""; // "Veteran" or maybe invisible
 //
-//	public Party party;
+//	public Party playerPartyPanel;
 //
 //	public Soldier killedBy; // once killed
 //
@@ -72,7 +72,7 @@ package kyle.game.besiege.party;
 //
 //	public Soldier() {}
 //
-//	public Soldier(Weapon weapon, Party party) {
+//	public Soldier(Weapon weapon, Party playerPartyPanel) {
 //		this.weapon = weapon;
 //		this.rangedWeapon = Weapon.getRanged(weapon);
 //		this.equipment = Equipment.getBaseEquipment(weapon);
@@ -80,7 +80,7 @@ package kyle.game.besiege.party;
 //
 //		//		if (rangedWeapon != null) System.out.println(rangedWeapon.name);
 //
-//		this.party = party;
+//		this.playerPartyPanel = playerPartyPanel;
 //
 //		//		if (Math.random() > 0.5)
 //		//			getTier() = weapon.getTier();
@@ -150,12 +150,12 @@ package kyle.game.besiege.party;
 //	}
 //	
 //
-//	//	public Soldier(Array<Weapon> weapons, Party party) {
+//	//	public Soldier(Array<Weapon> weapons, Party playerPartyPanel) {
 //	//		this.weapon = weapons.random();
 //	//		this.rangedWeapon = Weapon.getRanged(weapon);
 //	//		this.equipment = Equipment.getBaseEquipment(weapon);
 //	//
-//	//		this.party = party;
+//	//		this.playerPartyPanel = playerPartyPanel;
 //	//		
 //	//		if (Math.random() > 0.5)
 //	//			getTier() = weapon.getTier();
@@ -244,7 +244,7 @@ package kyle.game.besiege.party;
 //		//		atk = baseAtk + bonusAtk;
 //		//		def = baseDef + bonusDef;
 //		//		spd = baseSpd + bonusSpd;
-//		if (party != null) party.calcStats();
+//		if (playerPartyPanel != null) playerPartyPanel.calcStats();
 //	}
 //
 //	public void addExp(int additional) {
@@ -272,7 +272,7 @@ package kyle.game.besiege.party;
 //
 //		if (level >= nextUpgrade) {
 //			if (this.getTier() % 2 != 0) {
-//				if (party.player)
+//				if (playerPartyPanel.player)
 //					BottomPanel.log(this.getName() + " ready for upgrade!", "green");
 //				canUpgrade = true;
 //			}
@@ -287,14 +287,14 @@ package kyle.game.besiege.party;
 //		if (upgrade != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.getTier()];
 //		else cost = 0;
 //
-//		if (party.player && party.army != null) cost *= party.army.getCharacter().getAttributeFactor("Bargaining");
-//		if (!(party.wealth - cost >= party.minWealth) && cost != 0) {
-//			if (party.player)
+//		if (playerPartyPanel.player && playerPartyPanel.army != null) cost *= playerPartyPanel.army.getCharacter().getAttributeFactor("Bargaining");
+//		if (!(playerPartyPanel.wealth - cost >= playerPartyPanel.minWealth) && cost != 0) {
+//			if (playerPartyPanel.player)
 //				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.getName());
 //			return false;
 //		}
 //		else {
-//			party.wealth -= cost;
+//			playerPartyPanel.wealth -= cost;
 //
 //			if (upgrade != null) {// only if not upgrading to veteran
 //				this.weapon = upgrade;
@@ -329,13 +329,13 @@ package kyle.game.besiege.party;
 //	}
 //
 //	public boolean isHealed() {
-//		if (party.army.getKingdom().clock - timeWounded >= healTime)
+//		if (playerPartyPanel.army.getKingdom().clock - timeWounded >= healTime)
 //			return true;
 //		return false;
 //	}
 //	public void wound() {
 //		wounded = true;
-//		timeWounded = party.army.getKingdom().clock; // seconds elapsed when wounded
+//		timeWounded = playerPartyPanel.army.getKingdom().clock; // seconds elapsed when wounded
 //	}
 //	public void heal() {
 //		wounded = false;

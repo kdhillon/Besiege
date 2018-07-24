@@ -51,7 +51,12 @@ public class Point implements Destination {
 		return x + ", " + y;
 	}
 
-	@Override
+    @Override
+    public String toString() {
+        return x + ", " + y;
+    }
+
+    @Override
 	public Faction getFaction() {
 		return null;
 	}

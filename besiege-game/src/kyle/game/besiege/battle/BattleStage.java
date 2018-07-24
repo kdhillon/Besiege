@@ -30,8 +30,6 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Village;
-import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
@@ -62,7 +60,9 @@ public class BattleStage extends Group implements Battle {
 
 	public static int SIDE_PAD = 5;
 	public static int BOTTOM_PAD = 5;
-	public static int PLACE_HEIGHT = 15;
+
+	// TODO this should scale with party size.
+	public static int PLACE_HEIGHT = 20;
 
 	public static double RETREAT_TIME_BASE = 10; // have to wait 5 secs before can retreat
 	static final float RAIN_SLOW = .8f;
@@ -140,7 +140,8 @@ public class BattleStage extends Group implements Battle {
 	private boolean leftClicked;
 	private boolean rightClicked;
 	private Point mouse;
-	
+
+	private VictoryManager victoryManager;
 	
 	public boolean dragging;
 
@@ -160,6 +161,8 @@ public class BattleStage extends Group implements Battle {
 		this.allies.player = true;
 		this.enemies = new BattleParty(this, 1);
 		this.enemies.player = false;
+
+		this.victoryManager = new VictoryManager(this, siegeOf);
 		
 		if (allyArray != null) {
 			for (Party p : allyArray)
@@ -309,8 +312,8 @@ public class BattleStage extends Group implements Battle {
 		this.size_y = size; // square for now
 
 		// round to nearest number divisible by 8, for drawing purposes
-		this.size_x += (BattleMap.SIZE - this.size_x % BattleMap.SIZE);
-		this.size_y += (BattleMap.SIZE - this.size_y % BattleMap.SIZE);
+		this.size_x += (BattleMap.BLOCK_SIZE - this.size_x % BattleMap.BLOCK_SIZE);
+		this.size_y += (BattleMap.BLOCK_SIZE - this.size_y % BattleMap.BLOCK_SIZE);
 
 		closed = new boolean[size_y][size_x];
 		units = new Unit[size_y][size_x];
@@ -340,8 +343,10 @@ public class BattleStage extends Group implements Battle {
 			allies.setGlobalFormation(Formation.DEFENSIVE_LINE);
 		}
 		else {
-			enemies.setGlobalFormation(Formation.DEFENSIVE_LINE);
-			allies.setGlobalFormation(Formation.SQUARE);
+		    // Should randomize this
+            enemies.setGlobalFormation(enemies.subparties.first().availableFormations.random());
+//			enemies.setGlobalFormation(Formation.DEFENSIVE_LINE);
+//			allies.setGlobalFormation(Formation.SQUARE);
 		}
 
 		if (siege && playerDefending) allies.setGlobalFormation(Formation.WALL_LINE);
@@ -452,13 +457,8 @@ public class BattleStage extends Group implements Battle {
 
 	// for now, put them randomly on the field
 	public void addUnits() {
-		// because I was getting nested iterator error...
-		for (int i = 0; i < allies.subparties.size; i++) {
-			addSubparty(allies.subparties.get(i));
-		}
-		for (int i = 0; i < enemies.subparties.size; i++) {
-			addSubparty(enemies.subparties.get(i));
-		}
+        addAllSubparties(allies.subparties);
+        addAllSubparties(enemies.subparties);
 
 		if (siege) {
 			if (playerDefending) {
@@ -469,137 +469,462 @@ public class BattleStage extends Group implements Battle {
 			}
 		}
 	}
-	
-	// add on wall if there is a wall
-	// online alg, start in middle and move left/right
-	public void addSubparty(BattleSubParty bsp) {
-		Formation choice;
-		choice = bsp.formation;
-//		if (party.isPlayer()) {
-//			this.currentFormation = party.formation;
-//		}
 
-		int REINFORCEMENT_DIST = 5;
-		Stance partyStance;
-		partyStance = bsp.stance;
-		if (bsp.isPlayer()) {
-			REINFORCEMENT_DIST = -REINFORCEMENT_DIST;
-		}
+	// Start with a few hard coded values
+    // for example, deploy in rows of 3.
+    // Place the root (generals bodyguard) in the back middle
+	public void addAllSubparties(StrictArray<BattleSubParty> bspList) {
+	    // These keep track of how far left/right to place units.
+        // They correspond to the outer edges of the bsps that have been placed so far
+	    int spacesToLeftOfCenter = 0;
+        int spacesToRightOfCenter = 0;
 
-//		Array<Soldier> infantry = bsp.getHealthyInfantry();
-//		Array<Soldier> cavalry = bsp.getHealthyCavalry();
-//		Array<Soldier> archers = bsp.getHealthyArchers();
-		Soldier.SoldierType[][] formation = Formation.getFormation(bsp, choice, size_x, size_y);
-		if (!bsp.isPlayer()) formation = flipVertical(formation);
+        for (int i = 0; i < bspList.size; i++) {
+            BattleSubParty bsp = bspList.get(i);
+            Formation formationType = bsp.formation;
 
-		int region_height = formation.length;
-		int region_width = formation[0].length;
+            Soldier.SoldierType[][] formation = formationType.getFormation(bsp);
+            if (!bsp.isPlayer()) formation = flipVertical(formation);
 
-//		if (party.isPlayer()) {
-//			currentFormationHeight = region_height;
-//			currentFormationWidth = region_width;
-//		}
+            int region_width = formation[0].length;
+            int region_height = formation.length;
 
-		int base_x = placementPoint.pos_x - region_width;
-		int base_y = placementPoint.pos_y - region_height;
-		
-		int team = 0;
-		if (!bsp.isPlayer()) {
-			base_x = size_x/2 - region_width/2;
-			base_y = (MAX_PLACE_Y_2 - MIN_PLACE_Y_2)/2 + MIN_PLACE_Y_2;
-			team = 1;
+            int BSP_PER_ROW = 3;
+            // Assume the following for now:
+            //   9 7 6 8 10
+            //   4 2 1 3 5
+            // So start in bottom middle
+            int horizontal_position = i % BSP_PER_ROW;
+            int vertical_position = i / BSP_PER_ROW;    // 0 is bottom, 1 is first row, etc.
 
-			if (siege && battlemap.wallBottom > 0) {
-				base_y = battlemap.wallBottom + 1;
-			}
-		}
+            // Let's put everything 20 places apart for simplicity (max 20 units in subparty)
+            int FIXED_SPACING_X = 20;
 
-		if (bsp.currentPosX != 0 && bsp.currentPosY != 0) {
-			base_x = bsp.currentPosX;
-			base_y = bsp.currentPosY;
-		}
-		
-		boolean canPlaceHere = false;
-		int tries = 0;
-		
-		// simplify this to only use bounding boxes.
-		// if won't fit, gently nudge over to the right.
-		while (!canPlaceHere) {
-			tries++;
-			if (tries > 10000) {
-//				throw new java.lang.AssertionError();
-				break;
-			}
-			canPlaceHere = true;
-			
-			for (int i = 0; i < region_height; i++) {
-				for (int j = 0; j < region_width; j++) {
-					if (formation[i][j] == null) continue;
-					if (i + base_y < 0 || j + base_x >= size_x - 1) continue;
-					// change to handle rocks, trees, beach... 
-					if (units[i+base_y][j+base_x] != null || (!canPlaceUnitPlacement(j+base_x, i+base_y, team) && !canPlaceUnitPlacement(j+base_x, i+base_y+REINFORCEMENT_DIST, team))) {
-						canPlaceHere = false;
-						
-						base_x += (int) (Math.random() * 10);
-						if (base_x >= this.MAX_PLACE_X - region_width) {
-							base_x = (int) (Math.random() * 20);
-							base_y += (int) (Math.random() * 5);
-						}
-						
-						if (bsp.isPlayer() && base_y >= this.MAX_PLACE_Y_1 - region_height) {
-							base_y = this.MIN_PLACE_Y_1;
-						}
-						else if (!bsp.isPlayer() && base_y >= this.MIN_PLACE_Y_2 - region_height) {
-							base_y = (int) (this.MAX_PLACE_Y_2);
-							System.out.println("base y: " + base_y);
-						}
-						break;
-					}
-				}
-				if (!canPlaceHere) {
-					System.out.println("cant place yo");
-					break;
-				}
-			}
-		}
+            // We need to put everything above a certain distance from the bottom (to account for bsp height)
+            int FIXED_SPACING_Y = 6;
 
-		for (int i = 0; i < region_height; i++) {
-			for (int j = 0; j < region_width; j++) {
-				if (formation[i][j] != null) {
-					Unit toAdd;
-					if (formation[i][j] == Soldier.SoldierType.INFANTRY && bsp.infantry.size > 0) toAdd = bsp.infantry.pop();
-					else if (formation[i][j] == Soldier.SoldierType.ARCHER && bsp.archers.size > 0) toAdd = bsp.archers.pop();
-					else if (formation[i][j] == Soldier.SoldierType.CAVALRY && bsp.cavalry.size > 0) toAdd = bsp.cavalry.pop();
-					else {
-						toAdd = bsp.general;
-					}
-					
-					if (canPlaceUnit(base_x + j, base_y + i)) {
+            // Now place this where it belongs:
+            int base_x;
+            int base_y;
+
+            if (bsp.currentPosX != 0 && bsp.currentPosY != 0) {
+                base_x = bsp.currentPosX;
+                base_y = bsp.currentPosY;
+            } else { // not already on field
+                FIXED_SPACING_X = region_width + 1;
+
+                if (horizontal_position == 0) {
+                    spacesToRightOfCenter = FIXED_SPACING_X;
+                    spacesToLeftOfCenter = 0;
+                    base_x = size_x / 2;
+                }
+                // If even, subtract width so this party is far enough away
+                else if (horizontal_position % 2 == 0) {
+                    spacesToLeftOfCenter += FIXED_SPACING_X;
+                    base_x = size_x / 2 - spacesToLeftOfCenter;
+                }
+                // If odd, add this width for next party.
+                else {
+                    base_x = size_x / 2 + spacesToRightOfCenter;
+                    spacesToRightOfCenter += FIXED_SPACING_X;
+                }
+
+                // Calculate vertical position:
+                // TODO this may need some adjustment. The rest of this method works as intended.
+                if (bsp.isPlayer()) {
+                    base_y = (1+vertical_position) * FIXED_SPACING_Y + MIN_PLACE_Y_1 - region_height;
+                } else {
+                    // Vertical position should be inverse to height.
+                    base_y = (BSP_PER_ROW - 1 - vertical_position) * FIXED_SPACING_Y + MIN_PLACE_Y_2 - region_height;
+                }
+            }
+
+            // We push everything left at the end, because everything is offset towards the right
+            int FIXED_OFFSET_LEFT = 10;
+            base_x -= FIXED_OFFSET_LEFT;
+
+            // Adjust even sized parties even more to move them towards the middle
+//            if (bspList.size == 2) {
+//                base_x -= FIXED_OFFSET_LEFT;
+//            }
+
+            System.out.println("Adding at x: " + base_x);
+
+            addUnitsFromSubparty(bsp, base_x, base_y);
+
+            bsp.currentPosX = base_x;
+            bsp.currentPosY = base_y;
+            bsp.currentRegHeight = region_height;
+            bsp.currentRegWidth = region_width;
+
+            this.allies.updateHiddenAll();
+            this.enemies.updateHiddenAll();
+        }
+    }
+
+    public void addUnitsFromSubparty(BattleSubParty bsp, int base_x, int base_y) {
+        Formation formationType = bsp.formation;
+        Stance partyStance = bsp.stance;
+
+        Soldier.SoldierType[][] formation = formationType.getFormation(bsp);
+        if (!bsp.isPlayer()) formation = flipVertical(formation);
+
+        int region_height = formation.length;
+        int region_width = formation[0].length;
+
+        // This determines where the individual units will be placed
+        for (int i = 0; i < region_height; i++) {
+            for (int j = 0; j < region_width; j++) {
+                if (formation[i][j] != null) {
+                    Unit toAdd = null;
+                    boolean addGeneral = false;
+                    if (formation[i][j] == Soldier.SoldierType.INFANTRY && bsp.infantrySizeWithoutGeneral() > 0) toAdd = bsp.getInfantry().pop();
+                    else if (formation[i][j] == Soldier.SoldierType.ARCHER && bsp.archersSizeWithoutGeneral() > 0) toAdd = bsp.getArchers().pop();
+                    else if (formation[i][j] == Soldier.SoldierType.CAVALRY && bsp.cavalrySizeWithoutGeneral() > 0) toAdd = bsp.getCavalry().pop();
+                    else if (formation[i][j] == Soldier.SoldierType.GENERAL){
+                        if (bsp.general == null) throw new AssertionError();
+                        addGeneral = true;
+                        toAdd = bsp.general;
+                    }
+                    if (toAdd == null) continue;
+
+                    // Don't add general yet.
+                    if (toAdd.isGeneral() && !addGeneral) continue;
+
+                    if (canPlaceUnit(base_x + j, base_y + i)) {
 //						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, bsp);
-						toAdd.setStance( partyStance);
-						if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
-						addUnitToField(toAdd, base_x + j, base_y + i);
-					}
-					else if (canPlaceUnit(base_x + j, base_y + i + REINFORCEMENT_DIST)) {
-//						Unit unit = new Unit(this, base_x + j, base_y + i + REINFORCEMENT_DIST, team, toAdd, bsp);
-						toAdd.setStance( partyStance);
-						if (bsp .isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
-						addUnitToField(toAdd, base_x + j, base_y + i + REINFORCEMENT_DIST);
-					}
-				}
-			}
-		}
-//		System.out.println("Base x: " + base_x + " Base y: " + base_y);
-		
-		bsp.currentPosX = base_x;
-		bsp.currentPosY = base_y;
-		bsp.currentRegHeight = region_height;
-		bsp.currentRegWidth = region_width;
-		
-		this.allies.updateHiddenAll();
-		this.enemies.updateHiddenAll();
-	}
-	
+                        toAdd.setStance( partyStance);
+                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                        addUnitToField(toAdd, base_x + j, base_y + i);
+                    }
+                    else {
+                        boolean unitPlaced = false;
+                        if (bsp.isPlayer()) {
+                            // Try placing behind party
+                            for (int k = base_y + i; k >= this.MIN_PLACE_Y_1; k--) {
+                                if (canPlaceUnit(base_x + j, k)) {
+                                    toAdd.setStance(partyStance);
+                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                    addUnitToField(toAdd, base_x + j, k);
+                                    unitPlaced = true;
+                                    break;
+                                }
+                            }
+                            // Now try placing in front of party
+                            if (!unitPlaced) {
+                                for (int k = base_y + i; k <= this.MAX_PLACE_Y_1; k++) {
+                                    if (canPlaceUnit(base_x + j, k)) {
+                                        toAdd.setStance(partyStance);
+                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                        addUnitToField(toAdd, base_x + j, k);
+                                        unitPlaced = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            for (int k = base_y + i; k <= this.MAX_PLACE_Y_2; k++) {
+                                if (canPlaceUnit(base_x + j, k)) {
+                                    toAdd.setStance( partyStance);
+                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                    addUnitToField(toAdd, base_x + j, k);
+                                    unitPlaced = true;
+                                    break;
+                                }
+                            }
+                            // Now try placing in front of party
+                            if (!unitPlaced) {
+                                for (int k = base_y + i; k >= this.MIN_PLACE_Y_2; k--) {
+                                    if (canPlaceUnit(base_x + j, k)) {
+                                        toAdd.setStance(partyStance);
+                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                        addUnitToField(toAdd, base_x + j, k);
+                                        unitPlaced = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (!unitPlaced) {
+                            System.out.println("NO VALID LOCATIONS, UNIT NOT PLACED");
+                        }
+                    }
+                }
+            }
+        }
+
+        bsp.currentPosX = base_x;
+        bsp.currentPosY = base_y;
+        bsp.currentRegHeight = region_height;
+        bsp.currentRegWidth = region_width;
+    }
+
+//	// add on wall if there is a wall
+//	// online alg, start in middle and move
+//    // left/right
+//	public void addSubparty(BattleSubParty bsp, int index) {
+//		Formation choice;
+//		choice = bsp.formation;
+////		if (playerPartyPanel.isPlayer()) {
+////			this.currentFormation = playerPartyPanel.formation;
+////		}
+//
+//		int REINFORCEMENT_DIST = 5;
+//		REINFORCEMENT_DIST = 0;
+//		Stance partyStance;
+//		partyStance = bsp.stance;
+//		if (bsp.isPlayer()) {
+//			REINFORCEMENT_DIST = -REINFORCEMENT_DIST;
+//		}
+//
+////		Array<Soldier> infantry = bsp.getHealthyInfantry();
+////		Array<Soldier> cavalry = bsp.getHealthyCavalry();
+////		Array<Soldier> archers = bsp.getHealthyArchers();
+//		Soldier.SoldierType[][] formation = choice.getFormation(bsp);
+//		if (!bsp.isPlayer()) formation = flipVertical(formation);
+//
+//		int region_height = formation.length;
+//		int region_width = formation[0].length;
+//
+////		if (playerPartyPanel.isPlayer()) {
+////			currentFormationHeight = region_height;
+////			currentFormationWidth = region_width;
+////		}
+//
+//		int base_x = placementPoint.pos_x - region_width;
+//        int base_y = placementPoint.pos_y - region_height;
+//
+//		int team = 0;
+//		if (!bsp.isPlayer()) {
+//			base_x = size_x/2 - region_width/2;
+//			base_y = (MAX_PLACE_Y_2 - MIN_PLACE_Y_2)/2 + MIN_PLACE_Y_2;
+//			team = 1;
+//
+//			if (siege && battlemap.wallBottom > 0) {
+//				base_y = battlemap.wallBottom + 1;
+//			}
+//		}
+//
+//		boolean alreadyOnField = false;
+//		if (bsp.currentPosX != 0 && bsp.currentPosY != 0) {
+//			base_x = bsp.currentPosX;
+//			base_y = bsp.currentPosY;
+//			alreadyOnField = true;
+//		}
+//
+//		boolean canPlaceHere = false;
+//		int tries = 0;
+//
+//		// simplify this to only use bounding boxes.
+//		// if won't fit, gently nudge over to the right.
+//		while (!canPlaceHere) {
+//			tries++;
+//			if (tries > 100) {
+////				throw new java.lang.AssertionError();
+//				break;
+//			}
+//			canPlaceHere = true;
+//
+//			// This determines where the subparty rectangle will be placed
+//            // This is currently biased towards the center of the map?
+//            // Idk but it's pretty messed up.
+//            // Could be the part below.
+//            // Let's try with 20 soldiers
+//            // All parties are being placed at the same location.
+//
+//            // Basically, before we were simply nudging the party over to the right when it wouldn't fit.
+//            // Now, we have an algo that ensures that it'll fit no matter where you place it.
+//            // Good solution:
+//            //   pre-calculate the width of all subparties
+//            //   place "root" subparty at the middle of the map
+//            //   place other parties around it, at a small distance away from the center one and others.
+//
+//            // Count even/odd. Even goes on left, odd on right. Let's try that.
+//
+//            // Don't do this if the user is controlling!
+//            if (!alreadyOnField) {
+//                int totalSquaresLeft = 0;
+//                int totalSquaresRight = 0;
+//                boolean odd = (index % 2 != 0);
+//                odd = false;
+//                int totalSubCount = 0;
+//
+//                int firstPartyLocation = 0;
+//                int firstPartySize = 0;
+//
+//                // Do some simple math here. don't be dumb.
+//
+//                // Calculate where to place it this party.
+//
+//                // Try a simpler way, place all parties at once?
+//
+//                for (BattleSubParty other : bsp.parent.subparties) {
+//                    if (other.currentPosX != 0 || other.currentPosY != 0) {
+//                        totalSubCount++;
+//                        // Add first party as a special count added later
+//                        if (totalSubCount == 1) {
+//                            firstPartyLocation = region_width / 2;
+//                            firstPartySize = other.formation.getFormation(other)[0].length;
+//                        }
+//                        else if (odd) totalSquaresRight += other.formation.getFormation(other)[0].length;
+//                        else totalSquaresLeft += other.formation.getFormation(other)[0].length;
+//                        odd = !odd;
+//                        System.out.println("totalsquaresleft: " + totalSquaresLeft);
+//                        System.out.println("totalsquaresright: " + totalSquaresRight);
+//                    }
+//                }
+//                // This is true if the party is the center party.
+////                if (totalSubCount == 0) {
+////                    // do nothing. place in the middle
+////                    System.out.println("totalsubcount is 0");
+////                }
+//                // If odd is true, it means we should place this on the right side of troops
+//                int center_x = base_x + firstPartyLocation;
+//                if (odd) {
+//                    // Adjust y position as necessary
+//                    if (center_x + totalSquaresRight + firstPartySize/2 + formation[0].length > region_width) {
+//
+//                    }
+//                    base_x = center_x + totalSquaresRight + firstPartySize/2;
+//                    // Just need a way to handle placing parties that extend outside of the placeable region
+//                    // should just move behind/in front.
+////
+//                    System.out.println("placing: odd (right) " + base_x);
+//                } else {
+//                    base_x = center_x - (int) (firstPartySize*1.5f) - totalSquaresLeft;
+//                    System.out.println("placing: even (left) " + base_x);
+//                }
+//            }
+//
+//            int start_x = -1;
+//            int start_y = -1;
+//            if (!bsp.isPlayer()) {
+//                start_x = region_width;
+//                start_y = region_height;
+//            }
+//
+//            for (int i = start_y; i < region_height && i >= 0; ) {
+//                if (bsp.isPlayer()) i++;
+//                else i--;
+//                for (int j = start_x; j < region_width && j >= 0;) {
+//                    if (bsp.isPlayer()) j++;
+//                    else j--;
+//
+//                    if (formation[i][j] == null) continue;
+//                    if (i + base_y < 0 || j + base_x >= size_x - 1) continue;
+//                    // change to handle rocks, trees, beach...
+//                    if (units[i + base_y][j + base_x] != null || (!canPlaceUnitPlacement(j + base_x, i + base_y, team) && !canPlaceUnitPlacement(j + base_x, i + base_y + REINFORCEMENT_DIST, team))) {
+//                        canPlaceHere = false;
+//
+//                        base_x += (int) (Math.random() * 10);
+//                        if (base_x >= this.MAX_PLACE_X - region_width) {
+//                            base_x = (int) (Math.random() * 20);
+//                            base_y += (int) (Math.random() * 5);
+//                        }
+//
+//                        if (bsp.isPlayer() && base_y >= this.MAX_PLACE_Y_1 - region_height) {
+//                            base_y = this.MIN_PLACE_Y_1;
+//                        } else if (!bsp.isPlayer() && base_y >= this.MIN_PLACE_Y_2 - region_height) {
+//                            base_y = (int) (this.MAX_PLACE_Y_2);
+////							System.out.println("base y: " + base_y);
+//                        }
+//                        break;
+//                    }
+//                }
+//                if (!canPlaceHere) {
+////					System.out.println("cant place yo");
+//                    break;
+//                }
+//            }
+//		}
+//
+//
+//		// This determines where the individual units will be placed
+//		for (int i = 0; i < region_height; i++) {
+//			for (int j = 0; j < region_width; j++) {
+//				if (formation[i][j] != null) {
+//					Unit toAdd;
+//					if (formation[i][j] == Soldier.SoldierType.INFANTRY && bsp.infantry.size > 0) toAdd = bsp.infantry.pop();
+//					else if (formation[i][j] == Soldier.SoldierType.ARCHER && bsp.archers.size > 0) toAdd = bsp.archers.pop();
+//					else if (formation[i][j] == Soldier.SoldierType.CAVALRY && bsp.cavalry.size > 0) toAdd = bsp.cavalry.pop();
+//					else {
+//						toAdd = bsp.general;
+//					}
+//
+//					if (canPlaceUnit(base_x + j, base_y + i)) {
+////						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, bsp);
+//						toAdd.setStance( partyStance);
+//						if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//						addUnitToField(toAdd, base_x + j, base_y + i);
+//					}
+//					else {
+//					    boolean unitPlaced = false;
+//                        if (bsp.isPlayer()) {
+//                            // Try placing behind party
+//                            System.out.println("k: " + (base_y + i - REINFORCEMENT_DIST) + " MAX: " + this.MAX_PLACE_Y_1);
+//                            for (int k = base_y + i - REINFORCEMENT_DIST; k >= this.MIN_PLACE_Y_1; k--) {
+//                                if (canPlaceUnit(base_x + j, k)) {
+//                                    toAdd.setStance(partyStance);
+//                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                    addUnitToField(toAdd, base_x + j, k);
+//                                    unitPlaced = true;
+//                                    break;
+//                                }
+//                            }
+//                            // Now try placing in front of party
+//                            if (!unitPlaced) {
+//                                for (int k = base_y + i + REINFORCEMENT_DIST; k <= this.MAX_PLACE_Y_1; k++) {
+//                                    if (canPlaceUnit(base_x + j, k)) {
+//                                        toAdd.setStance(partyStance);
+//                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                        addUnitToField(toAdd, base_x + j, k);
+//                                        unitPlaced = true;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        } else {
+//                            System.out.println("k: " + (base_y + i + REINFORCEMENT_DIST) + " MAX: " + this.MAX_PLACE_Y_2);
+//                            for (int k = base_y + i + REINFORCEMENT_DIST; k <= this.MAX_PLACE_Y_2; k++) {
+//                                if (canPlaceUnit(base_x + j, k)) {
+//                                    toAdd.setStance( partyStance);
+//                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                    addUnitToField(toAdd, base_x + j, k);
+//                                    unitPlaced = true;
+//                                    break;
+//                                }
+//                            }
+//                            // Now try placing in front of party
+//                            if (!unitPlaced) {
+//                                for (int k = base_y + i - REINFORCEMENT_DIST; k >= this.MIN_PLACE_Y_2; k--) {
+//                                    if (canPlaceUnit(base_x + j, k)) {
+//                                        toAdd.setStance(partyStance);
+//                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                        addUnitToField(toAdd, base_x + j, k);
+//                                        unitPlaced = true;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        if (!unitPlaced) {
+//                            System.out.println("NO VALID LOCATIONS, UNIT NOT PLACED");
+//                        }
+//                    }
+//				}
+//			}
+//		}
+////		System.out.println("Base x: " + base_x + " Base y: " + base_y);
+//
+//		bsp.currentPosX = base_x;
+//		bsp.currentPosY = base_y;
+//		bsp.currentRegHeight = region_height;
+//		bsp.currentRegWidth = region_width;
+//
+//		this.allies.updateHiddenAll();
+//		this.enemies.updateHiddenAll();
+//	}
+
 
 	public void addUnitToField(Unit unit, int x, int y) {
 		units[y][x] = unit;
@@ -617,8 +942,8 @@ public class BattleStage extends Group implements Battle {
 			
 			// for some weird ass reason this doesn't work to clear the units[] array...
 //			System.out.println("u.pos_x: " + u.pos_x + " u.pos_y: " + u.pos_y);
-			if (units[u.pos_y][u.pos_x] == null) System.out.println("unit is null");
-			units[u.pos_y][u.pos_x] = null;
+			if (u.inMap() && units[u.pos_y][u.pos_x] == null) System.out.println("unit is null");
+			if (u.inMap()) units[u.pos_y][u.pos_x] = null;
 		}
 		
 		// so we still have to do this full clear shit until the above bug is fixed
@@ -1002,8 +1327,8 @@ public class BattleStage extends Group implements Battle {
 	//		if (unit.team == 1) enemies.addUnit(unit);
 	//	}
 
-	// TODO don't have this be separate from the other victory.
 	public void victory(Army winner, Army loser) {
+
 		System.out.println("Battle over!");
 		if (winner != kingdom.getPlayer() && loser != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
 
@@ -1019,6 +1344,7 @@ public class BattleStage extends Group implements Battle {
 			if (playerDefending) didAtkWin = true;
 			else didAtkWin = false;
 		}
+        victoryManager.handleVictory(didAtkWin);
 
 //		this.battle.didAtkWin = didAtkWin;
 
@@ -1239,7 +1565,7 @@ public class BattleStage extends Group implements Battle {
 	}
 	
 	public boolean canPlaceUnitPlacement(int pos_x, int pos_y, int team) {
-		System.out.println("pos_x:" + pos_x + " pos_y: " + pos_y);
+//		System.out.println("pos_x:" + pos_x + " pos_y: " + pos_y);
 		if (!canPlaceUnit(pos_x, pos_y)) return false;
 //		if (pos_x < MIN_PLACE_X) return false;
 //		if (pos_x > MAX_PLACE_X) return false;

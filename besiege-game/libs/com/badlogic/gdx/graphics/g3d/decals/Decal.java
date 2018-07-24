@@ -34,7 +34,7 @@ public class Decal {
 	// 3(x,y,z) + 1(color) + 2(u,v)
 	/** Size of a decal vertex in floats */
 	private static final int VERTEX_SIZE = 3 + 1 + 2;
-	/** Size of the decal in floats. It takes a float[SIZE] to hold the decal. */
+	/** Size of the decal in floats. It takes a float[BLOCK_SIZE] to hold the decal. */
 	public static final int SIZE = 4 * VERTEX_SIZE;
 
 	/** Temporary vector for various calculations. */

@@ -19,7 +19,6 @@ import kyle.game.besiege.party.PartyType.Type;
 public class Patrol extends Army {
  	private final static int PATROL_TRAVEL_FACTOR = 2;
 
-	private final String textureRegion = "KnightHorse";
 	public float patrolDist;
 	// frequency with which patrol will stay near base (0 to 1)
 	public double proximityToBase;
@@ -28,10 +27,9 @@ public class Patrol extends Army {
 	public Patrol() {}
 	
 	public Patrol(Kingdom kingdom, Location defaultTarget) {
-		super(kingdom, defaultTarget.getName() + " Patrol", defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.PATROL);
+		super(kingdom, defaultTarget.getName() + " Patrol", defaultTarget.getFaction(), defaultTarget.getCenterX(), defaultTarget.getCenterY(), Type.PATROL, defaultTarget);
 		this.setDefaultTarget(defaultTarget);
 		this.patrolAround = null;
-		setTextureRegion(textureRegion);
 		this.type = ArmyType.PATROL;
 		patrolDist = this.getLineOfSight()*PATROL_TRAVEL_FACTOR;
 		//System.out.println("Patrol dist is " + patrolDist);

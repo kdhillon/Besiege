@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
@@ -18,7 +19,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 
-import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
@@ -28,7 +28,7 @@ import kyle.game.besiege.Siege;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleActor;
-import kyle.game.besiege.battle.OldBattle;
+import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
@@ -38,6 +38,8 @@ import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Center;
+
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 public class Army extends Actor implements Destination {
 	private static final boolean OPTIMIZED_MODE = true;
@@ -53,22 +55,27 @@ public class Army extends Actor implements Destination {
 	private static final float COLLISION_FACTOR = 10; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
-	private static final float SIZE_FACTOR = .025f; // amount that party size detracts from total speed
+	private static final float SIZE_FACTOR = .025f; // amount that playerPartyPanel size detracts from total speed
 	private static final float BASE_LOS = 80;
 	private static final int MAX_STACK_SIZE = 10;
-	private static final float LOS_FACTOR = 1; // times troops in party
+	private static final float LOS_FACTOR = 1; // times troops in playerPartyPanel
 	private static final float momentumDecay = 6; // every N hours, momentum -= 1
 	private static final int offset = 30;
 	private static final String DEFAULT_TEXTURE = "Player";
-	private static final double REPAIR_FACTOR = .5; // if a party gets below this many troops it will go to repair itself.
+	private static final double REPAIR_FACTOR = .5; // if a playerPartyPanel gets below this many troops it will go to repair itself.
 	private static final float RUN_EVERY = .5f;
 	protected static final double WEALTH_FACTOR = 2;
 	private static final double ACTING_RANGE_FACTOR = 2; // times player LOS, units within this range will act. otherwise they won't
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
-	private boolean mouseOver;
+	private static float ANIMATION_LENGTH = 0.25f;
+
+    private boolean mouseOver;
 	public boolean passive; // passive if true (won't attack) aggressive if false;
-	
-	// for font rotation
+    float stateTime;
+
+    Animation walkArmor, walkSkin;
+
+    // for font rotation
 	private Matrix4 mx4Font = new Matrix4();
 	
 	protected int wealthFactor = 1; // set in children
@@ -85,6 +92,7 @@ public class Army extends Actor implements Destination {
 	private float lineOfSight;
 
 	private PartyType partyType;
+	public boolean player;
 	public Party party;
 
 	private int morale;
@@ -135,8 +143,8 @@ public class Army extends Actor implements Destination {
 	private boolean justLoaded;
 	
 	public Army() {
-//		this.party = PartyType.generateDefault(PartyType.Type.FARMERS);
-//		this.party.army = this;
+//		this.playerPartyPanel = PartyType.generateDefault(PartyType.Type.FARMERS);
+//		this.playerPartyPanel.army = this;
 		//for loading
 		// restore kingdom, texture region, 
 		// not sure if this will fix saving bug
@@ -144,17 +152,22 @@ public class Army extends Actor implements Destination {
 		this.justLoaded = true;
 	}
 	
-	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type) {
-		this(kingdom, name, faction, posX, posY, type, false);
+	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type, Location location) {
+		this(kingdom, name, faction, posX, posY, type, false, location);
 	}
 	
 	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type, boolean player) {
+		this(kingdom, name, faction, posX, posY, type, player, null);
+	}
+
+	public Army(Kingdom kingdom, String name, Faction faction, float posX, float posY, PartyType.Type type, boolean player, Location location) {
 		this.kingdom = kingdom;
 		this.name = name;
 		this.faction = faction;
 //		this.partyType = pt;
+		this.player = player;
 		
-//		else this.party = new Party();
+//		else this.playerPartyPanel = new Party();
 
 		this.stopped = true;
 		this.normalWaiting = false;
@@ -176,27 +189,37 @@ public class Army extends Actor implements Destination {
 		this.closeCenters = new Array<Integer>();
 
 		this.path = new Path(this, kingdom);
-		
+
+        restoreAnimation();
+	
 		this.setPosition(posX, posY);
-		this.setRotation(0);
+//		this.setRotation(90);
 		
 		kingdom.updateArmyPolygon(this);
-		
+
 		if (type != null) {
 			Center containing = kingdom.getMap().getCenter(containingCenter);
 			if (containing == null) {
 				containing = kingdom.getMap().reference;
-//				throw new java.lang.NullPointerException();
+//				 throw new java.lang.NullPointerException();
 			}
-			this.partyType = PartyType.generatePT(type, containing);
+			if (location != null) {
+				if (location.cultureType == null) {
+				    System.out.println(location.getName() + " hasn't had its biomes set " + (this.getName()));
+				    throw new AssertionError();
+                }
+                this.partyType = PartyType.generatePT(type, location);
+			} else {
+				// Initialize this playerPartyPanel with the location's garrison type.
+				this.partyType = PartyType.generatePT(type, containing);
+			}
 			generateParty(player);
-		}
-		else {
+		} else {
 			System.out.println("NULL TYPE!!!");
-		}
+			 throw new java.lang.NullPointerException();
+	}
 
 		if (party == null) throw new java.lang.NullPointerException();
-
 		
 		this.speedFactor = ORIGINAL_SPEED_FACTOR;
 		this.speed = calcSpeed();
@@ -208,10 +231,11 @@ public class Army extends Actor implements Destination {
 
 		this.toTarget = new Vector2();
 
-		setTextureRegion(DEFAULT_TEXTURE); // default texture
+//		setTextureRegion(DEFAULT_TEXTURE); // default texture
 
 		playerTouched = false;
-		
+		this.setVisible(false);
+
 		calcInitWealth();
 	}
 	// do this after added to kingdom
@@ -219,9 +243,10 @@ public class Army extends Actor implements Destination {
 	}
 	private void initializeBox() {
 		this.setScale(calcScale());
-		this.setWidth(region.getRegionWidth()*getScaleX());
-		this.setHeight(region.getRegionHeight()*getScaleY());
-		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
+
+//		this.setWidth(region.getRegionWidth()*getScaleX());
+//		this.setHeight(region.getRegionHeight()*getScaleY());
+		this.setOrigin(getWidth()/2, getHeight()/2);
 	}
 	
 	public void generateParty(boolean player) {
@@ -229,8 +254,20 @@ public class Army extends Actor implements Destination {
 		this.party.army = this;
 	}
 
+	protected void updateVisibility() {
+        if (losOn()) {
+            if (!withinLOSRange())
+                this.setVisible(false);
+            else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
+        }
+        else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
+    }
+
 	@Override
 	public void act(float delta) {
+        if (!isWaiting())
+            stateTime += delta;
+
 //		System.out.println(this.getName() + " is acting");
 		if (this.justLoaded) {
 			this.defaultTarget = this.faction.getRandomCity();
@@ -243,12 +280,7 @@ public class Army extends Actor implements Destination {
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
 		//		setLineOfSight();
 		// Player's Line of Sight:
-		if (losOn()) {
-			if (!withinLOSRange())
-				this.setVisible(false);
-			else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
-		}
-		else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
+		updateVisibility();
 
 		if (OPTIMIZED_MODE && !withinActingRange()) return;
 		
@@ -344,7 +376,7 @@ public class Army extends Actor implements Destination {
 		//			}
 		//			else if (isGarrisoned()) {
 		//
-		//				party.checkUpgrades();
+		//				playerPartyPanel.checkUpgrades();
 		//				// if garrisoned and waiting, wait
 		//				if (isWaiting()) {
 		//					//					System.out.println(this.getName() + " waiting " + this.waitUntil);
@@ -365,7 +397,7 @@ public class Army extends Actor implements Destination {
 		//		}
 		party.act(delta);
 		momentumDecay();
-		//party.distributeExp(60);
+		//playerPartyPanel.distributeExp(60);
 	}
 	
 	private boolean losOn() {
@@ -380,13 +412,11 @@ public class Army extends Actor implements Destination {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		if (this.getFaction() == null) {
-			System.out.println("no faction!");
 			return;
 		}
-		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), 1, 1, getRotation());
-		
-		// draw los
+        Unit.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
+
+        // draw los
 		drawLOS();
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
 	}
@@ -409,7 +439,6 @@ public class Army extends Actor implements Destination {
 		
 		if (zoom < .5) zoom = .5f;
 
-
 		batch.setColor(clear_white);
 		
 		mx4Font.idt();
@@ -417,11 +446,13 @@ public class Army extends Actor implements Destination {
 		mx4Font.trn(getCenterX(), getCenterY(), 0);
 		Matrix4 tempMatrix = batch.getTransformMatrix();
 		batch.setTransformMatrix(mx4Font);
-		
-		faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
-		faction.crest.setSize(30*zoom, 45*zoom);
+
+		if (faction.crest != null) {
+            faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
+            faction.crest.setSize(30*zoom, 30*zoom);
 //		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-		faction.crest.draw(batch, clear_white.a);
+            faction.crest.draw(batch, clear_white.a);
+        }
 		
 		batch.setTransformMatrix(tempMatrix);
 		batch.setColor(temp);
@@ -707,6 +738,7 @@ public class Army extends Actor implements Destination {
 		if (party.player) {
 			System.out.println("garrisoning player");
 			getKingdom().setPaused(true);
+			getKingdom().getMapScreen().getSidePanel().setActive(targetCity.panel);
 			this.setWaiting(false);
 		}
 		else if (type == ArmyType.MERCHANT && ((Merchant) this).goal == targetCity) waitFor(Merchant.MERCHANT_WAIT);
@@ -1107,28 +1139,23 @@ public class Army extends Actor implements Destination {
 		return speed;
 	}
 	public float calcSpeed() {
-		// make speed related to party's speed, morale, and army's unique speed factor, 
+		// make speed related to playerPartyPanel's speed, morale, and army's unique speed factor,
 		// simplified version for testing
-		//return (BASE_SPEED + party.getAvgSpd()*PARTY_SPEED_FACTOR)*speedFactor;
+		//return (BASE_SPEED + playerPartyPanel.getAvgSpd()*PARTY_SPEED_FACTOR)*speedFactor;
 		return (BASE_SPEED + morale/30 + party.getAvgSpd()*PARTY_SPEED_FACTOR - party.getTotalSize()*SIZE_FACTOR)*speedFactor;
 	}
-	public float getScale() {
-		return scale;
-	}
+
 	public float calcScale() {
-		return scale + scale*getTroopCount()/SCALE_FACTOR;
+		return (scale + scale*getTroopCount()/SCALE_FACTOR) * 20;
 	}
 	@Override
 	public void setScale(float scale) {
-		if (this.getTextureRegion() == null) {
-			this.setTextureRegion(textureName);
-			return;
-		}
-		
 		super.setScale(scale);
-		this.setWidth(region.getRegionWidth()*getScaleX());
-		this.setHeight(region.getRegionHeight()*getScaleY());
-		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionHeight()*getScaleY()/2);
+		setWidth(1);
+		setHeight(1);
+//		this.setWidth(region.getRegionWidth()*getScaleX());
+//		this.setHeight(region.getRegionHeight()*getScaleY());
+		this.setOrigin(getWidth()/2, getHeight()/2);
 	}
 	public void setMorale(int morale) {
 		this.morale = morale;
@@ -1141,8 +1168,9 @@ public class Army extends Actor implements Destination {
 		int base = 0;
 		int party_bonus = Math.min(25, 100 - getTroopCount());
 		party_bonus = 25;
-		int free_bonus = 25;
-		int momentum_bonus = Math.min(50, momentum);
+		int free_bonus = 25;		float ani = 0.25f;
+
+        int momentum_bonus = Math.min(50, momentum);
 		
 		return base + party_bonus + free_bonus + momentum_bonus;
 		// return (100 - getTroopCount())/4 + momentum;
@@ -1260,6 +1288,9 @@ public class Army extends Actor implements Destination {
 
 
 		boolean isInWater = getKingdom().getMap().isInWater(newTarget);
+		// Allow the player to travel to water (they will stop at the border).
+        // This prevents the player from clicking in the fog to figure out where water is
+        if (isPlayer()) isInWater = false;
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
 			if (this.target != newTarget && (this.lastPathCalc == 0 || this.isPlayer())) {
 
@@ -1390,7 +1421,7 @@ public class Army extends Actor implements Destination {
 	}
 	
 	public boolean isPlayer() {
-		return this.getParty().player;
+		return player;
 	}
 
 	//	@Override
@@ -1436,7 +1467,7 @@ public class Army extends Actor implements Destination {
 	public void setMouseOver(boolean mouseOver) {
 		if (this.mouseOver) {
 			if (!mouseOver)
-				getKingdom().getMapScreen().getSidePanel().returnToPrevious();
+				getKingdom().getMapScreen().getSidePanel().returnToPrevious(false);
 		}
 		else if (mouseOver)
 			getKingdom().getMapScreen().getSidePanel().setActiveArmy(this);
@@ -1461,14 +1492,15 @@ public class Army extends Actor implements Destination {
 	public Location getGarrisonedIn() {
 		return garrisonedIn;
 	}
-	public void setTextureRegion(String textureRegion) {
-		this.textureName = textureRegion;
-		this.region = Assets.atlas.findRegion(textureRegion);
-		this.initializeBox();
-	}
-	public TextureRegion getTextureRegion() {
-		return region;
-	}
+//	public void setTextureRegion(String textureRegion) {
+//		this.textureName = textureRegion;
+//		this.region = Assets.atlas.findRegion(textureRegion);
+//		this.initializeBox();
+//	}
+//
+//	public TextureRegion getTextureRegion() {
+//		return region;
+//	}
 	public float getCityCollisionDistance() {
 		return cityCollisionDistance;
 	}
@@ -1527,6 +1559,22 @@ public class Army extends Actor implements Destination {
 //		this.path.map = kingdom.getMap();
 //		this.faction = Faction.BANDITS_FACTION;
 	}
+
+    protected void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint) {
+        Color c = batch.getColor();
+        batch.setColor(tint);
+        TextureRegion region = animation.getKeyFrame(stateTime, loop);
+        batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation() - 90);
+        batch.setColor(c);
+    }
+
+    protected Color getGeneralArmorColor() {
+        return party.getGeneral().getArmor().color;
+    }
+
+    protected Color getGeneralSkinColor() {
+        return party.getGeneral().skinColor;
+    }
 	
 	public boolean isNoble() {
 		return (this.type == ArmyType.NOBLE);
@@ -1552,13 +1600,14 @@ public class Army extends Actor implements Destination {
 	
 	public boolean withinActingRange() {
 		if (this.isNoble() || this.isMerchant() || this.isBandit() || getKingdom().getPlayer() == null) return true;
-		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared*ACTING_RANGE_FACTOR);
+		return (Kingdom.sqDistBetween(this, getKingdom().getPlayer()) < getKingdom().getPlayer().losSquared*ACTING_RANGE_FACTOR*ACTING_RANGE_FACTOR);
 	}
 	public Center getContaining() {
 		return kingdom.getMap().getCenter(containingCenter);
 	}
-	public void restoreTexture() {
-		this.setTextureRegion(textureName);
+	public void restoreAnimation() {
+        walkArmor	= Unit.createAnimation("walk-armor", 2, ANIMATION_LENGTH);
+        walkSkin 	= Unit.createAnimation("walk-skin", 2, ANIMATION_LENGTH);
 	}
 	public General getGeneral() {
 		return this.party.getGeneral();

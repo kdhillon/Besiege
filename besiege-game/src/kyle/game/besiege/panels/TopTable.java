@@ -22,6 +22,7 @@ public class TopTable extends Table {
 	private Label subtitle;
 	private Label subtitle2; // this is actually above subtitle, (closer to the title)
 	private Label subtitle3;
+	private float width;
 	
 	private HashMap<String, Label> labels = new HashMap<String, Label>();
 	
@@ -51,11 +52,13 @@ public class TopTable extends Table {
 		subtitle3.setAlignment(Align.center);
 		
 		this.defaults().padTop(NEG).left();
+//		this.debug();
 		
 		this.add(title).colspan(4).fillX().expandX().padBottom(0);
 		this.row();
-		this.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
-		this.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
+		this.width = SidePanel.WIDTH-PAD*2;
+		this.add().colspan(2).width(width/2);
+		this.add().colspan(2).width(width/2);
 		this.row();
 		if (subtitleCount > 1) {
 			this.add(subtitle2).colspan(4).padBottom(MINI_PAD).fillX().expandX();
@@ -75,9 +78,9 @@ public class TopTable extends Table {
 		Label constantLabel = new Label(label, ls);
 		Label value = new Label("", ls);
 		if (nextIsLeft) {
-			this.add(constantLabel).padLeft(MINI_PAD);
+			this.add(constantLabel).padLeft(MINI_PAD).left();
 		} else {
-			this.add(constantLabel).padLeft(PAD);
+			this.add(constantLabel).padLeft(PAD).left();
 		}
 		this.add(value);
 		labels.put(key, value);
@@ -96,7 +99,7 @@ public class TopTable extends Table {
 		labels.put(key, value);
 
 		this.add(constantLabel).colspan(2).padLeft(MINI_PAD);
-		this.add(value).colspan(2).center();
+		this.add(value).colspan(2).left().width(width/4);
 		this.row();
 	}
 	

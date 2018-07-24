@@ -24,7 +24,7 @@ public class Corner {
 	
 	transient public ArrayList<Center> touches = new ArrayList<Center>(); // can be easily reconstructed from edge
 	transient public ArrayList<Corner> adjacent = new ArrayList<Corner>(); // can be easily reconstructed from edge
-	transient public ArrayList<Edge> protrudes = new ArrayList<Edge>();
+	transient public ArrayList<Edge> protrudes = new ArrayList<Edge>();  // Adjacent edges to this corner -- if this was a newly created corner, include 
 	transient public ArrayList<Corner> visibleCorners; // can be recalculated if necessary...
 	
 	// used for serialization
@@ -46,6 +46,9 @@ public class Corner {
 	
 	// used to be double but I changed it
 	public float elevation;
+
+	// randomized based on proximity to the "hot" corners and on elevation.
+	public float temperature;
 	public boolean water, ocean, coast;
 	
 	// userful for generating rivers

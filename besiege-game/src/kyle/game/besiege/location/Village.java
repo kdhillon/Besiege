@@ -32,9 +32,11 @@ public class Village extends Location {
 	public Village(){}
 	
 	public Village(Kingdom kingdom, String name, int index, Faction faction,
-			float posX, float posY) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON);
+			float posX, float posY, Center center) {
+		super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON, center, null);
 		this.type = LocationType.VILLAGE;
+
+        setCenter(center);
 				
 		this.DAILY_WEALTH_INCREASE_BASE = 1;
 		this.DAILY_POP_INCREASE_BASE = 0.01;
@@ -52,7 +54,7 @@ public class Village extends Location {
 	}
 	
 	@Override
-	public void setCenter(Center c) {
+	protected void setCenter(Center c) {
 		super.setCenter(c);
 		setWealth(calcInitialWealth());
 	}

@@ -13,9 +13,25 @@ import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.PartyType.Type;
 
+// Noble should become "warchief"
 public class Noble extends Army {
-	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	  250,		 300, 301};
-	private static final String[] RANKS = {"Baron", "Earl", "Count", "Duke", "Prince", "Archduke", "King"};
+    // TODO change this to be different for each culture
+    // Also, doesn't really make sense anymore, since there isn't a feudal structure for inheritance
+    // Let's brainstorm what a tribe's war parties are going to look like:
+    //
+    // TODO add a lot of soldier types for commoners.
+
+    // Mesoamerican:
+    //      Central ruler, emperor. Probably has a big army at his command at all times.
+    //      Nobles (warchiefs) will have their own armies and do their own raids.
+    //          Titles of warchiefs might be irrelevant to their experience. Once you become a war chief you can get a cool title.
+    //          Names can be in english and derived from their culture.
+    //          Aztec Examples: "Cutter of Men". "High General". "Master of Atlatl", "
+    //      Smaller raiding parties will attack enemy villages and enemy parties, and return home when they've raided
+    //      1-2 enemies.
+
+//	private static final int[] REKNOWN_RANK = {0,    50,      100,     150,    200, 	  250,		 300, 301};
+//	private static final String[] RANKS = {"Baron", "Earl", "Count", "Duke", "Prince", "Archduke", "King"};
 
 	int rank;
 	int nextRank;
@@ -41,26 +57,16 @@ public class Noble extends Army {
 	
 	public Noble(Kingdom kingdom, Location home) {
 		// TODO change this bakc
-		super(kingdom, "", home.getFaction(), home.getSpawnPoint().getX(), home.getSpawnPoint().getY(), Type.NOBLE);
+		super(kingdom, "", home.getFaction(), home.getSpawnPoint().getX(), home.getSpawnPoint().getY(), Type.NOBLE, home);
 		this.setDefaultTarget((City) home);
-		// set up initial party, rank, etc
-		rank = 0; // baron for now
-//		reknown = 0;
-		updateTitle(RANKS[rank]);
-		nextRank = REKNOWN_RANK[rank + 1];
-//		System.out.println("next rank: " + nextRank);
-		
-		String region = "knightFlail";
-		double random = Math.random();
-		if (random >= .33) region = "knightLance";
-		if (random > .67) region = "knightSword";
-		this.setTextureRegion(region);
+		// set up initial playerPartyPanel, rank, etc
+		rank = 0;
 
-		//		System.out.println("creating noble");
+        title = "Warchief";
+
 		kingdom.addArmy(this);
 		this.type = ArmyType.NOBLE;
 		
-		updateRank();
 		updateHome(home);
 
 		// TODO make this based on fame general already has.
@@ -69,12 +75,12 @@ public class Noble extends Army {
 //		updateRank(MathUtils.random(100));
 //		updateRank(MathUtils.random(100));
 //		giveReknown(MathUtils.random(100));
-	
+
 //		giveReknown(MathUtils.random(50));
 //		giveReknown(MathUtils.random(50));
 //		giveReknown(MathUtils.random(50));
 //		giveReknown(MathUtils.random(50));
-		
+
 		
 		if (title == null || title.equals("")) throw new java.lang.AssertionError(this.getName() + " reknown : " + this.getFame() + " " + title);
 		
@@ -83,9 +89,9 @@ public class Noble extends Army {
 	
 	// generate the initial soldier for this 
 //	public General generateFreshGeneral(Location home) {
-//		UnitType type = this.party.
+//		UnitType type = this.playerPartyPanel.
 //		
-//		General general = new General(type, this.party, home);
+//		General general = new General(type, this.playerPartyPanel, home);
 //		
 //		// earl, baron, or count
 //		general.giveReknown(MathUtils.random(50));
@@ -177,34 +183,38 @@ public class Noble extends Army {
 		this.home = home;
 	}
 	
-	public void updateRank() {
-//		System.out.println("fame of this noble is : " + this.getGeneral().getFame());
-		while (this.getGeneral().getFame() >= nextRank) {
-			if (rank <= RANKS.length - 1) {
-				increaseRank();
-//				System.out.println("increasing rank to: " + this.rank);
-			}
-		}
-		//		calcMaxPartySize();
-	}
-
-	private void increaseRank() {
-		this.rank++;
-		updateTitle(RANKS[rank]);
-		nextRank = REKNOWN_RANK[rank+1];
-	}
-
-	public static String getTitleForFame(int fame) {
-		for (int i = 1; i < REKNOWN_RANK.length; i++) {
-			if (REKNOWN_RANK[i] > fame) return RANKS[i-1];
-		}
-		return "God";
-	}
+//	public void updateRank() {
+////		System.out.println("fame of this noble is : " + this.getGeneral().getFame());
+//        if (this.getGeneral() == null) {
+//            		System.out.println("noble has no general? : " + this.getName());
+//            		throw new AssertionError();
+//        }
+//		while (this.getGeneral().getFame() >= nextRank) {
+//			if (rank <= RANKS.length - 1) {
+//				increaseRank();
+////				System.out.println("increasing rank to: " + this.rank);
+//			}
+//		}
+//		//		calcMaxPartySize();
+//	}
+//
+//	private void increaseRank() {
+//		this.rank++;
+//		updateTitle(RANKS[rank]);
+//		nextRank = REKNOWN_RANK[rank+1];
+//	}
+//
+//	public static String getTitleForFame(int fame) {
+//		for (int i = 1; i < REKNOWN_RANK.length; i++) {
+//			if (REKNOWN_RANK[i] > fame) return RANKS[i-1];
+//		}
+//		return "God";
+//	}
 	
 	// TODO move this stuff to General class?
-	public void updateTitle(String title) {
-		this.title = getTitleForFame(this.getGeneral().getFame());
-	}
+//	public void updateTitle(String title) {
+//		this.title = getTitleForFame(this.getGeneral().getFame());
+//	}
 
 	@Override 
 	public void besiege(Location location) {

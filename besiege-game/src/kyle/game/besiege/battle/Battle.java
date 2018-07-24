@@ -20,12 +20,12 @@ import kyle.game.besiege.party.Soldier;
 public interface Battle {	
 	// TODO remove all armies, just use parties.
 	
-	// Adds the given party to the list of attackers. Disables the army until they leave the battle or are destroyed.
-	// Returns true if party was added successfully, false otherwise.
+	// Adds the given playerPartyPanel to the list of attackers. Disables the army until they leave the battle or are destroyed.
+	// Returns true if playerPartyPanel was added successfully, false otherwise.
 	public boolean addToAttackers(Army army);
 //	
-//	// Adds the given party to the list of defenders. Disables the army until they leave the battle or are destroyed.
-//	// Returns true if party was added successfully, false otherwise.
+//	// Adds the given playerPartyPanel to the list of defenders. Disables the army until they leave the battle or are destroyed.
+//	// Returns true if playerPartyPanel was added successfully, false otherwise.
 	public boolean addToDefenders(Army army);
 	
 	public StrictArray<Party> getAttackingParties();

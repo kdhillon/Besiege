@@ -12,14 +12,16 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import kyle.game.besiege.voronoi.Center;
+import kyle.game.besiege.voronoi.Corner;
 
 public class Ruin extends Location {
 	private final static float SCALE = 10;
 	
 	public Ruin(){}
 	
-	public Ruin(Kingdom kingdom, String name, int index, float posX, float posY) {
-		super(kingdom, name, index, posX, posY);
+	public Ruin(Kingdom kingdom, String name, int index, float posX, float posY, Center center, Corner corner) {
+		super(kingdom, name, index, posX, posY, center, corner);
 		this.type = LocationType.RUIN;
 	
 		this.population = 0;

@@ -17,6 +17,8 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.ObjectLabel;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.party.CultureType;
+import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.voronoi.Center;
 
 /* time to make factions really awesome: 
@@ -78,8 +80,9 @@ public class Faction {
 	public String textureName;
 //	transient public TextureRegion crest; // will have to load this separately
 	public Crest crest;
+	public CultureType cultureType;
 	
-	public Color color;
+	public Color color = Color.WHITE;
 	public StrictArray<City> cities;
 	public StrictArray<Castle> castles;
 	public StrictArray<Village> villages;
@@ -129,38 +132,23 @@ public class Faction {
 	public Faction() {
 		// need to load crest after this is created.
 	}
+	public Faction(Kingdom kingdom) {
+	    this(kingdom, null, null, null);
+    }
 
 	/**
-	 * Creates a faction. if name is null, will generate a random name. If crest is null, will generate a random crest. 
+	 * Creates a faction. if name is null, will generate a random name. If crest is null, will generate a random crest.
 	 * @param kingdom
 	 * @param name
 	 * @param crest
 	 */
-	public Faction(Kingdom kingdom, String name, Crest crestIn) {
+	public Faction(Kingdom kingdom, String name, Crest crestIn, Color color) {
 		this.kingdom = kingdom;
-		
-		if (name == null) {
-			this.name = NameGenerator.generateFactionName();
-		}
-		else 
-			this.name = name;
 
-		if (crestIn == null) {
-			this.crest = rc.create();
-		}
-		else {
-			this.crest = crestIn;
-		}
-		this.color = this.crest.base;
-		if (this.color.equals(Color.WHITE)) {
-			if (crest.cOverlay != -1) {
-				this.color = rc.getColor(crest.cOverlay);
-			}
-			else if (crest.cDetail != -1) {
-				this.color = rc.getColor(crest.cDetail);
-			}
-		}
-		crest.loadFromInts(rc);
+		// don't set name until we have a few cities and can base the culture off of them.
+        // Name should only be present if it's a bandit or special faction
+        this.name = name;
+        this.color = color;
 		
 		nobles = new StrictArray<Noble>();
 		unoccupiedNobles = new StrictArray<Noble>();
@@ -513,7 +501,80 @@ public class Faction {
 				}
 			}
 		}
-	}	
+
+		setCultureType();
+	}
+
+	private void setCultureType() {
+	    if (cultureType != null ) return;
+	    if (name != null) return;
+
+	    System.out.println("cities: " + cities.size + " castles: " + castles.size + " " + this.name);
+
+        Object[] cultureTypes = UnitLoader.cultureTypes.values().toArray();
+	    int[] cultureCounts = new int[UnitLoader.cultureTypes.values().size()];
+	    for (City city : cities) {
+            for (int i = 0; i < cultureTypes.length; i++) {
+                System.out.println(((CultureType) cultureTypes[i]).name + " is a culture");
+                if (cultureTypes[i] == city.cultureType) {
+                    cultureCounts[i]++;
+                }
+            }
+        }
+        for (Castle castle : castles) {
+            for (int i = 0; i < cultureTypes.length; i++) {
+                if (cultureTypes[i] == castle.cultureType) {
+                    cultureCounts[i]++;
+                }
+            }
+        }
+        for (Village village : villages) {
+            for (int i = 0; i < cultureTypes.length; i++) {
+                if (cultureTypes[i] == village.cultureType) {
+                    cultureCounts[i]++;
+                }
+            }
+        }
+        int maxCount = 0;
+	    int maxIndex = -1;
+        for (int i = 0; i < cultureCounts.length; i++) {
+	        if (cultureCounts[i] > maxCount) {
+	            maxIndex = i;
+	            maxCount = cultureCounts[i];
+            }
+        }
+        if (maxIndex == -1) {
+            System.out.println("Problem. Faction Cities: " + cities.size + " Castles: " + castles.size);
+            throw new AssertionError();
+        }
+        this.cultureType = (CultureType) cultureTypes[maxIndex];
+
+        // Set name if it hasn't been manually set
+        if (name == null) {
+            this.name = cultureType.nameGenerator.generateFactionName();
+        }
+
+        generateCrest();
+    }
+
+    private void generateCrest() {
+//        if (crestIn == null) {
+        this.crest = rc.create(cultureType);
+//        }
+//        else {
+//            this.crest = crestIn;
+//        }
+        this.color = this.crest.base;
+        if (this.color.equals(Color.WHITE)) {
+            if (crest.cOverlay != -1) {
+                this.color = rc.getColor(crest.cOverlay);
+            }
+            else if (crest.cDetail != -1) {
+                this.color = rc.getColor(crest.cDetail);
+            }
+        }
+        crest.loadFromInts(rc);
+    }
 
 	/** First updates each city's lists of close friendly and 
 	 *  hostile cities, then updates this faction's lists based on 

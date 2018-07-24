@@ -222,7 +222,7 @@ public class Panel extends Group {
 	public void resize() {
 		this.removeActor(topPane);
 		topPane = new ScrollPane(topTable, spStyle);
-		topPane.setScrollingDisabled(true, false);
+		topPane.setScrollingDisabled(true, true);
 		topPane.setFadeScrollBars(false);
 		topPane.setBounds(PAD, PAD + BUTTONHEIGHT, SidePanel.WIDTH - PAD*2, sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2);
 
@@ -244,7 +244,7 @@ public class Panel extends Group {
 		topPane.setWidth(SidePanel.WIDTH-PAD*2);
 		topPane.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
 
-		topPane.setScrollingDisabled(true, false);
+		topPane.setScrollingDisabled(true, true);
 
 		this.addActor(topPane);
 	}
@@ -260,7 +260,7 @@ public class Panel extends Group {
 	}
 	// Back button
 	public void button4() {
-		sidePanel.returnToPrevious();
+		sidePanel.returnToPrevious(true);
 	}
 	public Button getButton(int button) {
 		if (button == 1)

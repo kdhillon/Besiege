@@ -5,7 +5,7 @@ public class UnitType {
 	
 	// make this an object later 
 	public String name;
-	public UnitClass unitClass;
+	public CultureType cultureType;
 	public int tier;
 	public WeaponType melee;
 	public RangedWeaponType ranged;

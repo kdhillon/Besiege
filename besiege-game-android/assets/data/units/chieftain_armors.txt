@@ -1,0 +1,13 @@
+name				color_name	def	spd	clothes
+
+None				TAN			0	0	true
+
+Clothes				DK_BROWN    0	0   true
+	
+Cotton				LT_BROWN 	1	0	false
+Tunic				BROWN_G		2	0	false
+War_Suit			BROWN_R		3	-1	false
+
+Light_Fur			LT_BROWN	1	0	false
+Wolfskin			LT_GRAY		2	0	false
+Bearskin			DK_BROWN	2	0	false

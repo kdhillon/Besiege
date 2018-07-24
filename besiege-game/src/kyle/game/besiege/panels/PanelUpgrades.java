@@ -316,11 +316,11 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	//	@Override
 	//	public void act(float delta) {
 	//		morale.setText(army.getMorale() + "");
-	//		size.setText(party.getHealthySize()+"/"+party.getTotalSize());
+	//		size.setText(playerPartyPanel.getHealthySize()+"/"+playerPartyPanel.getTotalSize());
 	//		money.setText("" + army.getParty().wealth);
-	//		atk.setText(""+ party.getAtk());
-	//		def.setText(String.format("%.2f", party.getAvgDef()));
-	//		spd.setText(String.format("%.2f", party.getAvgSpd()));
+	//		atk.setText(""+ playerPartyPanel.getAtk());
+	//		def.setText(String.format("%.2f", playerPartyPanel.getAvgDef()));
+	//		spd.setText(String.format("%.2f", playerPartyPanel.getAvgSpd()));
 	//		updateSoldierTable();
 	//		super.act(delta);
 	//	}
@@ -562,7 +562,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	}
 
 	private void upgradeCurrent(UnitType unitType) {
-		//int index = party.getUpgradable().indexOf(selected, true);
+		//int index = playerPartyPanel.getUpgradable().indexOf(selected, true);
 		String first = selected.getTypeName();
 		 // only if successfully upgrades
 		if (selected.upgrade(unitType, panel.getMapScreen().getCharacter().inventory)) {
@@ -573,9 +573,9 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			upgradable.removeValue(prev_selected, true);
 		}
 		//		if (index > 0)
-		//			selected = party.getUpgradable().get(index-1);
-		//		else if (party.getUpgradable().size > 0)
-		//			selected = party.getUpgradable().get(index);
+		//			selected = playerPartyPanel.getUpgradable().get(index-1);
+		//		else if (playerPartyPanel.getUpgradable().size > 0)
+		//			selected = playerPartyPanel.getUpgradable().get(index);
 		//else
 		updateSoldierTable();
 	}
@@ -722,8 +722,8 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	
 //	@Override
 //	public RandomCrest getCrest() {
-////		if (party.army != null)
-////			return party.army.getFaction().crest;
+////		if (playerPartyPanel.army != null)
+////			return playerPartyPanel.army.getFaction().crest;
 ////		return null;
 //		return null;
 //	}

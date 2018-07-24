@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
-import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.battle.Unit.Stance;
@@ -126,7 +125,7 @@ public class PanelUnit extends Panel {
 		Label equipmentSC = new Label("Armor: ", ls);
 
 		title = new Label(soldier.getTypeName(), lsBig);
-		title.setColor(soldier.unitType.unitClass.color);
+		title.setColor(soldier.unitType.cultureType.colorLite);
 		title.setAlignment(0,0);
 		//		title.setWrap(true); // wrapping messes up click listeners... WTF?
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
@@ -410,7 +409,7 @@ public class PanelUnit extends Panel {
 		if (getButton(4).isVisible()) {
 			if (battleStage == null) {
 				//				battle.retreat(sidePanel.getKingdom().getPlayer());
-				sidePanel.returnToPrevious();
+				sidePanel.returnToPrevious(true);
 				return;
 			}
 		}
@@ -418,8 +417,8 @@ public class PanelUnit extends Panel {
 
 	@Override
 	public Crest getCrest() {
-		//		if (party.army != null)
-		//			return party.army.getFaction().crest;
+		//		if (playerPartyPanel.army != null)
+		//			return playerPartyPanel.army.getFaction().crest;
 		//		return null;
 		return null;
 	}

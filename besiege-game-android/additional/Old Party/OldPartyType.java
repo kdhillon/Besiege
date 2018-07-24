@@ -4,15 +4,15 @@ package kyle.game.besiege.party;
 // * by Kyle Dhillon
 // * Source Code available under a read-only license. Do not copy, modify, or distribute.
 // ******************************************************************************/
-//package kyle.game.besiege.party;
-//import static kyle.game.besiege.party.Weapon.*;
-//import static kyle.game.besiege.party.UnitType.*;
-//import kyle.game.besiege.party.Equipment.Type;
+//package kyle.game.besiege.playerPartyPanel;
+//import static kyle.game.besiege.playerPartyPanel.Weapon.*;
+//import static kyle.game.besiege.playerPartyPanel.UnitType.*;
+//import kyle.game.besiege.playerPartyPanel.Equipment.Type;
 //
 //import com.badlogic.gdx.math.MathUtils;
 //
 //
-//public enum PartyType { // todo add ability for max party size
+//public enum PartyType { // todo add ability for max playerPartyPanel size
 //	// troop types, troop min counts, troop max counts, minWealth, maxWealth
 //	FARMER(new UnitType[]{FARMERS}, new int[]{2}, new int[]{8}),
 //	PATROL(new UnitType[]{LIGHT_BAD, MOUNTED_MED, RANGED_MED}, new int[]{8, 0, 0}, new int[]{15, 5, 5}),
@@ -88,38 +88,38 @@ package kyle.game.besiege.party;
 //	
 //	
 //	public Party generate() {
-//		Party party = new Party();
+//		Party playerPartyPanel = new Party();
 //		
 //		if (troopTypes != null) {
 //		for (int i = 0; i < troopTypes.length; i++) {
 //			int randomCount = MathUtils.random(minCount[i], Math.max(minCount[i], maxCount[i]));
 //			for (int j = 0; j < randomCount; j++)
-//				party.addSoldier(new Soldier(troopTypes[i], party));
+//				playerPartyPanel.addSoldier(new Soldier(troopTypes[i], playerPartyPanel));
 //		}
 //		}
 //		else {
 //			for (int i = 0; i < unitTypes.length; i++) {
 //				int randomCount = MathUtils.random(minCount[i], Math.max(minCount[i], maxCount[i]));
 //				for (int j = 0; j < randomCount; j++) {
-//					party.addSoldier(new Soldier(unitTypes[i].random(), party));
+//					playerPartyPanel.addSoldier(new Soldier(unitTypes[i].random(), playerPartyPanel));
 //				}
 //			}
 //		}
 //		
 //		int randomWealth = MathUtils.random(minWealth, maxWealth);
-//		party.wealth = randomWealth;
-//		return party;
+//		playerPartyPanel.wealth = randomWealth;
+//		return playerPartyPanel;
 //	}
 //	
 //	
 //	
-////	// create minimal party to test if soldier is clogging memory
+////	// create minimal playerPartyPanel to test if soldier is clogging memory
 ////	public Party generate() {
-////		Party party = new Party();
-////		party.addSoldier(new Soldier(Weapon.BATTLE_AXE, party));
+////		Party playerPartyPanel = new Party();
+////		playerPartyPanel.addSoldier(new Soldier(Weapon.BATTLE_AXE, playerPartyPanel));
 ////		int randomWealth = MathUtils.random(minWealth, maxWealth);
-////		party.wealth = randomWealth;
-////		return party;
+////		playerPartyPanel.wealth = randomWealth;
+////		return playerPartyPanel;
 ////	}
 //	
 //	

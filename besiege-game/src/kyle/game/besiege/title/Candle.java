@@ -8,23 +8,36 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 
 public class Candle extends Actor {
+	private static TextureRegion circle = new TextureRegion(new Texture("whitecircle.png"));
 
 	private TextureRegion region;
 	Array<Particle> particles;
 	
-	private static float MS = 100; // ms per frame
+	private static float RATE = 40;
+	private static float MS = 75; // ms per frame
 
 	private static float FLICKER_RATE_X = .03f;
 	private static float MAX_FLICKER = .6f;
 	// var PARTICLE_COUNT = 100*FLAME_WIDTH*FLAME_HEIGHT;
 	private static float ACCEL_Y = -.005f;
+	private static final float SMOKE_LIFETIME = 30;
+	
+	private static final float INIT_SMOKE_SPEED = -0.75f;
 
 	// colors
 	private static int INIT_G = 1;
 	private static float FINAL_G = .2f;
 	private static int counter = 0;
 	public static float wind_x = 0;
-
+	
+	// circle
+	float circleWidth = 20;
+	float circleHeight = 10;
+	float flickerMin = 0.1f;
+	float flickerMax = 0.3f;
+	float flickerChangeProb = 0.075f;
+	float flicker = 0.5f;
+	
 	int _x;
 	int _y;
 
@@ -36,18 +49,19 @@ public class Candle extends Actor {
 	float LIFETIME_RANDOMNESS;
 
 	float current_flicker;
+	float scale;
 
-	public Candle(int _x, int _y, float _width, float _height) {
-		
+	public Candle(int _x, int _y, float _width, float _height, float scale) {
 		this.region = new TextureRegion(new Texture("whitepixel.png"));
 		this._x = _x;
 		this._y = _y;
 
 		float FLAME_WIDTH = _width;
 		float FLAME_HEIGHT = _height;
-
-		this.INIT_VX = .1f*FLAME_WIDTH;
-		this.INIT_VY = .4f*FLAME_HEIGHT;
+		this.scale = scale;
+		
+		this.INIT_VX = .11f*FLAME_WIDTH * scale;
+		this.INIT_VY = .3f*FLAME_HEIGHT * scale;
 
 		this.INIT_LIFETIME = .65f*FLAME_HEIGHT*FLAME_WIDTH;
 		this.MAX_LIFETIME = .9f*FLAME_HEIGHT;
@@ -64,8 +78,8 @@ public class Candle extends Actor {
 	}
 
 	private class Particle {
-		int _x;
-		int _y;
+		float _x;
+		float _y;
 		float vx;
 		float vy;
 		float lifetime;
@@ -96,11 +110,10 @@ public class Candle extends Actor {
 //			float direction = 1;
 //			if (Math.random() < .5) direction = -1f; 
 			
-			this.vx = (float) (Math.random() - .5)*.7f + .15f;// * INIT_VX * direction;// + candle.current_flicker);
-
+			this.vx = (float) (Math.random() - .5)*candle.INIT_VX;// * INIT_VX * direction;// + candle.current_flicker);
+			this.vx *= scale;
 			//			System.out.println(vx);
-			this.vy = (float) (candle.INIT_VY*Math.random() - candle.INIT_VY);
-			
+			this.vy = (float) (candle.INIT_VY*1.1f*Math.random() - candle.INIT_VY);
 //			this.vx = 1;
 //			this.vy = 1;
 
@@ -142,12 +155,18 @@ public class Candle extends Actor {
 	private void removeParticle(Particle p) {
 		if (Math.random() < .1 && !p.isSmoke) {
 			p.isSmoke = true;
-			p.lifetime = (float) (Math.random()*15);
+			p.lifetime = (float) (Math.random()*SMOKE_LIFETIME);
 			p.init_lifetime = p.lifetime;
-			p.vy *= 1;
+			
+			p.vy = INIT_SMOKE_SPEED * (float) (Math.random() * 0.3 + 1);
+			p.vx = 0;
+			float windSpeedVariance = 0.2f;
+			float windSpeedChange = (float) (windSpeedVariance * Math.random() - windSpeedVariance);
+			
+			p.vx = wind_x * scale + windSpeedChange;
 
 			// element.innerHTML = "~";
-			p._y -= 10;
+			p._y -= 5 * scale;
 			int gray = 1;
 			p.color.r = gray;
 			p.color.g = gray;
@@ -161,18 +180,21 @@ public class Candle extends Actor {
 	private void  calculateNewPosition(Particle p) {
 		if (!p.isSmoke)
 			p.vy += ACCEL_Y*MS/20;
-		else p.vx = wind_x;
-		if (p.vy < .2 && !p.isSmoke) {
-			if (p.vx > 0) p.vx -= .05;
-			if (p.vx < 0) p.vx += .05;
-//			p.vx += wind_x / 10;
-		} 
-
-//			System.out.println(p.vx);
-		p._x += p.vx*MS/20;
-		p._y += p.vy*MS/20;
+		else {
+//			p.vx = wind_x * scale;
+		}
 		
-		p._x += wind_x/2;
+		if (p.vy < .2 && !p.isSmoke) {
+			if (p.vx > 0) p.vx -= .05 * scale;
+			if (p.vx < 0) p.vx += .05 * scale;
+		} 
+		 
+		p._x += p.vx*MS/RATE;
+		p._y += p.vy*MS/RATE;
+		
+		if (!p.isSmoke) {
+			p._x += (wind_x/2) * scale / RATE;
+		}
 	}
 
 //	private void  doMove(p) {
@@ -187,7 +209,7 @@ public class Candle extends Actor {
 			p.color.g = (float) (((p.lifetime / p.init_lifetime) * INIT_G) + FINAL_G);
 		else {
 			float gray = (float) ((p.lifetime / p.init_lifetime) * 1) + 0;
-
+			p.color.a = gray/2f + 0.5f;
 			p.color.g = gray;
 			p.color.r = gray;
 			p.color.b = gray;
@@ -202,14 +224,6 @@ public class Candle extends Actor {
 		if (p.lifetime < 0) removeParticle(p);
 	}
 
-	public void updateFlicker() {
-//		float scale = 1;
-//		if (Math.random() < .02) scale = 2; 
-//		current_flicker += (Math.random()*FLICKER_RATE_X*scale)-FLICKER_RATE_X*scale/2;
-//		if (current_flicker > MAX_FLICKER) current_flicker = MAX_FLICKER;
-//		if (current_flicker < -MAX_FLICKER) current_flicker = -MAX_FLICKER;
-	}
-
 	public void updatePositions() {
 		for (Particle p : particles) {
 			calculateNewPosition(p);
@@ -219,70 +233,32 @@ public class Candle extends Actor {
 		}
 	}
 
-//	private void updateTextLighting() {
-//		// letters[3] is the middle letter
-//		var center = 3;
-//		center += candles[0].current_flicker;
-//		if (center < 2.5) center = 2.5 + Math.random()/4;
-//		if (center > 3.5) center = 3.5 - Math.random()/4;
-//
-//		var darkness = Math.random()*80 + 30;
-//
-//		for (var i = 0; i < letters.length; i++) {
-//			// if (i != 3) {
-//			var diff = Math.abs(i-center);
-//			var gray = parseInt(180-diff*50-darkness/((diff*diff)+1));
-//
-//			letters[i].style.color = "#" + decimalToHexString(gray+90) + decimalToHexString(gray+30) + decimalToHexString(0);
-//			// }
-//			// else letters[i].style.color = "#" + decimalToHexString(gray-100) + decimalToHexString(gray-100) + decimalToHexString(gray-100);
-//		}
-//	}
-
-//	private void render() {
-//		wind_x += Math.random()*.1 - .05;
-//		if (wind_x > 1) wind_x = 1;
-//		if (wind_x < -1) wind_x = -1;
-//		wind_x += 2*candles[0].current_flicker;
-//
-//		// update text lighting
-//		if (Math.random() < .15)
-//			updateTextLighting();
-//
-//		for (var i = 0; i < candles.length; i++) {
-//			generateParticles(candles[i]);
-//			updateFlicker(candles[i]);
-//		}
-//		updatePositions();
-//		setTimeout(render, MS); // msecs
-//	}
-
-//	private void init() {
-//		var candivs = document.querySelectorAll("div.candle");
-//
-//		for (var i = 0; i < candivs.length; i++) {
-//			var candiv = candivs[i];
-//			var width = parseInt(180);
-//			var height = parseInt(500);
-//			candles[i] = new Candle(parseInt(0)+238, parseInt(0)+15, width/150, 1, candiv);
-//			// console.log(parseInt(candiv.style.left));
-//		}
-//
-//		letters = document.querySelectorAll("font.besiege");
-//		console.log(letters.length);
-//
-//		render();
-//	}
-
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
+		// draw the light circle
+		if (Math.random() < flickerChangeProb) {
+			flicker = (float) Math.random() * (flickerMax - flickerMin) + flickerMin;
+		}
+		batch.setColor(0, 0, 0f, 1f);
+		// Draw fixed black circle
+		batch.draw(circle, _x - circleWidth/3f * scale - 3, 14 + -_y - circleHeight/3f * scale, circleWidth * scale / 1.5f, circleHeight * scale / 1.5f );
+		batch.setColor(1, 0.95f, 0.9f, 0.2f);
+		batch.setColor(1, 0.95f, 0.9f, flicker/4 + 0.1f);
+		float firstCircleScale = 2;
+//		float flickerSizeEffect = (flicker + 0.5f);
+		float flickerSizeEffect = 0.75f;
+		batch.draw(circle, _x - circleWidth/2f * scale * firstCircleScale * flickerSizeEffect - 1*firstCircleScale, 13 * firstCircleScale / 2 + -_y - circleHeight/2f * flickerSizeEffect * scale * firstCircleScale, circleWidth * scale * firstCircleScale *flickerSizeEffect, circleHeight *firstCircleScale * scale * flickerSizeEffect);
+//		batch.draw(circle, _x - circleWidth/2f * scale * (flicker + 0.5f) - 3, 17 + -_y - circleHeight/2f * (flicker + 0.5f) * scale, circleWidth * scale * (flicker + 0.5f), circleHeight * scale * (flicker + 0.5f));
+		float secondCircleScale = 4;
+		batch.draw(circle, _x - circleWidth/2f * scale * secondCircleScale * flickerSizeEffect - 1*secondCircleScale, 17 * secondCircleScale / 4 + -_y - circleHeight/2f * flickerSizeEffect * scale * secondCircleScale, circleWidth * scale * secondCircleScale * flickerSizeEffect, circleHeight *secondCircleScale * scale * flickerSizeEffect);
+
 //		System.out.println("drawing");
 		for (Particle p : particles) {
 //			System.out.println("drawing");
 //			Color c = new Color();
 			batch.setColor(p.color);
-			
-			batch.draw(region, p._x, -p._y, 8, 8);
+		
+			batch.draw(region, p._x - 4 * scale, -p._y + 4 * scale, 8 * scale * 0.75f, 8 * scale * 0.75f);
 		}
 	}
 }

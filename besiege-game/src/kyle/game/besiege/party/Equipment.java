@@ -5,17 +5,30 @@
  ******************************************************************************/
 package kyle.game.besiege.party;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
+import kyle.game.besiege.Assets;
 
 public enum Equipment {
-	WOOD_SHIELD ("Wood Shield", Type.SHIELD, 0, 1, -1, 20),
+	WOOD_SHIELD ("Wood Shield", "woodenshield", Type.SHIELD, 0, 1, -1, 20),
+    HEADDRESS_MESO_1 ("Headdress", "mesoHeaddress3", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_MESO_2 ("Headdress", "mesoHeaddress2", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_MESO_3 ("Headdress", "mesoHeaddress", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_1 ("Headdress", "plainsHeaddress3", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_2 ("Headdress", "plainsHeaddress2", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_3 ("Headdress", "plainsHeaddress", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_FOREST_1 ("Headdress", "forestHeaddress3", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_FOREST_2 ("Headdress", "forestHeaddress2", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_FOREST_3 ("Headdress", "forestHeaddress", Type.HEAD, 0, 1, 0, 20);
+
 //	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 40),
 //	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
 //	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 10),
-	WORK_HORSE ("Workhorse", Type.HORSE, 0, 0, 4, 20),
-	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 6, 30);
+//	WORK_HORSE ("Workhorse", Type.HORSE, 0, 0, 4, 20),
+//	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 6, 30);
 	
 	public final String name;
+	public final String textureName;
 	public final Type type;
 	public final int hp;
 	public final int atkMod;
@@ -25,9 +38,10 @@ public enum Equipment {
 		SHIELD, CHEST, HEAD, LEGS, ARMS, HORSE
 	}
 	
-	private Equipment(String name, Type type, int atkMod, int defMod, int spdMod, int hp) {
+	private Equipment(String name, String textureName, Type type, int atkMod, int defMod, int spdMod, int hp) {
 		this.hp = hp;
 		this.name = name;
+		this.textureName= textureName;
 		this.type = type;
 		this.atkMod = atkMod;
 		this.defMod = defMod;
@@ -38,6 +52,10 @@ public enum Equipment {
 	public String toString() {
 		return name;
 	}
+
+	public TextureRegion getRegion() {
+	    return Assets.equipment.findRegion(textureName);
+    }
 	
 	
 //	// returns an array containing the basic equipment for a particular soldier

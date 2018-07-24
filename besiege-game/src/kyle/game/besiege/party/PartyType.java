@@ -12,20 +12,19 @@ import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 
 
-public class PartyType { // todo add ability for max party size
+public class PartyType { // todo add ability for max playerPartyPanel size
 	public static Array<PartyType> types;
-
+	
 	public enum Type {FARMERS, PATROL, MERCHANT, CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
 						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST, TEST_1, TEST_2};
 	
 	//	private final Weapon[] troopTypes;
 	public String name;
 	
-	private UnitClass unitClass; // if this is null, use distribution
+	private CultureType cultureType; // if this is null, use distribution
 	private UnitType unitType; // force one unit type
-	private float[] biomeWeights;
-	
-	
+//	private float[] biomeWeights;
+
 	private int[] tiers;
 //	private NewUnitType[] unitTypes;
 
@@ -37,6 +36,9 @@ public class PartyType { // todo add ability for max party size
 
 	public int minWealth; // wealth
 	public int maxWealth; // this is also cost
+
+    public boolean hire; // Is this a "hire" party, in other words, no general.
+
 	//private final int maxTroopLevel;
 	//private final int minTotal;
 
@@ -54,20 +56,24 @@ public class PartyType { // todo add ability for max party size
 
 //		if (unitTypes != null) {
 
-		// generate general first, use their fame to determine max party size.
-		party.createFreshGeneral(this.randomBestSoldierType(), this);
+		// generate general first, use their fame to determine max playerPartyPanel size.
+        if (!this.hire)
+		    party.createFreshGeneral(this.randomBestSoldierType(), this);
 		
-		// generate a general first, with random fame. then generate party size based on that.
-		int toGenerate = party.getMaxSize();
-//		int toGenerate = MathUtils.random(minCount, party.getMaxSize());
-		
-		while (toGenerate > 0) {
+		// generate a general first, with random fame. then generate playerPartyPanel size based on that.
+		int toGenerate = party.getMaxSize() - 1;
+//		int toGenerate = MathUtils.random(minCount, playerPartyPanel.getMaxSize());
+//        System.out.println("to generate" + toGenerate);
+
+        while (toGenerate > 0) {
 			// generate random unit from available tiers in available class TODO
+//            System.out.println("to generate" + toGenerate);
 			UnitType type = randomSoldierType();
 			party.addSoldier(new Soldier(type, party), false);
 			toGenerate--;
 		}
-//		UnitType unitType, Party party, String title, Location home
+//        System.out.println("Done generating!");
+//		UnitType unitType, Party playerPartyPanel, String title, Location home
 
 		int randomWealth = MathUtils.random(minWealth, maxWealth);
 		party.wealth = randomWealth;
@@ -82,74 +88,79 @@ public class PartyType { // todo add ability for max party size
 		return maxCount;
 	}
 	public int getRandomSize() {
-		
 		return MathUtils.random(minCount, maxCount);
 	}
-	
+
 	public UnitType randomSoldierType() {
 		if (this.unitType != null) return unitType;
-		// weighted based on soldier ffrequencies (in max):		
+
+		// weighted based on soldier ffrequencies (in max):
 		
 		// use rejection sampling because why not
 		
-		UnitClass classToUse;
-		if (unitClass != null) 
-			classToUse = unitClass;
+		CultureType classToUse;
+		if (cultureType != null)
+			classToUse = cultureType;
 		else {
-			// choose probablistically
-			double random = Math.random();
-			double current = 0;
-			int currentIndex = -1;
-			Biomes biome;
-			
-			if (biomeWeights != null) {
-
-				while (current < random) {
-					currentIndex++;
-					current += biomeWeights[currentIndex];
-					//				System.out.println(biomeWeights[currentIndex]);
-				}
-				biome = Biomes.values()[currentIndex];
-			}
-			else biome = Biomes.GRASSLAND;
-
-			
-			//			System.out.println(biome.name());
-			classToUse = UnitLoader.biomeClasses.get(biome);
-			if (classToUse == null) {
-//				System.out.println(biome.toString());
-			}
+//			// choose probablistically
+//			double random = Math.random();
+//			double current = 0;
+//			int currentIndex = -1;
+//			Biomes biome;
+//
+//			if (biomeWeights != null) {
+//				while (current < random) {
+//					currentIndex++;
+//					current += biomeWeights[currentIndex];
+//					//				System.out.println(biomeWeights[currentIndex]);
+//				}
+//				biome = Biomes.values()[currentIndex];
+//			}
+//			else biome = Biomes.GRASSLAND;
+//
+//			//			System.out.println(biome.name());
+////			classToUse = UnitLoader.biomeCultures.get(biome);
+//			if (classToUse == null) {
+				System.out.println(toString() + " has null culture type!");
+				throw new AssertionError();
+//			}
 		}
-		
-		Object[] types = (classToUse.units.values().toArray());
-		
+				
 		int randomIndex;
 		UnitType unitType;
-		
-		boolean isInTier;
-		
+				
+		// Pick a random tier first, not weighted.
+		int tierIndex = (int) (Math.random() * tiers.length);
+		int tierToUse = tiers[tierIndex];
+
+		Object[] types = (classToUse.units.values().toArray());
+//        System.out.println("culture: " +classToUse.name);
+        for (Object object : types) {
+            UnitType type = (UnitType) object;
+//            System.out.println(type.name);
+        }
+
+		randomIndex = MathUtils.random(0, types.length-1);
+//		unitType = (UnitType) types[randomIndex];
 		boolean valid = false;
-		
+	
 //		// make sure class actually has a unit in the right tier
 		for (UnitType unit : classToUse.units.values()) {
-			if (unit.tier == 5) valid = true;
+			if (unit.tier == tierToUse) valid = true;
 		}
 		if (!valid) {
-			System.out.println("you need to make all 5 unit types for " + classToUse.name);
+			System.out.println("Missing tier " + tierToUse + " for " + classToUse.name);
 			throw new java.lang.NullPointerException();
 		}
 		
+		// Random sample from all units at this tier level.
 		do {
 			randomIndex = MathUtils.random(0, types.length-1);
 			unitType = (UnitType) types[randomIndex];
-			
-			isInTier = false;
-			for (int i = 0; i < tiers.length; i++) {
-				if (unitType.tier == tiers[i]) isInTier = true;
-			}
 		}
-		while (!isInTier);
-		
+		while (unitType.tier != tierToUse);
+
+//		System.out.println("returning: " + unitType.name);
 		return unitType;
 	}
 	
@@ -168,11 +179,16 @@ public class PartyType { // todo add ability for max party size
 	// for use by cities and armies created in cities
 	public static PartyType generatePT(Type type, Location location) {
 		PartyType pt = generatePartyType(type);
-		pt.unitClass = null;
+		pt.cultureType = null;
+
+		// TEMPORARY! Try out using "primary class"
+        pt.cultureType = location.cultureType;
+        System.out.println("PRIMARY CLASS: " + location.cultureType.name);
+
 		if (location.biomeDistribution == null) {
 			System.out.println("NO BIOME FOR: " + location.getTypeStr() + " " + location.getName());
 		}
-		pt.biomeWeights = location.biomeDistribution;
+//		pt.biomeWeights = location.biomeDistribution;
 		return pt;
 	}
 	
@@ -180,20 +196,23 @@ public class PartyType { // todo add ability for max party size
 //		System.out.println("getting default pt for: " + center.biome.toString());
 		
 		PartyType pt = generatePartyType(type);
-		pt.unitClass = null;
-		pt.biomeWeights = center.getBiomeDistribution();
+		pt.cultureType = center.cultureType;
+		if (center.cultureType == null) {
+		    throw new AssertionError();
+        }
+//		pt.biomeWeights = center.getBiomeDistribution();
 		return pt;
 	}
 	
 	public static PartyType generatePartyType(Type type) {	
-		UnitClass none = null;
+		CultureType none = null;
 		return getPartyType(type, none);	
 	}
 	
-	// generates a party type for this particular type
-	public static PartyType getPartyType(Type type, UnitClass unitClass) {
+	// generates a playerPartyPanel type for this particular type
+	public static PartyType getPartyType(Type type, CultureType cultureType) {
 		PartyType pt = new PartyType();
-		pt.unitClass = unitClass;
+		pt.cultureType = cultureType;
 		
 		switch (type) {
 		case FARMERS:
@@ -217,7 +236,7 @@ public class PartyType { // todo add ability for max party size
 		case CITY_GARRISON:
 			pt.name = "Garrison";
 			pt.maxCount = 100;
-			pt.minCount = 1;
+			pt.minCount = 50;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
 		case CASTLE_GARRISON:
@@ -273,38 +292,50 @@ public class PartyType { // todo add ability for max party size
 			pt.maxCount = 5;
 			pt.minCount = 1;
 			pt.tiers = new int[]{1, 2};
+			pt.hire = true;
 			break;
 		case CASTLE_HIRE:
 			pt.name = "For Hire";
 			pt.maxCount = 3;
 			pt.minCount = 1;
 			pt.tiers = new int[]{2, 3, 4};
-			break;
+            pt.hire = true;
+            break;
 		case CITY_HIRE:
 			pt.name = "For Hire";
 			pt.maxCount = 8;
 			pt.minCount = 1;
 			pt.tiers = new int[]{1, 2, 3};
-			break;
+            pt.hire = true;
+            break;
 		case TEST:
 			pt.name = "Test";
 			pt.maxCount = 100;
-			pt.minCount = 100;
+			pt.minCount = 50;
 			pt.tiers = new int[]{2, 3};
 			break;
+			// NOTE that the test parties may have forced culture types.
 		case TEST_1:
 			pt.name = "Test1";
-			pt.maxCount = 20;
-			pt.minCount = 20;
+			pt.maxCount = 120;
+			pt.minCount = 120;
 			pt.tiers = new int[]{3};
-			pt.unitType = UnitLoader.classTypes.get("Basic").units.get("Crossbowman");
+			pt.cultureType =  UnitLoader.cultureTypes.get("Aztec");
+			pt.unitType = pt.cultureType.units.get("Jaguar Spearman3");
+			if (pt.unitType == null) {
+			    throw new AssertionError();
+            }
 			break;
 		case TEST_2:
 			pt.name = "Test2";
-			pt.maxCount = 20;
-			pt.minCount = 20;
+			pt.maxCount = 60;
+			pt.minCount = 60;
 			pt.tiers = new int[]{3};
-			pt.unitType = UnitLoader.classTypes.get("Basic").units.get("Longbowman");
+            pt.cultureType =  UnitLoader.cultureTypes.get("Aztec");
+            pt.unitType = pt.cultureType.units.get("Eagle Bowman4");
+            if (pt.unitType == null) {
+                throw new AssertionError();
+            }
 			break;
 //		case ENLIGHTENMENT:
 //			pt.name = "Enlightenment";

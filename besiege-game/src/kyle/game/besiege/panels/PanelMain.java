@@ -24,7 +24,7 @@
 //	private Table text;
 //	private Label level;
 //	private Label name;
-//	private Label party;
+//	private Label playerPartyPanel;
 //	private Label money;
 //	
 //	public PanelMain(SidePanel panel) {
@@ -44,7 +44,7 @@
 //		name = new Label("", ls30);
 //		name.setAlignment(0, 0);
 //		level = new Label("", ls24);
-//		party = new Label("", ls24); // change later
+//		playerPartyPanel = new Label("", ls24); // change later
 //		money = new Label("", ls24);
 //
 //		Label levelC = new Label("Level:", ls24);
@@ -58,7 +58,7 @@
 //		text.add(level).right();
 //		text.row();
 //		text.add(partyC).left();
-//		text.add(party).right();
+//		text.add(playerPartyPanel).right();
 //		text.row();
 //		text.add(moneyC).left();
 //		text.add(money).right();
@@ -75,14 +75,14 @@
 //	public void act(float delta) {
 //		level.setText(""+player.getLevel());
 //		name.setText(player.getName());
-//		party.setText(player.getPartyInfo());
+//		playerPartyPanel.setText(player.getPartyInfo());
 //		money.setText(""+player.getParty().wealth);
 //		super.act(delta);
 //	}
 //	
 //	@Override
 //	public void button1() {
-//		panel.setActive(panel.party);
+//		panel.setActive(panel.playerPartyPanel);
 //	}
 //	@Override
 //	public void button2() {

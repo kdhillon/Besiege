@@ -27,9 +27,11 @@ import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.WeaponType;
 
+import java.util.ServiceConfigurationError;
+
 public class OldBattle implements Battle { // new battle system involving Party
 	private static final float SPEED = 200; //lower is faster
-	private static final int EXP_FACTOR = 47; // how much more exp is given to winning party than total atk of enemies
+	private static final int EXP_FACTOR = 47; // how much more exp is given to winning playerPartyPanel than total atk of enemies
 	private static final int BASE_EXP = 1;
 	private static final int MIN_EXP = 500;
 	private static final float MIN_BALANCE = .3f;
@@ -46,6 +48,8 @@ public class OldBattle implements Battle { // new battle system involving Party
 	// doesn't require a kingdom necessarily
 	private Kingdom kingdom;
 	private BattleActor battleActor; // parent
+    private VictoryManager victoryManager;
+
 	private StrictArray<Army> aArmies;
 	private StrictArray<Army> dArmies;
 	private StrictArray<Army> aArmiesRet; 
@@ -97,6 +101,8 @@ public class OldBattle implements Battle { // new battle system involving Party
 		this.battleActor = battleActor;
 		Army initAttacker = initAttackerParty.army;
 		Army initDefender = initDefenderParty.army;
+
+		victoryManager = new VictoryManager(this, battleActor.getSiegeLocation());
 
 		aParties = new StrictArray<Party>();
 		dParties = new StrictArray<Party>();
@@ -527,7 +533,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		
 		armies.shrink();
 		
-		// get random party based on healthy size
+		// get random playerPartyPanel based on healthy size
 		int totalSize = 0;
 		for (int i = 0; i < armies.size; i++) {
 			totalSize += armies.get(i).party.getHealthySize();
@@ -612,10 +618,15 @@ public class OldBattle implements Battle { // new battle system involving Party
 			Army army = loser.get(i);
 			army.party.registerBattleLoss();
 		}
-	
-		if (battleActor != null) {
-			battleActor.handleVictory(didAtkWin);
-		}
+
+		if (victoryManager != null) {
+		    victoryManager.handleVictory(didAtkWin);
+        }
+
+//		if (battleActor != null) {
+//
+//			battleActor.handleVictory(didAtkWin);
+//		}
 //		// TESTING
 //		if (victor == aArmies) {
 //			for (Army leftOver : dArmies) {
@@ -877,6 +888,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 	@Override
 	public Faction getAttackingFactionOrNull() {
+	    if (aParties == null || aParties.first() == null) return null;
 		return aParties.first().getFaction();
 	}
 

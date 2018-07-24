@@ -1,4 +1,4 @@
-Besiege
+Chieftain
 =======
 by Kyle Dhillon
 
@@ -6,13 +6,13 @@ May 2013 - present
 
 New description (Chiefdom: Bloodlands): 
 
-Warchief is a real-time strategy and conquest game for PC and Mac.
+Chieftain is a real-time strategy and conquest game for PC and Mac.
 Command a pre-Columbian army in a massive, procedurally generated world of rivaling tribes and empires.
-Lead your warriors into battle to destroy and capture your enemies. Make blood sacrifices to the gods to win 
-their blessings. Explore new lands, and lead your tribe to dominate the continent. 
+Lead your warriors into battle to destroy and capture your enemies. Make blood sacrifices to the gods to secure 
+their blessings and powers. Explore new lands, and lead your tribe to dominate the continent. 
 
 AI:
-Besiege's AI is fully-automated, meaning if left alone without player participation the world can run smoothly forever.
+Besiege's AI is fully-automated. If left alone without player participation the world can run smoothly forever.
 Rival factions will develop, kingdoms will fall and new ones will arise to take their place.
 
 
@@ -25,7 +25,7 @@ Win battles and earn glory, conquer cities and castles, and declare yourself rul
 Download and play the beta version here: http://princeton.edu/~kdhillon/besiege
 
 Map:
-Besiege's island map is procedurally generated for each playthrough, using Voronoi graphs, Delaunay triangulation,
+Chieftain's island map is procedurally generated for each playthrough, using Voronoi graphs, Delaunay triangulation,
 and Perlin noise functions, in a Java based off the methods described here:
 http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/
 The map is populated with over 100 cities, castles and villages, hundreds of armies, and plenty for the player to explore.

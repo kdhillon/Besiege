@@ -13,7 +13,9 @@ import com.badlogic.gdx.utils.Array;
  * 
  *********************************************************************/
 public class MarkovModel {
+    private static int UNICODE = 8500; // number of possible chars we will use
     private static int ASCII = 2048; // number of possible chars we will use
+    private static int ALPHABET_SIZE = ASCII;
     // create symbol table for each k-gram
     private ST<String, int[]> st = new ST<String, int[]>();
     private Array<String> startingkgrams;
@@ -36,7 +38,7 @@ public class MarkovModel {
             String kgram = text.substring(i, i+k);
             // the first time you see a certain k-gram (no duplicates)
             if (!st.contains(kgram)) {
-                int[] intArray = new int[ASCII];
+                int[] intArray = new int[ALPHABET_SIZE];
                 st.put(kgram, intArray);
             }
             char c = text.charAt(i+k); // the following character
@@ -60,7 +62,7 @@ public class MarkovModel {
             throw new RuntimeException("Invalid kgram length");
         
         int total = 0; // total frequency of kgram
-        for (int i = 0; i < ASCII; i++) 
+        for (int i = 0; i < ALPHABET_SIZE; i++)
             total += st.get(kgram)[i]; // add number of occurances to total
         
         return total;
@@ -83,11 +85,11 @@ public class MarkovModel {
         if (!st.contains(kgram)) 
             throw new RuntimeException("No such kgram");
         
-        double[] probs = new double[ASCII]; // new array of doubles
+        double[] probs = new double[ALPHABET_SIZE]; // new array of doubles
         double total = this.freq(kgram); //total frequency of kgram
         
         //populate new double array with probabilities
-        for (int i = 0; i < ASCII; i++) 
+        for (int i = 0; i < ALPHABET_SIZE; i++)
             probs[i] = st.get(kgram)[i] / total;
         
         return (char) StdRandom.discrete(probs); 

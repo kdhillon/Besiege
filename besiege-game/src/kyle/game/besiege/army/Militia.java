@@ -8,8 +8,8 @@
 //import kyle.game.besiege.Faction;
 //import kyle.game.besiege.Kingdom;
 //import kyle.game.besiege.location.Village;
-//import kyle.game.besiege.party.PartyType;
-//import kyle.game.besiege.party.PartyType.Type;
+//import kyle.game.besiege.playerPartyPanel.PartyType;
+//import kyle.game.besiege.playerPartyPanel.PartyType.Type;
 //
 //public class Militia extends Army { // Revamp this :)
 //	private final String textureRegion = "Farmer";

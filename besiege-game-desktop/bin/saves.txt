@@ -1,5 +1,0 @@
-original: 120,000
-transient textures: 130,000
-transient dest stack: 130,000
-transient party: 20,000
-transient equipment array: 60,000

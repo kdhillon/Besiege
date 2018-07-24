@@ -16,6 +16,8 @@ import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Center;
+import kyle.game.besiege.voronoi.Corner;
 
 public class Castle extends Location {
 	private final static int SCOUT_TRAVEL_FACTOR = 5;
@@ -38,14 +40,21 @@ public class Castle extends Location {
 	public Castle(){}
 	
 	public Castle(Kingdom kingdom, String name, int index, Faction faction, float posX,
-			float posY) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CASTLE_GARRISON);
+                  float posY, Center center, Corner corner) {
+		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CASTLE_GARRISON, center, corner);
 		this.type = LocationType.CASTLE;
 				
 		setWealth(calcInitialWealth());
 		
 		this.DAILY_WEALTH_INCREASE_BASE = 0;
-//		
+//
+        if (this.getFaction() == null) {
+            throw new AssertionError();
+        }
+        if (getFaction().castles == null) {
+            System.out.println(getFaction().name);
+        }
+
 		this.getFaction().castles.add(this);
 		
 //		scouts = new StrictArray<Patrol>();

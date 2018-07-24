@@ -30,6 +30,10 @@ public class Assets {
 	public static TextureAtlas weapons;
 	public static TextureAtlas map;
 	public static TextureAtlas units;
+	public static TextureAtlas equipment;
+    public static TextureAtlas crests;
+
+    public static Texture black;
 
 //	public static Texture map1;
 //	public static Texture map2;
@@ -70,261 +74,23 @@ public class Assets {
 	public static TextureRegion white;
 
 	public static void load() {
-		atlas = new TextureAtlas(Gdx.files.internal("atlas1.atlas"));
-		weapons = new TextureAtlas(Gdx.files.internal("weapons.atlas"));
-		units = new TextureAtlas(Gdx.files.internal("units.atlas"));
-		map = new TextureAtlas(Gdx.files.internal("map.atlas"));
-		
-		white = new TextureRegion(new Texture("whitepixel.png"));
-		
-		NameGenerator.init();
-		
+		atlas = new TextureAtlas(Gdx.files.internal("atlas1"));
+		weapons = new TextureAtlas(Gdx.files.internal("weapons1"));
+		units = new TextureAtlas(Gdx.files.internal("units1"));
+		map = new TextureAtlas(Gdx.files.internal("map1"));
+		equipment = new TextureAtlas(Gdx.files.internal("equipment1"));
+        crests = new TextureAtlas(Gdx.files.internal("crests1"));
+
+        white = new TextureRegion(new Texture("whitepixel.png"));
+		black = new Texture("black.png");
+
 		// load units
-		UnitLoader.load("basic");
+		UnitLoader.load("chieftain");
 
 		rain = Gdx.audio.newMusic(Gdx.files.internal("sound/rain1.mp3"));
 		thunder1 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder1.wav"));
 		thunder2 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder2.wav"));
-		
-//		String[] cities = {
-//				"Catterick",
-//				"Colne",
-//				"Fotheringhay",
-//				"Hawarden",
-//				"Gloucester",
-//				"Furness",
-//				"Weobley",
-//				"Billinghame",
-//				"Portishead",
-//				"Oakham",
-//				"Warkworth",
-//				"Kidwelly",
-//				"Brading",
-//				"Hayton",
-//				"Neville",
-//				"Portsmouth",
-//				"Colchester",
-//				"Newstead",
-//				"Sheffield",
-//				"Salisbury",
-//				"Knaresborough",
-//				"Norham",
-//				"Brackley",
-//				"Elstow",
-//				"Bloxham",
-//				"Rhuddlan",
-//				"Dudley",
-//				"Scunthorpe",
-//				"Hexham",
-//				"Usk",
-//				"Bebington",
-//				"Wilton",
-//				"Minster",
-//				"Walpole",
-//				"Lewes",
-//				"Bamburgh",
-//				"Buildwas",
-//				"Pebmarsh",
-//				"Oxford",
-//				"Oxted"
-//		};
 
-//		cityNames = new Array<String>();
-//		for (int i = 0; i < cityCount; i++) 
-//			cityNames.add(cities[i]);
-
-//		String[] castlesVillages = {
-//				"Lewes",
-//				"Deal",
-//				"Bytham",
-//				"Ely",
-//				"Northhallterton",
-//				"Lacock",
-//				"Leiston",
-//				"Neath",
-//				"Ipswich",
-//				"Bushbury",
-//				"Holbeach",
-//				"Bodiam",
-//				"Runnymede",
-//				"Pebmarsh",
-//				"Rothley",
-//				"Folkingham",
-//				"Bamburgh",
-//				"Mold",
-//				"Milford",
-//				"Castor",
-//				"Ebbsfleet",
-//				"Egremount",
-//				"Bowes",
-//				"Radcliffe",
-//				"Drayton",
-//				"Brackley",
-//				"Peterborough",
-//				"Hay",
-//				"Axminster",
-//				"Avon",
-//				"Ilchester",
-//				"Tavistock",
-//				"Deanwy",
-//				"Stretton",
-//				"Cheltenham",
-//				"Dyserth",
-//				"Arundel",
-//				"Teignmouth",
-//				"Bangor",
-//				"Brecon",
-//				"Billinghame",
-//				"Bridport",
-//				"Barborough",
-//				"Romsey",
-//				"Alton",
-//				"Bridgewater",
-//				"Neath",
-//				"Hartlepool",
-//				"Crediton",
-//				"Ripley",
-//				"Spalding",
-//				"Bath",
-//				"Uffington",
-//				"Bardney",
-//				"Haddon",
-//				"Otterburn",
-//				"Huyton",
-//				"Starford",
-//				"Belvoir",
-//				"Walpole",
-//				"Oxford",
-//				"Deerhurst",
-//				"Tynemouth",
-//				"Newcastle",
-//				"Haverfordwest",
-//				"Selby",
-//				"Cambridge",
-//				"Swansea",
-//				"Albans",
-//				"Walsingham",
-//				"Baldock",
-//				"Hutton",
-//				"Wigmore",
-//				"Worthing",
-//				"Carlisle",
-//				"Elmham",
-//				"Oswestry",
-//				"Cricklade",
-//				"Evesham",
-
-//				"Lewes2",
-//				"Deal2",
-//				"Bytham2",
-//				"Ely2",
-//				"Northhallterton2",
-//				"Lacock2",
-//				"Leiston2",
-//				"Neath2",
-//				"Ipswich2",
-//				"Bushbury2",
-//				"Holbeach2",
-//				"Bodiam2",
-//				"Runnymede2",
-//				"Pebmarsh2",
-//				"Rothley2",
-//				"Folkingham2",
-//				"Bamburgh2",
-//				"Mold2",
-//				"Milford2",
-//				"Castor2",
-//				"Ebbsfleet2",
-//				"Egremount2",
-//				"Bowes2",
-//				"Radcliffe2",
-//				"Drayton2",
-//				"Brackley2",
-//				"Peterborough2",
-//				"Hay2",
-//				"Axminster2",
-//				"Avon2",
-//				"Ilchester2",
-//				"Tavistock2",
-//				"Deanwy2",
-//				"Stretton2",
-//				"Cheltenham2",
-//				"Dyserth2",
-//				"Arundel2",
-//				"Teignmouth2",
-//				"Bangor2",
-//				"Brecon2",
-//				"Billinghame2",
-//				"Bridport2",
-//				"Barborough2",
-//				"Romsey2",
-//				"Alton2",
-//				"Bridgewater2",
-//				"Neath2",
-//				"Hartlepool2",
-//				"Crediton2",
-//				"Ripley2",
-//				"Spalding2",
-//				"Bath2",
-//				"Uffington2",
-//				"Bardney2",
-//				"Haddon2",
-//				"Otterburn2",
-//				"Huyton2",
-//				"Starford2",
-//				"Belvoir2",
-//				"Walpole2",
-//				"Oxford2",
-//				"Deerhurst2",
-//				"Tynemouth2",
-//				"Newcastle2",
-//				"Haverfordwest2",
-//				"Selby2",
-//				"Cambridge2",
-//				"Swansea2",
-//				"Albans2",
-//				"Walsingham2",
-//				"Baldock2",
-//				"Hutton2",
-//				"Wigmore2",
-//				"Worthing2",
-//				"Carlisle2",
-//				"Elmham2",
-//				"Oswestry2",
-//				"Cricklade2",
-//				"Evesham2",
-//				"Harcourt"
-//		};
-//		villageNames = new Array<String>();
-//		for (int i = 0; i < villageCount; i++) 
-//			villageNames.add(castlesVillages[i]);
-//						
-//		// go backwards in list for castles and ruins, starting from bottom
-//		castleNames = new Array<String>();		
-//		int castleIndex = villageNames.size;
-//		while (castleNames.size < castleCount) {
-//			if (castlesVillages[castleIndex].length() < 8) {
-//				if (Math.random() < .7)
-//					castleNames.add(castlesVillages[castleIndex] + " Castle");
-//				else castleNames.add(castlesVillages[castleIndex] + " Fortress");
-//			}
-//			castleIndex++;
-//		}
-//		
-//		ruinNames = new Array<String>();
-//		int ruinIndex = castleIndex;
-//		while (ruinNames.size < ruinCount) {
-//			if (castlesVillages[ruinIndex].length() < 8) {
-//				ruinNames.add(castlesVillages[ruinIndex] + " Ruins");
-//			}
-//			ruinIndex++;
-//		}
-		
-		//		cityList = new Scanner(Gdx.files.internal("mapSmall.txt").readString());
-		//		cityList = new Scanner(Gdx.files.internal("map40.txt").readString());
-
-		//		villageList = new Scanner(Gdx.files.internal("villages60.txt").readString());
-		
 		pixel12 = new BitmapFont(Gdx.files.internal("data/droid12.fnt"), false);
 		pixel13neg = new BitmapFont(Gdx.files.internal("data/droid13neg.fnt"),false);
 		pixel14 = new BitmapFont(Gdx.files.internal("data/droid14.fnt"), false);

@@ -25,6 +25,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import kyle.game.besiege.geom.PointH;
 import kyle.game.besiege.geom.Rectangle;
 import kyle.game.besiege.panels.PanelCenter;
+import kyle.game.besiege.party.CultureType;
+import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.utils.MyRandom;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
@@ -43,7 +45,8 @@ public class Map extends Actor {
 	public static int HEIGHT = 7000;
 
 	// using new int technique, can sfupport infinite sites - tested up to 3200
-	private static final int NUM_SITES = 300;
+    // 300-600 is good
+	private static final int NUM_SITES = 1200;
 
 	// Higher is fewer rivers
 	public static final int RIVER_THRESHOLD = 20;
@@ -54,6 +57,7 @@ public class Map extends Actor {
 	public static boolean drawSpheres;
 	public static boolean drawBorders;
 	public static boolean drawWealth;
+    public static boolean drawCultures;
 
 	//	private static final TextureRegion test = Assets.atlas.findRegion("crestRedCross");
 	//	private static final TextureRegion test2 = Assets.atlas.findRegion("crestOrangeCross");
@@ -198,6 +202,13 @@ public class Map extends Actor {
 					if (!factionBorderEdges.contains(e, true)) factionBorderEdges.add(e);
 				}
 			}
+			// Add borders to unclaimed land
+			if (e.d0.faction != null && e.d1.faction == null && !e.d1.water) {
+                if (!factionBorderEdges.contains(e, true)) factionBorderEdges.add(e);
+            }
+            if (e.d1.faction != null && e.d0.faction == null && !e.d0.water) {
+                if (!factionBorderEdges.contains(e, true)) factionBorderEdges.add(e);
+            }
 		}
 	}
 
@@ -409,7 +420,7 @@ public class Map extends Actor {
 	// map freezes when it has to add a FUCKton of corners
 	public void addCorner(Corner otherCorner) {
 //		System.out.println("adding corner");
-		borderCorners.add(otherCorner);
+//		borderCorners.add(otherCorner);
 		otherCorner.visibleCorners = new ArrayList<Corner>();
 		for (Corner currentCorner : borderCorners) {
 			if (otherCorner.waterTouches != 2) {
@@ -518,18 +529,30 @@ public class Map extends Actor {
 			for (Corner otherCorner : borderCorners) {
 				//			for (int j = 0; j < borderCorners.size(); j++) {
 				//				Corner otherCorner = (Corner) borderCorners.(j);
+				// WaterTouches != 2 ensures that "dead end"/cul de sac corners are culled.
+				
+				// Note: we may want to move this "line needed" check below, and only run it if this is not a newly created corner
 				if (otherCorner.waterTouches != 2 && lineNeeded(currentCorner, otherCorner)) {
+					// First add any adjacent corners.
+					// Removing this causes the "Long path" effect: This is partially what's broken. Because current corner doesn't have 
+					// protrudes, it doesn't think the current corner is visible sometimes?
 					for (Edge touching : currentCorner.protrudes) {
 						if ((!touching.d0.water || !touching.d1.water) && (touching.v0 == otherCorner || touching.v1 == otherCorner)) {
 							currentCorner.addVisible(otherCorner);
 							totalVisibilityLines++;
-							if (otherCorner.visibleCorners != null && !otherCorner.visibleCorners.contains(currentCorner))
+							if (otherCorner.visibleCorners == null) {
+								otherCorner.visibleCorners = new ArrayList<Corner>();
+							}
+							if (!otherCorner.visibleCorners.contains(currentCorner)) {
 								otherCorner.addVisible(currentCorner);
+							}
 							continue;
 						}
 					}
 
-					if (otherCorner != null && otherCorner != currentCorner && openPathInit(currentCorner, otherCorner) == null) {
+					// Next, add any other visible corners, except ones that are "across water"
+					// But this is where the wrong corner (across the bend) is being added -- openPathInit is returning the wrong corner.
+					if (otherCorner != null && otherCorner != currentCorner && openPathFast(currentCorner, otherCorner) == null) {
 						boolean shouldAdd = true;
 						// make sure not same water polygon
 						for (Center center : currentCorner.touches) {
@@ -537,6 +560,7 @@ public class Map extends Actor {
 								if (center.water) shouldAdd = false;
 							}
 						}
+						
 						if (shouldAdd) {
 							if (!currentCorner.visibleCorners.contains(otherCorner))
 								currentCorner.addVisible(otherCorner);
@@ -565,12 +589,12 @@ public class Map extends Actor {
 				if (intersect(c1, c2, edge))
 					return edge;
 			}
-			//			else System.out.println("touching edge");
 		}
 		return null;
 	}
 
-	/** checks if there is a direct path between two corners, returns
+	/*
+	 * checks if there is a direct path between two corners, returns
 	 * null if path exists, or the edge blocking it if it doesn't.
 	 * Looks only at border edges (faster)
 	 * 
@@ -578,7 +602,34 @@ public class Map extends Actor {
 	 * @param c2
 	 * @return
 	 */
-	public Edge openPath(Corner c1, Corner c2) {
+	public Edge openPathFast(Corner c1, Corner c2) {
+		// If this corner was just added, there's no concept of a "protruding" edge. Use a different algorithm
+		if (c1.protrudes.isEmpty()) {
+			return openPathNoProtrudes(c1, c2);
+		} else {
+			return openPathProtrudes(c1, c2);
+		}
+	}
+	
+	private Edge openPathNoProtrudes(Corner c1, Corner c2) {
+		for (Edge edge : impBorders)   {
+				if (intersect(c1, c2, edge)) {
+//					 System.out.println("edge intersects");
+					 return edge;
+				}
+		}
+		// Kyle just added this for testing rivers, slower
+//		for (Edge edge : impassable) {
+//			if (!c1.protrudes.contains(edge) && !c2.protrudes.contains(edge)) {
+//				if (intersect(c1, c2, edge))
+//					return edge;
+//			}
+//			//			else System.out.println("touching edge");
+//		}
+		return null;
+	}
+	
+	private Edge openPathProtrudes(Corner c1, Corner c2) {
 		for (Edge edge : impBorders) {
 			if (!c1.protrudes.contains(edge) && !c2.protrudes.contains(edge)) {
 				if (intersect(c1, c2, edge))
@@ -587,15 +638,16 @@ public class Map extends Actor {
 			//			else System.out.println("touching edge");
 		}
 		// Kyle just added this for testing rivers, slower
-		for (Edge edge : impassable) {
-			if (!c1.protrudes.contains(edge) && !c2.protrudes.contains(edge)) {
-				if (intersect(c1, c2, edge))
-					return edge;
-			}
-			//			else System.out.println("touching edge");
-		}
+//		for (Edge edge : impassable) {
+//			if (!c1.protrudes.contains(edge) && !c2.protrudes.contains(edge)) {
+//				if (intersect(c1, c2, edge))
+//					return edge;
+//			}
+//			//			else System.out.println("touching edge");
+//		}
 		return null;
 	}
+	
 	/** checks if line between corners intersects edge
 	 *  probably the most frequently called method in this game
 	 * 
@@ -851,9 +903,35 @@ public class Map extends Actor {
 
 	    Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, GL20.GL_REPEAT);
 	    Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, GL20.GL_REPEAT);
-	    center.biomeTexture.bind();
-		center.draw(projTrans, shader, batchColor);
+	    
+	    if (kingdom.getMapScreen().fogOn && !center.discovered) {
+	    	Assets.black.bind();
+	    } else {
+	    	center.biomeTexture.bind();
+	    }
+        float[] gray = {center.fogOpacity * batchColor[0], center.fogOpacity * batchColor[1], center.fogOpacity * batchColor[2]};
+        float[] color;
+        if (kingdom.getMapScreen().fogOn && center.discovered && center.fogOpacity > 0 && center.fogOpacity < 1) {
+            color = gray;
+            center.fogOpacity += 0.01f;
+        } else {
+            color = batchColor;
+        }
+
+        center.draw(projTrans, shader, color);
 		shader.end();
+
+//		// If discovered but fog hasn't fully faded, draw with fog fading:
+//        if (kingdom.getMapScreen().fogOn && center.discovered && center.fogOpacity > 0) {
+//            shader.begin();
+//            Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, GL20.GL_REPEAT);
+//            Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, GL20.GL_REPEAT);
+//
+//            Assets.black.bind();
+//            float[] gray = {center.fogOpacity, center.fogOpacity, center.fogOpacity};
+//
+//            center.draw(projTrans, shader, batchColor);
+//            shader.end();        }
 	}
 
 
@@ -906,7 +984,7 @@ public class Map extends Actor {
 		batchColor[2] = batch.getColor().b;
 
 		for (Center center : this.vg.centers) {
-			if (!center.ocean)
+//			if (!center.ocean)
 				drawCenter(center, kingdom.getMapScreen().currentCamera.combined, batchColor);
 			//			drawCenter(center, kingdom.getMapScreen()., batchColor);			
 		}
@@ -1110,6 +1188,7 @@ public class Map extends Actor {
 		}
 
 
+		// Spheres of influence
 		if (drawSpheres) {
 			batch.end();
 			sr.begin(ShapeType.Filled);
@@ -1121,6 +1200,7 @@ public class Map extends Actor {
 			for (Faction f : ((Kingdom) getParent()).factions) {
 				sr.setColor(f.color.r, f.color.g, f.color.b, .4f);
 				for (Center c : f.centers) {
+                    if (kingdom.getMapScreen().fogOn && !c.discovered) continue;
 
 					for (int edgeIndex : c.adjEdges) {
 						Edge e = this.getEdge(edgeIndex);
@@ -1150,6 +1230,49 @@ public class Map extends Actor {
 			sr.end();
 			batch.begin();
 		}
+
+
+        // Draw cultures
+        if (drawCultures) {
+            batch.end();
+            sr.begin(ShapeType.Filled);
+            sr.setProjectionMatrix(batch.getProjectionMatrix());
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+
+            // draw cultures
+            // note, when drawing to subedges, there is some overlap when the lines turn inward enough
+            for (Center c : vg.centers) {
+                if (kingdom.getMapScreen().fogOn && !c.discovered) continue;
+//                CultureType cultureType = UnitLoader.biomeCultures.get(c.biome);
+                CultureType cultureType = c.cultureType;
+                if (cultureType == null) continue;
+                sr.setColor(cultureType.colorDark.r, cultureType.colorDark.g, cultureType.colorDark.b, .8f);
+
+                for (int edgeIndex : c.adjEdges) {
+                    Edge e = this.getEdge(edgeIndex);
+
+                    for (int i = -1; i < e.subEdges.length; i++) {
+                        PointH start, end;
+                        if (i == -1) {
+                            start = e.v0.loc;
+                        } else start = e.subEdges[i];
+                        if (i == e.subEdges.length - 1) {
+                            end = e.v1.loc;
+                        } else end = e.subEdges[i + 1];
+
+                        sr.triangle(c.loc.x, HEIGHT - c.loc.y, (float) start.x, (float) (HEIGHT - start.y), (float) end.x, (float) (HEIGHT - end.y));
+                    }
+
+                }
+
+                //					for (float[] vertices : c.triangles) {
+                //						sr.triangle(vertices[0], vertices[1], vertices[2],
+                //								vertices[3], vertices[4], vertices[5]);
+                //					}
+            }
+            sr.end();
+            batch.begin();
+        }
 				
 		
 		drawBorders = drawSpheres;

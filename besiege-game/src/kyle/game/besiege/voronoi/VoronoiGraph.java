@@ -17,9 +17,12 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 
+import kyle.game.besiege.MapUtils;
 import kyle.game.besiege.ext.PerlinNoiseGenerator;
 import kyle.game.besiege.geom.PointH;
 import kyle.game.besiege.geom.Rectangle;
+import kyle.game.besiege.party.CultureType;
+import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.utils.MyRandom;
 import kyle.game.besiege.voronoi.nodename.as3delaunay.LineSegment;
 import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
@@ -32,9 +35,9 @@ import kyle.game.besiege.voronoi.nodename.as3delaunay.Voronoi;
  * (modified by Kyle Dhillon)
  */
 public class VoronoiGraph {
-	private static final double ROUNDNESS = .3; // increase for more centralized (~.5) (.46 is good)
-	private static final double WATER_FREQ = .2; // increase for a little more wild (~.2) (.14 is good)
-	private static final double LAND_FREQ = .35; // increase for overall land mass (sensitive) (~.4) (.43 is good)
+	private static final double ROUNDNESS = .5; // increase for more centralized (~.5) (.46 is good)
+	private static final double WATER_FREQ = .24; // increase for a little more wild (~.2) (.14 is good)
+	private static final double LAND_FREQ = .4; // increase for overall land mass (sensitive) (~.4) (.43 is good)
 	private static final double TURBULENCE = 4; // (~5)
 
     public ArrayList<Corner> corners = new ArrayList<Corner>();
@@ -45,11 +48,19 @@ public class VoronoiGraph {
     private MyRandom r;
     private PerlinNoiseGenerator perlin;
 
+    // Lower is hotter...
+    private float tempTopRight = 0.8f;
+    private float tempTopLeft  = 0.9f;
+    private float tempBotRight = 0.0f;
+    private float tempBotLeft  = 0.0f;
+
+    private float maxElevation = 0;
+
     // for serialization
     public VoronoiGraph() {
     	// need to reinitialize biome textures.
     }
-    
+
     public VoronoiGraph(Voronoi v, int numLloydRelaxations, MyRandom r) {
         this.r = r;
         System.out.println("initializing Perlin generator");
@@ -89,6 +100,7 @@ public class VoronoiGraph {
         assignOceanCoastAndLand();
         redistributeElevations(landCorners());
         assignPolygonElevations();
+        assignPolygonTemperatures();
 
         System.out.println("doing downslopes and moistures and biomes");
         calculateDownslopes();
@@ -99,7 +111,8 @@ public class VoronoiGraph {
         assignPolygonMoisture();
         initBiomeTextures();
         assignBiomes();
-        
+        assignCultures();
+
         System.out.println("doing areas");
         calculateAreas();
         
@@ -191,13 +204,16 @@ public class VoronoiGraph {
             if (c.border) {
                 newP[c.index] = c.loc;
             } else {
-                double x = 0;
-                double y = 0;
-                for (Center center : c.touches) {
-                    x += center.loc.x;
-                    y += center.loc.y;
-                }
-                newP[c.index] = new PointH(x / c.touches.size(), y / c.touches.size());
+                newP[c.index] = c.loc;
+
+                // Move points to the centroids of created polygons
+//                double x = 0;
+//                double y = 0;
+//                for (Center center : c.touches) {
+//                    x += center.loc.x;
+//                    y += center.loc.y;
+//                }
+//                newP[c.index] = new PointH(x / c.touches.size(), y / c.touches.size());
             }
         }
         for (Corner c : corners) {
@@ -299,8 +315,8 @@ public class VoronoiGraph {
 //                        case COAST:
 //                            color = new Color(COAST);
 //                            break;
-//                        case BARE:
-//                            color = new Color(BARE);
+//                        case MOUNTAINS:
+//                            color = new Color(MOUNTAINS);
 //                            break;
 //                        case SHRUBLAND:
 //                            color = new Color(SHRUBLAND);
@@ -421,6 +437,20 @@ public class VoronoiGraph {
 //        g.drawRectangle((int) bounds.x, (int) bounds.y, (int) bounds.width, (int) bounds.height);
     }
 
+    public void calcRelativeTemp(Corner corner) {
+        float x = (float) (corner.loc.x / bounds.right);
+        float y = (float) (corner.loc.y / bounds.bottom);
+
+        // bilinear interpolation:
+        float topLeft = tempTopLeft * (1-x) * (1-y);
+        float topRight = tempTopRight * (x) * (1-y);
+        float botLeft = tempBotLeft * (1-x) * (y);
+        float botRight = tempBotRight * (x) * (y);
+
+        corner.temperature = topLeft + topRight + botLeft + botRight;
+        System.out.println("Temperature: " + corner.temperature);
+    }
+
     public static Color getColor(Center c) {
     	Color color = new Color(OCEAN);
     
@@ -464,7 +494,7 @@ public class VoronoiGraph {
     	case BEACH:
     		color = new Color(BEACH);
     		break;
-    	case BARE:
+    	case MOUNTAINS:
     		color = new Color(BARE);
     		break;
     	case SHRUBLAND:
@@ -637,7 +667,11 @@ public class VoronoiGraph {
                 }
             }
         }
-        
+        // Calculate temperature from elevation and distance from corners
+        for (Corner c : corners) {
+            calcRelativeTemp(c);
+        }
+
 //        for (Corner c : corners) {
 //        	System.out.println("Elevation: " + c.elevation);
 //        }
@@ -807,6 +841,27 @@ public class VoronoiGraph {
                 total += c.elevation;
             }
             center.elevation = total / center.corners.size();
+            if (center.elevation > maxElevation) {
+                maxElevation = center.elevation;
+            }
+        }
+    }
+
+    private void assignPolygonTemperatures() {
+        for (Center center : centers) {
+            float total = 0;
+            for (Corner c : center.corners) {
+                total += c.temperature;
+            }
+            center.temperature = total / center.corners.size();
+
+            // modify temp based on elevation
+            // basically, 20 degrees temperature loss
+            float MAX_TEMP_LOSS = 0.2f;
+            center.temperature += ((center.elevation / maxElevation)) * MAX_TEMP_LOSS;
+
+            float BASE_LOSS = 0.1f;
+            center.temperature += BASE_LOSS;
         }
     }
 
@@ -914,67 +969,131 @@ public class VoronoiGraph {
         }
     }
 
-    private Biomes getBiome(Center p) {
+    private Biomes getBiomeFromTemp(Center p) {
         if (p.ocean) {
             return Biomes.OCEAN;
-        } 
+        }
         // this could be fucking up pathfinding?
         else if (p.water) {
-            if (p.elevation < 0.2) {
+            if (p.temperature < 0.2) {
                 return Biomes.MARSH;
             }
-//            if (p.elevation > 0.8) {
+//            if (p.temper > 0.8) {
 //                return Biomes.ICE;
 //            }
             return Biomes.LAKE;
-        } else if (p.coast) {
-        	for (Center adj : p.neighbors) {
-        		if (!adj.water && adj.biome != null && Math.random() < 0.7) return adj.biome;
-        	}
+        } else if (p.coast && p.temperature < 0.6 && (p.elevation / maxElevation) < 0.2) {
+//            for (Center adj : p.neighbors) {
+//                if (!adj.water && adj.biome != null && adj.biome != Biomes.BEACH && Math.random() < 0.5) return adj.biome;
+//            }
             return Biomes.BEACH;
-        } 
-        // Kyle modified these values
-        // originally 0.8
-        else if (p.elevation > 0.55) {
-            if (p.moisture > 0.70) {
-                return Biomes.SNOW;
-            } else if (p.moisture > 0.43) {
-                return Biomes.TUNDRA;
-            } else if (p.moisture > 0.26) {
-                return Biomes.BARE;
+        }
+        else if (p.elevation / maxElevation > 0.8) {
+            // TODO make these dependant on nearby biomes
+            if (p.temperature > 0.75) {
+                return Biomes.MOUNTAINS;
+            } else if (p.temperature > 0.3) {
+                return Biomes.PLATEAU;
             } else {
                 return Biomes.SCORCHED;
             }
-        } else if (p.elevation > 0.6) {
-            if (p.moisture > 0.66) {
+        }
+        // TODO: idea, have buffer zones between organized temperature zones to smooth out biomes:
+        //  to avoid having isolated pockets of forest in a grassland, for example, have a wasteland or neutral zone
+        // between them.
+        // Kyle modified these values
+        // originally 0.8
+        else if (p.temperature > 0.83) {
+            if (p.moisture > 0.60) {
+                return Biomes.SNOW;
+            } else
+                return Biomes.TUNDRA;
+        } else if (p.temperature > 0.75) {
+            if (p.moisture > 0.5) {
                 return Biomes.TAIGA;
-            } else if (p.moisture > 0.33) {
-                return Biomes.SHRUBLAND;
             } else {
-                return Biomes.PLATEAU;
+                return Biomes.SHRUBLAND;
             }
-        } else if (p.elevation > 0.3) {
-            if (p.moisture > 0.83) {
-                return Biomes.TROPICAL_RAIN_FOREST;
-            } else if (p.moisture > 0.50) {
+        } else if (p.temperature > 0.5) {
+             if (p.moisture > 0.6) {
                 return Biomes.TEMPERATE_DECIDUOUS_FOREST;
-            } else if (p.moisture > 0.16) {
+            } else if (p.moisture > 0) {
                 return Biomes.GRASSLAND;
             } else {
-                return Biomes.PLATEAU;
+                return Biomes.SUBTROPICAL_DESERT;
             }
         } else {
-            if (p.moisture > 0.73) {
+            if (p.moisture > 0.80) {
                 return Biomes.SWAMP;
-            } else if (p.moisture > 0.33) {
-                return Biomes.TROPICAL_SEASONAL_FOREST;
-            } else if (p.moisture > 0.16) {
-                return Biomes.GRASSLAND;
+            } else if (p.moisture > 0.4) {
+                return Biomes.TROPICAL_RAIN_FOREST;
             } else {
                 return Biomes.SUBTROPICAL_DESERT;
             }
         }
     }
+
+//    private Biomes getBiome(Center p) {
+//        if (p.ocean) {
+//            return Biomes.OCEAN;
+//        }
+//        // this could be fucking up pathfinding?
+//        else if (p.water) {
+//            if (p.elevation < 0.2) {
+//                return Biomes.MARSH;
+//            }
+////            if (p.elevation > 0.8) {
+////                return Biomes.ICE;
+////            }
+//            return Biomes.LAKE;
+//        } else if (p.coast) {
+//        	for (Center adj : p.neighbors) {
+//        		if (!adj.water && adj.biome != null && Math.random() < 0.7) return adj.biome;
+//        	}
+//            return Biomes.BEACH;
+//        }
+//        // Kyle modified these values
+//        // originally 0.8
+//        else if (p.elevation > 0.55) {
+//            if (p.moisture > 0.60) {
+//                return Biomes.SNOW;
+//            } else if (p.moisture > 0.43) {
+//                return Biomes.TUNDRA;
+//            } else if (p.moisture > 0.26) {
+//                return Biomes.MOUNTAINS;
+//            } else {
+//                return Biomes.SCORCHED;
+//            }
+//        } else if (p.elevation > 0.6) {
+//            if (p.moisture > 0.66) {
+//                return Biomes.TAIGA;
+//            } else if (p.moisture > 0.33) {
+//                return Biomes.SHRUBLAND;
+//            } else {
+//                return Biomes.PLATEAU;
+//            }
+//        } else if (p.elevation > 0.3) {
+//            if (p.moisture > 0.83) {
+//                return Biomes.TROPICAL_RAIN_FOREST;
+//            } else if (p.moisture > 0.50) {
+//                return Biomes.TEMPERATE_DECIDUOUS_FOREST;
+//            } else if (p.moisture > 0.16) {
+//                return Biomes.GRASSLAND;
+//            } else {
+//                return Biomes.PLATEAU;
+//            }
+//        } else {
+//            if (p.moisture > 0.73) {
+//                return Biomes.SWAMP;
+//            } else if (p.moisture > 0.33) {
+//                return Biomes.TROPICAL_SEASONAL_FOREST;
+//            } else if (p.moisture > 0.16) {
+//                return Biomes.GRASSLAND;
+//            } else {
+//                return Biomes.SUBTROPICAL_DESERT;
+//            }
+//        }
+//    }
 
 //    int textureIndex;
 
@@ -1037,19 +1156,21 @@ public class VoronoiGraph {
 //    	mapBiome(Biomes.BEACH, sandlight);
 //    	mapBiome(Biomes.COAST, sandlight);
 //    	mapBiome(Biomes.ICE, snow);
-//    	mapBiome(Biomes.BARE, rock);
+//    	mapBiome(Biomes.MOUNTAINS, rock);
 //    	mapBiome(Biomes.SHRUBLAND, lightgrass);
 //    	mapBiome(Biomes.TAIGA, water);
 //    	mapBiome(Biomes.MARSH, swampdark);
 //    	mapBiome(Biomes.SWAMP, swamp);
 //    	mapBiome(Biomes.GRASSLAND, lightgrass);
-    	
+
+
+        // TODO for maximum realness, draw a layer of trees AFTER the player has been drawn
     	mapBiome(Biomes.OCEAN, texture8);
     	mapBiome(Biomes.LAKE, texture8);
     	mapBiome(Biomes.TUNDRA, texture16);
-    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture12treeslight);
-    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture8trees);
-    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture12trees);
+    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture16treeslight);
+    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture16trees);
+    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture16trees);
     	mapBiome(Biomes.SUBTROPICAL_DESERT, texture16);
     	mapBiome(Biomes.PLATEAU, texture16);
     	mapBiome(Biomes.SNOW, texture64);
@@ -1057,9 +1178,9 @@ public class VoronoiGraph {
     	mapBiome(Biomes.LAKESHORE, texture16);
     	mapBiome(Biomes.BEACH, texture64);
     	mapBiome(Biomes.ICE, texture64);
-    	mapBiome(Biomes.BARE, texture16);
-    	mapBiome(Biomes.SHRUBLAND, texture8treeslight);
-    	mapBiome(Biomes.TAIGA, texture8);
+    	mapBiome(Biomes.MOUNTAINS, texture16);
+    	mapBiome(Biomes.SHRUBLAND, texture16treeslight);
+    	mapBiome(Biomes.TAIGA, texture16);
     	mapBiome(Biomes.MARSH, texture8);
     	mapBiome(Biomes.SWAMP, texture16);
     	mapBiome(Biomes.GRASSLAND, texture64);
@@ -1078,11 +1199,63 @@ public class VoronoiGraph {
 //    	biomeMap.put(b, t);
     }
     
-    
+
     private void assignBiomes() {
         for (Center center : centers) {
-        	center.setBiome(getBiome(center));
-        	center.setBiomeTexture(biomeMap.get(getBiome(center)));
+//            System.out.println(getBiomeFromTemp(center).name());
+        	center.setBiome(getBiomeFromTemp(center));
+        	center.setBiomeTexture(biomeMap.get(getBiomeFromTemp(center)));
+        }
+    }
+
+    private void assignCultures() {
+        // Literally repeat this until they're all full.
+        boolean atLeastOneIsNull = true;
+        System.out.println("Assigning culture");
+        int totalIters = 0;
+        while (atLeastOneIsNull && totalIters < 15) {
+            totalIters++;
+            System.out.println("at least one null");
+            atLeastOneIsNull = false;
+            for (Center center : centers) {
+                if (center.water) continue;
+//                continue;
+
+                System.out.println("doing center");
+
+                if (center.biome == null) throw new AssertionError();
+                CultureType type = UnitLoader.biomeCultures.get(center.biome);
+
+                if (type == null) {
+                    System.out.println("culture type is null");
+                    HashMap<CultureType, Integer> counts = new HashMap<>();
+                    for (Center adj : center.neighbors) {
+                        if (adj.cultureType != null) {
+                            if (counts.containsKey(adj.cultureType)) {
+                                counts.put(adj.cultureType, counts.get(adj.cultureType) + 1);
+                            } else {
+                                counts.put(adj.cultureType, 1);
+                            }
+                        }
+                    }
+
+                    int max = 0;
+                    for (CultureType key : counts.keySet()) {
+                        if (counts.get(key) > max) {
+                            max = counts.get(key);
+                            type = key;
+                        }
+                    }
+                }
+
+                if (type != null) {
+                    System.out.println("setting culture type for " + center.biome.name() + " " + type.name);
+                    center.setCultureType(type);
+                } else {
+                    System.out.println("culture type is null2");
+                    atLeastOneIsNull = true;
+                }
+            }
         }
     }
     
@@ -1131,7 +1304,7 @@ public class VoronoiGraph {
 //        addColor("BEACH", 0xa09077ff);
 //        addColor("SNOW", 0xffffffff);
 //        addColor("TUNDRA", 0xbbbbaaff);
-//        addColor("BARE", 0x888888ff);
+//        addColor("MOUNTAINS", 0x888888ff);
 //        addColor("SCORCHED", 0x555555ff);
 //        addColor("TAIGA", 0x99aa77ff);
 //        addColor("SHRUBLAND", 0x889977ff);

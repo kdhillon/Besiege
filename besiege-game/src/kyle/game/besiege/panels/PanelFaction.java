@@ -49,6 +49,8 @@ public class PanelFaction extends Panel {
 	private final String tablePatch = "grey-d9";
 	private SidePanel panel;
 
+	private TopTable topTable;
+
 	private Table text;
 	private Label title;
 	private Label wealth;

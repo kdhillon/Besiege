@@ -1,10 +1,14 @@
 package kyle.game.besiege;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
+import kyle.game.besiege.party.CultureType;
 
 /**
  * Generates random crests. Keeps a state of which crests have been generated.
@@ -27,8 +31,21 @@ public class RandomCrestGenerator extends Actor {
 	// static int DOUBLE_OVERLAYS = 0;
 	int DETAILS = 19;
 
+
+	HashMap<String, Array<String>> cultureToCrests = new HashMap();
+	String[] forestCrests = {"bearclaw", "bearface", "arrowhead", "twinarrows", "tomahawk", "bow", "necklace", "wolf", "bird"};
+	String[] plainsCrests = {"eagle", "buffalo", "raven", "sun", "sun2", "sun3", "fist", "rain", "water", "thunderbird"};
+	String[] mesoCrests = {"skull", "snake", "pyramid", "stonehead", "spiral", "spiral2", "flower", "pyramid2", "geometric"};
+    int forestIndex = 0;
+    int plainsIndex = 0;
+    int mesoIndex = 0;
+
 	public RandomCrestGenerator() {
 		int coloursToGenerate = 50;
+
+		cultureToCrests.put("Forest", new Array<>(forestCrests));
+        cultureToCrests.put("Desert", new Array<>(mesoCrests));
+        cultureToCrests.put("Plains", new Array<>(plainsCrests));
 
 		// The colours at the start that you don't want (White and Black are the
 		// first 2)
@@ -63,17 +80,44 @@ public class RandomCrestGenerator extends Actor {
 		detailUsed = new boolean[DETAILS];
 	}
 
-	public Crest create() {
+	public Crest create(CultureType type) {
 		colorsPopped += (int) (Math.random() * 2);
 
 		int overlay = 0;
 		int cOverlay = getNextColor();
-		int detail = getUnusedDetail();
+		String detail = getDetail(type);
 		int cDetail = getNextColor();
 		Crest crest = new Crest(overlay, cOverlay, detail, cDetail);
 
 		return crest;
 	}
+
+	public String getDetail(CultureType type) {
+	    if (type.name.equals("Forest")) {
+	        if (forestIndex == forestCrests.length)
+	            return getRandomDetail(type);
+	        return forestCrests[forestIndex++];
+        }
+        if (type.name.equals("Plains")) {
+            if (plainsIndex == plainsCrests.length)
+                return getRandomDetail(type);
+            return plainsCrests[plainsIndex++];
+        }
+        if (type.name.equals("Desert")) {
+            if (mesoIndex == mesoCrests.length)
+                return getRandomDetail(type);
+            return mesoCrests[mesoIndex++];
+        }
+        return null;
+    }
+
+	public String getRandomDetail(CultureType type) {
+	    Array<String> regions = cultureToCrests.get(type.name);
+	    if (regions == null) {
+	        System.out.println("No crests found for " + type.name);
+        }
+	    return regions.random();
+    }
 
 	public int getUnusedDetail() {
 		boolean allUsed = true;
@@ -93,16 +137,16 @@ public class RandomCrestGenerator extends Actor {
 	}
 
 	// Create variant
-	public Crest createVariant(Crest original) { 							
-		int detail = original.detail;
+	public Crest createVariant(Crest original, CultureType type) {
+		String detail = original.detail;
 		int cDetail = original.cDetail;
 		int overlay = original.overlay;
 		int cOverlay = original.cOverlay;
 
 		// change detail color or change detail
 		if (Math.random() < 0.6) {
-			if (detail < 0) {
-				detail = getUnusedDetail();
+			if (detail == null) {
+				detail = getRandomDetail(type);
 				cDetail = getNextColor();
 			} else {
 				// change color
@@ -111,7 +155,7 @@ public class RandomCrestGenerator extends Actor {
 				}
 				// change detail
 				else {
-					detail = getUnusedDetail();
+					detail = getRandomDetail(type);
 				}
 			}
 		} else {
@@ -132,11 +176,11 @@ public class RandomCrestGenerator extends Actor {
 	public Color getColor(int i) {
 		if (i < 0)
 			return Color.WHITE;
-		return colors[i];
+		return colors[i % COLORS];
 	}
 
 	public int getNextColor() {
-		System.out.println("using color: " + colorsPopped);
+//		System.out.println("using color: " + colorsPopped);
 		return colorsPopped++;
 	}
 
@@ -148,7 +192,7 @@ public class RandomCrestGenerator extends Actor {
 
 		float d = (float) Math
 				.sqrt((aY.r - bY.r) * (aY.r - bY.r) + (aY.g - bY.g) * (aY.g - bY.g) + (aY.b - bY.b) * (aY.b - bY.b));
-		System.out.println("distance: " + d);
+//		System.out.println("distance: " + d);
 		return d < 0.4f;
 	}
 
@@ -158,8 +202,8 @@ public class RandomCrestGenerator extends Actor {
 				if (i == j)
 					continue;
 				if (tooSimilar(colors[i], colors[j])) {
-					System.out.println("colors: " + colors[i].toString() + " " + i + ", " + colors[j].toString() + " "
-							+ j + " are too similar");
+//					System.out.println("colors: " + colors[i].toString() + " " + i + ", " + colors[j].toString() + " "
+//							+ j + " are too similar");
 				}
 			}
 		}

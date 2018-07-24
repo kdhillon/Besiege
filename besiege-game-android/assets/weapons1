@@ -1,0 +1,236 @@
+
+weapons1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+War-Hammer
+  rotate: false
+  xy: 2, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+voulge
+  rotate: false
+  xy: 2, 16
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Unarmed
+  rotate: false
+  xy: 2, 30
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Staff
+  rotate: false
+  xy: 2, 44
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Spear
+  rotate: false
+  xy: 2, 58
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Shortbow
+  rotate: false
+  xy: 2, 72
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Pitchfork
+  rotate: false
+  xy: 2, 86
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+pike
+  rotate: false
+  xy: 2, 100
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+morningstar
+  rotate: false
+  xy: 2, 114
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Military-Fork
+  rotate: false
+  xy: 7, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+maul
+  rotate: false
+  xy: 7, 16
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+mace
+  rotate: false
+  xy: 7, 30
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+longsword
+  rotate: false
+  xy: 7, 44
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Longbow
+  rotate: false
+  xy: 7, 58
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Strongbow
+  rotate: false
+  xy: 7, 58
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+lance
+  rotate: false
+  xy: 7, 72
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+halberd
+  rotate: false
+  xy: 7, 86
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+guisarme
+  rotate: false
+  xy: 7, 100
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+falchion
+  rotate: false
+  xy: 7, 114
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Dagger
+  rotate: false
+  xy: 12, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+crossbow
+  rotate: false
+  xy: 17, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Hvy-Crossbow
+  rotate: false
+  xy: 17, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+club
+  rotate: false
+  xy: 22, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+claymore
+  rotate: false
+  xy: 27, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+broadsword
+  rotate: false
+  xy: 32, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+shortsword
+  rotate: false
+  xy: 32, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Bow
+  rotate: false
+  xy: 37, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Recurve-Bow
+  rotate: false
+  xy: 37, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+battleaxe
+  rotate: false
+  xy: 42, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+bardiche
+  rotate: false
+  xy: 47, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Glaive
+  rotate: false
+  xy: 47, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+axe
+  rotate: false
+  xy: 52, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Hatchet
+  rotate: false
+  xy: 52, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1

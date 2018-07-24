@@ -43,8 +43,8 @@ public class City extends Location {
 	public City() {}
 	
 	public City(Kingdom kingdom, String name, int index, Faction faction, float posX,
-			float posY) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CITY_GARRISON);
+			float posY, Center center, Corner corner) {
+		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CITY_GARRISON, center, corner);
 		this.type = LocationType.CITY;
 						
 		POP_MIN = 2000;
@@ -79,13 +79,13 @@ public class City extends Location {
 	}
 	
 	@Override
-	public void setCenter(Center center) {
+	protected void setCenter(Center center) {
 		super.setCenter(center);
 		setWealth(calcInitialWealth());
 	}
 	
 	@Override
-	public void setCorner(Corner corner) {
+	protected void setCorner(Corner corner) {
 		super.setCorner(corner);
 		setWealth(calcInitialWealth());
 	}

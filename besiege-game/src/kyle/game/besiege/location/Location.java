@@ -24,14 +24,11 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Patrol;
-import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.battle.BattleActor;
 import kyle.game.besiege.battle.Fire;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelLocation;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.*;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
@@ -48,6 +45,7 @@ public class Location extends Group implements Destination {
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
+	private static final Color black = new Color(0f, 0f, 0f, 0.4f);
 
 	// for font rotation
 	private Matrix4 mx4Font = new Matrix4();
@@ -67,6 +65,9 @@ public class Location extends Group implements Destination {
 
 	// relative prevalence of biomes surrounding this location
 	public float[] biomeDistribution;
+
+	// Main unit class based on surrounding biomes
+	public CultureType cultureType;
 
 	//	protected StrictArray<Location> closestFriendlyLocations;
 	//	protected StrictArray<Location> closestEnemyLocations;
@@ -118,6 +119,8 @@ public class Location extends Group implements Destination {
 	private Point spawnPoint; // point where armies and farmers should spawn if on water
 	private int center = -1; // one of these will be null
 	private int corner = -1;
+
+	private boolean discovered; // Has this location been discovered by the player?
 	
 	// TODO make wealth belong to location, not garrison. doesn't make sense when changing factions.
 	
@@ -135,18 +138,24 @@ public class Location extends Group implements Destination {
 	}
 
 	// constructor for Ruins (location with no faction, garrison, etc)
-	public Location(Kingdom kingdom, String name, int index, float posX, float posY) {
+	public Location(Kingdom kingdom, String name, int index, float posX, float posY, Center center, Corner corner) {
 		this.faction = null;
 		this.ruin = true;
 		
-		basicConstruct(kingdom, name, index, posX, posY);
+		basicConstruct(kingdom, name, index, posX, posY, center, corner);
 	}
 
-	public void basicConstruct(Kingdom kingdom, String name, int index, float posX, float posY) {
+	public void basicConstruct(Kingdom kingdom, String name, int index, float posX, float posY, Center center, Corner corner) {
 		this.kingdom = kingdom;
-		this.name = name;
+//		this.name = name;
 		this.index = index;
-	
+
+		if (center != null) {
+		    setCenter(center);
+        } else if (corner != null) {
+            setCorner(corner);
+        } else throw new AssertionError();
+
 		setPosition(posX, posY);
 
 		garrisonedArmies = new StrictArray<Army>();
@@ -164,14 +173,15 @@ public class Location extends Group implements Destination {
 	
 	}
 	
-	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType) {
+	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType, Center center, Corner corner) {
 		this.faction = faction;
+        this.pType = pType;
 
-		basicConstruct(kingdom, name, index, posX, posY);		
+		basicConstruct(kingdom, name, index, posX, posY, center, corner);
+        createGarrison();
 
-		this.pType = pType;
-		createGarrison();
-		//		this.garrison.setParty(garrison);
+
+        //		this.garrison.setParty(garrison);
 		//		this.garrison(this.garrison);
 
 		autoManage = true;
@@ -193,15 +203,78 @@ public class Location extends Group implements Destination {
 		nextHire = new Party(); //empty
 	}
 
+	// This has to be called after setCorner/setCenter is called
 	public void createGarrison() {
 		String name = this.getName() + " Garrison";
-		if (getFaction() != null) name = this.getName() + " Garrison " + getFaction().name;
-		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType);
+//		if (getFaction() != null) name = this.getName() + " Garrison " + getFaction().name;
+		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType, this);
 		this.garrison.isGarrison = true;
+		this.garrison.passive = true;
 //		manageGarrison();
 		this.needsUpdate = true;
 	}
-	
+
+	private CultureType calculateCultureType() {
+	    if (getCenter() != null) {
+	        if (getCenter().cultureType == null) {
+                System.out.println("no CultureType for center " + getCenter().biome.name());
+            } else return getCenter().cultureType;
+        }
+        Corner corner = getCorner();
+        if (corner != null) {
+	        for (Center center : corner.touches) {
+                if (center.cultureType != null) {
+                    return center.cultureType;
+                } else {
+                    System.out.println("no CultureType for corner " + center.biome.name());
+                }
+            }
+        }
+        throw new AssertionError();
+    }
+
+	private CultureType calculateCultureType(float[] biomeDistribution) {
+	    Object[] unitClasses = UnitLoader.cultureTypes.values().toArray();
+
+        float[] classDistribution = new float[unitClasses.length];
+
+        boolean found = false;
+        for (int i = 0; i < biomeDistribution.length; i++) {
+            if (biomeDistribution[i] <= 0) {
+                continue;
+            }
+            found = true;
+
+            CultureType classForBiome = UnitLoader.biomeCultures.get(Biomes.values()[i]);
+            System.out.println(Biomes.values()[i].name() + ", distribution: " + biomeDistribution[i]);
+            if (classForBiome == null) {
+//                continue; // this is for classes like ocean, etc.
+                throw new AssertionError();
+            }
+
+            // Now find the corresponding unit class for this biome, and update distribution
+            for (int j = 0; j < unitClasses.length; j++) {
+                if ((unitClasses[j]) == classForBiome) {
+                    System.out.println(Biomes.values()[i].name() + " uses class " + classForBiome.name + ", distribution: " + biomeDistribution[i]);
+                    classDistribution[j] += biomeDistribution[i];
+                }
+            }
+        }
+        if (!found) throw new AssertionError();
+
+        // Now that we've calculated the class distribution for all unit classes, just take the max.
+        int maxIndex = -1;
+        float maxValue = 0;
+        for (int i = 0; i < classDistribution.length; i++) {
+            if (classDistribution[i] > maxValue) {
+                maxIndex = i;
+                maxValue = classDistribution[i];
+            }
+        }
+
+	    return (CultureType) unitClasses[maxIndex];
+    }
+
 	public void initializeBiomeDistributions() {
 		Biomes[] biomes = Biomes.values();
 		biomeDistribution = new float[biomes.length];
@@ -211,6 +284,7 @@ public class Location extends Group implements Destination {
 			// just do adjacent corners
 			for (Center neighbor : c.touches) {
 				if (!neighbor.water) {
+				    if (neighbor.getBiomeIndex() == -1) throw new AssertionError();
 					int biomeIndex = neighbor.getBiomeIndex();
 					biomeDistribution[biomeIndex]++;
 				}
@@ -218,15 +292,18 @@ public class Location extends Group implements Destination {
 		}
 		else if (this.center != -1) {
 			Center c = this.getCenter();
-			int thisIndex = c.getBiomeIndex();
-			biomeDistribution[thisIndex] += 3; // arbitrary
+			if (this.getCenter().water) throw new AssertionError();
 
-			for (Center neighbor : c.neighbors) {
-				if (!neighbor.water) {
-					int biomeIndex = neighbor.getBiomeIndex();
-					biomeDistribution[biomeIndex]++;
-				}
-			}
+			int thisIndex = c.getBiomeIndex();
+			biomeDistribution[thisIndex] += 15; // arbitrary
+            if (c.getBiomeIndex() == -1) throw new AssertionError();
+
+//			for (Center neighbor : c.neighbors) {
+//				if (!neighbor.water) {
+//					int biomeIndex = neighbor.getBiomeIndex();
+//					biomeDistribution[biomeIndex]++;
+//				}
+//			}
 		}
 
 		// normalize biome distribution
@@ -236,10 +313,34 @@ public class Location extends Group implements Destination {
 		}
 		for (int i = 0; i < biomeDistribution.length; i++) {
 			biomeDistribution[i] /= total;
+			if (biomeDistribution[i] > 0) {
+			    System.out.println("Biome exists: " + Biomes.values()[i].name() + " " + biomeDistribution[i]);
+            }
 			//			if (biomeDistribution[i] != 0) 
 			//				System.out.println(this.name + ": " + biomes[i].toString() + " (" + biomeDistribution[i] +")");
 		}
-	}
+
+		System.out.println("total biome value " + total);
+
+		cultureType = calculateCultureType();
+
+//		cultureType = calculateCultureType(biomeDistribution);
+		if (cultureType == null) throw new AssertionError();
+
+        // Update name of city
+        if (this instanceof City) {
+            this.name = cultureType.nameGenerator.generateCity();
+        }
+        if (this instanceof Castle) {
+            this.name = cultureType.nameGenerator.generateCastle();
+        }
+        if (this instanceof Village) {
+            this.name = cultureType.nameGenerator.generateVillage();
+        }
+        if (this instanceof Ruin) {
+            this.name = cultureType.nameGenerator.generateRuins();
+        }
+    }
 
 	//	public void initializeGarrison() {
 	//		Type type = null;
@@ -263,7 +364,7 @@ public class Location extends Group implements Destination {
 		this.setHeight(region.getRegionHeight()*SCALE);
 		this.setOrigin(region.getRegionWidth()*SCALE/2, region.getRegionHeight()*SCALE/2);
 	}
-	public void setCorner(Corner corner) {
+	protected void setCorner(Corner corner) {
 		this.corner = corner.index;
 		this.initializeBiomeDistributions();
 
@@ -272,7 +373,7 @@ public class Location extends Group implements Destination {
 		updateToHire();
 		//		this.initializeGarrison();
 	}
-	public void setCenter(Center center) {
+	protected void setCenter(Center center) {
 		this.center = center.index;
 		this.initializeBiomeDistributions();
 
@@ -336,7 +437,8 @@ public class Location extends Group implements Destination {
 			}
 			if (timeSinceFreshHire >= HIRE_REFRESH) {
 				timeSinceFreshHire = 0;
-				updateToHire();
+				if (biomeDistribution != null)
+				    updateToHire();
 			}
 			else timeSinceFreshHire += delta;
 
@@ -360,7 +462,7 @@ public class Location extends Group implements Destination {
 		}
 	}
 	
-	// sometimes this decreases the size of the party?
+	// sometimes this decreases the size of the playerPartyPanel?
 	public boolean increaseGarrison() {
 		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.party.getAtk());
 		Soldier rand = new Soldier(this.garrison.getPartyType().randomSoldierType(), this.garrison.party);
@@ -385,7 +487,10 @@ public class Location extends Group implements Destination {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-//		if (!shouldDraw()) return;		
+//		if (!shouldDraw()) return;
+		// Don't draw if covered by fog (even partially)
+		if (inFog()) return;
+		
 		setRotation(kingdom.getMapScreen().rotation);
 		float scale = getKingdom().getZoom();
 		scale *= this.getSizeFactor();
@@ -413,6 +518,8 @@ public class Location extends Group implements Destination {
 //		if (scale < 0.5) return 0.5f;
 		
 		scale = scale * (MAX_SCALE - MIN_SCALE) + MIN_SCALE;
+
+		if (this.isVillage()) return 0.5f * scale;
 		
 		return scale;
 		
@@ -440,16 +547,43 @@ public class Location extends Group implements Destination {
 		return scale;
 	}
 
+	public void setDiscovered() {
+        discovered = true;
+    }
+
+    public boolean isDiscovered() {
+	    return discovered;
+    }
+
+//	private boolean inFog() {
+//	    return !discovered;
+////		if (kingdom.getMapScreen().fogOn) {
+////			// Easy to optimize this -- just have a "discovered" boolean for all locations.
+////			if (getCenter() != null) {
+////				if (!getCenter().discovered) {
+////					return true;
+////				}
+////			} else if (getCorner() != null) {
+////				for (Center center : getCorner().touches) {
+////					if (!center.water && !center.discovered) {
+////						return true;
+////					}
+////				}
+////			}
+////		}
+////		return false;
+//	}
+
 	// lets be smart about this
 	// how exactly do we want to have cities etc disappear as you zoom out?
 	
 	// first off lets do city scale/size. are sizes appropriate? Max size should be smaller
 	public void drawCrest(SpriteBatch batch) {
 		if (this.getFaction() == null) return;
+		if (inFog()) return;
 		
 		float size_factor = 1.f;
 		size_factor *= this.getSizeFactor();
-
 
 		if ((this.type == LocationType.VILLAGE))
 			size_factor = .5f * size_factor;
@@ -475,7 +609,7 @@ public class Location extends Group implements Destination {
 			
 //			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
 			faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
-			faction.crest.setSize(30*zoom, 45*zoom);
+			faction.crest.setSize(30*zoom, 30*zoom);
 //			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
 			faction.crest.draw(batch, clear_white.a);
 			
@@ -484,24 +618,33 @@ public class Location extends Group implements Destination {
 			batch.setTransformMatrix(tempMatrix);
 		}
 	}
+
+	public boolean inFog() {
+        if (!discovered && kingdom.getMapScreen().fogOn) return true;
+        return false;
+    }
 	
 	public boolean shouldDraw() {
 		float zoom = getKingdom().getZoom();
 
-		if (this.type == LocationType.VILLAGE) {
-			if (zoom > 8 * getSizeFactor()) return false;
-		}
-		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 9)
-			return false;
-		
-		if (this.type == LocationType.CITY) {
-			if (zoom > 14 * getSizeFactor()) return false;
-		}
-		
+		if (zoom > 6 * getSizeFactor()) return false;
+
+//		if (this.type == LocationType.VILLAGE) {
+//			if (zoom > 3 * getSizeFactor()) return false;
+//		}
+//		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 5)
+//			return false;
+//
+//		if (this.type == LocationType.CITY) {
+//			if (zoom > 6 * getSizeFactor()) return false;
+//		}
+
 		return true;
 	}
 
 	public void drawText(SpriteBatch batch) {
+		if (inFog()) return;
+		
 		float size_factor = 1.4f;
 
 		if ((this.type == LocationType.VILLAGE))
@@ -530,10 +673,25 @@ public class Location extends Group implements Destination {
 
 			// TODO draw with stroke, or with dark background
 			
+			// draw background
+			int fontHeight = 17;
+			float fontWidthScale = 5f * toDraw.length() + 5f;
+			Color c = batch.getColor();
+			batch.setColor(black);
+			batch.draw(Assets.white, -(int) (4.3*toDraw.length())*zoom - zoom * fontWidthScale / 10, -8*zoom - fontHeight*zoom,  (9*toDraw.length() + 10)*zoom, zoom*fontHeight);
+			batch.setColor(c);
+			
+//			font.setColor(black);
+//			float bgScale = 1.05f;
+//			font.setScale(zoom * bgScale);	
+//			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom * bgScale, -8*zoom * bgScale);
+						
 			// draw text
 			font.setColor(clear_white);
 			font.setScale(zoom);
 			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom, -8*zoom);
+			
+			
 			batch.setTransformMatrix(tempMatrix);
 		}
 	}
@@ -902,7 +1060,8 @@ public class Location extends Group implements Destination {
 			}
 			if (this.faction != null)
 				this.faction.villages.removeValue((Village) this, true);
-			newFaction.villages.add((Village) this);
+			if (newFaction != null)
+			    newFaction.villages.add((Village) this);
 			//			((Village) this).farmers = new StrictArray<Farmer>(((Village) this).farmers);
 			// TODO undo this
 		}
@@ -910,8 +1069,8 @@ public class Location extends Group implements Destination {
 		this.faction = newFaction;
 		if (this.garrison != null) {
 			if (this.type == LocationType.VILLAGE) {
-				this.garrison.setFaction(newFaction);
-			}
+                this.garrison.setFaction(newFaction);
+            }
 			else createGarrison();
 //			this.garrison.setFaction(newFaction);
 		}
@@ -955,8 +1114,8 @@ public class Location extends Group implements Destination {
 		if (garrison == null) return null;
 		return garrison.getParty();
 	}
-//	public void setParty(Party party) {
-//		this.garrison.setParty(party);
+//	public void setParty(Party playerPartyPanel) {
+//		this.garrison.setParty(playerPartyPanel);
 //	}
 	public double getPop() {
 		return population;
@@ -1008,7 +1167,7 @@ public class Location extends Group implements Destination {
 	public void setMouseOver(boolean mouseOver) {
 		if (this.mouseOver) {
 			if (!mouseOver) {
-				kingdom.getMapScreen().getSidePanel().returnToPrevious();
+				kingdom.getMapScreen().getSidePanel().returnToPrevious(false);
 				this.mouseOver = false;
 			}
 		}

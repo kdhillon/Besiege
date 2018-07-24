@@ -6,6 +6,7 @@ import java.util.Scanner;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
+import kyle.game.besiege.NameGenerator;
 import kyle.game.besiege.voronoi.Biomes;
 
 public class UnitLoader {
@@ -13,43 +14,26 @@ public class UnitLoader {
 	public static String rootName;
 
 	public static HashMap<String, Color> colors;
-	public static HashMap<String, UnitClass> classTypes;
+	public static HashMap<String, CultureType> cultureTypes;
 //	public static HashMap<String, NewUnitType> unitTypes;
 	public static HashMap<String, WeaponType> weaponTypes;
 	public static HashMap<String, RangedWeaponType> rangedWeaponTypes;
 	public static HashMap<String, ArmorType> armorTypes;
 	public static HashMap<String, Biomes> biomes;
-	public static HashMap<Biomes, UnitClass> biomeClasses;
+	public static HashMap<Biomes, CultureType> biomeCultures;
 
 	public static void load(String root) {
 		rootName = root;
 
-		classTypes = new HashMap<String, UnitClass>();
-		
-		
-		loadColors();
+		cultureTypes = new HashMap<String, CultureType>();
 
+		loadColors();
 		loadWeapons();
 		loadRangedWeapons();
-
 		loadArmors();
-
 		loadUnits();
-		
 		assignUpgrades();
-		
 		initializeBiomes();
-		
-//		printAllUnits();
-//		
-//		printAllBiomes();
-//		
-//		for (NewUnitType unit : unitTypes.values()) {
-//			printUnit(unit);
-//		}
-		//		for (NewWeaponType weapon : weaponTypes.values()) {
-		//			printWeapon(weapon);
-		//		}
 	}
 	
 	public static void initializeBiomes() {
@@ -62,7 +46,7 @@ public class UnitLoader {
 		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").reader());
 		in.nextLine(); // skip first line
 
-		biomeClasses = new HashMap<Biomes, UnitClass>();
+		biomeCultures = new HashMap<Biomes, CultureType>();
 		
 		// read one line of input from the 
 		while(in.hasNextLine()) {			
@@ -72,17 +56,17 @@ public class UnitLoader {
 			String strClass			= in.next();
 			
 			Biomes biome 			= biomes.get(strBiome);
-			UnitClass classType 	= classTypes.get(strClass);
+			CultureType classType 	= cultureTypes.get(strClass);
 			
 			if (biome == null) {
 				throw new java.lang.NullPointerException("BIOME NOT FOUND: " + strBiome);
 			}
-			if (classType == null) 
-				throw new java.lang.NullPointerException("Class not found: " + strClass);
-			
+//			if (classType == null)
+//				throw new java.lang.NullPointerException("Class not found: " + strClass);
 //			System.out.println(strBiome);
-			
-			biomeClasses.put(biome, classType);
+
+//            if (classType == null)
+			 biomeCultures.put(biome, classType);
 		}
 		in.close();	
 	}
@@ -122,8 +106,9 @@ public class UnitLoader {
 			armor.defMod 	= in.nextInt();
 			armor.spdMod	= in.nextInt();
 			armor.clothes 	= in.nextBoolean();
+			armor.naked = armor.name.equals("None");
 			armorTypes.put(armor.name, armor);
-				printArmor(armor);
+//				printArmor(armor);
 		}
 		in.close();
 	}
@@ -138,7 +123,7 @@ public class UnitLoader {
 			WeaponType weapon = new WeaponType();
 			if (!in.hasNext()) return;
 			weapon.name		= addSpaces(in.next());
-			System.out.println("name: " + weapon.name);
+//			System.out.println("name: " + weapon.name);
 			weapon.atkMod 	= in.nextInt();
 			weapon.defMod 	= in.nextInt();
 			weapon.spdMod	= in.nextInt();
@@ -147,7 +132,7 @@ public class UnitLoader {
 			weapon.polearm 	= in.nextBoolean();
 			weapon.cavalryBonus	= in.nextBoolean();
 			weaponTypes.put(weapon.name, weapon);
-						printWeapon(weapon);
+//						printWeapon(weapon);
 		}
 		in.close();
 	}
@@ -183,12 +168,10 @@ public class UnitLoader {
 		in.nextLine(); // skip first line
 
 		String currentClass = "NO CLASS";
-		UnitClass classType = null;
+		CultureType culture = null;
 
 		// read one line of input from the 
 		while(in.hasNextLine()) {
-			if (!in.hasNext()) return;
-
 			String first = in.next();
 			if (first.equals("//")) {
 				in.nextLine();
@@ -196,25 +179,30 @@ public class UnitLoader {
 			}
 			if (first.equals("Class:")) {
 				currentClass = in.next();
-				classType = new UnitClass();
-				classType.name = currentClass;
-				classType.units = new HashMap<String, UnitType>();
-				classType.color = colors.get(in.next());
-				if (classType.color == null) {
+				culture = new CultureType();
+				culture.name = currentClass;
+				culture.units = new HashMap<String, UnitType>();
+				culture.colorLite = colors.get(in.next());
+				culture.colorDark = colors.get(in.next());
+				culture.nameGenerator = new NameGenerator(in.next());
+//				System.out.println("Color: " + culture.name);
+				if (culture.colorLite == null || culture.colorDark == null) {
 					throw new java.lang.NullPointerException();
 				}
 				
-				classTypes.put(currentClass, classType);
-				first = in.next();
+				cultureTypes.put(currentClass, culture);
+				continue;
 			}
+//			System.out.println(first);
 
 			UnitType unit = new UnitType();
-//			System.out.println(first);
 			unit.tier 		= Integer.parseInt(first);
-			unit.name		= in.next();
+			// remove numbers from name
+			unit.name		= addSpaces(in.next());
 //			System.out.println(unit.name);
-			unit.unitClass 	= classType;
-			classType.units.put(unit.name, unit);
+			unit.cultureType = culture;
+			culture.units.put(unit.name + unit.tier, unit);
+
 			String weaponString = addSpaces(in.next());
 			String[] weapons = weaponString.split("/");
 
@@ -251,9 +239,10 @@ public class UnitLoader {
 			if (hideString.equals("true"))
 				unit.hideBonus = true;
 
-			String upgradeString = in.next();
+			String upgradeString = addSpaces(in.next());
 			if (!upgradeString.equals("none")) {
 				unit.upgradeStrings = upgradeString.split("/");
+				
 				// else it is null;
 			}
 //			else {
@@ -267,7 +256,7 @@ public class UnitLoader {
 	}
 	
 	public static void printAllUnits() {
-		for (UnitClass classType : classTypes.values()) {
+		for (CultureType classType : cultureTypes.values()) {
 			for (UnitType unit : classType.units.values()) {
 				printUnit(unit);
 			}
@@ -275,7 +264,7 @@ public class UnitLoader {
 	}
 
 	public static void assignUpgrades() {
-		for (UnitClass classType : classTypes.values()) {
+		for (CultureType classType : cultureTypes.values()) {
 			for (UnitType unit : classType.units.values()) {
 				if (unit.upgradeStrings == null) {
 					unit.upgrades = new UnitType[0]; // maybe make it with size 0
@@ -283,11 +272,28 @@ public class UnitLoader {
 				else {
 					unit.upgrades = new UnitType[unit.upgradeStrings.length];
 					for (int i = 0; i < unit.upgradeStrings.length; i++) {
-						unit.upgrades[i] = classType.units.get(unit.upgradeStrings[i]);
+						// This handles distinguishing between units with same display name but different "tier"
+						unit.upgrades[i] = classType.units.get(unit.upgradeStrings[i] + (unit.tier + 1));
 						if (unit.upgrades[i] == null) {
 							System.out.println("CAN'T FIND UPGRADE: " + unit.upgradeStrings[i]);
 							throw new java.lang.NullPointerException();
 						}
+						
+						
+//						String[] split = unit.upgradeStrings[i].split(":");
+//						if (split.length == 1) {
+//							unit.upgrades[i] = classType.units.get(split[0]);
+//							if (unit.upgrades[i] == null) {
+//								System.out.println("CAN'T FIND UPGRADE: " + unit.upgradeStrings[i]);
+//								throw new java.lang.NullPointerException();
+//							}
+//						} else if (split.length == 2) {
+//							unit.upgrades[i] = cultureTypes.get(split[1]).units.get(split[0]);
+//							if (unit.upgrades[i] == null) {
+//								System.out.println("CAN'T FIND UPGRADE: " + unit.upgradeStrings[i]);
+//								throw new java.lang.NullPointerException();
+//							}
+//						}
 //						System.out.println("just added " + unit.upgradeStrings[i]);
 					}
 					// null it out for memory
@@ -326,7 +332,7 @@ public class UnitLoader {
 	}
 
 	public static void printUnit(UnitType unit) {
-		System.out.println(unit.unitClass.name);
+		System.out.println(unit.cultureType.name);
 		System.out.println(unit.name);
 		System.out.println(unit.tier);
 		System.out.println(unit.melee.name);
@@ -336,7 +342,7 @@ public class UnitLoader {
 		
 		if (unit.upgrades != null) {
 			for (UnitType upgrade : unit.upgrades) {
-				System.out.println(upgrade.unitClass.name + " " + upgrade.name);
+				System.out.println(upgrade.cultureType.name + " " + upgrade.name);
 			}
 		}
 		System.out.println();
@@ -344,7 +350,7 @@ public class UnitLoader {
 	
 	public static void printAllBiomes() {
 		for (Biomes b : Biomes.values()) {
-			System.out.println(b.toString() + ": " + biomeClasses.get(b));
+			System.out.println(b.toString() + ": " + biomeCultures.get(b));
 		}
 	}
 }

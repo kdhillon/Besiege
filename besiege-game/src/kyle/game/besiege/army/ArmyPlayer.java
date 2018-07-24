@@ -16,13 +16,14 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Map;
 import kyle.game.besiege.battle.BattleStage;
+import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 
 public class ArmyPlayer extends Army {
-	private final String textureRegion = "Player";
+//	private final String TEXTURE_REGION = "Player";
 		
 	// debugging
 	transient private final ShapeRenderer sr;
@@ -39,9 +40,11 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
 		super(kingdom, "", faction, posX, posY, PartyType.Type.TEST, true);
+		this.player = true;
+		this.setScale(calcScale());
 //		Location loc = this.detectNearbyFriendlyCity();
 		
-		setTextureRegion(textureRegion);
+//		setTextureRegion(TEXTURE_REGION);
 //		initializeBox();
 //		System.out.println("player origin = " + this.getOriginX() + " y: " + this.getOriginY());
 //		System.out.println("player width = " + this.getWidth() + " height: " + this.getHeight());
@@ -58,14 +61,20 @@ public class ArmyPlayer extends Army {
 		this.getParty().wealth = 100000;
 		
 		this.getParty().getGeneral().setName(getCharacter().name);
+		kingdom.updateArmyPolygon(this);
+        updateVisibility();
+        restoreAnimation();
 	}
 
 	@Override
 	public void act(float delta) {	
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
 		this.hiding = false;
+        super.updateVisibility();
+        if (!isWaiting())
+            stateTime += delta;
 
-		if (isStopped() && !isWaiting()) {
+        if (isStopped() && !isWaiting()) {
 //			System.out.println("is stopped and isn't waiting");
 //			System.out.println("is stopped");
 			// STOPPED ISN"T WORKING
@@ -152,10 +161,10 @@ public class ArmyPlayer extends Army {
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		batch.draw(getTextureRegion(), getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), 1, 1, getRotation());
-		
-		if (Map.debug){
+          // Draw an animation of the player's current armor, and skin.
+        Unit.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
+
+        if (Map.debug){
 			batch.end();
 			sr.begin(ShapeType.Line);
 			sr.setProjectionMatrix(batch.getProjectionMatrix());
@@ -180,7 +189,7 @@ public class ArmyPlayer extends Army {
 		}
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
 	}
-	
+
 	@Override
 	public void enemyLocationCollision(Location targetLocation) {
 		setPaused(true);

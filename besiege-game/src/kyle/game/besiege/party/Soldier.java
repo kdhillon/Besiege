@@ -12,6 +12,7 @@ import kyle.game.besiege.Inventory;
 import kyle.game.besiege.MultiValue;
 import kyle.game.besiege.MultiValue.TypeInfo;
 import kyle.game.besiege.NameGenerator;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.panels.BottomPanel;
 
 public class Soldier implements Comparable<Soldier> { // should create a heal-factor, so garrisonning will heal faster
@@ -39,7 +40,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 //	private static final String VETERAN = "Vet."; // "Veteran" or maybe invisible
 
-	public Party party; // containing party
+	public Party party; // containing playerPartyPanel
 	public Subparty subparty;
 	
 	// personal attributes
@@ -81,6 +82,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	private boolean wounded;
 	private float timeWounded;
 	public float healTime; // time it takes to heal (not needed to store)
+
+    // This doesn't need to be saved.
+    private transient StrictArray<Equipment> equipment;
 
 //	public Armor armor;
 //	public Color armorColor;
@@ -181,7 +185,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 			if (SPD_TIER[i]) baseSpd++;
 		}
 		
-		System.out.println("base speed: " + baseSpd);
+//		System.out.println("base speed: " + baseSpd);
 		atk.updateValue(TypeInfo.S_BASE_ATK, baseAtk);
 		def.updateValue(TypeInfo.S_BASE_DEF, baseDef);
 		spd.updateValue(TypeInfo.S_BASE_SPD, baseSpd);
@@ -217,12 +221,12 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public void generateName() {
 		String firstName, lastName;
 		if (this.female) {
-			firstName = NameGenerator.generateFirstNameFemale();
-			lastName = NameGenerator.generateLastName();
+			firstName = getCulture().nameGenerator.generateFirstNameFemale();
+			lastName =  getCulture().nameGenerator.generateLastName();
 		}
 		else {
-			firstName = NameGenerator.generateFirstNameMale();
-			lastName = NameGenerator.generateLastName();
+			firstName = getCulture().nameGenerator.generateFirstNameMale();
+			lastName = getCulture().nameGenerator.generateLastName();
 		}
 		name = firstName + " " + lastName;
 	}
@@ -281,12 +285,12 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 	
 
-	//	public Soldier(Array<Weapon> weapons, Party party) {
+	//	public Soldier(Array<Weapon> weapons, Party playerPartyPanel) {
 	//		this.weapon = weapons.random();
 	//		this.rangedWeapon = Weapon.getRanged(weapon);
 	//		this.equipment = Equipment.getBaseEquipment(weapon);
 	//
-	//		this.party = party;
+	//		this.playerPartyPanel = playerPartyPanel;
 	//		
 	//		if (Math.random() > 0.5)
 	//			getTier() = weapon.getTier();
@@ -346,6 +350,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	
 	public void updateUnitType(UnitType unitType) {
 		this.unitType = unitType;
+		if (unitType.melee == null) {
+			System.out.println(unitType.name + " doesn't have a melee weapon!");
+		}
 		this.updateWeapon(unitType.melee);
 		this.updateArmor(unitType.armor);
 //		if (unitType.shield)
@@ -353,6 +360,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 
 	public void updateWeapon(WeaponType weapon) {
+//		System.out.println(weapon.name);
+//		System.out.println(atk.getValue());
 		this.atk.updateValue(TypeInfo.S_WEAPON, weapon.atkMod);
 //		this.def.updateValue(TypeInfo.S_WEAPON, weapon.defMod);
 		this.spd.updateValue(TypeInfo.S_WEAPON, weapon.spdMod);
@@ -459,10 +468,10 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		if (unitType != null) cost = this.getUpgradeCost(); //Weapon.UPG_COST[upgrade.getTier()];
 		else cost = 0;
 
-		if (party.player && party.army != null) cost *= party.army.getCharacter().getAttributeFactor("Bargaining");
-		if (!(party.wealth - cost >= party.minWealth) && cost != 0) {
+//		if (playerPartyPanel.player && playerPartyPanel.army != null) cost *= playerPartyPanel.army.getCharacter().getAttributeFactor("Bargaining");
+		if ((party.wealth - cost < party.minWealth) && cost != 0) {
 			if (party.player)
-				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.getTypeName());
+				BottomPanel.log("Cannot afford " + cost + " cost to upgrade " + this.getTypeName() + " player only has: " + party.wealth);
 			return false;
 		}
 		else {
@@ -624,6 +633,49 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return null;
 	}
 
+	public StrictArray<Equipment> getEquipment() {
+        if (equipment == null) {
+            equipment = new StrictArray<>();
+            if (getHead() != null)
+                equipment.add(getHead());
+            if (getHorse() != null)
+                equipment.add(getHorse());
+            if (getShield() != null)
+                equipment.add(getShield());
+        }
+        return equipment;
+    }
+
+	// Get helmet or headgear
+    // See http://www.native-languages.org/headdresses.htm
+	public Equipment getHead() {
+	    int bigHeadLimit = 100;
+        int medHeadLimit = 50;
+        if (this.isGeneral()) {
+            if (this.getCulture().name.equals("Aztec")) {
+                if (((General) this).getFame() > bigHeadLimit)
+                    return Equipment.HEADDRESS_MESO_3;
+                if (((General) this).getFame() > medHeadLimit)
+                    return Equipment.HEADDRESS_MESO_2;
+                else return Equipment.HEADDRESS_MESO_1;
+            }
+            if (this.getCulture().name.equals("Plains")) {
+                if (((General) this).getFame() > bigHeadLimit)
+                    return Equipment.HEADDRESS_PLAINS_3;
+                if (((General) this).getFame() > medHeadLimit)
+                    return Equipment.HEADDRESS_PLAINS_2;
+                else return Equipment.HEADDRESS_PLAINS_1;
+            }
+            if (this.getCulture().name.equals("Tundra")) {
+                if (((General) this).getFame() > bigHeadLimit)
+                    return Equipment.HEADDRESS_FOREST_3;
+                if (((General) this).getFame() > medHeadLimit)
+                    return Equipment.HEADDRESS_FOREST_2;
+                else return Equipment.HEADDRESS_FOREST_1;            }
+        }
+        return Equipment.WOOD_SHIELD;
+    }
+
 	// square function
 	public int getBuyCost() {
 		return (int) (Math.pow(this.level, 1.2) * COST_FACTOR);
@@ -677,8 +729,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return this.unitType.armor;
 	}
 	
-	public UnitClass getUnitClass() {
-		return this.unitType.unitClass;
+	public CultureType getCulture() {
+		return this.unitType.cultureType;
 	}
 	
 	public boolean isGeneral() {

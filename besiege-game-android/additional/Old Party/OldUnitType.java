@@ -1,8 +1,8 @@
 package kyle.game.besiege.party;
-//package kyle.game.besiege.party;
+//package kyle.game.besiege.playerPartyPanel;
 //
 //import com.badlogic.gdx.utils.Array;
-//import static kyle.game.besiege.party.Weapon.*;
+//import static kyle.game.besiege.playerPartyPanel.Weapon.*;
 //
 //public enum UnitType {
 //	BANDITS(new Weapon[]{MILITARY_FORK, HATCHET, CLUB, SPEAR, MACE, SHORTBOW, RECURVE, LONGBOW}),

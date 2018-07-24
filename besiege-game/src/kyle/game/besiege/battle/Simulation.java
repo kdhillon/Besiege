@@ -20,35 +20,19 @@ public class Simulation extends Game {
 
 	@Override
 	public void create () {
-//		Assets.load();
-//		batch = new SpriteBatch();
-//
-//		bs = new BattleStage(null, null, null); 
-//		
-//		mainstage = new Stage();
-//		OrthographicCamera battleCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
-//		mainstage.setCamera(battleCamera);
-//		battleCamera.zoom = 1;
-//		battleCamera.translate(0, 0);
-//		
-//		mainstage.addActor(bs);
-		
 		Texture.setEnforcePotImages(false);
 		
 		Assets.load();
 		// don't generate a new kingdom
 		mapScreen = new MapScreen();
-		
-//		mapScreen.resize(width, height);
-		// create fake battlestage
-		bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.CASTLE_GARRISON, UnitLoader.classTypes.get("Basic")), 
-										PartyType.getPartyType(Type.CASTLE_GARRISON, UnitLoader.classTypes.get("Basic"))); 
+
+        // NOTE that the test parties may have forced culture types.
+        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.SCOUT, UnitLoader.cultureTypes.get("Tundra")),
+										PartyType.getPartyType(Type.SCOUT, UnitLoader.cultureTypes.get("Aztec")));
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		
 		mapScreen.switchToBattleView(bs);
-		
-//		mapTest = new MapTest();
 		
 		setScreen(mapScreen); // eventually make mainMenu
 	}

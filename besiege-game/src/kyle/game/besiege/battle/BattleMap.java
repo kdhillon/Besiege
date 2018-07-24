@@ -43,7 +43,8 @@ public class BattleMap extends Group {
 	private MapType maptype;
 
 	private BattleStage stage;
-	public static final int SIZE = 4;
+
+	public static final int BLOCK_SIZE = 4;
 	private int total_size_x;
 	private int total_size_y;
 	private int total_height;
@@ -89,7 +90,7 @@ public class BattleMap extends Group {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
+		TREE(.5f), PALM(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -125,14 +126,14 @@ public class BattleMap extends Group {
 	private StrictArray<FireContainer> fc;
 
 	//	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
-	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump;
+	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump, palm, treeShadow, palmShadow;
 
 	public BattleMap(BattleStage mainmap) {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-				this.maptype = MapType.ALPINE;
+//		this.maptype = MapType.BEACH;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -140,7 +141,7 @@ public class BattleMap extends Group {
 
 		this.edge_size_percent = (SIZE_FACTOR - 1) / SIZE_FACTOR / 2;
 
-		ground = new GroundType[mainmap.size_x/SIZE][mainmap.size_y/SIZE];
+		ground = new GroundType[mainmap.size_x/ BLOCK_SIZE][mainmap.size_y/ BLOCK_SIZE];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
 		ladders = new Array<Ladder>();
 		entrances = new Array<BPoint>();
@@ -148,17 +149,20 @@ public class BattleMap extends Group {
 		walls = new Array<Wall>();
 
 		tree = 		Assets.map.findRegion("tree2");
-		stump = 	Assets.map.findRegion("stump");
-		wallV = 	Assets.map.findRegion("stone_fence_v");
-		wallH = 	Assets.map.findRegion("stone_fence");
+        palm =   	Assets.map.findRegion("palm");
+        palmShadow = Assets.map.findRegion("palmShadow");
+        treeShadow = Assets.map.findRegion("treeShadow");
+        stump = 	Assets.map.findRegion("stump");
+		wallV = 	Assets.map.findRegion("stone fence v");
+		wallH = 	Assets.map.findRegion("stone fence");
 
-		castleWall = 		Assets.map.findRegion("castle_wall");
-		castleWallFloor =  Assets.map.findRegion("castle_wall_floor");
+		castleWall = 		Assets.map.findRegion("castle wall");
+		castleWallFloor =  Assets.map.findRegion("castle wall floor");
 		ladder = 			Assets.map.findRegion("ladder");
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
 
-		this.sunStretch = (float) Math.random() * 2 + 0.5f;
+		this.sunStretch = (float) Math.random() * 1 + 0.5f;
 		this.sunRotation = (float) Math.random() * 360;
 		
 		fc = new StrictArray<FireContainer>();
@@ -258,7 +262,7 @@ public class BattleMap extends Group {
 			if (stage.siege)
 				addWall();
 
-			addTrees(.00);
+			addTrees(.01);
 			addFences(15);
 			bgColor = new Color(91f/256, 164/256f, 63/256f, 1);
 		}
@@ -266,8 +270,9 @@ public class BattleMap extends Group {
 			// this will have to be tweaked for the new map size
 			double slope = Math.random()*3+3;
 			double slope2 = Math.random()*1;
-			double thresh = Math.random()*stage.size_x/2/SIZE+stage.size_x/2/SIZE;
+			double thresh = Math.random()*stage.size_x/2/ BLOCK_SIZE +stage.size_x/2/ BLOCK_SIZE;
 
+			boolean left = Math.random() < 0.5;
 			// determine if ocean on right or left of line?
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
@@ -278,16 +283,18 @@ public class BattleMap extends Group {
 					if (leftSide < thresh || (leftSide - thresh < 4 && Math.random() < .5)) {
 						ground[i][j] = GroundType.WATER;
 						// set as closed
-
 						closeGround(j, i);
 					} 
-					else if (leftSide > thresh + 100/SIZE * Math.random() + 150/SIZE) ground[i][j] = GroundType.LIGHTGRASS;
+					else if (leftSide > thresh + 100/ BLOCK_SIZE * Math.random() + 150/ BLOCK_SIZE) ground[i][j] = GroundType.LIGHTGRASS;
 				} 
 			}
 
 			if (stage.siege)
 				addWall();
-			bgColor = new Color(143f/256, 202/256f, 85/256f, 1);
+
+            addPalms(.005);
+
+            bgColor = new Color(143f/256, 202/256f, 85/256f, 1);
 		}
 		if (maptype == MapType.DESERT) {
 			for (int i = 0; i < ground.length; i++) {
@@ -480,21 +487,20 @@ public class BattleMap extends Group {
 
 	public static MapType getMapTypeForBiome(Biomes biome) {
 		switch(biome) {
-		case BEACH : 			return MapType.BEACH;
-		case SNOW : 			return MapType.ALPINE;
-		case TUNDRA : 			return MapType.ALPINE;
-		case BARE : 			return MapType.DESERT;
-		case SCORCHED :			return MapType.CRAG;
-		case TAIGA :			return MapType.FOREST;
-		case SHURBLAND : 		return MapType.MEADOW;
-		case PLATEAU : return MapType.DESERT;
-		case SWAMP : 			return MapType.SWAMP;
+		case BEACH : 			            return MapType.BEACH;
+		case SNOW : 		               	return MapType.ALPINE;
+		case TUNDRA : 			            return MapType.ALPINE;
+		case MOUNTAINS: 			        return MapType.CRAG;
+		case SCORCHED :			            return MapType.CRAG;
+		case TAIGA :			            return MapType.FOREST;
+		case PLATEAU :                      return MapType.DESERT;
+		case SWAMP : 			            return MapType.SWAMP;
 		case TEMPERATE_DECIDUOUS_FOREST : 	return MapType.FOREST;
-		case GRASSLAND : 					return MapType.BEACH;
+		case GRASSLAND : 					return MapType.MEADOW;
 		case SUBTROPICAL_DESERT : 			return MapType.DESERT;
-		case SHRUBLAND : 					return MapType.MEADOW;
+		case SHRUBLAND: 					return MapType.GRASSLAND;
 		case ICE : 							return MapType.ALPINE;
-		case MARSH : 						return MapType.MEADOW;
+		case MARSH : 						return MapType.SWAMP;
 		case TROPICAL_RAIN_FOREST : 		return MapType.SWAMP;
 		case TROPICAL_SEASONAL_FOREST : 	return MapType.SWAMP;
 		case LAKESHORE: 					return MapType.BEACH;
@@ -651,17 +657,46 @@ public class BattleMap extends Group {
 	//	
 	//	}
 
+
+    // Returns true if any of the adjacent squares is obstructed
+    private boolean adjacentObstructed(int x, int y) {
+        System.out.println("checking: " + x + " " + y);
+        boolean obstructed = false;
+        for (int i = x - 1; i <= x+1; i++) {
+            for (int j = y - 1; j <= y+1; j++) {
+                if (stage.inMap(i, j) && stage.closed[j][i]) { //!stage.inMap(i, j) ||
+                    System.out.println("checking: " + x + " " + y + ", obstructed by: " + i + " " + j);
+                    obstructed = true;
+                }
+            }
+        }
+        return obstructed;
+    }
+
 	private void addTrees(double probability) {
-		for (int i = 0; i < stage.size_x; i++) {
-			for (int j = 0; j < stage.size_y; j++) {
-				if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j)) {
-					objects[j][i] = Object.TREE;
-					stage.closed[j][i] = true;
-					//					mainmap.closed[i][j] = true;
-				}	
-			}
-		}
-	}
+        for (int i = 0; i < stage.size_x; i++) {
+            for (int j = 0; j < stage.size_y; j++) {
+                if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && stage.canPlaceUnit(i, j) && !adjacentObstructed(i, j)) {
+                    objects[j][i] = Object.TREE;
+                    stage.closed[j][i] = true;
+                    //					mainmap.closed[i][j] = true;
+
+                }
+            }
+        }
+    }
+
+    private void addPalms(double probability) {
+        for (int i = 0; i < stage.size_x; i++) {
+            for (int j = 0; j < stage.size_y; j++) {
+                // Only add palms on the grassy part of the map (not the sand)
+                if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && ground[i/ BLOCK_SIZE][j/ BLOCK_SIZE] == GroundType.LIGHTGRASS && !adjacentObstructed(i, j)) {
+                    objects[j][i] = Object.PALM;
+                    stage.closed[j][i] = true;
+                }
+            }
+        }
+    }
 
 	private void addFire(double probability) {
 		for (int i = 0; i < stage.size_x; i++) {
@@ -771,8 +806,10 @@ public class BattleMap extends Group {
 
 					// injure unit
 					if (stage.units[pos_y][pos_x] != null) {
-						stage.units[pos_y][pos_x].isDying = true;
-						stage.units[pos_y][pos_x].kill();
+					    if (!stage.units[pos_y][pos_x].outOfBattle) {
+                            stage.units[pos_y][pos_x].isDying = true;
+                            stage.units[pos_y][pos_x].kill();
+                        }
 					}
 
 					checkForNewEntrance(wall);
@@ -862,21 +899,21 @@ public class BattleMap extends Group {
 		}
 	}
 
-	// keep in mind that the input is in LAND units, not map units (each has size SIZE)
+	// keep in mind that the input is in LAND units, not map units (each has size BLOCK_SIZE)
 	private float getDrawX(float input) {
-		return (input - (SIZE_FACTOR - 1)*stage.size_x/SIZE/2.0f) *stage.unit_width*SIZE;
+		return (input - (SIZE_FACTOR - 1)*stage.size_x/ BLOCK_SIZE /2.0f) *stage.unit_width* BLOCK_SIZE;
 	}
 
 	private float getDrawY(float input) {
-		return (input - (SIZE_FACTOR - 1)*stage.size_y/SIZE/2.0f) *stage.unit_height*SIZE;
+		return (input - (SIZE_FACTOR - 1)*stage.size_y/ BLOCK_SIZE /2.0f) *stage.unit_height* BLOCK_SIZE;
 	}
 
 	private float getDrawWidth() {
-		return stage.unit_width*SIZE;
+		return stage.unit_width* BLOCK_SIZE;
 	}
 
 	private float getDrawHeight() {
-		return stage.unit_height*SIZE;
+		return stage.unit_height* BLOCK_SIZE;
 	}
 
 
@@ -925,7 +962,7 @@ public class BattleMap extends Group {
 		}
 
 		// TODO: make this happen first
-		// create an array of textures of size SIZE. For each one,
+		// create an array of textures of size BLOCK_SIZE. For each one,
 		// add base layer pixmap, then add blended version of neighbor textures as pixmaps.
 		// save and draw
 
@@ -1193,8 +1230,11 @@ public class BattleMap extends Group {
 				texture = null;
 				if (objects[i][j] == Object.TREE) {
 					//					System.out.println("drawing trees");
-					texture = tree;
-				}
+                    // TODO add tree shadow
+					texture = treeShadow;
+				} else if (objects[i][j] == Object.PALM) {
+				    texture = palmShadow;
+                }
 				if (texture != null) drawShadow(batch, texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
 			}
 		}
@@ -1204,9 +1244,10 @@ public class BattleMap extends Group {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
 				if (objects[i][j] == Object.TREE) {
-					//					System.out.println("drawing trees");
 					texture = tree;
-				}
+				} else if (objects[i][j] == Object.PALM) {
+                    texture = palm;
+                }
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
 			}
 		}
@@ -1222,10 +1263,12 @@ public class BattleMap extends Group {
 			batch.draw(texture, x, y, width, height);
 			return;
 		}
+		float scale = 1;
+		if (texture == palmShadow) scale = 1.2f;
 
 		Color o = batch.getColor();
 		batch.setColor(SHADOW_COLOR);
-		batch.draw(texture, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, sunStretch, sunRotation);
+		batch.draw(texture, x, y + height * 0.3f, width/2, height * 0.2f, width, height, scale, scale * sunStretch, sunRotation);
 		batch.setColor(o);
 	}
 	
@@ -1350,12 +1393,12 @@ public class BattleMap extends Group {
 		return MapType.values()[index];
 	}
 
-	// close a spot of ground SIZE by SIZE
+	// close a spot of ground BLOCK_SIZE by BLOCK_SIZE
 	private void closeGround(int y, int x) {
-		for (int k = 0; k < SIZE; k++) {
-			for (int l = 0; l < SIZE; l++) {
-				if (!inMap(new BPoint(x*SIZE + l, y*SIZE + k))) continue;
-				stage.closed[y*SIZE + k][x*SIZE + l] = true;
+		for (int k = 0; k < BLOCK_SIZE; k++) {
+			for (int l = 0; l < BLOCK_SIZE; l++) {
+				if (!inMap(new BPoint(x* BLOCK_SIZE + l, y* BLOCK_SIZE + k))) continue;
+				stage.closed[y* BLOCK_SIZE + k][x* BLOCK_SIZE + l] = true;
 			}
 		}
 	}

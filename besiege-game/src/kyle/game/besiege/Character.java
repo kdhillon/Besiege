@@ -46,7 +46,7 @@ public class Character {
 	// 					executing enemy nobles
 	//					raiding villages
 	// 					high tax rates
-	// fame  (basically exp  -- allows a larger party and grants you )
+	// fame  (basically exp  -- allows a larger playerPartyPanel and grants you )
 	// 		gained by:	winning battles (bigger the enemy, the better)
 	//		lost by: 	nothing
 	// holdings (cities, castles, villages):
@@ -61,14 +61,14 @@ public class Character {
 	public int availablePoints; // for attributes
 
 	public static final Array<String> attributeNames = new Array<String>(new String[] {
-			"Training",       // Increases exp gained by party by 10%
+			"Training",       // Increases exp gained by playerPartyPanel by 10%
 			"Bargaining",     // Decreases equipment upgrade cost by 5%
-			"Commanding",     // Increases base party size by 5%
+			"Commanding",     // Increases base playerPartyPanel size by 5%
 			"Recruiting",     // Decreases recruitment cost by 5%
-			"Inspiring",      // Increases base party morale by 5%
+			"Inspiring",      // Increases base playerPartyPanel morale by 5%
 			"Spotting",       // Increases line of sight by 5%
-			"Marching",       // Increases party map movement speed by 2%
-			"Tracking",       // Increases party speed when chasing enemies by 4%
+			"Marching",       // Increases playerPartyPanel map movement speed by 2%
+			"Tracking",       // Increases playerPartyPanel speed when chasing enemies by 4%
 			"Defending",      // Decreases chance to suffer casualties in battle by 4%
 			"Attacking",      // Increases chance to inflict casualties in battle by 4% 
 			"Retreating",     // Increases speed of retreating in battle by 10%"
@@ -77,14 +77,14 @@ public class Character {
 	});
 
 	public static final String[] arrDescriptionsBase = {
-			"Increases exp gained by party by ",
+			"Increases exp gained by playerPartyPanel by ",
 			"Decreases equipment upgrade cost by ",
-			"Increases base party size by ",
+			"Increases base playerPartyPanel size by ",
 			"Decreases recruitment cost by ",
-			"Increases base party morale by ",
-			"Increases party line of sight by ",
-			"Increases party map movement speed by ",
-			"Increases party speed when chasing enemies by ",
+			"Increases base playerPartyPanel morale by ",
+			"Increases playerPartyPanel line of sight by ",
+			"Increases playerPartyPanel map movement speed by ",
+			"Increases playerPartyPanel speed when chasing enemies by ",
 			"Decreases chance to suffer casualties in battle by ",
 			"Increases chance to inflict casualties in battle by ",
 			"Increases speed of retreating by ",

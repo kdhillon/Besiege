@@ -12,37 +12,47 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.party.UnitType;
 
 public class WeaponDraw extends Group { // can have arrows.
-	private float DEFAULT_OFFSET = 0;
-	private float FIRST_OFFSET = 2;
-	private float ATTACK_ROTATION = 30;
-	private float ATTACK_OFFSET = 2;
-	private float HORSE_OFFSET_X = -2f;
-	private float HORSE_OFFSET_Y = -25;
-	private float HORSE_SCALE = 2.5f;
-	private float SHIELD_SCALE = 2.0f;
-	private float SHIELD_OFFSET_X = -2;
-	private float SHIELD_OFFSET_Y = 8;
-	private float scale_x = 1.6f;
-	private float scale_y = 2f;
-	private Unit unit;
-	private int offset_x = 12;
-	private int offset_y = 4;
-	
-	public float shieldOffset;
-	
-	private float offset_x_ranged = 14;
-	private float offset_y_ranged = -.1f; // .5 before
+    private static final float TINT_ALPHA = 0.2f;
+    private static final Color redTint = new Color(1, 0.3f, 0, TINT_ALPHA);
+    private static final Color redRootSubpartyTint = new Color(    1, 0.7f, 0, TINT_ALPHA);
 
-	public TextureRegion weaponMelee;
-	public TextureRegion weaponRanged;
+    private static final Color redAllyTint = new Color(1, .5f, .5f, TINT_ALPHA);
+    private static final Color redGeneralTint = new Color(1, 0.7f, 0, TINT_ALPHA);
+    private static final Color blueTint = new Color(    .3f, .3f, 1, TINT_ALPHA);
+    private static final Color blueRootSubpartyTint = new Color(    .3f, .7f, 1, TINT_ALPHA);
+    private static final Color blueGeneralTint = new Color(0, 0.7f, 1, TINT_ALPHA);
+
+	private static final float DEFAULT_OFFSET = 0;
+	private static final float FIRST_OFFSET = 2;
+	private static final float ATTACK_ROTATION = 30;
+	private static final float ATTACK_OFFSET = 2;
+	private static final float HORSE_OFFSET_X = -2f;
+	private static final float HORSE_OFFSET_Y = -25;
+	private static final float HORSE_SCALE = 2.5f;
+	private static final float SHIELD_SCALE = 2.0f;
+	private static final float SHIELD_OFFSET_X = -2;
+	private static final float SHIELD_OFFSET_Y = 8;
+	private static final float scale_x = 1.6f;
+	private static final float scale_y = 2f;
+	private static final int offset_x = 12;
+	private static final int offset_y = 4;
+
+    private Unit unit;
+
+    public float shieldOffset;
 	
-	public Animation horseWalk;
+	private static final float offset_x_ranged = 14;
+	private static final float offset_y_ranged = -.1f; // .5 before
+
+    private TextureRegion weaponMelee;
+	private TextureRegion weaponRanged;
+	
+	private Animation horseWalk;
 	public TextureRegion shield;
-//	private Animation hors
+
 	private Color c = new Color();
 	
-	public static TextureRegion shadowTexture1 = Assets.units.findRegion("preview_armor");
-	public static TextureRegion shadowTexture2 = Assets.units.findRegion("preview_skin");
+	public static TextureRegion shadowTexture = Assets.units.findRegion("shadow");
 
 	public WeaponDraw(Unit unit) {
 		this.unit = unit;
@@ -52,13 +62,13 @@ public class WeaponDraw extends Group { // can have arrows.
 //		this.toDraw = new TextureRegion(new Texture(Gdx.files.internal("weapons/axe")));
 		
 		if (unit.horse != null) {
-			Texture walkSheet2 = new Texture(Gdx.files.internal("equipment/horse_brown_walk.png")); 
+			Texture walkSheet2 = new Texture(Gdx.files.internal("equipment/horse-brown-walk.png"));
 			TextureRegion[][] textureArray2 = TextureRegion.split(walkSheet2, walkSheet2.getWidth()/2, walkSheet2.getHeight()/1);
 			horseWalk = new Animation((float)Math.random()*.05f+.25f, textureArray2[0]);
 			horseWalk.setPlayMode(Animation.LOOP);
 		}
 		if (unit.shield != null) {
-			shield = new TextureRegion(new Texture(Gdx.files.internal("equipment/iron_shield.png"))); 
+			shield = Assets.equipment.findRegion("woodenshield");
 		}
 	}
 	
@@ -70,13 +80,17 @@ public class WeaponDraw extends Group { // can have arrows.
 		// check last word of weapon because yolo
 		if (weaponMeleeTexture == null) {
 			String[] split = filename.split(" ");
-			if (split.length > 0)
-				weaponMeleeTexture = Assets.weapons.findRegion(split[split.length-1]);
+			if (split.length > 0) {
+                weaponMeleeTexture = Assets.weapons.findRegion(split[split.length - 1]);
+                if (weaponMeleeTexture == null) {
+                    weaponMeleeTexture = Assets.weapons.findRegion(split[split.length-1].toLowerCase());
+                }
+			}
 		}
 
 		if (weaponMeleeTexture == null) {			
 			System.out.println("can't find texture for melee weapon: " + filename);
-			weaponMeleeTexture = Assets.weapons.findRegion("Shortsword");			
+			weaponMeleeTexture = Assets.weapons.findRegion("shortsword");
 		}
 		return weaponMeleeTexture;
 	}
@@ -93,130 +107,12 @@ public class WeaponDraw extends Group { // can have arrows.
 	}
 	
 	private void mapWeaponTextures() {
-		String filename = "";
-		String rangedFilename = "";
-		
-		// simplify
-		filename = unit.soldier.unitType.melee.name;
-		
-//		System.out.println(unit.soldier.unitType.name);
 		if (unit.isRanged()) {
-//			if (unit.rangedWeapon == null) syso 
 			this.weaponRanged = GetRangedWeaponTextureForUnittype(unit.soldier.unitType);
 		}
 
 		this.weaponMelee = GetMeleeWeaponTextureForUnittype(unit.soldier.unitType);
-//		switch(unit.weapon) {
-//		case PITCHFORK :
-//			filename = "pitchfork";
-//			break;
-//		case MILITARY_FORK : 
-//			filename = "militaryfork";
-//			break;
-//		case SPEAR :
-//			filename = "spear";
-//			break;
-//		case HATCHET :
-//			filename = "axe";
-//			break;
-//		case CLUB :
-//			filename = "club";
-//			break;
-//		case PIKE :
-//			filename = "pike";
-//			break;
-//		case HALBERD :
-//			filename = "halberd";
-//			break;
-//		case LONGSWORD :
-//			filename = "longsword";
-//			break;
-//		case BATTLE_AXE :
-//			filename = "battleaxe";
-//			break;
-//		case SHORTSWORD :
-//			filename = "shortsword";
-//			break;
-//		case WAR_HAMMER :
-//			filename = "warhammer";
-//			break;
-//		case MACE :
-//			filename = "mace";
-//			break;
-//		case CAVALRY_SPEAR :
-//			filename = "spear";
-//			break;
-//		case CAVALRY_AXE :
-//			filename = "axe";
-//			break;
-//		case CAVALRY_PICK :
-//			filename = "warhammer";
-//			break;
-//			
-//		case LANCE :
-//			filename = "lance";
-//			break;
-//		case ARMING_SWORD :
-//			filename = "shortsword";
-//			break;
-//		case FLAIL :
-//			filename = "morningstar";
-//			break;
-//		
-//		case GUISARME :
-//			filename = "guisarme";
-//			break;
-//		case VOULGE :
-//			filename = "voulge";
-//			break;
-//		case GREATSWORD :
-//			filename = "claymore";
-//			break;
-//		case GLAIVE :
-//			filename = "bardiche";
-//			break;
-//		case FALCHION :
-//			filename = "falchion";
-//			break;
-//		case MAUL :
-//			filename = "maul";
-//			break;
-//		case MORNINGSTAR :
-//			filename = "morningstar";
-//			break;
-//			
-//		// ranged
-//		case SHORTBOW :
-//			filename = "dagger";
-//			rangedFilename = "shortbow";
-//			break;
-//			
-//		case CROSSBOW :
-//			filename = "dagger";
-//			rangedFilename = "crossbow";
-//			break;
-//		case RECURVE :
-//			filename = "dagger";
-//			rangedFilename = "recurve";
-//			break;
-//		case LONGBOW :
-//			filename = "dagger";
-//			rangedFilename = "longbow";
-//			break;
-//			
-//		case ADV_CROSSBOW :
-//			filename = "shortsword";
-//			rangedFilename = "crossbow";
-//			break;
-//		case ADV_RECURVE :
-//			filename = "shortsword";
-//			rangedFilename = "recurve";
-//			break;
-//		case ADV_LONGBOW :
-//			filename = "shortsword";
-//			rangedFilename = "longbow";
-//			break;
-//		}
+		if (weaponMelee == null) throw new AssertionError();
 	}
 	
 	public void drawShadow(SpriteBatch batch, float x, float y, float width, float height) {
@@ -224,8 +120,8 @@ public class WeaponDraw extends Group { // can have arrows.
 		width *= 0.8f;
 		height *= 0.8f;
 		batch.setColor(BattleMap.SHADOW_COLOR);
-		batch.draw(shadowTexture1, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, unit.stage.battlemap.sunStretch, unit.stage.battlemap.sunRotation);
-		batch.draw(shadowTexture2, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, unit.stage.battlemap.sunStretch, unit.stage.battlemap.sunRotation);
+
+		batch.draw(shadowTexture, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, unit.stage.battlemap.sunStretch, unit.stage.battlemap.sunRotation - this.getParent().getRotation());
 		batch.setColor(o);
 	}
 	
@@ -245,19 +141,26 @@ public class WeaponDraw extends Group { // can have arrows.
 		
 		c.set(batch.getColor());
 		if (unit.team == 0) {
-			if (unit.party == unit.stage.allies.first())
-				batch.setColor(1, Math.max(0, (1 - unit.soldier.subparty.getRank())) * 0.3f, 0, alpha); 
-			else batch.setColor(1, .5f, .5f, alpha);
+			if (unit.party == unit.stage.allies.first()) {
+                if (unit.bsp.isRoot()) {
+                    batch.setColor(blueRootSubpartyTint);
+                } else batch.setColor(blueTint);
+			}
+			else batch.setColor(blueTint);
 		}
-		else batch.setColor(.3f, .3f, 1, alpha);
+		else {
+		    if (unit.bsp.isRoot()) {
+		        batch.setColor(redRootSubpartyTint);
+            } else
+		        batch.setColor(redTint);
+        }
 		
 		if (this.unit.isGeneral()) {
 			if (unit.team == 0) 
-				batch.setColor(1, 0.7f, 0, alpha);
+				batch.setColor(blueGeneralTint);
 			else 
-				batch.setColor(0, 0.7f, 1, alpha);
+				batch.setColor(redGeneralTint);
 		}
-		
 		
 		// draw white if selected
 		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) {
@@ -265,8 +168,9 @@ public class WeaponDraw extends Group { // can have arrows.
 		}
 	
 		boolean drawTeams = true;
-		
-		if (drawTeams)
+		boolean onlyDrawFriendly = false;
+
+		if (drawTeams || (onlyDrawFriendly && unit.team == 0))
 			batch.draw(Assets.white, 0, 0, unit.stage.unit_width/2, unit.stage.unit_height/2, unit.stage.unit_width, unit.stage.unit_height, 1, 1, -this.getParent().getRotation());
 //		batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
 		batch.setColor(c);
@@ -308,7 +212,8 @@ public class WeaponDraw extends Group { // can have arrows.
 		float offset_x_to_use = offset_x;
 		float offset_y_to_use = offset_y;
 		TextureRegion toDraw = weaponMelee;
-		if (unit.bowOut()) {
+
+        if (unit.bowOut()) {
 			toDraw = weaponRanged;
 //			if (unit.rangedWeapon != RangedWeapon.ADV_CROSSBOW  && unit.rangedWeapon != RangedWeapon.CROSSBOW) {
 				offset_x_to_use = offset_x_ranged;
@@ -317,6 +222,7 @@ public class WeaponDraw extends Group { // can have arrows.
 			// don't draw if firing
 			if (!unit.moveSmooth) return;
 		}
+		if (weaponMelee == null) throw new AssertionError();
 		batch.draw(toDraw, offset_x_to_use, (offset_y_to_use+man_offset_y/1.5f), 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), scale_x, scale_y, man_rotation);		
 	}
 }

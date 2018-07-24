@@ -543,7 +543,7 @@ public class SiegeUnit extends Group {
 //			//			this.destroy();
 //			if (attacker != null) {
 //				if (attacker.attackingSiege == this) attacker.attackingSiege = null;
-//				// usually full level, but spread some out to party
+//				// usually full level, but spread some out to playerPartyPanel
 ////				attacker.soldier.addExp(this.soldier.getExpForKill());;
 //			}
 //		}
@@ -714,7 +714,7 @@ public class SiegeUnit extends Group {
 //		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
 //
 //		//		System.out.println("DESTROYED");
-//		//party.casualty(soldier);
+//		//playerPartyPanel.casualty(soldier);
 //	}
 
 
