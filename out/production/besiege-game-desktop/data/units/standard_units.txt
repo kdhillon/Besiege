@@ -1,0 +1,87 @@
+tier name 			weapon				armor			upgrades_to
+
+Class:	Swamp	FOREST_GR
+1	Marshman		Club				Marsh Clothes	Archer/Firebomber/Soldier
+1	Eel Fisher		Spear				Marsh Clothes	Archer/Firebomber/Soldier
+
+2	Archer			Shortbow/Dagger		Marsh Clothes	Bowman
+2	Firebomber		Club/Firebombs		Marsh Armor		Firethrower
+2	Soldier			Spiked Club			Marsh Armor		Warrior
+
+3	Bowman			Recurve Bow/Dagger	Marsh Clothes	none
+4	Firethrower		Firebombs/Torch		Leather Armor	none
+5	Warrior			Spiked Club			Leather Armor	none
+
+Class:	Valley	LT_BROWN
+1	Farmer			Hatchet				Clothes			Recruit
+2	Recruit			Spear				Leather Armor	Soldier
+3	Soldier			Longsword			Leather Armor	none
+
+4	Warrior			Longsword			Leather Armor	none
+5	Hero			Longsword			Leather Armor	none
+
+Class:	Khmer	TAN
+1	Farmer			Sickle				Loose Clothes	Soldier/Archer
+1	Builder			Hammer				Loose Clothes	Soldier/Archer
+
+2	Soldier			Spear				Light Armor		Spearman
+2	Warrior			Shortsword/Shield	Loose Clothes	Swordsman
+2	Archer			Shortbow/Dagger		Loose Clothes	Bowman
+
+3	Spearman		Khmer Spear			Light Armor		Royal Guard
+3	Swordsman		Khmer Sword/Shield	Light Armor		Royal Warrior
+3	Bowman			Strongbow/Dagger	Light Armor		Royal Bowman
+3	Marksman		Wk Crossbow/Dagger	Light Armor		Royal Marksman
+
+4	Royal Guard		Khmer Pike			Royal Armor		Holy Guard
+4	Royal Warrior	Khmer Sword/Shield	Royal Armor		Holy Warrior
+4	Royal Bowman	Strongbow/Sword		Royal Armor		Holy Bowman
+4	Royal Marksman	Crossbow/Sword		Royal Armor		Holy Marksman
+
+5	Holy Guard		Holy Pike/Shield	Royal Armor		none
+5	Holy Warrior	Holy Sword/Shield	Royal Armor		none
+5	Holy Bowman		Blessed Bow/Sword	Royal Armor		none
+5	Holy Marksman	Holy Crossbow/Sword	Royal Armor		none
+
+Class:	Inuit	ICE
+1	Hunter			Shortbow/Snow Knife	Caribou Hide	Caribou Hunter
+1	Fisher			Kakivak				Caribou Hide	Sealer
+		
+2	Caribou Hunter	Bone Bow/Snow Knife	Caribou Hide	Wolf Hunter
+2	Sealer			Seal Spear			Caribou Hide	Walrus Hunter
+
+3	Wolf Hunter		Bone Bow/Stone Club	Wolf Hide		Bear Hunter
+3	Walrus Hunter	Seal Spear/Harpoon	Wolf Hide		Narwhal Hunter
+
+-3	Tupilaq			Teeth				Human Flesh		Qalupalik
+
+4	Bear Hunter		Cord Bow/Stone Club	Bear Hide		Nanuq
+4	Narwhal Hunter	Whale Spear/Atlatl	Bear Hide		Whalerider
+
+-4	Qalupalik		Claws				Amautiit		Saumen Kar
+
+5	Nanuq			Cord Bow/Claw Axe	Bear Pelt		none
+5	Whalerider		Bone Spear/Atlatl	Bear Pelt		none
+
+-5	Saumen Kar		Sharp Claws			Bloody Fur		none
+
+Class:	Desert	YELLOW
+1	Herder			Pitchfork			Loose Clothes	Archer
+2	Archer			Shortbow/Dagger		Marsh Clothes	Warrior
+3	Warrior			Spiked Club			Leather Armor	Hero
+4	Hero			Longsword			Leather Armor	Legend
+5	Legend			Longsword			Leather Armor	none
+
+Class:	Forest	GREEN
+1	Hunter			Shortbow/Hatchet	Loose Clothes	Archer
+2	Archer			Shortbow/Dagger		Marsh Clothes	Warrior
+3	Warrior			Spiked Club			Leather Armor	Hero
+4	Hero			Longsword			Leather Armor	Legend
+5	Legend			Longsword			Leather Armor	none
+
+Class:	Muskets	BLUE
+1	Hunter			Old Musket/Hatchet		Loose Clothes	Archer
+2	Archer			Musket/Dagger		Marsh Clothes	Warrior
+3	Warrior			Musket/Spiked Club	Leather Armor	Hero
+4	Hero			Rifle/Longsword		Leather Armor	Legend
+5	Legend			Rifle/Longsword		Leather Armor	none

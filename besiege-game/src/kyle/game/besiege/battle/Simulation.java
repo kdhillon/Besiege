@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.party.CultureType;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.PartyType.Type;
 import kyle.game.besiege.party.UnitLoader;
@@ -27,8 +28,11 @@ public class Simulation extends Game {
 		mapScreen = new MapScreen();
 
         // NOTE that the test parties may have forced culture types.
-        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.SCOUT, UnitLoader.cultureTypes.get("Tundra")),
-										PartyType.getPartyType(Type.SCOUT, UnitLoader.cultureTypes.get("Aztec")));
+        CultureType type1 = UnitLoader.cultureTypes.get("Desert");
+        CultureType type2 = UnitLoader.cultureTypes.get("Tundra");
+        if (type1 == null || type2 == null) throw new AssertionError();
+        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.TEST_ALL, type1),
+										PartyType.getPartyType(Type.TEST_ALL, type2));
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		

@@ -20,7 +20,7 @@ public class BattleMap extends Group {
 	private static final float SIZE_FACTOR = 1f; //  change this to increase the drawn area around the battlefield. Cannot exceed 2
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
-	public static final Color SHADOW_COLOR = new Color(0, 0, 0, .2f);
+	public static final Color SHADOW_COLOR = new Color(0, 0, 0, .13f);
 	private static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
 	private static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 	private static final Color CLEAR_WHITE = new Color(1, 1, 1, .5f);
@@ -133,7 +133,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.BEACH;
+		this.maptype = MapType.DESERT;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -272,8 +272,9 @@ public class BattleMap extends Group {
 			double slope2 = Math.random()*1;
 			double thresh = Math.random()*stage.size_x/2/ BLOCK_SIZE +stage.size_x/2/ BLOCK_SIZE;
 
+			// TODO mirror this step.
+			int maxWaterX = 0;
 			boolean left = Math.random() < 0.5;
-			// determine if ocean on right or left of line?
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
 					ground[i][j] = GroundType.SAND;
@@ -282,12 +283,16 @@ public class BattleMap extends Group {
 
 					if (leftSide < thresh || (leftSide - thresh < 4 && Math.random() < .5)) {
 						ground[i][j] = GroundType.WATER;
+						if (i > maxWaterX)
+							maxWaterX = i;
 						// set as closed
 						closeGround(j, i);
 					} 
 					else if (leftSide > thresh + 100/ BLOCK_SIZE * Math.random() + 150/ BLOCK_SIZE) ground[i][j] = GroundType.LIGHTGRASS;
 				} 
 			}
+
+			stage.MIN_PLACE_X = maxWaterX + 1;
 
 			if (stage.siege)
 				addWall();
@@ -309,6 +314,9 @@ public class BattleMap extends Group {
 			this.addFences(20);
 			if (stage.siege)
 				addWall();
+
+			addPalms(Math.random() * 0.005);
+
 			bgColor = new Color(204/256f, 188/256f, 74/256f, 1);
 		}
 		if (maptype == MapType.ALPINE) {
@@ -690,10 +698,18 @@ public class BattleMap extends Group {
         for (int i = 0; i < stage.size_x; i++) {
             for (int j = 0; j < stage.size_y; j++) {
                 // Only add palms on the grassy part of the map (not the sand)
-                if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && ground[i/ BLOCK_SIZE][j/ BLOCK_SIZE] == GroundType.LIGHTGRASS && !adjacentObstructed(i, j)) {
-                    objects[j][i] = Object.PALM;
-                    stage.closed[j][i] = true;
-                }
+				if (this.maptype == MapType.BEACH) {
+					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && ground[i / BLOCK_SIZE][j / BLOCK_SIZE] == GroundType.LIGHTGRASS && !adjacentObstructed(i, j)) {
+						objects[j][i] = Object.PALM;
+						stage.closed[j][i] = true;
+					}
+				}
+				else {
+					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && !adjacentObstructed(i, j)) {
+						objects[j][i] = Object.PALM;
+						stage.closed[j][i] = true;
+					}
+				}
             }
         }
     }

@@ -1,0 +1,41 @@
+menu organization
+
+Panel Main
+    shows basic character info (level, party size, faction)
+    -> character (1)
+    -> party (2)
+    -> actions (3)
+    -> world (4)
+
+Character  
+    Shows detailed character info (level, exp, faction, faction relations? title, holdings?)
+    -> attributes (1)
+    -> holdings (2)
+    ->  (3)
+    -> back (4)
+
+Attributes
+    shows player attributes and levels for each (mousing over gives information?) 
+     -> back (4)
+
+Holdings
+    Shows player controlled fiefs and player can click each one to bring up a PanelCity/PanelVillage/PanelCastle view
+    -> back (4)
+    
+PanelLocation
+    Displays info about a particular city (wealth, faction, villages, garrisoned armies, etc)
+    -> main(1)
+    
+PanelArmy
+    displays information about a particular army
+    
+Party
+    Lists current party members (can click each one for info on each soldier)
+    -> upgrade (1)
+    -> rearrange/organize? (2)
+    -> back (4)
+
+Upgrade
+    Lists party members and allows upgrading 
+    
+    

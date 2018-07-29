@@ -31,7 +31,7 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="kryo-2.24.0-javadoc.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/kryo-2.24.0-javadoc.jar!/" />
@@ -40,7 +40,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="kryo-2.24.0-sources.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/kryo-2.24.0-sources.jar!/" />
@@ -49,7 +49,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="kryo-2.24.0.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/kryo-2.24.0.jar!/" />
@@ -58,7 +58,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="minlog-1.2.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/minlog-1.2.jar!/" />
@@ -67,7 +67,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="objenesis-1.2.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/objenesis-1.2.jar!/" />
@@ -76,7 +76,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="reflectasm-1.09-shaded.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/reflectasm-1.09-shaded.jar!/" />
@@ -85,17 +85,17 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx-freetype-1.8.0-sources.jar">
+    <orderEntry type="module-library" exported="">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/gdx-freetype-1.8.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/gdx.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx-freetype-1.8.0.jar">
+    <orderEntry type="module-library" exported="">
+      <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/gdx-freetype-1.8.0.jar!/" />
         </CLASSES>
@@ -103,52 +103,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx-sources old.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/gdx-sources old.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx-sources.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/gdx-sources.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx-tools old.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/gdx-tools old.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx-tools.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/gdx-tools.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gdx.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/gdx.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/libs/gdx-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
+    <orderEntry type="library" exported="" name="gdx-backend-lwjgl-natives" level="project" />
+    <orderEntry type="library" exported="" name="gdx-backend-lwjgl" level="project" />
   </component>
 </module>

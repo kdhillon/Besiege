@@ -73,35 +73,39 @@ public class WeaponDraw extends Group { // can have arrows.
 	}
 	
 	public static TextureRegion GetMeleeWeaponTextureForUnittype(UnitType unit) {
-		String filename = unit.melee.name;
+		String filename = unit.melee.texture;
 		TextureRegion weaponMeleeTexture;
 		weaponMeleeTexture = Assets.weapons.findRegion(filename);
 		
 		// check last word of weapon because yolo
-		if (weaponMeleeTexture == null) {
-			String[] split = filename.split(" ");
-			if (split.length > 0) {
-                weaponMeleeTexture = Assets.weapons.findRegion(split[split.length - 1]);
-                if (weaponMeleeTexture == null) {
-                    weaponMeleeTexture = Assets.weapons.findRegion(split[split.length-1].toLowerCase());
-                }
-			}
-		}
+//		if (weaponMeleeTexture == null) {
+//
+//			String[] split = filename.split(" ");
+//			if (split.length > 0) {
+//                weaponMeleeTexture = Assets.weapons.findRegion(split[split.length - 1]);
+//                if (weaponMeleeTexture == null) {
+//                    weaponMeleeTexture = Assets.weapons.findRegion(split[split.length-1].toLowerCase());
+//                }
+//			}
+//		}
 
-		if (weaponMeleeTexture == null) {			
+		if (weaponMeleeTexture == null) {
 			System.out.println("can't find texture for melee weapon: " + filename);
-			weaponMeleeTexture = Assets.weapons.findRegion("shortsword");
+			throw new AssertionError();
+//			weaponMeleeTexture = Assets.weapons.findRegion("shortsword");
 		}
 		return weaponMeleeTexture;
 	}
 	
 	public static TextureRegion GetRangedWeaponTextureForUnittype(UnitType unit) {
-		String rangedFilename = unit.ranged.name;
-		TextureRegion weaponRangedTexture = Assets.weapons.findRegion(rangedFilename);	
+		String rangedFilename = unit.ranged.texture;
+
+		TextureRegion weaponRangedTexture = Assets.weapons.findRegion(rangedFilename);
 		
 		if (weaponRangedTexture == null) {
 			System.out.println("can't find texture for ranged weapon: " + rangedFilename);
-			weaponRangedTexture = Assets.weapons.findRegion("Longbow");
+			throw new AssertionError();
+//			weaponRangedTexture = Assets.weapons.findRegion("Longbow");
 		}
 		return weaponRangedTexture;
 	}

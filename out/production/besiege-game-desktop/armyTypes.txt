@@ -1,0 +1,9 @@
+0 Villagers 5 10 20
+1 Patrol 13 15 35
+2 Merchant 10 15 25
+3 Farmers 2 6 10
+4 Militia 10 20 15
+5 Horsemen 15 25 50
+6 Spearmen 15 25 50
+7 RaidingParty 30 50 70
+8 StandingArmy 50 100 150

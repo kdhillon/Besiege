@@ -1,0 +1,19 @@
+biome				class
+
+Beach				Basic
+Snow					Basic
+Tundra				Basic
+Bare					Basic
+Scorched				Basic
+Taiga				Basic
+Plateau				Basic
+Swamp				Basic
+Deciduous_Forest 	Basic
+Grassland			Basic
+Desert				Basic
+Shrubland			Basic
+Ice					Basic
+Marsh				Basic
+Rainforest			Basic
+Seasonal_Forest		Basic
+Lakeshore			Basic

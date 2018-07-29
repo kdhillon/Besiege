@@ -19,13 +19,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import kyle.game.besiege.party.UnitLoader;
 
 public class Assets {
-
-//	public static Array<String> cityNames;
-//	public static Array<String> villageNames;
-//	public static Array<String> castleNames;
-//	public static Array<String> ruinNames;
-	//	public static Scanner cityList;
-	//	public static Scanner villageList;
 	public static TextureAtlas atlas;
 	public static TextureAtlas weapons;
 	public static TextureAtlas map;
@@ -34,11 +27,6 @@ public class Assets {
     public static TextureAtlas crests;
 
     public static Texture black;
-
-//	public static Texture map1;
-//	public static Texture map2;
-//	public static Texture map3;
-//	public static Texture map4;
 
 	public static FreeTypeFontGenerator droidGen;
 	

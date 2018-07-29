@@ -16,7 +16,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 	public static Array<PartyType> types;
 	
 	public enum Type {FARMERS, PATROL, MERCHANT, CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
-						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST, TEST_1, TEST_2};
+						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST, TEST_1, TEST_2, TEST_ALL};
 	
 	//	private final Weapon[] troopTypes;
 	public String name;
@@ -121,7 +121,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //			//			System.out.println(biome.name());
 ////			classToUse = UnitLoader.biomeCultures.get(biome);
 //			if (classToUse == null) {
-				System.out.println(toString() + " has null culture type!");
+				System.out.println(name + " has null culture type!");
 				throw new AssertionError();
 //			}
 		}
@@ -204,13 +204,14 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 		return pt;
 	}
 	
-	public static PartyType generatePartyType(Type type) {	
+	public static PartyType generatePartyType(Type type) {
 		CultureType none = null;
 		return getPartyType(type, none);	
 	}
-	
+
 	// generates a playerPartyPanel type for this particular type
 	public static PartyType getPartyType(Type type, CultureType cultureType) {
+		// We allow no party type, for random armies that aren't from a location?
 		PartyType pt = new PartyType();
 		pt.cultureType = cultureType;
 		
@@ -336,6 +337,13 @@ public class PartyType { // todo add ability for max playerPartyPanel size
             if (pt.unitType == null) {
                 throw new AssertionError();
             }
+			break;
+		case TEST_ALL:
+			pt.name = "Testall";
+			pt.maxCount = 30;
+			pt.minCount = 30;
+			pt.tiers = new int[]{1, 2, 3, 4};
+
 			break;
 //		case ENLIGHTENMENT:
 //			pt.name = "Enlightenment";

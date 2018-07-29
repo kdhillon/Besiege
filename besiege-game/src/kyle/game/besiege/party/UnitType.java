@@ -9,9 +9,11 @@ public class UnitType {
 	public int tier;
 	public WeaponType melee;
 	public RangedWeaponType ranged;
+	public AmmoType ammoType;
 	public ArmorType armor;
-	public boolean hideBonus;
-	public boolean mounted;
+//	public boolean hideBonus;
+//	public boolean hideBonus;
+//	public boolean mounted;
 	
 	public String[]		upgradeStrings;
 	public UnitType[]	upgrades;

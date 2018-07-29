@@ -1,6 +1,8 @@
 package kyle.game.besiege.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import com.badlogic.gdx.Gdx;
@@ -28,19 +30,19 @@ import kyle.game.besiege.NameGenerator;
 public class TextGenerator {
 	MarkovModel mm;
 
-	public TextGenerator(String filename) {
-		this(2, filename);
+//	public TextGenerator(String filename) {
+//		this(2, filename);
+//	}
+
+	public TextGenerator(int k, String path, String filename) throws FileNotFoundException {
+//		this(k, Gdx.files.internal(new Scanner(filename).reader()));
+		this(k, new Scanner(new File(path + filename), "ASCII"));
 	}
 
-	public TextGenerator(int k, String filename) {
-		this(k, Gdx.files.internal(filename));
-	}
-
-	public TextGenerator(int k, FileHandle file) {
+	public TextGenerator(int k, Scanner in2) {
 		//		Scanner in = new Scanner(Gdx.files.internal("data/units/standard_biomes.txt").reader()).useDelimiter("\\t\\t*|\r\n[\r\n]*");
 		//		String text = "Chicago Atlanta Bermuda Bahamas Detroit";       //reads text from standard input
 		//		BufferedReader in = new BufferedReader(file.reader());
-		Scanner in2 = new Scanner(file.reader());
 		StringBuilder total = new StringBuilder("");
 		while (in2.hasNext()) {
 			total.append(in2.nextLine() + " ");
@@ -77,20 +79,20 @@ public class TextGenerator {
 	}
 
 	public static void main(String[] args) {
-		TextGenerator tg = new TextGenerator(4, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/cities15000.txt"));
-
-		TextGenerator tgMale = new TextGenerator(3, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/firstMale.txt"));
-		TextGenerator tgFemale = new TextGenerator(3, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/firstFemale.txt"));
-		TextGenerator tgLast = new TextGenerator(3, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/last.txt"));
-
-		System.out.println("Men:");
-		for (int i = 0; i < 30; i++) {
-			System.out.println( NameGenerator.lowercase(tgMale.gen(5, 10, 5)) + " " +  NameGenerator.lowercase(tgLast.gen(5, 10, 5))); //prints out T characters 
-		}
-		System.out.println("Women:");
-		for (int i = 0; i < 30; i++) {
-			System.out.println( NameGenerator.lowercase(tgFemale.gen(5, 10, 5)) + " " +  NameGenerator.lowercase(tgLast.gen(5, 10, 5))); //prints out T characters 
-		}
+//		TextGenerator tg = new TextGenerator(4, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/cities15000.txt"));
+//
+//		TextGenerator tgMale = new TextGenerator(3, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/firstMale.txt"));
+//		TextGenerator tgFemale = new TextGenerator(3, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/firstFemale.txt"));
+//		TextGenerator tgLast = new TextGenerator(3, new FileHandle("A:/users/kyle/dropbox/libgdx/repo/besiege/besiege-game-android/assets/data/namegen/last.txt"));
+//
+//		System.out.println("Men:");
+//		for (int i = 0; i < 30; i++) {
+//			System.out.println( NameGenerator.lowercase(tgMale.gen(5, 10, 5)) + " " +  NameGenerator.lowercase(tgLast.gen(5, 10, 5))); //prints out T characters
+//		}
+//		System.out.println("Women:");
+//		for (int i = 0; i < 30; i++) {
+//			System.out.println( NameGenerator.lowercase(tgFemale.gen(5, 10, 5)) + " " +  NameGenerator.lowercase(tgLast.gen(5, 10, 5))); //prints out T characters
+//		}
 
 	}
 }

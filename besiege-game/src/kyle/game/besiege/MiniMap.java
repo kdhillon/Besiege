@@ -83,14 +83,14 @@ public class MiniMap extends Actor {
 				y -= getWidth()*8f/8;
 //				drawInFront = true;
 			}
-			else if (toPreview.unitType.melee.polearm) { //&& !toPreview.weapon.troopName.startsWith("Sword")
+			else if (toPreview.unitType.melee.isPolearm()) { //&& !toPreview.weapon.troopName.startsWith("Sword")
 				y -= getWidth()*3f/8;
 //				drawInFront = false;
 			}
 			
 			// weapons are 3x12			
 			Color c = batch.getColor();
-			if (toPreview.unitType.armor.naked) {
+			if (toPreview.unitType.armor.isNaked()) {
 				// highly inefficient
 				Color bodySkin = new Color(toPreview.skinColor);
 				bodySkin.r += 0.05f;

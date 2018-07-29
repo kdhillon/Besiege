@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="gdx-backend-lwjgl-natives">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/besiege-game-desktop/libs/old/gdx-backend-lwjgl-natives.jar!/" />
+      <root url="jar://$PROJECT_DIR$/besiege-game-desktop/libs/old/gdx-backend-lwjgl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/besiege-game-desktop/libs/old/gdx-natives.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/besiege-game-desktop/libs/old/gdx-backend-lwjgl-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

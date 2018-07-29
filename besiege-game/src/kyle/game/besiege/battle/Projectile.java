@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.battle.Unit.Orientation;
+import kyle.game.besiege.party.AmmoType;
 import kyle.game.besiege.party.RangedWeaponType.Type;
 
 public class Projectile extends Group {
@@ -142,8 +143,9 @@ public class Projectile extends Group {
 		accuracy_factor = 10 - accuracy_factor;
 		
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
-		
-		if (firing.rangedWeapon.type == Type.FIRE) {
+
+		// TODO with Ammo
+		if (firing.ammoType != null && firing.ammoType.type == AmmoType.Type.ARROW_FIRE) {
 //			System.out.println("creating fire");
 			fc = new FireContainer();
 			Fire fire = new Fire(300, 200, firing.stage.getMapScreen(), null);

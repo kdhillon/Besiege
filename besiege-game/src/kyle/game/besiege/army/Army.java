@@ -39,8 +39,6 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Center;
 
-import javax.rmi.ssl.SslRMIClientSocketFactory;
-
 public class Army extends Actor implements Destination {
 	private static final boolean OPTIMIZED_MODE = true;
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames

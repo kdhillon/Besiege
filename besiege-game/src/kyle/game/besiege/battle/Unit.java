@@ -12,12 +12,8 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.party.Equipment;
-import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.RangedWeaponType;
+import kyle.game.besiege.party.*;
 import kyle.game.besiege.party.RangedWeaponType.Type;
-import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.WeaponType;
 
 public class Unit extends Group {
 
@@ -60,6 +56,7 @@ public class Unit extends Group {
 	public Soldier soldier;
 	public WeaponType weapon;
 	public RangedWeaponType rangedWeapon;
+	public AmmoType ammoType;
 	public SiegeUnit siegeUnit;
 
 	public boolean isMounted = true;
@@ -201,20 +198,10 @@ public class Unit extends Group {
 		this.rangedWeapon = soldier.unitType.ranged;
 		
 		// calculate number of arrows unit gets
-		
-		
-		if (rangedWeapon != null) {
-			if (rangedWeapon.type == Type.BOW)
-				quiver = 20;
-			if (rangedWeapon.type == Type.CROSSBOW) 
-				quiver = 20;
-			if (rangedWeapon.type == Type.FIREARM) 
-				quiver = 15;
-			if (rangedWeapon.type == Type.THROWN)
-				quiver = 1;
-			if (rangedWeapon.type == Type.FIRE)
-				quiver = 20;
-		}
+
+		if (rangedWeapon != null)
+			quiver = rangedWeapon.quiver;
+
 		//		if (rangedWeapon != null) 
 		//			this.stance = Stance.DEFENSIVE;
 
@@ -294,7 +281,7 @@ public class Unit extends Group {
 //		else this.armorTint = new Color(.3f, .2f, .15f, 1);
 
 		this.armorTint = soldier.unitType.armor.color;
-		if (soldier.unitType.armor.naked) armorTint = soldier.getColor();
+		if (soldier.unitType.armor.isNaked()) armorTint = soldier.getColor();
 		this.skinTint = soldier.getColor();
 	}
 
@@ -1151,7 +1138,7 @@ public class Unit extends Group {
 		double bonusDamage = 0;
 
 		// polearm against cavalry
-		if (weapon.cavalryBonus && attacking.horse != null) {
+		if (weapon.isPolearm() && attacking.horse != null) {
 			bonusDamage += CAVALRY_BONUS;
 		}
 
@@ -1748,7 +1735,7 @@ public class Unit extends Group {
 	// only 1-handed units and non-mounted
 	public boolean canHide() {
 		if (this.isMounted()) return false;
-		return !this.weapon.polearm; 
+		return !this.weapon.isPolearm();
 	}
 
 	public void updateHidden() {

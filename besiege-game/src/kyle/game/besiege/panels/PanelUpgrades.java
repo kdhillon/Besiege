@@ -417,7 +417,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 			naturalUp += "+1 spd";
 		naturalS.setText(naturalUp);
 		equippedS.setText(s.getTypeName());
-		equippedStatsS.setText(s.getWeapon().atkMod + " atk, " + s.getWeapon().defMod + " def, " + s.getWeapon().spdMod + " spd");
+		equippedStatsS.setText(s.getWeapon().atkMod + " atk, " + s.getWeapon().spdMod + " spd");
 
 		UnitType[] upgradeArr = s.getUpgrades();
 		if (upgradeArr.length >= 1) {
@@ -610,23 +610,22 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		String stats = "";
 		int atkDif, defDif, spdDif;
 		atkDif = up.atkMod - curr.atkMod;
-		defDif = up.defMod - curr.defMod;
 		spdDif = up.spdMod - curr.spdMod;
 		if (atkDif != 0) {
 			if (atkDif > 0) stats +=  "+" + atkDif + "a";
 			else stats += atkDif + "a";
 		}
-		if (defDif != 0) {
-			if (atkDif != 0) stats += ", ";
-			if (defDif > 0) stats +=  "+" + defDif + "d";
-			else stats += defDif + "d";
-		}
+//		if (defDif != 0) {
+//			if (atkDif != 0) stats += ", ";
+//			if (defDif > 0) stats +=  "+" + defDif + "d";
+//			else stats += defDif + "d";
+//		}
 		if (spdDif != 0) {
-			if (atkDif != 0 || defDif != 0) stats += ", ";
+			if (atkDif != 0) stats += ", ";
 			if (spdDif > 0) stats +=  "+" + spdDif + "s";
 			else stats += spdDif + "s";
 		}
-		if (atkDif == 0 && defDif == 0 && spdDif == 0)
+		if (atkDif == 0 && spdDif == 0)
 			stats += "no change";
 		return stats;
 	}

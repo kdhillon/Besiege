@@ -578,16 +578,22 @@ public class MapScreen implements Screen {
 		//		if (this.currentCamera == kingdomPerspectiveCamera) {
 		//			this.kingdomPerspectiveCamera.translate(0, 0, ZOOM_RATE_Z*factor);
 		//		}
-		//		else 
+		//		else
+
+		// adjust factor to be proportional to height
+		float speed = 0.7f;
 		if (this.currentCamera == kingdomCamera) {
+			factor *= (kingdomCamera.zoom - ZOOM_MIN*0.5) * speed;
 			if ((factor > 0) && (kingdomCamera.zoom < ZOOM_MAX) || (factor < 0) && (kingdomCamera.zoom > ZOOM_MIN))
-				kingdomCamera.zoom += factor;		}
+				kingdomCamera.zoom += factor;
+		}
 		else if (this.currentCamera == battleCamera) {
+			factor *= (battleCamera.zoom - ZOOM_MIN*0.5) * speed;
 			if ((factor > 0) && (battleCamera.zoom < ZOOM_MAX) || (factor < 0) && (battleCamera.zoom > ZOOM_MIN))
 				battleCamera.zoom += factor;
 		}
-
 	}
+
 	public void letRun() {
 		if (battle == null) {
 			kingdom.setPaused(false);

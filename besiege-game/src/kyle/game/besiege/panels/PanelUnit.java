@@ -67,6 +67,7 @@ public class PanelUnit extends Panel {
 	protected Label defS;
 	protected Label spdS;
 	private Label weaponS;
+	private Label armorS;
 	private Label equipmentS;
 	private Label actionS;
 
@@ -164,6 +165,9 @@ public class PanelUnit extends Panel {
 		if (unit != null && unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
 		weaponS.setAlignment(0,0);
 
+		armorS = new Label("" + soldier.unitType.armor.name, ls);
+		armorS.setAlignment(0,0);
+
 		equipmentS = new Label("", ls);
 		if (unit != null) {
 			actionS = new Label("" + unit.getStatus(), ls);
@@ -206,6 +210,8 @@ public class PanelUnit extends Panel {
 			text.row();
 		}
 		text.add(weaponS).colspan(4).fillX().expandX();
+		text.row();
+		text.add(armorS).colspan(4).fillX().expandX();
 		text.row();
 		text.add(generalStats).colspan(4).fillX().expandX().padTop(MINI_PAD).padBottom(MINI_PAD);
 		text.row();
@@ -271,7 +277,10 @@ public class PanelUnit extends Panel {
 		}
 		else weaponS.setText(soldier.unitType.melee.name);
 
-		weaponS.setText(weaponS.getText() + ", " + soldier.unitType.armor.name);
+		String armor = soldier.unitType.armor.name;
+		if (armor.equals("None")) armor = "Naked";
+
+		armorS.setText(armor);
 
 		String mounted = "";
 		if (unit != null) {

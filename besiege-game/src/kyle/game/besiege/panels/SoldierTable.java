@@ -101,7 +101,7 @@ public class SoldierTable extends Table {
 	// Currently the vertical size is too big, maybe because height isn't properly set?
 	private void updateWithParty(Party party, LabelStyle style, LabelStyle wounded) {
 		System.out.println("starting panelparty update: " + party.getName());
-		for (Subparty s : party.sub) {
+		for (final Subparty s : party.sub) {
 			SoldierLabel general;
 			if (s.general != null) {
 //				System.out.println(s.general.getName());
@@ -164,7 +164,7 @@ public class SoldierTable extends Table {
             });
         }
         public void createExpand() {
-            for (Soldier s : type) {
+            for (final Soldier s : type) {
                 SoldierLabel soldierName = new SoldierLabel(s.getName(), this.getStyle(), s);
                 soldierName.setColor(Color.GRAY);
                 expand.add(soldierName).left().padBottom(PanelUnit.NEG).expandX();

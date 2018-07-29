@@ -68,7 +68,7 @@ public class BattleStage extends Group implements Battle {
 	static final float RAIN_SLOW = .8f;
 	static final float SNOW_SLOW = .7f;
 
-	public int MIN_PLACE_X;
+	public int MIN_PLACE_X; // This is modified by Battlemap (if there's water on the left side, for example)
 	public int MAX_PLACE_X;
 
 	public int MIN_PLACE_Y_1;

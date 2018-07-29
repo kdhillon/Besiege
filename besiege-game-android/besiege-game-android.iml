@@ -2,7 +2,7 @@
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
     <libelement value="jar://$MODULE_DIR$/libs/gdx-backend-android.jar!/" />
-    <libelement value="jar://$MODULE_DIR$/../besiege-game/libs/gdx.jar!/" />
+    <libelement value="jar://$PARENT-1-PROJECT_LOC$/besiege-game/libs/gdx.jar!/" />
     <conelement value="com.android.ide.eclipse.adt.DEPENDENCIES" />
     <src_description expected_position="0">
       <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
@@ -13,20 +13,23 @@
   </component>
   <component name="FacetManager">
     <facet type="android" name="Android">
-      <configuration />
+      <configuration>
+        <proGuardCfgFiles>
+          <file>file:///Library/Java/JavaVirtualMachines/default/Contents/Home/tools/proguard/proguard-android.txt</file>
+        </proGuardCfgFiles>
+        <option name="UPDATE_PROPERTY_FILES" value="true" />
+      </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/bin/classes" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="jdk" jdkName="Android API 4 Platform" jdkType="Android SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="besiege-game" exported="" />
-    <orderEntry type="library" exported="" name="com.android.ide.eclipse.adt.DEPENDENCIES" level="application" />
     <orderEntry type="module-library" exported="">
       <library name="gdx-backend-android.jar">
         <CLASSES>
@@ -41,11 +44,11 @@
     <orderEntry type="module-library" exported="">
       <library name="gdx.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../besiege-game/libs/gdx.jar!/" />
+          <root url="jar://$PARENT-1-PROJECT_LOC$/besiege-game/libs/gdx.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../besiege-game/libs/gdx-sources.jar!/" />
+          <root url="jar://$PARENT-1-PROJECT_LOC$/besiege-game/libs/gdx-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

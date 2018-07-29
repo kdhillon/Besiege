@@ -652,7 +652,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	    int bigHeadLimit = 100;
         int medHeadLimit = 50;
         if (this.isGeneral()) {
-            if (this.getCulture().name.equals("Aztec")) {
+            if (this.getCulture().name.equals("Desert")) {
                 if (((General) this).getFame() > bigHeadLimit)
                     return Equipment.HEADDRESS_MESO_3;
                 if (((General) this).getFame() > medHeadLimit)
@@ -666,7 +666,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
                     return Equipment.HEADDRESS_PLAINS_2;
                 else return Equipment.HEADDRESS_PLAINS_1;
             }
-            if (this.getCulture().name.equals("Tundra")) {
+            if (this.getCulture().name.equals("Tundra") || this.getCulture().name.equals("Forest")) {
                 if (((General) this).getFame() > bigHeadLimit)
                     return Equipment.HEADDRESS_FOREST_3;
                 if (((General) this).getFame() > medHeadLimit)

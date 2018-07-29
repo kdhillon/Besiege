@@ -1,0 +1,8 @@
+name				Material    color_name	hp	spd	type
+// Forest shields
+Round shield		Deer Hide	LT_BROWN	10	0   round
+Round shield		Elk Hide	LT_BROWN	12	0   round
+Round shield		Moose Hide	DK_BROWN	14	0   round
+Round shield		Bear Hide	DK_BROWN	16	0   round
+Large shield		Bark Slabs	DK_BROWN	20	-1  full
+Large shield		Wood Slabs	BROWN   	25	-1  full

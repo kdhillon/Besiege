@@ -1,5 +1,7 @@
 package kyle.game.besiege.party;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -10,6 +12,7 @@ import kyle.game.besiege.NameGenerator;
 import kyle.game.besiege.voronoi.Biomes;
 
 public class UnitLoader {
+//	public static final String PATH = "/Users/kdhillon/Documents/repo/besiege/besiege-game-android/assets/data/units/";
 	public static final String PATH = "data/units/";
 	public static String rootName;
 
@@ -18,6 +21,7 @@ public class UnitLoader {
 //	public static HashMap<String, NewUnitType> unitTypes;
 	public static HashMap<String, WeaponType> weaponTypes;
 	public static HashMap<String, RangedWeaponType> rangedWeaponTypes;
+	public static HashMap<String, AmmoType> ammoTypes;
 	public static HashMap<String, ArmorType> armorTypes;
 	public static HashMap<String, Biomes> biomes;
 	public static HashMap<Biomes, CultureType> biomeCultures;
@@ -28,6 +32,7 @@ public class UnitLoader {
 		cultureTypes = new HashMap<String, CultureType>();
 
 		loadColors();
+		loadAmmo();
 		loadWeapons();
 		loadRangedWeapons();
 		loadArmors();
@@ -42,17 +47,30 @@ public class UnitLoader {
 		for (Biomes b : Biomes.values()) {
 			biomes.put(b.toString(), b);
 		}
-		
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").reader());
-		in.nextLine(); // skip first line
+
+//		Scanner in = null;
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
+		in.nextLine();
 
 		biomeCultures = new HashMap<Biomes, CultureType>();
 		
 		// read one line of input from the 
 		while(in.hasNextLine()) {			
 			if (!in.hasNext()) return;
-			
-			String strBiome 		=     addSpaces(in.next());
+
+			String first = in.next();
+			if (first.equals("//")) {
+				in.nextLine();
+				continue;
+			}
+
+			String strBiome 		=  addSpaces(first);
 			String strClass			= in.next();
 			
 			Biomes biome 			= biomes.get(strBiome);
@@ -73,14 +91,25 @@ public class UnitLoader {
 
 	public static void loadColors() {
 		colors = new HashMap<String, Color>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_colors.txt").reader()); //.useDelimiter("\\t\\t*|\r\n[\r\n]*|")
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_colors.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine(); // skip first line
 
 		// read one line of input from the 
-		while(in.hasNextLine()) {			
+		while(in.hasNextLine()) {
 			Color color = new Color();
 			if (!in.hasNext()) return;
-			String name		= in.next();
+			String first = in.next();
+			if (first.equals("//")) {
+				in.nextLine();
+				continue;
+			}
+			String name		= first;
 			int r 	= in.nextInt();
 			int g 	= in.nextInt();
 			int b	= in.nextInt();
@@ -92,49 +121,94 @@ public class UnitLoader {
 
 	public static void loadArmors() {
 		armorTypes = new HashMap<String, ArmorType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_armors.txt").reader());
-		in.nextLine(); // skip first line
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_armors.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
+		in.nextLine();
 
 		// read one line of input from the 
 		while(in.hasNextLine()) {			
 			ArmorType armor = new ArmorType();
 			if (!in.hasNext()) return;
-			armor.name		= in.next();
+			String first = in.next();
+			if (first.equals("//")) {
+				in.nextLine();
+				continue;
+			}
+			armor.name		= addSpaces(first);
 			String colorToGet = in.next();
 			armor.color 	= colors.get(colorToGet);
 			if (armor.color == null) throw new java.lang.NullPointerException("Can't find color: " + colorToGet);
 			armor.defMod 	= in.nextInt();
 			armor.spdMod	= in.nextInt();
-			armor.clothes 	= in.nextBoolean();
-			armor.naked = armor.name.equals("None");
+			armor.type 	= toArmorType(in.next());
 			armorTypes.put(armor.name, armor);
 //				printArmor(armor);
 		}
 		in.close();
 	}
 
+	private static ArmorType.Type toArmorType(String name) {
+		if (name.equals("naked")) return ArmorType.Type.NAKED;
+		if (name.equals("chest")) return ArmorType.Type.CHEST;
+		if (name.equals("basic")) return ArmorType.Type.BASIC;
+		if (name.equals("clothes")) return ArmorType.Type.CLOTHES;
+
+		System.out.println("Armor type not found: " + name);
+		return null;
+	}
+
 	public static void loadWeapons() {
 		weaponTypes = new HashMap<String, WeaponType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_weapons.txt").reader());
-		in.nextLine(); // skip first line
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_weapons.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
+		in.nextLine();
 
 		// read one line of input from the 
-		while(in.hasNextLine()) {			
+		while(in.hasNextLine()) {
+			Scanner line = new Scanner(in.nextLine());
+
 			WeaponType weapon = new WeaponType();
-			if (!in.hasNext()) return;
-			weapon.name		= addSpaces(in.next());
-//			System.out.println("name: " + weapon.name);
-			weapon.atkMod 	= in.nextInt();
-			weapon.defMod 	= in.nextInt();
-			weapon.spdMod	= in.nextInt();
-			weapon.oneHand	= in.nextBoolean();
-			weapon.blunt 	= in.nextBoolean();
-			weapon.polearm 	= in.nextBoolean();
-			weapon.cavalryBonus	= in.nextBoolean();
+			if (!line.hasNext()) continue;
+			String first = line.next();
+			if (first.equals("//")) {
+				continue;
+			}
+
+			weapon.name		= addSpaces(first);
+			weapon.atkMod 	= line.nextInt();
+			weapon.spdMod	= line.nextInt();
+			weapon.type	= toWeaponType(line.next());
+
+			if (line.hasNext()) {
+				weapon.texture = line.next();
+			} else {
+				weapon.texture = weapon.getDefaultTexture();
+			}
+
 			weaponTypes.put(weapon.name, weapon);
-//						printWeapon(weapon);
+						printWeapon(weapon);
 		}
 		in.close();
+	}
+
+	private static WeaponType.Type toWeaponType(String name) {
+		if (name.equals("unarmed")) return WeaponType.Type.UNARMED;
+		if (name.equals("1h")) return WeaponType.Type.ONE_HANDED;
+		if (name.equals("polearm")) return WeaponType.Type.POLEARM;
+		if (name.equals("club")) return WeaponType.Type.CLUB;
+
+		System.out.println("Weapon type not found: " + name);
+		return null;
 	}
 	
 	private static String addSpaces(String input) {
@@ -143,20 +217,71 @@ public class UnitLoader {
 
 	public static void loadRangedWeapons() {
 		rangedWeaponTypes = new HashMap<String, RangedWeaponType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_ranged_weapons.txt").reader());
-		in.nextLine(); // skip first line
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_ranged_weapons.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
+		in.nextLine();		in.nextLine(); // skip first line
 
 		// read one line of input from the 
-		while(in.hasNextLine()) {			
+		while(in.hasNextLine()) {
+		    Scanner line = new Scanner(in.nextLine());
 			RangedWeaponType weapon = new RangedWeaponType();
-			if (!in.hasNext()) return;
-			weapon.name		= addSpaces(in.next());
-			weapon.atkMod 	= in.nextInt();
-			weapon.range 	= in.nextInt();
-			weapon.accuracy	= in.nextInt();
-			weapon.rate 	= in.nextInt();
-			weapon.setType(in.next());
+            if (!line.hasNext()) continue;
+
+            String first = line.next();
+			if (first.equals("//")) {
+				continue;
+			}
+
+			weapon.name		= addSpaces(first);
+			weapon.atkMod 	= line.nextInt();
+			weapon.range 	= line.nextInt();
+			weapon.accuracy	= line.nextInt();
+			weapon.rate 	= line.nextInt();
+			weapon.quiver 	= line.nextInt();
+			weapon.setType(line.next());
+
+			if (line.hasNext()) {
+			    weapon.texture = line.next();
+            } else {
+			    weapon.texture = weapon.getDefaultTexture();
+            }
+
 			rangedWeaponTypes.put(weapon.name, weapon);
+//			printRangedWeapon(weapon);
+		}
+		in.close();
+	}
+
+	public static void loadAmmo() {
+		ammoTypes = new HashMap<String, AmmoType>();
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_ammo.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
+		in.nextLine();		in.nextLine(); // skip first line
+
+		// read one line of input from the
+		while(in.hasNextLine()) {
+			AmmoType ammoType = new AmmoType();
+			if (!in.hasNext()) return;
+			String first = in.next();
+			if (first.equals("//")) {
+				in.nextLine();
+				continue;
+			}
+
+			ammoType.name		= addSpaces(first);
+			ammoType.dmg  = in.nextInt();
+			ammoType.setType(in.next());
+			ammoTypes.put(ammoType.name, ammoType);
 //			printRangedWeapon(weapon);
 		}
 		in.close();
@@ -164,8 +289,14 @@ public class UnitLoader {
 
 	public static void loadUnits() {
 //		unitTypes = new HashMap<String, NewUnitType>();
-		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_units.txt").reader());
-		in.nextLine(); // skip first line
+		Scanner in = null;
+		try {
+			in = new Scanner(Gdx.files.internal(PATH + rootName + "_units.txt").file());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (!in.hasNext()) throw new AssertionError();
+		in.nextLine();
 
 		String currentClass = "NO CLASS";
 		CultureType culture = null;
@@ -184,6 +315,7 @@ public class UnitLoader {
 				culture.units = new HashMap<String, UnitType>();
 				culture.colorLite = colors.get(in.next());
 				culture.colorDark = colors.get(in.next());
+
 				culture.nameGenerator = new NameGenerator(in.next());
 //				System.out.println("Color: " + culture.name);
 				if (culture.colorLite == null || culture.colorDark == null) {
@@ -216,6 +348,27 @@ public class UnitLoader {
 				}
 				else if (rangedWeaponTypes.get(weapons[i]) != null) {
 					unit.ranged = rangedWeaponTypes.get(weapons[i]);
+
+				// If thrown, default to same ammo as weapon name
+
+					i++;
+					if (i < weapons.length)
+						unit.ammoType = ammoTypes.get(weapons[i]);
+					else {
+						if (unit.ranged.type == RangedWeaponType.Type.THROWN) {
+							unit.ammoType = ammoTypes.get(unit.ranged.name);
+						} else if (unit.ranged.type == RangedWeaponType.Type.SLING) {
+							unit.ammoType = ammoTypes.get("Stone");
+						} else if (unit.ranged.type == RangedWeaponType.Type.ATLATL) {
+							unit.ammoType = ammoTypes.get("Dart");
+						} else if (unit.ranged.type == RangedWeaponType.Type.BOW) {
+							unit.ammoType = ammoTypes.get("Arrow");
+						}
+						else {
+							throw new AssertionError("can't find ammo type for: " + unit.ranged.name);
+						}
+					}
+
 					if (unit.ranged == null) {
 						throw new java.lang.NullPointerException(weapons[i] + " can't be found");
 					}
@@ -230,14 +383,13 @@ public class UnitLoader {
 			}
 
 			String armorString = in.next();
-			unit.armor = armorTypes.get(armorString);
+			unit.armor = armorTypes.get(addSpaces(armorString));
 			if (unit.armor == null) {
-				throw new java.lang.NullPointerException(armorString + " can't be found");
 			}
-			
-			String hideString = in.next();
-			if (hideString.equals("true"))
-				unit.hideBonus = true;
+//
+//			String hideString = in.next();
+//			if (hideString.equals("true"))
+//				unit.hideBonus = true;
 
 			String upgradeString = addSpaces(in.next());
 			if (!upgradeString.equals("none")) {
@@ -273,7 +425,14 @@ public class UnitLoader {
 					unit.upgrades = new UnitType[unit.upgradeStrings.length];
 					for (int i = 0; i < unit.upgradeStrings.length; i++) {
 						// This handles distinguishing between units with same display name but different "tier"
+
 						unit.upgrades[i] = classType.units.get(unit.upgradeStrings[i] + (unit.tier + 1));
+
+						if (unit.upgrades[i] == null) {
+							// Try again, 2 levels up.
+							unit.upgrades[i] = classType.units.get(unit.upgradeStrings[i] + (unit.tier + 2));
+						}
+
 						if (unit.upgrades[i] == null) {
 							System.out.println("CAN'T FIND UPGRADE: " + unit.upgradeStrings[i]);
 							throw new java.lang.NullPointerException();
@@ -324,10 +483,8 @@ public class UnitLoader {
 	public static void printWeapon(WeaponType weapon) {
 		System.out.println(weapon.name);
 		System.out.println(weapon.atkMod);
-		System.out.println(weapon.defMod);
 		System.out.println(weapon.spdMod);
-		System.out.println(weapon.oneHand);
-		System.out.println(weapon.blunt);
+		System.out.println(weapon.type);
 		System.out.println();
 	}
 
@@ -352,5 +509,11 @@ public class UnitLoader {
 		for (Biomes b : Biomes.values()) {
 			System.out.println(b.toString() + ": " + biomeCultures.get(b));
 		}
+	}
+
+	// Test UnitLoader
+	public static void main(String[] args) {
+		UnitLoader.load("chieftain");
+		UnitLoader.printAllUnits();
 	}
 }

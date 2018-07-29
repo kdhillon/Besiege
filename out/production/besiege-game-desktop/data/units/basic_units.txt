@@ -1,0 +1,37 @@
+tier name 			weapon				armor		hide	upgrades_to
+
+Class:	Basic	WHITE
+1	Farmer			Pitchfork			Clothes		false	Poleman/Archer
+1	Peasant			Sickle				Clothes		false		Poleman/Clubman
+1	Woodsman		    Hatchet				Clothes		false		Clubman/Archer
+1	Hunter			Shortbow/Unarmed 	Clothes		false		Archer
+
+2	Poleman			Staff				Clothes		false	Pikeman/Spearman
+2	Clubman			Club				    Clothes		false	Swordsman/Axeman
+2	Archer			Bow/Dagger			Clothes		false	Crossbowman/Longbowman
+ 
+3	Pikeman			Pike				    Mail		    false	Pikemaster
+3	Spearman		    Spear/Shield		    Studded		false	Spearmaster
+3	Swordsman		Shortsword/Shield	Studded		false	Swordmaster
+3	Axeman			Battle_Axe			Leather		true	 Axemaster
+
+3	Crossbowman		Crossbow/Dagger		Clothes		false	Boltmaster
+3	Longbowman		Longbow/Dagger		Clothes		false	Marksman
+
+7	Pikemaster		Guisarme			    Platemail	false	none
+4	Spearmaster		Voulge/Shield		Platemail	false	none
+4	Swordmaster		Longsword/Shield	    Chainmail	false	none
+7	Axemaster		Glaive				Chainmail	true	none
+
+4	Boltmaster		Hvy_Crossbow/Dagger	Chainmail	false	none
+4	Marksman		    Strongbow/Dagger 	Chainmail	false	none
+
+6	Hammermaster 	Maul				    Chainmail	false	none
+6	Macemaster		Morningstar			Chainmail	false	none
+
+6	Hammerman		War_Hammer/Shield 	Leather		false	Hammermaster
+6	Maceman			Mace				    Leather		false	Macemaster
+
+6	Ranger			Bow/Dagger			Chainmail	false	none
+
+5	Legend			Claymore			Chainmail	false	none
