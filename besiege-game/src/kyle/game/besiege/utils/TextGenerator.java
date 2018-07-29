@@ -35,8 +35,7 @@ public class TextGenerator {
 //	}
 
 	public TextGenerator(int k, String path, String filename) throws FileNotFoundException {
-//		this(k, Gdx.files.internal(new Scanner(filename).reader()));
-		this(k, new Scanner(new File(path + filename), "ASCII"));
+		this(k, new Scanner(Gdx.files.internal(path+filename).reader()));
 	}
 
 	public TextGenerator(int k, Scanner in2) {

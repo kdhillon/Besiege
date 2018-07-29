@@ -1,7 +1,6 @@
 package kyle.game.besiege;
 
 import kyle.game.besiege.utils.TextGenerator;
-import org.lwjgl.Sys;
 
 import java.io.FileNotFoundException;
 
@@ -25,7 +24,8 @@ public class NameGenerator {
 
 //    private String PATH = "data/namegen/";
     private String PATH = "";
-    private String ABSOLUTE = "/Users/kdhillon/Documents/repo/besiege/besiege-game-android/assets/data/namegen/";
+//    private String ABSOLUTE = "/Users/kdhillon/Documents/repo/besiege/besiege-game-android/assets/data/namegen/";
+    private String relativePath = "data/namegen/";
 
     private TextGenerator cityGen;
     private TextGenerator castleGen;
@@ -41,13 +41,13 @@ public class NameGenerator {
 
 	public NameGenerator(String firstMaleFileName, String firstFemaleFileName, String lastFileName, String cityFileName) {
         try {
-            firstMaleGen = new TextGenerator(3, ABSOLUTE,PATH + firstMaleFileName);
-            firstFemaleGen = new TextGenerator(3, ABSOLUTE, PATH + firstFemaleFileName);
-            lastGen = new TextGenerator(3, ABSOLUTE, PATH + lastFileName);
+            firstMaleGen = new TextGenerator(3, relativePath,PATH + firstMaleFileName);
+            firstFemaleGen = new TextGenerator(3, relativePath, PATH + firstFemaleFileName);
+            lastGen = new TextGenerator(3, relativePath, PATH + lastFileName);
 
-            cityGen = new TextGenerator(4, ABSOLUTE, PATH + cityFileName);
-            castleGen = new TextGenerator(4, ABSOLUTE, PATH + cityFileName);
-            villageGen = new TextGenerator(4, ABSOLUTE,PATH + cityFileName);
+            cityGen = new TextGenerator(4, relativePath, PATH + cityFileName);
+            castleGen = new TextGenerator(4, relativePath, PATH + cityFileName);
+            villageGen = new TextGenerator(4, relativePath,PATH + cityFileName);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
