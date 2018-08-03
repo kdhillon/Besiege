@@ -552,9 +552,26 @@ public class Faction {
         // Set name if it hasn't been manually set
         if (name == null) {
             this.name = cultureType.nameGenerator.generateFactionName();
+            this.name = this.name + " " + getRandomFactionTitle();
+            System.out.println("ksd: " + this.name);
         }
 
         generateCrest();
+    }
+
+    private String getRandomFactionTitle() {
+	    double rand = Math.random();
+	    int count = 8;
+	    double div = 1/ (double) count;
+	    if (rand < div) {
+	        return "Tribe";
+        } else if (rand < div * 2) {
+            return "Empire";
+        } else if (rand < div * 3) {
+            return "Nation";
+        } else if (rand < div * 4) {
+            return "Confederacy";
+        } else return "";
     }
 
     private void generateCrest() {

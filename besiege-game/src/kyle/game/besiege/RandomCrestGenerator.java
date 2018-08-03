@@ -23,8 +23,8 @@ public class RandomCrestGenerator extends Actor {
 	TextureRegion[] singleOverlays;
 	TextureRegion[][] doubleOverlays;
 	TextureRegion[] details;
-	boolean detailUsed[];
-	Color[] colorsUsed;
+//	boolean detailUsed[];
+//	Color[] colorsUsed;
 
 	int COLORS = 50;
 	int OVERLAYS = 1;
@@ -43,7 +43,8 @@ public class RandomCrestGenerator extends Actor {
 	public RandomCrestGenerator() {
 		int coloursToGenerate = 50;
 
-		cultureToCrests.put("Forest", new Array<>(forestCrests));
+        cultureToCrests.put("Tundra", new Array<>(forestCrests));
+        cultureToCrests.put("Forest", new Array<>(forestCrests));
         cultureToCrests.put("Desert", new Array<>(mesoCrests));
         cultureToCrests.put("Plains", new Array<>(plainsCrests));
 
@@ -64,20 +65,20 @@ public class RandomCrestGenerator extends Actor {
 
 		compareAllColors();
 
-		singleOverlays = new TextureRegion[OVERLAYS];
-		for (int i = 0; i < OVERLAYS; i++) {
-			singleOverlays[i] = Assets.atlas.findRegion("over" + (i + 1));
-			if (singleOverlays[i] == null)
-				throw new java.lang.AssertionError();
-		}
+//		singleOverlays = new TextureRegion[OVERLAYS];
+//		for (int i = 0; i < OVERLAYS; i++) {
+//			singleOverlays[i] = Assets.atlas.findRegion("over" + (i + 1));
+//			if (singleOverlays[i] == null)
+//				throw new java.lang.AssertionError();
+//		}
 
-		details = new TextureRegion[DETAILS];
-		for (int i = 0; i < DETAILS; i++) {
-			details[i] = Assets.atlas.findRegion("detail" + (i + 1));
-			if (details[i] == null)
-				throw new java.lang.AssertionError("cant find detail: " + (i + 1));
-		}
-		detailUsed = new boolean[DETAILS];
+//		details = new TextureRegion[DETAILS];
+//		for (int i = 0; i < DETAILS; i++) {
+//			details[i] = Assets.atlas.findRegion("detail" + (i + 1));
+//			if (details[i] == null)
+//				throw new java.lang.AssertionError("cant find detail: " + (i + 1));
+//		}
+//		detailUsed = new boolean[DETAILS];
 	}
 
 	public Crest create(CultureType type) {
@@ -93,7 +94,7 @@ public class RandomCrestGenerator extends Actor {
 	}
 
 	public String getDetail(CultureType type) {
-	    if (type.name.equals("Forest")) {
+	    if (type.name.equals("Forest") || type.name.equals("Tundra")) {
 	        if (forestIndex == forestCrests.length)
 	            return getRandomDetail(type);
 	        return forestCrests[forestIndex++];
@@ -119,22 +120,22 @@ public class RandomCrestGenerator extends Actor {
 	    return regions.random();
     }
 
-	public int getUnusedDetail() {
-		boolean allUsed = true;
-		for (int i = 0; i < details.length; i++) {
-			if (!detailUsed[i])
-				allUsed = false;
-		}
-		if (allUsed)
-			return -1;
-
-		int detail;
-		do {
-			detail = (int) (Math.random() * DETAILS);
-		} while (detailUsed[detail]);
-		detailUsed[detail] = true;
-		return detail;
-	}
+//	public int getUnusedDetail() {
+//		boolean allUsed = true;
+//		for (int i = 0; i < details.length; i++) {
+//			if (!detailUsed[i])
+//				allUsed = false;
+//		}
+//		if (allUsed)
+//			return -1;
+//
+//		int detail;
+//		do {
+//			detail = (int) (Math.random() * DETAILS);
+//		} while (detailUsed[detail]);
+//		detailUsed[detail] = true;
+//		return detail;
+//	}
 
 	// Create variant
 	public Crest createVariant(Crest original, CultureType type) {

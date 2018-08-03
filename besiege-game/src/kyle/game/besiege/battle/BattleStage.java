@@ -42,6 +42,9 @@ public class BattleStage extends Group implements Battle {
 	public Biomes biome;
 //	public OldBattle battle;
 	private PanelBattle pb;
+
+	private static final float SPEED = 0.01f;
+
 	//	public float scale = 1f;
 	public float MIN_SIZE = 40;
 	public float SIZE_FACTOR = .3f; // how much does the size of the parties
@@ -1139,7 +1142,7 @@ public class BattleStage extends Group implements Battle {
 	public void act(float delta) {
 		
 		// TODO better way to do this?
-		delta = 0.0125f;
+		delta = SPEED;
 		
 		// try to slow things down
 		if (mapScreen.slowDown) {

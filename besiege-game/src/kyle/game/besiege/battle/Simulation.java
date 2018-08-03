@@ -28,11 +28,11 @@ public class Simulation extends Game {
 		mapScreen = new MapScreen();
 
         // NOTE that the test parties may have forced culture types.
-        CultureType type1 = UnitLoader.cultureTypes.get("Desert");
-        CultureType type2 = UnitLoader.cultureTypes.get("Tundra");
+        CultureType type1 = UnitLoader.cultureTypes.get("Tundra");
+        CultureType type2 = UnitLoader.cultureTypes.get("Desert");
         if (type1 == null || type2 == null) throw new AssertionError();
-        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.TEST_ALL, type1),
-										PartyType.getPartyType(Type.TEST_ALL, type2));
+        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.NOBLE, type1),
+										PartyType.getPartyType(Type.NOBLE, type2));
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		

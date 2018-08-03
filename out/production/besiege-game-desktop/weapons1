@@ -3,7 +3,7 @@ weapons1.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-War-Hammer
+war-hammer
   rotate: false
   xy: 2, 2
   size: 3, 12
@@ -17,14 +17,14 @@ voulge
   orig: 3, 12
   offset: 0, 0
   index: -1
-Unarmed
+unarmed
   rotate: false
   xy: 2, 30
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Staff
+staff
   rotate: false
   xy: 2, 44
   size: 3, 12
@@ -38,7 +38,7 @@ spear
   orig: 3, 12
   offset: 0, 0
   index: -1
-Shortbow
+shortbow
   rotate: false
   xy: 2, 72
   size: 3, 12
@@ -94,14 +94,14 @@ longsword
   orig: 3, 12
   offset: 0, 0
   index: -1
-Longbow
+longbow
   rotate: false
   xy: 7, 58
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Strongbow
+strongbow
   rotate: false
   xy: 7, 58
   size: 3, 12
@@ -192,7 +192,7 @@ Bow
   orig: 3, 12
   offset: 0, 0
   index: -1
-Recurve-Bow
+recurve-bow
   rotate: false
   xy: 37, 2
   size: 3, 12
@@ -213,7 +213,7 @@ bardiche
   orig: 3, 12
   offset: 0, 0
   index: -1
-Glaive
+glaive
   rotate: false
   xy: 47, 2
   size: 3, 12
@@ -227,7 +227,7 @@ axe
   orig: 3, 12
   offset: 0, 0
   index: -1
-Hatchet
+hatchet
   rotate: false
   xy: 52, 2
   size: 3, 12

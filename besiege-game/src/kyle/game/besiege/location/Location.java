@@ -35,8 +35,8 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Location extends Group implements Destination {
 	private final float SCALE = .06f;
-	public final float MIN_ZOOM = 1.5f;
-	public final float MAX_ZOOM = 10f;
+	public static final float MIN_ZOOM = 0.5f;
+	public static final float MAX_ZOOM = 2;
 	private final int offset = 30;
 	private final int HIRE_REFRESH = 600; // seconds it takes for soldiers to refresh in city
 	private final float garrisonBudget = 0.20f; // this percent of wealth can be used to buy/upgrade garrison
@@ -167,10 +167,6 @@ public class Location extends Group implements Destination {
 		this.setScale(1);
 		
 		spawnPoint = new Point(this.getCenterX(), this.getCenterY());
-		
-		setTextureRegion("Castle"); // default location textureRegion
-		initializeBox();
-	
 	}
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType, Center center, Corner corner) {
@@ -492,36 +488,64 @@ public class Location extends Group implements Destination {
 		if (inFog()) return;
 		
 		setRotation(kingdom.getMapScreen().rotation);
-		float scale = getKingdom().getZoom();
+		float scale = 4f;
 		scale *= this.getSizeFactor();
-		
-		scale = adjustScale(scale);
-		
-		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), 10 * scale, 10 * scale, getRotation());
-		
+		scale *= getAdjustedZoom(getKingdom());
+
+        batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
+				getWidth(), getHeight(), (int) (10 * scale), (int) (10 * scale), getRotation());
 		// for drawing candles
 		super.draw(batch, parentAlpha);
 	}
-	
-	public float getSizeFactor() { 
-		if (this.isCastle()) return 0.75f;
-		else if (this.ruin) return 0.75f;
-		
-		float MAX_SCALE = 1;
-		float MIN_SCALE = 0.5f;
-		
-		float scale = (float) (this.population - this.POP_MIN) / (this.POP_MAX - this.POP_MIN);
-		
-//		float scale = (float) population / ((this.POP_MIN + this.POP_MAX)/ 2);
-//		if (scale > 1.5f) return 1.5f;
-//		if (scale < 0.5) return 0.5f;
-		
-		scale = scale * (MAX_SCALE - MIN_SCALE) + MIN_SCALE;
 
-		if (this.isVillage()) return 0.5f * scale;
-		
-		return scale;
+	// TODO make scale limits apply only to zoom level
+	public float getSizeFactor() {
+	    float scale = 2f + ((float) (this.population - this.POP_MIN) / (this.POP_MAX - this.POP_MIN));
+	    if (this.population == 0) scale = 2.5f;
+	    scale = scale / 2;
+        if (cultureType.name.equals("Desert")) return 1.5f*scale;
+        if (cultureType.name.equals("Tundra")) return 1.5f*scale;
+        return scale;
+//		if (this.isCastle()) {
+//		    if (cultureType.name.equals("Forest"))
+//		        return 3f;
+//            if (cultureType.name.equals("Plains"))
+//                return 3f;
+////		    return 3.0f;/
+//		    return 0.75f;
+//        }
+//		else if (this.ruin) return 0.75f;
+//
+//		float MAX_SCALE = 3f;
+//		float MIN_SCALE = 2f;
+//
+//		float scale = (float) (this.population - this.POP_MIN) / (this.POP_MAX - this.POP_MIN);
+//
+////		float scale = (float) population / ((this.POP_MIN + this.POP_MAX)/ 2);
+////		if (scale > 1.5f) return 1.5f;
+////		if (scale < 0.5) return 0.5f;
+//
+//		scale = scale * (MAX_SCALE - MIN_SCALE) + MIN_SCALE;
+//
+//		if (this.isVillage()) {
+//		    if (cultureType.name.equals("Plains")) {
+//                return scale * 4;
+//            }
+//            if (cultureType.name.equals("Forest")) {
+//                return scale * 4;
+//            }
+//            if (cultureType.name.equals("Tundra")) {
+//                return scale * 1000;
+//            }
+//		    return 0.5f * scale;
+//        }
+//        if (cultureType.name.equals("Forest")) {
+//            return scale * 4;
+//        }
+//        if (cultureType.name.equals("Plains")) {
+//            return scale * 4;
+//        }
+//		return scale;
 		
 //		if (this.isCastle()) {
 //			return 1;
@@ -541,10 +565,11 @@ public class Location extends Group implements Destination {
 //		}
 	}
 	
-	public float adjustScale(float scale) {
-		if (scale < MIN_ZOOM) scale = MIN_ZOOM;
-		if (scale > MAX_ZOOM) scale = MAX_ZOOM;	
-		return scale;
+	public static float getAdjustedZoom(Kingdom kingdom) {
+	    float zoom = kingdom.getZoom();
+		if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;
+		if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;
+		return zoom;
 	}
 
 	public void setDiscovered() {
@@ -582,22 +607,18 @@ public class Location extends Group implements Destination {
 		if (this.getFaction() == null) return;
 		if (inFog()) return;
 		
-		float size_factor = 1.f;
-		size_factor *= this.getSizeFactor();
+		float scale = 1.7f;
+//        scale *= this.getSizeFactor();
+        scale *= getAdjustedZoom(getKingdom());
 
-		if ((this.type == LocationType.VILLAGE))
-			size_factor = .5f * size_factor;
-		if ((this.type == LocationType.CASTLE))
-			size_factor = .8f * size_factor;
+//		if ((this.type == LocationType.VILLAGE))
+//			size_factor = .5f * size_factor;
+//		if ((this.type == LocationType.CASTLE))
+//			size_factor = .8f * size_factor;
 
 		Color temp = batch.getColor();
-		float zoom = getKingdom().getZoom();
-		zoom *= size_factor; 
 
-		if (shouldDraw()) {	
-			if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;	
-			if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;	
-		
+		if (shouldDraw()) {
 			// draw crest			
 			batch.setColor(clear_white);
 
@@ -608,8 +629,8 @@ public class Location extends Group implements Destination {
 			batch.setTransformMatrix(mx4Font);
 			
 //			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-			faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
-			faction.crest.setSize(30*zoom, 30*zoom);
+			faction.crest.setPosition(-15*scale , 15*scale);
+			faction.crest.setSize(30*scale, 30*scale);
 //			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
 			faction.crest.draw(batch, clear_white.a);
 			
@@ -626,42 +647,32 @@ public class Location extends Group implements Destination {
 	
 	public boolean shouldDraw() {
 		float zoom = getKingdom().getZoom();
-
-		if (zoom > 6 * getSizeFactor()) return false;
-
-//		if (this.type == LocationType.VILLAGE) {
-//			if (zoom > 3 * getSizeFactor()) return false;
-//		}
-//		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN) && zoom > 5)
-//			return false;
-//
-//		if (this.type == LocationType.CITY) {
-//			if (zoom > 6 * getSizeFactor()) return false;
-//		}
-
+		if (zoom > 6 * getSizeFactor() || zoom > MAX_ZOOM) return false;
 		return true;
 	}
+
+//	public boolean shouldDrawText(){
+//	    float zoom = getKingdom().getZoom();
+//	    if (zoom > MAX_ZOOM) return false;
+//	    return true;
+//    }
 
 	public void drawText(SpriteBatch batch) {
 		if (inFog()) return;
 		
-		float size_factor = 1.4f;
+		float size_factor = getSizeFactor();
+//
+//		if ((this.type == LocationType.VILLAGE))
+//			size_factor = .5f * size_factor;
+//		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN))
+//			size_factor = .8f * size_factor;
 
-		if ((this.type == LocationType.VILLAGE))
-			size_factor = .5f * size_factor;
-		if ((this.type == LocationType.CASTLE || this.type == LocationType.RUIN))
-			size_factor = .8f * size_factor;
-
-		Color temp = batch.getColor();
-		float zoom =  getKingdom().getZoom();
+		float zoom =  getAdjustedZoom(kingdom);
 		zoom *= size_factor; 
 
-		if (shouldDraw()) {			
+		if (shouldDraw()) {
 			BitmapFont font;			
 			font = Assets.pixel20forCities;
-				
-			if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;	
-			if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;	
 
 			String toDraw = getName();
 
@@ -678,7 +689,8 @@ public class Location extends Group implements Destination {
 			float fontWidthScale = 5f * toDraw.length() + 5f;
 			Color c = batch.getColor();
 			batch.setColor(black);
-			batch.draw(Assets.white, -(int) (4.3*toDraw.length())*zoom - zoom * fontWidthScale / 10, -8*zoom - fontHeight*zoom,  (9*toDraw.length() + 10)*zoom, zoom*fontHeight);
+			float yPos = -16*zoom;
+			batch.draw(Assets.white, -(int) (4.3*toDraw.length())*zoom - zoom * fontWidthScale / 10, yPos - fontHeight*zoom,  (9*toDraw.length() + 10)*zoom, zoom*fontHeight);
 			batch.setColor(c);
 			
 //			font.setColor(black);
@@ -689,7 +701,7 @@ public class Location extends Group implements Destination {
 			// draw text
 			font.setColor(clear_white);
 			font.setScale(zoom);
-			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom, -8*zoom);
+			font.draw(batch, toDraw, -(int) (4.3*toDraw.length())*zoom, yPos);
 			
 			
 			batch.setTransformMatrix(tempMatrix);
@@ -1194,6 +1206,7 @@ public class Location extends Group implements Destination {
 	public void setTextureRegion(String textureRegion) {
 		this.textureName = textureRegion;
 		region = Assets.atlas.findRegion(textureRegion);
+		this.initializeBox();
 	}
 
 	public StrictArray<Army> getGarrisoned() {
@@ -1222,7 +1235,10 @@ public class Location extends Group implements Destination {
 		return this.type == LocationType.CASTLE;
 	}
 	public String getFactionName() {
-		if (faction == null) return "Abandoned";
+		if (faction == null) {
+		    if (this.ruin) return "Abandoned";
+		    else return "Independent";
+        }
 		return faction.name;
 	}
 	public String getTypeStr() {

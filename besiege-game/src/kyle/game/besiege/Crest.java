@@ -39,7 +39,7 @@ public class Crest extends Actor {
 	}
 	
 	public void loadFromInts(RandomCrestGenerator rcg) {
-		this.overlayRegion = rcg.singleOverlays[overlay];
+//		this.overlayRegion = rcg.singleOverlays[overlay];
 		this.details = Assets.crests.findRegion(detail);
 		this.overlayColor = rcg.getColor(cOverlay);
 		if (overlayColor == null) {

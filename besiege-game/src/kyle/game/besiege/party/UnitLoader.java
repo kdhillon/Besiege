@@ -238,7 +238,6 @@ public class UnitLoader {
 			}
 
 			weapon.name		= addSpaces(first);
-			weapon.atkMod 	= line.nextInt();
 			weapon.range 	= line.nextInt();
 			weapon.accuracy	= line.nextInt();
 			weapon.rate 	= line.nextInt();
@@ -464,7 +463,6 @@ public class UnitLoader {
 
 	public static void printRangedWeapon(RangedWeaponType weapon) {
 		System.out.println(weapon.name);
-		System.out.println(weapon.atkMod);
 		System.out.println(weapon.range);
 		System.out.println(weapon.accuracy);
 		System.out.println(weapon.rate);

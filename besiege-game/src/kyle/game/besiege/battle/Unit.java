@@ -196,8 +196,9 @@ public class Unit extends Group {
 		this.soldier = soldier;
 		this.weapon = soldier.unitType.melee;
 		this.rangedWeapon = soldier.unitType.ranged;
-		
-		// calculate number of arrows unit gets
+        this.ammoType = soldier.unitType.ammoType;
+
+        // calculate number of arrows unit gets
 
 		if (rangedWeapon != null)
 			quiver = rangedWeapon.quiver;
@@ -911,6 +912,7 @@ public class Unit extends Group {
 			if (that.isHidden) continue;
 			if (that.soldier.isWounded()) continue;
 			if (that.outOfBattle) continue;
+			if (!that.inMap()) continue;
 
 			double dist = this.distanceTo(that);
 			// note - make sure not attacking, because you might hit a teammate
@@ -1763,7 +1765,7 @@ public class Unit extends Group {
 	
 	public float getRangeDmg() {
 		if (!this.isRanged()) return 0;
-		return this.rangedWeapon.atkMod + soldier.subparty.getBonusRangedAtk();
+		return this.ammoType.dmg;
 	}
 	
 	// probably shouldn't be here

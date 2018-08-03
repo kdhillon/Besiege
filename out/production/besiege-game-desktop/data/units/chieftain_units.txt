@@ -43,7 +43,7 @@ Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
 
 // Archer (based on Southeast culture?)
 3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)          Clothes   Archer_(Vet)
-4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Broadhead(Copper)        Clothes   Nagual(B)
+4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)
 
 // Legendary Units?
 5	Nagual(W)		War_Axe				Clothes			none

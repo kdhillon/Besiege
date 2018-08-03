@@ -16,6 +16,7 @@ import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
@@ -36,6 +37,24 @@ public class Castle extends Location {
 	
 //	private StrictArray<Village> villages;
 //	private StrictArray<PointH> villageSpots;
+
+    // Doesn't really make sense to have castles.
+    // Instead, make all villages/towns similar. Just different sizes. But some are fortified. Other's not.
+
+    // Ie 2 classes of location:
+    //  village, city
+    // could also have fortified settlement, but let's extend city if we want to do that.
+    // allow everything to be fortified.
+    // Forest:
+    //      villages (longhouses with simple moat or earthen wall)
+
+    //      small town (palisade wall, with a few gates, can shoot arrows through the wall
+    //      large town (wooden walkway all the way round, towers and a moat)
+
+    // Plains:
+    //      village: just a couple tipis
+    //      small town: earth lodge, with tipis, with big moat
+    //      large town: earth lodge, tipis,
 
 	public Castle(){}
 	
@@ -65,18 +84,26 @@ public class Castle extends Location {
 //		closestFriendlyCities = new StrictArray<Castle>();
 //		closestEnemyCities = new StrictArray<Castle>();
 //		villages = new StrictArray<Village>();
-		
+
 //		this.merchantCost = PartyType.MERCHANT.maxWealth;
 //		this.patrolCost = PartyType.PATROL.maxWealth;
 //		this.raiderCost = PartyType.RAIDING_PARTY.maxWealth;
 		
 		this.patrolCost = 10; // PartyType.PATROL.maxWealth;
 		this.raiderCost = 10; //
-		
-//		this.POP_MIN = 100;
-//		this.POP_MAX = 100;
-		
-		setTextureRegion("Castle");
+
+        if (cultureType.name.equals("Plains")) {
+            setTextureRegion("tipi");
+        } else if (cultureType.name.equals("Forest")) {
+            setTextureRegion("longhouse-fort");
+        }
+        else if (cultureType.name.equals("Tundra")) {
+            if (center != null && (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW))
+                setTextureRegion("inuit2");
+            else setTextureRegion("inuitgreen");
+        } else if (cultureType.name.equals("Desert")){
+            setTextureRegion("temple-fort");
+        }
 		setScale(SCALE);
 		initializeBox();
 	}

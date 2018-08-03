@@ -12,6 +12,7 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
@@ -27,8 +28,24 @@ public class Ruin extends Location {
 		this.population = 0;
 		this.DAILY_WEALTH_INCREASE_BASE = 0;
 //			
-		setTextureRegion("Castle");
-		setScale(SCALE);
+        if (cultureType.name.equals("Plains")) {
+            setTextureRegion("tipi-large");
+        } else if (cultureType.name.equals("Forest")) {
+            setTextureRegion("longhouse-fort");
+        }
+        else if (cultureType.name.equals("Tundra")){
+            if (center != null && (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW))
+                setTextureRegion("inuit2");
+            else setTextureRegion("inuitgreen");
+        }
+        else if (cultureType.name.equals("Desert")){
+            setTextureRegion("desert-village");
+        }
+        else {
+            setTextureRegion("Castle");
+        }
+
+        setScale(SCALE);
 		initializeBox();
 	}
 	

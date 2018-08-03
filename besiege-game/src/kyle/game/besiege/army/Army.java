@@ -39,6 +39,8 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Center;
 
+import static kyle.game.besiege.location.Location.getAdjustedZoom;
+
 public class Army extends Actor implements Destination {
 	private static final boolean OPTIMIZED_MODE = true;
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames
@@ -431,11 +433,9 @@ public class Army extends Actor implements Destination {
 
 		Color temp = batch.getColor();
 //		float zoom = getKingdom().getMapScreen().getCamera().zoom;
-		float zoom = 1;
-
-		zoom *= size_factor; 
-		
-		if (zoom < .5) zoom = .5f;
+		float scale = 1.5f;
+//        scale *= size_factor;
+        scale *= getAdjustedZoom(kingdom);
 
 		batch.setColor(clear_white);
 		
@@ -446,8 +446,8 @@ public class Army extends Actor implements Destination {
 		batch.setTransformMatrix(mx4Font);
 
 		if (faction.crest != null) {
-            faction.crest.setPosition(-15*zoom , 5 + 5*zoom);
-            faction.crest.setSize(30*zoom, 30*zoom);
+            faction.crest.setPosition(-15*scale , 5 + 5*scale);
+            faction.crest.setSize(30*scale, 30*scale);
 //		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
             faction.crest.draw(batch, clear_white.a);
         }

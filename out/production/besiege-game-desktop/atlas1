@@ -3,506 +3,247 @@ textures1.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-City
+tipi-large
   rotate: false
   xy: 2, 2
-  size: 64, 64
-  orig: 64, 64
-  offset: 0, 0
-  index: -1
-Village
-  rotate: false
-  xy: 2, 68
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-Castle
-  rotate: false
-  xy: 68, 2
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-over7
-  rotate: false
-  xy: 2, 102
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over6
-  rotate: false
-  xy: 36, 68
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over4
-  rotate: false
-  xy: 36, 94
-  size: 16, 24
-  orig: 16, 24
+  size: 33, 32
+  orig: 33, 32
   offset: 0, 0
   index: -1
 over13
   rotate: false
-  xy: 68, 36
+  xy: 37, 2
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
 over12
   rotate: false
-  xy: 68, 62
+  xy: 55, 2
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
 over11
   rotate: false
-  xy: 68, 88
+  xy: 73, 2
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
-over10
+longhouse-fort
   rotate: false
-  xy: 102, 2
-  size: 16, 24
-  orig: 16, 24
+  xy: 91, 2
+  size: 34, 20
+  orig: 34, 20
   offset: 0, 0
   index: -1
-over1
+temple
   rotate: false
-  xy: 102, 28
-  size: 16, 24
-  orig: 16, 24
+  xy: 2, 36
+  size: 24, 16
+  orig: 24, 16
   offset: 0, 0
   index: -1
-detail9
+temple-fort
   rotate: false
-  xy: 102, 54
-  size: 16, 24
-  orig: 16, 24
+  xy: 2, 54
+  size: 24, 16
+  orig: 24, 16
   offset: 0, 0
   index: -1
-detail8
+tipi
   rotate: false
-  xy: 102, 80
-  size: 16, 24
-  orig: 16, 24
+  xy: 2, 72
+  size: 19, 16
+  orig: 19, 16
   offset: 0, 0
   index: -1
-detail7
+inuithousesnow
   rotate: false
-  xy: 120, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail6
-  rotate: false
-  xy: 120, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail5
-  rotate: false
-  xy: 120, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail4
-  rotate: false
-  xy: 120, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail3
-  rotate: false
-  xy: 138, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail2
-  rotate: false
-  xy: 138, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail19
-  rotate: false
-  xy: 138, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over5
-  rotate: false
-  xy: 138, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail18
-  rotate: false
-  xy: 138, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over8
-  rotate: false
-  xy: 138, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail17
-  rotate: false
-  xy: 156, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over3
-  rotate: false
-  xy: 156, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail16
-  rotate: false
-  xy: 156, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over2
-  rotate: false
-  xy: 156, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail15
-  rotate: false
-  xy: 156, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-over9
-  rotate: false
-  xy: 156, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail14
-  rotate: false
-  xy: 156, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail13
-  rotate: false
-  xy: 174, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail12
-  rotate: false
-  xy: 174, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail11
-  rotate: false
-  xy: 174, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail10
-  rotate: false
-  xy: 174, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-detail1
-  rotate: false
-  xy: 192, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestYellowStar
-  rotate: false
-  xy: 192, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestWhiteLion
-  rotate: false
-  xy: 192, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestRedCross
-  rotate: false
-  xy: 192, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestRedAxe
-  rotate: false
-  xy: 210, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestOrangeCross
-  rotate: false
-  xy: 210, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestGreenTree
-  rotate: false
-  xy: 210, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestGreenStripe
-  rotate: false
-  xy: 210, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestBlueRose
-  rotate: false
-  xy: 228, 2
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestBlank
-  rotate: false
-  xy: 228, 28
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestBase
-  rotate: false
-  xy: 228, 54
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-crestBandits
-  rotate: false
-  xy: 228, 80
-  size: 16, 24
-  orig: 16, 24
-  offset: 0, 0
-  index: -1
-battle
-  rotate: false
-  xy: 102, 106
+  xy: 2, 90
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-Merchant
+inuithouse
   rotate: false
-  xy: 120, 106
-  size: 16, 14
-  orig: 16, 14
+  xy: 2, 108
+  size: 16, 16
+  orig: 16, 16
   offset: 0, 0
   index: -1
-KnightHorse
+battle
   rotate: false
-  xy: 246, 2
-  size: 27, 10
-  orig: 27, 10
+  xy: 28, 36
+  size: 16, 16
+  orig: 16, 16
   offset: 0, 0
   index: -1
-knightSword
+longhouse
   rotate: false
-  xy: 246, 14
-  size: 25, 10
-  orig: 25, 10
+  xy: 46, 36
+  size: 23, 12
+  orig: 23, 12
   offset: 0, 0
   index: -1
-knightLance
+inuitgreen
   rotate: false
-  xy: 246, 26
-  size: 25, 10
-  orig: 25, 10
+  xy: 71, 36
+  size: 20, 11
+  orig: 20, 11
   offset: 0, 0
   index: -1
-knightFlail
+desert-village
   rotate: false
-  xy: 246, 38
-  size: 25, 10
-  orig: 25, 10
+  xy: 28, 54
+  size: 16, 11
+  orig: 16, 11
+  offset: 0, 0
+  index: -1
+inuit2
+  rotate: false
+  xy: 91, 24
+  size: 20, 10
+  orig: 20, 10
   offset: 0, 0
   index: -1
 Farmer
   rotate: false
-  xy: 20, 102
+  xy: 113, 24
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
 Bandit
   rotate: false
-  xy: 20, 113
+  xy: 28, 67
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
 Raider
   rotate: false
-  xy: 246, 50
+  xy: 93, 36
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
 Player
   rotate: false
-  xy: 246, 60
+  xy: 46, 50
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
 red9
   rotate: false
-  xy: 54, 68
+  xy: 28, 78
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 lightFog
   rotate: false
-  xy: 54, 78
+  xy: 28, 88
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-mmd9
   rotate: false
-  xy: 54, 94
+  xy: 28, 98
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-med9
   rotate: false
-  xy: 54, 104
+  xy: 28, 108
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-md9
   rotate: false
-  xy: 54, 114
+  xy: 28, 118
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-lm9
   rotate: false
-  xy: 86, 36
+  xy: 73, 50
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-dm9
   rotate: false
-  xy: 86, 46
+  xy: 83, 50
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-d9
   rotate: false
-  xy: 86, 62
+  xy: 93, 50
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 green9
   rotate: false
-  xy: 86, 72
+  xy: 103, 50
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 black9
   rotate: false
-  xy: 68, 114
+  xy: 113, 50
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 fog
   rotate: false
-  xy: 68, 114
+  xy: 113, 50
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-xl
   rotate: false
-  xy: 31, 102
+  xy: 37, 28
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-med
   rotate: false
-  xy: 31, 107
+  xy: 42, 28
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-lm
   rotate: false
-  xy: 31, 113
+  xy: 47, 28
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-light
   rotate: false
-  xy: 31, 118
+  xy: 55, 28
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 panelBG
   rotate: false
-  xy: 20, 124
+  xy: 37, 33
   size: 1, 1
   orig: 1, 1
   offset: 0, 0

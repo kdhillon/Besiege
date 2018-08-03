@@ -1,6 +1,6 @@
 name			atk	spd type        texture
 // Types are: unarmed, 1h (sword, axe, etc), club (blunt 1h), polearm
-Unarmed			1	-1	unarmed     Unarmed
+Unarmed			1	-1	unarmed     unarmed
 
 Club			2	0	club        club
 Staff			2	-1	polearm     staff

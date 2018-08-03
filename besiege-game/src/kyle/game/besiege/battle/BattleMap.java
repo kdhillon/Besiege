@@ -90,7 +90,7 @@ public class BattleMap extends Group {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), PALM(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
+		TREE(.5f), TREE_ON_FIRE(.5f), PALM(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -133,7 +133,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-		this.maptype = MapType.DESERT;
+//		this.maptype = MapType.FOREST;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -714,22 +714,34 @@ public class BattleMap extends Group {
         }
     }
 
+    public void createFireAt(int posX, int posY, boolean onTree) {
+	    // Do this check so we can draw both tree and fire at the same time ;)
+        // problem is it still allows multiple fires to be created on the same tree.
+        // can solve with Object.TREE_ON_FIRE
+        if (onTree)
+            objects[posY][posX] = Object.TREE_ON_FIRE;
+        else
+            objects[posY][posX] = Object.FIRE_SMALL;
+        stage.closed[posY][posX] = true;
+
+        FireContainer fireContainer = new FireContainer();
+        Fire fire = new Fire(600, 800, stage.getMapScreen(), null, onTree);
+        fireContainer.addFire(fire);
+        float y = posY * stage.unit_height + stage.unit_height * 0.5f;
+        if (onTree) y = posY * stage.unit_height + stage.unit_height * 0.0f; // note we move it a bit down (for aesthetics)
+        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width / 2, y);
+        fc.add(fireContainer);
+        //					fire.setPosition(0, 0);
+        //			System.out.println("adding fire: " + j + " " + i);
+
+        this.addActor(fireContainer);
+	}
+
 	private void addFire(double probability) {
 		for (int i = 0; i < stage.size_x; i++) {
 			for (int j = 0; j < stage.size_y; j++) {
 				if (Math.random() < probability && objects[j][i] == null) {
-					objects[j][i] = Object.FIRE_SMALL;
-					stage.closed[j][i] = true;
-
-					FireContainer fireContainer = new FireContainer();
-					Fire fire = new Fire(600, 800, stage.getMapScreen(), null);
-					fireContainer.addFire(fire);
-					fireContainer.setPosition(i * stage.unit_width + stage.unit_width / 2, j * stage.unit_height + stage.unit_height/2);
-					fc.add(fireContainer);
-					//					fire.setPosition(0, 0);
-					//					System.out.println("adding fire: " + j + " " + i);
-
-					this.addActor(fireContainer);
+					createFireAt(i, j, false);
 				}	
 			}
 		}
@@ -942,8 +954,6 @@ public class BattleMap extends Group {
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		super.draw(batch, parentAlpha);
 		TextureRegion texture;
-
-		if (false) return;
 
 		this.toBack();
 
@@ -1244,7 +1254,7 @@ public class BattleMap extends Group {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
-				if (objects[i][j] == Object.TREE) {
+				if (objects[i][j] == Object.TREE || objects[i][j] == Object.TREE_ON_FIRE) {
 					//					System.out.println("drawing trees");
                     // TODO add tree shadow
 					texture = treeShadow;
@@ -1259,7 +1269,7 @@ public class BattleMap extends Group {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
-				if (objects[i][j] == Object.TREE) {
+				if (objects[i][j] == Object.TREE || objects[i][j] == Object.TREE_ON_FIRE) {
 					texture = tree;
 				} else if (objects[i][j] == Object.PALM) {
                     texture = palm;

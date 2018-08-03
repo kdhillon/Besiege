@@ -633,7 +633,8 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 	private String statDif(RangedWeaponType curr, RangedWeaponType up) {
 		String stats = "";
 		int atkDif, rangeDif, accuracyDif;
-		atkDif = up.atkMod - curr.atkMod;
+//		atkDif = up.atkMod - curr.atkMod;
+        atkDif = 0;
 		rangeDif = up.range - curr.range;
 		accuracyDif = up.accuracy - curr.accuracy;
 		if (atkDif != 0) {

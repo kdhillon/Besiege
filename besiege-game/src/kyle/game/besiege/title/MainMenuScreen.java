@@ -29,7 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
-import com.sun.javafx.geom.Point2D;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
@@ -177,11 +176,14 @@ public class MainMenuScreen implements Screen {
 			
 			for (Star star : stars) {
 				batch.setColor(1, 1, 1, 0.6f);
-				batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT, star.size, star.size); 
+                if (Math.random() < 0.1) batch.setColor(1, 1, 1, 0.3f + (float) (Math.random() * 0.5));
+                batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT, star.size, star.size);
 			}
 			for (Star star : starsFewer) {
+			    // Add flickering effect
 				batch.setColor(1, 1, 1, 0.8f);
-				batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT - BesiegeMain.HEIGHT *1/colors.length, star.size, star.size); 
+				if (Math.random() < 0.1) batch.setColor(1, 1, 1, 0.3f + (float) (Math.random() * 0.5));
+                batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT - BesiegeMain.HEIGHT *1/colors.length, star.size, star.size);
 			}
 			// draw trees
 			int treeHeight = (int) (stripeHeight * 1.05f);

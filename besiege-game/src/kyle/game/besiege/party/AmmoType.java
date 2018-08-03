@@ -33,8 +33,9 @@ public class AmmoType {
                 type = Type.ARROW;
             if (typeString.equals("arrow_poison"))
                 type = Type.ARROW_POISON;
-            if (typeString.equals("arrow_fire"))
+            if (typeString.equals("arrow_fire")) {
                 type = Type.ARROW_FIRE;
+            }
             if (typeString.equals("sling"))
                 type = Type.SLING;
             if (typeString.equals("dart"))

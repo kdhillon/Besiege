@@ -148,9 +148,10 @@ public class Projectile extends Group {
 		if (firing.ammoType != null && firing.ammoType.type == AmmoType.Type.ARROW_FIRE) {
 //			System.out.println("creating fire");
 			fc = new FireContainer();
-			Fire fire = new Fire(300, 200, firing.stage.getMapScreen(), null);
-			fc.setPosition(this.getWidth()/2, this.getHeight());
-			fc.addActor(fire);
+            Fire fire = new Fire(400, 500, firing.stage.getMapScreen(), null);
+//			System.out.println("adding fire: " + this.getWidth()/2 + " " + this.getHeight());
+			fc.setPosition(this.getWidth()/2, this.getHeight() * 1.5f);
+			fc.addFire(fire);
 			fc.setRotation(180);
 			fc.toFront();
 			this.addActor(fc);
@@ -341,6 +342,14 @@ public class Projectile extends Group {
 				this.SCALE = SCALE_SIEGE / 2f;
 			}
 			if (Math.random() < .2) this.broken = true;
+
+			// Tree collision, maybe generate fire
+			if (object == BattleMap.Object.PALM || object == BattleMap.Object.TREE) {
+                if (firing.ammoType != null && firing.ammoType.type == AmmoType.Type.ARROW_FIRE) {
+                    if (Math.random() < 0.2)
+                        stage.battlemap.createFireAt(pos_x_int, pos_y_int, true);
+                }
+            }
 		}
 	}
 	

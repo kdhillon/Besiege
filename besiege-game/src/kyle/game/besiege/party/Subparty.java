@@ -333,10 +333,10 @@ public class Subparty {
 	public float getBonusGeneralDef() {
 		if (general == null) return 0;
 		return general.getBonusGeneralDef();	}
-	
-	public float getBonusRangedAtk() {
+
+	public float getBonusAccuracy() {
 		if (general == null) return 0;
-		return general.getBonusRangedAtk();	}
+		return general.getBonusAccuracy();	}
 	
 	public float getBonusGeneralRange() {
 		if (general == null) return 0;

@@ -111,12 +111,12 @@ public class General extends Soldier {
 		return (BONUS_MAX - BONUS_MIN) * infantryDefense/100.0f + BONUS_MIN;		
 	}
 	
-	public float getBonusRangedAtk() {
+	public float getBonusAccuracy() {
 		return (BONUS_MAX - BONUS_MIN) * rangedCommand/100.0f + BONUS_MIN;
 	}
 	
 	public float getBonusGeneralRange() {
-		return (RANGE_MAX - RANGE_MIN) * infantryAttack/100.0f + RANGE_MIN;
+		return (RANGE_MAX - RANGE_MIN) * rangedCommand/100.0f + RANGE_MIN;
 	}
 	
 	public float getHPBonus() {		

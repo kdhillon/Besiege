@@ -1109,7 +1109,9 @@ public class VoronoiGraph {
     transient Texture texture12treeslight;
     transient Texture texture16trees;
     transient Texture texture16treeslight;
-    
+    transient Texture texture32trees;
+    transient Texture texture32treeslight;
+
     transient Texture texture64;
     transient Texture texture64inv;
 //    Texture texture8;
@@ -1124,6 +1126,9 @@ public class VoronoiGraph {
     	texture12treeslight = addTexture("12treeslight.png");
     	texture8trees = addTexture("8trees.png");
     	texture8treeslight = addTexture("8treeslight.png");
+
+        texture32trees = addTexture("32trees.png");
+        texture32treeslight = addTexture("32treeslight.png");
     	
     	texture64 = addTexture("64.png");
     	texture64inv = addTexture("64inv.png");
@@ -1168,9 +1173,9 @@ public class VoronoiGraph {
     	mapBiome(Biomes.OCEAN, texture8);
     	mapBiome(Biomes.LAKE, texture8);
     	mapBiome(Biomes.TUNDRA, texture16);
-    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture16treeslight);
-    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture16trees);
-    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture16trees);
+    	mapBiome(Biomes.TROPICAL_SEASONAL_FOREST, texture32treeslight);
+    	mapBiome(Biomes.TROPICAL_RAIN_FOREST, texture32trees);
+    	mapBiome(Biomes.TEMPERATE_DECIDUOUS_FOREST, texture32trees);
     	mapBiome(Biomes.SUBTROPICAL_DESERT, texture16);
     	mapBiome(Biomes.PLATEAU, texture16);
     	mapBiome(Biomes.SNOW, texture64);
@@ -1179,7 +1184,7 @@ public class VoronoiGraph {
     	mapBiome(Biomes.BEACH, texture64);
     	mapBiome(Biomes.ICE, texture64);
     	mapBiome(Biomes.MOUNTAINS, texture16);
-    	mapBiome(Biomes.SHRUBLAND, texture16treeslight);
+    	mapBiome(Biomes.SHRUBLAND, texture32treeslight);
     	mapBiome(Biomes.TAIGA, texture16);
     	mapBiome(Biomes.MARSH, texture8);
     	mapBiome(Biomes.SWAMP, texture16);

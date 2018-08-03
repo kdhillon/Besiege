@@ -8,7 +8,6 @@ public class RangedWeaponType {
 	
 	public String name;
 	
-	public int atkMod;
 	public int range;
 	public int accuracy;
 	public int rate;
@@ -22,6 +21,7 @@ public class RangedWeaponType {
 			type = Type.BOW;
 		if (typeString.equals("sling"))
 			type = Type.SLING;
+
 		if (typeString.equals("atlatl"))
 			type = Type.ATLATL;
 		if (typeString.equals("crossbow"))
@@ -41,7 +41,7 @@ public class RangedWeaponType {
 	public String getDefaultTexture() {
 		switch (type) {
 			case BOW:
-				return "Strongbow";
+				return "strongbow";
 			case SLING:
 				return "sling";
 			case THROWN:

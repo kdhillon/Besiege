@@ -15,6 +15,7 @@ import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.army.Patrol;
 import kyle.game.besiege.army.RaidingParty;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
@@ -72,9 +73,22 @@ public class City extends Location {
 //		this.merchantCost = 10;// Merchant.MAX_WEALTH; //PartyType.MERCHANT.maxWealth;
 //		this.patrolCost = 10; // PartyType.PATROL.maxWealth;
 //		this.raiderCost = 10; //PartyType.RAIDING_PARTY.maxWealth;
-		
-		setTextureRegion("City");
-		setScale(SCALE);
+
+        if (cultureType.name.equals("Plains")) {
+            setTextureRegion("tipi-large");
+        } else if (cultureType.name.equals("Forest")) {
+            setTextureRegion("longhouse-fort");
+        } else if (cultureType.name.equals("Tundra")){
+                if (center != null && (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW))
+                    setTextureRegion("inuit2");
+                else setTextureRegion("inuitgreen");
+        } else if (cultureType.name.equals("Desert")){
+            setTextureRegion("temple");
+        } else {
+            setTextureRegion("City");
+        }
+
+        setScale(SCALE);
 		initializeBox();
 	}
 	

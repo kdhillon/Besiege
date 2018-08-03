@@ -12,13 +12,13 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
+import kyle.game.besiege.party.CultureType;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 
 public class Village extends Location {
-	private final float SCALE = 7;
-	
-	private final static float VILLAGE_WEALTH_FACTOR = 0.5f; // arbitrary, this times pop = wealth
+    private final static float VILLAGE_WEALTH_FACTOR = 0.5f; // arbitrary, this times pop = wealth
 	private static final int MAX_FARMERS = 5;
 	private static final float RAID_COUNTDOWN = 120;
 //	private final int MED_WEALTH = 50;
@@ -33,23 +33,35 @@ public class Village extends Location {
 	
 	public Village(Kingdom kingdom, String name, int index, Faction faction,
 			float posX, float posY, Center center) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON, center, null);
-		this.type = LocationType.VILLAGE;
+        super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON, center, null);
+        this.type = LocationType.VILLAGE;
 
         setCenter(center);
-				
-		this.DAILY_WEALTH_INCREASE_BASE = 1;
-		this.DAILY_POP_INCREASE_BASE = 0.01;
 
-		POP_MIN = 100;
-		POP_MAX = 1000;
-		
-		this.population = Math.random()*(POP_MAX - POP_MIN) + POP_MIN;
-				
-		setTextureRegion(textureRegion);
-		
-		farmers = new Array<Farmer>();
-		setScale(SCALE);
+        this.DAILY_WEALTH_INCREASE_BASE = 1;
+        this.DAILY_POP_INCREASE_BASE = 0.01;
+
+        POP_MIN = 100;
+        POP_MAX = 1000;
+
+        this.population = Math.random() * (POP_MAX - POP_MIN) + POP_MIN;
+
+        if (cultureType.name.equals("Plains")) {
+            setTextureRegion("tipi");
+        } else if (cultureType.name.equals("Forest")) {
+            setTextureRegion("longhouse");
+        } else if (cultureType.name.equals("Tundra")) {
+            if (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW)
+                setTextureRegion("inuit2");
+            else setTextureRegion("inuitgreen");
+        } else if (cultureType.name.equals("Desert")){
+            setTextureRegion("desert-village");
+        }
+        else {
+		    setTextureRegion(textureRegion);
+        }
+
+        farmers = new Array<Farmer>();
 		initializeBox();
 	}
 	

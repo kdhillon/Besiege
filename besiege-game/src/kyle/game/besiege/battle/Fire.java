@@ -47,20 +47,39 @@ public class Fire extends Actor {
 	float LIFETIME_RANDOMNESS;
 
 	float current_flicker;
+
+	// For "growing" the fire;
+	float finalWidth;
+	float finalHeight;
+	float fullAt = 20; // time at which should be full grown
+    boolean growing = false;
+    float currentTimeElapsed;
 	
 	Location loc;
+    public Fire(float _width, float _height, MapScreen mapScreen, Location loc) {
+        this(_width, _height, mapScreen, loc, false);
+    }
 
-	public Fire(float _width, float _height, MapScreen mapScreen, Location loc) {
+	public Fire(float _width, float _height, MapScreen mapScreen, Location loc, boolean shouldGrow) {
 		this.mapScreen = mapScreen;
 		this.region = new TextureRegion(new Texture("whitepixel.png"));
 		
 		this._width = _width;
 		this._height = _height;
+
+		if (shouldGrow) {
+		    growing = true;
+		    updateGrowth(0);
+		    this.finalWidth = _width;
+		    this.finalHeight = _height;
+        }
 		
 		if (loc == null) battle = true;
 		else this.loc = loc;
-		
+
+		// This is probably null?
 		updateZoom(mapScreen.getZoom());
+
 		// need to be able to update this when zoom changes
 
 //		this.INIT_LIFETIME = .65f*2;
@@ -76,7 +95,7 @@ public class Fire extends Actor {
 		float scale = zoom;
 		if (loc != null) {
 			scale = loc.getSizeFactor() * zoom;
-			scale = loc.adjustScale(scale);
+			scale *= Location.getAdjustedZoom(loc.getKingdom());
 //			System.out.println("scale: " + scale + " min_ZOOm: " + loc.MIN_ZOOM);
 			if (scale < loc.MIN_ZOOM) scale = loc.MIN_ZOOM;
 			if (scale > loc.MAX_ZOOM) scale = loc.MAX_ZOOM;
@@ -234,13 +253,15 @@ public class Fire extends Actor {
 
 	@Override
 	public void act(float delta) {
-
 		if (!battle) updateZoom(mapScreen.getZoom());
-		delta = 0.02f; //.05 is a little fast, .08 is faster, .03 is good for now
+		if (delta != 0) delta = 0.02f; //.05 is a little fast, .08 is faster, .03 is good for now
+
 //		System.out.println("candle acting");
 		generateParticles();
 		updateFlicker();
 		updatePositions(delta);
+		if (growing)
+		    updateGrowth(delta);
 	}
 	
 	public void updatePositions(float delta) {
@@ -255,9 +276,27 @@ public class Fire extends Actor {
 		}
 	}
 
+	private void updateGrowth(float delta) {
+        this.currentTimeElapsed += delta;
+        if (this.currentTimeElapsed > fullAt) {
+            growing = false;
+            this._width = finalWidth;
+            this._height = finalHeight;
+        } else {
+            float percentage = currentTimeElapsed / fullAt;
+            System.out.println("percentage " + percentage);
+            System.out.println(currentTimeElapsed + " time elapsed");
+            System.out.println(_width + " width");
+            System.out.println(FLAME_WIDTH + " FLAME width");
+            this._width = percentage * finalWidth;
+            this._height = percentage * finalHeight;
+        }
+        updateZoom(mapScreen.getZoom());
+    }
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-//		System.out.println("drawing fire: " + this.getX() + this.getY());
+//		System.out.println("drawing fire: " + this.getParent().getX() + " " + this.getParent().getX());
 		
 //		wind_x += 2*fires[0].current_flicker;
 		
