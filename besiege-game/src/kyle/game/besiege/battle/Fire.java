@@ -10,6 +10,9 @@ import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.location.Location;
 
+import static kyle.game.besiege.location.Location.MAX_ZOOM;
+import static kyle.game.besiege.location.Location.MIN_ZOOM;
+
 public class Fire extends Actor {
 
 	private TextureRegion region;
@@ -67,6 +70,7 @@ public class Fire extends Actor {
 		this._width = _width;
 		this._height = _height;
 
+		System.out.println("New fire being made!!!!!");
 		if (shouldGrow) {
 		    growing = true;
 		    updateGrowth(0);
@@ -90,22 +94,23 @@ public class Fire extends Actor {
 		
 		this.particles = new Array<Particle>();
 	}
-	
+
 	public void updateZoom(float zoom) {
-		float scale = zoom;
+        // Only update size based on zoom if on map.
+        float scale = 1;
 		if (loc != null) {
 			scale = loc.getSizeFactor() * zoom;
 			scale *= Location.getAdjustedZoom(loc.getKingdom());
 //			System.out.println("scale: " + scale + " min_ZOOm: " + loc.MIN_ZOOM);
-			if (scale < loc.MIN_ZOOM) scale = loc.MIN_ZOOM;
-			if (scale > loc.MAX_ZOOM) scale = loc.MAX_ZOOM;
+            if (scale < MIN_ZOOM) scale = MIN_ZOOM;
+            if (scale > MAX_ZOOM) scale = MAX_ZOOM;
 		}
-		
-		FLAME_WIDTH = _width * 2f * scale / 10;
-		FLAME_HEIGHT = _height * 2f * scale / 10;
-		
-		this.INIT_VX = .06f*FLAME_WIDTH;
-		this.INIT_VY = .08f*FLAME_HEIGHT;
+
+        FLAME_WIDTH = _width * 2f * scale / 10;
+        FLAME_HEIGHT = _height * 2f * scale / 10;
+
+        this.INIT_VX = .06f*FLAME_WIDTH;
+        this.INIT_VY = .08f*FLAME_HEIGHT;
 	}
 
 	private class Particle {
@@ -253,8 +258,9 @@ public class Fire extends Actor {
 
 	@Override
 	public void act(float delta) {
-		if (!battle) updateZoom(mapScreen.getZoom());
-		if (delta != 0) delta = 0.02f; //.05 is a little fast, .08 is faster, .03 is good for now
+		delta = 0.02f; //.05 is a little fast, .08 is faster, .03 is good for now
+        // Why is delta sometimes 0?
+        updateZoom(mapScreen.getZoom());
 
 //		System.out.println("candle acting");
 		generateParticles();
@@ -284,14 +290,9 @@ public class Fire extends Actor {
             this._height = finalHeight;
         } else {
             float percentage = currentTimeElapsed / fullAt;
-            System.out.println("percentage " + percentage);
-            System.out.println(currentTimeElapsed + " time elapsed");
-            System.out.println(_width + " width");
-            System.out.println(FLAME_WIDTH + " FLAME width");
             this._width = percentage * finalWidth;
             this._height = percentage * finalHeight;
         }
-        updateZoom(mapScreen.getZoom());
     }
 
 	@Override

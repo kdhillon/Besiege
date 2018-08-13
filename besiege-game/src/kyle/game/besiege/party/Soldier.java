@@ -372,9 +372,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.spd.updateValue(TypeInfo.S_ARMOR, armor.spdMod);
 	}
 	
-	public void updateShield(Equipment shield) {
+	public void updateShield(ShieldType shield) {
 		if (shield == null) return;
-		this.def.updateValue(TypeInfo.S_SHIELD, shield.defMod);
 		this.spd.updateValue(TypeInfo.S_SHIELD, shield.spdMod);
 	}
 
@@ -500,7 +499,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public UnitType[] getUpgrades() {
 		return unitType.upgrades;
 	}
-	
+
+	// Returns true if the unit was killed, false if they were injured.
 	public boolean casualty(boolean wasInAttackers, Soldier killer, boolean playerInA, boolean playerInD) {
 		boolean killed = subparty.casualty(this);
 		
@@ -512,7 +512,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		if (killedBy == this) killedBy = null;
 		
 		if (killedBy != null) {
-			System.out.println("casualty for " + killedBy.getTypeName() + " of " + killedBy.party.getName() +" killing " + getTypeName() + " of " + party.getName());
+//			System.out.println("casualty for " + killedBy.getTypeName() + " of " + killedBy.party.getName() +" killing " + getTypeName() + " of " + party.getName());
 			killedBy.registerKill(this);
 		}
 		
@@ -622,15 +622,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return null;
 	}
 
-	public Equipment getShield() {
-//		for (Equipment e : equipment) {
-//			if (e.type == Equipment.Type.SHIELD) 
-//				return e;
-//		}
-		if (unitType.shield) {
-			return Equipment.WOOD_SHIELD;
-		}
-		return null;
+	public ShieldType getShield() {
+        return unitType.shieldType;
 	}
 
 	public StrictArray<Equipment> getEquipment() {
@@ -640,8 +633,6 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
                 equipment.add(getHead());
             if (getHorse() != null)
                 equipment.add(getHorse());
-            if (getShield() != null)
-                equipment.add(getShield());
         }
         return equipment;
     }
@@ -673,7 +664,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
                     return Equipment.HEADDRESS_FOREST_2;
                 else return Equipment.HEADDRESS_FOREST_1;            }
         }
-        return Equipment.WOOD_SHIELD;
+        return null;
     }
 
 	// square function

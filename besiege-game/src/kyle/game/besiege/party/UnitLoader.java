@@ -18,24 +18,25 @@ public class UnitLoader {
 
 	public static HashMap<String, Color> colors;
 	public static HashMap<String, CultureType> cultureTypes;
-//	public static HashMap<String, NewUnitType> unitTypes;
 	public static HashMap<String, WeaponType> weaponTypes;
 	public static HashMap<String, RangedWeaponType> rangedWeaponTypes;
 	public static HashMap<String, AmmoType> ammoTypes;
 	public static HashMap<String, ArmorType> armorTypes;
-	public static HashMap<String, Biomes> biomes;
+    public static HashMap<String, ShieldType> shieldTypes;
+    public static HashMap<String, Biomes> biomes;
 	public static HashMap<Biomes, CultureType> biomeCultures;
 
 	public static void load(String root) {
 		rootName = root;
 
-		cultureTypes = new HashMap<String, CultureType>();
+		cultureTypes = new HashMap<>();
 
 		loadColors();
 		loadAmmo();
 		loadWeapons();
 		loadRangedWeapons();
 		loadArmors();
+		loadShields();
 		loadUnits();
 		assignUpgrades();
 		initializeBiomes();
@@ -256,7 +257,7 @@ public class UnitLoader {
 		in.close();
 	}
 
-	public static void loadAmmo() {
+	private static void loadAmmo() {
 		ammoTypes = new HashMap<String, AmmoType>();
 		Scanner in = null;
 		try {
@@ -286,7 +287,39 @@ public class UnitLoader {
 		in.close();
 	}
 
-	public static void loadUnits() {
+    public static void loadShields() {
+        shieldTypes = new HashMap<>();
+        Scanner in = null;
+        try {
+            in = new Scanner(Gdx.files.internal(PATH + rootName + "_shields.txt").file());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (!in.hasNext()) throw new AssertionError();
+        in.nextLine();		in.nextLine(); // skip first line
+
+        // read one line of input from the
+        while(in.hasNextLine()) {
+            ShieldType shieldType = new ShieldType();
+            if (!in.hasNext()) return;
+            String first = in.next();
+            if (first.equals("//")) {
+                in.nextLine();
+                continue;
+            }
+
+            shieldType.name		= addSpaces(first) + " Shield";
+            shieldType.color  = colors.get(in.next());
+            shieldType.hp       = in.nextInt();
+            shieldType.spdMod   = in.nextInt();
+            shieldType.setType(in.next());
+            shieldTypes.put(shieldType.name, shieldType);
+//			printRangedWeapon(weapon);
+        }
+        in.close();
+    }
+
+	private static void loadUnits() {
 //		unitTypes = new HashMap<String, NewUnitType>();
 		Scanner in = null;
 		try {
@@ -302,107 +335,97 @@ public class UnitLoader {
 
 		// read one line of input from the 
 		while(in.hasNextLine()) {
-			String first = in.next();
-			if (first.equals("//")) {
-				in.nextLine();
-				continue;
-			}
-			if (first.equals("Class:")) {
-				currentClass = in.next();
-				culture = new CultureType();
-				culture.name = currentClass;
-				culture.units = new HashMap<String, UnitType>();
-				culture.colorLite = colors.get(in.next());
-				culture.colorDark = colors.get(in.next());
+            String first = in.next();
+            if (first.equals("//")) {
+                in.nextLine();
+                continue;
+            }
+            if (first.equals("Class:")) {
+                currentClass = in.next();
+                culture = new CultureType();
+                culture.name = currentClass;
+                culture.units = new HashMap<String, UnitType>();
+                culture.colorLite = colors.get(in.next());
+                culture.colorDark = colors.get(in.next());
 
-				culture.nameGenerator = new NameGenerator(in.next());
+                culture.nameGenerator = new NameGenerator(in.next());
 //				System.out.println("Color: " + culture.name);
-				if (culture.colorLite == null || culture.colorDark == null) {
-					throw new java.lang.NullPointerException();
-				}
-				
-				cultureTypes.put(currentClass, culture);
-				continue;
-			}
+                if (culture.colorLite == null || culture.colorDark == null) {
+                    throw new java.lang.NullPointerException();
+                }
+
+                cultureTypes.put(currentClass, culture);
+                continue;
+            }
 //			System.out.println(first);
 
-			UnitType unit = new UnitType();
-			unit.tier 		= Integer.parseInt(first);
-			// remove numbers from name
-			unit.name		= addSpaces(in.next());
+            UnitType unit = new UnitType();
+
+            unit.tier = Integer.parseInt(first);
+            // remove numbers from name
+            unit.name = addSpaces(in.next());
 //			System.out.println(unit.name);
-			unit.cultureType = culture;
-			culture.units.put(unit.name + unit.tier, unit);
+            unit.cultureType = culture;
+            culture.units.put(unit.name + unit.tier, unit);
 
-			String weaponString = addSpaces(in.next());
-			String[] weapons = weaponString.split("/");
+            String weaponString = addSpaces(in.next());
+            String[] weapons = weaponString.split("/");
 
-			// supports only two weapons (1 ranged 1 not) for now.
-			for (int i = 0; i < weapons.length; i++) {
-				if (weaponTypes.get(weapons[i]) != null) {
-					unit.melee = weaponTypes.get(weapons[i]);
-					if (unit.melee == null) {
-						throw new java.lang.NullPointerException(weapons[i] + " can't be found");
-					}
-				}
-				else if (rangedWeaponTypes.get(weapons[i]) != null) {
-					unit.ranged = rangedWeaponTypes.get(weapons[i]);
+            // supports only two weapons (1 ranged 1 not) for now.
+            for (int i = 0; i < weapons.length; i++) {
+                if (weaponTypes.get(weapons[i]) != null) {
+                    unit.melee = weaponTypes.get(weapons[i]);
+                    if (unit.melee == null) {
+                        throw new java.lang.NullPointerException(weapons[i] + " can't be found");
+                    }
+                } else if (rangedWeaponTypes.get(weapons[i]) != null) {
+                    unit.ranged = rangedWeaponTypes.get(weapons[i]);
 
-				// If thrown, default to same ammo as weapon name
+                    // If thrown, default to same ammo as weapon name
 
-					i++;
-					if (i < weapons.length)
-						unit.ammoType = ammoTypes.get(weapons[i]);
-					else {
-						if (unit.ranged.type == RangedWeaponType.Type.THROWN) {
-							unit.ammoType = ammoTypes.get(unit.ranged.name);
-						} else if (unit.ranged.type == RangedWeaponType.Type.SLING) {
-							unit.ammoType = ammoTypes.get("Stone");
-						} else if (unit.ranged.type == RangedWeaponType.Type.ATLATL) {
-							unit.ammoType = ammoTypes.get("Dart");
-						} else if (unit.ranged.type == RangedWeaponType.Type.BOW) {
-							unit.ammoType = ammoTypes.get("Arrow");
-						}
-						else {
-							throw new AssertionError("can't find ammo type for: " + unit.ranged.name);
-						}
-					}
+                    i++;
+                    if (i < weapons.length)
+                        unit.ammoType = ammoTypes.get(weapons[i]);
+                    else {
+                        if (unit.ranged.type == RangedWeaponType.Type.THROWN) {
+                            unit.ammoType = ammoTypes.get(unit.ranged.name);
+                        } else if (unit.ranged.type == RangedWeaponType.Type.SLING) {
+                            unit.ammoType = ammoTypes.get("Stone");
+                        } else if (unit.ranged.type == RangedWeaponType.Type.ATLATL) {
+                            unit.ammoType = ammoTypes.get("Dart");
+                        } else if (unit.ranged.type == RangedWeaponType.Type.BOW) {
+                            unit.ammoType = ammoTypes.get("Arrow");
+                        } else {
+                            throw new AssertionError("can't find ammo type for: " + unit.ranged.name);
+                        }
+                    }
 
-					if (unit.ranged == null) {
-						throw new java.lang.NullPointerException(weapons[i] + " can't be found");
-					}
-				}					
-				else if (weapons[i].equals("Shield")) {
-					unit.shield = true;
-				}
-				else {
-					System.out.println("CAN'T FIND WEAPON: " + weapons[i]);
-					throw new java.lang.NullPointerException();
-				}
-			}
+                    if (unit.ranged == null) {
+                        throw new java.lang.NullPointerException(weapons[i] + " can't be found");
+                    }
+                } else {
+                    System.out.println("CAN'T FIND WEAPON: " + weapons[i]);
+                    throw new java.lang.NullPointerException();
+                }
+            }
 
-			String armorString = in.next();
-			unit.armor = armorTypes.get(addSpaces(armorString));
-			if (unit.armor == null) {
-			}
-//
-//			String hideString = in.next();
-//			if (hideString.equals("true"))
-//				unit.hideBonus = true;
+            String armorShieldString = addSpaces(in.next());
+            String[] armorShield = armorShieldString.split("/");
 
-			String upgradeString = addSpaces(in.next());
-			if (!upgradeString.equals("none")) {
-				unit.upgradeStrings = upgradeString.split("/");
-				
-				// else it is null;
-			}
-//			else {
-//				unit.
-//			}
-//			unitTypes.put(unit.name, unit);
-//			printUnit(unit);
-		}
+            String armorString = armorShield[0];
+            unit.armor = armorTypes.get(addSpaces(armorString));
+            if (unit.armor == null) {
+            }
 
+            if (armorShield.length == 2) {
+                unit.shieldType = shieldTypes.get(addSpaces(armorShield[1]) + " Shield");
+            }
+
+            String upgradeString = addSpaces(in.next());
+            if (!upgradeString.equals("none")) {
+                unit.upgradeStrings = upgradeString.split("/");
+            }
+        }
 		in.close();
 	}
 	

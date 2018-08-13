@@ -129,7 +129,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library name="minlog-1.2.jar">
         <CLASSES>
           <root url="jar://$PARENT-1-PROJECT_LOC$/besiege-game/libs/minlog-1.2.jar!/" />
@@ -138,19 +138,10 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library name="objenesis-1.2.jar">
         <CLASSES>
           <root url="jar://$PARENT-1-PROJECT_LOC$/besiege-game/libs/objenesis-1.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="reflectasm-1.09-shaded.jar">
-        <CLASSES>
-          <root url="jar://$PARENT-1-PROJECT_LOC$/besiege-game/libs/reflectasm-1.09-shaded.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

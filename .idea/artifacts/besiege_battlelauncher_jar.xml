@@ -1,0 +1,27 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="besiege_battlelauncher:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/besiege_battlelauncher_jar</output-path>
+    <root id="archive" name="chieftain_battle.jar">
+      <element id="module-output" name="besiege-game" />
+      <element id="module-output" name="besiege-game-desktop" />
+      <element id="module-output" name="besiege-game-android" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx-freetype-1.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx-sources.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/kryo-2.24.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/objenesis-1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx-tools.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game-android/libs/gdx-backend-android.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game-desktop/libs/gdx-backend-lwjgl-natives.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game-desktop/libs/gdx-backend-lwjgl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game-desktop/libs/gdx-natives.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/minlog-1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx-sources old.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/kryo-2.24.0-javadoc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx-freetype-1.8.0-sources.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/gdx-tools old.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/besiege-game/libs/kryo-2.24.0-sources.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/besiege-game-android/assets" />
+    </root>
+  </artifact>
+</component>

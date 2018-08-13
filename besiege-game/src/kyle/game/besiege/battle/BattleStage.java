@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Array;
 
-import kyle.game.besiege.Assets;
+import kyle.game.besiege.*;
 
 /*******************************************************************************
  * Besiege
@@ -19,13 +19,6 @@ import kyle.game.besiege.Assets;
  ******************************************************************************/
 // stage for battles, contains all information regarding battle.
 
-import kyle.game.besiege.BesiegeMain;
-import kyle.game.besiege.Destination;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.MapScreen;
-import kyle.game.besiege.Point;
-import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
@@ -38,21 +31,27 @@ import kyle.game.besiege.party.Subparty;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.VoronoiGraph;
 
+import static kyle.game.besiege.Kingdom.RAIN_FLOAT;
+
 public class BattleStage extends Group implements Battle {
 	public Biomes biome;
 //	public OldBattle battle;
 	private PanelBattle pb;
 
-	private static final float SPEED = 0.01f;
+    public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
+    public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
+
+    private static final float SPEED = 0.01f;
 
 	//	public float scale = 1f;
 	public float MIN_SIZE = 40;
 	public float SIZE_FACTOR = .3f; // how much does the size of the parties
-	public float targetColor;
 	public Color biomeColor;
 	public Color currentColor;
 	public float currentDarkness;
-	public boolean raining;
+    public float targetDarkness;
+    public boolean raining;
+
 	// affect the size of battlefield?
 
 	public static boolean drawCrests = true;
@@ -84,8 +83,6 @@ public class BattleStage extends Group implements Battle {
 
 	public BattleParty allies;
 	public BattleParty enemies;
-	//	public Array<Unit> allies;
-	//	public Array<Unit> enemies;
 
 	public Array<SiegeUnit> siegeUnitsArray;
 
@@ -95,11 +92,6 @@ public class BattleStage extends Group implements Battle {
 	private BPoint placementPoint;
 	private BPoint originalPoint;
 
-	//	Party player;
-	//	Party enemy;
-
-	//	public boolean siegeAttack;
-	//	public boolean siegeDefense;
 	public boolean siege;
 
 	public boolean closed[][]; // open or closed?
@@ -108,7 +100,6 @@ public class BattleStage extends Group implements Battle {
 	public SiegeUnit[][] siegeUnits;
 	public Array<Unit> retreated; // units that have retreated
 	public float heights[][]; // ground floor levels
-
 
 	// two sizes: one for battle map, one for map to draw
 	// this is battle map, map to draw is twice as big
@@ -165,9 +156,7 @@ public class BattleStage extends Group implements Battle {
 		this.enemies = new BattleParty(this, 1);
 		this.enemies.player = false;
 
-		this.victoryManager = new VictoryManager(this, siegeOf);
-		
-		if (allyArray != null) {
+        if (allyArray != null) {
 			for (Party p : allyArray)
 				this.allies.addParty(p);
 		}
@@ -175,7 +164,11 @@ public class BattleStage extends Group implements Battle {
 			for (Party p : enemyArray)
 				this.enemies.addParty(p);
 		}
-		this.kingdom = mapScreen.getKingdom();
+
+        this.kingdom = mapScreen.getKingdom();
+
+        this.victoryManager = new VictoryManager(kingdom, this, siegeOf, getBalanceDefenders());
+        this.victoryManager.addInitTroopCount(getTotalBattleSize());
 
 		this.playerDefending = playerDefending;
 		//		this.isPlayer()Defending = false;
@@ -203,11 +196,12 @@ public class BattleStage extends Group implements Battle {
 		
 		this.biome = allies.first().army.getContaining().biome;
 
-		this.raining = getMapScreen().getKingdom().raining;
+		if (getMapScreen().getKingdom().raining)
+		    startRain();
 
 		this.currentColor = VoronoiGraph.getColor(allies.first().army.getContaining());
 		biomeColor = currentColor;
-		this.targetColor = kingdom.currentDarkness;		
+		this.targetDarkness = kingdom.currentDarkness;
 		currentDarkness = kingdom.currentDarkness;
 
 		init();
@@ -259,6 +253,9 @@ public class BattleStage extends Group implements Battle {
 		this.allies.addParty(allyParty1);
 		this.enemies.addParty(enemyParty1);
 
+        this.victoryManager = new VictoryManager(kingdom, this, null, getBalanceDefenders());
+        this.victoryManager.addInitTroopCount(getTotalBattleSize());
+
 //		// must modify battle so it can support a null kingdom
 //		// attacker, defender
 //		if (playerDefending)
@@ -270,14 +267,14 @@ public class BattleStage extends Group implements Battle {
 		this.biome = Biomes.values()[rand];
 		System.out.println("biome: " + this.biome.toString());
 
-		this.raining = false;
+		if (Math.random() < 0.2f) startRain();
 
 		this.currentColor = new Color(Color.WHITE);
-		currentDarkness = 1;
+		currentDarkness = Kingdom.NIGHT_FLOAT;
 		biomeColor = currentColor;
 		biomeColor = new Color(1, 0.9f, 0.7f, 1); // orange
 		
-		this.targetColor = 1;
+		this.targetDarkness = 1;
 		
 		init();
 
@@ -286,7 +283,6 @@ public class BattleStage extends Group implements Battle {
 		
 		addUnits();
 	}
-
 
 	public void init() {
 		mouse = new Point(0, 0);
@@ -325,11 +321,6 @@ public class BattleStage extends Group implements Battle {
 		retreated = new Array<Unit>();
 		slow = new double[size_y][size_x];
 		heights = new float[size_y][size_x];
-
-		//  We want something shared between this and battle, because we should have a similar panel system.
-		// Put all stats code in the panel class (calculating balance, total atk, etc). Then just have simple methods to 
-		// access all soldiers in the battle in these classes.
-		this.updateBalance();
 
 		// try this
 		pb = new PanelBattle(mapScreen.getSidePanel(), this);
@@ -385,7 +376,12 @@ public class BattleStage extends Group implements Battle {
 
 		//mapScreen.getCamera().translate(new Vector2((this.size_x)*this.unit_width/2, (this.size_y)*this.unit_height/2));
 	}
-	
+
+	// If this is a siege or a raid, don't allow defenders to retreat. Note that village raids count as a siege.
+	public boolean canDefendersRetreat() {
+	    return siege;
+    }
+
 	@Override
 	public double getBalanceDefenders() {
 		double balanceAllies = allies.getLevelSum();
@@ -400,13 +396,6 @@ public class BattleStage extends Group implements Battle {
 		} else {
 			return balanceEnemies;
 		}
-		// TODO move to victory handler class, shared by both battles.
-//		if (!firstTimeInit) {
-//			initBalanceA = balanceA;
-//			initBalanceD = balanceD;
-////			System.out.println(initBalanceA + " " + initBalanceD);
-//			firstTimeInit = true;
-//		}
 	}
 
 	public void centerCameraOnPlayer() {
@@ -423,38 +412,58 @@ public class BattleStage extends Group implements Battle {
 
 	public void rain() {
 		//		System.out.println("raining");
-		this.currentDarkness = kingdom.RAIN_FLOAT;
-		if (Math.random() < 1/kingdom.THUNDER_CHANCE) thunder();
+//		this.currentDarkness = Kingdom.RAIN_FLOAT;
+        this.targetDarkness = RAIN_FLOAT;
+        if (Math.random() < Kingdom.THUNDER_CHANCE) thunder();
+	}
+
+    public void startRain() {
+        if (raining == true) return;
+
+        raining = true;
+        SoundPlayer.startRain();
+    }
+
+    public void stopRain() {
+        if (raining == false) return;
+        raining = false;
+	    SoundPlayer.stopRain();
 	}
 
 	private void thunder() {
 		//		this.currentDarkness = (float)((Math.random()/2+.5)*this.LIGHTNING_FLOAT);
-		this.currentDarkness = kingdom.LIGHTNING_FLOAT;
-	}
+		this.currentDarkness = Kingdom.LIGHTNING_FLOAT;
+        SoundPlayer.playThunder();
+    }
 
 	public void updateColor(SpriteBatch batch) {
 		//		System.out.println("target darkness: " + this.targetDarkness);
-		if (this.currentDarkness != this.targetColor) adjustDarkness();
-		
-		this.currentColor.r = this.currentDarkness * biomeColor.r;
-		this.currentColor.g = this.currentDarkness * biomeColor.g;
-		this.currentColor.b = this.currentDarkness * biomeColor.b;
+		if (this.currentDarkness != this.targetDarkness) adjustDarkness();
+
+        // This is a cool effect, but can be a bit obnoxious if it's a strong color.
+        // need to decide whether to add biome color to this.
+//		this.currentColor.r = this.currentDarkness * biomeColor.r;
+//		this.currentColor.g = this.currentDarkness * biomeColor.g;
+//		this.currentColor.b = this.currentDarkness * biomeColor.b;
+
+        this.currentColor.r = this.currentDarkness;
+        this.currentColor.g = this.currentDarkness;
+        this.currentColor.b = this.currentDarkness;
 		this.currentColor.a = 1;
 		
-//		System.out.println(currentColor.r + " " + currentColor.g + " " + currentColor.b);
+//		System.out.println(currentColor.r + " " + currentColor.g + " " + currentColor.b + " " + currentColor.a);
 		
 		batch.setColor(this.currentColor);
 	}
 
 	private void adjustDarkness() {
-		if (this.kingdom == null) return;
 		if (this.raining) {
-			if (this.targetColor - this.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += kingdom.LIGHT_ADJUST_SPEED/2;
-			else if (this.currentDarkness - this.targetColor > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED/2;
+			if (this.targetDarkness - this.currentDarkness > Kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += Kingdom.LIGHT_ADJUST_SPEED/2;
+			else if (this.currentDarkness - this.targetDarkness > Kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= Kingdom.LIGHT_ADJUST_SPEED/2;
 		}
 		else {
-			if (this.targetColor - this.currentDarkness > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += kingdom.LIGHT_ADJUST_SPEED;
-			else if (this.currentDarkness - this.targetColor > kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= kingdom.LIGHT_ADJUST_SPEED;
+			if (this.targetDarkness - this.currentDarkness > Kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness += Kingdom.LIGHT_ADJUST_SPEED;
+			else if (this.currentDarkness - this.targetDarkness > Kingdom.LIGHT_ADJUST_SPEED) this.currentDarkness -= Kingdom.LIGHT_ADJUST_SPEED;
 		}
 	}
 
@@ -660,6 +669,10 @@ public class BattleStage extends Group implements Battle {
         bsp.currentPosY = base_y;
         bsp.currentRegHeight = region_height;
         bsp.currentRegWidth = region_width;
+    }
+
+    private int getTotalBattleSize() {
+	    return allies.getHealthySize() + enemies.getHealthySize();
     }
 
 //	// add on wall if there is a wall
@@ -1163,7 +1176,7 @@ public class BattleStage extends Group implements Battle {
 			this.retreatTimerPlayer -= delta;
 			this.retreatTimerEnemy -= delta;
 
-			if ((playerDefending && (1 - getBalanceDefenders()) < OldBattle.RETREAT_THRESHOLD/2) || (!playerDefending && getBalanceDefenders() < OldBattle.RETREAT_THRESHOLD/2)) {
+			if ((playerDefending && (1 - getBalanceDefenders()) < RETREAT_THRESHOLD/2) || (!playerDefending && getBalanceDefenders() < RETREAT_THRESHOLD/2)) {
 				retreatAll(false);
 			}
 			if ((playerDefending && (1 - getBalanceDefenders()) > CHARGE_THRESHOLD) || (!playerDefending && getBalanceDefenders() > CHARGE_THRESHOLD)) {
@@ -1172,6 +1185,7 @@ public class BattleStage extends Group implements Battle {
 
 			if (this.kingdom != null) {
 				if (allies.noUnits()) {
+				    // TODO make this work with multiple armies
 					victory(enemies.first().army, allies.first().army);
 				} else if (enemies.noUnits()) {
 					victory(allies.first().army, enemies.first().army);
@@ -1180,11 +1194,13 @@ public class BattleStage extends Group implements Battle {
 			else {
 				if (allies.noUnits() && !placementPhase) {
 //				/	BottomPanel.log("Defeat", "green");
-					displayVictoryText("Defeat");
+                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), false);
+                    displayVictoryText("Defeat");
 					this.placementPhase = true;
 				}
 				else if (enemies.noUnits() && !placementPhase) {
-					// display "Victory" text. 
+                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), true);
+                    // display "Victory" text.
 					displayVictoryText("Victory");
 //					BottomPanel.log("Victory", "green");
 					this.placementPhase = true;
@@ -1198,7 +1214,9 @@ public class BattleStage extends Group implements Battle {
 			leftClicked = false;
 		if (rightClicked)
 			rightClicked = false;
-	}
+
+        if (raining) rain();
+    }
 
 	public void damageWallAt(int pos_x, int pos_y, float damage) {
 		battlemap.damageWallAt(pos_x, pos_y, damage);
@@ -1331,7 +1349,6 @@ public class BattleStage extends Group implements Battle {
 	//	}
 
 	public void victory(Army winner, Army loser) {
-
 		System.out.println("Battle over!");
 		if (winner != kingdom.getPlayer() && loser != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
 
@@ -1347,9 +1364,8 @@ public class BattleStage extends Group implements Battle {
 			if (playerDefending) didAtkWin = true;
 			else didAtkWin = false;
 		}
-        victoryManager.handleVictory(didAtkWin);
 
-//		this.battle.didAtkWin = didAtkWin;
+        victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), didAtkWin);
 
 		if (winner.getParty().player) {
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
@@ -1372,7 +1388,7 @@ public class BattleStage extends Group implements Battle {
 
 
 		for (Party p : allies.parties) {
-			if (!((p.getHealthySize() <= OldBattle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+			if (!((p.getHealthySize() <= DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
 				p.army.setVisible(true);
 			p.army.endBattle();
 			p.army.setStopped(false);
@@ -1382,7 +1398,7 @@ public class BattleStage extends Group implements Battle {
 			}
 		}
 		for (Party p : enemies.parties) {
-			if (!((p.getHealthySize() <= OldBattle.DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+			if (!((p.getHealthySize() <= DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
 				p.army.setVisible(true);
 			p.army.endBattle();
 			p.army.setStopped(false);
@@ -1469,19 +1485,13 @@ public class BattleStage extends Group implements Battle {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		// This is yellow if you don't correct it... find out why.
-		float color = 1;
-		if (kingdom != null) {
-			color = kingdom.currentDarkness;
-		}
-		batch.setColor(color, color, color, 1);
-
-		// kingdom.currentDarkness, 1f);
+        updateColor(batch);
 		super.draw(batch, parentAlpha);
 
-		battlemap.drawTrees(batch); // will probably be above arrows for now
+		// gotta update again in case it's still set to some bad value.
+        updateColor(batch);
+        battlemap.drawTrees(batch); // will probably be above arrows for now
 
-		// System.out.println("bs drawing");
 		if (drawCrests) {
 
 		}
@@ -1708,8 +1718,10 @@ public class BattleStage extends Group implements Battle {
 	}
 
 	@Override
-	public void casualty(Soldier soldier, boolean atkDead) {
-		// 
+	public void casualty(Soldier soldier, boolean wasAttacker) {
+        // We already set killedBy previously if present.
+        boolean killed = soldier.casualty(wasAttacker, soldier.killedBy, !playerDefending, playerDefending);
+        victoryManager.handleCasualty(soldier, wasAttacker, killed);
 	}
 
 	@Override
@@ -1731,17 +1743,4 @@ public class BattleStage extends Group implements Battle {
 	public boolean didAttackersWin() {
 		return didAtkWin;
 	}
-
-	@Override
-	public void updateBalance() {
-		// TODO why does this exist
-		// no-op
-	}
-	
-	//	public Array<Unit> getAllies() {
-	//		return this.allies.units;
-	//	}
-	//	public Array<Unit> getEnemies() {
-	//		return this.enemies.units;
-	//	}
 }

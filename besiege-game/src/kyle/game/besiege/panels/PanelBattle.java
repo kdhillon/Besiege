@@ -19,8 +19,6 @@ import com.esotericsoftware.tablelayout.Cell;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.StrictArray;
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.party.Party;

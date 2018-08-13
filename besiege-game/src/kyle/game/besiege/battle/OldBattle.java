@@ -5,46 +5,32 @@
  ******************************************************************************/
 package kyle.game.besiege.battle;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.army.Noble;
-import kyle.game.besiege.location.Location;
-import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.ArmorType;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
+// The way a map battle should work:
 import kyle.game.besiege.party.WeaponType;
 
-import java.util.ServiceConfigurationError;
+import static kyle.game.besiege.battle.BattleStage.DESTROY_THRESHOLD;
+import static kyle.game.besiege.battle.BattleStage.RETREAT_THRESHOLD;
 
+// It starts, and then waits a fixed length of time (length can be proportional to party size)
 public class OldBattle implements Battle { // new battle system involving Party
-	private static final float SPEED = 200; //lower is faster
-	private static final int EXP_FACTOR = 47; // how much more exp is given to winning playerPartyPanel than total atk of enemies
-	private static final int BASE_EXP = 1;
-	private static final int MIN_EXP = 500;
-	private static final float MIN_BALANCE = .3f;
+	private static final float SPEED = 20; //lower is faster
+
 	private static final int MIN_RETREAT_TIME = 3;
 	private static final int BASE_RETREAT_TIME = 5;
 	private static final double RETREAT_WEALTH_FACTOR = .7; // this is how much of the retreating parties wealth will be lost
-	public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
-	public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
-	public static final float BASE_WEAPON_DROP_CHANCE = 0.2f; 
-	public static final float BASE_ARMOR_DROP_CHANCE = 0.2f;
-	
-	private final int baseMoraleReward = 25;
-	
+
 	// doesn't require a kingdom necessarily
 	private Kingdom kingdom;
 	private BattleActor battleActor; // parent
@@ -59,8 +45,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 	private StrictArray<Party> dParties;
 	private StrictArray<Party> aPartiesRet;
 	private StrictArray<Party> dPartiesRet;
-	
-	
+
 	private double aAdvantage;// calculated constants controlled by external factors 
 	private double dAdvantage;// like player's command skill, etc.
 	
@@ -72,23 +57,11 @@ public class OldBattle implements Battle { // new battle system involving Party
 	private int aAtk;
 	private int dAtk;
 	
-	private int spoils;
-	
-	private int expA;
-	private int expD;
-	
 	private double balanceA; // Overall balance of the battle, useful for creating a balance bar
-	private double balanceD; 
-	private double initBalanceA;
-	private double initBalanceD;
-	private int initTotalTroops;
+	private double balanceD;
 		
 	private boolean isOver;
 	private boolean didAtkWin;
-	
-	private StrictArray<WeaponType> weaponLoot;
-	private StrictArray<RangedWeaponType> rangedLoot;
-	private StrictArray<ArmorType> armorLoot;
 	
 	// garrison battles are slow for some reason
 	
@@ -102,7 +75,6 @@ public class OldBattle implements Battle { // new battle system involving Party
 		Army initAttacker = initAttackerParty.army;
 		Army initDefender = initDefenderParty.army;
 
-		victoryManager = new VictoryManager(this, battleActor.getSiegeLocation());
 
 		aParties = new StrictArray<Party>();
 		dParties = new StrictArray<Party>();
@@ -113,22 +85,12 @@ public class OldBattle implements Battle { // new battle system involving Party
 		dParties.add(initDefenderParty);
 		
 		calcStats();
-		initBalanceA = balanceA;
-		initBalanceD = balanceD;
-		initTotalTroops = initAttackerParty.getHealthySize() + initDefenderParty.getHealthySize();
-		
-		spoils = 0;
-		//expA = initDefender.getParty().getAtk();
-		//expD = initAttacker.getParty().getAtk(); // what should this be based on? number of enemies killed!
-		expA = BASE_EXP;
-		expD = BASE_EXP;
+        victoryManager = new VictoryManager(kingdom, this, battleActor.getSiegeLocation(), balanceD);
+        victoryManager.addInitTroopCount(initAttackerParty.getHealthySize() + initDefenderParty.getHealthySize());
 		
 		if (initAttackerParty.player) playerInA = true;
 		else if (initDefenderParty.player) playerInD = true;
-		
-//		if (playerInA || playerInD) 
-//			kingdom.getMapScreen().getSidePanel().setActiveBattle(this);
-		
+
 		if (initAttacker != null && initDefender != null) {
 			aArmies = new StrictArray<Army>();
 			dArmies = new StrictArray<Army>();
@@ -142,42 +104,14 @@ public class OldBattle implements Battle { // new battle system involving Party
 			initAttacker.setVisible(false);
 			initDefender.setStopped(true);
 			initDefender.setVisible(false);
-			
-//			if (initAttacker.getFaction().crest == null) {
-//				System.out.println("No crest found for " + initAttacker.getFaction());
-//			}
-//			if (initDefender.getFaction().crest == null) {
-//				System.out.println("No crest found for " + initDefender.getFaction());
-//			}
-//			TextureRegion[][] split = initAttacker.getFaction().crest.split(initDefender.getFaction().crest.getRegionWidth()/2, initAttacker.getFaction().crest.getRegionHeight());
-//			this.halfCrest = split[0][1];
 		}
 		
 		aAdvantage = 1; // for now. make influenced by player's attribute as well as morale.
 		dAdvantage = 1;
-		
-		weaponLoot = new StrictArray<WeaponType>();
-		rangedLoot = new StrictArray<RangedWeaponType>();
-		armorLoot = new StrictArray<ArmorType>();
 	}
-	
-	
+
 	private void calcStats() {
-//		System.out.println("calculating stats");
-		// calculate advantages
-//		if (playerInA)
-//			aAdvantage = kingdom.getPlayer().getCharacter().getAttributeFactor("Attacking");
-//		else if (playerInD) {
-//			dAdvantage = kingdom.getPlayer().getCharacter().getAttributeFactor("Defending");
-			//BottomPanel.log("Defense Advantage = " + dAdvantage, "green");
-//		}
-		
-		aAtk = 0;
-		
-//		aParties.removeValue(null, true);
-//		dParties.removeValue(null, true);
-//		System.out.println(aParties.size);
-		
+        aAtk = 0;
 		for (Party p : aParties) {
 			p.calcStats();
 			aAtk += p.getAtk();
@@ -195,16 +129,6 @@ public class OldBattle implements Battle { // new battle system involving Party
 		balanceD = balanceD / total; 
 	}
 	
-	private void add(Army army) {
-		if (shouldJoinDefenders(army))  {
-			
-		}
-		else if (shouldJoinAttackers(army)) {
-			
-		}
-		else log(army.getName() + " shouldn't join", "red");
-	}
-	
 	@Override
 	public double getBalanceDefenders() {
 		return balanceD;
@@ -219,28 +143,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		return dAtk;
 	}
 	
-//	/**
-//	 * returns 1 if should join defenders, 2 if attackers, 0 if shouldn't join
-//	 * @param army
-//	 * @return
-//	 */
-//	private int shouldJoin(Army army) {
-//		if (aArmies == null || dArmies == null) return 0;
-//		if (aArmies.size >= 1 && dArmies.size >= 1) {
-//			if (army.isAtWar(aArmies.first())) {
-//				if (!army.isAtWar(dArmies.first()))
-//					return 1; // defenders
-//			} 
-//			else if (army.isAtWar(dArmies.first())) {
-//				if (!army.isAtWar(aArmies.first()))
-//					return 2; // attackers
-//			}
-//		}
-//		return 0; // shouldn't join
-//	}
-	
 	private void remove(Army army) {	
-//		System.out.println("removeing " + army.getName());
 		if (aArmies.contains(army, true)) {
 			aParties.removeValue(army.party, true);
 			aArmies.removeValue(army, true);
@@ -258,9 +161,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			dArmiesRet.removeValue(army, true);
 		}
 		else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
-		
-//		System.out.println("removing " + army.getName() + " dArmies = "  + dArmies.size + " aArmies = " + aArmies.size + " dArmiesRet = " + dArmiesRet.size + " aArmiesRet = " + aArmiesRet.size);
-		
+
 		army.endBattle();
 		army.setStopped(false);
 		army.setVisible(false);
@@ -294,22 +195,9 @@ public class OldBattle implements Battle { // new battle system involving Party
 			remove(army);
 		}
 		else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
-		increaseSpoilsForKill(army);
-		
+		victoryManager.handleArmyRetreat(army);
+
 		army.destroy();
-	}
-	
-	private void increaseSpoilsForKill(Army army) {
-		spoils += army.getParty().wealth;
-	}
-	
-	private void increaseSpoilsForRetreat(Army army) {
-		
-		double wealthFactor = army.getParty().getWoundedSize()*1.0/army.getParty().getTotalSize();
-		
-		int wealthChange = (int) (army.getParty().wealth * wealthFactor);
-		army.getParty().wealth -= wealthChange;
-		spoils += wealthChange;
 	}
 	
 	private void retreat(Army army) {
@@ -332,7 +220,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			}
 			log(army.getName() + " is retreating!", "yellow");
 		}
-		increaseSpoilsForRetreat(army);
+        victoryManager.handleArmyRetreat(army);
 	}
 	
 	// returns false if there's been a victory so the next phase can be skipped
@@ -434,6 +322,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 				this.destroy(army);
 		}
 	}
+
 	// when anyone in aArmies is retreating
 	private void attackRetreatStep() {
 		for (Army defense : aArmiesRet) {
@@ -452,21 +341,11 @@ public class OldBattle implements Battle { // new battle system involving Party
 				killOne(defense, false);
 		}
 	}
-	
-	// TODO
-//	public void meleeStep() {
-//		// pretend theres some bar with defense of both parties, select at random and kill one weighted by inv defense
-//		
-//		if (!defense.getParty().player && balanceD < RETREAT_THRESHOLD) {
-//			if (defense.type != ArmyType.MILITIA)
-//				retreat(defense);
-//		}
-//	}
-	
+
 	private void attackStep() {
 		for (Army defense : dArmies) {
 			double defenseRoll = Math.random() * SPEED * defense.getParty().getAvgDef();
-			System.out.println("defense roll of defender : " + defenseRoll);
+//			System.out.println("defense roll of defender : " + defenseRoll);
 			if (aAtk*aAdvantage > defenseRoll)
 				killOne(defense, false);
 			if (!defense.getParty().player && balanceD < RETREAT_THRESHOLD) {
@@ -475,6 +354,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			}
 		}
 	}
+
 	private void defenseStep() {	
 		for (Army defense : aArmies) {
 			double defenseRoll = Math.random() * SPEED * defense.getParty().getAvgDef();
@@ -490,7 +370,6 @@ public class OldBattle implements Battle { // new battle system involving Party
 	
 	private void killOne(Army army, boolean wasInAttackers) { // kills/wounds one random troop in this army, weighted by the troop's defense
 		// Now choose a random soldier weighted by def
-		System.out.println("killing one");
 		Soldier random = army.party.getRandomWeightedInverseDefense();
 //		if (random == null) throw new java.lang.AssertionError();
 		if (random == null) {
@@ -510,25 +389,13 @@ public class OldBattle implements Battle { // new battle system involving Party
 	public void casualty(Soldier soldier, boolean wasInAttackers) {
 		Soldier killer = getRandomForKill(!wasInAttackers);
 		boolean killed = soldier.casualty(wasInAttackers, killer, playerInA, playerInD);
-		// add s loot to loot drop
-		if (killed) {
-			if (Math.random() < BASE_WEAPON_DROP_CHANCE)
-				this.weaponLoot.add(soldier.getWeapon());
-			if (soldier.getRanged() != null && Math.random() < BASE_WEAPON_DROP_CHANCE)
-				this.rangedLoot.add(soldier.getRanged());
-			if (!soldier.getArmor().clothes && Math.random() < BASE_ARMOR_DROP_CHANCE) 
-				this.armorLoot.add(soldier.getArmor());
-		}
-		
-		// add to total exp sum
-		if (wasInAttackers) expD += soldier.getExpForKill();
-		else expA += soldier.getExpForKill();
-		
+
+	    victoryManager.handleCasualty(soldier, wasInAttackers, killed);
 	}
 	
-	private Soldier getRandomForKill(boolean atkKill) {
+	private Soldier getRandomForKill(boolean fromAttackers) {
 		StrictArray<Army> armies;
-		if (atkKill) armies = aArmies;
+		if (fromAttackers) armies = aArmies;
 		else armies = dArmies;
 		
 		armies.shrink();
@@ -563,23 +430,13 @@ public class OldBattle implements Battle { // new battle system involving Party
 	}
 	
 	private void victory(StrictArray<Army> victor, StrictArray<Army> loser) {
-//		System.out.println("victory in " + name);
-//		System.out.println("battle over");
-//		if (isOver) System.out.println(getName() + " ENDING BATTLE TWICE!!!?!");
-//		isOver = true;
-		
-		//if ()
-		 
 		if (kingdom.getMapScreen().getSidePanel().getActivePanel().getClass() == PanelBattle.class &&
 				((PanelBattle) (kingdom.getMapScreen().getSidePanel().getActivePanel())).battle == this) 
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
 		
 		if (victor == aArmies) didAtkWin = true;
 		else if (victor == dArmies) didAtkWin = false;
-		
-		int[] victorContribution = new int[victor.size]; // should depend on how much an army sacrificed in battle
-		int totalContribution = 0; // maybe number of troops they killed + their own troops killed.
-		
+
 		victor.shrink();
 		
 		// manage victorious armies and calculate contributions
@@ -600,47 +457,12 @@ public class OldBattle implements Battle { // new battle system involving Party
 //				army.setStopped(true);
 				army.setTarget(null);
 			}
-			
-			victorContribution[i] = army.getParty().getAtk(); // for now just do atk.
-			totalContribution += victorContribution[i];
 		}
 		
-		// distribute rewards
-		for (int i = 0; i < victor.size; i++) {
-			Army army = victor.get(i);
-
-			double contribution = victorContribution[i]/1.0d/totalContribution;
-			army.party.registerBattleVictory();
-			this.distributeRewards(army, contribution, didAtkWin);
-		}
-		
-		for (int i = 0; i < loser.size; i++) {
-			Army army = loser.get(i);
-			army.party.registerBattleLoss();
-		}
 
 		if (victoryManager != null) {
-		    victoryManager.handleVictory(didAtkWin);
+		    victoryManager.handleVictory(aParties, dParties, didAtkWin);
         }
-
-//		if (battleActor != null) {
-//
-//			battleActor.handleVictory(didAtkWin);
-//		}
-//		// TESTING
-//		if (victor == aArmies) {
-//			for (Army leftOver : dArmies) {
-//				System.out.println("***** " + leftOver.getName() + " is still in battle!?!");
-//			}
-//		}
-//		else if (victor == dArmies) {
-//			for (Army leftOver : aArmies) {
-//				System.out.println("***** " + leftOver.getName() + " is still in battle!?!");
-//			}
-//		}
-	
-		//	log("battle ended");
-		
 		destroy();
 	}
 	
@@ -674,61 +496,6 @@ public class OldBattle implements Battle { // new battle system involving Party
 			this.battleActor.destroy();
 		}
 	}
-	
-	private void distributeRewards(Army army, double contribution, boolean attackVictory) {
-		int reward = (int) (contribution*spoils);
-		int expReward;
-		int moraleReward;
-		if (attackVictory) {
-			expReward = (int) (contribution*expA);
-			moraleReward = (int) (initBalanceA*baseMoraleReward);
-		}
-		else {
-			expReward = (int) (contribution*expD);
-			moraleReward = (int) (initBalanceD*baseMoraleReward);
-		}
-		expReward *= EXP_FACTOR; // just to beef it up
-		expReward += MIN_EXP;
-		
-		if (army.getParty().player) {
-//			System.out.println("initBalanceD = " + this.initBalanceD);
-//			System.out.println("initBalanceA = " + this.initBalanceA);
-
-			// also distribute honor and fame
-			int fameReward;
-			if (attackVictory) {
-				fameReward = (int) (this.initBalanceD * this.initTotalTroops)/5;
-				if (this.initBalanceD < MIN_BALANCE) fameReward = 0;
-			}
-			else {
-				fameReward = (int) (this.initBalanceA * this.initTotalTroops)/5;
-				if (this.initBalanceA < MIN_BALANCE) fameReward = 0;
-			}
-			kingdom.getMapScreen().getCharacter().addFame(fameReward);
-			log(army.getName() + " receives " + moraleReward + " morale, " + fameReward + " fame, " + reward + " gold and " + expReward + " experience!", "green");
-			
-			// Add collected loot
-			if (Soldier.WEAPON_NEEDED) {
-				kingdom.getMapScreen().getCharacter().inventory.addWeapons(weaponLoot);
-				kingdom.getMapScreen().getCharacter().inventory.addRanged(rangedLoot);
-				kingdom.getMapScreen().getCharacter().inventory.addArmor(armorLoot);
-			}
-			
-			if (weaponLoot.size > 0 || rangedLoot.size > 0 || armorLoot.size > 0) {
-				String lootString = army.getName() + " looted ";
-				if (weaponLoot.size > 0) lootString += weaponLoot.size + " weapons, ";
-				if (rangedLoot.size > 0) lootString += rangedLoot.size + " ranged weapons, ";
-				if (armorLoot.size > 0) lootString += armorLoot.size + " armor!";
-				log(lootString, "green");
-			}
-		}
-		army.getParty().wealth += reward;
-		army.getParty().distributeExp(expReward);
-		army.setMomentum(army.getMomentum()+moraleReward);
-	}
-	
-	private void rangedPhase() {
-	}
 
 	private void log(String text, String color) {
 		if (playerInA || playerInD) // only logs info if Player is in this battle
@@ -757,7 +524,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 	
 	// Identical to above, but takes nobles instead of Armies
 	public static double calcBalanceNobles(StrictArray<Noble> first, double firstAdvantage, StrictArray<Army> second, double secondAdvantage) {
-		int firstAtk = 0;
+		int firstAtk =0;
 		int firstSize = 0;
 		for (Army a : first) {
 			firstAtk += a.getParty().getAtk();
@@ -774,36 +541,36 @@ public class OldBattle implements Battle { // new battle system involving Party
 		double total = balanceFirst + balanceSecond;
 		return balanceFirst / total; // balanceA + balanceD = 1
 	}
-	
-	// used in battle stage
-	@Override
-	public void updateBalance() {
-		int firstAtk = 0;
-		int firstSize = 0;
-		
-		for (Party p : aParties) {
-			firstAtk += p.getAtk();
-			firstSize += p.getHealthySize();
-		}
-		int secondAtk = 0;
-		int secondSize = 0;
-		for (Party p : dParties) {
-			secondAtk += p.getAtk();
-			secondSize += p.getHealthySize();
-		}
-		double balanceFirst = firstAtk + firstSize; // method for computing balance
-		double balanceSecond = secondAtk + secondSize;
-		double total = balanceFirst + balanceSecond;
-		balanceA = balanceFirst / total; // balanceA + balanceD = 1
-		balanceD = 1-balanceA;
-		
-		if (!firstTimeInit) {
-			initBalanceA = balanceA;
-			initBalanceD = balanceD;
-//			System.out.println(initBalanceA + " " + initBalanceD);
-			firstTimeInit = true;
-		}
-	}
+
+//	// used in battle stage
+//	@Override
+//	public void updateBalance() {
+//		int firstAtk = 0;
+//		int firstSize = 0;
+//
+//		for (Party p : aParties) {
+//			firstAtk += p.getAtk();
+//			firstSize += p.getHealthySize();
+//		}
+//		int secondAtk = 0;
+//		int secondSize = 0;
+//		for (Party p : dParties) {
+//			secondAtk += p.getAtk();
+//			secondSize += p.getHealthySize();
+//		}
+//		double balanceFirst = firstAtk + firstSize; // method for computing balance
+//		double balanceSecond = secondAtk + secondSize;
+//		double total = balanceFirst + balanceSecond;
+//		balanceA = balanceFirst / total; // balanceA + balanceD = 1
+//		balanceD = 1-balanceA;
+//
+//		if (!firstTimeInit) {
+//			initBalanceA = balanceA;
+//			initBalanceD = balanceD;
+////			System.out.println(initBalanceA + " " + initBalanceD);
+//			firstTimeInit = true;
+//		}
+//	}
 
 	@Override
 	public boolean addToAttackers(Army army) {
@@ -818,7 +585,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		aArmies.add(army);
 		aParties.add(army.party);
 		army.setVisible(false);
-		initTotalTroops += army.getParty().getHealthySize();
+        victoryManager.addInitTroopCount(army.getParty().getHealthySize());
 		return true;
 	}
 
@@ -837,7 +604,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		dParties.add(army.party);
 		log(army.getName() + " was added to defenders!", "pink");
 		army.setVisible(false);
-		initTotalTroops += army.getParty().getHealthySize();
+        victoryManager.addInitTroopCount(army.getParty().getHealthySize());
 		return true;
 	}
 	
@@ -863,7 +630,6 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 	@Override
 	public boolean shouldJoinAttackers(Army army) {
-		// TODO Auto-generated method stub
 		if (aArmies == null || dArmies == null) return false;
 		if (aArmies.size >= 1 && dArmies.size >= 1) {
 		    if (army.isAtWar(dArmies.first())) {
@@ -902,6 +668,8 @@ public class OldBattle implements Battle { // new battle system involving Party
 		if (this.aArmies == null) {
 			return;
 		}
+
+		// Do entire battle efficiently
 
 		calcStats();
 		meleePhase();

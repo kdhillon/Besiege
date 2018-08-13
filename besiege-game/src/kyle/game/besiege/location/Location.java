@@ -502,7 +502,9 @@ public class Location extends Group implements Destination {
 	public float getSizeFactor() {
 	    float scale = 2f + ((float) (this.population - this.POP_MIN) / (this.POP_MAX - this.POP_MIN));
 	    if (this.population == 0) scale = 2.5f;
-	    scale = scale / 2;
+
+	    if (this.isVillage()) scale = scale / 3;
+	    else scale = scale / 2;
         if (cultureType.name.equals("Desert")) return 1.5f*scale;
         if (cultureType.name.equals("Tundra")) return 1.5f*scale;
         return scale;
@@ -647,9 +649,17 @@ public class Location extends Group implements Destination {
 	
 	public boolean shouldDraw() {
 		float zoom = getKingdom().getZoom();
-		if (zoom > 6 * getSizeFactor() || zoom > MAX_ZOOM) return false;
+		if (zoom > 3.5f * getShouldDrawFactor()) return false;
 		return true;
 	}
+
+	public float getShouldDrawFactor() {
+        float size = getSizeFactor();
+        if (isRuin()) size *= 0.4f;
+        if (isVillage()) size *= 0.5f;
+        if (isCastle()) size *= 0.8f;
+        return size;
+    }
 
 //	public boolean shouldDrawText(){
 //	    float zoom = getKingdom().getZoom();
@@ -852,6 +862,7 @@ public class Location extends Group implements Destination {
 
 	// TODO fix for battlestage
 	public void siegeAttack(StrictArray<Army> attackers) {
+	    if (attackers == null) throw new AssertionError();
 		needsUpdate = true;
 
 		//		Army garrisonArmy = new Army(getKingdom(), this.getName() + " Garrison", getFaction(), getCenterX(), getCenterY(), null);
@@ -939,7 +950,7 @@ public class Location extends Group implements Destination {
 		return siege;
 	}
 	public void addFire() {
-		this.fire = new Fire(this.getWidth() * 20, this.getHeight() * 20, kingdom.getMapScreen(), this);
+		this.fire = new Fire( 400, 400, kingdom.getMapScreen(), this);
 		this.addActor(fire);
 	}
 	public void removeFire() {
@@ -1234,6 +1245,9 @@ public class Location extends Group implements Destination {
 	public boolean isCastle() {
 		return this.type == LocationType.CASTLE;
 	}
+    public boolean isRuin() {
+        return this.type == LocationType.RUIN;
+    }
 	public String getFactionName() {
 		if (faction == null) {
 		    if (this.ruin) return "Abandoned";

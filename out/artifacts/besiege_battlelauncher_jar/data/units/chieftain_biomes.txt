@@ -1,0 +1,17 @@
+biome				class
+
+Snow				Tundra
+Tundra				Tundra
+Mountains			null
+Taiga				Tundra
+Wasteland   		null
+Rainforest			Desert
+Swamp				Desert
+Desert				Desert
+Beach				null
+Scorched			null
+Plateau				null
+Deciduous_Forest 	Forest
+Plains  			Plains
+Seasonal_Forest		Forest
+Lakeshore			Plains

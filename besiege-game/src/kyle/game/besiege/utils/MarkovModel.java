@@ -42,6 +42,9 @@ public class MarkovModel {
                 st.put(kgram, intArray);
             }
             char c = text.charAt(i+k); // the following character
+
+            /// Just ignore characters that are invalid lol
+            if (c >= ALPHABET_SIZE) continue;
             st.get(kgram)[c]++;
             
             // only add if it's the first part of the line

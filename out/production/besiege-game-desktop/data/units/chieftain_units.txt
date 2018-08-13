@@ -1,26 +1,26 @@
-tier name 			weapon				armor			upgrades_to
+tier name 			weapon				armor		upgrades_to
 
 Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
-1	Hunter			Unarmed/Sling		None			Slinger
-1	Farmer			Spear				Clothes			Spearman
-
-2	Slinger			Dagger/Sling		Clothes			Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
-2	Spearman		Spear				Clothes			Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
-
-3	Jaguar_Spearman    	Spear				Clothes			Jaguar_Maceman/Jaguar_Spearman
-4	Jaguar_Maceman		Mace/Atlatl			Clothes			Jaguar_Nagual
-4	Jaguar_Spearman 	Spear/Shield		Clothes			Jaguar_Nagual
-5	Jaguar_Nagual		War_Axe				Clothes			none
-
-3	Eagle_Slinger		Dagger/Sling		Clothes			Eagle_Bowman/Eagle_Warrior
-4	Eagle_Bowman    	Dagger/Bow/Arrow	Clothes			Eagle_Nagual
-4	Eagle_Warrior		Dagger/Atlatl		Clothes			Eagle_Nagual
-5	Eagle_Nagual		War_Axe				Clothes			none
-
-3	Serpent_Axeman		War_Axe				Clothes			Serpent_Axeman/Serpent_Swordsman
-4	Serpent_Axeman		War_Axe/Shield		Clothes			Serpent_Nagual
-4	Serpent_Swordsman	Broadsword			Clothes			Serpent_Nagual
-5	Serpent_Nagual		War_Axe				Clothes			none
+1	Hunter			Unarmed/Sling		None			        Slinger
+1	Farmer			Spear				Clothes			        Spearman
+        
+2	Slinger			Dagger/Sling		Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
+2	Spearman		Spear				Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
+        
+3	Jaguar_Spearman    	Spear				Clothes		        	    Jaguar_Maceman/Jaguar_Spearman
+4	Jaguar_Maceman		Mace/Atlatl			Clothes		        	    Jaguar_Nagual
+4	Jaguar_Spearman 	Spear	        	Clothes/Round_Deerskin  	Jaguar_Nagual
+5	Jaguar_Nagual		War_Axe				Clothes		        	    none
+        
+3	Eagle_Slinger		Dagger/Sling		Clothes		        	Eagle_Bowman/Eagle_Warrior
+4	Eagle_Bowman    	Dagger/Bow/Arrow	Clothes		        	Eagle_Nagual
+4	Eagle_Warrior		Dagger/Atlatl		Clothes		        	Eagle_Nagual
+5	Eagle_Nagual		War_Axe				Clothes		        	none
+        
+3	Serpent_Axeman		War_Axe				Clothes		        	    Serpent_Axeman/Serpent_Swordsman
+4	Serpent_Axeman		War_Axe		Clothes/Round_Deerskin     Serpent_Nagual
+4	Serpent_Swordsman	Broadsword			Clothes		        	    Serpent_Nagual
+5	Serpent_Nagual		War_Axe				Clothes		        	    none
 
 
 Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
@@ -28,50 +28,55 @@ Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
 1	Hunter			Unarmed/Bow(Ash)/Hunting(Flint)        None			Warrior_(Nov)/Axeman/Archer
 1   Fisher          Spear(Flint)                           None            Warrior_(Nov)/Axeman/Spearman
 
-2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     None            Warrior
+2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     Furs            Warrior
 
 3   Warrior         War_Club(Wood)/Bow(Hickory)/Broadhead(Flint) None            Warrior_(Vet)
-4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)  Nagual(W)
+4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)
 
 // Heavy Infantry
-3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)      Spearman_(Vet)
-4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)		Nagual(W)
+3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin      Spearman_(Vet)
+4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)
 
 // Light Infantry
 3	Axeman  		Tomahawk(Flint)/Tomahawk(Flint)	       Clothes			Axeman_(Vet)
 4	Axeman_(Vet)	Tomahawk(Flint)/Tomahawk(Flint)        Clothes			Nagual(W)
 
 // Archer (based on Southeast culture?)
-3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)          Clothes   Archer_(Vet)
+3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)
 4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)
 
 // Legendary Units?
+5	Peacemaker		Staff				None            none
+
 5	Nagual(W)		War_Axe				Clothes			none
 5	Nagual(B)		War_Axe				Clothes			none
 
 
 Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
-1	Hunter			Unarmed/Sling		None			Slinger
-1	Villager		Staff				None			Spearman
+1	Villager		Knife(Flint)/Rocks			           None Warrior_(Nov)
+1	Farmer			Hoe(Bone)					           None Warrior_(Nov)
+1	Hunter			Knife(Flint)/Bow(Ash)/Hunting(Flint)   None Warrior_(Nov)
 
-2	Slinger			Dagger/Sling		Clothes			Axeman(W)/Bowman(H)/Clubman(B)
-2	Spearman		Spear				Clothes			Axeman(W)/Bowman(H)/Clubman(B)
+2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     None            Warrior
 
-3	Axeman(W)		War_Axe				Clothes			Axeman(W)/Spearman(W)
-4	Axeman(W)		War_Axe         	Clothes			Nagual(W)
-4	Spearman(W)		Spear/Shield		Clothes			Nagual(W)
+3   Warrior         War_Club(Wood)/Bow(Hickory)/Broadhead(Flint) None            Warrior_(Vet)
+4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)
+
+// Heavy Infantry
+3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin      Spearman_(Vet)
+4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)
+
+// Light Infantry
+3	Axeman  		Tomahawk(Flint)/Tomahawk(Flint)	       Clothes			Axeman_(Vet)
+4	Axeman_(Vet)	Tomahawk(Flint)/Tomahawk(Flint)        Clothes			Nagual(W)
+
+// Archer (based on Southeast culture?)
+3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)
+4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)
+
+// Legendary Units?
 5	Nagual(W)		War_Axe				Clothes			none
-
-3	Bowman(H)		Dagger/Bow			Clothes			Bowman(H)/Warrior(H)
-4	Bowman(H)		Dagger/Bow			Clothes			Nagual(H)
-4	Warrior(H)		Dagger      		Clothes			Nagual(H)
-5	Nagual(H)		War_Axe				Clothes			none
-
-3	Clubman(B)		Club				Clothes			Clubman(B)/Spearman(B)
-4	Clubman(B)		Club	        	Clothes			Nagual(B)
-4	Spearman(B)		Spear/Shield		Clothes			Nagual(B)
 5	Nagual(B)		War_Axe				Clothes			none
-
 
 Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
 1	Hunter			Unarmed/Bow/Arrow	None			Bowman
@@ -82,7 +87,7 @@ Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
 
 3	Axeman(W)		War_Axe				None			Axeman(W)/Spearman(W)
 4	Axeman(W)		War_Axe         	None			Nagual(W)
-4	Spearman(W)		Spear/Shield		None			Nagual(W)
+4	Spearman(W)		Spear		        None			Nagual(W)
 5	Nagual(W)		War_Axe				Clothes			none
 
 3	Bowman(H)		Dagger/Bow/Arrow	Clothes			Bowman(H)/Warrior(H)
@@ -92,7 +97,7 @@ Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
 
 3	Clubman(B)		Club				Clothes			Clubman(B)/Spearman(B)
 4	Clubman(B)		Club        		Clothes			Nagual(B)
-4	Spearman(B)		Spear/Shield		Clothes			Nagual(B)
+4	Spearman(B)		Spear	        	Clothes			Nagual(B)
 5	Nagual(B)		War_Axe				Clothes			none
 
 
@@ -105,7 +110,7 @@ Class:	Coast		LT_YELLOW   YELLOW  hawaii.txt
 
 3	Axeman(W)		War_Axe				Clothes			Axeman(W)/Spearman(W)
 4	Axeman(W)		War_Axe         	Clothes			Nagual(W)
-4	Spearman(W)		Spear/Shield		Clothes			Nagual(W)
+4	Spearman(W)		Spear	        	Clothes			Nagual(W)
 5	Nagual(W)		War_Axe				Clothes			none
 
 3	Bowman(H)		Dagger/Bow/Arrow	Clothes			Bowman(H)/Warrior(H)
@@ -115,5 +120,5 @@ Class:	Coast		LT_YELLOW   YELLOW  hawaii.txt
 
 3	Clubman(B)		Club				Clothes			Clubman(B)/Spearman(B)
 4	Clubman(B)		Club        		Clothes			Nagual(B)
-4	Spearman(B)		Spear/Shield		Clothes			Nagual(B)
+4	Spearman(B)		Spear	        	Clothes			Nagual(B)
 5	Nagual(B)		War_Axe				Clothes			none

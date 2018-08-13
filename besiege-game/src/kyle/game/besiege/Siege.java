@@ -86,9 +86,8 @@ public class Siege extends Actor {
 		}
 		else if (hasChecked) hasChecked = false;
 	}
-
 	
-	public void attackOrDestroy() {
+	private void attackOrDestroy() {
 		if (Math.random() < 0.8f) return;
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
@@ -102,8 +101,7 @@ public class Siege extends Actor {
 	}
 	
 	public void attack() {
-		System.out.println("attack at " + location.getName() + " which has " + location.getWealth());
-		location.siegeAttack(armies);
+		System.out.println("attack at " + location.getName() + " which has " + location.getWealth() + " wealth and " + location.garrison.getParty().getTotalSize() + " defenders");
 		// make sure siege is set
 		location.siege = this;
 //		System.out.println("SETTING SIEGE");
@@ -112,13 +110,16 @@ public class Siege extends Actor {
 //			a.setSiege(this);
 //		}f
 		inBattle = true;
-//		if (armies.size >= 1) 
+
+        location.siegeAttack(armies);
+//		if (armies.size >= 1)
 		this.battleActor = armies.first().getBattleActor();
 //		else System.out.println("trying to attack with no armies!");
 		if (battleActor == null) return;
 		this.battleActor.setSiegeLocation(location);
 		if (this.battleActor.getSiegeLocation().siege != this) System.out.println("THIS IS REALLY FUCKED");
-	}
+
+    }
 	public void endAttack() {
 		System.out.println("ending attack at " + location.getName() + " which has "  + location.getWealth());
 		inBattle = false;

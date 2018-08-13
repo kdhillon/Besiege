@@ -1,8 +1,14 @@
-name				Material    color_name	hp	spd	type
+Name              color_name	hp	spd	type
 // Forest shields
-Round shield		Deer Hide	LT_BROWN	10	0   round
-Round shield		Elk Hide	LT_BROWN	12	0   round
-Round shield		Moose Hide	DK_BROWN	14	0   round
-Round shield		Bear Hide	DK_BROWN	16	0   round
-Large shield		Bark Slabs	DK_BROWN	20	-1  full
-Large shield		Wood Slabs	BROWN   	25	-1  full
+Round_Deerskin      DK_BROWN	10	0   round
+Round_Elkskin	    DK_BROWN	12	0   round
+Round_Mooseskin	    DK_BROWN	14	0   round
+Round_Bearskin	    DK_BROWN	16	0   round
+Large_Bark    	    DK_BROWN	20	-1  large
+Large_Wood      	BROWN   	25	-1  large
+
+// Plains shields (shield culture)
+Round_Buffalo       LT_BROWN    12  0   round
+White_Buckskin      WHITE       14  0   round
+Large_Elkskin       TAN         16  0   large
+Large_Buffalo       LT_BROWN    20  0   large

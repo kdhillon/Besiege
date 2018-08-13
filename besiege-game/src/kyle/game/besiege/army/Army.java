@@ -545,7 +545,6 @@ public class Army extends Actor implements Destination {
 		
 //		if (true) return;
 		
-		
 		//		System.out.println(this.getName() + " creating battle");
 		if (this == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
@@ -1407,8 +1406,9 @@ public class Army extends Actor implements Destination {
 	//		else this.money = money;
 	//	}
 	public boolean isAtWar(Destination destination) {
-		if (destination.getFaction() == null) return false;
-		if (this.faction == null) return false;
+		if (destination.getFaction() == null) return true;
+		if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
+		if (this.faction == null) return true;
 		return faction.atWar(destination.getFaction());
 	}
 

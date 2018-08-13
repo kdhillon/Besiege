@@ -48,7 +48,7 @@ public class City extends Location {
 		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CITY_GARRISON, center, corner);
 		this.type = LocationType.CITY;
 						
-		POP_MIN = 2000;
+		POP_MIN = 500;
 		POP_MAX = 15000;
 		
 		this.population = Math.random()*(POP_MAX - POP_MIN) + POP_MIN;
@@ -75,15 +75,15 @@ public class City extends Location {
 //		this.raiderCost = 10; //PartyType.RAIDING_PARTY.maxWealth;
 
         if (cultureType.name.equals("Plains")) {
-            setTextureRegion("tipi-large");
+            setTextureRegion("tipi4");
         } else if (cultureType.name.equals("Forest")) {
-            setTextureRegion("longhouse-fort");
+            setTextureRegion("longhouse4");
         } else if (cultureType.name.equals("Tundra")){
-                if (center != null && (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW))
-                    setTextureRegion("inuit2");
-                else setTextureRegion("inuitgreen");
+                if (center != null && (center.biome == Biomes.SNOW))
+                    setTextureRegion("inuitcitywhite");
+                else setTextureRegion("inuitcity");
         } else if (cultureType.name.equals("Desert")){
-            setTextureRegion("temple");
+            setTextureRegion("temple2");
         } else {
             setTextureRegion("City");
         }

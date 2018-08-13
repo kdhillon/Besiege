@@ -8,6 +8,7 @@ public class AmmoType {
             DART,
             THROWN,
             THROWN_AXE,
+            THROWN_FIRE,
             SLING,
             CROSSBOW_BOLT,
             BULLET
@@ -46,6 +47,8 @@ public class AmmoType {
                 type = Type.THROWN;
             if (typeString.equals("thrown_axe"))
                 type = Type.THROWN_AXE;
+            if (typeString.equals("thrown_fire"))
+                type = Type.THROWN_FIRE;
             if (typeString.equals("firearm"))
                 type = Type.BULLET;
         }

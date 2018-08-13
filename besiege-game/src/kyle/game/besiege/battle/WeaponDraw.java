@@ -49,6 +49,7 @@ public class WeaponDraw extends Group { // can have arrows.
 	
 	private Animation horseWalk;
 	public TextureRegion shield;
+	public Color shieldColor;
 
 	private Color c = new Color();
 	
@@ -68,7 +69,9 @@ public class WeaponDraw extends Group { // can have arrows.
 			horseWalk.setPlayMode(Animation.LOOP);
 		}
 		if (unit.shield != null) {
-			shield = Assets.equipment.findRegion("woodenshield");
+			shield = unit.shield.getTexture();
+			if (shield == null) throw new AssertionError(unit.shield.name + " not found");
+			shieldColor = unit.shield.color;
 		}
 	}
 	
@@ -177,8 +180,7 @@ public class WeaponDraw extends Group { // can have arrows.
 		if (drawTeams || (onlyDrawFriendly && unit.team == 0))
 			batch.draw(Assets.white, 0, 0, unit.stage.unit_width/2, unit.stage.unit_height/2, unit.stage.unit_width, unit.stage.unit_height, 1, 1, -this.getParent().getRotation());
 //		batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
-		batch.setColor(c);
-		
+
 		// draw horse
 		if (unit.isMounted()) {
 			float time = unit.stateTime;
@@ -210,12 +212,16 @@ public class WeaponDraw extends Group { // can have arrows.
 		if (shield != null && !unit.bowOut()) {
 			shieldOffset = FIRST_OFFSET;
 			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) shieldOffset = DEFAULT_OFFSET;
-			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+shieldOffset), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);		
+
+			batch.setColor(shieldColor);
+			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+shieldOffset), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);
 		}
 		
 		float offset_x_to_use = offset_x;
 		float offset_y_to_use = offset_y;
 		TextureRegion toDraw = weaponMelee;
+
+        batch.setColor(c);
 
         if (unit.bowOut()) {
 			toDraw = weaponRanged;

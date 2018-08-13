@@ -1,0 +1,16 @@
+tier name 			weapon				armor			upgrades_to
+
+Class:	Basic	WHITE
+1	Farmer			Pitchfork			Armor			none
+
+2	Musketman		Musket/Dagger		Armor			Rifleman
+3	Rifleman		Rifle/Dagger		Armor			none
+
+4	Pikemaster		Guisarme			Armor			none
+4	Blademaster		Voulge				Armor			none
+4	Swordmaster		Longsword			Armor			none
+4	Axemaster		Glaive				Armor			none
+4	Hammermaster 	Maul				Armor			none
+4	Macemaster		Morningstar			Armor			none
+
+5	Legend			Greatsword			Armor			none

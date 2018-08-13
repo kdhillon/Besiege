@@ -57,7 +57,10 @@ public class Unit extends Group {
 	public WeaponType weapon;
 	public RangedWeaponType rangedWeapon;
 	public AmmoType ammoType;
-	public SiegeUnit siegeUnit;
+    public ShieldType shield;
+    public boolean shieldBroken;
+
+    public SiegeUnit siegeUnit;
 
 	public boolean isMounted = true;
 	public boolean canRetreat = true;
@@ -138,7 +141,6 @@ public class Unit extends Group {
 
 	// shouldn't be used that much, mostly for drawing horses in battles
 	public Equipment horse;
-	public Equipment shield;
 	public Equipment head;
 
 	// Includes all equipment listed above
@@ -182,7 +184,6 @@ public class Unit extends Group {
 		this.head = soldier.getHead();
 		if (shield != null) shield_hp = shield.hp;
 		if (horse != null) horse_hp = horse.hp;
-        if (shield != null) equipment.add(shield);
         if (horse != null) equipment.add(horse);
         if (head != null) equipment.add(head);
 
@@ -256,33 +257,11 @@ public class Unit extends Group {
 
 		if (this.team == 0 && stage.siege && stage.playerDefending) this.canRetreat = false;
 		if (this.team == 1 && stage.siege && !stage.playerDefending) this.canRetreat = false;
-
-		//
-		//		// TODO REMOVE
-		//		if (this.team == 0) this.retreating = true;
 	}
 
 	private void assignColor() {
-		// get appropriate color from armor and skin
-		// for now, just randomiz
-
-//		if (Math.random() < .2f)
-//			this.armorTint = Color.DARK_GRAY;
-//		else if (Math.random() < 0.5f) 
-//			this.armorTint = new Color(120/256.0f, 95/256.0f, 75/256.0f, 1);
-//		else if (Math.random() < 0.2f){
-//			this.armorTint = Color.GRAY;
-//		}
-//		else if (Math.random() < 0.2f) {
-//			this.armorTint = new Color(.4f, .1f, .1f, 1);
-//		}
-//		else if (Math.random() < 0.2f) {
-//			this.armorTint = new Color(.1f, .1f, .4f, 1);
-//		}
-//		else this.armorTint = new Color(.3f, .2f, .15f, 1);
-
 		this.armorTint = soldier.unitType.armor.color;
-		if (soldier.unitType.armor.isNaked()) armorTint = soldier.getColor();
+		if (soldier.unitType.armor.isNaked()) armorTint = Color.CLEAR;
 		this.skinTint = soldier.getColor();
 	}
 
@@ -1151,11 +1130,11 @@ public class Unit extends Group {
 		if (damage <= 0) return;
 
 		// shield splits damage in half
-//		if (this.shieldUp() && attacker != null && this.orientation == attacker.getOppositeOrientation()) {
-//			this.shield_hp -= damage/2.0;
-//			damage /= 2.0;
-//			if (shield_hp <= 0) destroyShield();
-//		}
+		if (this.shieldUp() && attacker != null && this.orientation == attacker.getOppositeOrientation()) {
+			this.shield_hp -= damage/2.0;
+			damage /= 2.0;
+			if (shield_hp <= 0) destroyShield();
+		}
 
 		if (this.isMounted()) {
 			this.horse_hp -= damage/2.0;
@@ -1200,8 +1179,17 @@ public class Unit extends Group {
 		}
 	}
 
+	public boolean hasWorkingShield() {
+        return this.shield != null && !shieldBroken;
+    }
+
+    // Does unit have a shield, but it's broken
+    public boolean isShieldBroken() {
+        return this.shield != null && shieldBroken;
+    }
+
 	public boolean shieldUp() {
-		if (this.shield != null && !this.bowOut()) return true;
+		if (hasWorkingShield() && !this.bowOut()) return true;
 		return false;
 	}
 
@@ -1275,12 +1263,26 @@ public class Unit extends Group {
 //		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 //	}
 
+    public static Color blend(Color c1, Color c2) {
+        c1.a = 1-c1.a;
+	    c1.premultiplyAlpha();
+	    c2.premultiplyAlpha();
+	    Color c3 = c1.add(c2);
+//	    c3.a = 1;
+	    return c3;
+    }
+
 	public static void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint, Actor actor) {
 		Color c = batch.getColor();
+	    Color c2 = new Color(batch.getColor());
 		batch.setColor(tint);
-		TextureRegion region = animation.getKeyFrame(stateTime, loop);
+		// Should we try multiplying by the current color to darken?
+//        System.out.println(c.toString());
+        batch.setColor(blend(c, tint));
+//        System.out.println(batch.getColor().toString());
+        TextureRegion region = animation.getKeyFrame(stateTime, loop);
         drawItem(batch, region, actor);
-		batch.setColor(c);
+		batch.setColor(c2);
 	}
 
     public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime) {
@@ -1292,12 +1294,14 @@ public class Unit extends Group {
     }
 
     public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime, boolean loop, StrictArray<Equipment> equipment) {
-        drawAnimationTint(batch, armor, stateTime, loop, armorColor, actor);
         drawAnimationTint(batch, skin, stateTime, loop, skinColor, actor);
+
+        if (armor != null) {
+            drawAnimationTint(batch, armor, stateTime, loop, armorColor, actor);
+        }
 
         if (equipment != null){
             for (Equipment equip : equipment) {
-                if (equip.type == Equipment.Type.SHIELD) continue;
                 // TODO draw additional items
                 if (equip.getRegion() == null) throw new AssertionError("Can't find equipment: " + equip.textureName);
 
@@ -1453,8 +1457,7 @@ public class Unit extends Group {
 	}
 
 	public void destroyShield() {
-		equipment.removeValue(shield, true);
-		this.shield = null;
+		shieldBroken = true;
 		this.weaponDraw.shield = null;
 		this.weaponDraw.clear();
 		soldier.calcStats();
@@ -1478,8 +1481,7 @@ public class Unit extends Group {
 		// adjust speed and def
 		if (shieldDown())  {
 			this.spd -= shield.spdMod;
-			this.def -= shield.defMod;
-		} 
+		}
 		if (hasHorseButDismounted()) {
 			this.spd -= horse.spdMod;
 			this.def -= horse.defMod;
@@ -1527,10 +1529,8 @@ public class Unit extends Group {
 		if (this.team == 1) stage.enemies.units.removeValue(this, true);
 		this.removeActor(weaponDraw);
 
-		stage.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
-
-		//		System.out.println("DESTROYED");
-		//playerPartyPanel.casualty(soldier);
+		boolean wasAttacker = (this.team == 0) == (stage.playerDefending);
+		stage.casualty(this.soldier, wasAttacker);
 	}
 
 	// call this when a soldier retreats
@@ -1547,7 +1547,6 @@ public class Unit extends Group {
 		this.outOfBattle = true;
 
 		stage.retreated.add(this);
-		stage.updateBalance();
 
 		String status = soldier.getTypeName();
 		String color = "white";

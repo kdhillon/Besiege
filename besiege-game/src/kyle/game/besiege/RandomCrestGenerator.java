@@ -33,7 +33,7 @@ public class RandomCrestGenerator extends Actor {
 
 
 	HashMap<String, Array<String>> cultureToCrests = new HashMap();
-	String[] forestCrests = {"bearclaw", "bearface", "arrowhead", "twinarrows", "tomahawk", "bow", "necklace", "wolf", "bird"};
+	String[] forestCrests = {"bearclaw", "arrowhead", "twinarrows", "tomahawk", "bow", "necklace", "wolf", "bird"};
 	String[] plainsCrests = {"eagle", "buffalo", "raven", "sun", "sun2", "sun3", "fist", "rain", "water", "thunderbird"};
 	String[] mesoCrests = {"skull", "snake", "pyramid", "stonehead", "spiral", "spiral2", "flower", "pyramid2", "geometric"};
     int forestIndex = 0;

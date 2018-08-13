@@ -8,8 +8,9 @@ public class UnitType {
 	public CultureType cultureType;
 	public int tier;
 	public WeaponType melee;
-	public RangedWeaponType ranged;
-	public AmmoType ammoType;
+	public RangedWeaponType ranged; // Optional
+	public AmmoType ammoType;       // Only needed if ranged weapon present.
+	public ShieldType shieldType;   // Optional
 	public ArmorType armor;
 //	public boolean hideBonus;
 //	public boolean hideBonus;
@@ -17,7 +18,4 @@ public class UnitType {
 	
 	public String[]		upgradeStrings;
 	public UnitType[]	upgrades;
-	
-	// shield is a boolean for now
-	public boolean shield;	
 }

@@ -48,8 +48,8 @@ public class MapScreen implements Screen {
 	private static final boolean FORCERUN = false;
 	private static final float SCROLL_SPEED = 2f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
-	private static final float ZOOM_MAX = 10;
-	private static final float ZOOM_MIN = .05f;
+	public static final float ZOOM_MAX = 10;
+	public static final float ZOOM_MIN = .05f;
 	private static final float ZOOM_RATE_Z = 500;
 	private static final float CENTER_SPEED = 0.07f;
     private static final float MIN_CENTER_SPEED = 0.1f;
@@ -359,8 +359,9 @@ public class MapScreen implements Screen {
 		BesiegeMain.HEIGHT = height;
 		BesiegeMain.WIDTH = width;
 
-		currentStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);	
-		uiStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
+		if (kingdomStage != null) kingdomStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
+		if (battleStage != null) battleStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
+        uiStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
 
 		//		kingdomPerspectiveCamera = new PerspectiveCamera(60, BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 		//		kingdomPerspectiveCamera.position.set(2000, 3000, 2000);
@@ -571,7 +572,7 @@ public class MapScreen implements Screen {
 	//		currentCamera.up.scale(1/(SCROLL_SPEED*speedFactor)/currentCamera.zoom, 1/(SCROLL_SPEED*speedFactor)/currentCamera.zoom, 0).rotate(90, 0, 0, 1);
 	//	}
 	public void rotate(float factor) {
-		rotation += factor;
+		if (currentCamera == kingdomCamera) rotation += factor;
 		currentCamera.rotate(factor, 0, 0, 1);
 	}
 	public void zoom(float factor) {
@@ -591,6 +592,7 @@ public class MapScreen implements Screen {
 			factor *= (battleCamera.zoom - ZOOM_MIN*0.5) * speed;
 			if ((factor > 0) && (battleCamera.zoom < ZOOM_MAX) || (factor < 0) && (battleCamera.zoom > ZOOM_MIN))
 				battleCamera.zoom += factor;
+			SoundPlayer.setZoomBattle(battleCamera.zoom);
 		}
 	}
 
@@ -617,12 +619,17 @@ public class MapScreen implements Screen {
 		if (battle != null) battle.click(pointer);
 		else kingdom.click(pointer);
 	}
+
+	public void hardCenter() {
+        currentCamera.translate(kingdom.getPlayer().getCenterX() - currentCamera.position.x, kingdom.getPlayer().getCenterY() - currentCamera.position.y);
+    }
+
 	public void center() {
 		if (currentCamera == battleCamera) {
 			if (battle != null) battle.centerCameraOnPlayer();
 		}
 		else if (currentCamera == kingdomCamera && kingdom != null && kingdom.getPlayer() != null && worldInitialized) {
-			//		if (currentCamera == kingdomPerspectiveCamera)
+            //		if (currentCamera == kingdomPerspectiveCamera)
 			//			currentCamera.translate(new Vector2(kingdom.getPlayer().getCenterX()-currentCamera.position.x, kingdom.getPlayer().getCenterY()-currentCamera.position.y));
             float xSpeed = (kingdom.getPlayer().getCenterX() - currentCamera.position.x) * CENTER_SPEED;
             if (xSpeed < MIN_CENTER_SPEED && xSpeed > -MIN_CENTER_SPEED)
@@ -638,10 +645,15 @@ public class MapScreen implements Screen {
             currentCamera.translate(new Vector3(xSpeed, ySpeed, 0));
 		}
 		else if (kingdom != null && kingdom.map != null) {
-			System.out.println("centering on reference point");
-			currentCamera.translate(new Vector3(Map.WIDTH/2-currentCamera.position.x, Map.HEIGHT/2-currentCamera.position.y, 0));			
+			currentCamera.translate(new Vector3(Map.WIDTH/2-currentCamera.position.x, Map.HEIGHT/2-currentCamera.position.y, 0));
 			kingdomCamera.zoom = 10f;;		
-		}
+		} else {
+            System.out.println((currentCamera != null) + " " + (kingdom != null) + " " + worldInitialized);
+            if (kingdom != null) {
+                System.out.println(kingdom.getPlayer() != null);
+            }
+//            throw new AssertionError();
+        }
 		
 	}
 	public void handleInput() {
@@ -922,7 +934,7 @@ public class MapScreen implements Screen {
 		this.currentCamera = kingdomCamera;
 		//		this.currentCamera = kingdomPerspectiveCamera;
 
-		center();
+        hardCenter();
 
 		this.sidePanel.clean();
 		this.sidePanel.setDefault(true);

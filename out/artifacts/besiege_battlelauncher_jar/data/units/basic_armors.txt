@@ -1,0 +1,10 @@
+name				color_name	def	spd	clothes
+
+Clothes				BROWN_G		0	0	true
+
+Mail				LT_GRAY		3	-2	false
+Studded				MD_BROWN	 2	-1	false
+Leather				LT_BROWN 	1	0	false
+
+Chainmail			MD_GRAY		2	0	false
+Platemail			DK_GRAY		3	-1	false

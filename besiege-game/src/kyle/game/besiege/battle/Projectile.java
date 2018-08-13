@@ -347,7 +347,7 @@ public class Projectile extends Group {
 			if (object == BattleMap.Object.PALM || object == BattleMap.Object.TREE) {
                 if (firing.ammoType != null && firing.ammoType.type == AmmoType.Type.ARROW_FIRE) {
                     if (Math.random() < 0.2)
-                        stage.battlemap.createFireAt(pos_x_int, pos_y_int, true);
+                        stage.battlemap.createFireAt(pos_x_int, pos_y_int);
                 }
             }
 		}

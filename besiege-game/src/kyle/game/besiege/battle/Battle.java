@@ -39,8 +39,7 @@ public interface Battle {
 	// Returns a double in [0, 1] representing the current battle balance for the defenders. 
 	// E.g. 0.9 means defenders are doing very well.
 	public double getBalanceDefenders();
-	public void updateBalance();
-	
+
 	// Sets an advantage for the defenders, in [0, 1]
 	public void setDefensiveAdvantage(double advantage);
 	
@@ -61,7 +60,7 @@ public interface Battle {
 	
 	// Force a casualty of the given soldier. Used mostly by battlestage.
 	public void casualty(Soldier soldier, boolean atkDead);
-	
+
 	public boolean playerAttacking();
 	public boolean playerDefending();
 	

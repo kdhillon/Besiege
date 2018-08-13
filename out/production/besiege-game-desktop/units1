@@ -59,23 +59,30 @@ firearm-armor
   orig: 16, 8
   offset: 0, 0
   index: -1
-shadow
+skin-preview-2
   rotate: false
   xy: 2, 42
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-preview-skin
+shadow
   rotate: false
   xy: 2, 52
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-preview-armor
+preview-skin
   rotate: false
   xy: 2, 62
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-armor
+  rotate: false
+  xy: 2, 72
   size: 8, 8
   orig: 8, 8
   offset: 0, 0

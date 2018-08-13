@@ -52,7 +52,7 @@ public class MainMenuScreen implements Screen {
 	
 	private static final float WIND_SPEED_INTENSITY = 0.2f;
 	
-	enum BackgroundType{Forest, Tundra, Beach};
+	enum BackgroundType{Forest, Tundra, Beach, Jungle};
 	BackgroundType backgroundType;
 	
 	enum ScreenState{Title, InputName};
@@ -176,49 +176,53 @@ public class MainMenuScreen implements Screen {
 			
 			for (Star star : stars) {
 				batch.setColor(1, 1, 1, 0.6f);
-                if (Math.random() < 0.1) batch.setColor(1, 1, 1, 0.3f + (float) (Math.random() * 0.5));
+                if (Math.random() < 0.3) batch.setColor(1, 1, 1, 0.5f);
                 batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT, star.size, star.size);
 			}
 			for (Star star : starsFewer) {
 			    // Add flickering effect
 				batch.setColor(1, 1, 1, 0.8f);
-				if (Math.random() < 0.1) batch.setColor(1, 1, 1, 0.3f + (float) (Math.random() * 0.5));
+				if (Math.random() < 0.3) batch.setColor(1, 1, 1, 0.5f);
                 batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT - BesiegeMain.HEIGHT *1/colors.length, star.size, star.size);
 			}
 			// draw trees
-			int treeHeight = (int) (stripeHeight * 1.05f);
+			int treeHeight = (int) (stripeHeight * (1 + 1.2f/16));
 			int treeWidth = treeHeight;
 			for (int i = 0; i * treeWidth < BesiegeMain.WIDTH; i++) {
 				batch.setColor(1, 1, 1, 1f);
-				batch.draw(tree, i * treeWidth, BesiegeMain.HEIGHT - stripeHeight * 3 - stripeHeight /16, treeWidth, treeHeight); 
+				batch.draw(tree, i * treeWidth, BesiegeMain.HEIGHT - stripeHeight * 3 - stripeHeight * 1.1f /16, treeWidth, treeHeight);
 			}
 		}
 	}
 	
 	private Color getGroundColor(BackgroundType type) {
-		switch(type) {
-		case Forest:
-			return new Color(30 / 256f, 45 / 256f, 30 / 256f, 1);
-		case Tundra:
-			return new Color(150 / 256f, 150 / 256f, 150 / 256f, 1);
-		case Beach:
-			return new Color(160 / 256f, 150 / 256f, 120 / 256f, 1);
-		default:
-			return Color.BLACK;
-		}
-	}
+        switch (type) {
+            case Forest:
+                return new Color(30 / 256f, 45 / 256f, 30 / 256f, 1);
+            case Jungle:
+                return new Color(20 / 256f, 40 / 256f, 35 / 256f, 1);
+            case Tundra:
+                return new Color(150 / 256f, 150 / 256f, 150 / 256f, 1);
+            case Beach:
+                return new Color(160 / 256f, 150 / 256f, 120 / 256f, 1);
+            default:
+                return Color.BLACK;
+        }
+    }
 	
 	private TextureRegion getTreeRegion(BackgroundType type) {
-		switch(type) {
-		case Forest:
-			return new TextureRegion(new Texture("blacktree5.png"));
-		case Tundra:
-			return new TextureRegion(new Texture("blacktree5.png"));
-		case Beach:
-			return new TextureRegion(new Texture("palmtree.png"));
-		default:
-			return new TextureRegion(new Texture("null"));
-		}
+        switch (type) {
+            case Forest:
+                return new TextureRegion(new Texture("blacktree5.png"));
+            case Tundra:
+                return new TextureRegion(new Texture("blacktree5.png"));
+            case Beach:
+                return new TextureRegion(new Texture("palmtree.png"));
+            case Jungle:
+                return new TextureRegion(new Texture("blacktree3.png"));
+            default:
+                return new TextureRegion(new Texture("null"));
+        }
 	}
 	
 	public MainMenuScreen(BesiegeMain main) {
@@ -231,7 +235,7 @@ public class MainMenuScreen implements Screen {
 		stage.addListener(new InputListener());
 		
 		backgroundType = randomBackgroundType();
-//		backgroundType = BackgroundType.Beach;
+		backgroundType = BackgroundType.Jungle;
 		
 		tree = getTreeRegion(backgroundType);
 		

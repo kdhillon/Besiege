@@ -41,21 +41,21 @@ public class Village extends Location {
         this.DAILY_WEALTH_INCREASE_BASE = 1;
         this.DAILY_POP_INCREASE_BASE = 0.01;
 
-        POP_MIN = 100;
-        POP_MAX = 1000;
+        POP_MIN = 50;
+        POP_MAX = 500;
 
         this.population = Math.random() * (POP_MAX - POP_MIN) + POP_MIN;
 
         if (cultureType.name.equals("Plains")) {
-            setTextureRegion("tipi");
+            setTextureRegion("tipi3");
         } else if (cultureType.name.equals("Forest")) {
             setTextureRegion("longhouse");
         } else if (cultureType.name.equals("Tundra")) {
-            if (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW)
-                setTextureRegion("inuit2");
-            else setTextureRegion("inuitgreen");
+            if (center.biome == Biomes.SNOW)
+                setTextureRegion("inuitvillagewhite");
+            else setTextureRegion("inuitvillage");
         } else if (cultureType.name.equals("Desert")){
-            setTextureRegion("desert-village");
+            setTextureRegion("desertvillage2");
         }
         else {
 		    setTextureRegion(textureRegion);

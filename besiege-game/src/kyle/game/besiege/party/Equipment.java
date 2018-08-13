@@ -10,16 +10,17 @@ import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.Assets;
 
 public enum Equipment {
-	WOOD_SHIELD ("Wood Shield", "woodenshield", Type.SHIELD, 0, 1, -1, 20),
-    HEADDRESS_MESO_1 ("Headdress", "mesoHeaddress3", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_MESO_2 ("Headdress", "mesoHeaddress2", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_MESO_3 ("Headdress", "mesoHeaddress", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_PLAINS_1 ("Headdress", "plainsHeaddress3", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_PLAINS_2 ("Headdress", "plainsHeaddress2", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_PLAINS_3 ("Headdress", "plainsHeaddress", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_FOREST_1 ("Headdress", "forestHeaddress3", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_FOREST_2 ("Headdress", "forestHeaddress2", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_FOREST_3 ("Headdress", "forestHeaddress", Type.HEAD, 0, 1, 0, 20);
+    HEADDRESS_MESO_1 ("Desert Headdress", "mesoHeaddress3", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_MESO_2 ("Desert Headdress", "mesoHeaddress2", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_MESO_3 ("Desert Headdress", "mesoHeaddress", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_1 ("Plains Headdress", "plainsHeaddress3", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_2 ("Plain Headdress", "plainsHeaddress2", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_3 ("Plain Headdress", "plainsHeaddress", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_FOREST_1 ("Forest Headdress", "forestHeaddress3", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_FOREST_2 ("Forest Headdress", "forestHeaddress2", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_FOREST_3 ("Forest Headdress", "forestHeaddress", Type.HEAD, 0, 1, 0, 20),
+    WOLFSKIN_CAP("Wolfskin Cap", "wolfskinCap", Type.HEAD, 0, 1, 0, 20),
+    RED_FOX_TURBAN("Fox Turban", "foxTurban", Type.HEAD, 0, 1, 0, 20);
 
 //	IRON_SHIELD ("Iron Shield", Type.SHIELD, 0, 2, -2, 40),
 //	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
@@ -35,7 +36,7 @@ public enum Equipment {
 	public final int defMod;
 	public final int spdMod;
 	public enum Type {
-		SHIELD, CHEST, HEAD, LEGS, ARMS, HORSE
+		CHEST, HEAD, LEGS, ARMS, HORSE
 	}
 	
 	private Equipment(String name, String textureName, Type type, int atkMod, int defMod, int spdMod, int hp) {

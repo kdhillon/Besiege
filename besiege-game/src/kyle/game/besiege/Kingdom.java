@@ -11,6 +11,7 @@ import static kyle.game.besiege.Kingdom.getRandom;
 import java.util.HashSet;
 import java.util.Random;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,7 +23,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.army.Bandit;
 import kyle.game.besiege.battle.BattleActor;
-import kyle.game.besiege.battle.OldBattle;
+import kyle.game.besiege.battle.BattleSim;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
@@ -34,18 +35,18 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
     // Actual values
-	public static int cityCount = 80;
-	public static int castleCount = 5;
+	public static int cityCount = 60;
+	public static int castleCount = 0;
 	public static int ruinCount = 5;
 	public static int villageCount = 100;
 	int FACTION_COUNT = 25;
 
 	// Fast values
-//    public static int cityCount = 10;
-//    public static int castleCount = 10;
+//    public static int cityCount = 15;
+//    public static int castleCount = 0;
 //    public static int ruinCount = 10;
 //    public static int villageCount = 20;
-//    int FACTION_COUNT = 10;
+//    int FACTION_COUNT = 15;
 
     public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
@@ -53,21 +54,20 @@ public class Kingdom extends Group {
 	public static final int MAX_BANDITS = 50;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
-	
-//	public static float MASTER_VOLUME = .5f;
-	public static float MASTER_VOLUME = 0f;
 
-	public final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
-	public final float NIGHT_FLOAT = .6f;
-	public final float RAIN_FLOAT = .5f;
-	public final float LIGHTNING_FLOAT = 1f;
-	private final float MOUSE_DISTANCE = 10; // distance destination must be from mouse to register
+
+	public static final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
+	public static final float NIGHT_FLOAT = .6f;
+	public static final float RAIN_FLOAT = .5f;
+	public static final float LIGHTNING_FLOAT = 1f;
+	private static final float MOUSE_DISTANCE = 10; // distance destination must be from mouse to register
 	private final int DAWN = 7;
 	private final int DUSK = 21;
 	private final double RAIN_CHANCE = 5000; // higher is less likely
-	public final double THUNDER_CHANCE = 800;
-	
-	public float clock;
+//	public static final double THUNDER_CHANCE = 1.0/800;
+    public static final double THUNDER_CHANCE = 1.0/1000;
+
+    public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
 	private int day;
 	public boolean night; // is nighttime?
@@ -347,30 +347,23 @@ public class Kingdom extends Group {
 	public void startRain() {
 		if (raining == true) return;
 		raining = true;
-		Assets.rain.setLooping(true);
-		Assets.rain.setVolume(MASTER_VOLUME * .3f);
-		Assets.rain.play();
+		SoundPlayer.startRain();
 	}
 	
 	public void stopRain() {
 		if (raining == false) return;
 		raining = false;
-		Assets.rain.pause();
+		SoundPlayer.stopRain();
 	}
 	
 	public void rain() {
-//		System.out.println("raining");
-		this.targetDarkness = this.RAIN_FLOAT;
-		if (Math.random() < 1/this.THUNDER_CHANCE) thunder();
+		this.targetDarkness = RAIN_FLOAT;
+		if (Math.random() < THUNDER_CHANCE) thunder();
 	}
 	
 	private void thunder() {
-//		this.currentDarkness = (float)((Math.random()/2+.5)*this.LIGHTNING_FLOAT);
-		this.currentDarkness = this.LIGHTNING_FLOAT;
-		if (Math.random() < .5) {
-			Assets.thunder1.play(MASTER_VOLUME * (float) (.2 + Math.random()*0.5));
-		}
-		else Assets.thunder1.play(MASTER_VOLUME * (float) (.2 + Math.random()*0.5));
+		this.currentDarkness = LIGHTNING_FLOAT;
+        SoundPlayer.playThunder();
 	}
 	
 	public void updateColor(SpriteBatch batch) {
@@ -508,8 +501,8 @@ public class Kingdom extends Group {
 		mapScreen.getSidePanel().setHardStay(false);
 
 		if (d.getType() == Destination.DestType.BATTLE) { //battle
-			OldBattle battle = (OldBattle) d;
-			getMapScreen().getSidePanel().setActiveBattle(battle);
+			BattleActor battle = (BattleActor) d;
+			getMapScreen().getSidePanel().setActiveBattle(battle.getBattle());
 			mapScreen.getSidePanel().setHardStay(true);
 		}
 		if (d.getType() == Destination.DestType.ARMY) { // army
@@ -1022,7 +1015,10 @@ public class Kingdom extends Group {
 			}	
 		}
 		
-		if (closestFaction == null) System.out.println("NULL CLOSEST FACTION");
+		if (closestFaction == null) {
+		    System.out.println("NULL CLOSEST FACTION -- This is because citycenters contains a center not connected to the center of the world map (even though we checked all of them). weird!");
+		    return;
+        }
 		
 		city = new City(this, null, -1, closestFaction, x, Map.HEIGHT-y, center, corner);
 

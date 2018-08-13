@@ -20,7 +20,8 @@ public class BattleMap extends Group {
 	private static final float SIZE_FACTOR = 1f; //  change this to increase the drawn area around the battlefield. Cannot exceed 2
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
-	public static final Color SHADOW_COLOR = new Color(0, 0, 0, .13f);
+    private static final double RAIN_INTENSITY = 2f;
+    public static final Color SHADOW_COLOR = new Color(0, 0, 0, .13f);
 	private static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
 	private static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 	private static final Color CLEAR_WHITE = new Color(1, 1, 1, .5f);
@@ -46,9 +47,6 @@ public class BattleMap extends Group {
 
 	public static final int BLOCK_SIZE = 4;
 	private int total_size_x;
-	private int total_size_y;
-	private int total_height;
-	private int total_width;
 	private float edge_size_percent;// percent of drawn bg that is off map
 
 	public Array<Ladder> ladders;
@@ -57,8 +55,10 @@ public class BattleMap extends Group {
 	private int currentRainIndex;
 	private BPoint[] raindrops;
 	private Color rainColor;
-	private int updateDrops;
-	private boolean snowing; // used for rare cases where mountaintops aren't snowing
+	private final float SECONDS_PER_DROP = 1f;
+	private int raindropsPerFrame; // this needs to be based on raindrop_count
+	private int raindrop_count;
+    private boolean snowing; // used for rare cases where mountaintops aren't snowing
 	private Color groundcolor = new Color();
 
 
@@ -90,7 +90,7 @@ public class BattleMap extends Group {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), TREE_ON_FIRE(.5f), PALM(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
+		TREE(.5f), TREE_ON_FIRE(.5f), PALM(.5f), PALM_ON_FIRE(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -133,17 +133,17 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//		this.maptype = MapType.FOREST;
+        this.maptype = MapType.ALPINE;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
-		this.total_size_y = (int) (mainmap.size_y * SIZE_FACTOR);
+//		this.total_size_y = (int) (mainmap.size_y * SIZE_FACTOR);
 
 		this.edge_size_percent = (SIZE_FACTOR - 1) / SIZE_FACTOR / 2;
 
 		ground = new GroundType[mainmap.size_x/ BLOCK_SIZE][mainmap.size_y/ BLOCK_SIZE];
 		objects = new Object[mainmap.size_y][mainmap.size_x];
-		ladders = new Array<Ladder>();
+		ladders = new Array<>();
 		entrances = new Array<BPoint>();
 		cover = new Array<BPoint>();
 		walls = new Array<Wall>();
@@ -164,23 +164,28 @@ public class BattleMap extends Group {
 
 		this.sunStretch = (float) Math.random() * 1 + 0.5f;
 		this.sunRotation = (float) Math.random() * 360;
-		
+
 		fc = new StrictArray<FireContainer>();
 
 		if (this.maptype == MapType.ALPINE && Math.random() < .75) snowing = true;
 
 		if (isRaining() || isSnowing()) {
-			int raindrop_count = 20 + (int) (Math.random() * 400);
-			// 50 - 500 is good
+		    raindrop_count = 100 + (int) (Math.random() * 400);
+		    // 100 - 500 is good
 
 			raindrops = new BPoint[raindrop_count];
 			for (int i = 0; i < raindrop_count; i++) {
 				raindrops[i] = new BPoint(0, 0);
 			}
 
+            float delta = 1.0f / 60;
+            raindropsPerFrame = (int) (raindrop_count * delta / SECONDS_PER_DROP);
+            if (raindropsPerFrame < 1) raindropsPerFrame = 1;
+            System.out.println("raindrops per frame: " + raindropsPerFrame);
+
 			if (isRaining()) {
 				this.rainColor = RAINDROP_COLOR;
-				this.rainColor.mul(stage.targetColor*1.5f);
+				this.rainColor.mul(stage.targetDarkness *1f);
 			}
 			else {
 				this.rainColor = SNOW_COLOR;
@@ -342,7 +347,7 @@ public class BattleMap extends Group {
 					else if (random < 1) ground[i][j] = GroundType.ROCK;
 				}
 			}
-			stage.targetColor = .5f;
+			stage.targetDarkness = .5f;
 
 			if (stage.siege)
 				addWall();
@@ -714,22 +719,36 @@ public class BattleMap extends Group {
         }
     }
 
-    public void createFireAt(int posX, int posY, boolean onTree) {
-	    // Do this check so we can draw both tree and fire at the same time ;)
+    private boolean fireAt(int posX, int posY) {
+        Object o  = objects[posY][posX];
+        if (o == Object.TREE_ON_FIRE || o == Object.PALM_ON_FIRE || o == Object.FIRE_SMALL) return true;
+        return false;
+    }
+
+    public void createFireAt(int posX, int posY) {
+        if (fireAt(posX, posY)) return;
+
+        // Do this check so we can draw both tree and fire at the same time ;)
         // problem is it still allows multiple fires to be created on the same tree.
         // can solve with Object.TREE_ON_FIRE
-        if (onTree)
+        boolean shouldGrow = true;
+        if (objects[posY][posX] == Object.TREE)
             objects[posY][posX] = Object.TREE_ON_FIRE;
-        else
+        else if (objects[posY][posX] == Object.PALM)
+            objects[posY][posX] = Object.PALM_ON_FIRE;
+        else {
             objects[posY][posX] = Object.FIRE_SMALL;
+            shouldGrow = false;
+        }
         stage.closed[posY][posX] = true;
 
         FireContainer fireContainer = new FireContainer();
-        Fire fire = new Fire(600, 800, stage.getMapScreen(), null, onTree);
+        Fire fire = new Fire(600, 800, stage.getMapScreen(), null, shouldGrow);
         fireContainer.addFire(fire);
         float y = posY * stage.unit_height + stage.unit_height * 0.5f;
-        if (onTree) y = posY * stage.unit_height + stage.unit_height * 0.0f; // note we move it a bit down (for aesthetics)
-        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width / 2, y);
+        if (objects[posY][posX] == Object.TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.0f; // note we move it a bit down (for aesthetics)
+        if (objects[posY][posX] == Object.PALM_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.3f; // note we move it a bit down (for aesthetics)
+        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width * 0.35f, y); // we shift it a bit to the left to account for size.
         fc.add(fireContainer);
         //					fire.setPosition(0, 0);
         //			System.out.println("adding fire: " + j + " " + i);
@@ -741,7 +760,7 @@ public class BattleMap extends Group {
 		for (int i = 0; i < stage.size_x; i++) {
 			for (int j = 0; j < stage.size_y; j++) {
 				if (Math.random() < probability && objects[j][i] == null) {
-					createFireAt(i, j, false);
+					createFireAt(i, j);
 				}	
 			}
 		}
@@ -1187,16 +1206,17 @@ public class BattleMap extends Group {
 		if (drawRain) {
 			if (isRaining() || isSnowing()) {
 
-				int perFrame = 5;
-				for (int i = 0; i < perFrame; i++) {
+				for (int i = 0; i < raindropsPerFrame; i++) {
 					raindrops[currentRainIndex].pos_x = (int) (Math.random()*stage.size_x);
 					raindrops[currentRainIndex].pos_y = (int) (Math.random()*stage.size_y);
+					// increment current rain index proportionally to the number of drops, otherwise the speed of drops
+                    // will be too low.
 					currentRainIndex++; 
 					if (currentRainIndex >= raindrops.length) currentRainIndex = 0;
 				}
 
 				Color c = batch.getColor();
-				Color mycolor = RAINDROP_COLOR;
+				Color mycolor = rainColor;
 
 				// we can figure out how much to fade drop by calculating distance between its index and currentrainindex, 
 				// then divide by array size to get between 0 and 1 yay
@@ -1204,7 +1224,8 @@ public class BattleMap extends Group {
 				// eg if index = 20 and currentIndex = 10, diff is (20-10)/40 = 1/4
 				// eg if index = 20 and currentIndex = 25, diff is 40 + (20 - 25) = 
 
-				float alpha_minus = .3f;
+                // This is nice because it makes the raindrops look "softer"
+				float alpha_minus = .2f;
 
 				if (this.isSnowing()) {
 					mycolor = SNOW_COLOR;
@@ -1213,7 +1234,7 @@ public class BattleMap extends Group {
 					rainDrawOffsetX += speed;
 					rainDrawOffsetY += speed;
 
-					alpha_minus = 0; // makes snow last longer
+					alpha_minus = 0.0f; // makes snow last longer
 
 					//					if (rainDrawOffsetX >= this.total_width) rainDrawOffsetX = 0;
 				}
@@ -1223,7 +1244,8 @@ public class BattleMap extends Group {
 					BPoint p = raindrops[i];
 					double indexDiff = i - currentRainIndex;
 					if (indexDiff < 0) indexDiff += raindrops.length;
-					mycolor.a = (float) (Math.max(0, indexDiff / raindrops.length - alpha_minus));
+
+					mycolor.a = (float) (Math.max(0, (indexDiff / raindrops.length)  - alpha_minus));
 					batch.setColor(mycolor);
 
 					float drawAtX = (p.pos_x*stage.unit_width + rainDrawOffsetX) % (this.stage.size_x*stage.unit_width);
@@ -1245,7 +1267,7 @@ public class BattleMap extends Group {
 	}
 
 	public boolean isRaining() {
-		return stage.raining && this.maptype != MapType.DESERT;
+		return !this.isSnowing() && stage.raining;
 	}
 
 	// used to draw trees after units have been drawn
@@ -1258,7 +1280,7 @@ public class BattleMap extends Group {
 					//					System.out.println("drawing trees");
                     // TODO add tree shadow
 					texture = treeShadow;
-				} else if (objects[i][j] == Object.PALM) {
+				} else if (objects[i][j] == Object.PALM || objects[i][j] == Object.PALM_ON_FIRE) {
 				    texture = palmShadow;
                 }
 				if (texture != null) drawShadow(batch, texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
@@ -1271,7 +1293,7 @@ public class BattleMap extends Group {
 				texture = null;
 				if (objects[i][j] == Object.TREE || objects[i][j] == Object.TREE_ON_FIRE) {
 					texture = tree;
-				} else if (objects[i][j] == Object.PALM) {
+				} else if (objects[i][j] == Object.PALM ||  objects[i][j] == Object.PALM_ON_FIRE) {
                     texture = palm;
                 }
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);

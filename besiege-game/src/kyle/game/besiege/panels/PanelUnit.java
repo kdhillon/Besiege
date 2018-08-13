@@ -67,6 +67,7 @@ public class PanelUnit extends Panel {
 	protected Label defS;
 	protected Label spdS;
 	private Label weaponS;
+	private Label shieldS;
 	private Label armorS;
 	private Label equipmentS;
 	private Label actionS;
@@ -82,89 +83,91 @@ public class PanelUnit extends Panel {
 
 	// can be used for soldier or unit
 	public PanelUnit(SidePanel panel, Unit unit, Soldier soldier) {
-		this.panel = panel;
+        this.panel = panel;
 
-		this.unit = unit;
-		//		unit = null;
-		//		this.unit = null;
+        this.unit = unit;
+        //		unit = null;
+        //		this.unit = null;
 
-		this.party = soldier.party;
+        this.party = soldier.party;
 
-		if (unit != null) {
-			this.battleStage = unit.stage;
-			this.soldier = unit.soldier;
-			soldier = unit.soldier;
-			this.max_hp = soldier.getHp();
-		}
-		else {
-			this.soldier = soldier;
-		}
+        if (unit != null) {
+            this.battleStage = unit.stage;
+            this.soldier = unit.soldier;
+            soldier = unit.soldier;
+            this.max_hp = soldier.getHp();
+        } else {
+            this.soldier = soldier;
+        }
 
-		this.addParentPanel(panel);
+        this.addParentPanel(panel);
 
-		LabelStyle lsBig = new LabelStyle();
-		lsBig.font = Assets.pixel22;
-		lsMed = new LabelStyle();
-		lsMed.font = Assets.pixel18;
-		ls = new LabelStyle();
-		ls.font = Assets.pixel16;
-		lsG = new LabelStyle();
-		lsG.font = Assets.pixel16;
-		lsG.fontColor = Color.GRAY;
+        LabelStyle lsBig = new LabelStyle();
+        lsBig.font = Assets.pixel22;
+        lsMed = new LabelStyle();
+        lsMed.font = Assets.pixel18;
+        ls = new LabelStyle();
+        ls.font = Assets.pixel16;
+        lsG = new LabelStyle();
+        lsG.font = Assets.pixel16;
+        lsG.fontColor = Color.GRAY;
 
-		levelSC = 	new Label("Level:", ls);
-		hpSC = 		new Label("HP:",ls);
-		moraleSC =		new Label("Morale:",ls);
+        levelSC = new Label("Level:", ls);
+        hpSC = new Label("HP:", ls);
+        moraleSC = new Label("Morale:", ls);
 
-		atkSC =		new Label("Atk:", ls);
-		defSC = 	new Label("Def:", ls);
-		spdSC = 		new Label("Spd:", ls); 
+        atkSC = new Label("Atk:", ls);
+        defSC = new Label("Def:", ls);
+        spdSC = new Label("Spd:", ls);
 
-		generalStats = new Table();
+        generalStats = new Table();
 
-		Label weaponSC = 	new Label("Weapon: ", ls);
-		Label equipmentSC = new Label("Armor: ", ls);
+        Label weaponSC = new Label("Weapon: ", ls);
+        Label equipmentSC = new Label("Armor: ", ls);
 
-		title = new Label(soldier.getTypeName(), lsBig);
-		title.setColor(soldier.unitType.cultureType.colorLite);
-		title.setAlignment(0,0);
-		//		title.setWrap(true); // wrapping messes up click listeners... WTF?
-		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
+        title = new Label(soldier.getTypeName(), lsBig);
+        title.setColor(soldier.unitType.cultureType.colorLite);
+        title.setAlignment(0, 0);
+        //		title.setWrap(true); // wrapping messes up click listeners... WTF?
+        title.setWidth(SidePanel.WIDTH - PAD * 2 - MINI_PAD * 2);
 
-		String name = soldier.getName();
-		if (soldier.female) name += " (f)";
-		else name += " (m)";
-		subTitle = new Label(name, ls);
-		subTitle.setColor(Color.WHITE);
-		subTitle.setAlignment(0, 0);
-		subTitle.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
+        String name = soldier.getName();
+        if (soldier.female) name += " (f)";
+        else name += " (m)";
+        subTitle = new Label(name, ls);
+        subTitle.setColor(Color.WHITE);
+        subTitle.setAlignment(0, 0);
+        subTitle.setWidth(SidePanel.WIDTH - PAD * 2 - MINI_PAD * 2);
 
-		//		title.addListener(new InputListener() {
-		//			public boolean touchDown(InputEvent event, float x,
-		//					float y, int pointer, int button) {
-		//				return true;
-		//			}
-		//			public void touchUp(InputEvent event, float x, float y,
-		//					int pointer, int button) {
-		//				centerCamera();
-		//			}
-		//		});
+        //		title.addListener(new InputListener() {
+        //			public boolean touchDown(InputEvent event, float x,
+        //					float y, int pointer, int button) {
+        //				return true;
+        //			}
+        //			public void touchUp(InputEvent event, float x, float y,
+        //					int pointer, int button) {
+        //				centerCamera();
+        //			}
+        //		});
 
-		armyName = new Label("", ls);
-		if (party.army != null)
-			armyName.setText(party.army.getName());
-		armyName.setAlignment(0,0);
+        armyName = new Label("", ls);
+        if (party.army != null)
+            armyName.setText(party.army.getName());
+        armyName.setAlignment(0, 0);
 
-		levelS = new Label("" + soldier.level, ls);
-		hpS = new Label("", ls);
-		moraleS = new Label("", ls);
-		atkS = new Label("" + df.format(soldier.getAtk()), ls);
-		defS = new Label("" + df.format(soldier.getDef()), ls);
-		spdS = new Label("" + df.format(soldier.getSpd()), ls);
-		weaponS = new Label("" + soldier.unitType.melee.name, ls);
-		if (unit != null && unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
-		weaponS.setAlignment(0,0);
-
+        levelS = new Label("" + soldier.level, ls);
+        hpS = new Label("", ls);
+        moraleS = new Label("", ls);
+        atkS = new Label("" + df.format(soldier.getAtk()), ls);
+        defS = new Label("" + df.format(soldier.getDef()), ls);
+        spdS = new Label("" + df.format(soldier.getSpd()), ls);
+        weaponS = new Label("" + soldier.unitType.melee.name, ls);
+        if (unit != null && unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
+        weaponS.setAlignment(0, 0);
+        if (soldier.unitType.shieldType != null) {
+            shieldS = new Label("" + soldier.unitType.shieldType.name, ls);
+            shieldS.setAlignment(0, 0);
+	    }
 		armorS = new Label("" + soldier.unitType.armor.name, ls);
 		armorS.setAlignment(0,0);
 
@@ -211,7 +214,11 @@ public class PanelUnit extends Panel {
 		}
 		text.add(weaponS).colspan(4).fillX().expandX();
 		text.row();
-		text.add(armorS).colspan(4).fillX().expandX();
+		if (soldier.unitType.shieldType != null) {
+            text.add(shieldS).colspan(4).fillX().expandX();
+            text.row();
+        }
+        text.add(armorS).colspan(4).fillX().expandX();
 		text.row();
 		text.add(generalStats).colspan(4).fillX().expandX().padTop(MINI_PAD).padBottom(MINI_PAD);
 		text.row();
@@ -276,6 +283,10 @@ public class PanelUnit extends Panel {
 			weaponS.setText(toPut);
 		}
 		else weaponS.setText(soldier.unitType.melee.name);
+
+		if (unit != null && unit.isShieldBroken()) {
+            shieldS.setText(unit.shield.name + " (Broken)");
+        }
 
 		String armor = soldier.unitType.armor.name;
 		if (armor.equals("None")) armor = "Naked";

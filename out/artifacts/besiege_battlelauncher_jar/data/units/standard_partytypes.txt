@@ -1,0 +1,3 @@
+class	name	type	tiers	minsize	maxsize	minwealth	maxwealth
+
+Valley	Party!	SCOUT	1/2/3	10		30		0			100

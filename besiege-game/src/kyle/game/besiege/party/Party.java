@@ -198,18 +198,6 @@ public class Party {
 		}
 	}
 
-//	public boolean casualty(Soldier soldier) {
-//		System.out.println("casualty 1 : " + soldier.unitType.name);
-//		for (Subparty p : sub) {
-//			if (p.healthy.contains(soldier, true))
-//				return p.casualty(soldier);
-//			if (p.general == soldier) {
-//				return p.casualty(soldier);
-//			}
-//		}
-//		return false;
-//	}
-
 	public void addPrisoner(Soldier soldier) {
 		updated = true;
 		soldier.timesCaptured++;
@@ -288,6 +276,14 @@ public class Party {
 	public int getTotalSize() {
 		return getHealthySize() + getWoundedSize();
 	}
+
+	public int getTotalLevel() {
+        int total = 0;
+	    for (Subparty s : sub) {
+            total += s.getHealthyLevelSum();
+        }
+        return total;
+    }
 
 	public StrictArray<Soldier> getHealthy() {
 		StrictArray<Soldier> healthy = new StrictArray<Soldier>();
@@ -495,6 +491,8 @@ public class Party {
 	 *  @return random soldier from healthy weighted by inverse defense
 	 */
 	public Soldier getRandomWeightedInverseDefense() {
+	    if (getHealthySize() == 0) throw new AssertionError();
+
 		// Compute the total weight of all soldier's defenses together
 		double totalWeight = 0.0d;
 		for (Soldier s : getHealthy())

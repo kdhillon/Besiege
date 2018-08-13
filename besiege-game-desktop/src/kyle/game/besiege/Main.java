@@ -16,7 +16,7 @@ public class Main {
 //		cfg.width = 900;
 //		cfg.height = 650;
 		
-		cfg.addIcon("data/icon.png", FileType.Internal);
+		cfg.addIcon("textures/icon-temple.png", FileType.Internal);
 		cfg.width = 1280;
 		cfg.height = 800;
 		

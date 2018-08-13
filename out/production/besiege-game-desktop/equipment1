@@ -17,107 +17,107 @@ horse-brown
   orig: 8, 25
   offset: 0, 0
   index: -1
-plainsHeaddress3
+skin-preview-2
   rotate: false
   xy: 2, 56
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-plainsHeaddress2
+shieldpreview
   rotate: false
   xy: 2, 66
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-plainsHeaddress
+plainsHeaddress3
   rotate: false
   xy: 2, 76
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-mesoHeaddress32
+plainsHeaddress2
   rotate: false
   xy: 2, 86
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-mesoHeaddress3
+plainsHeaddress
   rotate: false
   xy: 2, 96
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-mesoHeaddress2
+mesoHeaddress32
   rotate: false
   xy: 2, 106
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-mesoHeaddress
+mesoHeaddress3
   rotate: false
   xy: 2, 116
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-forestHeaddress3
+mesoHeaddress2
   rotate: false
   xy: 20, 2
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-forestHeaddress2
+mesoHeaddress
   rotate: false
   xy: 30, 2
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-forestHeaddress
+largeshieldpreview
   rotate: false
   xy: 40, 2
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-shieldsidewd
+forestHeaddress3
+  rotate: false
+  xy: 50, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+forestHeaddress2
+  rotate: false
+  xy: 60, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+forestHeaddress
+  rotate: false
+  xy: 70, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+woodenshield2
   rotate: false
   xy: 12, 29
-  size: 4, 4
-  orig: 4, 4
-  offset: 0, 0
-  index: -1
-shieldside
-  rotate: false
-  xy: 12, 35
-  size: 4, 4
-  orig: 4, 4
-  offset: 0, 0
-  index: -1
-woodenshield
-  rotate: false
-  xy: 12, 41
   size: 6, 2
   orig: 6, 2
   offset: 0, 0
   index: -1
-ironshield
+largeshield
   rotate: false
-  xy: 12, 45
-  size: 6, 2
-  orig: 6, 2
-  offset: 0, 0
-  index: -1
-iron
-  rotate: false
-  xy: 12, 45
+  xy: 12, 33
   size: 6, 2
   orig: 6, 2
   offset: 0, 0

@@ -95,12 +95,12 @@ public class Castle extends Location {
         if (cultureType.name.equals("Plains")) {
             setTextureRegion("tipi");
         } else if (cultureType.name.equals("Forest")) {
-            setTextureRegion("longhouse-fort");
+            setTextureRegion("longhouse-fort2");
         }
         else if (cultureType.name.equals("Tundra")) {
-            if (center != null && (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW))
-                setTextureRegion("inuit2");
-            else setTextureRegion("inuitgreen");
+            if (center != null && (center.biome == Biomes.SNOW))
+                setTextureRegion("inuitcityruin");
+            else setTextureRegion("inuitcity");
         } else if (cultureType.name.equals("Desert")){
             setTextureRegion("temple-fort");
         }

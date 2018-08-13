@@ -10,7 +10,7 @@ War_Suit			BROWN_R		3	-1	basic
 
 
 // Forest armors
-Light_Fur		    	LT_BROWN	1	0	basic
+Furs                    LT_BROWN    1   0   chest
 Breastplate(Wood_Rods)	LT_BROWN    2	-1	chest
 Breastplate(Wood_Slats) LT_BROWN   	3	-1	chest
 Wicker_Mail(Reeds)	    LT_BROWN    4	-1	basic
@@ -19,8 +19,11 @@ Bear_Rawhide		    DK_BROWN	2	0	basic
 
 // Meso armors
 
-
 // Tundra armors
 
-
 // Plains armors
+Elk_Hide                TAN        2    0   basic
+Moose_Hide              LT_BROWN   3    0   basic
+Bison_Hide              DK_BROWN   4    0   basic
+// Bear hide
+// Rod armor

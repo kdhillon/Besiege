@@ -29,17 +29,17 @@ public class Ruin extends Location {
 		this.DAILY_WEALTH_INCREASE_BASE = 0;
 //			
         if (cultureType.name.equals("Plains")) {
-            setTextureRegion("tipi-large");
+            setTextureRegion("tipiruin");
         } else if (cultureType.name.equals("Forest")) {
-            setTextureRegion("longhouse-fort");
+            setTextureRegion("longhouseruin");
         }
-        else if (cultureType.name.equals("Tundra")){
-            if (center != null && (center.biome == Biomes.TUNDRA || center.biome == Biomes.SNOW))
-                setTextureRegion("inuit2");
-            else setTextureRegion("inuitgreen");
+        else if (cultureType.name.equals("Tundra")) {
+            if (center != null && (center.biome == Biomes.SNOW))
+                setTextureRegion("inuitcityruinwhite");
+            else setTextureRegion("inuitcityruin");
         }
         else if (cultureType.name.equals("Desert")){
-            setTextureRegion("desert-village");
+            setTextureRegion("templeruin");
         }
         else {
             setTextureRegion("Castle");

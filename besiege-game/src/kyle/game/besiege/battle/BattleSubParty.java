@@ -83,9 +83,9 @@ public class BattleSubParty {
 		currentCount = startingCount;
 
 		if (subparty.general == null) {
-		    System.out.println("Subparty of " + parent.parties.first().army.getName() + " is null");
+		    System.out.println("Subparty of " + parent.parties.first().getName() + " is null");
         }
-		battleMoraleThreshold = BASE_MORALE + subparty.general.getMoraleBonus();
+		else battleMoraleThreshold = BASE_MORALE + subparty.general.getMoraleBonus();
 		
 		archers = new StrictArray<Unit>();
 		cavalry = new StrictArray<Unit>();
@@ -112,6 +112,10 @@ public class BattleSubParty {
 		}
 		addUnitsToArrays();
 
+		if (subparty.general == null) {
+		    System.out.println("A party that isn't supposed to fight (hire party?) is fighting...");
+		    throw new AssertionError();
+        }
 		this.general = new Unit(stage, team, subparty.general, this);
 
 		this.units.add(general);

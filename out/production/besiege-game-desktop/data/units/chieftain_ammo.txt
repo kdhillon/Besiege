@@ -26,3 +26,7 @@ Fire_Arrow          5   arrow_fire
 
 Tomahawk(Flint)	 8      thrown_axe
 Spear(Flint)	 10     thrown
+
+
+// Plains ammo
+Firebomb            8   thrown_fire

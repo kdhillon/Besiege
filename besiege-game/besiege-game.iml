@@ -77,7 +77,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library name="reflectasm-1.09-shaded.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/reflectasm-1.09-shaded.jar!/" />

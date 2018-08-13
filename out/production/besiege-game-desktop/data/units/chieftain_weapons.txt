@@ -13,7 +13,15 @@ Mace			3	1	club        mace
 Broadsword		3	0	1h          shortsword
 
 // Forest weapons
-War_Club(Wood)    	5	0   club    club
+War_Club(Wood)    	4	0   club    club
 Tomahawk(Flint)		4	0   1h      axe
 Spear(Flint)		4	-1  polearm spear
 Knife(Flint)  		2	0   1h      dagger
+
+
+// Plains weapons
+Hoe(Bone)           2   0   polearm   hoe_bone
+War_Club(Stone)     4   0   club      warclubstone
+Lance(Flint)        5   -2  polearm   lance
+Battle_Axe(Stone)   4   -1  club      battleaxe
+Flail(Stone)        5   -1   club     morningstar

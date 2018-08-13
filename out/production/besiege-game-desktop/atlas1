@@ -3,247 +3,387 @@ textures1.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-tipi-large
+longhouse-fort2
   rotate: false
   xy: 2, 2
+  size: 40, 32
+  orig: 40, 32
+  offset: 0, 0
+  index: -1
+tipi-large
+  rotate: false
+  xy: 2, 36
   size: 33, 32
   orig: 33, 32
   offset: 0, 0
   index: -1
+icon-temple
+  rotate: false
+  xy: 2, 70
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 over13
   rotate: false
-  xy: 37, 2
+  xy: 44, 2
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
 over12
   rotate: false
-  xy: 55, 2
+  xy: 44, 28
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
 over11
   rotate: false
-  xy: 73, 2
+  xy: 44, 54
   size: 16, 24
   orig: 16, 24
   offset: 0, 0
   index: -1
 longhouse-fort
   rotate: false
-  xy: 91, 2
+  xy: 2, 104
   size: 34, 20
   orig: 34, 20
   offset: 0, 0
   index: -1
+tipi2
+  rotate: false
+  xy: 62, 2
+  size: 29, 20
+  orig: 29, 20
+  offset: 0, 0
+  index: -1
+tipi4
+  rotate: false
+  xy: 62, 24
+  size: 29, 17
+  orig: 29, 17
+  offset: 0, 0
+  index: -1
 temple
   rotate: false
-  xy: 2, 36
+  xy: 62, 43
   size: 24, 16
   orig: 24, 16
   offset: 0, 0
   index: -1
 temple-fort
   rotate: false
-  xy: 2, 54
+  xy: 62, 61
   size: 24, 16
   orig: 24, 16
   offset: 0, 0
   index: -1
 tipi
   rotate: false
-  xy: 2, 72
+  xy: 62, 79
   size: 19, 16
   orig: 19, 16
   offset: 0, 0
   index: -1
 inuithousesnow
   rotate: false
-  xy: 2, 90
+  xy: 44, 80
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 inuithouse
   rotate: false
-  xy: 2, 108
+  xy: 44, 98
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 battle
   rotate: false
-  xy: 28, 36
+  xy: 62, 97
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+tipiruin
+  rotate: false
+  xy: 93, 2
+  size: 29, 15
+  orig: 29, 15
+  offset: 0, 0
+  index: -1
+longhouse4
+  rotate: false
+  xy: 93, 19
+  size: 28, 14
+  orig: 28, 14
+  offset: 0, 0
+  index: -1
+longhouseruin
+  rotate: false
+  xy: 93, 35
+  size: 28, 13
+  orig: 28, 13
+  offset: 0, 0
+  index: -1
+tipi3
+  rotate: false
+  xy: 93, 50
+  size: 23, 13
+  orig: 23, 13
+  offset: 0, 0
+  index: -1
+templeruin
+  rotate: false
+  xy: 93, 65
+  size: 20, 12
+  orig: 20, 12
+  offset: 0, 0
+  index: -1
+temple2
+  rotate: false
+  xy: 93, 79
+  size: 20, 12
+  orig: 20, 12
+  offset: 0, 0
+  index: -1
+longhouse2
+  rotate: false
+  xy: 93, 93
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
 longhouse
   rotate: false
-  xy: 46, 36
-  size: 23, 12
-  orig: 23, 12
+  xy: 62, 115
+  size: 20, 11
+  orig: 20, 11
   offset: 0, 0
   index: -1
 inuitgreen
   rotate: false
-  xy: 71, 36
+  xy: 93, 107
   size: 20, 11
   orig: 20, 11
   offset: 0, 0
   index: -1
 desert-village
   rotate: false
-  xy: 28, 54
+  xy: 124, 2
   size: 16, 11
   orig: 16, 11
   offset: 0, 0
   index: -1
 inuit2
   rotate: false
-  xy: 91, 24
+  xy: 142, 2
   size: 20, 10
   orig: 20, 10
   offset: 0, 0
   index: -1
+longhouse3
+  rotate: false
+  xy: 164, 2
+  size: 18, 10
+  orig: 18, 10
+  offset: 0, 0
+  index: -1
+inuitcitywhite
+  rotate: false
+  xy: 184, 2
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitcityruinwhite
+  rotate: false
+  xy: 212, 2
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitcityruin
+  rotate: false
+  xy: 142, 14
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitcity
+  rotate: false
+  xy: 170, 14
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+tipivillage
+  rotate: false
+  xy: 44, 116
+  size: 15, 9
+  orig: 15, 9
+  offset: 0, 0
+  index: -1
 Farmer
   rotate: false
-  xy: 113, 24
+  xy: 80, 97
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
 Bandit
   rotate: false
-  xy: 28, 67
+  xy: 107, 93
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
 Raider
   rotate: false
-  xy: 93, 36
+  xy: 198, 14
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
 Player
   rotate: false
-  xy: 46, 50
+  xy: 225, 14
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
 red9
   rotate: false
-  xy: 28, 78
+  xy: 83, 79
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 lightFog
   rotate: false
-  xy: 28, 88
+  xy: 124, 15
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-mmd9
   rotate: false
-  xy: 28, 98
+  xy: 124, 25
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-med9
   rotate: false
-  xy: 28, 108
+  xy: 124, 35
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-md9
   rotate: false
-  xy: 28, 118
+  xy: 124, 45
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-lm9
   rotate: false
-  xy: 73, 50
+  xy: 124, 55
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-dm9
   rotate: false
-  xy: 83, 50
+  xy: 124, 65
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 grey-d9
   rotate: false
-  xy: 93, 50
+  xy: 124, 75
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 green9
   rotate: false
-  xy: 103, 50
+  xy: 124, 85
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 black9
   rotate: false
-  xy: 113, 50
+  xy: 124, 95
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 fog
   rotate: false
-  xy: 113, 50
+  xy: 124, 95
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
+inuitvillagewhite
+  rotate: false
+  xy: 93, 120
+  size: 15, 5
+  orig: 15, 5
+  offset: 0, 0
+  index: -1
+inuitvillage
+  rotate: false
+  xy: 124, 105
+  size: 15, 5
+  orig: 15, 5
+  offset: 0, 0
+  index: -1
+desertvillage2
+  rotate: false
+  xy: 124, 112
+  size: 13, 5
+  orig: 13, 5
+  offset: 0, 0
+  index: -1
 grey-xl
   rotate: false
-  xy: 37, 28
+  xy: 37, 36
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-med
   rotate: false
-  xy: 42, 28
+  xy: 37, 41
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-lm
   rotate: false
-  xy: 47, 28
+  xy: 37, 46
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 grey-light
   rotate: false
-  xy: 55, 28
+  xy: 37, 51
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
 panelBG
   rotate: false
-  xy: 37, 33
+  xy: 37, 56
   size: 1, 1
   orig: 1, 1
   offset: 0, 0

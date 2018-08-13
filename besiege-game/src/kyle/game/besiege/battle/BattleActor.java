@@ -32,7 +32,8 @@ public class BattleActor extends Actor implements Destination {
 		Army initDefender = initDefenderParty.army;
 		this.kingdom = kingdom;
 		this.name = initAttacker.getName() + " vs " + initDefender.getName();
-		this.battle = new OldBattle(this, initAttackerParty, initDefenderParty);
+		this.battle = new BattleSim(this, initAttackerParty, initDefenderParty);
+		this.setScale(10);
 		
 		region = Assets.atlas.findRegion(REGION);
 		this.setPosition((initAttacker.getCenterX() + initDefender.getCenterX())/2, (initAttacker.getCenterY() + initDefender.getCenterY())/2);
