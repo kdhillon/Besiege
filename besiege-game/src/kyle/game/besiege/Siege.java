@@ -14,7 +14,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 
 public class Siege extends Actor {
-	private final float MAINTAIN = 10.0f; // siege will exist this long without any army present
+	private final float MAINTAIN = 10.0f; // siegeOrRaid will exist this long without any army present
 	private final float CHECK_FREQ = 5; // every this seconds will check if should attack;
 	public final static float MIN_BALANCE_TO_ATTACK = 0.2f;
 	public final static float MAX_BALANCE_TO_BREAK = 0.1f;
@@ -32,7 +32,7 @@ public class Siege extends Actor {
 	public Siege(){}
 	
 	public Siege(Location location, Faction besieging) {
-//		System.out.println("creating new siege at " + location.getName());
+//		System.out.println("creating new siegeOrRaid at " + location.getName());
 		this.location = location;
 		armies = new StrictArray<Army>();
 		this.besieging = besieging; 
@@ -66,7 +66,7 @@ public class Siege extends Actor {
 			return;
 		}
 
-//		// If no longer at war, end siege
+//		// If no longer at war, end siegeOrRaid
 //		if (besieging.atPeace(location.getFaction())) {
 //			this.destroy();
 //			return;
@@ -93,20 +93,20 @@ public class Siege extends Actor {
 		// calculate probability of victory, add a randomness factor, then attack
 		double balance = OldBattle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
 		if (balance >= MIN_BALANCE_TO_ATTACK && !inBattle) attack();
-		else if (balance <= MAX_BALANCE_TO_BREAK && !inBattle) destroy(); // end siege if no chance
+		else if (balance <= MAX_BALANCE_TO_BREAK && !inBattle) destroy(); // end siegeOrRaid if no chance
 		else {
-			// previously maintained siege, now force attack:
+			// previously maintained siegeOrRaid, now force attack:
 			attack();
 		}
 	}
 	
 	public void attack() {
 		System.out.println("attack at " + location.getName() + " which has " + location.getWealth() + " wealth and " + location.garrison.getParty().getTotalSize() + " defenders");
-		// make sure siege is set
+		// make sure siegeOrRaid is set
 		location.siege = this;
 //		System.out.println("SETTING SIEGE");
 //		for (Army a : armies) {
-//			// make sure siege is set
+//			// make sure siegeOrRaid is set
 //			a.setSiege(this);
 //		}f
 		inBattle = true;
@@ -127,7 +127,7 @@ public class Siege extends Actor {
 	
 	// handle a wealth transfer from city to victors
 	public void siegeSuccess() {
-		System.out.println("siege success at " + location.getName() + " which has "  + location.getWealth());
+		System.out.println("siegeOrRaid success at " + location.getName() + " which has "  + location.getWealth());
 
 		location.changeFaction(besieging);
 		if (location.playerBesieging) {
@@ -143,7 +143,7 @@ public class Siege extends Actor {
 		battleActor = null;
 	}
 	
-	// siege attack failed
+	// siegeOrRaid attack failed
 	public void siegeFailure() {
 		battleActor = null;
 		this.destroy();
@@ -168,13 +168,13 @@ public class Siege extends Actor {
 		if (armies.contains(army, true)) {
 			armies.removeValue(army, true);
 		}
-		else BottomPanel.log("can't remove army from siege: doesn't exist", "red");
+		else BottomPanel.log("can't remove army from siegeOrRaid: doesn't exist", "red");
 		
 		army.setSiege(null);
 	}
 	
 	public void destroy() {
-		System.out.println("destroying siege of " + location.getName());
+		System.out.println("destroying siegeOrRaid of " + location.getName());
 		for (Army a : armies) {
 			a.leaveSiege();
 		}

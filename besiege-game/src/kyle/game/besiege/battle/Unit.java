@@ -13,7 +13,6 @@ import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.*;
-import kyle.game.besiege.party.RangedWeaponType.Type;
 
 public class Unit extends Group {
 
@@ -62,8 +61,8 @@ public class Unit extends Group {
 
     public SiegeUnit siegeUnit;
 
-	public boolean isMounted = true;
-	public boolean canRetreat = true;
+	public boolean isMounted = false;
+//	public boolean canRetreat = true;
 	
 	//	private boolean inCover;
 	private BPoint nearestCover;
@@ -124,7 +123,7 @@ public class Unit extends Group {
 	public WeaponDraw weaponDraw;
 
 	public float rotation;
-	public boolean retreating;
+	private boolean retreating;
 
 	public float updateNearestEnemy;
 
@@ -249,14 +248,12 @@ public class Unit extends Group {
 		this.weaponDraw = new WeaponDraw(this);
 		this.addActor(weaponDraw);
 
-
-		// mounted by default
 		if (this.horse != null) {
 			isMounted = true;
 		}
 
-		if (this.team == 0 && stage.siege && stage.playerDefending) this.canRetreat = false;
-		if (this.team == 1 && stage.siege && !stage.playerDefending) this.canRetreat = false;
+//		if (this.team == 0 && stage.siegeOrRaid && stage.playerDefending) this.canRetreat = false;
+//		if (this.team == 1 && stage.siegeOrRaid && !stage.playerDefending) this.canRetreat = false;
 	}
 
 	private void assignColor() {
@@ -308,9 +305,8 @@ public class Unit extends Group {
 			System.out.println("Still here not dying?");
 			return;
 		}
-		else if (this.hp <= RETREAT_THRESHOLD && this.canRetreat) {
-			this.retreating = true;
-			this.attacking = null;
+		else if (this.hp <= RETREAT_THRESHOLD && canRetreat()) {
+		    startRetreating();
 			//System.out.println("unit retreating");
 			//			this.retreat();
 		}
@@ -414,6 +410,19 @@ public class Unit extends Group {
 		}
 	}
 
+	public void startRetreating() {
+        this.retreating = true;
+        this.attacking = null;
+    }
+
+    public boolean isRetreating() {
+	    return retreating;
+    }
+
+	private boolean canRetreat() {
+        return bsp.parent.canRetreat();
+    }
+
 	private void reload(float delta) {
 		reloading -= delta;
 		if (reloading < 0f)
@@ -421,8 +430,8 @@ public class Unit extends Group {
 	}
 
 	public void checkIfShouldManSiege() {
-		// for now, no defensive units should siege
-		if (this.bowOut() || this.isMounted() || (stage.siege && this.stance == Stance.DEFENSIVE)) return;
+		// for now, no defensive units should siegeOrRaid
+		if (this.bowOut() || this.isMounted() || (stage.siegeOrRaid && this.stance == Stance.DEFENSIVE)) return;
 
 		for (SiegeUnit s : stage.siegeUnitsArray) {
 			if (!s.hasMen() && s.enemyTeam() != this.team) {
@@ -1051,7 +1060,7 @@ public class Unit extends Group {
 	//		return closest;
 	//	}
 
-	// get closest siege unit that doesn't have enough men
+	// get closest siegeOrRaid unit that doesn't have enough men
 	//	public SiegeUnit getNearestUnmannedSiegeUnit() {
 	//		if (stage.siegeUnitsArray.size == 0) return null;
 	//

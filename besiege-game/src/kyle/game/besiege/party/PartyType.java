@@ -57,8 +57,12 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //		if (unitTypes != null) {
 
 		// generate general first, use their fame to determine max playerPartyPanel size.
-        if (!this.hire)
-		    party.createFreshGeneral(this.randomBestSoldierType(), this);
+        if (!this.hire) {
+            if (unitType != null)
+                party.createFreshGeneral(unitType, this);
+            else
+                party.createFreshGeneral(this.randomBestSoldierType(), this);
+        }
 		
 		// generate a general first, with random fame. then generate playerPartyPanel size based on that.
 		int toGenerate = party.getMaxSize() - 1;
@@ -318,11 +322,10 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			// NOTE that the test parties may have forced culture types.
 		case TEST_1:
 			pt.name = "Test1";
-			pt.maxCount = 120;
-			pt.minCount = 120;
-			pt.tiers = new int[]{3};
-			pt.cultureType =  UnitLoader.cultureTypes.get("Aztec");
-			pt.unitType = pt.cultureType.units.get("Jaguar Spearman3");
+			pt.maxCount = 10;
+			pt.minCount = 10;
+			pt.cultureType =  UnitLoader.cultureTypes.get("Forest");
+			pt.unitType = pt.cultureType.units.get("Axeman3");
 			if (pt.unitType == null) {
 			    throw new AssertionError();
             }

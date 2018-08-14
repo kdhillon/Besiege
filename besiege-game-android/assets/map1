@@ -101,45 +101,87 @@ castle wall
   orig: 8, 8
   offset: 0, 0
   index: -1
-castle wall floor
+castle wall wood
   rotate: false
   xy: 2, 38
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-roof thatch
+castle wall floor
   rotate: false
-  xy: 54, 20
-  size: 4, 4
-  orig: 4, 4
+  xy: 12, 38
+  size: 8, 8
+  orig: 8, 8
   offset: 0, 0
   index: -1
-rock
+castle wall floor wood
+  rotate: false
+  xy: 22, 38
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+half dart
+  rotate: false
+  xy: 74, 16
+  size: 1, 7
+  orig: 1, 7
+  offset: 0, 0
+  index: -1
+dart
+  rotate: false
+  xy: 88, 16
+  size: 1, 7
+  orig: 1, 7
+  offset: 0, 0
+  index: -1
+axe
+  rotate: false
+  xy: 54, 20
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+roof thatch
   rotate: false
   xy: 104, 22
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
-half rock
+rock
   rotate: false
   xy: 114, 22
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
+half rock
+  rotate: false
+  xy: 120, 22
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
 half arrow
   rotate: false
-  xy: 60, 20
+  xy: 59, 20
   size: 1, 4
   orig: 1, 4
   offset: 0, 0
   index: -1
 arrow
   rotate: false
-  xy: 74, 16
+  xy: 101, 16
   size: 1, 4
   orig: 1, 4
+  offset: 0, 0
+  index: -1
+slingstone
+  rotate: false
+  xy: 124, 2
+  size: 2, 2
+  orig: 2, 2
   offset: 0, 0
   index: -1

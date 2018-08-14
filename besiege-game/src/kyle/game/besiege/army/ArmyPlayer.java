@@ -95,7 +95,7 @@ public class ArmyPlayer extends Army {
 //			getGarrisonedIn().eject(this);
 //			panel.setDefault();
 //		}
-		if (this.isInSiege() && this.getTarget() != null) { //remove from siege?
+		if (this.isInSiege() && this.getTarget() != null) { //remove from siegeOrRaid?
 			if (getSiege().location.playerWaiting) {
 				this.setTarget(null);
 				getSiege().location.stopWait(); 

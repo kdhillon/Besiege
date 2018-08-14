@@ -284,7 +284,7 @@ public class Faction {
 		//		}
 		manageSieges();
 
-		// figure out whether or not to organize a siege or something!
+		// figure out whether or not to organize a siegeOrRaid or something!
 	}
 
 	public void manageDiplomacy() {
@@ -327,7 +327,7 @@ public class Faction {
 		// Factions should promote new nobles as necessary (# nobles should reflect size of cities. )
 		// Also, nobles should have a huge variety of strengths. Everything from 10 soldiers to 200+.
 		// Do a smarter check of what cities to attack:
-		// 		 if the city has a smaller garrison (simulate a hypothetical battle), then order a siege of it
+		// 		 if the city has a smaller garrison (simulate a hypothetical battle), then order a siegeOrRaid of it
 		if (locationsToAttack.size < 1 && unoccupiedNobles.size > 1 && (closeEnemyCities.size > 0 || closeEnemyCastles.size > 0)) {
 			Location randomLocation;
 			if (Math.random() < .5 && closeEnemyCities.size > 0) randomLocation = closeEnemyCities.random();
@@ -369,7 +369,7 @@ public class Faction {
 		//			}
 		//		}
 	}
-	// Returns true if this faction should order a siege of location.
+	// Returns true if this faction should order a siegeOrRaid of location.
 	public boolean shouldSiege(Location location) {
 		if (this.atPeace(location.getFaction())) return false;
 		double balance = OldBattle.calcBalanceNobles(unoccupiedNobles, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
@@ -386,8 +386,8 @@ public class Faction {
 		//			noblesToOrder--;
 		//		}
 
-		//		System.out.println(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles");
-//		BottomPanel.log(this.name + " is ordering a siege of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles", "magenta");
+		//		System.out.println(this.name + " is ordering a siegeOrRaid of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles");
+//		BottomPanel.log(this.name + " is ordering a siegeOrRaid of " + location.getName() + " involving " + unoccupiedNobles.size + " nobles", "magenta");
 
 		for (Noble n : unoccupiedNobles) {
 			setTask(n, location);
@@ -396,7 +396,7 @@ public class Faction {
 	}
 	public void cancelSiegeOf(Location location) {
 		locationsToAttack.removeValue(location, true);
-//		BottomPanel.log(this.name + " is cancelling siege of " + location.getName(), "magenta");
+//		BottomPanel.log(this.name + " is cancelling siegeOrRaid of " + location.getName(), "magenta");
 		for (Noble noble : this.nobles) {
 			if (noble.specialTargetToBesiege == location) {
 				endTask(noble);

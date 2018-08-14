@@ -134,19 +134,19 @@ public class PanelLocation extends Panel {
             setButton(4, "Back");
             playerTouched = false;
         } else if (location.playerBesieging && !playerBesieging) {
-            // turn on siege panel
+            // turn on siegeOrRaid panel
             setButton(1, "Charge!");
             setButton(2, "Wait");
             setButton(4, "Withdraw");
             playerBesieging = true;
-//			System.out.println("siege panel on");
+//			System.out.println("siegeOrRaid panel on");
         } else if (!location.playerBesieging && playerBesieging) {
-            // turn off siege panel
+            // turn off siegeOrRaid panel
             setButton(1, null);
             setButton(2, null);
             setButton(4, "Back");
             playerBesieging = false;
-//			System.out.println("siege panel off");
+//			System.out.println("siegeOrRaid panel off");
         }
         // friendly player touches
         else if (location.playerIn && !playerIn) {
@@ -160,7 +160,7 @@ public class PanelLocation extends Panel {
             setButton(2, null);
             playerIn = false;
         }
-        // if hostile player is waiting at a siege
+        // if hostile player is waiting at a siegeOrRaid
         else if (location.playerBesieging && playerBesieging) {
             // start wait
             if (location.playerWaiting && playerWaiting) {
@@ -304,7 +304,7 @@ public class PanelLocation extends Panel {
 //						panel.getKingdom().getPlayer().raid((Village) location);
 //					}
 //					else {
-						BottomPanel.log("Resuming siege of" + location.getName());
+						BottomPanel.log("Resuming siegeOrRaid of" + location.getName());
 						location.getSiege().add(panel.getKingdom().getPlayer());
 //					}
 				}

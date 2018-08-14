@@ -13,24 +13,24 @@ import kyle.game.besiege.party.RangedWeaponType.Type;
 public class Projectile extends Group {
 	public BattleStage stage;	
 	private TextureRegion texture;
-	private TextureRegion halfArrow;
+	private TextureRegion halfTexture;
 	//	private final float THRESHOLD = .5f;
 	//	private final float UNIT_HEIGHT = .1f;
 	private final float GRAVITY = -1;
 	private final float CROSSBOW_BONUS = 2; // bonus factor against shields
 	private final float SHIELD_BLOCK_PROB = 0.8f; // bonus factor against shields
 
-	private final static boolean FRIENDLY_FIRE = true; // if true, arrows can hurt own team. note that siege hurts own team by default
+	private final static boolean FRIENDLY_FIRE = true; // if true, arrows can hurt own team. note that siegeOrRaid hurts own team by default
 	
 	private float SCALE = 3;
 	private float SCALE_SIEGE = 3f;
 	private float SIEGE_STOPPED_SCALE = .7f;
 	private final float ARROW_SCALE_X = .3f;
 	
-	private final float SPIN = 5;
+	private final float SPIN = 15;
 	
 	private final float MAX_DRAW_HEIGHT = 3;
-	private final float BASE_SCALE = 1.5f;
+	private final float BASE_SCALE = 0.5f;
 	private final float HEIGHT_SCALE_FACTOR = .5f;
 
 	private final float ACCURACY_FACTOR = .06f;
@@ -56,6 +56,8 @@ public class Projectile extends Group {
 	private Unit firing;
 	private SiegeUnit siegeFiring;
 
+	private AmmoType ammoType;
+
 	private float temp_offset_x;
 	private float temp_offset_y;
 	private float rotation_offset;
@@ -66,7 +68,8 @@ public class Projectile extends Group {
 
 //	public float SPEED = 10f;
 	public float SPEED = 40f;
-	public float FIREARM_SPEED = 100f;
+    public float THROWN_SPEED = 20f;
+    public float FIREARM_SPEED = 100f;
 //			public float SPEED = 200f; // basically gunfire
 
 	public Vector2 velocity;
@@ -93,10 +96,14 @@ public class Projectile extends Group {
 
 	// create new arrow with target
 	public Projectile(Unit firing, Unit target) {
-		texture = Assets.map.findRegion("arrow");
-		halfArrow = Assets.map.findRegion("half arrow");
-		
+		this.ammoType = firing.ammoType;
+		if (ammoType == null) throw new AssertionError();
 		this.firing = firing;
+
+        texture = ammoType.getRegion();
+        if (texture == null) throw new AssertionError();
+        halfTexture = ammoType.getBrokenRegion();
+        if (halfTexture == null) throw new AssertionError();
 
 		initializePosition();
 
@@ -115,7 +122,9 @@ public class Projectile extends Group {
 		if (firing.rangedWeapon.type == Type.FIREARM) {
 			SPEED = FIREARM_SPEED;
 			texture = Assets.map.findRegion("arrow");
-		}
+		} else if (firing.rangedWeapon.type == Type.THROWN_AXE || firing.rangedWeapon.type == Type.THROWN) {
+		    SPEED = THROWN_SPEED;
+        }
 		
 		float time_to_collision = distanceToTravel/SPEED;
 
@@ -145,7 +154,7 @@ public class Projectile extends Group {
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
 
 		// TODO with Ammo
-		if (firing.ammoType != null && firing.ammoType.type == AmmoType.Type.ARROW_FIRE) {
+		if (ammoType.type == AmmoType.Type.ARROW_FIRE) {
 //			System.out.println("creating fire");
 			fc = new FireContainer();
             Fire fire = new Fire(400, 500, firing.stage.getMapScreen(), null);
@@ -156,12 +165,16 @@ public class Projectile extends Group {
 			fc.toFront();
 			this.addActor(fc);
 		}
-	}
+        this.spin = SPIN;
+		if (!ammoType.shouldSpin()) {
+		    spin = 0;
+        }
+    }
 
-	// create new siege projectile with target
+	// create new siegeOrRaid projectile with target
 	public Projectile(SiegeUnit siegeFiring, BPoint target) {
 		texture = Assets.map.findRegion("rock");
-		halfArrow = Assets.map.findRegion("half rock");
+		halfTexture = Assets.map.findRegion("half rock");
 		
 		SCALE = SCALE_SIEGE;
 		
@@ -195,7 +208,10 @@ public class Projectile extends Group {
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
 		
 		this.bounceCount = (int) (Math.random() * MAX_BOUNCES);
-		this.spin = (float) (Math.random()) * SPIN;
+		this.spin = SPIN;
+		if (!ammoType.shouldSpin()) {
+		    spin = 0;
+        }
 	}
 
 	private void initializePosition() {
@@ -302,7 +318,7 @@ public class Projectile extends Group {
 		if (inMap() && (wallHeightCheck()) &&
 				(height < stage.heights[pos_y_int][pos_x_int]) && stage.battlemap.objects[pos_y_int][pos_x_int] == null) {
 			
-			if (this.isArrow() || this.bounceCount <= 0 || this.stage.battlemap.objects[pos_y_int][pos_x_int] != null) {
+			if (this.isSmallProjectile() || this.bounceCount <= 0 || this.stage.battlemap.objects[pos_y_int][pos_x_int] != null) {
 				this.stopped = true;
 				
 				if (Math.random() < .2) this.broken = true;
@@ -316,7 +332,9 @@ public class Projectile extends Group {
 				this.height = stage.heights[pos_y_int][pos_x_int] + .001f;
 				this.vz = vz*-BOUNCE_DEPRECIATION;
 				this.velocity.scl(BOUNCE_DEPRECIATION);
-				this.spin *= BOUNCE_DEPRECIATION;
+
+				if (ammoType.shouldSpin())
+    				this.spin *= BOUNCE_DEPRECIATION;
 			}
 		}
 		// collide with object
@@ -324,7 +342,7 @@ public class Projectile extends Group {
 				height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]) {
 			
 			BattleMap.Object object = stage.battlemap.objects[pos_y_int][pos_x_int];
-			if (!this.isArrow()) {
+			if (!this.isSmallProjectile()) {
 				if (object == BattleMap.Object.CASTLE_WALL || object == BattleMap.Object.CASTLE_WALL_FLOOR) {
 					stage.damageWallAt(pos_x_int, pos_y_int, damage);
 				}
@@ -332,9 +350,12 @@ public class Projectile extends Group {
 			this.stopped = true;
 			
 			// move forward a bit if stuck in an object
-			if (this.isArrow()) {
+			if (this.isSmallProjectile()) {
 				this.pos_x += velocity.x*.018f;
 				this.pos_y += velocity.y*.019f;
+
+//                this.pos_x += 0.5;
+//                this.pos_y += 0.5;
 			}
 			else { 
 				if (Math.random() < .3) this.destroy();
@@ -382,15 +403,17 @@ public class Projectile extends Group {
 		float scaleX = (BASE_SCALE+drawHeight*HEIGHT_SCALE_FACTOR);
 		float scaleY = (BASE_SCALE+drawHeight*HEIGHT_SCALE_FACTOR);
 		
-		if (this.isArrow()) {
-			scaleX *= ARROW_SCALE_X;
-			scaleY *= stoppedScale;
+		if (this.isSmallProjectile()) {
+//			scaleX *= ARROW_SCALE_X;
+//			scaleY *= stoppedScale;
 		} else if (stopped) {
 			scaleX *= SIEGE_STOPPED_SCALE;
 			scaleY *= SIEGE_STOPPED_SCALE;
 		}
-		else if (!stopped) {
-			setRotation(getRotation() + this.spin);
+
+		if (ammoType.shouldSpin() && !stopped) {
+		    System.out.println("Rotating: " + getRotation());
+			setRotation(getRotation() + spin);
 		}
 	
 		this.setScaleX(scaleX);
@@ -402,36 +425,53 @@ public class Projectile extends Group {
 
 		if (this.stuck == null) {
 			TextureRegion toDraw = texture;
-			if ((this.stopped && this.isArrow()) || this.broken) toDraw = halfArrow;
+			if ((this.stopped && this.isSmallProjectile()) || this.broken) toDraw = halfTexture;
 			if (toDraw != null)
 				batch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
 		}
-		else if (stuckShield != null && !stuck.isDying){
-			setScaleY(getScaleY()*2f);
-			setX(stuck.getOriginX() + temp_offset_x + stuckShield.shieldOffset);
-			setY(stuck.getOriginY() + temp_offset_y + stuckShield.shieldOffset);
-			this.setRotation(-rotation_offset);
+		else if (stuckShield != null && !stuck.isDying) {
+//			setScaleY(getScaleY()*2f);
+            setX(stuck.getOriginX() + temp_offset_x + stuckShield.shieldOffset);
+            setY(stuck.getOriginY() + temp_offset_y + stuckShield.shieldOffset);
+            if (ammoType.shouldSpin()) {
+                if (this.getRotation() == -rotation_offset)
+                    this.setRotation(randomStuckAngle());
+            }
+            else
+			    this.setRotation(-rotation_offset);
 
 			if (texture != null)
-				batch.draw(halfArrow, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());	
+				batch.draw(halfTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 		}
 		else if (!stuck.isDying || stuck.timeSinceDeath > .75f){
-						setScaleY(getScaleY()*2f);
+//						setScaleY(getScaleY()*2f);
 			setX(stuck.getOriginX() + temp_offset_x);
 			setY(stuck.getOriginY() + temp_offset_y);
-			this.setRotation(-rotation_offset);
+
+			if (ammoType.shouldSpin()) {
+			    // Just use some metric to see whether we've already set this or not.
+			    if (this.getRotation() == -rotation_offset)
+                    this.setRotation(randomStuckAngle());
+            }
+            else
+			    this.setRotation(-rotation_offset);
 
 			if (texture != null)
-				batch.draw(halfArrow, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());	
+				batch.draw(halfTexture, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 		}
 		
 //		if (fc != null && !this.stopped) this.fc.draw(batch, parentAlpha);
 	}
 
+	// Returns a reasonable angle for a stuck projectile
+	private float randomStuckAngle() {
+	    return (float) (160 + Math.random() * 40);
+    }
+
 	public void collision(Unit that) {
 		if (that == firing) return;
 		
-		if (this.isArrow()) {
+		if (this.isSmallProjectile()) {
 			if (!FRIENDLY_FIRE && that.team == firing.team) {
 //				this.destroy();
 				return;
@@ -439,7 +479,7 @@ public class Projectile extends Group {
 			if (that.team == firing.team && this.vz > 0) return; // don't collide with friends on the way up
 		}
 		
-		if (this.isArrow()) {
+		if (this.isSmallProjectile()) {
 		// test killing horses
 			if (that.shieldUp() && that.getOppositeOrientation() == this.orientation && Math.random() < SHIELD_BLOCK_PROB) {
 				if (this.firing.rangedWeapon.type == Type.CROSSBOW) {
@@ -486,15 +526,19 @@ public class Projectile extends Group {
 				this.stopped = true;
 				this.stuck = that;
 
-				this.temp_offset_x = (float) Math.random() - .5f;
-				this.temp_offset_y = (float) Math.random() - .5f;
-				//		
-				this.temp_offset_x *= 5;
-				this.temp_offset_y *= 5;
+//				this.temp_offset_x = (float) Math.random() - .5f;
+//				this.temp_offset_y = (float) Math.random() - .5f;
+//				//
+//				this.temp_offset_x *= 5;
+//				this.temp_offset_y *= 10;
 
-				this.temp_offset_y += STUCK_Y;
+                this.temp_offset_x = -5f;
+                this.temp_offset_y = -7f;
+
+//				this.temp_offset_y += STUCK_Y;
 
 				this.rotation_offset = that.getRotation() - this.getRotation();
+				this.setRotation(-rotation_offset);
 				this.remove();
 				that.addActor(this);
 			}
@@ -510,7 +554,7 @@ public class Projectile extends Group {
 		stage.removeActor(this);
 	}
 
-	public boolean isArrow() {
+	public boolean isSmallProjectile() {
 		return this.firing != null;
 	}
 

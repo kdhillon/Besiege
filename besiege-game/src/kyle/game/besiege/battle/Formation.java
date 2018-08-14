@@ -91,8 +91,9 @@ public enum Formation {
 			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
 		} 
 		// Wall line - put archers on outside, infantry and cavalry in middle
+        // This is totally flat (height = 1)
 		else if (this == Formation.WALL_LINE) {
-			int formation_width = iCount + aCount + cCount;
+			int formation_width = iCount + aCount + cCount + 1;
 			int formation_height = 1;
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
@@ -108,16 +109,23 @@ public enum Formation {
 			for (int i = 0; i < cavalry_left; i++) {
 				formation[0][i + archers_left] = Soldier.SoldierType.CAVALRY;
 			}
-			for (int i = 0; i < iCount; i++) {
+			int infantryLeft = iCount / 2;
+			for (int i = 0; i < infantryLeft; i++) {
 				formation[0][i + archers_left + cavalry_left] = Soldier.SoldierType.INFANTRY;
 			}
+			// General in middle
+            formation[0][archers_left + cavalry_left + infantryLeft] = Soldier.SoldierType.GENERAL;
+			int infantryRight = iCount - infantryLeft;
+            for (int i = 0; i < infantryRight; i++) {
+                formation[0][i + archers_left + cavalry_left + 1 + infantryLeft] = Soldier.SoldierType.INFANTRY;
+            }
 			for (int i = 0; i < cavalry_right; i++) {
-				formation[0][i + iCount + archers_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
+				formation[0][i + iCount + archers_left + cavalry_left + 1] = Soldier.SoldierType.CAVALRY;
 			}
 			for (int i = 0; i < archers_right; i++) {
-				formation[0][i + cavalry_left + iCount + archers_left + cavalry_right] = Soldier.SoldierType.ARCHER;
+				formation[0][i + cavalry_left + iCount + archers_left + cavalry_right + 1] = Soldier.SoldierType.ARCHER;
 			}
-		} 
+        }
 		// Spread Line:   C C C C I I I I A A A A A I I I I C C C C
 		else if (this == Formation.SPREAD_LINE) {
 			int formation_width = (iCount*2 + aCount*2 + cCount*2);

@@ -708,7 +708,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 				}
 				else {
 					battleStage.placementPhase = false;
-					battleStage.retreatAll(true);
+					battleStage.tryToRetreatAll(true);
 					getButton(1).setDisabled(true);
 				}
 			}

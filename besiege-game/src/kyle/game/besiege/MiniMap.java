@@ -73,13 +73,23 @@ public class MiniMap extends Actor {
 			batch.setColor(Color.WHITE);
 
             // hacky but should work? Set/unset unit width/height just for this section
-            float unit_draw_size = 3f/4;
+            float unit_draw_size = 7/8f;
+            float x_boost = getWidth() * 2f/16;
+
+            // If the unit has headdress, make unit a bit smaller to fit
+            StrictArray<Equipment> equipmentArrayList = toPreview.getEquipment();
+            for (Equipment e : equipmentArrayList) {
+                if (e.type == Equipment.Type.HEAD) {
+                    unit_draw_size = 3f/4;
+                    x_boost = getWidth() * 3f / 16;
+                }
+            }
+
             this.setWidth(unit_draw_size* this.getWidth());
             this.setHeight(unit_draw_size* this.getHeight());
 
 			float rotation = getRotation();
-			// center unit a bit.
-			float x_boost = getWidth()* 2f/8;
+			// center unit a bit, more if smaller
 
 			float y = getY() + getWidth()*3f/8;
 
@@ -122,7 +132,6 @@ public class MiniMap extends Actor {
 			}
 
 			// Draw headgear if present :)
-            StrictArray<Equipment> equipmentArrayList = toPreview.getEquipment();
             for (Equipment e : equipmentArrayList) {
 			    if (e.type == Equipment.Type.HEAD) {
 			        batch.setColor(Color.WHITE);

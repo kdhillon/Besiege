@@ -92,7 +92,8 @@ public class BattleStage extends Group implements Battle {
 	private BPoint placementPoint;
 	private BPoint originalPoint;
 
-	public boolean siege;
+	public boolean siegeOrRaid;
+    private boolean hasWall;
 
 	public boolean closed[][]; // open or closed?
 	public double slow[][]; // 0 is normal speed, 1 is very slow.
@@ -176,24 +177,18 @@ public class BattleStage extends Group implements Battle {
 		boolean forceSiege = false;
 		//		boolean forceSiege = true;
 
-		if ((siegeOf != null && !siegeOf.isVillage()) || forceSiege) {
+		if (siegeOf != null || forceSiege) {
 			//			siegeDefense = playerDefending;
 			//			siegeAttack = !siegeDefense;
 			//			//siegeAttack = true;
-			siege = true;
+			siegeOrRaid = true;
+
+			// TODO add different type of wall according to the type of location we're at
+			if (siegeOf.isCastle() || siegeOf.isCity()) {
+			    hasWall = true;
+            }
 		}
 
-		// force siege off for now
-		siege = false;
-
-		// Todo, refactor this so BattleStage implements Battle :D
-//		if (playerDefending) {
-//			this.battle = new OldBattle(mapScreen.getKingdom(), enemies.first(), allies.first());
-//		}
-//		else  {
-//			this.battle = new OldBattle(mapScreen.getKingdom(), allies.first(), enemies.first());
-//		}
-		
 		this.biome = allies.first().army.getContaining().biome;
 
 		if (getMapScreen().getKingdom().raining)
@@ -256,6 +251,10 @@ public class BattleStage extends Group implements Battle {
         this.victoryManager = new VictoryManager(kingdom, this, null, getBalanceDefenders());
         this.victoryManager.addInitTroopCount(getTotalBattleSize());
 
+        // for testing
+        this.siegeOrRaid = true;
+        this.hasWall = false;
+
 //		// must modify battle so it can support a null kingdom
 //		// attacker, defender
 //		if (playerDefending)
@@ -280,7 +279,6 @@ public class BattleStage extends Group implements Battle {
 
 		this.enemies.player = false;
 
-		
 		addUnits();
 	}
 
@@ -299,7 +297,7 @@ public class BattleStage extends Group implements Battle {
 			if (Math.random() < .5) 
 				enemies.setStance( Stance.DEFENSIVE);
 			else enemies.setStance( Stance.AGGRESSIVE);
-			if (siege) {
+			if (siegeOrRaid) {
 				enemies.setStance( Stance.DEFENSIVE);
 			}
 		}
@@ -343,8 +341,8 @@ public class BattleStage extends Group implements Battle {
 //			allies.setGlobalFormation(Formation.SQUARE);
 		}
 
-		if (siege && playerDefending) allies.setGlobalFormation(Formation.WALL_LINE);
-		else if (siege && !playerDefending) enemies.setGlobalFormation(Formation.WALL_LINE);
+		if (siegeOrRaid && playerDefending) allies.setGlobalFormation(Formation.WALL_LINE);
+		else if (siegeOrRaid && !playerDefending) enemies.setGlobalFormation(Formation.WALL_LINE);
 
 
 		this.placementPhase = true;
@@ -377,17 +375,18 @@ public class BattleStage extends Group implements Battle {
 		//mapScreen.getCamera().translate(new Vector2((this.size_x)*this.unit_width/2, (this.size_y)*this.unit_height/2));
 	}
 
-	// If this is a siege or a raid, don't allow defenders to retreat. Note that village raids count as a siege.
-	public boolean canDefendersRetreat() {
-	    return siege;
-    }
+	// This is sort of being used right now
+	// If this is a siegeOrRaid or a raid, don't allow defenders to retreat. Note that village raids count as a siegeOrRaid.
+//	public boolean canDefendersRetreat() {
+//	    return !siegeOrRaid;
+//    }
 
 	@Override
 	public double getBalanceDefenders() {
 		double balanceAllies = allies.getLevelSum();
 		double balanceEnemies = enemies.getLevelSum();
-			
-		double total = balanceAllies + balanceEnemies;
+
+        double total = balanceAllies + balanceEnemies;
 		balanceAllies = balanceAllies / total; // balanceA + balanceD = 1
 		balanceEnemies = 1-balanceAllies;
 		
@@ -472,12 +471,12 @@ public class BattleStage extends Group implements Battle {
         addAllSubparties(allies.subparties);
         addAllSubparties(enemies.subparties);
 
-		if (siege) {
+		if (siegeOrRaid) {
 			if (playerDefending) {
-				addSiegeUnits(enemies);
+//				addSiegeUnits(enemies);
 			}
 			else {
-				addSiegeUnits(allies);
+//				addSiegeUnits(allies);
 			}
 		}
 	}
@@ -574,6 +573,12 @@ public class BattleStage extends Group implements Battle {
         }
     }
 
+    // Should the battlemap have a wall?
+    public boolean hasWall() {
+	    return hasWall;
+    }
+
+    // TODO put units on wall if a siege
     public void addUnitsFromSubparty(BattleSubParty bsp, int base_x, int base_y) {
         Formation formationType = bsp.formation;
         Stance partyStance = bsp.stance;
@@ -585,6 +590,7 @@ public class BattleStage extends Group implements Battle {
         int region_width = formation[0].length;
 
         // This determines where the individual units will be placed
+        boolean generalAdded = false;
         for (int i = 0; i < region_height; i++) {
             for (int j = 0; j < region_width; j++) {
                 if (formation[i][j] != null) {
@@ -595,6 +601,10 @@ public class BattleStage extends Group implements Battle {
                     else if (formation[i][j] == Soldier.SoldierType.CAVALRY && bsp.cavalrySizeWithoutGeneral() > 0) toAdd = bsp.getCavalry().pop();
                     else if (formation[i][j] == Soldier.SoldierType.GENERAL){
                         if (bsp.general == null) throw new AssertionError();
+                        if (bsp.team == 1) {
+                            System.out.println("Adding enemy general in bs");
+                        }
+                        generalAdded = true;
                         addGeneral = true;
                         toAdd = bsp.general;
                     }
@@ -606,7 +616,7 @@ public class BattleStage extends Group implements Battle {
                     if (canPlaceUnit(base_x + j, base_y + i)) {
 //						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, bsp);
                         toAdd.setStance( partyStance);
-                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                        if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
                         addUnitToField(toAdd, base_x + j, base_y + i);
                     }
                     else {
@@ -616,7 +626,7 @@ public class BattleStage extends Group implements Battle {
                             for (int k = base_y + i; k >= this.MIN_PLACE_Y_1; k--) {
                                 if (canPlaceUnit(base_x + j, k)) {
                                     toAdd.setStance(partyStance);
-                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                    if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
                                     addUnitToField(toAdd, base_x + j, k);
                                     unitPlaced = true;
                                     break;
@@ -627,7 +637,7 @@ public class BattleStage extends Group implements Battle {
                                 for (int k = base_y + i; k <= this.MAX_PLACE_Y_1; k++) {
                                     if (canPlaceUnit(base_x + j, k)) {
                                         toAdd.setStance(partyStance);
-                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                        if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
                                         addUnitToField(toAdd, base_x + j, k);
                                         unitPlaced = true;
                                         break;
@@ -638,7 +648,7 @@ public class BattleStage extends Group implements Battle {
                             for (int k = base_y + i; k <= this.MAX_PLACE_Y_2; k++) {
                                 if (canPlaceUnit(base_x + j, k)) {
                                     toAdd.setStance( partyStance);
-                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                    if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
                                     addUnitToField(toAdd, base_x + j, k);
                                     unitPlaced = true;
                                     break;
@@ -649,7 +659,7 @@ public class BattleStage extends Group implements Battle {
                                 for (int k = base_y + i; k >= this.MIN_PLACE_Y_2; k--) {
                                     if (canPlaceUnit(base_x + j, k)) {
                                         toAdd.setStance(partyStance);
-                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+                                        if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
                                         addUnitToField(toAdd, base_x + j, k);
                                         unitPlaced = true;
                                         break;
@@ -663,6 +673,11 @@ public class BattleStage extends Group implements Battle {
                     }
                 }
             }
+        }
+
+        if (!generalAdded && bsp.subparty.general != null) {
+            System.out.println("formation: " + formationType.toString() + " has no spot for general");
+            throw new AssertionError();
         }
 
         bsp.currentPosX = base_x;
@@ -716,7 +731,7 @@ public class BattleStage extends Group implements Battle {
 //			base_y = (MAX_PLACE_Y_2 - MIN_PLACE_Y_2)/2 + MIN_PLACE_Y_2;
 //			team = 1;
 //
-//			if (siege && battlemap.wallBottom > 0) {
+//			if (siegeOrRaid && battlemap.wallBottom > 0) {
 //				base_y = battlemap.wallBottom + 1;
 //			}
 //		}
@@ -870,7 +885,7 @@ public class BattleStage extends Group implements Battle {
 //					if (canPlaceUnit(base_x + j, base_y + i)) {
 ////						Unit unit = new Unit(this, base_x + j, base_y + i, team, toAdd, bsp);
 //						toAdd.setStance( partyStance);
-//						if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//						if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
 //						addUnitToField(toAdd, base_x + j, base_y + i);
 //					}
 //					else {
@@ -881,7 +896,7 @@ public class BattleStage extends Group implements Battle {
 //                            for (int k = base_y + i - REINFORCEMENT_DIST; k >= this.MIN_PLACE_Y_1; k--) {
 //                                if (canPlaceUnit(base_x + j, k)) {
 //                                    toAdd.setStance(partyStance);
-//                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                    if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
 //                                    addUnitToField(toAdd, base_x + j, k);
 //                                    unitPlaced = true;
 //                                    break;
@@ -892,7 +907,7 @@ public class BattleStage extends Group implements Battle {
 //                                for (int k = base_y + i + REINFORCEMENT_DIST; k <= this.MAX_PLACE_Y_1; k++) {
 //                                    if (canPlaceUnit(base_x + j, k)) {
 //                                        toAdd.setStance(partyStance);
-//                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                        if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
 //                                        addUnitToField(toAdd, base_x + j, k);
 //                                        unitPlaced = true;
 //                                        break;
@@ -904,7 +919,7 @@ public class BattleStage extends Group implements Battle {
 //                            for (int k = base_y + i + REINFORCEMENT_DIST; k <= this.MAX_PLACE_Y_2; k++) {
 //                                if (canPlaceUnit(base_x + j, k)) {
 //                                    toAdd.setStance( partyStance);
-//                                    if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                    if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
 //                                    addUnitToField(toAdd, base_x + j, k);
 //                                    unitPlaced = true;
 //                                    break;
@@ -915,7 +930,7 @@ public class BattleStage extends Group implements Battle {
 //                                for (int k = base_y + i - REINFORCEMENT_DIST; k >= this.MIN_PLACE_Y_2; k--) {
 //                                    if (canPlaceUnit(base_x + j, k)) {
 //                                        toAdd.setStance(partyStance);
-//                                        if (bsp.isPlayer() && siege || toAdd.onWall()) toAdd.dismount();
+//                                        if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall()) toAdd.dismount();
 //                                        addUnitToField(toAdd, base_x + j, k);
 //                                        unitPlaced = true;
 //                                        break;
@@ -1072,7 +1087,7 @@ public class BattleStage extends Group implements Battle {
 
 				BPoint point; 
 				do {
-					// generate random spot in siege zone 
+					// generate random spot in siegeOrRaid zone
 					int x = (int) (Math.random() * size_x);
 					int y = siegeZoneBottom + (int) (Math.random() * siegeZoneSize);
 					point = new BPoint(x, y);
@@ -1093,7 +1108,7 @@ public class BattleStage extends Group implements Battle {
 				BPoint point; 
 				do {
 					//					System.out.println("finding spot");
-					// generate random spot in siege zone 
+					// generate random spot in siegeOrRaid zone
 					int x = (int) (Math.random() * size_x);
 					int y = this.size_y - 1 -siegeZoneTop - (int) (Math.random() * siegeZoneSize);
 					point = new BPoint(x, y);
@@ -1120,12 +1135,12 @@ public class BattleStage extends Group implements Battle {
 				y >= 0;
 	}
 
-	public void retreatAll(boolean player) {	
+	public void tryToRetreatAll(boolean player) {
 		if (player && retreatTimerPlayer < 0) {
-			allies.retreatAll();
+			allies.tryToRetreatAll();
 		} 
 		else if (!player && retreatTimerEnemy < 0){
-			enemies.retreatAll();
+			enemies.tryToRetreatAll();
 		} 
 	}
 
@@ -1177,7 +1192,7 @@ public class BattleStage extends Group implements Battle {
 			this.retreatTimerEnemy -= delta;
 
 			if ((playerDefending && (1 - getBalanceDefenders()) < RETREAT_THRESHOLD/2) || (!playerDefending && getBalanceDefenders() < RETREAT_THRESHOLD/2)) {
-				retreatAll(false);
+				tryToRetreatAll(false);
 			}
 			if ((playerDefending && (1 - getBalanceDefenders()) > CHARGE_THRESHOLD) || (!playerDefending && getBalanceDefenders() > CHARGE_THRESHOLD)) {
 				chargeAll(false);
@@ -1412,7 +1427,7 @@ public class BattleStage extends Group implements Battle {
 		winner.forceWait(winner.getForceWait());
 
 //		if (battle.getSiegeLocation() != null && !battle.getSiegeLocation().isVillage()) {
-//			System.out.println("managing siege");
+//			System.out.println("managing siegeOrRaid");
 //			battle.handleSiegeVictory();
 //		}
 //		if (didAtkWin && battle.getSiegeLocation() != null && battle.getSiegeLocation().isVillage())

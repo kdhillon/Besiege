@@ -408,7 +408,7 @@
 //	}
 //
 //	public void checkIfShouldManSiege() {
-//		// for now, no defensive units should siege
+//		// for now, no defensive units should siegeOrRaid
 //		if (this.bowOut() || this.isMounted() || (stage.siegeAttack && this.stance == Stance.DEFENSIVE)) return;
 //
 //		for (SiegeUnit s : stage.siegeUnitsArray) {
@@ -1010,7 +1010,7 @@
 //	//		return closest;
 //	//	}
 //
-//	// get closest siege unit that doesn't have enough men
+//	// get closest siegeOrRaid unit that doesn't have enough men
 //	//	public SiegeUnit getNearestUnmannedSiegeUnit() {
 //	//		if (stage.siegeUnitsArray.size == 0) return null;
 //	//

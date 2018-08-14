@@ -193,7 +193,7 @@ public class BattleSim implements Battle {
 
 	// Sets an advantage for the defenders, in [0, 1]
 	public void setDefensiveAdvantage(double advantage) {
-        // TODO this can be used in a siege.
+        // TODO this can be used in a siegeOrRaid.
     }
 
     @Override

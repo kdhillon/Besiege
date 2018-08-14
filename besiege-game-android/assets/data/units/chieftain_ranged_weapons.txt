@@ -19,7 +19,7 @@ Bow(Locust)  	35		6		6		7       bow
 Strongbow(Maple)  40    6       4       15      bow
 Strongbow(Cedar)  40    6       4       15      bow
 
-Tomahawk(Flint)	15		8		5       1       thrown_axe
+Tomahawk(Flint)	15		8		5       1       thrown_axe  axe
 Spear(Flint)	10		8		5       1       thrown  spear
 
 // Plains ranged weapons

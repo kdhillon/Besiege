@@ -79,7 +79,7 @@ public class VictoryManager {
         spoils += wealthChange;
     }
 
-    // change faction of city if siege
+    // change faction of city if siegeOrRaid
     public void handleVictory(StrictArray<Party> attackingParties, StrictArray<Party> defendingParties, boolean didAtkWin) {
         StrictArray<Party> victor, loser;
         if (didAtkWin) {
@@ -116,7 +116,7 @@ public class VictoryManager {
             party.registerBattleLoss();
         }
 
-        // Handle siege victory
+        // Handle siegeOrRaid victory
         if (siegeOf != null) {
             if (didAtkWin) {
                 if (siegeOf.isVillage()) {

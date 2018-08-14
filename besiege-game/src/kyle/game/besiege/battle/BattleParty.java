@@ -99,8 +99,21 @@ public class BattleParty {
 			s.formation = f;
 		}
 	}
-	
-	public void retreatAll() {
+
+	private boolean isDefenders() {
+	    return stage.getDefending() == this;
+    }
+
+    public boolean canRetreat() {
+	    if (isDefenders() && stage.siegeOrRaid) {
+	        return false;
+        }
+        return true;
+    }
+
+	public void tryToRetreatAll() {
+	    if (!canRetreat()) return;
+
 		for (BattleSubParty s : subparties) {
 			s.retreat();
 		}

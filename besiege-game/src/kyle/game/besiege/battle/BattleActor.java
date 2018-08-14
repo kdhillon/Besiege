@@ -22,7 +22,7 @@ public class BattleActor extends Actor implements Destination {
 //	transient public TextureRegion halfCrest;
 	private String name;
 	private Kingdom kingdom;
-	private Location siegeOf; // only if a siege
+	private Location siegeOf; // only if a siegeOrRaid
 
 	// For Kryo
 	public BattleActor() {}
@@ -66,7 +66,7 @@ public class BattleActor extends Actor implements Destination {
 		super.draw(batch, parentAlpha);
 	}
 	
-	// change faction of city if siege
+	// change faction of city if siegeOrRaid
 	public void handleVictory(boolean didAtkWin) {
 		if (siegeOf != null) {
 			if (didAtkWin) {
@@ -119,7 +119,7 @@ public class BattleActor extends Actor implements Destination {
 
 		if (this.siegeOf != null) {
 			if (this.siegeOf.siege != null) {
-//				this.siegeOf.siege.destroy();
+//				this.siegeOf.siegeOrRaid.destroy();
 				this.siegeOf.siege.battleActor = null;
 			}
 			else {

@@ -903,7 +903,7 @@ public class Location extends Group implements Destination {
 				}
 			}
 			for (Army a : garrisonedArmies) {
-				//			System.out.println("adding " + a.getName() + " to siege battle");
+				//			System.out.println("adding " + a.getName() + " to siegeOrRaid battle");
 				if (a.passive) continue; // don't add passive armies to defenders
 				a.joinBattle(battleActor);
 			}
@@ -1245,6 +1245,9 @@ public class Location extends Group implements Destination {
 	public boolean isCastle() {
 		return this.type == LocationType.CASTLE;
 	}
+    public boolean isCity() {
+        return this.type == LocationType.CITY;
+    }
     public boolean isRuin() {
         return this.type == LocationType.RUIN;
     }

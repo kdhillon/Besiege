@@ -94,6 +94,12 @@ public class BattleSubParty {
 		
 		white = new TextureRegion(new Texture("whitepixel.png"));
 		c = new Color();
+
+
+		if (subparty.general == null) {
+		    System.out.println("General is null");
+		    generalOut = true;
+        }
 		
 		createAllUnits();
 		updateCurrentMorale();
@@ -117,6 +123,7 @@ public class BattleSubParty {
 		    throw new AssertionError();
         }
 		this.general = new Unit(stage, team, subparty.general, this);
+        if (team == 1) System.out.println("Enemy general being added");
 
 		this.units.add(general);
 		this.parent.units.add(general);
@@ -135,7 +142,8 @@ public class BattleSubParty {
 	}
 
 	public void removeUnit(Unit remove, boolean dying) {
-		units.removeValue(remove, true);
+        System.out.println("units: " + units.size);
+        units.removeValue(remove, true);
 		parent.units.removeValue(remove, true);
 		if (remove.inMap())
 			if (stage.units[remove.pos_y][remove.pos_x] == remove) stage.units[remove.pos_y][remove.pos_x] = null;
@@ -180,6 +188,8 @@ public class BattleSubParty {
 	
 	// multiply by courage of general
 	public void retreatIfNecessary() {
+	    if (!parent.canRetreat()) return;
+
 		if (currentMorale < 0) retreat();
 	}
 	
@@ -194,7 +204,7 @@ public class BattleSubParty {
 			currentMoraleString = "Defeated";
 		}
 		else if (currentMorale < 0.25) {
-			currentMoraleString = "Terrified";			
+			currentMoraleString = "Terrified";
 		}
 		else if (currentMorale < 0.5) {
 			currentMoraleString = "Nervous";
@@ -262,7 +272,7 @@ public class BattleSubParty {
 	public void calcMinSpeed() {
 		float min = Float.MAX_VALUE;
 		for (Unit unit : units) {
-			if (unit.retreating) continue;
+			if (unit.isRetreating()) continue;
 			if (unit.spd < min) min = unit.spd;
 		}
 		this.minSpeed = min;
@@ -459,10 +469,11 @@ public class BattleSubParty {
         return size;
     }
 
+    // Need to check if can retreat first
 	public void retreat() {
 		this.retreating = true;
 		for (Unit s : units) {
-			s.retreating = true;
+			s.startRetreating();
 		}
 	}
 	

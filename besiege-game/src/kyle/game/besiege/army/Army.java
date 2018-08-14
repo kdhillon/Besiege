@@ -370,7 +370,7 @@ public class Army extends Actor implements Destination {
 		//					}
 		//				}
 		//				else if (isInSiege()) {
-		//					//decide if should leave siege
+		//					//decide if should leave siegeOrRaid
 		//					detectNearbyRunOnly();
 		//				}
 		//			}
@@ -1244,15 +1244,15 @@ public class Army extends Actor implements Destination {
 		return siege;
 	}
 	public void leaveSiege() {
-		//		System.out.println(this.getName() + " is ending siege");
-		// force wait to see if it fixes slow siege end
+		//		System.out.println(this.getName() + " is ending siegeOrRaid");
+		// force wait to see if it fixes slow siegeOrRaid end
 		this.forceWait(this.getForceWait());
 		
 		nextTarget();
 		if (siege != null) {
 			if (siege.location == this.getTarget()) nextTarget();
-			//			while (siege.location == this.getTarget()) {
-			//				System.out.println(getName() + " ending siege and going to new target");
+			//			while (siegeOrRaid.location == this.getTarget()) {
+			//				System.out.println(getName() + " ending siegeOrRaid and going to new target");
 			//				nextTarget();
 			//			}
 			siege.remove(this);

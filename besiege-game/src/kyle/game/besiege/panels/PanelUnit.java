@@ -392,7 +392,7 @@ public class PanelUnit extends Panel {
 					this.unit.bsp.toNextFormation();
 				}
 				else {
-					battleStage.retreatAll(true);
+					battleStage.tryToRetreatAll(true);
 					getButton(1).setDisabled(true);
 				}
 			}

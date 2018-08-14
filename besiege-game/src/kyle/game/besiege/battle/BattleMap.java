@@ -133,7 +133,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-        this.maptype = MapType.ALPINE;
+//        this.maptype = MapType.ALPINE;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -156,8 +156,8 @@ public class BattleMap extends Group {
 		wallV = 	Assets.map.findRegion("stone fence v");
 		wallH = 	Assets.map.findRegion("stone fence");
 
-		castleWall = 		Assets.map.findRegion("castle wall");
-		castleWallFloor =  Assets.map.findRegion("castle wall floor");
+		castleWall = 		Assets.map.findRegion("castle wall wood");
+		castleWallFloor =  Assets.map.findRegion("castle wall floor wood");
 		ladder = 			Assets.map.findRegion("ladder");
 
 		white = new TextureRegion(new Texture("whitepixel.png"));
@@ -204,7 +204,7 @@ public class BattleMap extends Group {
 		//		wallBottom = 10;
 		//		wallRight = 60;
 
-		if (stage.siege && !stage.playerDefending)
+		if (stage.hasWall() && !stage.playerDefending)
 			wallBottom = stage.size_y * 2/ 3;
 
 		// create castle
@@ -227,8 +227,8 @@ public class BattleMap extends Group {
 			}
 			// add walls
 
-			if (stage.siege == true)
-				addWall();
+			if (stage.hasWall())
+                addWall();
 
 			addFences(5);
 			addTrees(.03*Math.random() + .01);
@@ -245,7 +245,7 @@ public class BattleMap extends Group {
 				}
 			}
 
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 
 			addTrees(.001);
@@ -264,7 +264,7 @@ public class BattleMap extends Group {
 				}
 			}
 
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 
 			addTrees(.01);
@@ -299,7 +299,7 @@ public class BattleMap extends Group {
 
 			stage.MIN_PLACE_X = maxWaterX + 1;
 
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 
             addPalms(.005);
@@ -317,7 +317,7 @@ public class BattleMap extends Group {
 				}
 			}
 			this.addFences(20);
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 
 			addPalms(Math.random() * 0.005);
@@ -334,7 +334,7 @@ public class BattleMap extends Group {
 					else ground[i][j] = GroundType.MUD;
 				}
 			}
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 			bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
 		}
@@ -349,7 +349,7 @@ public class BattleMap extends Group {
 			}
 			stage.targetDarkness = .5f;
 
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 
 			addFire(.001);
@@ -365,7 +365,7 @@ public class BattleMap extends Group {
 					else if (random < 1) ground[i][j] = GroundType.DIRT;
 				}
 			}
-			if (stage.siege)
+			if (stage.hasWall())
 				addWall();
 			bgColor = new Color(65/256f, 138/256f, 92/256f, 1);
 		}
@@ -1321,7 +1321,7 @@ public class BattleMap extends Group {
 	}
 	
 	private void drawRange(Unit drawRange, SpriteBatch batch) {
-		if (drawRange.bowOut() && !drawRange.retreating) {
+		if (drawRange.bowOut() && !drawRange.isRetreating()) {
 			Color c = batch.getColor();
 			groundcolor.set(RANGE_COLOR);
 
@@ -1459,6 +1459,7 @@ public class BattleMap extends Group {
 	}
 
 	public boolean insideWalls(int pos_x, int pos_y) {
+	    if (!stage.hasWall()) return false;
 		if (wallTop > stage.size_y && wallRight > stage.size_x && wallBottom < 0 && wallLeft < 0) return false;
 		if (pos_y <= wallTop && pos_y >= wallBottom)
 			if (pos_x <= wallRight && pos_x >= wallLeft) 

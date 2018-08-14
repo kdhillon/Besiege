@@ -477,11 +477,11 @@ public class SiegeUnit extends Group {
 		for (Unit that : enemy) {
 			double dist = this.distanceTo(that);
 			if (dist > MIN_DIST && dist < distance) {
-				if (!that.retreating && that.bowOut() && dist < closestDistance) {
+				if (!that.isRetreating() && that.bowOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
 				}
-				else if (!that.retreating && dist < closestNormalDistance) {
+				else if (!that.isRetreating() && dist < closestNormalDistance) {
 					closestNormalDistance = dist;
 					closestNormal = that;
 				}

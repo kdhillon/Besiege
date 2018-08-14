@@ -271,13 +271,12 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		// darkest is 45, 34, 30
 		// lightest is 225, 172, 150
 		// 1.3, 1.14
-		// generate base between 45 and 256
-		int skinColorRed = (int) (Math.random()*105);
-		skinColorRed += 50;
+		// generate base between 100 and 150
+		int skinColorRed = (int) (Math.random()*50);
+		skinColorRed += 100;
 		int base_g = (int) (skinColorRed/1.4f);
 		int base_b = (int) (base_g/1.13f);
 		this.skinColor = new Color(skinColorRed/256.0f, base_g/256.0f, base_b/256.0f, 1);
-
 	}
 	
 	public Color getColor() {

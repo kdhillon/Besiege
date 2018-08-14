@@ -373,7 +373,7 @@ public class UnitLoader {
 
             // supports only two weapons (1 ranged 1 not) for now.
             for (int i = 0; i < weapons.length; i++) {
-                if (weaponTypes.get(weapons[i]) != null) {
+                if (weaponTypes.get(weapons[i]) != null && unit.melee != weaponTypes.get(weapons[i])) {
                     unit.melee = weaponTypes.get(weapons[i]);
                     if (unit.melee == null) {
                         throw new java.lang.NullPointerException(weapons[i] + " can't be found");
@@ -387,7 +387,9 @@ public class UnitLoader {
                     if (i < weapons.length)
                         unit.ammoType = ammoTypes.get(weapons[i]);
                     else {
-                        if (unit.ranged.type == RangedWeaponType.Type.THROWN) {
+                        if (unit.ranged.type == RangedWeaponType.Type.THROWN ||
+                                unit.ranged.type == RangedWeaponType.Type.THROWN_AXE ||
+                                unit.ranged.type == RangedWeaponType.Type.THROWN_FIRE) {
                             unit.ammoType = ammoTypes.get(unit.ranged.name);
                         } else if (unit.ranged.type == RangedWeaponType.Type.SLING) {
                             unit.ammoType = ammoTypes.get("Stone");
