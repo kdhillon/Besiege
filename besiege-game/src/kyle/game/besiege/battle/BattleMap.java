@@ -1083,14 +1083,13 @@ public class BattleMap extends Group {
 			batch.draw(texture, x, y, width/2, height/4, width, height, 1, 1, rotation);
 		}
 
-		if (stage.selectedUnit != null && stage.placementPhase) {
+		if (stage.selectedUnit != null && stage.placementPhase && !stage.isOver()) {
 			stage.selectedUnit.bsp.drawPlacement(batch);
 		}
 
 		boolean drawPlacementArea = true; 
 
-		if (drawPlacementArea && stage.dragging && stage.placementPhase) {
-
+		if (drawPlacementArea && stage.dragging && !stage.isOver() && stage.placementPhase) {
 			Color c = batch.getColor();
 			groundcolor.set(PLACEMENT_COLOR);
 			batch.setColor(groundcolor);

@@ -1206,17 +1206,19 @@ public class BattleStage extends Group implements Battle {
 					victory(allies.first().army, enemies.first().army);
 				}
 			}
-			else {
+			else if (!isOver()) {
 				if (allies.noUnits() && !placementPhase) {
 //				/	BottomPanel.log("Defeat", "green");
                     victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), false);
                     displayVictoryText("Defeat");
-					this.placementPhase = true;
-				}
+                    this.isOver = true;
+                    this.placementPhase = true;
+                }
 				else if (enemies.noUnits() && !placementPhase) {
                     victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), true);
                     // display "Victory" text.
 					displayVictoryText("Victory");
+                    this.isOver = true;
 //					BottomPanel.log("Victory", "green");
 					this.placementPhase = true;
 				}

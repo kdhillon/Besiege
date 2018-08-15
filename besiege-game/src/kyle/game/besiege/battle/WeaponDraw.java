@@ -115,7 +115,9 @@ public class WeaponDraw extends Group { // can have arrows.
 	
 	private void mapWeaponTextures() {
 		if (unit.isRanged()) {
+		    System.out.println("Setting ranged weapon: " + unit.soldier.unitType.ranged.name);
 			this.weaponRanged = GetRangedWeaponTextureForUnittype(unit.soldier.unitType);
+			if (weaponRanged == null) throw new AssertionError();
 		}
 
 		this.weaponMelee = GetMeleeWeaponTextureForUnittype(unit.soldier.unitType);
@@ -131,7 +133,7 @@ public class WeaponDraw extends Group { // can have arrows.
 		batch.draw(shadowTexture, x, y + height * 0.3f, width/2, height * 0.2f, width, height, 1, unit.stage.battlemap.sunStretch, unit.stage.battlemap.sunRotation - this.getParent().getRotation());
 		batch.setColor(o);
 	}
-	
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {	
 		super.draw(batch, parentAlpha);
@@ -140,9 +142,9 @@ public class WeaponDraw extends Group { // can have arrows.
 
 		// draw shadow
 		drawShadow(batch, 0, 0, unit.getWidth() * unit.getScaleX(), unit.getHeight() * unit.getScaleY());
-		
+
 		//this.toFront();
-		
+
 		float alpha = 0.2f;
 		this.toBack();
 		
@@ -161,19 +163,19 @@ public class WeaponDraw extends Group { // can have arrows.
             } else
 		        batch.setColor(redTint);
         }
-		
+
 		if (this.unit.isGeneral()) {
-			if (unit.team == 0) 
+			if (unit.team == 0)
 				batch.setColor(blueGeneralTint);
-			else 
+			else
 				batch.setColor(redGeneralTint);
 		}
-		
+
 		// draw white if selected
 		if (this.unit == unit.stage.selectedUnit || this.unit.isHit) {
 				batch.setColor(1, 1, 1, alpha);
 		}
-	
+
 		boolean drawTeams = true;
 		boolean onlyDrawFriendly = false;
 
@@ -216,7 +218,7 @@ public class WeaponDraw extends Group { // can have arrows.
 			batch.setColor(shieldColor);
 			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+shieldOffset), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);
 		}
-		
+
 		float offset_x_to_use = offset_x;
 		float offset_y_to_use = offset_y;
 		TextureRegion toDraw = weaponMelee;
@@ -229,9 +231,31 @@ public class WeaponDraw extends Group { // can have arrows.
 				offset_x_to_use = offset_x_ranged;
 				offset_y_to_use = offset_y_ranged;
 //			}
+            // TODO this needs to be drawn at the same time as Unit (not WeaponDraw)
 			// don't draw if firing
-			if (!unit.moveSmooth) return;
+			if (unit.isFiring()) {
+                // Draw  ammo on top
+                if (unit.drawAmmo && unit.isDrawingRangedLoadedAnimation()) {
+                    float ammoRotation = getRotation();
+                    if (unit.drawAmmoReversed)
+                        ammoRotation = ammoRotation + 180;
+                    batch.draw(
+                            unit.ammoType.getRegion(),
+                            getX() + unit.getWidth() * 6 / 8,
+                            getY() + unit.getHeight() * 2 / 8,
+                            unit.ammoType.getRegion().getRegionWidth() / 2,
+                            unit.ammoType.getRegion().getRegionHeight() / 2,
+                            unit.ammoType.getRegion().getRegionWidth(),
+                            unit.ammoType.getRegion().getRegionHeight(),
+                            Projectile.getDefaultSmallScale() * 4,
+                            Projectile.getDefaultSmallScale() * 4,
+                            ammoRotation);
+
+                }
+			    return;
+            }
 		}
+
 		if (weaponMelee == null) throw new AssertionError();
 		batch.draw(toDraw, offset_x_to_use, (offset_y_to_use+man_offset_y/1.5f), 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), scale_x, scale_y, man_rotation);		
 	}

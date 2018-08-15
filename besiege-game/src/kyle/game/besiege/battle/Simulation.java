@@ -40,7 +40,7 @@ public class Simulation extends Game {
         if (type1 == null || type2 == null) throw new AssertionError();
 
         bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.TEST_1, type1),
-										PartyType.getPartyType(Type.TEST_1, type2));
+										PartyType.getPartyType(Type.SCOUT, type2));
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		

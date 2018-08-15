@@ -31,58 +31,86 @@ walk-armor
   orig: 16, 8
   offset: 0, 0
   index: -1
-firing-skin
+thrown-skin
   rotate: false
   xy: 106, 2
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firing-armor
+thrown-armor
   rotate: false
   xy: 2, 12
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firearm-skin
+firing-skin
   rotate: false
   xy: 2, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firearm-armor
+firing-armor
   rotate: false
   xy: 2, 32
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-skin-preview-2
+firearm-skin
   rotate: false
   xy: 2, 42
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firearm-armor
+  rotate: false
+  xy: 2, 52
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+atlatl-skin
+  rotate: false
+  xy: 2, 62
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+atlatl-armor
+  rotate: false
+  xy: 2, 72
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+skin-preview-2
+  rotate: false
+  xy: 2, 82
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 shadow
   rotate: false
-  xy: 2, 52
+  xy: 2, 92
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-skin
   rotate: false
-  xy: 2, 62
+  xy: 2, 102
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-armor
   rotate: false
-  xy: 2, 72
+  xy: 2, 112
   size: 8, 8
   orig: 8, 8
   offset: 0, 0

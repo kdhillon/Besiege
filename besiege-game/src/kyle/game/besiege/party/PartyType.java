@@ -324,8 +324,9 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.name = "Test1";
 			pt.maxCount = 10;
 			pt.minCount = 10;
-			pt.cultureType =  UnitLoader.cultureTypes.get("Forest");
-			pt.unitType = pt.cultureType.units.get("Axeman3");
+			pt.cultureType =  UnitLoader.cultureTypes.get("Desert");
+			// Don't forget number at the end of this!
+			pt.unitType = pt.cultureType.units.get("Eagle Warrior4");
 			if (pt.unitType == null) {
 			    throw new AssertionError();
             }
@@ -335,7 +336,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.maxCount = 60;
 			pt.minCount = 60;
 			pt.tiers = new int[]{3};
-            pt.cultureType =  UnitLoader.cultureTypes.get("Aztec");
+            pt.cultureType =  UnitLoader.cultureTypes.get("Forest");
             pt.unitType = pt.cultureType.units.get("Eagle Bowman4");
             if (pt.unitType == null) {
                 throw new AssertionError();

@@ -26,6 +26,8 @@ public class Unit extends Group {
 
 	static final int RETREAT_THRESHOLD = 2;
 
+	static final float RELOADING_THRESHHOLD = 0.5f;
+
 	static public float NEAR_COVER_DISTANCE = 6;
 	static public float HEIGHT_RANGE_FACTOR = 6;
 	static public float MAN_SIEGE_DISTANCE = 40;
@@ -129,11 +131,15 @@ public class Unit extends Group {
 
 	float stateTime;
 	float firingStateTime;
+	boolean currentlyFiring;
 	public Animation walkArmor, walkSkin;
 	//	public Animation animationAttack;
 	public Animation dieArmor, dieSkin;
-	public Animation firingArmor, firingSkin, firearmArmor, firearmSkin;
+	public Animation firingArmor, firingSkin;
 
+	private boolean firingLoop;
+    public boolean drawAmmo;
+    public boolean drawAmmoReversed;
 
 	public Color armorTint;
 	public Color skinTint;
@@ -226,17 +232,48 @@ public class Unit extends Group {
 		dieSkin.setPlayMode(Animation.NORMAL);
 
 		if (this.isRanged()) {
-			firingArmor	= createAnimation("firing-armor", 2, 2);
-			firingSkin 	= createAnimation("firing-skin", 2, 2);
-
-			firingArmor.setPlayMode(Animation.NORMAL);
-			firingSkin.setPlayMode(Animation.NORMAL);
-
-			firearmArmor	= createAnimation("firearm-armor", 2, 2);
-			firearmSkin 	= createAnimation("firearm-skin", 2, 2);
-
-			firearmArmor.setPlayMode(Animation.NORMAL);
-			firearmSkin.setPlayMode(Animation.NORMAL);
+		    if (this.rangedWeapon.type == RangedWeaponType.Type.FIREARM) {
+                firingArmor	= createAnimation("firearm-armor", 2, 2);
+                firingSkin 	= createAnimation("firearm-skin", 2, 2);
+                firingArmor.setPlayMode(Animation.NORMAL);
+                firingSkin.setPlayMode(Animation.NORMAL);
+                firingLoop = true;
+                drawAmmo = false;
+            }
+            else if (this.rangedWeapon.type == RangedWeaponType.Type.ATLATL) {
+                firingArmor	=    createAnimation("atlatl-armor", 2, 2);
+                firingSkin 	= createAnimation("atlatl-skin", 2, 2);
+                firingArmor.setPlayMode(Animation.REVERSED);
+                firingSkin.setPlayMode(Animation.REVERSED);
+                firingLoop = false;
+                drawAmmo = true;
+            }
+            else if (this.rangedWeapon.type == RangedWeaponType.Type.THROWN_AXE) {
+                firingArmor	=    createAnimation("thrown-armor", 2, 2);
+                firingSkin 	= createAnimation("thrown-skin", 2, 2);
+                firingArmor.setPlayMode(Animation.REVERSED);
+                firingSkin.setPlayMode(Animation.REVERSED);
+                firingLoop = false;
+                drawAmmo = true;
+                drawAmmoReversed = true;
+            }
+            else if (this.rangedWeapon.type == RangedWeaponType.Type.THROWN || this.rangedWeapon.type == RangedWeaponType.Type.THROWN_FIRE) {
+                firingArmor	=    createAnimation("thrown-armor", 2, 2);
+                firingSkin 	= createAnimation("thrown-skin", 2, 2);
+                firingArmor.setPlayMode(Animation.REVERSED);
+                firingSkin.setPlayMode(Animation.REVERSED);
+                firingLoop = false;
+                drawAmmo = true;
+                drawAmmoReversed = false;
+            }
+            else {
+                firingArmor = createAnimation("firing-armor", 2, 2);
+                firingSkin = createAnimation("firing-skin", 2, 2);
+                firingArmor.setPlayMode(Animation.NORMAL);
+                firingSkin.setPlayMode(Animation.NORMAL);
+                firingLoop = false;
+                drawAmmo = false;
+            }
 		}
 
 		firingStateTime = 0f;
@@ -265,6 +302,7 @@ public class Unit extends Group {
 	// create animation with speed .25f assuming one row, loops by default
     public static Animation createAnimation(String filename, int columns, float time) {
 		TextureRegion walkSheet = Assets.units.findRegion(filename);
+		if (walkSheet == null) throw new AssertionError(filename + " not found");
 		TextureRegion[][] textureArray = walkSheet.split(walkSheet.getRegionWidth()/columns, walkSheet.getRegionHeight()/1);
 		Animation animation = new Animation(time, textureArray[0]);
 		animation.setPlayMode(Animation.LOOP);
@@ -359,7 +397,8 @@ public class Unit extends Group {
 				if (nearestCover != null)
 					moveToPoint(nearestCover);
 			}
-			else if (stance != Stance.DEFENSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {								
+			else if (stance != Stance.DEFENSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {
+			    reloading = 0;
 				moveToEnemy();
 			}
 			else { // either defensive stance or aggressive but ranged within range
@@ -372,7 +411,7 @@ public class Unit extends Group {
 				// if enemy is within one unit and fighting, can move to them.
 				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
 					moveToEnemy();
-				else if (this.reloading > 0 && nearestTarget != null) {
+				else if (isFiring() && nearestTarget != null) {
 					if (nearestTarget.isDying || nearestTarget.outOfBattle) {
 						nearestTarget = getNearestTarget();
 						this.updateRotation();
@@ -388,7 +427,7 @@ public class Unit extends Group {
 
 					if (this.bowOut() && !shouldMove()) {
 						if (nearestTarget != null) {
-							if (reloading < 0 && nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
+							if (reloading < RELOADING_THRESHHOLD && nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
 								fireAtEnemy();
 							}
 							else {
@@ -541,13 +580,8 @@ public class Unit extends Group {
 			else if (moveSmooth) {
                 drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, stateTime, equipment);
 			}	
-			else if (reloading > 0) {
-				if (this.rangedWeapon.type == RangedWeaponType.Type.FIREARM) {
-                    drawUnit(this, batch, firearmArmor, firearmSkin, armorTint, skinTint, firingStateTime, equipment);
-				}
-				else {
-				    drawUnit(this, batch, firingArmor, firingSkin, armorTint, skinTint, firingStateTime, false, equipment);
-				}
+			else if (isFiring()) {
+			    drawUnit(this, batch, firingArmor, firingSkin, armorTint, skinTint, firingStateTime, firingLoop, equipment);
 			}
 			else {
                 drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, 0, false, equipment);
@@ -560,6 +594,10 @@ public class Unit extends Group {
 			batch.setColor(c);
 		}
 	}
+
+	public boolean isFiring() {
+	    return reloading > 0 && nearestTarget != null;
+    }
 
 //	public int calcHP() {
 //		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
@@ -751,7 +789,7 @@ public class Unit extends Group {
 	private void fireAtEnemy() {
 		this.quiver -= 1;
 
-		this.reloading = rangedWeapon.rate * BASE_FIRE_RATE;
+		this.reloading = rangedWeapon.rate * BASE_FIRE_RATE + RELOADING_THRESHHOLD;
 		Unit enemy = getNearestTarget();
 		face(enemy);
 		Projectile projectile = new Projectile(this, enemy);
@@ -1293,6 +1331,10 @@ public class Unit extends Group {
         drawItem(batch, region, actor);
 		batch.setColor(c2);
 	}
+
+	public boolean isDrawingRangedLoadedAnimation() {
+        return firingArmor.getKeyFrameIndex(firingStateTime) == 0;
+    }
 
     public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime) {
         drawUnit(actor, batch, armor, skin, armorColor, skinColor,stateTime, true, null);

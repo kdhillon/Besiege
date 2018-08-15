@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import kyle.game.besiege.battle.WeaponDraw;
 import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Equipment;
+import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
 
 import java.util.ArrayList;
@@ -98,8 +99,13 @@ public class MiniMap extends Actor {
 			boolean drawWeaponInFront = false;
 			if (toPreview.unitType.ranged != null) {
 				weapon = WeaponDraw.GetRangedWeaponTextureForUnittype(toPreview.unitType);
-				rotation = 180;
-				y -= getWidth()*8f/8;
+
+				if (toPreview.unitType.ranged.type == RangedWeaponType.Type.BOW) {
+                    rotation = 180;
+                    y -= getWidth() * 8f / 8;
+                } else {
+                    y -= getWidth() * 3f / 8;
+                }
 //				drawInFront = true;
 			}
 			else if (toPreview.unitType.melee.isPolearm()) { //&& !toPreview.weapon.troopName.startsWith("Sword")

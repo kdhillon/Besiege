@@ -122,23 +122,37 @@ castle wall floor wood
   orig: 8, 8
   offset: 0, 0
   index: -1
-half dart
+dart
   rotate: false
   xy: 74, 16
   size: 1, 7
   orig: 1, 7
   offset: 0, 0
   index: -1
-dart
+half axe3
   rotate: false
-  xy: 88, 16
-  size: 1, 7
-  orig: 1, 7
+  xy: 54, 20
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+half axe2
+  rotate: false
+  xy: 59, 20
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+half axe
+  rotate: false
+  xy: 2, 48
+  size: 3, 5
+  orig: 3, 5
   offset: 0, 0
   index: -1
 axe
   rotate: false
-  xy: 54, 20
+  xy: 7, 48
   size: 3, 5
   orig: 3, 5
   offset: 0, 0
@@ -164,9 +178,16 @@ half rock
   orig: 4, 4
   offset: 0, 0
   index: -1
+half dart
+  rotate: false
+  xy: 88, 16
+  size: 1, 4
+  orig: 1, 4
+  offset: 0, 0
+  index: -1
 half arrow
   rotate: false
-  xy: 59, 20
+  xy: 88, 22
   size: 1, 4
   orig: 1, 4
   offset: 0, 0

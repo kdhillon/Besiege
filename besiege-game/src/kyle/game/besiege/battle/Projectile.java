@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.Random;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.party.AmmoType;
 import kyle.game.besiege.party.RangedWeaponType.Type;
@@ -19,6 +20,7 @@ public class Projectile extends Group {
 	private final float GRAVITY = -1;
 	private final float CROSSBOW_BONUS = 2; // bonus factor against shields
 	private final float SHIELD_BLOCK_PROB = 0.8f; // bonus factor against shields
+    private final double STICK_IN_ENEMY_PROB = 0.5;
 
 	private final static boolean FRIENDLY_FIRE = true; // if true, arrows can hurt own team. note that siegeOrRaid hurts own team by default
 	
@@ -30,7 +32,7 @@ public class Projectile extends Group {
 	private final float SPIN = 15;
 	
 	private final float MAX_DRAW_HEIGHT = 3;
-	private final float BASE_SCALE = 0.5f;
+	private static final float BASE_SCALE = 0.5f;
 	private final float HEIGHT_SCALE_FACTOR = .5f;
 
 	private final float ACCURACY_FACTOR = .06f;
@@ -384,6 +386,11 @@ public class Projectile extends Group {
 		return stage.heights[pos_y_int][pos_x_int] != firing.getFloorHeight() || firing.getFloorHeight() == 0f;
 	}
 
+	// Get default small
+	public static float getDefaultSmallScale() {
+        return (BASE_SCALE);
+    }
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		if (!this.inMap()) return;
@@ -423,6 +430,7 @@ public class Projectile extends Group {
 		//change scale based on how high arrow is! TODO
 		//		System.out.println("height: " + this.height);
 
+        // Regular draw
 		if (this.stuck == null) {
 			TextureRegion toDraw = texture;
 			if ((this.stopped && this.isSmallProjectile()) || this.broken) toDraw = halfTexture;
@@ -465,7 +473,8 @@ public class Projectile extends Group {
 
 	// Returns a reasonable angle for a stuck projectile
 	private float randomStuckAngle() {
-	    return (float) (160 + Math.random() * 40);
+	    System.out.println("Using random stuck angle");
+	    return (float) Random.getRandomInRange(90, 270);
     }
 
 	public void collision(Unit that) {
@@ -524,7 +533,6 @@ public class Projectile extends Group {
 //				that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;
 
 				this.stopped = true;
-				this.stuck = that;
 
 //				this.temp_offset_x = (float) Math.random() - .5f;
 //				this.temp_offset_y = (float) Math.random() - .5f;
@@ -532,15 +540,17 @@ public class Projectile extends Group {
 //				this.temp_offset_x *= 5;
 //				this.temp_offset_y *= 10;
 
-                this.temp_offset_x = -5f;
-                this.temp_offset_y = -7f;
-
-//				this.temp_offset_y += STUCK_Y;
+                this.temp_offset_x = -3f + (float) Random.getRandomInRange(-3, 3);
+                this.temp_offset_y = -7f + (float) Random.getRandomInRange(-1, 1);
 
 				this.rotation_offset = that.getRotation() - this.getRotation();
 				this.setRotation(-rotation_offset);
 				this.remove();
-				that.addActor(this);
+
+                if (Math.random() < STICK_IN_ENEMY_PROB) {
+                    this.stuck = that;
+                    that.addActor(this);
+                }
 			}
 		}
 		else {

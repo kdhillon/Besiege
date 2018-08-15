@@ -3,7 +3,7 @@ name			range	acc		reload	quiver  type    texture
 
 Bow				35		6		3		10      bow
 
-Atlatl			15		8		6		2       atlatl  spear
+Atlatl			15		8		3		2       atlatl  spear
 
 Blowgun			10		8		6		2       blowgun club
 

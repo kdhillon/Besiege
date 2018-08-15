@@ -87,7 +87,12 @@ public class AmmoType {
             case THROWN:
                 return Assets.map.findRegion("half dart");
             case THROWN_AXE:
-                return Assets.map.findRegion("axe");
+                double rand = Math.random();
+                if (rand < 0.4)
+                    return Assets.map.findRegion("half axe");
+                if (rand < 0.66)
+                    return Assets.map.findRegion("half axe2");
+                return Assets.map.findRegion("half axe3");
             case THROWN_FIRE:
             case SLING:
                 return Assets.map.findRegion("slingstone");

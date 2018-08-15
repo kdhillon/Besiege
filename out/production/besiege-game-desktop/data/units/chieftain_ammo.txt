@@ -25,7 +25,7 @@ Poisoned(Root)      5   arrow_poison
 Fire_Arrow          5   arrow_fire
 
 Tomahawk(Flint)	 5      thrown_axe
-Spear(Flint)	 10     thrown
+Spear(Flint)	 6     thrown
 
 
 // Plains ammo
