@@ -513,6 +513,7 @@ public class Projectile extends Group {
 
 					this.rotation_offset = that.getRotation() - this.getRotation();
 					that.weaponDraw.addActor(this);
+					this.toBack();
 
 				}
 //				this.destroy();
@@ -550,6 +551,7 @@ public class Projectile extends Group {
                 if (Math.random() < STICK_IN_ENEMY_PROB) {
                     this.stuck = that;
                     that.addActor(this);
+                    this.toBack();
                 }
 			}
 		}

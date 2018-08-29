@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
+import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Destination;
 import kyle.game.besiege.Faction;
@@ -24,6 +25,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.army.Merchant;
 import kyle.game.besiege.army.Patrol;
+import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleActor;
 import kyle.game.besiege.battle.Fire;
 import kyle.game.besiege.panels.BottomPanel;
@@ -99,13 +101,24 @@ public class Location extends Group implements Destination {
 	private StrictArray<Army> garrisonedArmies;
 	public transient Party toHire;
 	transient protected Party nextHire; // prevents player from loading and quitting to get ideal choice of hire
-	public Army garrison;
+
+    // can we make this just a party (not an army)?
+//	public Army garrison;
+	public Party garrison;
 	
 	// have a variable for delayed merchant arrivals?
 
 	private float timeSinceFreshHire;
 
 	public Siege siege;
+
+	// Farmer info
+    public Array<Farmer> farmers;
+    int farmerCount;
+    private static final int MAX_FARMERS = 5;
+
+    // Hunter info
+
 
 //	private float spawnX; // where should units spawn? must be inside
 //	private float spawnY;
@@ -203,9 +216,11 @@ public class Location extends Group implements Destination {
 	public void createGarrison() {
 		String name = this.getName() + " Garrison";
 //		if (getFaction() != null) name = this.getName() + " Garrison " + getFaction().name;
-		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType, this);
-		this.garrison.isGarrison = true;
-		this.garrison.passive = true;
+//		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType, this);
+        this.garrison = PartyType.getPartyType(pType, cultureType).generate();
+//		this.garrison.isGarrison = true;
+//		this.garrison.passive = true;
+
 //		manageGarrison();
 		this.needsUpdate = true;
 	}
@@ -414,19 +429,24 @@ public class Location extends Group implements Destination {
 			// nothing here
 		}
 		else {
-			if (this.garrison.getKingdom() != null) {
-				this.garrison.act(delta);
-			}
-			
-			if (this.garrison == null || this.garrison.getFaction() != this.getFaction()) {
-				System.out.println("garrison of " + this.getName() + " is null");
-				createGarrison();
-			}
-			
-			if (!this.garrison.isInBattle()) {
-				manageGarrison();
-			}
-			
+//			if (this.garrison.getKingdom() != null) {
+//				this.garrison.act(delta);
+//			}
+
+            if (this.garrison == null) {
+                System.out.println("garrison of " + this.getName() + " is null");
+                createGarrison();
+            }
+
+//            if (this.garrison.getFaction() != this.getFaction()) {
+//                System.out.println("garrison of " + this.getName() + " doesn't have a correct faction");
+//                createGarrison();
+//            }
+
+//			if (!this.garrison.isInBattle()) {
+			if (siege == null)
+			    manageGarrison();
+//			}
 
 			if (autoManage) {
 				autoManage();
@@ -460,12 +480,12 @@ public class Location extends Group implements Destination {
 	
 	// sometimes this decreases the size of the playerPartyPanel?
 	public boolean increaseGarrison() {
-		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.party.getAtk());
-		Soldier rand = new Soldier(this.garrison.getPartyType().randomSoldierType(), this.garrison.party);
-		if (this.garrison.party.addSoldier(rand, true)) {
+		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.getAtk());
+		Soldier rand = new Soldier(this.garrison.pt.randomSoldierType(), this.garrison);
+		if (this.garrison.addSoldier(rand, true)) {
 			if (!this.isCastle())
 				this.loseWealth((int) (rand.getBuyCost() * GARRISON_DISCOUNT));
-			System.out.println(" to " + this.garrison.party.getAtk());
+			System.out.println(" to " + this.garrison.getAtk());
 			return true;
 		}
 		else return false;
@@ -473,7 +493,7 @@ public class Location extends Group implements Destination {
 	
 	// do this for villages and cities, but not for castles
 	public boolean shouldIncreaseGarrison() {
-		return this.garrison.party.getAtk() < this.getWealth() * garrisonBudget;
+		return this.garrison.getAtk() < this.getWealth() * garrisonBudget;
 //		return this.getWealth() > 100;
 	}
 
@@ -874,11 +894,11 @@ public class Location extends Group implements Destination {
 
 		if (playerWaiting) {
 			// create array of defenders
-			StrictArray<Army> defendersArmies = this.getGarrisonedAndGarrison();
-			StrictArray<Party> defenders = new StrictArray<Party>();
-			for (Army a : defendersArmies) 
-				defenders.add(a.party);
-				
+			StrictArray<Party> defenders = this.getGarrisonedAndGarrison();
+//			StrictArray<Party> defenders = new StrictArray<Party>();
+//			for (Party p : defendersArmies)
+//				defenders.add(p);
+//
 			StrictArray<Party> attackerParties = new StrictArray<Party>();
 			for (Army a : attackers) {
 				attackerParties.add(a.party);
@@ -886,8 +906,8 @@ public class Location extends Group implements Destination {
 			kingdom.getPlayer().createPlayerBattleWith(defenders, attackerParties, true, this);
 		}
 		else {
-			attackers.first().createBattleWith(garrison, this);
-			BattleActor battleActor = garrison.getBattleActor();
+			attackers.first().createBattleWith(null, this);
+			BattleActor battleActor = attackers.first().getBattleActor();
 			if (battleActor != null) {
 				battleActor.setSiegeLocation(this);
 
@@ -925,11 +945,12 @@ public class Location extends Group implements Destination {
 		// htis is never being called
 		System.out.println(army.getName() + " JOINING SIEGE");
 		siege.add(army);
-		if (garrison.getBattle() != null) {
-			if (garrison.getBattle().shouldJoinAttackers(army)) {
-				garrison.getBattle().addToAttackers(army);
-			} else if (garrison.getBattle().shouldJoinDefenders(army)) {
-				garrison.getBattle().addToDefenders(army);
+		if (siege.battleActor != null) {
+		    Battle battle = siege.battleActor.getBattle();
+			if (battle.shouldJoinAttackers(army)) {
+				battle.addToAttackers(army);
+			} else if (battle.shouldJoinDefenders(army)) {
+                battle.addToDefenders(army);
 			}
 		}
 	}
@@ -962,7 +983,7 @@ public class Location extends Group implements Destination {
 		// contained in extensions
 	}
 //	public void garrison(Soldier soldier) {
-//		garrison.getParty().addSoldier(soldier);
+//		garrison.addSoldier(soldier);
 //	}
 	public void garrison(Army army) {
 		// don't garrison a city garrison
@@ -1091,26 +1112,25 @@ public class Location extends Group implements Destination {
 
 		this.faction = newFaction;
 		if (this.garrison != null) {
-			if (this.type == LocationType.VILLAGE) {
-                this.garrison.setFaction(newFaction);
+			if (this.type != LocationType.VILLAGE) {
+			    createGarrison();
             }
-			else createGarrison();
 //			this.garrison.setFaction(newFaction);
 		}
 		
 
 		if (this.type != LocationType.VILLAGE) {
 			// swap captured and garrison
-			StrictArray<Soldier> oldCaptured = new StrictArray<Soldier>(garrison.getParty().getPrisoners());
-			garrison.getParty().clearPrisoners();
+			StrictArray<Soldier> oldCaptured = new StrictArray<Soldier>(garrison.getPrisoners());
+			garrison.clearPrisoners();
 
-			for (Soldier newPrisoner : garrison.getParty().getWounded()) 
-				this.garrison.getParty().givePrisoner(newPrisoner, this.garrison.getParty());
-			for (Soldier newPrisoner : garrison.getParty().getHealthy())
-				this.garrison.getParty().givePrisoner(newPrisoner, this.garrison.getParty());
+			for (Soldier newPrisoner : garrison.getWounded()) 
+				this.garrison.givePrisoner(newPrisoner, this.garrison);
+			for (Soldier newPrisoner : garrison.getHealthy())
+				this.garrison.givePrisoner(newPrisoner, this.garrison);
 
 			for (Soldier newSoldier : oldCaptured) 
-				this.garrison.getParty().addPrisoner(newSoldier);
+				this.garrison.addPrisoner(newSoldier);
 
 			kingdom.updateFactionCityInfo();
 		}
@@ -1135,7 +1155,7 @@ public class Location extends Group implements Destination {
 	}
 	public Party getParty() {
 		if (garrison == null) return null;
-		return garrison.getParty();
+		return garrison;
 	}
 //	public void setParty(Party playerPartyPanel) {
 //		this.garrison.setParty(playerPartyPanel);
@@ -1225,13 +1245,13 @@ public class Location extends Group implements Destination {
 	}
 
 	// Doesn't return passive armies
-	public StrictArray<Army> getGarrisonedAndGarrison() {
-		StrictArray<Army> garrisoned = new StrictArray<Army>(getGarrisoned());
-		for (Army a : garrisoned) {
-			if (a.passive) garrisoned.removeValue(a, true);
+	public StrictArray<Party> getGarrisonedAndGarrison() {
+		StrictArray<Party> garrisoned = new StrictArray<Party>();
+		for (Army a : garrisonedArmies) {
+			if (!a.passive) {
+			    garrisoned.add(a.party);
+            }
 		}
-		//		Army garrisonArmy = new Army(getKingdom(), "Garrison", getFaction(), getCenterX(), getCenterY(), null);
-		//		garrisonArmy.setParty(garrison);
 		garrisoned.add(garrison);
 		return garrisoned;
 	}
@@ -1254,7 +1274,7 @@ public class Location extends Group implements Destination {
 	public String getFactionName() {
 		if (faction == null) {
 		    if (this.ruin) return "Abandoned";
-		    else return "Independent";
+		    else return Faction.INDEPENDENT_NAME;
         }
 		return faction.name;
 	}
@@ -1284,4 +1304,18 @@ public class Location extends Group implements Destination {
 	public void restoreTexture() {
 		this.setTextureRegion(textureName);
 	}
+
+
+    public void createFarmer() {
+        if (this.farmers.size >= MAX_FARMERS) return;
+        Farmer farmer = new Farmer(getKingdom(), getName() + " Farmers", getFaction(), getCenterX(), getCenterY());
+        getKingdom().addArmy(farmer);
+        farmer.setLocation(this);
+        farmers.add(farmer);
+        setContainerForArmy(farmer);
+    }
+
+    public void removeFarmer(Farmer farmer) {
+        farmers.removeValue(farmer,true);
+    }
 }

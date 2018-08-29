@@ -149,8 +149,8 @@ public class Castle extends Location {
 	
 	@Override
 	public boolean shouldIncreaseGarrison() {
-		if (this.garrison.party.getAtk() > 1000) return false;
-		return this.garrison.party.getAtk() < (this.getFaction().getTotalWealth() * 0.1 / this.getFaction().castles.size);
+		if (this.garrison.getAtk() > 1000) return false;
+		return this.garrison.getAtk() < (this.getFaction().getTotalWealth() * 0.1 / this.getFaction().castles.size);
 //		return this.getWealth() > 100;
 	}
 	

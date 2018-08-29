@@ -28,6 +28,8 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 	private int[] tiers;
 //	private NewUnitType[] unitTypes;
 
+    private String[] unitNames; // If present, only allow units with these words in their names
+
 	private int minCount;
 	private int maxCount;
 	
@@ -138,19 +140,20 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 		int tierToUse = tiers[tierIndex];
 
 		Object[] types = (classToUse.units.values().toArray());
-//        System.out.println("culture: " +classToUse.name);
-        for (Object object : types) {
-            UnitType type = (UnitType) object;
-//            System.out.println(type.name);
-        }
 
-		randomIndex = MathUtils.random(0, types.length-1);
-//		unitType = (UnitType) types[randomIndex];
 		boolean valid = false;
-	
 //		// make sure class actually has a unit in the right tier
 		for (UnitType unit : classToUse.units.values()) {
-			if (unit.tier == tierToUse) valid = true;
+			if (unit.tier == tierToUse) {
+			    // If forcing from a list of units (ie farmers only) select that.
+			    if (unitNames != null) {
+			        for (String s : unitNames) {
+			            if (unit.name.contains(s)) valid = true;
+                    }
+                } else {
+                    valid = true;
+                }
+            }
 		}
 		if (!valid) {
 			System.out.println("Missing tier " + tierToUse + " for " + classToUse.name);
@@ -158,11 +161,23 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 		}
 		
 		// Random sample from all units at this tier level.
+        valid = false;
 		do {
 			randomIndex = MathUtils.random(0, types.length-1);
 			unitType = (UnitType) types[randomIndex];
+
+            if (unitType.tier == tierToUse) {
+                // If forcing from a list of units (ie farmers only) select that.
+                if (unitNames != null) {
+                    for (String s : unitNames) {
+                        if (unitType.name.contains(s)) valid = true;
+                    }
+                } else {
+                    valid = true;
+                }
+            }
 		}
-		while (unitType.tier != tierToUse);
+		while (!valid);
 
 //		System.out.println("returning: " + unitType.name);
 		return unitType;
@@ -225,6 +240,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.maxCount = 12;
 			pt.minCount = 4;
 			pt.tiers = new int[]{1};
+			pt.unitNames = new String[]{"Farmer", "Villager"};
 			break;
 		case PATROL:
 			pt.name = "Patrol";

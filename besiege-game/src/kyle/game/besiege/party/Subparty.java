@@ -296,7 +296,7 @@ public class Subparty {
 	
 	public int getSpotsRemaining() {
 	    if (this.general != null)
-		    return this.general.getMaxSubPartySize() - this.getTotalSize();
+		    return this.general.getMaxSubPartySize() + 1 - this.getTotalSize();
 	    else return HARD_MAX - this.getTotalSize();
 	}
 	

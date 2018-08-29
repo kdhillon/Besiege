@@ -3,7 +3,7 @@ name			dmg	  type
 // Temporary defaults
 Stone           2     sling
 Dart            2     dart
-Arrow             2     bow
+Arrow             2     arrow
 
 Large_Rock      2     thrown
 
@@ -24,8 +24,8 @@ Broadhead(Copper)   7   arrow
 Poisoned(Root)      5   arrow_poison
 Fire_Arrow          5   arrow_fire
 
-Tomahawk(Flint)	 8      thrown_axe
-Spear(Flint)	 10     thrown
+Tomahawk(Flint)	 5      thrown_axe
+Spear(Flint)	 6     thrown
 
 
 // Plains ammo

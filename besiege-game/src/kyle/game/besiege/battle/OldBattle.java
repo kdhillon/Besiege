@@ -38,33 +38,33 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 	private StrictArray<Army> aArmies;
 	private StrictArray<Army> dArmies;
-	private StrictArray<Army> aArmiesRet; 
+	private StrictArray<Army> aArmiesRet;
 	private StrictArray<Army> dArmiesRet;
-	
+
 	private StrictArray<Party> aParties;
 	private StrictArray<Party> dParties;
 	private StrictArray<Party> aPartiesRet;
 	private StrictArray<Party> dPartiesRet;
 
-	private double aAdvantage;// calculated constants controlled by external factors 
+	private double aAdvantage;// calculated constants controlled by external factors
 	private double dAdvantage;// like player's command skill, etc.
-	
+
 	private boolean playerInA;
 	private boolean playerInD;
-	
+
 	private boolean firstTimeInit = false;
-	
+
 	private int aAtk;
 	private int dAtk;
-	
+
 	private double balanceA; // Overall balance of the battle, useful for creating a balance bar
 	private double balanceD;
-		
+
 	private boolean isOver;
 	private boolean didAtkWin;
-	
+
 	// garrison battles are slow for some reason
-	
+
 	// For Kryo
 	public OldBattle() {	}
 
@@ -80,14 +80,14 @@ public class OldBattle implements Battle { // new battle system involving Party
 		dParties = new StrictArray<Party>();
 		aPartiesRet = new StrictArray<Party>();
 		dPartiesRet = new StrictArray<Party>();
-		
+
 		aParties.add(initAttackerParty);
 		dParties.add(initDefenderParty);
-		
+
 		calcStats();
         victoryManager = new VictoryManager(kingdom, this, battleActor.getSiegeLocation(), balanceD);
         victoryManager.addInitTroopCount(initAttackerParty.getHealthySize() + initDefenderParty.getHealthySize());
-		
+
 		if (initAttackerParty.player) playerInA = true;
 		else if (initDefenderParty.player) playerInD = true;
 
@@ -96,16 +96,16 @@ public class OldBattle implements Battle { // new battle system involving Party
 			dArmies = new StrictArray<Army>();
 			aArmiesRet = new StrictArray<Army>();
 			dArmiesRet = new StrictArray<Army>();
-			
+
 			aArmies.add(initAttacker);
 			dArmies.add(initDefender);
-			
+
 			initAttacker.setStopped(true);
 			initAttacker.setVisible(false);
 			initDefender.setStopped(true);
 			initDefender.setVisible(false);
 		}
-		
+
 		aAdvantage = 1; // for now. make influenced by player's attribute as well as morale.
 		dAdvantage = 1;
 	}
@@ -126,14 +126,14 @@ public class OldBattle implements Battle { // new battle system involving Party
 		balanceD = dAtk*dAdvantage;
 		double total = balanceA + balanceD;
 		balanceA = balanceA / total; // balanceA + balanceD = 1
-		balanceD = balanceD / total; 
+		balanceD = balanceD / total;
 	}
-	
+
 	@Override
 	public double getBalanceDefenders() {
 		return balanceD;
 	}
-	
+
 	@Override
 	public float getAttackingAtk() {
 		return aAtk;
@@ -142,8 +142,8 @@ public class OldBattle implements Battle { // new battle system involving Party
 	public float getDefendingAtk() {
 		return dAtk;
 	}
-	
-	private void remove(Army army) {	
+
+	private void remove(Army army) {
 		if (aArmies.contains(army, true)) {
 			aParties.removeValue(army.party, true);
 			aArmies.removeValue(army, true);
@@ -166,7 +166,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		army.setStopped(false);
 		army.setVisible(false);
 //		if (kingdom.getArmies().contains(army, true) && army.isGarrisoned()) this.setVisible(true);
-		
+
 		if (army == kingdom.getPlayer()) {
 			playerInA = false;
 			playerInD = false;
@@ -174,7 +174,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			this.simulate(.001f);// arbitrary time
 		}
 	}
-	
+
 	private void destroy(Army army) {
 		if (aArmies.contains(army, true) || aArmiesRet.contains(army, true)) {
 			if (playerInA) log(army.getName() + " was destroyed!", "red");
@@ -199,7 +199,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 		army.destroy();
 	}
-	
+
 	private void retreat(Army army) {
 		army.retreatCounter = MIN_RETREAT_TIME + BASE_RETREAT_TIME / army.getParty().getAvgSpd(); // start countdown
 		if (aArmies.contains(army, true)) {
@@ -212,7 +212,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			log(army.getName() + " is retreating!", "yellow");
 		}
 		else if (dArmies.contains(army, true)) {
-			dArmies.removeValue(army, true);	
+			dArmies.removeValue(army, true);
 			dParties.removeValue(army.party, true);
 			if (!aArmiesRet.contains(army, true)) {
 				dArmiesRet.add(army);
@@ -222,11 +222,11 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
         victoryManager.handleArmyRetreat(army);
 	}
-	
+
 	// returns false if there's been a victory so the next phase can be skipped
 	private void meleePhase() {
 		calcStats();
-		
+
 		if (aArmies.size >= 1) {
 			 if (dArmies.size >= 1)
 				 attackStep();
@@ -238,10 +238,10 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 		else if (aArmiesRet.size <= 0) {
 //			System.out.println(getName() + " point 2");
-			victory(dArmies, aArmies);	
+			victory(dArmies, aArmies);
 			return;
 		}
-		
+
 		if (!isOver) { // so battle doesn't "end" twice buggy!
 			calcStats();
 
@@ -270,7 +270,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 				victory(dArmies, aArmies);
 		}
 	}
-	
+
 	private void finalizeRetreat(Army army) {
 		for (Soldier s : army.party.getHealthy()) {
 			s.registerBattleRetreat();
@@ -280,7 +280,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 		remove(army);
 	}
-	
+
 	private void retreatPhase(float delta) {
 		calcStats();
 		if (aArmiesRet.size >= 1) {
@@ -299,13 +299,13 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 1 with counter " + army.retreatCounter);
-				if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) 
+				if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD)
 					this.destroy(army);
 				else {
 					finalizeRetreat(army);
 				}
 			}
-			if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) 
+			if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD)
 				this.destroy(army);
 		}
 		for (Army army : dArmiesRet) {
@@ -313,12 +313,12 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 2 with counter " + army.retreatCounter);
-				if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD) 
+				if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD)
 					this.destroy(army);
 				else
 					remove(army);
 			}
-			if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD) 
+			if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD)
 				this.destroy(army);
 		}
 	}
@@ -355,7 +355,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 	}
 
-	private void defenseStep() {	
+	private void defenseStep() {
 		for (Army defense : aArmies) {
 			double defenseRoll = Math.random() * SPEED * defense.getParty().getAvgDef();
 			//System.out.println("defense roll of attacker : " + defenseRoll);
@@ -367,7 +367,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			}
 		}
 	}
-	
+
 	private void killOne(Army army, boolean wasInAttackers) { // kills/wounds one random troop in this army, weighted by the troop's defense
 		// Now choose a random soldier weighted by def
 		Soldier random = army.party.getRandomWeightedInverseDefense();
@@ -376,15 +376,15 @@ public class OldBattle implements Battle { // new battle system involving Party
 			this.destroy(army);
 			return;
 		}
-		
+
 		casualty(random, wasInAttackers);
-		
+
 		if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) {
 			log(army.getName() + " lost all troops and was removed from battle", "red");
 			this.destroy(army);
 		}
 	}
-	
+
 	// main thing called by battlestage?
 	public void casualty(Soldier soldier, boolean wasInAttackers) {
 		Soldier killer = getRandomForKill(!wasInAttackers);
@@ -392,23 +392,23 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 	    victoryManager.handleCasualty(soldier, wasInAttackers, killed);
 	}
-	
+
 	private Soldier getRandomForKill(boolean fromAttackers) {
 		StrictArray<Army> armies;
 		if (fromAttackers) armies = aArmies;
 		else armies = dArmies;
-		
+
 		armies.shrink();
-		
+
 		// get random playerPartyPanel based on healthy size
 		int totalSize = 0;
 		for (int i = 0; i < armies.size; i++) {
 			totalSize += armies.get(i).party.getHealthySize();
 		}
-		
+
 		int randomIndex = -1;
 		int randomValue = (int) (Math.random() * totalSize);
-		
+
 		for (int i = 0; i < armies.size; ++i)
 		{
 			randomValue -= armies.get(i).party.getHealthySize();
@@ -418,27 +418,27 @@ public class OldBattle implements Battle { // new battle system involving Party
 				break;
 			}
 		}
-	
+
 		// if for some reason can't register this kill, that's ok.
 		if (randomIndex == -1) return null;
-		
-		return armies.get(randomIndex).party.getRandomWeightedAttack();	
+
+		return armies.get(randomIndex).party.getRandomWeightedAttack();
 	}
-	
+
 	private void logDefeat(Army army) {
 		log(army.getName() + " was defeated!", "green");
 	}
-	
+
 	private void victory(StrictArray<Army> victor, StrictArray<Army> loser) {
 		if (kingdom.getMapScreen().getSidePanel().getActivePanel().getClass() == PanelBattle.class &&
-				((PanelBattle) (kingdom.getMapScreen().getSidePanel().getActivePanel())).battle == this) 
+				((PanelBattle) (kingdom.getMapScreen().getSidePanel().getActivePanel())).battle == this)
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
-		
+
 		if (victor == aArmies) didAtkWin = true;
 		else if (victor == dArmies) didAtkWin = false;
 
 		victor.shrink();
-		
+
 		// manage victorious armies and calculate contributions
 		for (int i = 0; i < victor.size; i++) {
 			Army army = victor.get(i);
@@ -448,28 +448,28 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (army.getParty().player) {
 				kingdom.getMapScreen().getSidePanel().setDefault(true);
 			}
-		
+
 			//	log(army.getName() + " has won a battle", "cyan");
 			if (!army.isGarrisoned()) army.setVisible(true);
-			army.nextTarget(); // 
-			
+			army.nextTarget(); //
+
 			if (army.getParty().player) {
 //				army.setStopped(true);
 				army.setTarget(null);
 			}
 		}
-		
+
 
 		if (victoryManager != null) {
 		    victoryManager.handleVictory(aParties, dParties, didAtkWin);
         }
 		destroy();
 	}
-	
+
 	private void destroy() {
 		if (playerInA || playerInD)
 			kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
-		
+
 		if (aArmies != null) {
 			aArmies.clear();
 			dArmies.clear();
@@ -478,9 +478,9 @@ public class OldBattle implements Battle { // new battle system involving Party
 			aParties.clear();
 			dParties.clear();
 			aPartiesRet.clear();
-			dPartiesRet.clear(); 
+			dPartiesRet.clear();
 		}
-		
+
 		aArmies = null;
 		dArmies = null;
 		aArmiesRet = null;
@@ -490,7 +490,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		aPartiesRet = null;
 		dPartiesRet = null;
 		this.isOver = true;
-		
+
 		// Kill battle actor as well.
 		if (this.battleActor != null) {
 			this.battleActor.destroy();
@@ -503,7 +503,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 	}
 
 	// calculates the hypothetical initial balance (0 - 1.0) in a battle between these armies, for the first set (w/ no advantage)
-	public static double calcBalance(StrictArray<Army> first, double firstAdvantage, StrictArray<Army> second, double secondAdvantage) {
+	public static double calcBalance(StrictArray<Army> first, double firstAdvantage, StrictArray<Party> second, double secondAdvantage) {
 		int firstAtk = 0;
 		int firstSize = 0;
 		for (Army a : first) {
@@ -512,18 +512,18 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 		int secondAtk = 0;
 		int secondSize = 0;
-		for (Army a : second) {
-			secondAtk += a.getParty().getAtk();
-			secondSize += a.getParty().getTotalSize();
+		for (Party p : second) {
+			secondAtk += p.getAtk();
+			secondSize += p.getTotalSize();
 		}
 		double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
 		double balanceSecond = secondAtk*secondAdvantage + secondSize;
 		double total = balanceFirst + balanceSecond;
 		return balanceFirst / total; // balanceA + balanceD = 1
 	}
-	
+
 	// Identical to above, but takes nobles instead of Armies
-	public static double calcBalanceNobles(StrictArray<Noble> first, double firstAdvantage, StrictArray<Army> second, double secondAdvantage) {
+	public static double calcBalanceNobles(StrictArray<Noble> first, double firstAdvantage, StrictArray<Party> second, double secondAdvantage) {
 		int firstAtk =0;
 		int firstSize = 0;
 		for (Army a : first) {
@@ -532,9 +532,9 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 		int secondAtk = 0;
 		int secondSize = 0;
-		for (Army a : second) {
-			secondAtk += a.getParty().getAtk();
-			secondSize += a.getParty().getTotalSize();
+		for (Party p : second) {
+			secondAtk += p.getAtk();
+			secondSize += p.getTotalSize();
 		}
 		double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
 		double balanceSecond = secondAtk*secondAdvantage + secondSize;
@@ -599,7 +599,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			playerInD = true;
 			kingdom.getMapScreen().getSidePanel().setActiveBattle(this);
 		}
-		//expA 
+		//expA
 		dArmies.add(army);
 		dParties.add(army.party);
 		log(army.getName() + " was added to defenders!", "pink");
@@ -607,22 +607,22 @@ public class OldBattle implements Battle { // new battle system involving Party
         victoryManager.addInitTroopCount(army.getParty().getHealthySize());
 		return true;
 	}
-	
+
 	@Override
 	public StrictArray<Party> getAttackingParties() {
 		return aParties;
 	}
-	
+
 	@Override
 	public StrictArray<Party> getDefendingParties() {
 		return dParties;
 	}
-	
+
 	@Override
 	public StrictArray<Party> getAttackingRetreatingParties() {
 		return aPartiesRet;
 	}
-	
+
 	@Override
 	public StrictArray<Party> getDefendingRetreatingParties() {
 		return dPartiesRet;
@@ -647,7 +647,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (army.isAtWar(aArmies.first())) {
 				if (!army.isAtWar(dArmies.first()))
 					return false; // defenders
-			} 
+			}
 		}
 		return false; // shouldn't join
 	}
@@ -702,7 +702,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 	public boolean playerDefending() {
 		return playerInD;
 	}
-	
+
 	@Override
 	public boolean isOver() {
 		return isOver;

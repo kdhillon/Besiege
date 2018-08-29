@@ -101,7 +101,7 @@ public class Siege extends Actor {
 	}
 	
 	public void attack() {
-		System.out.println("attack at " + location.getName() + " which has " + location.getWealth() + " wealth and " + location.garrison.getParty().getTotalSize() + " defenders");
+		System.out.println("attack at " + location.getName() + " which has " + location.getWealth() + " wealth and " + location.garrison.getTotalSize() + " defenders");
 		// make sure siegeOrRaid is set
 		location.siege = this;
 //		System.out.println("SETTING SIEGE");

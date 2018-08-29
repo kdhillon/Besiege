@@ -21,6 +21,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.UnitDraw;
 
 public class ArmyPlayer extends Army {
 //	private final String TEXTURE_REGION = "Player";
@@ -162,7 +163,7 @@ public class ArmyPlayer extends Army {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
           // Draw an animation of the player's current armor, and skin.
-        Unit.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
+        UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
 
         if (Map.debug){
 			batch.end();

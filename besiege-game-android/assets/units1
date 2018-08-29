@@ -115,6 +115,13 @@ preview-armor
   orig: 8, 8
   offset: 0, 0
   index: -1
+sling
+  rotate: false
+  xy: 20, 12
+  size: 56, 7
+  orig: 56, 7
+  offset: 0, 0
+  index: -1
 
 old1.png
 format: RGBA8888

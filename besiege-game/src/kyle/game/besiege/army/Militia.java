@@ -33,7 +33,7 @@
 //		}
 //	}
 //	
-//	public void setVillage(Village village) {
+//	public void setLocation(Village village) {
 //		this.village = village;
 //	}
 //

@@ -34,7 +34,7 @@ Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
 4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)
 
 // Heavy Infantry
-3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin      Spearman_(Vet)
+3   Spearman        Spear(Flint)                          Breastplate(Wood_Rods)/Round_Elkskin     Spearman_(Vet)
 4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)
 
 // Light Infantry

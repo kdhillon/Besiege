@@ -33,6 +33,7 @@ import kyle.game.besiege.voronoi.Center;
  */
 
 public class Faction {
+    public static final String INDEPENDENT_NAME = "Independent";
 	//	public static final int INCREASE_INTERVAL = 10; // every these seconds, relations will increase btw these factions
 	public static final int CLOSE_CITY_FACTOR = 2; // this times num of close cities of one faction will decrease the relation with that faction
 	private static final int FACTION_UPDATE_FREQ = 5; // every x hours, factions update nobles and diplomacy

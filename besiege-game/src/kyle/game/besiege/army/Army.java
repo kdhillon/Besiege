@@ -37,6 +37,7 @@ import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
+import kyle.game.besiege.party.UnitDraw;
 import kyle.game.besiege.voronoi.Center;
 
 import static kyle.game.besiege.location.Location.getAdjustedZoom;
@@ -194,7 +195,7 @@ public class Army extends Actor implements Destination {
 	
 		this.setPosition(posX, posY);
 //		this.setRotation(90);
-		
+
 		kingdom.updateArmyPolygon(this);
 
 		if (type != null) {
@@ -411,10 +412,10 @@ public class Army extends Actor implements Destination {
 
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		if (this.getFaction() == null) {
-			return;
-		}
-        Unit.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
+//		if (this.getFaction() == null) {
+//			return;
+//		}
+        UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
 
         // draw los
 		drawLOS();
@@ -542,26 +543,34 @@ public class Army extends Actor implements Destination {
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
 		if (this.battleActor != null) return;
-		
-//		if (true) return;
-		
-		//		System.out.println(this.getName() + " creating battle");
+		if (targetArmy == null && siegeOf == null) {
+		    throw new AssertionError();
+        }
+
+        // If targetArmy is null, we are attacking a location (garrison is a party not an army)
+        Party targetParty = null;
+		if (targetArmy != null) targetParty = targetArmy.party;
+        else {
+            targetParty = siegeOf.garrison;
+        }
+
 		if (this == getKingdom().getPlayer()) {
-			BottomPanel.log("Attacking " + targetArmy.getName() + "!");
+			BottomPanel.log("Attacking " + targetParty.getName() + "!");
 			
 			// get nearby armies and make them join battle
 			Array<Party> nearAllies = new Array<Party>();
 			nearAllies.add(this.party);
 		
 			Array<Party> nearEnemies = new Array<Party>();
-			nearEnemies.add(targetArmy.party);
-			
+			nearEnemies.add(targetParty);
+
+			// TODO: this is O(N)
 			for (Army a : kingdom.getArmies()) {
 				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight || (a.isGarrisoned() && siegeOf == null) || 
 						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true)) continue;
-				if (a.isAtWar(targetArmy) && !a.isAtWar(this))
+				if (a.isAtWar(targetParty.getFaction()) && !a.isAtWar(this))
 					nearAllies.add(a.party);
-				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))
+				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this))
 					nearEnemies.add(a.party);
 			}
 			
@@ -596,9 +605,11 @@ public class Army extends Actor implements Destination {
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else {
-			BattleActor b = new BattleActor(getKingdom(), this.party, targetArmy.party);
+			BattleActor b = new BattleActor(getKingdom(), this.party, party);
 			this.setBattleActor(b);
-			targetArmy.setBattleActor(b);
+
+			if (targetArmy != null)
+			    targetArmy.setBattleActor(b);
 			getKingdom().addBattle(b);
 		}
 		//shouldJoinBattle();
@@ -1123,7 +1134,8 @@ public class Army extends Actor implements Destination {
 		//System.out.println(this.name + " is raiding " + village.getName());
 //		Militia militia = village.createMilitia();
 //		getKingdom().addArmy(militia);
-		createBattleWith(village.garrison, village);
+        // using null target army defaults to siege battle against garrison
+		createBattleWith(null, village);
 	}
 	
 	public void calcInitWealth() {
@@ -1210,6 +1222,9 @@ public class Army extends Actor implements Destination {
 	public void setFaction(Faction faction) {
 		this.faction = faction;
 	}
+	public ArmyType getArmyType() {
+	    return type;
+    }
 	public DestType getType() {
 		return Destination.DestType.ARMY; // army type
 	}
@@ -1412,6 +1427,12 @@ public class Army extends Actor implements Destination {
 		return faction.atWar(destination.getFaction());
 	}
 
+    public boolean isAtWar(Faction faction) {
+        if (faction == null) return true;
+        if (this.faction == null) return true;
+        return faction.atWar(faction);
+    }
+
 	// laziness sake
 	// this is called a fuckton and uses the most time.
 	protected double distToCenter(Destination d) {
@@ -1520,6 +1541,7 @@ public class Army extends Actor implements Destination {
 		return getY() + getOriginY();
 	}
 	public String getFactionName() {
+	    if (faction == null) return Faction.INDEPENDENT_NAME;
 		return faction.name;
 	}
 	public void setParty(Party party) {
@@ -1532,6 +1554,7 @@ public class Army extends Actor implements Destination {
 	public PartyType getPartyType() {
 		return partyType;
 	}
+
 	public Point toPoint() {
 		return new Point(getCenterX(), getCenterY());
 	}
@@ -1604,8 +1627,8 @@ public class Army extends Actor implements Destination {
 		return kingdom.getMap().getCenter(containingCenter);
 	}
 	public void restoreAnimation() {
-        walkArmor	= Unit.createAnimation("walk-armor", 2, ANIMATION_LENGTH);
-        walkSkin 	= Unit.createAnimation("walk-skin", 2, ANIMATION_LENGTH);
+        walkArmor	= UnitDraw.createAnimation("walk-armor", 2, ANIMATION_LENGTH);
+        walkSkin 	= UnitDraw.createAnimation("walk-skin", 2, ANIMATION_LENGTH);
 	}
 	public General getGeneral() {
 		return this.party.getGeneral();

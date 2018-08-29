@@ -43,14 +43,20 @@ public class TopTable extends Table {
 		title.setAlignment(0,0);
 		title.setWrap(true);
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
-		subtitle = new Label("", lsFaction);
+        subtitle = new Label("", lsFaction);
 		subtitle.setAlignment(0,0);
-		subtitle2 = new Label("", ls);
+		subtitle.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
+		subtitle.setWrap(true);
+		// This isn't changing line spacing
+        subtitle.getStyle().font.getData().ascent *= 0.2f;
+//        subtitle.getStyle().font.getData().lineHeight *= 0.8f;
+
+        subtitle2 = new Label("", ls);
 		subtitle2.setAlignment(0,0);
 		subtitle3 = new Label("",ls);
 		subtitle3.setWrap(true);
 		subtitle3.setAlignment(Align.center);
-		
+
 		this.defaults().padTop(NEG).left();
 //		this.debug();
 		

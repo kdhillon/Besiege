@@ -2,6 +2,7 @@ package kyle.game.besiege.battle;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -100,10 +101,10 @@ public class Unit extends Group {
 	public int team;
 	//	public Array<Unit> enemyArray;
 	public BattleParty enemyParty;
-	boolean isHit; // is unit hit
-	boolean isDying;
+	public boolean isHit; // is unit hit
+	public boolean isDying;
 	boolean isHidden;
-	float timeSinceDeath = 0;
+	public float timeSinceDeath = 0;
 
 	public int pos_x = -1;
 	public int pos_y = -1;
@@ -122,20 +123,52 @@ public class Unit extends Group {
 	public Unit nearestEnemy;
 	public Unit nearestTarget;
 
-	public WeaponDraw weaponDraw;
+    public float stateTime;
+    public float firingStateTime;
 
 	public float rotation;
 	private boolean retreating;
 
 	public float updateNearestEnemy;
 
-	float stateTime;
-	float firingStateTime;
-	boolean currentlyFiring;
-	public Animation walkArmor, walkSkin;
-	//	public Animation animationAttack;
-	public Animation dieArmor, dieSkin;
-	public Animation firingArmor, firingSkin;
+    public WeaponDraw weaponDraw;
+    public UnitDraw unitDraw;
+	public ThrownItem thrownItem;
+
+	// This will be added to Unit, so that rotation/position is tied to that.
+	private static class ThrownItem extends Actor {
+        public Animation sling;
+        public TextureRegion textureRegion;
+
+        public ThrownItem(RangedWeaponType.Type type) {
+            this.setX(6);
+            this.setY(-4);
+            this.setScale(2);
+
+            if (type == RangedWeaponType.Type.SLING) {
+                sling = UnitDraw.createAnimation("sling", 8, 0.08f);
+                sling.setPlayMode(Animation.LOOP);
+                this.setWidth(sling.getKeyFrame(0).getRegionWidth());
+                this.setHeight(sling.getKeyFrame(0).getRegionHeight());
+            }
+
+            if (textureRegion != null) {
+                this.setWidth(textureRegion.getRegionWidth());
+                this.setHeight(textureRegion.getRegionHeight());
+            }
+        }
+
+        // Let the width of this be the same as the textureRegion or animation.
+	    @Override
+	    public void draw(SpriteBatch batch, float parentAlpha) {
+            this.toFront();
+            super.draw(batch, parentAlpha);
+            Unit parent = (Unit) getParent();
+            if (parent.unitDraw.isDrawingRangedLoadedAnimation()) {
+                UnitDraw.drawAnimationTint(batch, sling, parent.firingStateTime, true, UnitLoader.colors.get("DK_BROWN"), this);
+            }
+        }
+    }
 
 	private boolean firingLoop;
     public boolean drawAmmo;
@@ -159,8 +192,7 @@ public class Unit extends Group {
 	//	Animation knightIdle;
 	//	Animation swordWalk;
 	//	Animation swordAttack;
-	private Color c = new Color();
-	
+
 	public Unit(BattleStage parent, int team, Soldier soldier, BattleSubParty bp) {
 		stage = parent;
 
@@ -215,109 +247,48 @@ public class Unit extends Group {
 		// check if in cover
 		checkIfInCover();
 
-		assignColor();
-
 		calcStats();
 
-		if (this.spd == 0) System.out.println("speed is 0");
+        if (this.spd == 0) System.out.println("speed is 0");
 
-		float ani = 0.25f;
-		walkArmor	= createAnimation("walk-armor", 2, ani);
-		walkSkin 	= createAnimation("walk-skin", 2, ani);
+		if (rangedWeapon != null) {
+		    reloading = INIT_RELOAD; // initial reload time
 
-		// later on randomize the dying animation
-		dieArmor	= createAnimation("die1-armor", 4, ani);
-		dieSkin 	= createAnimation("die1-skin", 4, ani);
-		dieArmor.setPlayMode(Animation.NORMAL);
-		dieSkin.setPlayMode(Animation.NORMAL);
-
-		if (this.isRanged()) {
-		    if (this.rangedWeapon.type == RangedWeaponType.Type.FIREARM) {
-                firingArmor	= createAnimation("firearm-armor", 2, 2);
-                firingSkin 	= createAnimation("firearm-skin", 2, 2);
-                firingArmor.setPlayMode(Animation.NORMAL);
-                firingSkin.setPlayMode(Animation.NORMAL);
-                firingLoop = true;
-                drawAmmo = false;
+            if (this.rangedWeapon.type == RangedWeaponType.Type.SLING) {
+                thrownItem = new Unit.ThrownItem(RangedWeaponType.Type.SLING);
+                this.addActor(thrownItem);
             }
-            else if (this.rangedWeapon.type == RangedWeaponType.Type.ATLATL) {
-                firingArmor	=    createAnimation("atlatl-armor", 2, 2);
-                firingSkin 	= createAnimation("atlatl-skin", 2, 2);
-                firingArmor.setPlayMode(Animation.REVERSED);
-                firingSkin.setPlayMode(Animation.REVERSED);
-                firingLoop = false;
-                drawAmmo = true;
-            }
-            else if (this.rangedWeapon.type == RangedWeaponType.Type.THROWN_AXE) {
-                firingArmor	=    createAnimation("thrown-armor", 2, 2);
-                firingSkin 	= createAnimation("thrown-skin", 2, 2);
-                firingArmor.setPlayMode(Animation.REVERSED);
-                firingSkin.setPlayMode(Animation.REVERSED);
-                firingLoop = false;
-                drawAmmo = true;
-                drawAmmoReversed = true;
-            }
-            else if (this.rangedWeapon.type == RangedWeaponType.Type.THROWN || this.rangedWeapon.type == RangedWeaponType.Type.THROWN_FIRE) {
-                firingArmor	=    createAnimation("thrown-armor", 2, 2);
-                firingSkin 	= createAnimation("thrown-skin", 2, 2);
-                firingArmor.setPlayMode(Animation.REVERSED);
-                firingSkin.setPlayMode(Animation.REVERSED);
-                firingLoop = false;
-                drawAmmo = true;
-                drawAmmoReversed = false;
-            }
-            else {
-                firingArmor = createAnimation("firing-armor", 2, 2);
-                firingSkin = createAnimation("firing-skin", 2, 2);
-                firingArmor.setPlayMode(Animation.NORMAL);
-                firingSkin.setPlayMode(Animation.NORMAL);
-                firingLoop = false;
-                drawAmmo = false;
-            }
-		}
-
-		firingStateTime = 0f;
-		stateTime = 0f;
-		if (rangedWeapon != null) reloading = INIT_RELOAD; // initial reload time
+        }
 
 		//		this.height = 0;
 
 		this.weaponDraw = new WeaponDraw(this);
 		this.addActor(weaponDraw);
 
+		unitDraw = new UnitDraw(this);
+        this.addActor(unitDraw);
+
+
 		if (this.horse != null) {
 			isMounted = true;
 		}
+
+        firingStateTime = 0f;
+        stateTime = 0f;
 
 //		if (this.team == 0 && stage.siegeOrRaid && stage.playerDefending) this.canRetreat = false;
 //		if (this.team == 1 && stage.siegeOrRaid && !stage.playerDefending) this.canRetreat = false;
 	}
 
-	private void assignColor() {
-		this.armorTint = soldier.unitType.armor.color;
-		if (soldier.unitType.armor.isNaked()) armorTint = Color.CLEAR;
-		this.skinTint = soldier.getColor();
-	}
-
-	// create animation with speed .25f assuming one row, loops by default
-    public static Animation createAnimation(String filename, int columns, float time) {
-		TextureRegion walkSheet = Assets.units.findRegion(filename);
-		if (walkSheet == null) throw new AssertionError(filename + " not found");
-		TextureRegion[][] textureArray = walkSheet.split(walkSheet.getRegionWidth()/columns, walkSheet.getRegionHeight()/1);
-		Animation animation = new Animation(time, textureArray[0]);
-		animation.setPlayMode(Animation.LOOP);
-		return animation;
-	}
 
 	@Override
 	public void act(float delta) {
-		stateTime += delta * (1 + getSpeed()/50);
-		firingStateTime += delta;
-
 		if (!this.inMap() && !isDying) {
 		    this.retreatDone();
 		    return;
         }
+        stateTime += delta;
+        firingStateTime += delta;
 
 		if (nearestTarget != null && nearestTarget.outOfBattle) nearestTarget = null;
         if (nearestEnemy != null && nearestEnemy.outOfBattle) nearestEnemy = null;
@@ -543,56 +514,39 @@ public class Unit extends Group {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {		
 //		if (this.isHidden() && !this.isDying && this.team != 0) return;
+        // First draws weapondraw (everything under Unit)
+        // Then draws Unitdraw (Unit armor etc)
+        // Then draws ThrownItem (on top of unit)
 
-		if (isDying) {
+//		if (isDying) {
 		    // For now, don't draw equipment.
 //             TODO draw equipment (specifically headdress)
-		    drawUnit(this, batch, dieArmor, dieSkin, armorTint, skinTint, timeSinceDeath, false, equipment);
-			super.draw(batch,  parentAlpha);
-		}
-		else {
-			this.setScale(1+this.getFloorHeight()/5f);
-			super.draw(batch, parentAlpha);
+//		    drawUnit(this, batch, dieArmor, dieSkin, armorTint, skinTint, timeSinceDeath, false, equipment);
 
-			this.toFront();
-			c.set(batch.getColor());
+        if (moving) {
+            setX(currentX() * stage.unit_width);
+            setY(currentY() * stage.unit_height);
+        } else if (!isDying) {
+            setX(pos_x * stage.unit_width);
+            setY(pos_y * stage.unit_height);
+        }
 
-			updateRotation();
+        if (!rotationFixed) {
+            updateRotation();
+        }
 
-			if (moving) {
-				setX(currentX() * stage.unit_width);
-				setY(currentY() * stage.unit_height);
-			}
-			else {
-				setX(pos_x * stage.unit_width);
-				setY(pos_y * stage.unit_height);
-			}
+        if (!this.isDying) {
+            this.toFront();
+        }
+        this.setScale(1 + this.getFloorHeight() / 5f);
+        super.draw(batch, parentAlpha);
+//		}
+//		else {
+
 
 			//			batch.setColor(this.tintColor);
 
-			if (this.isHit)
-				batch.setColor(1, 0, 0, 1); 
-			else if (attacking != null) {
-				// maybe remove later
-				this.face(attacking);
-                drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, stateTime, equipment);
-			}
-			else if (moveSmooth) {
-                drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, stateTime, equipment);
-			}	
-			else if (isFiring()) {
-			    drawUnit(this, batch, firingArmor, firingSkin, armorTint, skinTint, firingStateTime, firingLoop, equipment);
-			}
-			else {
-                drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, 0, false, equipment);
-			}
-
-			if (this.isHit){
-				this.isHit = false;
-			}
-
-			batch.setColor(c);
-		}
+//		}
 	}
 
 	public boolean isFiring() {
@@ -1214,12 +1168,15 @@ public class Unit extends Group {
 	}
 
 	public void die(float delta) {
-		
 		if (!this.rotationFixed) {
 			this.setRotation(this.rotation + (float) (Math.random() * 120 - 60));
 			this.rotationFixed = true;
 		}
-		timeSinceDeath += delta;
+
+		// don't need to go all the way to the back, just behind the other units.
+        // Is there a way to bring units to the front, but bring thrown items *more* to the front?
+//		this.toBack();
+        timeSinceDeath += delta;
 		
 		if (timeSinceDeath > DEATH_TIME) {
 			
@@ -1309,63 +1266,6 @@ public class Unit extends Group {
 //		TextureRegion region = animation.getKeyFrame(stateTime, loop);
 //		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 //	}
-
-    public static Color blend(Color c1, Color c2) {
-        c1.a = 1-c1.a;
-	    c1.premultiplyAlpha();
-	    c2.premultiplyAlpha();
-	    Color c3 = c1.add(c2);
-//	    c3.a = 1;
-	    return c3;
-    }
-
-	public static void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint, Actor actor) {
-		Color c = batch.getColor();
-	    Color c2 = new Color(batch.getColor());
-		batch.setColor(tint);
-		// Should we try multiplying by the current color to darken?
-//        System.out.println(c.toString());
-        batch.setColor(blend(c, tint));
-//        System.out.println(batch.getColor().toString());
-        TextureRegion region = animation.getKeyFrame(stateTime, loop);
-        drawItem(batch, region, actor);
-		batch.setColor(c2);
-	}
-
-	public boolean isDrawingRangedLoadedAnimation() {
-        return firingArmor.getKeyFrameIndex(firingStateTime) == 0;
-    }
-
-    public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime) {
-        drawUnit(actor, batch, armor, skin, armorColor, skinColor,stateTime, true, null);
-    }
-
-    public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime, StrictArray<Equipment> equipment) {
-        drawUnit(actor, batch, armor, skin, armorColor, skinColor, stateTime, true, equipment);
-    }
-
-    public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime, boolean loop, StrictArray<Equipment> equipment) {
-        drawAnimationTint(batch, skin, stateTime, loop, skinColor, actor);
-
-        if (armor != null) {
-            drawAnimationTint(batch, armor, stateTime, loop, armorColor, actor);
-        }
-
-        if (equipment != null){
-            for (Equipment equip : equipment) {
-                // TODO draw additional items
-                if (equip.getRegion() == null) throw new AssertionError("Can't find equipment: " + equip.textureName);
-
-//                System.out.println("drawing equipment: " + equip.name);
-
-                drawItem(batch, equip.getRegion(), actor);
-            }
-        }
-	}
-
-	private static void drawItem(SpriteBatch batch, TextureRegion textureRegion, Actor actor) {
-        batch.draw(textureRegion, actor.getX(), actor.getY(), actor.getOriginX(), actor.getOriginY(), actor.getWidth(), actor.getHeight(), actor.getScaleX(), actor.getScaleY(), actor.getRotation());
-    }
 
 	public float currentX() {
 		return (prev_x + percentComplete*(pos_x-prev_x));
@@ -1579,6 +1479,7 @@ public class Unit extends Group {
 		if (this.team == 0) stage.allies.units.removeValue(this, true);
 		if (this.team == 1) stage.enemies.units.removeValue(this, true);
 		this.removeActor(weaponDraw);
+        this.removeActor(thrownItem);
 
 		boolean wasAttacker = (this.team == 0) == (stage.playerDefending);
 		stage.casualty(this.soldier, wasAttacker);

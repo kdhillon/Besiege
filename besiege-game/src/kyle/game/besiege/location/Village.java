@@ -19,14 +19,11 @@ import kyle.game.besiege.voronoi.Center;
 
 public class Village extends Location {
     private final static float VILLAGE_WEALTH_FACTOR = 0.5f; // arbitrary, this times pop = wealth
-	private static final int MAX_FARMERS = 5;
 	private static final float RAID_COUNTDOWN = 120;
 //	private final int MED_WEALTH = 50;
 
 	private final String textureRegion = "Village";
-		
-	public Array<Farmer> farmers;
-	
+
 	public float raidTimer = 0;
 
 	public Village(){}
@@ -45,6 +42,7 @@ public class Village extends Location {
         POP_MAX = 500;
 
         this.population = Math.random() * (POP_MAX - POP_MIN) + POP_MIN;
+        this.farmerCount = (int) getWealth()/100 + 1; // arbitrary
 
         if (cultureType.name.equals("Plains")) {
             setTextureRegion("tipi3");
@@ -54,6 +52,7 @@ public class Village extends Location {
             if (center.biome == Biomes.SNOW)
                 setTextureRegion("inuitvillagewhite");
             else setTextureRegion("inuitvillage");
+            farmerCount = 0;
         } else if (cultureType.name.equals("Desert")){
             setTextureRegion("desertvillage2");
         }
@@ -79,24 +78,11 @@ public class Village extends Location {
 	@Override
 	public void autoManage() {
 		// Organize farmers
-		int farmerCount = (int) getWealth()/100 + 1; // arbitrary
 		if (farmers.size < farmerCount) {
 			createFarmer();
 		}
 	}
 
-	public void createFarmer() {
-		if (this.farmers.size >= MAX_FARMERS) return;
-		Farmer farmer = new Farmer(getKingdom(), getName() + " Farmers", getFaction(), getCenterX(), getCenterY());
-		getKingdom().addArmy(farmer);
-		farmer.setVillage(this);
-		farmers.add(farmer);
-		setContainerForArmy(farmer);
-	}
-	
-	public void removeFarmer(Farmer farmer) {
-		farmers.removeValue(farmer,true);
-	}
 //	public void setParent(City city) {
 //		parent = city;
 //	}
@@ -123,7 +109,7 @@ public class Village extends Location {
 	
 //	public Militia createMilitia() {
 //		Militia militia = new Militia(getKingdom(), getName() + " Militia", getFaction(), getCenterX(), getCenterY());
-//		militia.setVillage(this);
+//		militia.setLocation(this);
 //		// transfer all wealth to militia
 //		militia.getParty().wealth = this.getParty().wealth;
 //		// also decrease village wealth temporarily.

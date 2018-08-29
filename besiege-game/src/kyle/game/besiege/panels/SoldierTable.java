@@ -198,6 +198,7 @@ public class SoldierTable extends Table {
 
 	public void updateTableWithTypes(StrictArray<StrictArray<Soldier>> types, LabelStyle style) {
 		//		table.debug();
+        // TODO don't add General to this list (they're already listed above the other units)
 		for (StrictArray<Soldier> type : types) {
 			TypeLabel name = new TypeLabel(type.first().getTypeName(), style);
 			name.type = type;

@@ -21,17 +21,14 @@ public class Farmer extends Army {
 	private final int farmStart = 7;
 	private final int farmEnd = 20; 
 	private boolean waitToggle;
-	
-	private int crops;
-	
-	private Village village;
+
+	private Location location;
 
 	public Farmer() {}
 	
 	public Farmer(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
 		super(kingdom, name, faction, posX, posY, Type.FARMERS, null);
-		crops = 0;
 //		this.shouldEject = false;
 		this.type = ArmyType.FARMER;
 		this.passive = true;
@@ -50,7 +47,7 @@ public class Farmer extends Army {
 	
 	@Override
 	public String getUniqueAction() {
-		return "Farming around " + village.getName();
+		return "Farming around " + location.getName();
 	}
 
 	@Override
@@ -84,7 +81,6 @@ public class Farmer extends Army {
 					this.waitFor(WAIT);
 //					System.out.println("waiting for " + WAIT);
 					waitToggle = false;
-					crops++;
 				}
 				else {
 					setNewFarmDest();
@@ -96,7 +92,7 @@ public class Farmer extends Army {
 			}
 		}
 		else {
-			if (this.getTarget() != village) setTarget(village);
+			if (this.getTarget() != location) setTarget(location);
 		}
 	}
 	
@@ -106,7 +102,7 @@ public class Farmer extends Army {
 		do {
 			float dx = (float) ((Math.random()*2-1)*wanderDistance); //number btw -1 and 1
 			float dy = (float) ((Math.random()*2-1)*wanderDistance);
-			newTarget = new Point(village.getCenterX() + dx, village.getCenterY() + dy);
+			newTarget = new Point(location.getCenterX() + dx, location.getCenterY() + dy);
 			count++;
 		}
 		while (getKingdom().getMap().isInWater(newTarget) && count < 10); // do this until sets a valid target 
@@ -114,10 +110,10 @@ public class Farmer extends Army {
 		else setTarget(newTarget);
 	}
 	
-	public void setVillage(Village village) {
-		this.village = village;
+	public void setLocation(Location location) {
+		this.location = location;
 		if (getKingdom().night)
-			this.garrisonIn(village);
+			this.garrisonIn(location);
 	}
 	
 	// farmers can garrison in villages
@@ -138,14 +134,14 @@ public class Farmer extends Army {
 		return null;
 	}
 	
-	public Village getVillage() {
-		return village;
+	public Location getLocation() {
+		return location;
 	}
 	
 	@Override
 	public void destroy() {
 		getKingdom().removeArmy(this);
 		this.remove();
-		getVillage().removeFarmer(this);
+		getLocation().removeFarmer(this);
 	}
 }

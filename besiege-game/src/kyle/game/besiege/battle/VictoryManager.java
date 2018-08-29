@@ -17,6 +17,9 @@ public class VictoryManager {
     public static final float BASE_WEAPON_DROP_CHANCE = 0.2f;
     public static final float BASE_ARMOR_DROP_CHANCE = 0.2f;
 
+    // If party has this many healthy troops or fewer at battle end, fully destroy party.
+    public static final int PARTY_DESTROY_THRESHOLD = 2;
+
     private final Kingdom kingdom;
     private final Location siegeOf;
     private final Battle battle;
@@ -33,6 +36,8 @@ public class VictoryManager {
 
     // Wealth to be gained after battle.
     private int spoils;
+
+    // TODO add prisoners to be gained/lost
 
     private StrictArray<WeaponType> weaponLoot;
     private StrictArray<RangedWeaponType> rangedLoot;
@@ -111,9 +116,19 @@ public class VictoryManager {
             distributeRewards(party, contribution, didAtkWin);
         }
 
+        // Destroy losers
         for (int i = 0; i < loser.size; i++) {
             Party party = loser.get(i);
             party.registerBattleLoss();
+            if (party.getHealthySize() <= PARTY_DESTROY_THRESHOLD) {
+                Army army = party.army;
+                if (army != null) {
+                    army.endBattle();
+                    army.setStopped(false);
+                    army.setVisible(false);
+                    army.destroy();
+                }
+            }
         }
 
         // Handle siegeOrRaid victory

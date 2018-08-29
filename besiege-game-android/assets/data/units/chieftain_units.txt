@@ -3,6 +3,7 @@ tier name 			weapon				armor		upgrades_to
 Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
 1	Hunter			Unarmed/Sling		None			        Slinger
 1	Farmer			Spear				Clothes			        Spearman
+1   Villager        Knife(Flint)        Clothes                 Spearman/Slinger
         
 2	Slinger			Dagger/Sling		Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
 2	Spearman		Spear				Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
@@ -81,6 +82,7 @@ Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
 Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
 1	Hunter			Unarmed/Bow/Arrow	None			Bowman
 1	Fisher			Spear				None			Spearman
+1   Villager        Knife(Flint)        Clothes         Bowman/Spearman
 
 2	Bowman			Dagger/Sling		Clothes			Axeman(W)/Bowman(H)/Clubman(B)
 2	Spearman		Spear				Clothes			Axeman(W)/Bowman(H)/Clubman(B)

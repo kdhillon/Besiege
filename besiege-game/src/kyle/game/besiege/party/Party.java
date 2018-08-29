@@ -56,7 +56,7 @@ public class Party {
 
 	public void act(float delta) {
 		if (player && army != null) woundChance = BASE_CHANCE * army.getCharacter().getAttributeFactor("Reviving");
-		if (!this.army.isInBattle()) {
+		if (this.army != null && !this.army.isInBattle()) {
 			root.checkHeal();
 		}
 		calcStats();
@@ -321,6 +321,8 @@ public class Party {
 	}
 	// TODO maybe inefficient? can make more by sorting array by name
 	public static StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier) {
+	    // NOTE: THIS DOESN'T INCLUDE THE GENERAL (for a simpler display)
+
 		// first thing: sort arrSoldier by name
 		arrSoldier.sort();
 
@@ -328,6 +330,8 @@ public class Party {
 		StrictArray<String> names = new StrictArray<String>();
 		StrictArray<StrictArray<Soldier>> consol = new StrictArray<StrictArray<Soldier>>();
 		for (Soldier s : arrSoldier) {
+            // NOTE: THIS DOESN'T INCLUDE THE GENERAL (for a simpler display)
+		    if (s.isGeneral()) continue;
 			if (!names.contains(s.getTypeName() + s.getCulture(), false)) {
 				names.add(s.getTypeName() + s.getCulture());
 				StrictArray<Soldier> type = new StrictArray<Soldier>();
@@ -377,6 +381,9 @@ public class Party {
 //	}
 	
 	public General getGeneral() {
+	    if (root.general == null) {
+	        System.out.println(getName() + " has no general");
+        }
 		return root.general;
 	}
 

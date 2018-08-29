@@ -196,13 +196,13 @@ public class WeaponDraw extends Group { // can have arrows.
 		float man_rotation = 0;
 		
 		if (unit.moving) {
-			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 0)
+			if (unit.unitDraw.walkArmor.getKeyFrameIndex(unit.stateTime) == 0)
 				man_offset_y = DEFAULT_OFFSET;
 			else
 				man_offset_y = FIRST_OFFSET;
 		}
 		else if (unit.attacking != null) {
-			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1) {
+			if (unit.unitDraw.walkArmor.getKeyFrameIndex(unit.stateTime) == 1) {
 				man_offset_y = ATTACK_OFFSET;
 				man_rotation = ATTACK_ROTATION;
 			}
@@ -213,7 +213,7 @@ public class WeaponDraw extends Group { // can have arrows.
 		// draw shield
 		if (shield != null && !unit.bowOut()) {
 			shieldOffset = FIRST_OFFSET;
-			if (unit.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) shieldOffset = DEFAULT_OFFSET;
+			if (unit.unitDraw.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) shieldOffset = DEFAULT_OFFSET;
 
 			batch.setColor(shieldColor);
 			batch.draw(shield, SHIELD_OFFSET_X, (SHIELD_OFFSET_Y+shieldOffset), shield.getRegionWidth()*SHIELD_SCALE, shield.getRegionHeight()*SHIELD_SCALE);
@@ -235,7 +235,7 @@ public class WeaponDraw extends Group { // can have arrows.
 			// don't draw if firing
 			if (unit.isFiring()) {
                 // Draw  ammo on top
-                if (unit.drawAmmo && unit.isDrawingRangedLoadedAnimation()) {
+                if (unit.drawAmmo && unit.unitDraw.isDrawingRangedLoadedAnimation()) {
                     float ammoRotation = getRotation();
                     if (unit.drawAmmoReversed)
                         ammoRotation = ammoRotation + 180;

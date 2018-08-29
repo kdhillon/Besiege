@@ -126,8 +126,6 @@ public class BattleActor extends Actor implements Destination {
 				this.siegeOf = null;
 			}
 		}
-			
-		
 		
 		this.kingdom.removeBattle(this);
 		this.remove();

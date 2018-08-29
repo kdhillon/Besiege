@@ -208,7 +208,7 @@ public class PanelLocation extends Panel {
             }
             //		if (totalGarr > 0) garrStr += "+" + totalGarr;
             if (totalGarr > 0)
-                garrStr = totalGarr + location.garrison.getParty().getHealthySize() + " (" + garrStr + "+" + totalGarr + ")";
+                garrStr = totalGarr + location.garrison.getHealthySize() + " (" + garrStr + "+" + totalGarr + ")";
             topTable.update("Garrison", garrStr);
 
             topTable.update("Pop", (int) location.getPop() + "");

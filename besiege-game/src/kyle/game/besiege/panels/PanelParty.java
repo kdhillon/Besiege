@@ -72,7 +72,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		lsY.fontColor = Color.YELLOW;
 
 		String title = party.getName();
-		String subTitle = party.getGeneral().getName();
+		String subTitle = ""; // don't have a subtitle for a non-noble
 		if (party.army != null && party.army.isNoble()) {
             title = party.getGeneral().getName();
             subTitle = party.getName();
@@ -167,7 +167,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				topTable.updateSubtitle(army.getFactionName(), null);
 
 			topTable.updateSubtitle3(army.getAction(), null);
-			topTable.update("Morale", army.getMoraleString() + "");
+            topTable.update("Morale", army.getMoraleString() + "");
 			topTable.update("Wealth", "" + army.getParty().wealth);
 
 			// set speed to be current travel speed, not playerPartyPanel speed
@@ -261,7 +261,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	@Override
 	public Crest getCrest() {
-		if (army == null) return null;
+		if (army == null || army.getFaction() == null) return null;
 		return army.getFaction().crest;
 	}
 }

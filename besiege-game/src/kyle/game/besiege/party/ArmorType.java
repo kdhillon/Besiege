@@ -25,4 +25,8 @@ public class ArmorType {
 	public boolean isClothes() {
 		return type == Type.CLOTHES;
 	}
+
+	public boolean isChest() {
+	    return type == Type.CHEST;
+    }
 }
