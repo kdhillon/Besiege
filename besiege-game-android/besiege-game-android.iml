@@ -11,19 +11,9 @@
       <src_folder value="com.android.ide.eclipse.adt.LIBRARIES" expected_position="4" />
     </src_description>
   </component>
-  <component name="FacetManager">
-    <facet type="android" name="Android">
-      <configuration>
-        <proGuardCfgFiles>
-          <file>file:///Library/Java/JavaVirtualMachines/default/Contents/Home/tools/proguard/proguard-android.txt</file>
-        </proGuardCfgFiles>
-        <option name="UPDATE_PROPERTY_FILES" value="true" />
-      </configuration>
-    </facet>
-  </component>
   <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/../out/production/besiege-game-android" />
-    <output-test url="file://$MODULE_DIR$/../out/test/besiege-game-android" />
+    <output url="file://$PARENT-1-PROJECT_LOC$/out/production/besiege-game-android" />
+    <output-test url="file://$PARENT-1-PROJECT_LOC$/out/test/besiege-game-android" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />

@@ -22,7 +22,112 @@
     <bookmark url="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/voronoi/Center.java" line="179" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d996c8ea-1ae9-461a-ad02-5c915180bf12" name="Default" comment="" />
+    <list default="true" id="d996c8ea-1ae9-461a-ad02-5c915180bf12" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/besiege-game-android/besiege-game-android.iml" beforeDir="false" afterPath="$PROJECT_DIR$/besiege-game-android/besiege-game-android.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/besiege-game-android/src/kyle/game/besiege/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/besiege-game-android/src/kyle/game/besiege/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/Army.java" beforeDir="false" afterPath="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/Army.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/besiege_battlelauncher_jar/chieftain_battle.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/besiege_battlelauncher_jar/chieftain_battle.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game-android/kyle/game/besiege/BuildConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game-android/kyle/game/besiege/BuildConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/BesiegeMain$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/BesiegeMain$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Character.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Character.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/ColorGenerator$Points.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/ColorGenerator$Points.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Faction.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Faction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Fog.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Fog.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Inventory.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Inventory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Kingdom.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Kingdom.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Map.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Map.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MapScreen.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MapScreen.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MapUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MapUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MiniMap.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MiniMap.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MultiValue.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/MultiValue.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/NameGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/NameGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Path.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Path.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/RandomCrestGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/RandomCrestGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Siege.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/Siege.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Army$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Army$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Army.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Army.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/ArmyPlayer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/ArmyPlayer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Bandit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Bandit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Farmer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Farmer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/HuntingParty.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/HuntingParty.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Noble.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/army/Noble.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleMap$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleMap$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleMap.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleMap.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleParty.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleParty.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleSim.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleSim.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleStage.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleStage.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleSubParty.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/BattleSubParty.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Fire.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Fire.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Formation.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Formation.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/OldBattle.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/OldBattle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Projectile.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Projectile.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/SiegeUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/SiegeUnit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Simulation.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Simulation.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Unit$ThrownItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Unit$ThrownItem.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Unit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/Unit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/VictoryManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/VictoryManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/WeaponDraw.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/battle/WeaponDraw.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/ext/PerlinNoiseGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/ext/PerlinNoiseGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Castle.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Castle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/City.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/City.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Location.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Location.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Ruin.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Ruin.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Village.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/location/Village.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/BottomPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/BottomPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/Panel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/Panel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelBattle.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelBattle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelFaction.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelFaction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelHire.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelHire.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelInventory.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelInventory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelLocation.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelLocation.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelParty.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelParty.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelUnit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelUpgrades.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/PanelUpgrades.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/SidePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/SidePanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/SoldierTable$TypeLabel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/SoldierTable$TypeLabel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/SoldierTable.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/SoldierTable.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/TopTable.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/panels/TopTable.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/AmmoType$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/AmmoType$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/General.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/General.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/Party.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/Party.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/PartyType$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/PartyType$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/PartyType.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/PartyType.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/RangedWeaponType$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/RangedWeaponType$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/ShieldType$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/ShieldType$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/Soldier.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/Soldier.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/Subparty.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/Subparty.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/UnitDraw.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/UnitDraw.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/UnitLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/party/UnitLoader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/Candle.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/Candle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/MainMenuScreen$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/MainMenuScreen$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/MainMenuScreen$TitleBackground.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/MainMenuScreen$TitleBackground.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/MainMenuScreen.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/title/MainMenuScreen.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/utils/MarkovModel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/utils/MarkovModel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/utils/ST.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/utils/ST.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/utils/TextGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/utils/TextGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Biomes$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Biomes$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Center.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Center.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Corner.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Corner.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Edge.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/Edge.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/VoronoiGraph$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/VoronoiGraph$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/VoronoiGraph.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/VoronoiGraph.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Edge.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Edge.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/EdgeList.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/EdgeList.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/EdgeReorderer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/EdgeReorderer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Halfedge.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Halfedge.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/HalfedgePriorityQueue.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/HalfedgePriorityQueue.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/LR.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/LR.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Polygon.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Polygon.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Site$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Site$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Site.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Site.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/SiteList.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/SiteList.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Vertex.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Vertex.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Voronoi.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/kyle/game/besiege/voronoi/nodename/as3delaunay/Voronoi.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/test/TestDriver$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/test/TestDriver$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/besiege-game/test/TestDriver.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/besiege-game/test/TestDriver.class" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/besiege-game/bin/" />
     <ignored path="$PROJECT_DIR$/besiege-game-android/bin/classes/" />
     <ignored path="$PROJECT_DIR$/besiege-game-desktop/bin/" />
@@ -43,8 +148,8 @@
       <file leaf-file-name="Unit.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Unit.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
-              <caret line="505" column="60" lean-forward="false" selection-start-line="505" selection-start-column="60" selection-end-line="505" selection-end-column="60" />
+            <state relative-caret-position="7320">
+              <caret line="505" column="60" selection-start-line="505" selection-start-column="60" selection-end-line="505" selection-end-column="60" />
               <folding>
                 <element signature="e#42291#42292#0" expanded="true" />
                 <element signature="e#42350#42351#0" expanded="true" />
@@ -56,9 +161,15 @@
       <file leaf-file-name="Army.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/Army.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="332">
-              <caret line="1087" column="90" lean-forward="false" selection-start-line="1087" selection-start-column="90" selection-end-line="1087" selection-end-column="90" />
+            <state relative-caret-position="66">
+              <caret line="1075" lean-forward="true" selection-start-line="1075" selection-end-line="1075" />
               <folding>
+                <element signature="e#18267#18274#0" expanded="true" />
+                <element signature="e#18351#18358#0" expanded="true" />
+                <element signature="e#19316#19323#0" expanded="true" />
+                <element signature="e#19407#19414#0" expanded="true" />
+                <element signature="e#20708#20715#0" expanded="true" />
+                <element signature="e#20754#20761#0" expanded="true" />
                 <element signature="e#44396#44397#0" expanded="true" />
                 <element signature="e#44429#44430#0" expanded="true" />
                 <element signature="e#44463#44464#0" expanded="true" />
@@ -68,12 +179,23 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/besiege-game-android/src/kyle/game/besiege/MainActivity.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret selection-start-column="2" selection-end-line="20" selection-end-column="3" />
+              <folding>
+                <element signature="e#0#695#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="Assets.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/Assets.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="56" column="26" lean-forward="false" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="26" />
-              <folding />
+            <state relative-caret-position="630">
+              <caret line="56" column="26" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -81,9 +203,8 @@
       <file leaf-file-name="NameGenerator.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/NameGenerator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="40" column="0" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="540">
+              <caret line="40" selection-start-line="40" selection-end-line="40" />
             </state>
           </provider>
         </entry>
@@ -91,9 +212,8 @@
       <file leaf-file-name="chieftain_units.txt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_units.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="18" lean-forward="false" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
-              <folding />
+            <state relative-caret-position="75">
+              <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -101,9 +221,8 @@
       <file leaf-file-name="chieftain_supplemental_units.txt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_supplemental_units.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="14" column="36" lean-forward="false" selection-start-line="14" selection-start-column="36" selection-end-line="14" selection-end-column="36" />
-              <folding />
+            <state relative-caret-position="210">
+              <caret line="14" column="36" selection-start-line="14" selection-start-column="36" selection-end-line="14" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -111,9 +230,8 @@
       <file leaf-file-name="Path.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/Path.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="298">
-              <caret line="304" column="40" lean-forward="false" selection-start-line="304" selection-start-column="25" selection-end-line="304" selection-end-column="40" />
-              <folding />
+            <state relative-caret-position="4275">
+              <caret line="304" column="40" selection-start-line="304" selection-start-column="25" selection-end-line="304" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -121,9 +239,8 @@
       <file leaf-file-name="Subparty.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/Subparty.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
-              <caret line="186" column="31" lean-forward="false" selection-start-line="186" selection-start-column="31" selection-end-line="186" selection-end-column="31" />
-              <folding />
+            <state relative-caret-position="2730">
+              <caret line="186" column="31" selection-start-line="186" selection-start-column="31" selection-end-line="186" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -131,26 +248,8 @@
       <file leaf-file-name="Party.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/Party.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="458" column="0" lean-forward="false" selection-start-line="458" selection-start-column="0" selection-end-line="458" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PanelUnit.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="319" column="21" lean-forward="false" selection-start-line="319" selection-start-column="21" selection-end-line="319" selection-end-column="21" />
-              <folding>
-                <element signature="e#13821#13822#0" expanded="true" />
-                <element signature="e#13845#13846#0" expanded="true" />
-                <element signature="e#13874#13875#0" expanded="true" />
-                <element signature="e#13898#13899#0" expanded="true" />
-                <element signature="e#14128#14129#0" expanded="true" />
-                <element signature="e#14154#14155#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="6405">
+              <caret line="458" selection-start-line="458" selection-end-line="458" />
             </state>
           </provider>
         </entry>
@@ -206,15 +305,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GradleLocalSettings">
-    <option name="externalProjectsViewState">
-      <projects_view />
-    </option>
-  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Formation.java" />
         <option value="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/UnitLoader.java" />
         <option value="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/AmmoType.java" />
         <option value="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/BattleMap.java" />
@@ -264,33 +357,23 @@
         <option value="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/Subparty.java" />
         <option value="$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_units.txt" />
         <option value="$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_supplemental_units.txt" />
+        <option value="$PROJECT_DIR$/besiege-game-android/src/kyle/game/besiege/MainActivity.java" />
         <option value="$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/Army.java" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-7" />
-    <option name="width" value="974" />
-    <option name="height" value="1047" />
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1680" />
+    <option name="height" value="963" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <flattenPackages />
-      <showMembers />
-      <showModules />
-      <showLibraryContents />
-      <hideEmptyPackages />
-      <abbreviatePackageNames />
-      <autoscrollToSource />
-      <autoscrollFromSource />
-      <sortByType />
-      <manualOrder />
+    <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -392,17 +475,17 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
+      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="SearchEverywhereHistoryKey" value="chieftain_&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;namege&#9;PSI&#9;JAVA://kyle.game.besiege.NameGenerator&#10;assets&#9;PSI&#9;JAVA://kyle.game.besiege.Assets&#10;army&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/Army.java&#10;unit&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Unit.java&#10;panelunit&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java&#10;locatio&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/location/Location.java&#10;party&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Party.java&#10;besiegemain&#9;PSI&#9;JAVA://kyle.game.besiege.BesiegeMain&#10;simulation&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Simulation.java&#10;panel&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java&#10;minimap&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/MiniMap.java&#10;panelbatt&#9;PSI&#9;JAVA://kyle.game.besiege.panels.PanelBattle&#10;hireso&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/HireSoldierTable.java&#10;armyp&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/ArmyPlayer.java&#10;panelhire&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelHire.java&#10;minima&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/MiniMap.java&#10;soldi&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Soldier.java&#10;panelun&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java&#10;soldier&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Soldier.java&#10;panelloc&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelLocation.java&#10;city&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/location/City.java&#10;casual&#9;PSI&#9;JAVA://kyle.game.besiege.battle.Battle#casualty&#10;player&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/ArmyPlayer.java&#10;subp&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Subparty.java&#10;victory&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/VictoryManager.java&#10;battle&#9;PSI&#9;JAVA://kyle.game.besiege.battle.Battle&#10;battlesim&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/BattleSim.java&#10;chieftain_uni&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;ammo&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_ammo.txt&#10;chieftain_weapon&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_weapons.txt&#10;fire&#9;PSI&#9;JAVA://kyle.game.besiege.battle.Fire&#10;battl&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/BattleSim.java&#10;panelpa&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelParty.java&#10;loca&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/location/Location.java&#10;farmer&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/Farmer.java&#10;unitdraw&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/UnitDraw.java&#10;simulat&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Simulation.java&#10;chieftain_u&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;ARMORT&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/ArmorType.java&#10;armorty&#9;PSI&#9;JAVA://kyle.game.besiege.party.ArmorType&#10;chieftain_arm&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_armors.txt&#10;project&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Projectile.java&#10;chieftain_co&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_colors.txt&#10;chieftain&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;simu&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Simulation.java&#10;weapondraw&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/WeaponDraw.java&#10;location&#9;PSI&#9;JAVA://kyle.game.besiege.location.Location&#10;subpar&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Subparty.java&#10;partyt&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/PartyType.java" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/besiege-game-android/assets" />
+    <property name="project.structure.last.edited" value="Facets" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="android.sdk-updates" />
-    <property name="SearchEverywhereHistoryKey" value="chieftain_&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;namege&#9;PSI&#9;JAVA://kyle.game.besiege.NameGenerator&#10;assets&#9;PSI&#9;JAVA://kyle.game.besiege.Assets&#10;army&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/Army.java&#10;unit&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Unit.java&#10;panelunit&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java&#10;locatio&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/location/Location.java&#10;party&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Party.java&#10;besiegemain&#9;PSI&#9;JAVA://kyle.game.besiege.BesiegeMain&#10;simulation&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Simulation.java&#10;panel&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java&#10;minimap&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/MiniMap.java&#10;panelbatt&#9;PSI&#9;JAVA://kyle.game.besiege.panels.PanelBattle&#10;hireso&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/HireSoldierTable.java&#10;armyp&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/ArmyPlayer.java&#10;panelhire&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelHire.java&#10;minima&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/MiniMap.java&#10;soldi&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Soldier.java&#10;panelun&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java&#10;soldier&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Soldier.java&#10;panelloc&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelLocation.java&#10;city&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/location/City.java&#10;casual&#9;PSI&#9;JAVA://kyle.game.besiege.battle.Battle#casualty&#10;player&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/ArmyPlayer.java&#10;subp&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Subparty.java&#10;victory&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/VictoryManager.java&#10;battle&#9;PSI&#9;JAVA://kyle.game.besiege.battle.Battle&#10;battlesim&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/BattleSim.java&#10;chieftain_uni&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;ammo&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_ammo.txt&#10;chieftain_weapon&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_weapons.txt&#10;fire&#9;PSI&#9;JAVA://kyle.game.besiege.battle.Fire&#10;battl&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/BattleSim.java&#10;panelpa&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/panels/PanelParty.java&#10;loca&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/location/Location.java&#10;farmer&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/army/Farmer.java&#10;unitdraw&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/UnitDraw.java&#10;simulat&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Simulation.java&#10;chieftain_u&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;ARMORT&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/ArmorType.java&#10;armorty&#9;PSI&#9;JAVA://kyle.game.besiege.party.ArmorType&#10;chieftain_arm&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_armors.txt&#10;project&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Projectile.java&#10;chieftain_co&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_colors.txt&#10;chieftain&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/data/units/chieftain_units.txt&#10;simu&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/Simulation.java&#10;weapondraw&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/battle/WeaponDraw.java&#10;location&#9;PSI&#9;JAVA://kyle.game.besiege.location.Location&#10;subpar&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/Subparty.java&#10;partyt&#9;FILE&#9;file://C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game/src/kyle/game/besiege/party/PartyType.java" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/besiege-game-android/assets" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -433,7 +516,6 @@
       <option name="PM_INSTALL_OPTIONS" value="" />
       <option name="ACTIVITY_EXTRA_FLAGS" value="" />
       <option name="MODE" value="default_activity" />
-      <option name="PREFERRED_AVD" value="" />
       <option name="CLEAR_LOGCAT" value="false" />
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
       <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
@@ -444,89 +526,45 @@
       <option name="DEBUGGER_TYPE" value="Java" />
       <Java />
       <Profilers>
-        <option name="ENABLE_ADVANCED_PROFILING" value="true" />
-        <option name="SUPPORT_LIB_ENABLED" value="true" />
-        <option name="INSTRUMENTATION_ENABLED" value="true" />
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
       </Profilers>
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
     </configuration>
     <configuration default="true" type="Applet" factoryName="Applet">
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <module />
     </configuration>
     <configuration name="BattleLauncher" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+      <option name="MAIN_CLASS_NAME" value="kyle.game.besiege.BattleLauncher" />
+      <module name="besiege-game-desktop" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/besiege-game-android/assets" />
+      <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="kyle.game.besiege.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="MAIN_CLASS_NAME" value="kyle.game.besiege.BattleLauncher" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/besiege-game-android/assets" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="besiege-game-desktop" />
-      <envs />
     </configuration>
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+      <option name="MAIN_CLASS_NAME" value="kyle.game.besiege.Main" />
+      <module name="besiege-game-desktop" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/besiege-game-android/assets" />
+      <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="kyle.game.besiege.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="MAIN_CLASS_NAME" value="kyle.game.besiege.Main" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/besiege-game-android/assets" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="besiege-game-desktop" />
-      <envs />
     </configuration>
     <configuration name="MyPacker" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="kyle.game.besiege.MyPacker" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/besiege-game" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
       <module name="besiege-game-desktop" />
-      <envs />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/besiege-game" />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="" />
-      <envs />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" />
@@ -536,24 +574,13 @@
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
-      <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="singleModule" />
       </option>
-      <envs />
       <patterns />
     </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="SUITE_NAME" />
@@ -566,17 +593,21 @@
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
       <option name="OUTPUT_DIRECTORY" />
-      <option name="ANNOTATION_TYPE" />
-      <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="singleModule" />
       </option>
       <option name="USE_DEFAULT_REPORTERS" value="false" />
       <option name="PROPERTIES_FILE" />
-      <envs />
       <properties />
       <listeners />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
@@ -584,22 +615,19 @@
       <option name="PROGRAM_PARAMETERS" />
       <predefined_log_file id="idea.log" enabled="true" />
     </configuration>
-    <list size="4">
-      <item index="0" class="java.lang.String" itemvalue="Android App.besiege-game-android" />
-      <item index="1" class="java.lang.String" itemvalue="Application.BattleLauncher" />
-      <item index="2" class="java.lang.String" itemvalue="Application.Main" />
-      <item index="3" class="java.lang.String" itemvalue="Application.MyPacker" />
+    <list>
+      <item itemvalue="Android App.besiege-game-android" />
+      <item itemvalue="Application.BattleLauncher" />
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.MyPacker" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Application.Main" />
-        <item index="1" class="java.lang.String" itemvalue="Application.BattleLauncher" />
-        <item index="2" class="java.lang.String" itemvalue="Application.MyPacker" />
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.BattleLauncher" />
+        <item itemvalue="Application.MyPacker" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="ShelveChangesManager" show_recycled="false">
-    <option name="remove_strategy" value="false" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -615,64 +643,43 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="0" y="23" width="1680" height="963" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20434782" sideWeight="0.5191898" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32826087" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39782608" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3" sideWeight="0.4914712" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20434782" sideWeight="0.48081023" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32930845" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32826087" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18390192" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934782" sideWeight="0.49573562" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20434782" sideWeight="0.5170576" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32826087" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39782608" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3" sideWeight="0.4914712" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20434782" sideWeight="0.48294243" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32930845" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32826087" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18390192" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.51785713" side_tool="true" visible="true" weight="0.20359956" />
+      <window_info anchor="right" id="Maven Projects" order="5" />
+      <window_info id="Capture Tool" order="3" />
+      <window_info id="Designer" order="4" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
+      <window_info id="UI Designer" order="5" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39782608" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Messages" order="10" sideWeight="0.4904762" weight="0.2992126" />
+      <window_info anchor="right" id="Palette&#9;" order="9" />
+      <window_info id="Image Layers" order="8" />
+      <window_info anchor="right" id="Capture Analysis" order="7" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.48214287" visible="true" weight="0.20359956" />
+      <window_info anchor="bottom" id="Version Control" order="11" weight="0.32930845" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32826087" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18333334" />
+      <window_info anchor="right" id="Theme Preview" order="8" />
+      <window_info id="Favorites" order="7" side_tool="true" />
+      <window_info anchor="right" id="Android Model" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" id="Commander" order="1" weight="0.4" />
+      <window_info id="Captures" order="6" />
+      <window_info anchor="right" id="Device File Explorer" side_tool="true" />
+      <window_info id="Build Variants" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Android Profiler" />
+      <window_info anchor="bottom" id="Logcat" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Android Monitor" order="8" weight="0.32826087" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49573562" weight="0.32934782" />
+      <window_info anchor="right" id="Coverage" order="0" side_tool="true" weight="0.32995737" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -682,52 +689,35 @@
     <breakpoint-manager>
       <option name="time" value="10" />
     </breakpoint-manager>
-    <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/ArmorType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="22" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="22" />
-          <folding>
-            <element signature="e#571#572#0" expanded="false" />
-            <element signature="e#605#606#0" expanded="false" />
-            <element signature="e#634#635#0" expanded="false" />
-            <element signature="e#672#673#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/UnitLoader.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="456">
-          <caret line="148" column="37" lean-forward="false" selection-start-line="148" selection-start-column="26" selection-end-line="148" selection-end-column="37" />
-          <folding />
+          <caret line="148" column="37" selection-start-line="148" selection-start-column="26" selection-end-line="148" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_ranged_weapons.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
-          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-          <folding />
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_armors.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="425">
-          <caret line="25" column="47" lean-forward="false" selection-start-line="25" selection-start-column="47" selection-end-line="25" selection-end-column="47" />
-          <folding />
+          <caret line="25" column="47" selection-start-line="25" selection-start-column="47" selection-end-line="25" selection-end-column="47" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/UnitDraw.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1437">
-          <caret line="106" column="27" lean-forward="false" selection-start-line="106" selection-start-column="27" selection-end-line="106" selection-end-column="27" />
+          <caret line="106" column="27" selection-start-line="106" selection-start-column="27" selection-end-line="106" selection-end-column="27" />
           <folding>
-            <element signature="imports" expanded="false" />
+            <element signature="imports" />
           </folding>
         </state>
       </provider>
@@ -735,76 +725,66 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/Farmer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="157">
-          <caret line="120" column="48" lean-forward="false" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
-          <folding />
+          <caret line="120" column="48" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/BattleParty.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="697">
-          <caret line="44" column="9" lean-forward="false" selection-start-line="44" selection-start-column="9" selection-end-line="44" selection-end-column="9" />
-          <folding />
+          <caret line="44" column="9" selection-start-line="44" selection-start-column="9" selection-end-line="44" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/WeaponDraw.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="218">
-          <caret line="95" column="75" lean-forward="false" selection-start-line="95" selection-start-column="75" selection-end-line="95" selection-end-column="75" />
-          <folding />
+          <caret line="95" column="75" selection-start-line="95" selection-start-column="75" selection-end-line="95" selection-end-column="75" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_weapons.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
-          <caret line="8" column="32" lean-forward="false" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="32" />
-          <folding />
+          <caret line="8" column="32" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="32" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Projectile.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="113">
-          <caret line="94" column="24" lean-forward="false" selection-start-line="94" selection-start-column="24" selection-end-line="94" selection-end-column="24" />
-          <folding>
-            <marker date="1535571166631" expanded="true" signature="11094:11134" ph="..." />
-          </folding>
+          <caret line="94" column="24" selection-start-line="94" selection-start-column="24" selection-end-line="94" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_ammo.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
-          <caret line="9" column="27" lean-forward="false" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
-          <folding />
+          <caret line="9" column="27" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/AmmoType.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
-          <caret line="73" column="23" lean-forward="false" selection-start-line="73" selection-start-column="23" selection-end-line="73" selection-end-column="23" />
-          <folding />
+          <caret line="73" column="23" selection-start-line="73" selection-start-column="23" selection-end-line="73" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/OldBattle.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2428">
-          <caret line="298" column="56" lean-forward="false" selection-start-line="298" selection-start-column="56" selection-end-line="298" selection-end-column="56" />
-          <folding />
+          <caret line="298" column="56" selection-start-line="298" selection-start-column="56" selection-end-line="298" selection-end-column="56" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/PartyType.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
-          <caret line="71" column="48" lean-forward="false" selection-start-line="71" selection-start-column="32" selection-end-line="71" selection-end-column="48" />
+          <caret line="71" column="48" selection-start-line="71" selection-start-column="32" selection-end-line="71" selection-end-column="48" />
           <folding>
-            <element signature="e#3083#3084#0" expanded="false" />
-            <element signature="e#3105#3106#0" expanded="false" />
+            <element signature="e#3083#3084#0" />
+            <element signature="e#3105#3106#0" />
           </folding>
         </state>
       </provider>
@@ -812,12 +792,12 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/Random.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
-          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+          <caret line="21" selection-start-line="21" selection-end-line="21" />
           <folding>
-            <element signature="e#666#667#0" expanded="false" />
-            <element signature="e#715#716#0" expanded="false" />
-            <element signature="e#774#775#0" expanded="false" />
-            <element signature="e#823#824#0" expanded="false" />
+            <element signature="e#666#667#0" />
+            <element signature="e#715#716#0" />
+            <element signature="e#774#775#0" />
+            <element signature="e#823#824#0" />
           </folding>
         </state>
       </provider>
@@ -825,10 +805,10 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/General.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
-          <caret line="181" column="5" lean-forward="false" selection-start-line="181" selection-start-column="5" selection-end-line="181" selection-end-column="5" />
+          <caret line="181" column="5" selection-start-line="181" selection-start-column="5" selection-end-line="181" selection-end-column="5" />
           <folding>
-            <element signature="e#4988#4989#0" expanded="false" />
-            <element signature="e#5056#5057#0" expanded="false" />
+            <element signature="e#4988#4989#0" />
+            <element signature="e#5056#5057#0" />
           </folding>
         </state>
       </provider>
@@ -836,26 +816,24 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Battle.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="469">
-          <caret line="61" column="24" lean-forward="false" selection-start-line="61" selection-start-column="16" selection-end-line="61" selection-end-column="24" />
-          <folding />
+          <caret line="61" column="24" selection-start-line="61" selection-start-column="16" selection-end-line="61" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/BattleSim.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="296">
-          <caret line="378" column="37" lean-forward="false" selection-start-line="378" selection-start-column="23" selection-end-line="378" selection-end-column="37" />
-          <folding />
+          <caret line="378" column="37" selection-start-line="378" selection-start-column="23" selection-end-line="378" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/VictoryManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="349">
-          <caret line="144" column="0" lean-forward="false" selection-start-line="144" selection-start-column="0" selection-end-line="144" selection-end-column="0" />
+          <caret line="144" selection-start-line="144" selection-end-line="144" />
           <folding>
-            <element signature="e#9391#9392#0" expanded="false" />
-            <element signature="e#9433#9434#0" expanded="false" />
+            <element signature="e#9391#9392#0" />
+            <element signature="e#9433#9434#0" />
           </folding>
         </state>
       </provider>
@@ -863,16 +841,14 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/location/Village.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="563">
-          <caret line="53" column="51" lean-forward="false" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
-          <folding />
+          <caret line="53" column="51" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/PanelLocation.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
-          <caret line="85" column="52" lean-forward="false" selection-start-line="85" selection-start-column="42" selection-end-line="85" selection-end-column="52" />
-          <folding />
+          <caret line="85" column="52" selection-start-line="85" selection-start-column="42" selection-end-line="85" selection-end-column="52" />
         </state>
       </provider>
     </entry>
@@ -881,12 +857,12 @@
         <state relative-caret-position="451">
           <caret line="55" column="24" lean-forward="true" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
           <folding>
-            <element signature="e#4901#4902#0" expanded="false" />
-            <element signature="e#4959#4960#0" expanded="false" />
-            <element signature="e#5030#5031#0" expanded="false" />
-            <element signature="e#5067#5068#0" expanded="false" />
-            <element signature="e#11588#11589#0" expanded="false" />
-            <element signature="e#11609#11610#0" expanded="false" />
+            <element signature="e#4901#4902#0" />
+            <element signature="e#4959#4960#0" />
+            <element signature="e#5030#5031#0" />
+            <element signature="e#5067#5068#0" />
+            <element signature="e#11588#11589#0" />
+            <element signature="e#11609#11610#0" />
           </folding>
         </state>
       </provider>
@@ -894,11 +870,11 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/PanelParty.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="235">
-          <caret line="199" column="50" lean-forward="false" selection-start-line="199" selection-start-column="37" selection-end-line="199" selection-end-column="50" />
+          <caret line="199" column="50" selection-start-line="199" selection-start-column="37" selection-end-line="199" selection-end-column="50" />
           <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#6073#6074#0" expanded="false" />
-            <element signature="e#6125#6126#0" expanded="false" />
+            <element signature="imports" />
+            <element signature="e#6073#6074#0" />
+            <element signature="e#6125#6126#0" />
           </folding>
         </state>
       </provider>
@@ -906,10 +882,10 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/Soldier.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
+          <caret line="88" selection-start-line="88" selection-end-line="88" />
           <folding>
-            <element signature="e#15067#15068#0" expanded="false" />
-            <element signature="e#15103#15104#0" expanded="false" />
+            <element signature="e#15067#15068#0" />
+            <element signature="e#15103#15104#0" />
           </folding>
         </state>
       </provider>
@@ -917,18 +893,17 @@
     <entry file="jar://$PROJECT_DIR$/besiege-game/libs/gdx-sources.jar!/com/badlogic/gdx/utils/Array.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="235">
-          <caret line="490" column="0" lean-forward="false" selection-start-line="490" selection-start-column="0" selection-end-line="490" selection-end-column="0" />
-          <folding />
+          <caret line="490" selection-start-line="490" selection-end-line="490" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/MapScreen.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="279">
-          <caret line="1124" column="20" lean-forward="false" selection-start-line="1124" selection-start-column="11" selection-end-line="1124" selection-end-column="20" />
+          <caret line="1124" column="20" selection-start-line="1124" selection-start-column="11" selection-end-line="1124" selection-end-column="20" />
           <folding>
-            <element signature="e#34633#34634#0" expanded="false" />
-            <element signature="e#34656#34657#0" expanded="false" />
+            <element signature="e#34633#34634#0" />
+            <element signature="e#34656#34657#0" />
           </folding>
         </state>
       </provider>
@@ -936,10 +911,10 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/ArmyPlayer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
-          <caret line="247" column="66" lean-forward="false" selection-start-line="247" selection-start-column="55" selection-end-line="247" selection-end-column="66" />
+          <caret line="247" column="66" selection-start-line="247" selection-start-column="55" selection-end-line="247" selection-end-column="66" />
           <folding>
-            <element signature="e#7316#7317#0" expanded="false" />
-            <element signature="e#7378#7379#0" expanded="false" />
+            <element signature="e#7316#7317#0" />
+            <element signature="e#7378#7379#0" />
           </folding>
         </state>
       </provider>
@@ -947,10 +922,10 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/Panel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="235">
-          <caret line="262" column="34" lean-forward="false" selection-start-line="262" selection-start-column="18" selection-end-line="262" selection-end-column="34" />
+          <caret line="262" column="34" selection-start-line="262" selection-start-column="18" selection-end-line="262" selection-end-column="34" />
           <folding>
-            <element signature="e#7728#7729#0" expanded="false" />
-            <element signature="e#7767#7768#0" expanded="false" />
+            <element signature="e#7728#7729#0" />
+            <element signature="e#7767#7768#0" />
           </folding>
         </state>
       </provider>
@@ -958,21 +933,20 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Fire.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="262">
-          <caret line="96" column="0" lean-forward="false" selection-start-line="96" selection-start-column="0" selection-end-line="96" selection-end-column="0" />
-          <folding />
+          <caret line="96" selection-start-line="96" selection-end-line="96" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/PanelHire.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
-          <caret line="90" column="26" lean-forward="false" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="26" />
+          <caret line="90" column="26" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="26" />
           <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="e#6157#6158#0" expanded="false" />
-            <element signature="e#6186#6187#0" expanded="false" />
-            <element signature="e#8179#8180#0" expanded="false" />
-            <element signature="e#8209#8210#0" expanded="false" />
+            <element signature="n#!!doc" />
+            <element signature="e#6157#6158#0" />
+            <element signature="e#6186#6187#0" />
+            <element signature="e#8179#8180#0" />
+            <element signature="e#8209#8210#0" />
           </folding>
         </state>
       </provider>
@@ -980,12 +954,12 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/SoldierTable.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="459">
-          <caret line="44" column="13" lean-forward="false" selection-start-line="44" selection-start-column="13" selection-end-line="44" selection-end-column="13" />
+          <caret line="44" column="13" selection-start-line="44" selection-start-column="13" selection-end-line="44" selection-end-column="13" />
           <folding>
-            <element signature="e#7671#7672#0" expanded="false" />
-            <element signature="e#7709#7710#0" expanded="false" />
-            <element signature="e#7767#7768#0" expanded="false" />
-            <element signature="e#7828#7829#0" expanded="false" />
+            <element signature="e#7671#7672#0" />
+            <element signature="e#7709#7710#0" />
+            <element signature="e#7767#7768#0" />
+            <element signature="e#7828#7829#0" />
           </folding>
         </state>
       </provider>
@@ -993,10 +967,10 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/HireSoldierTable.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
-          <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
           <folding>
-            <element signature="e#766#767#0" expanded="false" />
-            <element signature="e#839#840#0" expanded="false" />
+            <element signature="e#766#767#0" />
+            <element signature="e#839#840#0" />
           </folding>
         </state>
       </provider>
@@ -1004,18 +978,18 @@
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/SidePanel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="344">
-          <caret line="304" column="19" lean-forward="false" selection-start-line="304" selection-start-column="19" selection-end-line="304" selection-end-column="19" />
+          <caret line="304" column="19" selection-start-line="304" selection-start-column="19" selection-end-line="304" selection-end-column="19" />
           <folding>
-            <element signature="e#8460#8461#0" expanded="false" />
-            <element signature="e#8481#8482#0" expanded="false" />
-            <element signature="e#9151#9152#0" expanded="false" />
-            <element signature="e#9173#9174#0" expanded="false" />
-            <element signature="e#9568#9569#0" expanded="false" />
-            <element signature="e#9593#9594#0" expanded="false" />
-            <element signature="e#9622#9623#0" expanded="false" />
-            <element signature="e#9659#9660#0" expanded="false" />
-            <element signature="e#9686#9687#0" expanded="false" />
-            <element signature="e#9721#9722#0" expanded="false" />
+            <element signature="e#8460#8461#0" />
+            <element signature="e#8481#8482#0" />
+            <element signature="e#9151#9152#0" />
+            <element signature="e#9173#9174#0" />
+            <element signature="e#9568#9569#0" />
+            <element signature="e#9593#9594#0" />
+            <element signature="e#9622#9623#0" />
+            <element signature="e#9659#9660#0" />
+            <element signature="e#9686#9687#0" />
+            <element signature="e#9721#9722#0" />
           </folding>
         </state>
       </provider>
@@ -1024,70 +998,62 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
           <caret line="18" column="45" lean-forward="true" selection-start-line="18" selection-start-column="45" selection-end-line="18" selection-end-column="45" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/BesiegeMain.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="15" column="14" lean-forward="false" selection-start-line="15" selection-start-column="14" selection-end-line="15" selection-end-column="14" />
-          <folding />
+          <caret line="15" column="14" selection-start-line="15" selection-start-column="14" selection-end-line="15" selection-end-column="14" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-desktop/src/kyle/game/besiege/BattleLauncher.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
-          <caret line="15" column="28" lean-forward="false" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-          <folding />
+          <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/MiniMap.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="415">
-          <caret line="119" column="35" lean-forward="false" selection-start-line="119" selection-start-column="35" selection-end-line="119" selection-end-column="35" />
-          <folding />
+          <caret line="119" column="35" selection-start-line="119" selection-start-column="35" selection-end-line="119" selection-end-column="35" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/PanelBattle.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
-          <caret line="47" column="28" lean-forward="false" selection-start-line="47" selection-start-column="28" selection-end-line="47" selection-end-column="28" />
-          <folding />
+          <caret line="47" column="28" selection-start-line="47" selection-start-column="28" selection-end-line="47" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/location/Location.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="296">
-          <caret line="221" column="18" lean-forward="false" selection-start-line="221" selection-start-column="18" selection-end-line="221" selection-end-column="18" />
-          <folding />
+          <caret line="221" column="18" selection-start-line="221" selection-start-column="18" selection-end-line="221" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Simulation.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="425">
-          <caret line="44" column="28" lean-forward="false" selection-start-line="44" selection-start-column="17" selection-end-line="44" selection-end-column="28" />
-          <folding />
+          <caret line="44" column="28" selection-start-line="44" selection-start-column="17" selection-end-line="44" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/BattleStage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="303">
-          <caret line="242" column="33" lean-forward="false" selection-start-line="242" selection-start-column="33" selection-end-line="242" selection-end-column="33" />
-          <folding />
+          <caret line="242" column="33" selection-start-line="242" selection-start-column="33" selection-end-line="242" selection-end-column="33" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/panels/PanelUnit.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="319" column="21" lean-forward="false" selection-start-line="319" selection-start-column="21" selection-end-line="319" selection-end-column="21" />
+        <state relative-caret-position="4500">
+          <caret line="319" column="21" selection-start-line="319" selection-start-column="21" selection-end-line="319" selection-end-column="21" />
           <folding>
             <element signature="e#13821#13822#0" expanded="true" />
             <element signature="e#13845#13846#0" expanded="true" />
@@ -1101,8 +1067,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/battle/Unit.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="505" column="60" lean-forward="false" selection-start-line="505" selection-start-column="60" selection-end-line="505" selection-end-column="60" />
+        <state relative-caret-position="7320">
+          <caret line="505" column="60" selection-start-line="505" selection-start-column="60" selection-end-line="505" selection-end-column="60" />
           <folding>
             <element signature="e#42291#42292#0" expanded="true" />
             <element signature="e#42350#42351#0" expanded="true" />
@@ -1112,65 +1078,74 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/Party.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="458" column="0" lean-forward="false" selection-start-line="458" selection-start-column="0" selection-end-line="458" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="6405">
+          <caret line="458" selection-start-line="458" selection-end-line="458" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/party/Subparty.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="437">
-          <caret line="186" column="31" lean-forward="false" selection-start-line="186" selection-start-column="31" selection-end-line="186" selection-end-column="31" />
-          <folding />
+        <state relative-caret-position="2730">
+          <caret line="186" column="31" selection-start-line="186" selection-start-column="31" selection-end-line="186" selection-end-column="31" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/Assets.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="56" column="26" lean-forward="false" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="26" />
-          <folding />
+        <state relative-caret-position="630">
+          <caret line="56" column="26" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/NameGenerator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="40" column="0" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="540">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_units.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="18" lean-forward="false" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
-          <folding />
+        <state relative-caret-position="75">
+          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game-android/assets/data/units/chieftain_supplemental_units.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" column="36" lean-forward="false" selection-start-line="14" selection-start-column="36" selection-end-line="14" selection-end-column="36" />
-          <folding />
+        <state relative-caret-position="210">
+          <caret line="14" column="36" selection-start-line="14" selection-start-column="36" selection-end-line="14" selection-end-column="36" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/Path.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="304" column="40" lean-forward="false" selection-start-line="304" selection-start-column="25" selection-end-line="304" selection-end-column="40" />
-          <folding />
+        <state relative-caret-position="4275">
+          <caret line="304" column="40" selection-start-line="304" selection-start-column="25" selection-end-line="304" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/besiege-game-android/src/kyle/game/besiege/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret selection-start-column="2" selection-end-line="20" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#695#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/besiege-game/src/kyle/game/besiege/army/Army.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="332">
-          <caret line="1087" column="90" lean-forward="false" selection-start-line="1087" selection-start-column="90" selection-end-line="1087" selection-end-column="90" />
+        <state relative-caret-position="66">
+          <caret line="1075" lean-forward="true" selection-start-line="1075" selection-end-line="1075" />
           <folding>
+            <element signature="e#18267#18274#0" expanded="true" />
+            <element signature="e#18351#18358#0" expanded="true" />
+            <element signature="e#19316#19323#0" expanded="true" />
+            <element signature="e#19407#19414#0" expanded="true" />
+            <element signature="e#20708#20715#0" expanded="true" />
+            <element signature="e#20754#20761#0" expanded="true" />
             <element signature="e#44396#44397#0" expanded="true" />
             <element signature="e#44429#44430#0" expanded="true" />
             <element signature="e#44463#44464#0" expanded="true" />
@@ -1226,7 +1201,7 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>Android API 4 Platform</last-edited>
+          <last-edited>1.9</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -1238,7 +1213,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>besiege-game</last-edited>
+          <last-edited>besiege-game-android</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

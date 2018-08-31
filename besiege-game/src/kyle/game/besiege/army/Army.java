@@ -1074,9 +1074,6 @@ public class Army extends Actor implements Destination {
 	public void run() { // for now, find a spot far away and set path there
 		if (normalWaiting) normalWaiting = false;
 
-		// TODO I think the problem is this: running party will set a target as a point, then this block of code will
-        // forces it to travel instead of looking for a friendly city. Basically need to allow
-
 		// this is the problem. path is not empty, but it's not getting empty;
 		if (startedRunning && this.hasTarget() && !this.path.isEmpty() ) {
 			//this.detectCollision();
