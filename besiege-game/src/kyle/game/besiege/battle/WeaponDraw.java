@@ -211,7 +211,7 @@ public class WeaponDraw extends Group { // can have arrows.
 		}
 		
 		// draw shield
-		if (shield != null && !unit.bowOut()) {
+		if (shield != null && !unit.rangedWeaponOut()) {
 			shieldOffset = FIRST_OFFSET;
 			if (unit.unitDraw.walkArmor.getKeyFrameIndex(unit.stateTime) == 1 && !unit.stage.isOver && (unit.moveSmooth || unit.attacking != null)) shieldOffset = DEFAULT_OFFSET;
 
@@ -225,7 +225,7 @@ public class WeaponDraw extends Group { // can have arrows.
 
         batch.setColor(c);
 
-        if (unit.bowOut()) {
+        if (unit.rangedWeaponOut()) {
 			toDraw = weaponRanged;
 //			if (unit.rangedWeapon != RangedWeapon.ADV_CROSSBOW  && unit.rangedWeapon != RangedWeapon.CROSSBOW) {
 				offset_x_to_use = offset_x_ranged;

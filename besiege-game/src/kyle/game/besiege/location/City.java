@@ -10,10 +10,8 @@ import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.army.Merchant;
-import kyle.game.besiege.army.Noble;
-import kyle.game.besiege.army.Patrol;
-import kyle.game.besiege.army.RaidingParty;
+import kyle.game.besiege.Random;
+import kyle.game.besiege.army.*;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
@@ -22,11 +20,13 @@ import kyle.game.besiege.voronoi.Corner;
 public class City extends Location {
 	private final static float CITY_WEALTH_FACTOR = 0.6f; // arbitrary, this times pop = wealth
 	private final static float INITIAL_WEALTH_VARIANCE_MIN = 0.6f;
-	private final static float INITIAL_WEALTH_VARIANCE_MAX = 2f;	
+	private final static float INITIAL_WEALTH_VARIANCE_MAX = 2f;
 	
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
-//	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest of cities possible
+	private static final int MAX_FARMERS = 4;
+    private static final int MAX_HUNTERS = 4;
+    //	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 
 	private final static float closeCityDistance = 500; // cities within this distance are considered "close" for trading, raiding, etc
@@ -41,6 +41,10 @@ public class City extends Location {
 	private Array<RaidingParty> raiders;
 	private boolean[] raiderExists;
 
+	public enum Size {
+	    TOWN, CITY, LARGE_CITY
+    }
+
 	public City() {}
 	
 	public City(Kingdom kingdom, String name, int index, Faction faction, float posX,
@@ -51,7 +55,7 @@ public class City extends Location {
 		POP_MIN = 500;
 		POP_MAX = 15000;
 		
-		this.population = Math.random()*(POP_MAX - POP_MIN) + POP_MIN;
+		this.population = Random.getRandomInRange(POP_MIN, POP_MAX);
 				
 		this.DAILY_WEALTH_INCREASE_BASE = 5;
 		this.DAILY_POP_INCREASE_BASE = 5;
@@ -66,6 +70,9 @@ public class City extends Location {
 		
 		nobles = new Array<Noble>();
 
+        this.farmerCount = getPop() / (POP_MAX / MAX_FARMERS); // arbitrary
+        this.hunterCount = getPop() / (POP_MAX / MAX_HUNTERS); // arbitrary
+
 //		closestFriendlyCities = new Array<City>();
 //		closestEnemyLocations = new Array<City>();
 //		villages = new Array<Village>();
@@ -78,19 +85,48 @@ public class City extends Location {
             setTextureRegion("tipi4");
         } else if (cultureType.name.equals("Forest")) {
             setTextureRegion("longhouse4");
-        } else if (cultureType.name.equals("Tundra")){
-                if (center != null && (center.biome == Biomes.SNOW))
-                    setTextureRegion("inuitcitywhite");
-                else setTextureRegion("inuitcity");
+        } else if (cultureType.name.equals("Tundra")) {
+            if (center != null && (center.biome == Biomes.SNOW))
+                setTextureRegion("inuitcitywhite");
+            else setTextureRegion("inuitcity");
+            farmerCount = 0;
         } else if (cultureType.name.equals("Desert")){
             setTextureRegion("temple2");
         } else {
             setTextureRegion("City");
         }
 
+        farmers = new Array<Farmer>();
+
         setScale(SCALE);
 		initializeBox();
 	}
+
+	@Override
+    public void dailyPopIncrease() {
+	    Size prevSize = getSize();
+	    super.dailyPopIncrease();
+	    if (getSize() != prevSize) {
+	        handleSizeChange(prevSize, getSize());
+        }
+    }
+
+    private void handleSizeChange(Size prevSize, Size newSize) {
+	    // TODO upgrade city
+    }
+
+	public Size getSize() {
+        int index = getPop() / (POP_MAX / Size.values().length);
+        return Size.values()[index];
+	}
+
+	public String getSizeString() {
+	    Size size = getSize();
+	    if (size == Size.TOWN) return "Town";
+	    if (size == Size.CITY) return "City";
+	    if (size == Size.LARGE_CITY) return "Large City";
+	    throw new AssertionError();
+    }
 	
 	@Override
 	protected void setCenter(Center center) {
@@ -125,7 +161,10 @@ public class City extends Location {
 		if (getPatrols().size < patrolCount) {
 			createPatrol();
 		}
-		
+
+        if (farmers.size < farmerCount) {
+            createFarmer();
+        }
 		
 		// this is an overly complicated way of doing it
 		

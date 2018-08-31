@@ -62,19 +62,19 @@ public class List extends Widget implements Cullable {
 		addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (pointer == 0 && button != 0) return false;
-				if (!isSelectable()) return false; // don't eat touch event when NOT selectable
+				if (!isSelectable()) return false; // don't eat touch event when NOT hirePanel
 				List.this.touchDown(y);
 				return true;
 			}
 		});
 	}
 
-	/** Sets whether this List's items are selectable. If not selectable, touch events will not be consumed. */
+	/** Sets whether this List's items are hirePanel. If not hirePanel, touch events will not be consumed. */
 	public void setSelectable (boolean selectable) {
 		this.selectable = selectable;
 	}
 
-	/** @return True if items are selectable. */
+	/** @return True if items are hirePanel. */
 	public boolean isSelectable () {
 		return selectable;
 	}

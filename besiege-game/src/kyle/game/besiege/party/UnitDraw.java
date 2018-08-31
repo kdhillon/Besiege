@@ -29,10 +29,13 @@ public class UnitDraw extends Actor {
     private Color c = new Color();
 
     private Unit unit;
+    private UnitType type;
 
     public UnitDraw(Unit unit) {
         this.unit = unit;
         this.soldier = unit.soldier;
+        this.type = soldier.unitType;
+
         this.rangedWeapon = unit.rangedWeapon;
 
         this.setWidth(unit.stage.unit_width);
@@ -41,18 +44,18 @@ public class UnitDraw extends Actor {
         assignColor();
 
         float ani = 0.25f;
-        walkArmor	= createAnimation("walk-armor", 2, ani);
+        walkArmor	= createAnimation(type.armor.getWalkAnimation(), 2, ani);
         walkSkin 	= createAnimation("walk-skin", 2, ani);
 
         // later on randomize the dying animation
-        dieArmor	= createAnimation("die1-armor", 4, ani);
+        dieArmor	= createAnimation(type.armor.getDyingAnimation(), 4, ani);
         dieSkin 	= createAnimation("die1-skin", 4, ani);
         dieArmor.setPlayMode(Animation.NORMAL);
         dieSkin.setPlayMode(Animation.NORMAL);
 
         if (unit.isRanged()) {
             if (this.rangedWeapon.type == RangedWeaponType.Type.FIREARM) {
-                firingArmor	= createAnimation("firearm-armor", 2, 2);
+                firingArmor	= createAnimation(type.armor.getFirearmAnimation(), 2, 2);
                 firingSkin 	= createAnimation("firearm-skin", 2, 2);
                 firingArmor.setPlayMode(Animation.NORMAL);
                 firingSkin.setPlayMode(Animation.NORMAL);
@@ -60,7 +63,7 @@ public class UnitDraw extends Actor {
                 drawAmmo = false;
             }
             else if (this.rangedWeapon.type == RangedWeaponType.Type.ATLATL) {
-                firingArmor	=    createAnimation("atlatl-armor", 2, 2);
+                firingArmor	=    createAnimation(type.armor.getFiringAnimation(), 2, 2);
                 firingSkin 	= createAnimation("atlatl-skin", 2, 2);
                 firingArmor.setPlayMode(Animation.REVERSED);
                 firingSkin.setPlayMode(Animation.REVERSED);
@@ -68,7 +71,7 @@ public class UnitDraw extends Actor {
                 drawAmmo = true;
             }
             else if (this.rangedWeapon.type == RangedWeaponType.Type.THROWN_AXE) {
-                firingArmor	=    createAnimation("thrown-armor", 2, 2);
+                firingArmor	=    createAnimation(type.armor.getThrownAnimation(), 2, 2);
                 firingSkin 	= createAnimation("thrown-skin", 2, 2);
                 firingArmor.setPlayMode(Animation.REVERSED);
                 firingSkin.setPlayMode(Animation.REVERSED);
@@ -77,7 +80,7 @@ public class UnitDraw extends Actor {
                 drawAmmoReversed = true;
             }
             else if (this.rangedWeapon.type == RangedWeaponType.Type.THROWN || this.rangedWeapon.type == RangedWeaponType.Type.THROWN_FIRE || this.rangedWeapon.type == RangedWeaponType.Type.SLING) {
-                firingArmor	=    createAnimation("thrown-armor", 2, 2);
+                firingArmor	=    createAnimation(type.armor.getThrownAnimation(), 2, 2);
                 firingSkin 	= createAnimation("thrown-skin", 2, 2);
                 firingArmor.setPlayMode(Animation.REVERSED);
                 firingSkin.setPlayMode(Animation.REVERSED);
@@ -86,7 +89,7 @@ public class UnitDraw extends Actor {
                 drawAmmoReversed = false;
             }
             else {
-                firingArmor = createAnimation("firing-armor", 2, 2);
+                firingArmor = createAnimation(type.armor.getFiringAnimation(), 2, 2);
                 firingSkin = createAnimation("firing-skin", 2, 2);
                 firingArmor.setPlayMode(Animation.NORMAL);
                 firingSkin.setPlayMode(Animation.NORMAL);
@@ -103,7 +106,7 @@ public class UnitDraw extends Actor {
         c.set(batch.getColor());
         if (unit.isDying) {
             // For now, don't draw equipment.
-//             TODO draw equipment (specifically headdress)
+//             TODO fix headdress drawing
 //            System.out.println("drawing dying unit: " + unit.timeSinceDeath + " " + (dieArmor == null) + (dieSkin == null) + " " +  armorTint.toString() + " " + skinTint.toString());
             drawUnit(this, batch, dieArmor, dieSkin, armorTint, skinTint, unit.timeSinceDeath, false, unit.equipment);
         } else {

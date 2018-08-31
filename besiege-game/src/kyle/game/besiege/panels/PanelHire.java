@@ -7,19 +7,12 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
 
@@ -37,21 +30,21 @@ public class PanelHire extends Panel {
 
     private TopTable topTable;
 
-    private SoldierTable soldierTable;
+    private HireSoldierTable soldierTable;
 
     private LabelStyle ls;
     private LabelStyle lsMed;
     private LabelStyle lsG;
 
-	private SoldierLabel hireLabel;
-	private Button hireButton;
-	
-	private Soldier selected;
+    private SoldierLabel hireLabel;
+    private Button hireButton;
 
-	public PanelHire(SidePanel panel, Location location) {
-		this.panel = panel;
-		this.location = location;
-		this.addParentPanel(panel);
+//    private Soldier selected;
+
+    public PanelHire(SidePanel panel, Location location) {
+        this.panel = panel;
+        this.location = location;
+        this.addParentPanel(panel);
 
         LabelStyle lsBig = new LabelStyle();
         lsBig.font = Assets.pixel22;
@@ -72,6 +65,7 @@ public class PanelHire extends Panel {
                                      float y, int pointer, int button) {
                 return true;
             }
+
             public void touchUp(InputEvent event, float x, float y,
                                 int pointer, int button) {
                 centerCamera();
@@ -82,6 +76,7 @@ public class PanelHire extends Panel {
                                      float y, int pointer, int button) {
                 return true;
             }
+
             public void touchUp(InputEvent event, float x, float y,
                                 int pointer, int button) {
                 centerCamera();
@@ -91,7 +86,7 @@ public class PanelHire extends Panel {
         topTable.addBigLabel("PartySize", "Party Size:");
         topTable.addBigLabel("PartyWealth", "Party Wealth:");
 
-        soldierTable = new SoldierTable(location.toHire);
+        soldierTable = new HireSoldierTable(location.toHire, this);
         topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
         updateSoldierTable();
 
@@ -139,7 +134,7 @@ public class PanelHire extends Panel {
 //		stats.row();
 //		stats.add(hireButton).colspan(4).center().padTop(PAD);
 
-		//stats.debug();
+        //stats.debug();
 
 //		text.add(stats).colspan(4).padTop(PAD);
 
@@ -161,105 +156,112 @@ public class PanelHire extends Panel {
     private void centerCamera() {
         Camera camera = panel.getKingdom().getMapScreen().getCamera();
 //		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
-        camera.translate(new Vector3(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y, 0));
+        camera.translate(new Vector3(location.getCenterX() - camera.position.x, location.getCenterY() - camera.position.y, 0));
     }
 
-	@Override
-	public void act(float delta) {
-        topTable.update("PartyWealth", ""+panel.getKingdom().getPlayer().getParty().wealth);
+    @Override
+    public void act(float delta) {
+        topTable.update("PartyWealth", "" + panel.getKingdom().getPlayer().getParty().wealth);
         topTable.update("PartySize", "" + panel.getKingdom().getPlayer().getPartyInfo());
 
 //		if (location.getToHire() != null && location.getToHire().getHealthySize() == 0) getButton(2).setDisabled(true);
 //		else getButton(2).setDisabled(false);
 
-		super.act(delta);
-	}
-	
-	private void updateSoldierTable() {
-	    if (location.getToHire() == null) {
-	        System.out.println("To hire at : " + location.getName() + " is null");
+        super.act(delta);
+    }
+
+    private void updateSoldierTable() {
+        if (location.getToHire() == null) {
+            System.out.println("To hire at : " + location.getName() + " is null");
         }
-	    System.out.println("people in location: " + location.getToHire().getTotalSize());
+        System.out.println("people in location: " + location.getToHire().getTotalSize());
         soldierTable.update();
     }
-	
-	public void select(Soldier s) {
-		this.selected = s;
 
-		hireLabel.soldier = s;
-		int cost = s.getBuyCost();
-//		int cost = (int) (s.level*COST_FACTOR);
-		hireLabel.setText("Hire " + s.getTypeName() + " (" + cost + ")");
-		showButton(1);
-		
-		updateSoldierTable();
-	}
+    // This soldier was selected by the soldiertable
+    public void notifySelect(Soldier s) {
+        showButton(1);
+    }
 
-	public void deselect() {
-		this.selected = null;
-		hideButton(1);
-		updateSoldierTable();
-	} 
-	
-	private void hire(Soldier s) {
-		if (location.hire(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
-			String name = s.getTypeName();
-			BottomPanel.log("Hired " + name);
-			deselect();
-		}
-		else if (panel.getKingdom().getPlayer().getParty().isFull()) {
-			BottomPanel.log("Can't hire " + s.getTypeName() + ". Party is full.");
-		} else {
-			BottomPanel.log("Can't afford " + s.getTypeName());
-		}
-	}
-	
-	public void hireSelected() {
-		hire(selected);
-		updateSoldierTable();
-	}
-	
-	public void hireAll() { //Fixed iterator problem
-		location.getToHire().getHealthy().shrink();
-		Array<Soldier> soldiers = location.getToHire().getHealthyCopy();
-		soldiers.reverse(); // cheapest first!
-		for (Soldier s : soldiers) {
-			hire(s);
-		}
-		updateSoldierTable();
-	}
-	
-	@Override
-	public void resize() { // problem with getting scroll bar to appear...
+//    public void select(Soldier s) {
+//        this.selected = s;
+//
+//        hireLabel.soldier = s;
+//        int cost = s.getBuyCost();
+////		int cost = (int) (s.level*COST_FACTOR);
+//        hireLabel.setText("Hire " + s.getTypeName() + " (" + cost + ")");
+//        showButton(1);
+//
+//        updateSoldierTable();
+//    }
+
+//    public void deselect() {
+//        this.selected = null;
+//        hideButton(1);
+//        updateSoldierTable();
+//    }
+
+    private void hire(Soldier s) {
+        if (location.hire(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
+            String name = s.getTypeName();
+            BottomPanel.log("Hired " + name);
+            hideButton(1);
+            soldierTable.notifySelectedSoldierRemoved();
+        } else if (panel.getKingdom().getPlayer().getParty().isFull()) {
+            BottomPanel.log("Can't hire " + s.getTypeName() + ". Party is full.");
+        } else {
+            BottomPanel.log("Can't afford " + s.getTypeName());
+        }
+    }
+
+    public void hireSelected() {
+        hire(soldierTable.selected);
+        updateSoldierTable();
+    }
+
+    public void hireAll() { //Fixed iterator problem
+        location.getToHire().getHealthy().shrink();
+        Array<Soldier> soldiers = location.getToHire().getHealthyCopy();
+        soldiers.reverse(); // cheapest first!
+        for (Soldier s : soldiers) {
+            hire(s);
+        }
+        updateSoldierTable();
+    }
+
+    @Override
+    public void resize() { // problem with getting scroll bar to appear...
         Cell cell = topTable.getCell(soldierTable);
         cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-        soldierTable = new SoldierTable(location.getToHire());
+        soldierTable = new HireSoldierTable(location.getToHire(), this);
         location.needsUpdate = true;
         soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
         cell.setWidget(soldierTable);
         updateSoldierTable();
 
         super.resize();
-	}
-	
-	@Override
-	public void button1() {
-	    hireSelected();
-	}
-	@Override
-	public void button2() {
-		hireAll();
-	}
-	
-	@Override
-	public Crest getCrest() {
-		if (selected == null)
-			return location.getFaction().crest;
-		else return null;
-	}
-	@Override
-	public Soldier getSoldierInsteadOfCrest() {
-		if (selected != null) return selected;
-		return null;
-	}
+    }
+
+    @Override
+    public void button1() {
+        hireSelected();
+    }
+
+    @Override
+    public void button2() {
+        hireAll();
+    }
+
+    @Override
+    public Crest getCrest() {
+        if (soldierTable.selected == null)
+            return location.getFaction().crest;
+        else return null;
+    }
+
+    @Override
+    public Soldier getSoldierInsteadOfCrest() {
+        if (soldierTable.selected != null) return soldierTable.selected;
+        return null;
+    }
 }

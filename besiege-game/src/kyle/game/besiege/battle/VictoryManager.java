@@ -6,6 +6,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.*;
 
 public class VictoryManager {
@@ -37,6 +38,11 @@ public class VictoryManager {
     // Wealth to be gained after battle.
     private int spoils;
 
+    private int aTroopsKilled;
+    private int aTroopsWounded;
+    private int dTroopsKilled;
+    private int dTroopsWounded;
+
     // TODO add prisoners to be gained/lost
 
     private StrictArray<WeaponType> weaponLoot;
@@ -65,6 +71,14 @@ public class VictoryManager {
         // add to total exp sum
         if (wasInAttackers) expD += soldier.getExpForKill();
         else expA += soldier.getExpForKill();
+
+        if (wasInAttackers) {
+            if (killed) aTroopsKilled++;
+            else aTroopsWounded++;
+        } else {
+            if (killed) dTroopsKilled++;
+            else dTroopsWounded++;
+        }
 
         // add loot to loot drop
         if (killed) {
@@ -120,9 +134,26 @@ public class VictoryManager {
         for (int i = 0; i < loser.size; i++) {
             Party party = loser.get(i);
             party.registerBattleLoss();
+            System.out.println("Healthy troops: " + party.getHealthySize());
+            if (party.player) {
+                int playerTroopsKilled = aTroopsKilled;
+                int playerTroopsWounded = aTroopsWounded;
+                if (battle.playerDefending()) {
+                    playerTroopsKilled = dTroopsKilled;
+                    playerTroopsWounded = dTroopsWounded;
+                }
+
+                BottomPanel.log("Battle lost!", "red");
+                BottomPanel.log("Troops lost: " + playerTroopsKilled, "red");
+                BottomPanel.log("Troops wounded: " + playerTroopsWounded, "orange");
+            }
             if (party.getHealthySize() <= PARTY_DESTROY_THRESHOLD) {
+                System.out.println("Destroying losing party");
                 Army army = party.army;
                 if (army != null) {
+                    if (army.player) {
+                        BottomPanel.log("PLAYER DESTROYED", "red");
+                    }
                     army.endBattle();
                     army.setStopped(false);
                     army.setVisible(false);

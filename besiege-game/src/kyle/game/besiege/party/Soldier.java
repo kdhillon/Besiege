@@ -14,6 +14,7 @@ import kyle.game.besiege.MultiValue.TypeInfo;
 import kyle.game.besiege.NameGenerator;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.PanelUnit;
 
 public class Soldier implements Comparable<Soldier> { // should create a heal-factor, so garrisonning will heal faster
 	public static boolean WEAPON_NEEDED = false;
@@ -217,7 +218,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		
 		age = (short) (Math.random() * 20 + 18); // between 17 and 48
 	}
-	
+
 	public void generateName() {
 		String firstName, lastName;
 		if (this.female) {
@@ -498,6 +499,11 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public UnitType[] getUpgrades() {
 		return unitType.upgrades;
 	}
+
+	// Returns true if this soldier is currently in a "hire" party.
+	public boolean availableForHire() {
+        return party.pt.hire;
+    }
 
 	// Returns true if the unit was killed, false if they were injured.
 	public boolean casualty(boolean wasInAttackers, Soldier killer, boolean playerInA, boolean playerInD) {

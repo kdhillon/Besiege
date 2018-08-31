@@ -1320,7 +1320,7 @@ public class BattleMap extends Group {
 	}
 	
 	private void drawRange(Unit drawRange, SpriteBatch batch) {
-		if (drawRange.bowOut() && !drawRange.isRetreating()) {
+		if (drawRange.rangedWeaponOut() && !drawRange.isRetreating()) {
 			Color c = batch.getColor();
 			groundcolor.set(RANGE_COLOR);
 

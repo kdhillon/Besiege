@@ -2,12 +2,8 @@ package kyle.game.besiege.battle;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.battle.Unit.Orientation;
-import kyle.game.besiege.battle.Unit.Stance;
-import kyle.game.besiege.panels.BottomPanel;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -477,7 +473,7 @@ public class SiegeUnit extends Group {
 		for (Unit that : enemy) {
 			double dist = this.distanceTo(that);
 			if (dist > MIN_DIST && dist < distance) {
-				if (!that.isRetreating() && that.bowOut() && dist < closestDistance) {
+				if (!that.isRetreating() && that.rangedWeaponOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
 				}

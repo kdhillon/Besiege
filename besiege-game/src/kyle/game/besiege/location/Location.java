@@ -94,7 +94,7 @@ public class Location extends Group implements Destination {
 
 	public boolean ruin;
 
-	protected double population;
+	protected int population;
 
 	private double wealthFactor = 1;
 	
@@ -115,7 +115,9 @@ public class Location extends Group implements Destination {
 	// Farmer info
     public Array<Farmer> farmers;
     int farmerCount;
+    int hunterCount;
     private static final int MAX_FARMERS = 5;
+    private static final int MAX_HUNTERS = 5;
 
     // Hunter info
 
@@ -218,6 +220,7 @@ public class Location extends Group implements Destination {
 //		if (getFaction() != null) name = this.getName() + " Garrison " + getFaction().name;
 //		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType, this);
         this.garrison = PartyType.getPartyType(pType, cultureType).generate();
+        this.garrison.setName(name);
 //		this.garrison.isGarrison = true;
 //		this.garrison.passive = true;
 
@@ -971,7 +974,7 @@ public class Location extends Group implements Destination {
 		return siege;
 	}
 	public void addFire() {
-		this.fire = new Fire( 400, 400, kingdom.getMapScreen(), this);
+		this.fire = new Fire( 100, 100, kingdom.getMapScreen(), this);
 		this.addActor(fire);
 	}
 	public void removeFire() {
@@ -1071,6 +1074,11 @@ public class Location extends Group implements Destination {
 	public void changeFaction(Faction newFaction) {
 		if (this.ruin) return;
 		needsUpdate = true;
+
+		for (Farmer f : this.farmers) {
+            f.setFaction(newFaction);
+        }
+
 		if (this.type == LocationType.CITY) {
 			this.faction.cities.removeValue((City) this, true);
 			newFaction.cities.add((City) this);
@@ -1099,9 +1107,6 @@ public class Location extends Group implements Destination {
 			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.VILLAGE) {
-			for (Farmer f : ((Village) this).farmers) {
-				f.setFaction(newFaction);
-			}
 			if (this.faction != null)
 				this.faction.villages.removeValue((Village) this, true);
 			if (newFaction != null)
@@ -1160,7 +1165,7 @@ public class Location extends Group implements Destination {
 //	public void setParty(Party playerPartyPanel) {
 //		this.garrison.setParty(playerPartyPanel);
 //	}
-	public double getPop() {
+	public int getPop() {
 		return population;
 	}
 	public void addWealth(int wealth) {
@@ -1284,7 +1289,7 @@ public class Location extends Group implements Destination {
 		else if (this.isCastle())
 			return "Castle";
 		else if (type == LocationType.CITY)
-			return "City";
+			return ((City) this).getSizeString();
 		else if (type == LocationType.RUIN)
 			return "Ruins";
 		return "No Type";

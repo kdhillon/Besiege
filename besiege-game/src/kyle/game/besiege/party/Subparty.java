@@ -72,7 +72,8 @@ public class Subparty {
 		this.general = null;
 		general.subparty = null;
 	}
-	
+
+	// This
 	public void checkHeal() { // to be called every frame 
 		Iterator<Soldier> iter = wounded.iterator();
 		while (iter.hasNext()) {
@@ -96,7 +97,7 @@ public class Subparty {
 //		System.out.println("casualty: " + soldier.unitType.name);
 		// wound chance = base_chance*heal factor + (level of unit / max level)/2
 		double thisWoundChance = party.woundChance + (soldier.level / Soldier.MAX_LEVEL) / 2;
-		thisWoundChance = 0; //TODO remove
+//		thisWoundChance = 0; //TODO remove
 		if (Math.random() < thisWoundChance) {
 			wound(soldier);
 			return false;
@@ -169,6 +170,8 @@ public class Subparty {
 				return;
 			}
 		}
+		System.out.println(this.party.getName());
+		if (healthy.size == 0 && wounded.size == 0) throw new AssertionError();
 		throw new java.lang.AssertionError("Couldn't promote general");
 	}
 	
@@ -293,11 +296,13 @@ public class Subparty {
 			spdTotal += s.getSpd();
 		}
 	}
-	
+
+	//
 	public int getSpotsRemaining() {
-	    if (this.general != null)
-		    return this.general.getMaxSubPartySize() + 1 - this.getTotalSize();
-	    else return HARD_MAX - this.getTotalSize();
+	    return HARD_MAX - this.getTotalSize();
+//	    if (this.general != null)
+//		    return this.general.getMaxSubPartySize() - this.getTotalSize();
+//	    else return HARD_MAX - this.getTotalSize(); // Gotta subtract 1 for general?
 	}
 	
 	public boolean isFull() {

@@ -2,14 +2,12 @@ package kyle.game.besiege.battle;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
-import kyle.game.besiege.Assets;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
@@ -312,7 +310,7 @@ public class Unit extends Group {
 
         if (this.hp <= 0) {
 			System.out.println("Still here not dying?");
-			return;
+			throw new AssertionError();
 		}
 		else if (this.hp <= RETREAT_THRESHOLD && canRetreat()) {
 		    startRetreating();
@@ -380,7 +378,7 @@ public class Unit extends Group {
 				//					timer = 0;
 				//				}
 				// if enemy is within one unit and fighting, can move to them.
-				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
+				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.rangedWeaponOut()))
 					moveToEnemy();
 				else if (isFiring() && nearestTarget != null) {
 					if (nearestTarget.isDying || nearestTarget.outOfBattle) {
@@ -396,7 +394,7 @@ public class Unit extends Group {
 				else {
 					nearestTarget = getNearestTarget();
 
-					if (this.bowOut() && !shouldMove()) {
+					if (this.rangedWeaponOut() && !shouldMove()) {
 						if (nearestTarget != null) {
 							if (reloading < RELOADING_THRESHHOLD && nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
 								fireAtEnemy();
@@ -412,7 +410,7 @@ public class Unit extends Group {
 						}
 					}
 					// move to orignial position for infantry
-					else if (!this.bowOut() && this.stance == Stance.DEFENSIVE) {
+					else if (!this.rangedWeaponOut() && this.stance == Stance.DEFENSIVE) {
 						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new BPoint(original_x, original_y));
 					}
 				}
@@ -441,7 +439,7 @@ public class Unit extends Group {
 
 	public void checkIfShouldManSiege() {
 		// for now, no defensive units should siegeOrRaid
-		if (this.bowOut() || this.isMounted() || (stage.siegeOrRaid && this.stance == Stance.DEFENSIVE)) return;
+		if (this.rangedWeaponOut() || this.isMounted() || (stage.siegeOrRaid && this.stance == Stance.DEFENSIVE)) return;
 
 		for (SiegeUnit s : stage.siegeUnitsArray) {
 			if (!s.hasMen() && s.enemyTeam() != this.team) {
@@ -496,17 +494,17 @@ public class Unit extends Group {
 
 
 	public String getStatus() {
-		if (this.isDying) 				return "Dying";
+		if (this.isDying) 				return "Fallen";
 		if (this.siegeUnit != null)		return "Manning " + siegeUnit.type.name;
 		if (this.retreating)		 	return "Retreating";
 		if (this.attacking != null) 	return "Attacking " + attacking.soldier.getTypeName();
 		if (this.moveSmooth && 
-				nearestCover != null) 			return "Moving to cover";
+				nearestCover != null) 	return "Moving to cover";
 		if (this.moveSmooth) 			return "Charging";
 		if (this.isRanged() && 
 				this.reloading > 0 && 
 				inCover()) 				return "Firing from cover";
-		if (this.bowOut() && 
+		if (this.rangedWeaponOut() &&
 				this.reloading > 0) 		return "Firing";
 		else return "Idle";
 	}
@@ -523,7 +521,7 @@ public class Unit extends Group {
 //             TODO draw equipment (specifically headdress)
 //		    drawUnit(this, batch, dieArmor, dieSkin, armorTint, skinTint, timeSinceDeath, false, equipment);
 
-        if (moving) {
+        if (moving && !isDying) {
             setX(currentX() * stage.unit_width);
             setY(currentY() * stage.unit_height);
         } else if (!isDying) {
@@ -627,7 +625,7 @@ public class Unit extends Group {
 			return;
 		} 
 		//		// check if on same side of wall (also make sure to not check sides with entrances)
-		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.bowOut()) {
+		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.rangedWeaponOut()) {
 			BPoint nearestEntrance;
 			if (stage.insideWall(this.pos_x, this.pos_y))
 				nearestEntrance = getNearestEntranceTo(point);
@@ -687,6 +685,7 @@ public class Unit extends Group {
 		this.unman();
 		moveToPoint(getNearestExit());
 
+		// TODO this is not a great way to do this...
 		// effectively wound soldier until after battle
 		if (this.pos_x <= 0 || this.pos_y <= 0 || this.pos_x >= stage.size_x-1 || this.pos_y >= stage.size_y-1) {
 			//			leaveField();
@@ -898,7 +897,7 @@ public class Unit extends Group {
 			// note - make sure not attacking, because you might hit a teammate
 			if (dist > MIN_DIST && dist < this.getCurrentRange() && that.attacking == null && that.distanceTo(that.getNearestEnemy()) > SAFE_DISTANCE) {
 				//				System.out.println(that.distanceTo(that.nearestEnemy));
-				if (!that.retreating && that.bowOut() && dist < closestDistance) {
+				if (!that.retreating && that.rangedWeaponOut() && dist < closestDistance) {
 					closestDistance = dist;
 					closest = that;
 				}
@@ -1193,13 +1192,13 @@ public class Unit extends Group {
     }
 
 	public boolean shieldUp() {
-		if (hasWorkingShield() && !this.bowOut()) return true;
+		if (hasWorkingShield() && !this.rangedWeaponOut()) return true;
 		return false;
 	}
 
 	// shield on back
 	public boolean shieldDown() {
-		if (this.shield != null && this.bowOut()) return true;
+		if (this.shield != null && this.rangedWeaponOut()) return true;
 		return false;
 	}
 
@@ -1238,7 +1237,7 @@ public class Unit extends Group {
 		if (orientation == Orientation.LEFT) rotation = 90;
 		if (orientation == Orientation.RIGHT) rotation = 270;
 
-		if (this.nearestTarget != null && this.bowOut() && !this.moveSmooth) {
+		if (this.nearestTarget != null && this.rangedWeaponOut() && !this.moveSmooth) {
 			rotation = angleToEnemy(this.nearestTarget);
 		}
 
@@ -1445,7 +1444,7 @@ public class Unit extends Group {
 		this.stance = s;
 	}
 
-	public boolean bowOut() {
+	public boolean rangedWeaponOut() {
 		return isRanged() && quiver > 0 && attacking == null;
 	}
 

@@ -365,7 +365,7 @@
 //				//					timer = 0;
 //				//				}
 //				// if enemy is within one unit and fighting, can move to them.
-//				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.bowOut()))
+//				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.rangedWeaponOut()))
 //					moveToEnemy();
 //				else if (this.reloading > 0 && nearestTarget != null) {
 //					if (nearestTarget.isDying) {
@@ -381,7 +381,7 @@
 //				else {
 //					nearestTarget = getNearestTarget();
 //
-//					if (this.bowOut() && !shouldMove()) {
+//					if (this.rangedWeaponOut() && !shouldMove()) {
 //						if (nearestTarget != null) {
 //							if (nearestTarget.distanceTo(this) < this.getCurrentRange() && nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE && nearestTarget.attacking == null) {
 //								fireAtEnemy();
@@ -393,7 +393,7 @@
 //						}
 //					}
 //					// move to orignial position for infantry
-//					else if (!this.bowOut() && this.stance == Stance.DEFENSIVE) {
+//					else if (!this.rangedWeaponOut() && this.stance == Stance.DEFENSIVE) {
 //						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new BPoint(original_x, original_y));
 //					}
 //				}
@@ -409,7 +409,7 @@
 //
 //	public void checkIfShouldManSiege() {
 //		// for now, no defensive units should siegeOrRaid
-//		if (this.bowOut() || this.isMounted() || (stage.siegeAttack && this.stance == Stance.DEFENSIVE)) return;
+//		if (this.rangedWeaponOut() || this.isMounted() || (stage.siegeAttack && this.stance == Stance.DEFENSIVE)) return;
 //
 //		for (SiegeUnit s : stage.siegeUnitsArray) {
 //			if (!s.hasMen() && s.enemyTeam() != this.team) {
@@ -474,7 +474,7 @@
 //		if (this.isRanged() && 
 //				this.reloading > 0 && 
 //				inCover()) 				return "Firing from cover";
-//		if (this.bowOut() && 
+//		if (this.rangedWeaponOut() &&
 //				this.reloading > 0) 		return "Firing";
 //		else return "Idle";
 //	}
@@ -611,7 +611,7 @@
 //			return;
 //		} 
 //		//		// check if on same side of wall (also make sure to not check sides with entrances)
-//		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.bowOut()) {
+//		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.rangedWeaponOut()) {
 //			BPoint nearestEntrance;
 //			if (stage.insideWall(this.pos_x, this.pos_y))
 //				nearestEntrance = getNearestEntranceTo(point);
@@ -856,7 +856,7 @@
 //			// note - make sure not attacking, because you might hit a teammate
 //			if (dist > MIN_DIST && dist < this.getCurrentRange() && that.attacking == null && that.distanceTo(that.getNearestEnemy()) > SAFE_DISTANCE) {
 //				//				System.out.println(that.distanceTo(that.nearestEnemy));
-//				if (!that.retreating && that.bowOut() && dist < closestDistance) {
+//				if (!that.retreating && that.rangedWeaponOut() && dist < closestDistance) {
 //					closestDistance = dist;
 //					closest = that;
 //				}
@@ -1133,13 +1133,13 @@
 //	}
 //
 //	public boolean shieldUp() {
-//		if (this.shield != null && !this.bowOut()) return true;
+//		if (this.shield != null && !this.rangedWeaponOut()) return true;
 //		return false;
 //	}
 //
 //	// shield on back
 //	public boolean shieldDown() {
-//		if (this.shield != null && this.bowOut()) return true;
+//		if (this.shield != null && this.rangedWeaponOut()) return true;
 //		return false;
 //	}
 //
@@ -1178,7 +1178,7 @@
 //		if (orientation == Orientation.LEFT) rotation = 90;
 //		if (orientation == Orientation.RIGHT) rotation = 270;
 //
-//		if (this.nearestTarget != null && this.bowOut() && !this.moveSmooth) {
+//		if (this.nearestTarget != null && this.rangedWeaponOut() && !this.moveSmooth) {
 //			rotation = angleToEnemy(this.nearestTarget);
 //		}
 //
@@ -1362,7 +1362,7 @@
 //		this.hp = calcHP();
 //	}
 //
-//	public boolean bowOut() {
+//	public boolean rangedWeaponOut() {
 //		return isRanged() && quiver > 0 && attacking == null;
 //	}
 //

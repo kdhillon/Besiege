@@ -86,6 +86,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private LabelStyle lsSmall;
 	private LabelStyle lsSmallG;
 
+	private SoldierTable attackerTable;
+	private SoldierTable defenderTable;
+
 	public PanelBattle(SidePanel panel, Battle battle) {
 		this.sidePanel = panel;
 		this.battle = battle;

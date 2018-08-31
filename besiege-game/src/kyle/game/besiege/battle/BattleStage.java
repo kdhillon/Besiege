@@ -23,6 +23,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
@@ -39,7 +40,7 @@ public class BattleStage extends Group implements Battle {
 	private PanelBattle pb;
 
     public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
-    public static final int DESTROY_THRESHOLD = 2; // if less than x soldiers left in retreating army, destroy it.
+    public static final int DEPRECATED_THRESHOLD = 2; // this field is now in victory manager
 
     private static final float SPEED = 0.01f;
 
@@ -171,7 +172,9 @@ public class BattleStage extends Group implements Battle {
         this.victoryManager = new VictoryManager(kingdom, this, siegeOf, getBalanceDefenders());
         this.victoryManager.addInitTroopCount(getTotalBattleSize());
 
-		this.playerDefending = playerDefending;
+        BottomPanel.log("Starting battle, probability of victory: " + (int) (100 * getBalanceAllies()) + "%", "white");
+
+        this.playerDefending = playerDefending;
 		//		this.isPlayer()Defending = false;
 
 		boolean forceSiege = false;
@@ -239,6 +242,8 @@ public class BattleStage extends Group implements Battle {
 		Party allyParty1 = p1.generate();
 		allyParty1.player = true;
 		Party enemyParty1 = p2.generate();
+		allyParty1.setName("Allies");
+		enemyParty1.setName("Enemies");
 		
 		this.allies = new BattleParty(this, 0);
 		this.allies.player = true;
@@ -250,6 +255,8 @@ public class BattleStage extends Group implements Battle {
 
         this.victoryManager = new VictoryManager(kingdom, this, null, getBalanceDefenders());
         this.victoryManager.addInitTroopCount(getTotalBattleSize());
+
+        BottomPanel.log("Starting battle, probability of victory: " + (int) (100 * getBalanceAllies()) + "%", "white");
 
         // for testing
         this.siegeOrRaid = true;
@@ -381,14 +388,20 @@ public class BattleStage extends Group implements Battle {
 //	    return !siegeOrRaid;
 //    }
 
-	@Override
-	public double getBalanceDefenders() {
-		double balanceAllies = allies.getLevelSum();
-		double balanceEnemies = enemies.getLevelSum();
+    private double getBalanceAllies() {
+        double balanceAllies = allies.getLevelSum();
+        double balanceEnemies = enemies.getLevelSum();
 
         double total = balanceAllies + balanceEnemies;
-		balanceAllies = balanceAllies / total; // balanceA + balanceD = 1
-		balanceEnemies = 1-balanceAllies;
+        balanceAllies = balanceAllies / total; // balanceA + balanceD = 1
+
+        return balanceAllies;
+    }
+
+	@Override
+	public double getBalanceDefenders() {
+		double balanceAllies = getBalanceAllies();
+		double balanceEnemies = 1-balanceAllies;
 		
 		if (playerDefending) {
 			return balanceAllies;
@@ -1201,9 +1214,9 @@ public class BattleStage extends Group implements Battle {
 			if (this.kingdom != null) {
 				if (allies.noUnits()) {
 				    // TODO make this work with multiple armies
-					victory(enemies.first().army, allies.first().army);
+					victory(enemies.first(), allies.first());
 				} else if (enemies.noUnits()) {
-					victory(allies.first().army, enemies.first().army);
+					victory(allies.first(), enemies.first());
 				}
 			}
 			else if (!isOver()) {
@@ -1365,16 +1378,20 @@ public class BattleStage extends Group implements Battle {
 	//		if (unit.team == 1) enemies.addUnit(unit);
 	//	}
 
-	public void victory(Army winner, Army loser) {
+	public void victory(Party winner, Party loser) {
 		System.out.println("Battle over!");
-		if (winner != kingdom.getPlayer() && loser != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
+		Army winnerArmy = winner.army; // May be null
+        Army loserArmy = loser.army;
+
+		if (winnerArmy != kingdom.getPlayer() && loserArmy != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
 
 		this.isOver = true;
 
-		if (winner.getParty().player) {
+		if (winner.player) {
 //			battle.logDefeat(loser);
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
-			kingdom.getMapScreen().getSidePanel().setActiveArmy(winner);
+			if (winnerArmy != null)
+			    kingdom.getMapScreen().getSidePanel().setActiveArmy(winnerArmy);
 			if (!playerDefending) didAtkWin = true;
 			else didAtkWin = false;
 		} else {
@@ -1382,22 +1399,22 @@ public class BattleStage extends Group implements Battle {
 			else didAtkWin = false;
 		}
 
+        // heal retreated soldiers
+        for (Unit u : retreated)
+            u.soldier.subparty.healNoMessage(u.soldier);
+
         victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), didAtkWin);
 
-		if (winner.getParty().player) {
+		if (winner.player) {
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
 		}
 
 		// log(army.getName() + " has won a battle", "cyan");
 
-		// heal retreated soldiers
-		for (Unit u : retreated) 
-			u.soldier.subparty.healNoMessage(u.soldier);
-
 		boolean loserDestroyed = false;
 
 //		// figure out if totally destroyed or if units retreated
-//		if ((loser.getParty().getHealthySize() <= OldBattle.DESTROY_THRESHOLD && !loser.getParty().player) || loser.getParty().getHealthySize() <= 0) {
+//		if ((loser.getParty().getHealthySize() <= OldBattle.DEPRECATED_THRESHOLD && !loser.getParty().player) || loser.getParty().getHealthySize() <= 0) {
 //			battle.increaseSpoilsForKill(loser);
 //			loserDestroyed = true;
 //			loser.destroy();
@@ -1405,29 +1422,35 @@ public class BattleStage extends Group implements Battle {
 
 
 		for (Party p : allies.parties) {
-			if (!((p.getHealthySize() <= DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
-				p.army.setVisible(true);
-			p.army.endBattle();
-			p.army.setStopped(false);
-			p.army.setTarget(null);
-			for (Subparty s : p.sub) {
+            if (p.army != null) {
+                p.army.endBattle();
+            }
+            for (Subparty s : p.sub) {
 				s.handleBattleEnded();
 			}
 		}
 		for (Party p : enemies.parties) {
-			if (!((p.getHealthySize() <= DESTROY_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
-				p.army.setVisible(true);
-			p.army.endBattle();
-			p.army.setStopped(false);
-			p.army.setTarget(null);
+		    if (p.army != null) {
+//                if (!((p.getHealthySize() <= DEPRECATED_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+//                    p.army.setVisible(true);
+                p.army.endBattle();
+//                p.army.setStopped(false);
+//                p.army.setTarget(null);
+            }
 			for (Subparty s : p.sub) {
 				s.handleBattleEnded();
 			}
 		}
 
-		loser.waitFor(0);
-		winner.forceWait(winner.getForceWait());
-
+//		if (loserArmy != null)
+//		    loserArmy.waitFor(0);
+        if (loserArmy != null) {
+		    loserArmy.forceWait = false;
+//		    loserArmy.endBattle();
+        }
+		if (winnerArmy != null) {
+            winnerArmy.forceWait(winnerArmy.getForceWait());
+        }
 //		if (battle.getSiegeLocation() != null && !battle.getSiegeLocation().isVillage()) {
 //			System.out.println("managing siegeOrRaid");
 //			battle.handleSiegeVictory();

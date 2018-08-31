@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.Random;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
 import kyle.game.besiege.party.CultureType;
@@ -41,7 +42,7 @@ public class Village extends Location {
         POP_MIN = 50;
         POP_MAX = 500;
 
-        this.population = Math.random() * (POP_MAX - POP_MIN) + POP_MIN;
+        this.population = Random.getRandomInRange(POP_MIN, POP_MAX);
         this.farmerCount = (int) getWealth()/100 + 1; // arbitrary
 
         if (cultureType.name.equals("Plains")) {

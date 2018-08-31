@@ -29,4 +29,39 @@ public class ArmorType {
 	public boolean isChest() {
 	    return type == Type.CHEST;
     }
+
+    public String getWalkAnimation() {
+	    if (type == Type.CHEST) return "walk-chest-armor";
+	    return "walk-armor";
+    }
+
+    public String getFiringAnimation() {
+        if (type == Type.CHEST) return "firing-chest-armor";
+        return "firing-armor";
+    }
+
+    public String getFirearmAnimation() {
+        if (type == Type.CHEST) return "firearm-chest-armor";
+        return "firearm-armor";
+    }
+
+    public String getThrownAnimation() {
+	    if (type == Type.CHEST) return "thrown-chest-armor";
+	    return "thrown-armor";
+    }
+
+    public String getDyingAnimation() {
+	    if (type == Type.CHEST) return "die1-chest-armor";
+	    return "die1-armor";
+    }
+
+    public String getAtlatlArmor() {
+	    if (type == Type.CHEST) return "atlatl-chest-armor";
+	    return "atlatl-armor";
+    }
+
+    public String getPreviewTexture() {
+        if (type == Type.CHEST) return "preview-chest-armor";
+        return "preview-armor";
+    }
 }

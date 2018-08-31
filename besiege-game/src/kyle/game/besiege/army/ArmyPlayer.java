@@ -19,6 +19,7 @@ import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.UnitDraw;
@@ -205,8 +206,14 @@ public class ArmyPlayer extends Army {
 		this.garrisonIn(targetLocation);
 		targetLocation.playerIn = true;
 		this.setTarget(null);
-		getKingdom().getMapScreen().getSidePanel().setActiveLocation(targetLocation);
+
+		getSidePanel().setActiveLocation(targetLocation);
+		getSidePanel().setHardStay(true);
 	}
+
+	private SidePanel getSidePanel() {
+	    return getKingdom().getMapScreen().getSidePanel();
+    }
 	
 	@Override
 	public boolean detectPointCollision() {

@@ -44,7 +44,7 @@ public class SidePanel extends Group {
 	private BottomPanel bottom;
 	
 	private transient Panel activePanel;
-	private transient Panel previousPanel;
+	public transient Panel previousPanel;
 	
 	public Character character;
 	public PanelParty playerPartyPanel;
@@ -151,6 +151,7 @@ public class SidePanel extends Group {
 //			setActive(/playerPartyPanel);
 			return;
 		};
+
 		if (newActivePanel == upgrades) upgrades.updateSoldierTable();
 		if (newActivePanel.getClass() == PanelParty.class) {
 		    // Force an update of the panel
@@ -160,18 +161,19 @@ public class SidePanel extends Group {
 		if (newActivePanel.getClass() != PanelCenter.class && kingdom != null) {
 			kingdom.map.selectedCenter = null;
 		}
-		
-//		if (!hardStay) {
-			this.removeActor(this.activePanel);
-			this.previousPanel = this.activePanel;
-			if (previousPanel != null)
-			System.out.println("previous panel is now: " + previousPanel.getClass());
 
-			this.activePanel = newActivePanel;
-		
-			this.addActor(activePanel);
+//		if (!hardStay) {
+        this.removeActor(this.activePanel);
+
+        this.previousPanel = this.activePanel;
+        if (previousPanel != null)
+            System.out.println("previous panel is now: " + previousPanel.getClass());
+
+        this.activePanel = newActivePanel;
+
+        this.addActor(activePanel);
 //		}s
-	}
+    }
 	public void setActiveDestination(Destination destination) {
 		Destination.DestType type = destination.getType();
 		if (type == Destination.DestType.POINT) { returnToPrevious(false);
@@ -216,6 +218,10 @@ public class SidePanel extends Group {
 		}
 	}
 	public void setActiveUnit(Soldier s) {
+//	    System.out.println("setting active unit: " + s.getName());
+	    if (activePanel != null && activePanel.getPanelUnit() != null) {
+	        if (activePanel.getPanelUnit().soldier == s) return;
+        }
 		if (s.isGeneral()) {
 			PanelGeneral pg = new PanelGeneral(this, null, s);
 			setActive(pg);
@@ -277,7 +283,10 @@ public class SidePanel extends Group {
 //		System.out.println("setting soft stay");
 //		this.previousPanel = this.activePanel;
 //	}
-//	
+//
+
+    // Hard stay means the player can only leave the panel by selecting a button.
+    // Used for forcing the player to make decisions -- to attack or not.
 	public void setHardStay(boolean b) {
 		System.out.println("setting hard stay");		
 		hardStay = b;

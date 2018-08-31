@@ -317,6 +317,11 @@ public class Panel extends Group {
 		}
 	}
 
+	// to be overridden
+	public PanelUnit getPanelUnit() {
+	    return null;
+    }
+
 	public void beginSaving() {
 		// TODO set back button to unclickable
 		saving = true;

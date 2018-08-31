@@ -99,7 +99,7 @@ public class Fire extends Actor {
         // Only update size based on zoom if on map.
         float scale = 1;
 		if (loc != null) {
-			scale = loc.getSizeFactor() * zoom;
+			scale = loc.getSizeFactor();
 			scale *= Location.getAdjustedZoom(loc.getKingdom());
 //			System.out.println("scale: " + scale + " min_ZOOm: " + loc.MIN_ZOOM);
             if (scale < MIN_ZOOM) scale = MIN_ZOOM;

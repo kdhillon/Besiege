@@ -5,7 +5,7 @@ Stone           2     sling
 Dart            2     dart
 Arrow             2     arrow
 
-Large_Rock      2     thrown
+Rocks          2     thrown
 
 Stone           2     sling
 

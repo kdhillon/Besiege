@@ -39,7 +39,10 @@ public class BattleParty {
 	}
 	
 	public Party first() {
-		for (Party p : this.parties) return p;
+		for (Party p : this.parties) {
+		    if (p != null)
+		        return p;
+        }
 		return this.parties.first();
 	}
 	

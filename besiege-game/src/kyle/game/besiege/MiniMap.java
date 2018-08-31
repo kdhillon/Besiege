@@ -5,20 +5,18 @@
  ******************************************************************************/
 package kyle.game.besiege;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.battle.WeaponDraw;
+import kyle.game.besiege.panels.PanelUnit;
 import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Equipment;
 import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
-
-import java.util.ArrayList;
 
 public class MiniMap extends Actor {
 //	private final float BORDER = .04f;
@@ -30,9 +28,10 @@ public class MiniMap extends Actor {
 	private TextureRegion unitArmor;
 	private TextureRegion unitSkin;
 
+	String currentArmorString = null;
+
 	public MiniMap(SidePanel panel) {
 		this.panel = panel;
-		unitArmor = Assets.units.findRegion("preview-armor");
 		unitSkin = Assets.units.findRegion("skin-preview-2");
 	}
 
@@ -65,6 +64,10 @@ public class MiniMap extends Actor {
 		if (panel.getActiveCrest() == null && panel.getSoldierInstead() != null) {
 			// first draw white background?
 			Soldier toPreview = panel.getSoldierInstead();
+			Unit unit = null; // Unit, in case the unit is actively in battle.
+			if (panel.getActivePanel().getClass() == PanelUnit.class) {
+                unit = ((PanelUnit) panel.getActivePanel()).getUnit();
+            }
 
 //			if (toPreview.party.getFaction() != null)
 //				batch.setColor(skyBlue);
@@ -72,6 +75,12 @@ public class MiniMap extends Actor {
             batch.setColor(toPreview.unitType.cultureType.colorLite);
 			batch.draw(Assets.white, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
 			batch.setColor(Color.WHITE);
+
+			if (toPreview.getArmor().getPreviewTexture() != currentArmorString) {
+                currentArmorString = toPreview.getArmor().getPreviewTexture();
+                unitArmor = Assets.units.findRegion(currentArmorString);
+                System.out.println("updating unit preview armor");
+            }
 
             // hacky but should work? Set/unset unit width/height just for this section
             float unit_draw_size = 7/8f;
@@ -97,15 +106,25 @@ public class MiniMap extends Actor {
 			// TODO speed this up by not looking this stuff up every frame
 			TextureRegion weapon = WeaponDraw.GetMeleeWeaponTextureForUnittype(toPreview.unitType);
 			boolean drawWeaponInFront = false;
-			if (toPreview.unitType.ranged != null) {
+
+			boolean drawingRangedWeapon = true;
+			if (toPreview.unitType.ranged == null || (unit != null && !unit.rangedWeaponOut())) {
+                drawingRangedWeapon = false;
+            }
+
+
+            if (drawingRangedWeapon) {
 				weapon = WeaponDraw.GetRangedWeaponTextureForUnittype(toPreview.unitType);
 
 				if (toPreview.unitType.ranged.type == RangedWeaponType.Type.BOW) {
                     rotation = 180;
-                    y -= getWidth() * 8f / 8;
+                    y -= getWidth() * 7f / 8;
+                } else if (toPreview.unitType.ranged.type == RangedWeaponType.Type.SLING) {
+				    y -= getWidth() * 1f / 8;
                 } else {
-                    y -= getWidth() * 3f / 8;
+                    y -= getWidth() * 2f / 8;
                 }
+
 //				drawInFront = true;
 			}
 			else if (toPreview.unitType.melee.isPolearm()) { //&& !toPreview.weapon.troopName.startsWith("Sword")

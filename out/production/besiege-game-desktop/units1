@@ -10,114 +10,156 @@ die1-skin
   orig: 32, 8
   offset: 0, 0
   index: -1
-die1-armor
+die1-chest-armor
   rotate: false
   xy: 36, 2
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
   index: -1
-walk-skin
+die1-armor
   rotate: false
   xy: 70, 2
-  size: 16, 8
-  orig: 16, 8
+  size: 32, 8
+  orig: 32, 8
   offset: 0, 0
   index: -1
-walk-armor
+walk-skin
   rotate: false
-  xy: 88, 2
+  xy: 104, 2
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-thrown-skin
-  rotate: false
-  xy: 106, 2
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-thrown-armor
+walk-chest-armor
   rotate: false
   xy: 2, 12
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firing-skin
+walk-armor
   rotate: false
   xy: 2, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firing-armor
+thrown-skin
   rotate: false
   xy: 2, 32
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firearm-skin
+thrown-chest-armor
   rotate: false
   xy: 2, 42
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firearm-armor
+thrown-armor
   rotate: false
   xy: 2, 52
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-atlatl-skin
+firing-skin
   rotate: false
   xy: 2, 62
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-atlatl-armor
+firing-chest-armor
   rotate: false
   xy: 2, 72
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-skin-preview-2
+firing-armor
   rotate: false
   xy: 2, 82
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firearm-skin
+  rotate: false
+  xy: 2, 92
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+firearm-armor
+  rotate: false
+  xy: 2, 102
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+atlatl-skin
+  rotate: false
+  xy: 2, 112
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+atlatl-chest-armor
+  rotate: false
+  xy: 20, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+atlatl-armor
+  rotate: false
+  xy: 38, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+skin-preview-2
+  rotate: false
+  xy: 56, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 shadow
   rotate: false
-  xy: 2, 92
+  xy: 66, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-skin
   rotate: false
-  xy: 2, 102
+  xy: 76, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-chest-armor
+  rotate: false
+  xy: 86, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-armor
   rotate: false
-  xy: 2, 112
+  xy: 96, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 sling
   rotate: false
-  xy: 20, 12
+  xy: 20, 22
   size: 56, 7
   orig: 56, 7
   offset: 0, 0

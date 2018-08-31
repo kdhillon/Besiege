@@ -2,7 +2,7 @@ name				color_name	def	spd	texture
 
 None				TAN			0	0	naked
 
-Clothes				DK_BROWN    0	0   clothes
+Clothes				DK_BROWN    0	0   basic
 	
 Cotton				LT_BROWN 	1	0	basic
 Tunic				BROWN_G		2	0	basic

@@ -7,6 +7,7 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
+import kyle.game.besiege.Random;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
@@ -67,7 +68,8 @@ public class PartyType { // todo add ability for max playerPartyPanel size
         }
 		
 		// generate a general first, with random fame. then generate playerPartyPanel size based on that.
-		int toGenerate = party.getMaxSize() - 1;
+//		int toGenerate = party.getMaxSize();
+        int toGenerate = Random.getRandomInRange(minCount, maxCount);
 //		int toGenerate = MathUtils.random(minCount, playerPartyPanel.getMaxSize());
 //        System.out.println("to generate" + toGenerate);
 

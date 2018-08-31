@@ -10,7 +10,7 @@ Blowgun			10		8		6		2       blowgun club
 Poison_Sling	10		6		4		10      bow     poison_sling
 
 // Forest ranged weapons
-Rocks			30		6		2		10      thrown  rock
+Rocks			10		6		2	    4      thrown  rock
 
 Bow(Ash)	   	25		6		6		3       bow
 Bow(Hickory)	30		6		6		5       bow
@@ -24,6 +24,6 @@ Spear(Flint)	10		8		5       1       thrown  spear
 
 // Plains ranged weapons
 Bow(Elk_Horn)   30      6       6       4       bow
-Sling			30		6		3		8       sling   shortbow
+Sling			30		6		3		8       sling   sling
 Lance           8       7       4       1       thrown  lance
 Firebomb        10      7       5       3       thrown  rock

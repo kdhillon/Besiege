@@ -22,6 +22,8 @@ public class Party {
 	public boolean player;
 	public Army army;
 
+	private String name; // This will only be set for Garrisons.
+
 	public PartyType pt;
 	
 	public Subparty root;
@@ -350,10 +352,16 @@ public class Party {
 		else return null;
 	}
 
+	public void setName(String name) {
+	    // ONLY SET FOR GARRISONS
+        this.name = name;
+    }
+
 	public String getName() {
 		if (army != null) return army.getName();
+		if (name != null) return name;
 //		throw new java.lang.AssertionError();
-		return "New Party";
+		return "No name set!";
 	}
 
 	public General createFreshGeneral(UnitType type, PartyType pt) {

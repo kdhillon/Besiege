@@ -20,7 +20,7 @@ Knife(Flint)  		2	0   1h      dagger
 
 
 // Plains weapons
-Hoe(Bone)           2   0   polearm   hoe_bone
+Hoe(Bone)           2   0   polearm   hoe-bone
 War_Club(Stone)     4   0   club      warclubstone
 Lance(Flint)        5   -2  polearm   lance
 Battle_Axe(Stone)   4   -1  club      battleaxe

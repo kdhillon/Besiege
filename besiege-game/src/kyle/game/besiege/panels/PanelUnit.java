@@ -67,6 +67,7 @@ public class PanelUnit extends Panel {
 	protected Label defS;
 	protected Label spdS;
 	private Label weaponS;
+	private Label rangedWeaponS;
 	private Label shieldS;
 	private Label armorS;
 	private Label equipmentS;
@@ -162,8 +163,12 @@ public class PanelUnit extends Panel {
         defS = new Label("" + df.format(soldier.getDef()), ls);
         spdS = new Label("" + df.format(soldier.getSpd()), ls);
         weaponS = new Label("" + soldier.unitType.melee.name, ls);
-        if (unit != null && unit.isRanged()) weaponS.setText(soldier.unitType.ranged.name + "(" + unit.quiver + ")");
         weaponS.setAlignment(0, 0);
+
+        if (unit != null && unit.isRanged()) {
+            rangedWeaponS = new Label(soldier.unitType.ranged.name + "(" + unit.quiver + ")", ls);
+            rangedWeaponS.setAlignment(0, 0);
+        }
         if (soldier.unitType.shieldType != null) {
             shieldS = new Label("" + soldier.unitType.shieldType.name, ls);
             shieldS.setAlignment(0, 0);
@@ -214,6 +219,10 @@ public class PanelUnit extends Panel {
 		}
 		text.add(weaponS).colspan(4).fillX().expandX();
 		text.row();
+		if (rangedWeaponS != null) {
+            text.add(rangedWeaponS).colspan(4).fillX().expandX();
+            text.row();
+        }
 		if (soldier.unitType.shieldType != null) {
             text.add(shieldS).colspan(4).fillX().expandX();
             text.row();
@@ -243,6 +252,10 @@ public class PanelUnit extends Panel {
 		text.padLeft(MINI_PAD);
 		this.addTopTable(text);
 
+		if (soldier.availableForHire()) {
+		    this.setButton(3, "Hire");
+        }
+
 		if (battleStage == null)
 			this.setButton(4, "Back");
 	}
@@ -262,7 +275,7 @@ public class PanelUnit extends Panel {
 		
 //		expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
 
-		if (unit != null && unit.bowOut()) {
+		if (unit != null && unit.rangedWeaponOut()) {
 			atkSC.setText("Pow:");
 			defSC.setText("Rng:");
 			atkS.setText("" + df.format(unit.getRangeDmg()));
@@ -277,12 +290,14 @@ public class PanelUnit extends Panel {
 		spdS.setText(df.format(soldier.getSpd()));
 		//		}
 
-		if (soldier.getRanged() != null && (unit == null || (unit.attacking == null && unit.quiver > 0))) {
+		if (rangedWeaponS != null) {
 			String toPut = soldier.unitType.ranged.name;
-			if (unit != null) toPut += " (" + unit.quiver + ")";
-			weaponS.setText(toPut);
+			if (unit != null) toPut += " (" + unit.quiver + ")"; // + soldier.unitType.ammoType.name;
+
+			rangedWeaponS.setText(toPut);
 		}
-		else weaponS.setText(soldier.unitType.melee.name);
+
+//		weaponS.setText(soldier.unitType.melee.name);
 
 		if (unit != null && unit.isShieldBroken()) {
             shieldS.setText(unit.shield.name + " (Broken)");
@@ -422,7 +437,16 @@ public class PanelUnit extends Panel {
 	}
 	@Override
 	public void button3() {
-
+	    if (getButton(3).isVisible()) {
+            if (soldier.availableForHire()) {
+                // hire
+                if (sidePanel.previousPanel.getClass() == PanelHire.class) {
+                    System.out.println("prev panel was panel hire");
+                } else {
+                    System.out.println("prev panel was: " + sidePanel.previousPanel.getClass().getName());
+                }
+            }
+        }
 	}
 	@Override
 	public void button4() {
@@ -434,6 +458,15 @@ public class PanelUnit extends Panel {
 			}
 		}
 	}
+
+	@Override
+    public PanelUnit getPanelUnit() {
+	    return this;
+    }
+
+    public Unit getUnit() {
+	    return unit;
+    }
 
 	@Override
 	public Crest getCrest() {

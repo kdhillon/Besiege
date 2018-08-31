@@ -3,7 +3,7 @@ tier name 			weapon				armor		upgrades_to
 Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
 1	Hunter			Unarmed/Sling		None			        Slinger
 1	Farmer			Spear				Clothes			        Spearman
-1   Villager        Knife(Flint)        Clothes                 Spearman/Slinger
+1   Villager        Knife(Flint)/Rocks  Clothes                 Spearman/Slinger
         
 2	Slinger			Dagger/Sling		Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
 2	Spearman		Spear				Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
@@ -25,7 +25,7 @@ Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
 
 
 Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
-1	Villager		Knife(Flint)	               	       None			Warrior_(Nov)/Axeman/Archer/Spearman
+1	Villager		Knife(Flint)/Rocks	               	   None			Warrior_(Nov)/Axeman/Archer/Spearman
 1	Hunter			Unarmed/Bow(Ash)/Hunting(Flint)        None			Warrior_(Nov)/Axeman/Archer
 1   Fisher          Spear(Flint)                           None            Warrior_(Nov)/Axeman/Spearman
 
@@ -90,29 +90,6 @@ Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
 3	Axeman(W)		War_Axe				None			Axeman(W)/Spearman(W)
 4	Axeman(W)		War_Axe         	None			Nagual(W)
 4	Spearman(W)		Spear		        None			Nagual(W)
-5	Nagual(W)		War_Axe				Clothes			none
-
-3	Bowman(H)		Dagger/Bow/Arrow	Clothes			Bowman(H)/Warrior(H)
-4	Bowman(H)		Dagger/Bow/Arrow	Clothes			Nagual(H)
-4	Warrior(H)		Dagger	        	Clothes			Nagual(H)
-5	Nagual(H)		War_Axe				Clothes			none
-
-3	Clubman(B)		Club				Clothes			Clubman(B)/Spearman(B)
-4	Clubman(B)		Club        		Clothes			Nagual(B)
-4	Spearman(B)		Spear	        	Clothes			Nagual(B)
-5	Nagual(B)		War_Axe				Clothes			none
-
-
-Class:	Coast		LT_YELLOW   YELLOW  hawaii.txt
-1	Hunter			Bow/Unarmed			None			Bowman
-1	Fisher			Spear				None			Spearman
-
-2	Bowman			Sling/Dagger		Clothes			Axeman(W)/Bowman(H)/Clubman(B)
-2	Spearman		Spear				Clothes			Axeman(W)/Bowman(H)/Clubman(B)
-
-3	Axeman(W)		War_Axe				Clothes			Axeman(W)/Spearman(W)
-4	Axeman(W)		War_Axe         	Clothes			Nagual(W)
-4	Spearman(W)		Spear	        	Clothes			Nagual(W)
 5	Nagual(W)		War_Axe				Clothes			none
 
 3	Bowman(H)		Dagger/Bow/Arrow	Clothes			Bowman(H)/Warrior(H)

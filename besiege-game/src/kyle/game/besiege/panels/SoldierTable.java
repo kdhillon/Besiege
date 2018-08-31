@@ -33,19 +33,21 @@ public class SoldierTable extends Table {
 	private final float DESC_HEIGHT = 300;
 	private final int r = 3; 
 	private final String tablePatch = "grey-d9";
-	
+	private static final String LOCATION_EMPTY_TEXT = "No troops garrisoned!";
+
 	private Table soldierTable;
     private ScrollPane soldierPane;
 
-    private Soldier selected;
-    public boolean selectable;
+    public Soldier selected;
+    public Soldier nextToSelect; // everytime you select a soldier, figure out which one you should select next if the soldier is hired.
+    public boolean hirePanel;
 
-    private final Party party;
+    protected final Party party;
 
 	private final LabelStyle ls = new LabelStyle();
     private final LabelStyle lsG = new LabelStyle();
 	private final Label garrisonC;
-	private final Label noTroopsC;
+	protected final Label noTroopsC;
 	private final Label nullC;
 	private final Label prisonersC;
 	private final Label emptyC;
@@ -57,8 +59,8 @@ public class SoldierTable extends Table {
 		this.party = party;
 
 		garrisonC = new Label("Garrison", ls);
-		noTroopsC = new Label("No troops garrisoned!",ls);
-		nullC = new Label("Garrison is null!",ls);
+		noTroopsC = new Label(LOCATION_EMPTY_TEXT,ls);
+        nullC = new Label("Garrison is null!",ls);
 		prisonersC = new Label("Captured", ls);
 		emptyC = new Label("", ls);
 		
@@ -113,7 +115,7 @@ public class SoldierTable extends Table {
                     }
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
-                        if (selectable) {
+                        if (hirePanel) {
                             select(s.general);
                         } else {
                             switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
@@ -140,7 +142,7 @@ public class SoldierTable extends Table {
     public class TypeLabel extends Label {
         StrictArray<Soldier> type;
         Table expand;
-        boolean expanded = false;
+        public boolean expanded = false;
 
         public TypeLabel(String name, LabelStyle ls) {
             super(name, ls);
@@ -152,6 +154,8 @@ public class SoldierTable extends Table {
                 }
                 public void touchUp(InputEvent event, float x, float y,
                                     int pointer, int button) {
+                    // Force table to be expanded the whole time.
+                    if (hirePanel) return;
                     if (expanded) {
                         clearExpand();
                         expanded = false;
@@ -167,6 +171,9 @@ public class SoldierTable extends Table {
             for (final Soldier s : type) {
                 SoldierLabel soldierName = new SoldierLabel(s.getName(), this.getStyle(), s);
                 soldierName.setColor(Color.GRAY);
+                if (s == selected) {
+                    soldierName.setColor(Color.YELLOW);
+                }
                 expand.add(soldierName).left().padBottom(PanelUnit.NEG).expandX();
 
                 soldierName.addListener(new ClickListener() {
@@ -176,12 +183,11 @@ public class SoldierTable extends Table {
                     }
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
-                        if (selectable) {
+                        if (hirePanel) {
                             select(s);
                         } else {
                             switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
                         }
-                        switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
                     }
                 });
                 expand.row();
@@ -213,14 +219,80 @@ public class SoldierTable extends Table {
 			soldierTable.add(name.expand).expandX().left().padLeft(indent);
             soldierTable.row();
 			name.expand.padBottom(-PanelUnit.NEG);
+
+			if (hirePanel) {
+			    name.clearExpand();
+                name.createExpand();
+                name.expanded = true;
+            }
+
+//			if (selected != null) {
+//			    for (int i = 0; i < type.size; i++) {
+//			        if (type.get(i) == selected) {
+//                        name.createExpand();
+//                        name.expanded = true;
+//                    }
+//			    }
+//            }
 		}
 	}
 
 	public void select(Soldier soldier) {
+	    System.out.println("selecting: " + soldier.getName());
 	    this.selected = soldier;
-	    update();
+	    this.nextToSelect = getSoldierAfterSelectedOrBeforeIfNoneAfter();
+        update();
     }
-	
+
+    // For selecting a soldier after one has been hired.
+    private Soldier getSoldierAfterSelectedOrBeforeIfNoneAfter() {
+        // Select next available soldier
+        Soldier prevSoldier = null;
+        boolean soldierJustFound = false;
+
+        Soldier toSelect = null;
+
+        for (final Subparty s : party.sub) {
+            StrictArray<StrictArray<Soldier>> lists = s.getConsolHealthy();
+            for (int j = 0; j < lists.size; j++) {
+                StrictArray<Soldier> soldiers = lists.get(j);
+                for (int i = 0; i < soldiers.size; i++) {
+                    // This gets the next soldier after the selected one has been found
+                    if (soldierJustFound) {
+                        toSelect = soldiers.get(i);
+                        break;
+                    }
+                    if (soldiers.get(i) == selected) {
+                        soldierJustFound = true;
+                    }
+                    else
+                        prevSoldier = soldiers.get(i);
+                }
+                if (toSelect != null) break;
+            }
+        }
+
+        if (toSelect != null) return toSelect;
+        if (prevSoldier != null) return prevSoldier;
+        return null;
+    }
+
+    // handle the fact that a selected soldier was just removed.
+    public void notifySelectedSoldierRemoved() {
+	    if (selected == null) {
+	        throw new AssertionError();
+        }
+
+        if (nextToSelect != null) {
+            select(nextToSelect);
+        }
+        else {
+            selected = null;
+        }
+        update();
+
+    }
+
 	public void updateWithPrisoners(Party party) {
         if (party != null && party.getPrisoners().size > 0)
             prisonersC.setText("Captured");

@@ -39,7 +39,8 @@ public class Simulation extends Game {
         type1 = UnitLoader.cultureTypes.get("Plains");
         if (type1 == null || type2 == null) throw new AssertionError();
 
-        type1 = UnitLoader.cultureTypes.get("Desert");
+        type1 = UnitLoader.cultureTypes.get("Plains");
+        type2 = UnitLoader.cultureTypes.get("Forest");
 
         bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.SCOUT, type1),
 										PartyType.getPartyType(Type.SCOUT, type2));

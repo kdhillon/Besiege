@@ -13,14 +13,11 @@ import kyle.game.besiege.army.Army.ArmyType;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
-import kyle.game.besiege.party.ArmorType;
 import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
 // The way a map battle should work:
-import kyle.game.besiege.party.WeaponType;
 
-import static kyle.game.besiege.battle.BattleStage.DESTROY_THRESHOLD;
+import static kyle.game.besiege.battle.BattleStage.DEPRECATED_THRESHOLD;
 import static kyle.game.besiege.battle.BattleStage.RETREAT_THRESHOLD;
 
 // It starts, and then waits a fixed length of time (length can be proportional to party size)
@@ -299,13 +296,13 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 1 with counter " + army.retreatCounter);
-				if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD)
+				if (army.getParty().getHealthySize() <= DEPRECATED_THRESHOLD)
 					this.destroy(army);
 				else {
 					finalizeRetreat(army);
 				}
 			}
-			if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD)
+			if (army.getParty().getHealthySize() <= DEPRECATED_THRESHOLD)
 				this.destroy(army);
 		}
 		for (Army army : dArmiesRet) {
@@ -313,12 +310,12 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (army.retreatCounter <= 0) {
 				log(army.getName() + " has retreated!", "yellow");
 //				System.out.println(army.getName() + " retreat point 2 with counter " + army.retreatCounter);
-				if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD)
+				if (army.getParty().getHealthySize()  <= DEPRECATED_THRESHOLD)
 					this.destroy(army);
 				else
 					remove(army);
 			}
-			if (army.getParty().getHealthySize()  <= DESTROY_THRESHOLD)
+			if (army.getParty().getHealthySize()  <= DEPRECATED_THRESHOLD)
 				this.destroy(army);
 		}
 	}
@@ -379,7 +376,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 		casualty(random, wasInAttackers);
 
-		if (army.getParty().getHealthySize() <= DESTROY_THRESHOLD) {
+		if (army.getParty().getHealthySize() <= DEPRECATED_THRESHOLD) {
 			log(army.getName() + " lost all troops and was removed from battle", "red");
 			this.destroy(army);
 		}

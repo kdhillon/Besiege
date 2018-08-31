@@ -314,7 +314,9 @@ public class Army extends Actor implements Destination {
 					//						System.out.println(getName() + " detectNearby() = " + result); // 0 none, 1 run, 2 attack
 					if (isRunning()) {
 						run();
-					}
+						// This hopefully fixes a bug where unit gets stuck "running" but doesn't actually move.
+                        detectCollision();
+                    }
 					else if (isWaiting())
 						wait(delta);
 					else if (isInSiege())
@@ -479,8 +481,9 @@ public class Army extends Actor implements Destination {
 	}
 
 	public boolean detectCollision() {
-		//		if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
-		switch (target.getType()) {
+	    if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
+
+	    switch (target.getType()) {
 		case POINT: // point reached
 			return detectPointCollision();
 		case LOCATION: // location reached
@@ -1070,23 +1073,39 @@ public class Army extends Actor implements Destination {
 
 	public void run() { // for now, find a spot far away and set path there
 		if (normalWaiting) normalWaiting = false;
-		
+
+		// TODO I think the problem is this: running party will set a target as a point, then this block of code will
+        // forces it to travel instead of looking for a friendly city. Basically need to allow
+
 		// this is the problem. path is not empty, but it's not getting empty;
 		if (startedRunning && this.hasTarget() && !this.path.isEmpty() ) {
 			//this.detectCollision();
 			//if (this.type == ArmyType.FARMER) System.out.println(this.getName() + " is running");
-			path.travel(); 
+			path.travel();
+			// return;
 		}
-		else {
+
+		// Note that all this code will run o matter what now... even if army already has a target.
 			Location goTo = detectNearbyFriendlyCity();
-			if (shouldStopRunning()) stopRunning();
+			if (shouldStopRunning()) {
+			    stopRunning();
+			    System.out.println(this.getName() + "Stopping running");
+                return;
+			}
 			else if (goTo != null) {
 				setTarget(goTo);
 				setSpeed(calcSpeed());   // update speed
 			//	this.detectCollision();
 				path.travel();
 				startedRunning = true;
-			//	System.out.println(this.getName() + " is travelling to target");
+
+				// All is good.
+				if (isGarrisoned()) {
+				    stopRunning();
+				    return;
+                }
+                if (getTarget() == null) throw new AssertionError();
+                //	System.out.println(this.getName() + " is travelling to target");
 			}
 			// find new target an appropriate distance away, travel there.
 			else { //if (!this.hasTarget()) {
@@ -1117,9 +1136,22 @@ public class Army extends Actor implements Destination {
 				setTarget(p);
 				//				this.runTo = p;
 				startedRunning = true;
-			}
-		}
-	}
+                path.travel();
+                if (isGarrisoned()) {
+                    stopRunning();
+                    return;
+                }
+                if (getTarget() == null) throw new AssertionError();
+            }
+//            if (getTarget() == null) throw new AssertionError();
+
+        // Successfully garrisoned.
+        if (this.isGarrisoned()) {
+            stopRunning();
+            return;
+        }
+        if (getTarget() == null) throw new AssertionError();
+    }
 
 	public Location detectNearbyFriendlyCity() {
 		for (City city : getKingdom().getCities()) {
@@ -1241,6 +1273,11 @@ public class Army extends Actor implements Destination {
 	public void endBattle() {
 		if (siege != null) leaveSiege();
 		battleActor = null;
+        setStopped(false);
+        // Not sure about this one! what if you already had a target? TODO
+        setTarget(null);
+//        if (!((p.getHealthySize() <= DEPRECATED_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
+        setVisible(true);
 		//		if (type == ArmyType.MERCHANT) System.out.println(getName() + " ending battle");
 	}
 	public void besiege(Location location) {

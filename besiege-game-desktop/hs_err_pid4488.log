@@ -276,7 +276,7 @@ Heap after GC invocations=22 (full 0):
 }
 
 Deoptimization events (10 events):
-Event: 12.609 Thread 0x000000001ffae800 Uncommon trap: reason=unreached action=reinterpret pc=0x0000000002a4fdac method=kyle.game.besiege.battle.Unit.bowOut()Z @ 18
+Event: 12.609 Thread 0x000000001ffae800 Uncommon trap: reason=unreached action=reinterpret pc=0x0000000002a4fdac method=rangedWeaponOut()Z @ 18
 Event: 14.139 Thread 0x000000001ffae800 Uncommon trap: reason=array_check action=maybe_recompile pc=0x0000000002abd04c method=com.badlogic.gdx.utils.Array.insert(ILjava/lang/Object;)V @ 100
 Event: 14.142 Thread 0x000000001ffae800 Uncommon trap: reason=array_check action=maybe_recompile pc=0x0000000002abd04c method=com.badlogic.gdx.utils.Array.insert(ILjava/lang/Object;)V @ 100
 Event: 14.142 Thread 0x000000001ffae800 Uncommon trap: reason=array_check action=maybe_recompile pc=0x0000000002abd04c method=com.badlogic.gdx.utils.Array.insert(ILjava/lang/Object;)V @ 100
@@ -284,7 +284,8 @@ Event: 14.143 Thread 0x000000001ffae800 Uncommon trap: reason=array_check action
 Event: 15.722 Thread 0x000000001ffae800 Uncommon trap: reason=unreached action=reinterpret pc=0x00000000029ed310 method=kyle.game.besiege.battle.Unit.getNearestEnemy()Lkyle/game/besiege/battle/Unit; @ 99
 Event: 15.722 Thread 0x000000001ffae800 Uncommon trap: reason=unreached action=reinterpret pc=0x0000000002a23148 method=kyle.game.besiege.battle.Unit.getNearestEnemy()Lkyle/game/besiege/battle/Unit; @ 99
 Event: 15.722 Thread 0x000000001ffae800 Uncommon trap: reason=unreached action=reinterpret pc=0x00000000029e2344 method=kyle.game.besiege.battle.Unit.getNearestEnemy()Lkyle/game/besiege/battle/Unit; @ 99
-Event: 18.276 Thread 0x000000001ffae800 Uncommon trap: reason=predicate action=maybe_recompile pc=0x0000000002b214b4 method=com.badlogic.gdx.graphics.g2d.BitmapFontCache.addMultiLineText(Ljava/lang/CharSequence;FFFLcom/badlogic/gdx/graphics/g2d/BitmapFont$HAlignment;)Lcom/badlogic/gdx/graphics/gÖe5i'3@
+Event: 18.276 Thread 0x000000001ffae800 Uncommon trap: reason=predicate action=maybe_recompile pc=0x0000000002b214b4 method=com.badlogic.gdx.graphics.g2d.BitmapFontCache.addMultiLineText(Ljava/lang/CharSequence;FFFLcom/badlogic/gdx/graphics/g2d/BitmapFont$HAlignment;)Lcom/badlogic/gdx/graphics/g
+ï¿½e5i'3@
 Event: 19.154 Thread 0x000000001ffae800 Uncommon trap: reason=unreached action=reinterpret pc=0x00000000029f3414 method=com.badlogic.gdx.utils.SnapshotArray.end()V @ 18
 
 Internal exceptions (10 events):
