@@ -38,7 +38,7 @@ public class AsyncExecutor implements Disposable {
 	
 	/**
 	 * Creates a new AsynchExecutor that allows maxConcurrent
-	 * {@link Runnable} instances to run in parallel.
+	 * {@link Runnable} instances to setAppropriateRunTarget in parallel.
 	 * @param maxConcurrent
 	 */
 	public AsyncExecutor(int maxConcurrent) {

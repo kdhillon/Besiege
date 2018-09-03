@@ -582,7 +582,7 @@ public class Faction {
 //        else {
 //            this.crest = crestIn;
 //        }
-        this.color = this.crest.base;
+        this.color = Color.WHITE;
         if (this.color.equals(Color.WHITE)) {
             if (crest.cOverlay != -1) {
                 this.color = rc.getColor(crest.cOverlay);

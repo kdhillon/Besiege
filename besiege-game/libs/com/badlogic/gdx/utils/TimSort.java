@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /** A stable, adaptive, iterative mergesort that requires far fewer than n lg(n) comparisons when running on partially sorted
- * arrays, while offering performance comparable to a traditional mergesort when run on random arrays. Like all proper mergesorts,
+ * arrays, while offering performance comparable to a traditional mergesort when setAppropriateRunTarget on random arrays. Like all proper mergesorts,
  * this sort is stable and runs O(n log n) time (worst case). In the worst case, this sort requires temporary storage space for
  * n/2 object references; in the best case, it requires only a small constant amount of space.
  * 
@@ -114,21 +114,21 @@ class TimSort<T> {
 		 * merging runs to maintain stack invariant. */
 		int minRun = minRunLength(nRemaining);
 		do {
-			// Identify next run
+			// Identify next setAppropriateRunTarget
 			int runLen = countRunAndMakeAscending(a, lo, hi, c);
 
-			// If run is short, extend to min(minRun, nRemaining)
+			// If setAppropriateRunTarget is short, extend to min(minRun, nRemaining)
 			if (runLen < minRun) {
 				int force = nRemaining <= minRun ? nRemaining : minRun;
 				binarySort(a, lo, lo + force, lo + runLen, c);
 				runLen = force;
 			}
 
-			// Push run onto pending-run stack, and maybe merge
+			// Push setAppropriateRunTarget onto pending-setAppropriateRunTarget stack, and maybe merge
 			pushRun(lo, runLen);
 			mergeCollapse();
 
-			// Advance to find next run
+			// Advance to find next setAppropriateRunTarget
 			lo += runLen;
 			nRemaining -= runLen;
 		} while (nRemaining != 0);
@@ -201,21 +201,21 @@ class TimSort<T> {
 		TimSort<T> ts = new TimSort<T>(a, c);
 		int minRun = minRunLength(nRemaining);
 		do {
-			// Identify next run
+			// Identify next setAppropriateRunTarget
 			int runLen = countRunAndMakeAscending(a, lo, hi, c);
 
-			// If run is short, extend to min(minRun, nRemaining)
+			// If setAppropriateRunTarget is short, extend to min(minRun, nRemaining)
 			if (runLen < minRun) {
 				int force = nRemaining <= minRun ? nRemaining : minRun;
 				binarySort(a, lo, lo + force, lo + runLen, c);
 				runLen = force;
 			}
 
-			// Push run onto pending-run stack, and maybe merge
+			// Push setAppropriateRunTarget onto pending-setAppropriateRunTarget stack, and maybe merge
 			ts.pushRun(lo, runLen);
 			ts.mergeCollapse();
 
-			// Advance to find next run
+			// Advance to find next setAppropriateRunTarget
 			lo += runLen;
 			nRemaining -= runLen;
 		} while (nRemaining != 0);
@@ -280,10 +280,10 @@ class TimSort<T> {
 		}
 	}
 
-	/** Returns the length of the run beginning at the specified position in the specified array and reverses the run if it is
-	 * descending (ensuring that the run will always be ascending when the method returns).
+	/** Returns the length of the setAppropriateRunTarget beginning at the specified position in the specified array and reverses the setAppropriateRunTarget if it is
+	 * descending (ensuring that the setAppropriateRunTarget will always be ascending when the method returns).
 	 * 
-	 * A run is the longest ascending sequence with:
+	 * A setAppropriateRunTarget is the longest ascending sequence with:
 	 * 
 	 * a[lo] <= a[lo + 1] <= a[lo + 2] <= ...
 	 * 
@@ -294,17 +294,17 @@ class TimSort<T> {
 	 * For its intended use in a stable mergesort, the strictness of the definition of "descending" is needed so that the call can
 	 * safely reverse a descending sequence without violating stability.
 	 * 
-	 * @param a the array in which a run is to be counted and possibly reversed
-	 * @param lo index of the first element in the run
-	 * @param hi index after the last element that may be contained in the run. It is required that @code{lo < hi}.
+	 * @param a the array in which a setAppropriateRunTarget is to be counted and possibly reversed
+	 * @param lo index of the first element in the setAppropriateRunTarget
+	 * @param hi index after the last element that may be contained in the setAppropriateRunTarget. It is required that @code{lo < hi}.
 	 * @param c the comparator to used for the sort
-	 * @return the length of the run beginning at the specified position in the specified array */
+	 * @return the length of the setAppropriateRunTarget beginning at the specified position in the specified array */
 	private static <T> int countRunAndMakeAscending (T[] a, int lo, int hi, Comparator<? super T> c) {
 		if (DEBUG) assert lo < hi;
 		int runHi = lo + 1;
 		if (runHi == hi) return 1;
 
-		// Find end of run, and reverse range if descending
+		// Find end of setAppropriateRunTarget, and reverse range if descending
 		if (c.compare(a[runHi++], a[lo]) < 0) { // Descending
 			while (runHi < hi && c.compare(a[runHi], a[runHi - 1]) < 0)
 				runHi++;
@@ -331,7 +331,7 @@ class TimSort<T> {
 		}
 	}
 
-	/** Returns the minimum acceptable run length for an array of the specified length. Natural runs shorter than this will be
+	/** Returns the minimum acceptable setAppropriateRunTarget length for an array of the specified length. Natural runs shorter than this will be
 	 * extended with {@link #binarySort}.
 	 * 
 	 * Roughly speaking, the computation is:
@@ -343,7 +343,7 @@ class TimSort<T> {
 	 * For the rationale, see listsort.txt.
 	 * 
 	 * @param n the length of the array to be sorted
-	 * @return the length of the minimum run to be merged */
+	 * @return the length of the minimum setAppropriateRunTarget to be merged */
 	private static int minRunLength (int n) {
 		if (DEBUG) assert n >= 0;
 		int r = 0; // Becomes 1 if any 1 bits are shifted off
@@ -354,10 +354,10 @@ class TimSort<T> {
 		return n + r;
 	}
 
-	/** Pushes the specified run onto the pending-run stack.
+	/** Pushes the specified setAppropriateRunTarget onto the pending-setAppropriateRunTarget stack.
 	 * 
-	 * @param runBase index of the first element in the run
-	 * @param runLen the number of elements in the run */
+	 * @param runBase index of the first element in the setAppropriateRunTarget
+	 * @param runLen the number of elements in the setAppropriateRunTarget */
 	private void pushRun (int runBase, int runLen) {
 		this.runBase[stackSize] = runBase;
 		this.runLen[stackSize] = runLen;
@@ -368,7 +368,7 @@ class TimSort<T> {
 	 * 
 	 * 1. runLen[i - 3] > runLen[i - 2] + runLen[i - 1] 2. runLen[i - 2] > runLen[i - 1]
 	 * 
-	 * This method is called each time a new run is pushed onto the stack, so the invariants are guaranteed to hold for i <
+	 * This method is called each time a new setAppropriateRunTarget is pushed onto the stack, so the invariants are guaranteed to hold for i <
 	 * stackSize upon entry to the method. */
 	private void mergeCollapse () {
 		while (stackSize > 1) {
@@ -393,7 +393,7 @@ class TimSort<T> {
 		}
 	}
 
-	/** Merges the two runs at stack indices i and i+1. Run i must be the penultimate or antepenultimate run on the stack. In other
+	/** Merges the two runs at stack indices i and i+1. Run i must be the penultimate or antepenultimate setAppropriateRunTarget on the stack. In other
 	 * words, i must be equal to stackSize-2 or stackSize-3.
 	 * 
 	 * @param i stack index of the first of the two runs to merge */
@@ -410,8 +410,8 @@ class TimSort<T> {
 		if (DEBUG) assert base1 + len1 == base2;
 
 		/*
-		 * Record the length of the combined runs; if i is the 3rd-last run now, also slide over the last run (which isn't involved
-		 * in this merge). The current run (i+1) goes away in any case.
+		 * Record the length of the combined runs; if i is the 3rd-last setAppropriateRunTarget now, also slide over the last setAppropriateRunTarget (which isn't involved
+		 * in this merge). The current setAppropriateRunTarget (i+1) goes away in any case.
 		 */
 		runLen[i] = len1 + len2;
 		if (i == stackSize - 3) {
@@ -453,7 +453,7 @@ class TimSort<T> {
 	 * @param base the index of the first element in the range
 	 * @param len the length of the range; must be > 0
 	 * @param hint the index at which to begin the search, 0 <= hint < n. The closer hint is to the result, the faster this method
-	 *           will run.
+	 *           will setAppropriateRunTarget.
 	 * @param c the comparator used to order the range, and to search
 	 * @return the int k, 0 <= k <= n such that a[b + k - 1] < key <= a[b + k], pretending that a[b - 1] is minus infinity and a[b
 	 *         + n] is infinity. In other words, key belongs at index b + k; or in other words, the first k elements of a should
@@ -519,7 +519,7 @@ class TimSort<T> {
 	 * @param base the index of the first element in the range
 	 * @param len the length of the range; must be > 0
 	 * @param hint the index at which to begin the search, 0 <= hint < n. The closer hint is to the result, the faster this method
-	 *           will run.
+	 *           will setAppropriateRunTarget.
 	 * @param c the comparator used to order the range, and to search
 	 * @return the int k, 0 <= k <= n such that a[b + k - 1] <= key < a[b + k] */
 	private static <T> int gallopRight (T key, T[] a, int base, int len, int hint, Comparator<? super T> c) {
@@ -576,21 +576,21 @@ class TimSort<T> {
 		return ofs;
 	}
 
-	/** Merges two adjacent runs in place, in a stable fashion. The first element of the first run must be greater than the first
-	 * element of the second run (a[base1] > a[base2]), and the last element of the first run (a[base1 + len1-1]) must be greater
-	 * than all elements of the second run.
+	/** Merges two adjacent runs in place, in a stable fashion. The first element of the first setAppropriateRunTarget must be greater than the first
+	 * element of the second setAppropriateRunTarget (a[base1] > a[base2]), and the last element of the first setAppropriateRunTarget (a[base1 + len1-1]) must be greater
+	 * than all elements of the second setAppropriateRunTarget.
 	 * 
 	 * For performance, this method should be called only when len1 <= len2; its twin, mergeHi should be called if len1 >= len2.
 	 * (Either method may be called if len1 == len2.)
 	 * 
-	 * @param base1 index of first element in first run to be merged
-	 * @param len1 length of first run to be merged (must be > 0)
-	 * @param base2 index of first element in second run to be merged (must be aBase + aLen)
-	 * @param len2 length of second run to be merged (must be > 0) */
+	 * @param base1 index of first element in first setAppropriateRunTarget to be merged
+	 * @param len1 length of first setAppropriateRunTarget to be merged (must be > 0)
+	 * @param base2 index of first element in second setAppropriateRunTarget to be merged (must be aBase + aLen)
+	 * @param len2 length of second setAppropriateRunTarget to be merged (must be > 0) */
 	private void mergeLo (int base1, int len1, int base2, int len2) {
 		if (DEBUG) assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
 
-		// Copy first run into temp array
+		// Copy first setAppropriateRunTarget into temp array
 		T[] a = this.a; // For performance
 		T[] tmp = ensureCapacity(len1);
 		System.arraycopy(a, base1, tmp, 0, len1);
@@ -599,7 +599,7 @@ class TimSort<T> {
 		int cursor2 = base2; // Indexes int a
 		int dest = base1; // Indexes int a
 
-		// Move first element of second run and deal with degenerate cases
+		// Move first element of second setAppropriateRunTarget and deal with degenerate cases
 		a[dest++] = a[cursor2++];
 		if (--len2 == 0) {
 			System.arraycopy(tmp, cursor1, a, dest, len1);
@@ -607,7 +607,7 @@ class TimSort<T> {
 		}
 		if (len1 == 1) {
 			System.arraycopy(a, cursor2, a, dest, len2);
-			a[dest + len2] = tmp[cursor1]; // Last elt of run 1 to end of merge
+			a[dest + len2] = tmp[cursor1]; // Last elt of setAppropriateRunTarget 1 to end of merge
 			return;
 		}
 
@@ -615,11 +615,11 @@ class TimSort<T> {
 		int minGallop = this.minGallop; // "    " "     " "
 		outer:
 		while (true) {
-			int count1 = 0; // Number of times in a row that first run won
-			int count2 = 0; // Number of times in a row that second run won
+			int count1 = 0; // Number of times in a row that first setAppropriateRunTarget won
+			int count2 = 0; // Number of times in a row that second setAppropriateRunTarget won
 
 			/*
-			 * Do the straightforward thing until (if ever) one run starts winning consistently.
+			 * Do the straightforward thing until (if ever) one setAppropriateRunTarget starts winning consistently.
 			 */
 			do {
 				if (DEBUG) assert len1 > 1 && len2 > 0;
@@ -637,8 +637,8 @@ class TimSort<T> {
 			} while ((count1 | count2) < minGallop);
 
 			/*
-			 * One run is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
-			 * ever) neither run appears to be winning consistently anymore.
+			 * One setAppropriateRunTarget is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
+			 * ever) neither setAppropriateRunTarget appears to be winning consistently anymore.
 			 */
 			do {
 				if (DEBUG) assert len1 > 1 && len2 > 0;
@@ -674,7 +674,7 @@ class TimSort<T> {
 		if (len1 == 1) {
 			if (DEBUG) assert len2 > 0;
 			System.arraycopy(a, cursor2, a, dest, len2);
-			a[dest + len2] = tmp[cursor1]; // Last elt of run 1 to end of merge
+			a[dest + len2] = tmp[cursor1]; // Last elt of setAppropriateRunTarget 1 to end of merge
 		} else if (len1 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
@@ -687,14 +687,14 @@ class TimSort<T> {
 	/** Like mergeLo, except that this method should be called only if len1 >= len2; mergeLo should be called if len1 <= len2.
 	 * (Either method may be called if len1 == len2.)
 	 * 
-	 * @param base1 index of first element in first run to be merged
-	 * @param len1 length of first run to be merged (must be > 0)
-	 * @param base2 index of first element in second run to be merged (must be aBase + aLen)
-	 * @param len2 length of second run to be merged (must be > 0) */
+	 * @param base1 index of first element in first setAppropriateRunTarget to be merged
+	 * @param len1 length of first setAppropriateRunTarget to be merged (must be > 0)
+	 * @param base2 index of first element in second setAppropriateRunTarget to be merged (must be aBase + aLen)
+	 * @param len2 length of second setAppropriateRunTarget to be merged (must be > 0) */
 	private void mergeHi (int base1, int len1, int base2, int len2) {
 		if (DEBUG) assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
 
-		// Copy second run into temp array
+		// Copy second setAppropriateRunTarget into temp array
 		T[] a = this.a; // For performance
 		T[] tmp = ensureCapacity(len2);
 		System.arraycopy(a, base2, tmp, 0, len2);
@@ -703,7 +703,7 @@ class TimSort<T> {
 		int cursor2 = len2 - 1; // Indexes into tmp array
 		int dest = base2 + len2 - 1; // Indexes into a
 
-		// Move last element of first run and deal with degenerate cases
+		// Move last element of first setAppropriateRunTarget and deal with degenerate cases
 		a[dest--] = a[cursor1--];
 		if (--len1 == 0) {
 			System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2);
@@ -721,11 +721,11 @@ class TimSort<T> {
 		int minGallop = this.minGallop; // "    " "     " "
 		outer:
 		while (true) {
-			int count1 = 0; // Number of times in a row that first run won
-			int count2 = 0; // Number of times in a row that second run won
+			int count1 = 0; // Number of times in a row that first setAppropriateRunTarget won
+			int count2 = 0; // Number of times in a row that second setAppropriateRunTarget won
 
 			/*
-			 * Do the straightforward thing until (if ever) one run appears to win consistently.
+			 * Do the straightforward thing until (if ever) one setAppropriateRunTarget appears to win consistently.
 			 */
 			do {
 				if (DEBUG) assert len1 > 0 && len2 > 1;
@@ -743,8 +743,8 @@ class TimSort<T> {
 			} while ((count1 | count2) < minGallop);
 
 			/*
-			 * One run is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
-			 * ever) neither run appears to be winning consistently anymore.
+			 * One setAppropriateRunTarget is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
+			 * ever) neither setAppropriateRunTarget appears to be winning consistently anymore.
 			 */
 			do {
 				if (DEBUG) assert len1 > 0 && len2 > 1;

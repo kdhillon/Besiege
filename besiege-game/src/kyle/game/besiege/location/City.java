@@ -70,8 +70,8 @@ public class City extends Location {
 		
 		nobles = new Array<Noble>();
 
-        this.farmerCount = getPop() / (POP_MAX / MAX_FARMERS); // arbitrary
-        this.hunterCount = getPop() / (POP_MAX / MAX_HUNTERS); // arbitrary
+        this.farmerCount = getPop() / (POP_MAX / MAX_FARMERS) + 1; // arbitrary
+        this.hunterCount = getPop() / (POP_MAX / MAX_HUNTERS) + 1; // arbitrary
 
 //		closestFriendlyCities = new Array<City>();
 //		closestEnemyLocations = new Array<City>();
@@ -97,6 +97,7 @@ public class City extends Location {
         }
 
         farmers = new Array<Farmer>();
+		hunters = new Array<HuntingParty>();
 
         setScale(SCALE);
 		initializeBox();
@@ -165,6 +166,10 @@ public class City extends Location {
         if (farmers.size < farmerCount) {
             createFarmer();
         }
+
+		if (hunters.size < hunterCount) {
+			createHunter();
+		}
 		
 		// this is an overly complicated way of doing it
 		

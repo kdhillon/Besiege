@@ -21,6 +21,5 @@ public interface Destination {
 //	public double distToCenter(Destination d);
 	public float getOriginX();
 	public float getOriginY();
-	public void setMouseOver(boolean b);
 }
 

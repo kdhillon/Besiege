@@ -61,6 +61,7 @@ public class Kingdom extends Group {
 	public static final float RAIN_FLOAT = .5f;
 	public static final float LIGHTNING_FLOAT = 1f;
 	private static final float MOUSE_DISTANCE = 10; // distance destination must be from mouse to register
+	private static final float LOCATION_MOUSE_DISTANCE = 100; // distance destination must be from mouse to register
 	private final int DAWN = 7;
 	private final int DUSK = 21;
 	private final double RAIN_CHANCE = 5000; // higher is less likely
@@ -435,19 +436,32 @@ public class Kingdom extends Group {
 //		printArmyStats();
 	}
 
+	public void mouseOverCurrentPoint() {
+		Destination d = new Point(mouse.getCenterX(), mouse.getCenterY());
+//		if (d.getType() == Destination.DestType.POINT)
+			this.setPanelTo(d);
+//		else {
+//			System.out.println("Not mousing over a point!!");
+//		}
+
+	}
+
 	private void mouseOver(Point mouse) {
 		Destination d = getDestAt(mouse);
 		//		if (d.getType() != 0)
-		this.setPanelTo(d);
+		// TODO replace this with actor inputlisteners
+		if (d.getType() != Destination.DestType.LOCATION && d.getType() != Destination.DestType.POINT && d.getType() != Destination.DestType.ARMY)
+			this.setPanelTo(d);
 		//			d.setMouseOver(true);
 	}
 
-	private void setPanelTo(Destination newPanel) {
-		//		if (currentPanel == null) System.out.println("currentPanel is null");
+	public void setPanelTo(Destination newPanel) {
+//				if (currentPanel == null) System.out.println("currentPanel is null");
 		// makes sure not to set the same panel a lot, and makes sure not to return to previous for every single point
 		if (newPanel != currentPanel && (newPanel.getType() != Destination.DestType.POINT || currentPanel.getType() != Destination.DestType.POINT)) {
 			getMapScreen().getSidePanel().setActiveDestination(newPanel);
 			currentPanel = newPanel;
+			System.out.println("setting panel to " + newPanel.getName());
 		}
 	}
 
@@ -582,23 +596,23 @@ public class Kingdom extends Group {
 		Destination dest = new Point(mouse.getCenterX(), mouse.getCenterY());
 		for (City city : cities) {
 		    if (getMapScreen().fogOn && !city.isDiscovered()) continue;
-			if (Kingdom.distBetween(city, mouse) <= MOUSE_DISTANCE * city.getSizeFactor() * 2 * getZoom())
+			if (Kingdom.distBetween(city, mouse) <= LOCATION_MOUSE_DISTANCE * Location.getAdjustedZoom(this))
 				dest = city;
 		}
 		for (Village village : villages) {
             if (getMapScreen().fogOn && !village.isDiscovered()) continue;
-            if (Kingdom.distBetween(village, mouse) <= MOUSE_DISTANCE  * village.getSizeFactor() * 1 * this.getZoom())
+            if (Kingdom.distBetween(village, mouse) <= LOCATION_MOUSE_DISTANCE)
 				dest = village;
 		}
 		for (Castle castle : castles) {
             if (getMapScreen().fogOn && !castle.isDiscovered()) continue;
-            if (Kingdom.distBetween(castle, mouse) <= MOUSE_DISTANCE) {
+            if (Kingdom.distBetween(castle, mouse) <= LOCATION_MOUSE_DISTANCE) {
                 dest = castle;
             }
 		}
 		for (Ruin ruin : ruins) {
             if (getMapScreen().fogOn && !ruin.isDiscovered()) continue;
-            if (Kingdom.distBetween(ruin, mouse) <= MOUSE_DISTANCE)
+            if (Kingdom.distBetween(ruin, mouse) <= LOCATION_MOUSE_DISTANCE)
 				dest = ruin;
 		}
 		for (Army army : armies) {
@@ -633,13 +647,13 @@ public class Kingdom extends Group {
 
 		// leak is not here
 		super.draw(batch, parentAlpha);
-		
+
 		if (drawCrests) {
 			for (City c : cities)
 				c.drawCrest(batch);
-			for (Village v : villages) 
+			for (Village v : villages)
 				v.drawCrest(batch);
-			for (Castle c : castles) 
+			for (Castle c : castles)
 				c.drawCrest(batch);
 		}
 		if (drawArmyCrests) 

@@ -34,6 +34,8 @@ public class SidePanel extends Group {
 	public static final int WIDTH = 190; // 180 works well
 	public final float MINI_ZOOM = 12;
 	public static float HEIGHT = BesiegeMain.HEIGHT;
+	public static SidePanel sidePanel;
+
 	private final String textureRegion = "panelBG";
 	private TextureRegion region;
 	private MapScreen mapScreen;
@@ -58,8 +60,9 @@ public class SidePanel extends Group {
 	
 	public SidePanel(MapScreen mapScreen) {
 		this.mapScreen = mapScreen;
-		this.camera = (OrthographicCamera) mapScreen.getUICamera();	
-		
+		this.camera = (OrthographicCamera) mapScreen.getUICamera();
+		sidePanel = this;
+
 		this.region = new TextureRegion(Assets.atlas.findRegion(textureRegion));
 
 		bottom = new BottomPanel(this);
@@ -176,8 +179,9 @@ public class SidePanel extends Group {
     }
 	public void setActiveDestination(Destination destination) {
 		Destination.DestType type = destination.getType();
-		if (type == Destination.DestType.POINT) { returnToPrevious(false);
-		System.out.println("setting active destination to a point...");
+		if (type == Destination.DestType.POINT) {
+			returnToPrevious(false);
+			System.out.println("setting active destination to a point...");
 		}
 		else if (type == Destination.DestType.LOCATION) setActiveLocation((Location) destination);
 		else if (type == Destination.DestType.ARMY) setActiveArmy((Army) destination);
@@ -283,13 +287,24 @@ public class SidePanel extends Group {
 //		System.out.println("setting soft stay");
 //		this.previousPanel = this.activePanel;
 //	}
-//
 
     // Hard stay means the player can only leave the panel by selecting a button.
     // Used for forcing the player to make decisions -- to attack or not.
+	// ^ This is not actually true right now. Hardstay is set any time a player clicks a city/location.
+	// We just haven't figured out when to unset it.
+	// Right now, anytime you mouse away from a panel, it goes to player panel.
+	// Entering a location, sets that city panel to the current city no matter where your mouse is (overrides the mouse,
+	// soft stay). PlayerPanel is still the default panel, to return you just click "back". To switch back to city, click city again.
+	// To exit this "soft stay":
+	// 		click on any point (not location or army)
+	// 		clicking "back"
+	// 	if you click on another location or another army, it sets soft-stay to "false"
+	// TODO add yellow icon for when player is garrisoned in a city
+	// If you touch a
 	public void setHardStay(boolean b) {
-		System.out.println("setting hard stay");		
+		System.out.println("hard stay is disabled");
 		hardStay = b;
+		hardStay = false;
 	}
 	public boolean getStay() {
 		return hardStay;

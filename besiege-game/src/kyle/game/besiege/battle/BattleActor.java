@@ -107,11 +107,6 @@ public class BattleActor extends Actor implements Destination {
 	public float getCenterY() {
 		return this.getY() + this.getOriginY();
 	}
-	
-
-	@Override
-	public void setMouseOver(boolean b) {
-	}
 
 	
 	public void destroy() {

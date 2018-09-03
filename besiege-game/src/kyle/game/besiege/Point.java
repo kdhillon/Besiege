@@ -84,9 +84,4 @@ public class Point implements Destination {
 	public float getOriginY() {
 		return 0;
 	}
-
-	@Override
-	public void setMouseOver(boolean b) {
-		// do nothing
-	}
 }

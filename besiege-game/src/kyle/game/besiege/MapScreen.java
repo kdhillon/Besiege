@@ -13,6 +13,7 @@ import java.util.Date;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
@@ -44,7 +45,7 @@ public class MapScreen implements Screen {
 	private Kryo kryo;
 	public boolean SIMULATE = false;
 
-	private static final boolean VIEW_GENESIS = false; // without this, takes about 5 seconds to run.
+	private static final boolean VIEW_GENESIS = false; // without this, takes about 5 seconds to setAppropriateRunTarget.
 	private static final boolean FORCERUN = false;
 	private static final float SCROLL_SPEED = 2f;
 	private static final float FAST_FORWARD_FACTOR = 3f;
@@ -359,10 +360,9 @@ public class MapScreen implements Screen {
 		BesiegeMain.HEIGHT = height;
 		BesiegeMain.WIDTH = width;
 
-		if (kingdomStage != null) kingdomStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
-		if (battleStage != null) battleStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
-        uiStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
-
+		if (kingdomStage != null) kingdomStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, true);
+		if (battleStage != null) battleStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, true);
+        uiStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, true);
 		//		kingdomPerspectiveCamera = new PerspectiveCamera(60, BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
 		//		kingdomPerspectiveCamera.position.set(2000, 3000, 2000);
 		//		kingdomPerspectiveCamera.lookAt(2000, 0, 0);
@@ -609,7 +609,7 @@ public class MapScreen implements Screen {
 		if (battle == null) {
 			kingdom.getPlayer().setWaiting(false);
 			kingdom.setPaused(true);
-			System.out.println("end run");
+			System.out.println("end setAppropriateRunTarget");
 		}
 		//		else {
 		//			battle.setPaused(true);
@@ -668,12 +668,17 @@ public class MapScreen implements Screen {
 			Gdx.input.setInputProcessor(uiStage);
 		}
 		else {
+			InputMultiplexer inputMultiplexer = new InputMultiplexer();
+			inputMultiplexer.addProcessor(kingdomStage);
+
 			if (Gdx.app.getType() == ApplicationType.Desktop)
-				Gdx.input.setInputProcessor(mapControllerDesktop); // formerly mapControllerDesktop
+				inputMultiplexer.addProcessor(mapControllerDesktop);
 			else if (Gdx.app.getType() == ApplicationType.WebGL)
-				Gdx.input.setInputProcessor(mapControllerDesktop);
+				inputMultiplexer.addProcessor(mapControllerDesktop);
 			else if (Gdx.app.getType() == ApplicationType.Android && Gdx.input.getInputProcessor() == uiStage)
-				Gdx.input.setInputProcessor(new GestureDetector(mapControllerAndroid));
+				inputMultiplexer.addProcessor(new GestureDetector(mapControllerAndroid));
+			Gdx.input.setInputProcessor(inputMultiplexer);
+
 			mouseOverPanel = false;
 		}
 		if (kingdom != null)
@@ -727,7 +732,7 @@ public class MapScreen implements Screen {
 					//				System.out.println(kingdom.getPlayer().isWaiting());
 				}
 				else if (kingdom != null && !kingdom.getPlayer().forceWait && kingdom.getPlayer().isWaiting()) {
-					//				System.out.println("ending run");
+					//				System.out.println("ending setAppropriateRunTarget");
 					endRun();
 				}
 			}

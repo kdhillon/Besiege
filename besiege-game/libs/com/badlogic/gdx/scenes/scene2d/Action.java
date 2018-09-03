@@ -34,7 +34,7 @@ abstract public class Action implements Poolable {
 	 * @return true if the action is done. This method may continue to be called after the action is done. */
 	abstract public boolean act (float delta);
 
-	/** Sets the state of the action so it can be run again. */
+	/** Sets the state of the action so it can be setAppropriateRunTarget again. */
 	public void restart () {
 	}
 

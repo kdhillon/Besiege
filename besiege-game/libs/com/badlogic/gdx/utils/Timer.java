@@ -105,7 +105,7 @@ public class Timer {
 				}
 				if (task.repeatCount != CANCELLED) {
 					if (task.repeatCount == 0) {
-						// Set cancelled before run so it may be rescheduled in run.
+						// Set cancelled before setAppropriateRunTarget so it may be rescheduled in setAppropriateRunTarget.
 						task.repeatCount = CANCELLED;
 					}
 					Gdx.app.postRunnable(task);

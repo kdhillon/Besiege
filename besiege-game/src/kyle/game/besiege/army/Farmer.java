@@ -11,12 +11,11 @@ import kyle.game.besiege.Point;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
-import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.PartyType.Type;
 
 public class Farmer extends Army {
 	private final String textureRegion = "Farmer";
-	private final float WAIT = 2.5f;
+	private final float FARMER_WAIT = 2.5f;
 	private final float wanderDistance = 60;
 	private final int farmStart = 7;
 	private final int farmEnd = 20; 
@@ -74,12 +73,13 @@ public class Farmer extends Army {
 	}
 	
 	public void farm() {
+		if (isRunning()) throw new AssertionError();
 		if (farmTime()) {
 			if (this.isGarrisoned()) eject();
 			if (this.path.isEmpty()) {
 				if (waitToggle) {
-					this.waitFor(WAIT);
-//					System.out.println("waiting for " + WAIT);
+					this.waitFor(FARMER_WAIT);
+//					System.out.println("waiting for " + FARMER_WAIT);
 					waitToggle = false;
 				}
 				else {
@@ -118,14 +118,14 @@ public class Farmer extends Army {
 	
 	// farmers can garrison in villages
 	@Override
-	public Location detectNearbyFriendlyCity() {
+	public Location detectNearbyFriendlyLocationForRunning() {
 		for (City city : getKingdom().getCities()) {
 			if (!isAtWar(city)) {
 				if (this.distToCenter(city) < getLineOfSight() && this.distToCenter(city) < getRunFrom().distToCenter(city)) {
 					return city;
 				}
 			}
-		} 
+		}
 		for (Village village : getKingdom().villages) {
 			if (this.distToCenter(village) < getLineOfSight() && this.distToCenter(village) < getRunFrom().distToCenter(village)) {
 				return village;

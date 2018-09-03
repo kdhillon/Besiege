@@ -17,6 +17,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Destination;
@@ -28,7 +30,6 @@ import kyle.game.besiege.Siege;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleActor;
-import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
@@ -55,14 +56,15 @@ public class Army extends Actor implements Destination {
 	private static final float battleCollisionDistance = 15;
 	private static final float COLLISION_FACTOR = 10; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
-	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
+
+	// TODO replace this with 200... I think this is causing farmer problems?
+	public static final int A_STAR_FREQ = 0; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that playerPartyPanel size detracts from total speed
-	private static final float BASE_LOS = 80;
+	private static final float BASE_LOS = 200;
 	private static final int MAX_STACK_SIZE = 10;
 	private static final float LOS_FACTOR = 1; // times troops in playerPartyPanel
 	private static final float momentumDecay = 6; // every N hours, momentum -= 1
 	private static final int offset = 30;
-	private static final String DEFAULT_TEXTURE = "Player";
 	private static final double REPAIR_FACTOR = .5; // if a playerPartyPanel gets below this many troops it will go to repair itself.
 	private static final float RUN_EVERY = .5f;
 	protected static final double WEALTH_FACTOR = 2;
@@ -70,7 +72,6 @@ public class Army extends Actor implements Destination {
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 	private static float ANIMATION_LENGTH = 0.25f;
 
-    private boolean mouseOver;
 	public boolean passive; // passive if true (won't attack) aggressive if false;
     float stateTime;
 
@@ -114,7 +115,7 @@ public class Army extends Actor implements Destination {
 
 	public boolean shouldEject; // useful for farmers, who don't need to F during nighttime.
 	//	protected boolean isNoble;
-	public enum ArmyType {PATROL, NOBLE, MERCHANT, BANDIT, FARMER, MILITIA}; // 3 for patrol, 
+	public enum ArmyType {PATROL, NOBLE, MERCHANT, BANDIT, FARMER, MILITIA, HUNTER}; // 3 for patrol,
 	public ArmyType type;
 
 	private BattleActor battleActor;
@@ -237,8 +238,45 @@ public class Army extends Actor implements Destination {
 		playerTouched = false;
 		this.setVisible(false);
 
-		calcInitWealth();
+        this.addListener(getNewInputListener());
+
+        calcInitWealth();
 	}
+
+    private InputListener getNewInputListener() {
+        return new InputListener() {
+            @Override
+            public void touchUp(InputEvent event, float x, float y,
+                                int pointer, int button) {
+                boolean touchdown=true;
+                //do your stuff
+                //it will work when finger is released..
+                System.out.println("Touched up " + getName());
+            }
+
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y,
+                                     int pointer, int button) {
+                boolean touchdown=false;
+                //do your stuff it will work when u touched your actor
+                return true;
+            }
+
+            @Override
+            public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
+                System.out.println("Mousing over " + getName());
+                System.out.println("Setting panel! " + getName());
+                // TODO make this work with crestdraw
+                kingdom.setPanelTo((Army) event.getListenerActor());
+            }
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                System.out.println("returning to previous (exit)");
+                getKingdom().mouseOverCurrentPoint();
+            }
+        };
+    }
+
 	// do this after added to kingdom
 	public void postAdd() {
 	}
@@ -264,8 +302,16 @@ public class Army extends Actor implements Destination {
         else if (!this.isGarrisoned() && !this.isInBattle()) this.setVisible(true);
     }
 
+    private void stopWaiting() {
+	    normalWaiting = false;
+	}
+
 	@Override
 	public void act(float delta) {
+	    if (isRunning()) {
+	        stopWaiting();
+        }
+
         if (!isWaiting())
             stateTime += delta;
 
@@ -277,8 +323,10 @@ public class Army extends Actor implements Destination {
 		if (this.party == null) {
 			throw new java.lang.NullPointerException();
 		}
-		
-		if (this.lastPathCalc > 0) this.lastPathCalc--;
+
+		// TODO replace with efficient process
+        this.lastPathCalc = 0;
+//		if (this.lastPathCalc > 0) this.lastPathCalc--;
 		//		setLineOfSight();
 		// Player's Line of Sight:
 		updateVisibility();
@@ -311,11 +359,16 @@ public class Army extends Actor implements Destination {
 					detectNearby();
 					// int result = detectNearby();
 					//					if (result != 0)
-					//						System.out.println(getName() + " detectNearby() = " + result); // 0 none, 1 run, 2 attack
+					//						System.out.println(getName() + " detectNearby() = " + result); // 0 none, 1 setAppropriateRunTarget, 2 attack
 					if (isRunning()) {
-						run();
-						// This hopefully fixes a bug where unit gets stuck "running" but doesn't actually move.
-                        detectCollision();
+                        if (shouldStopRunning()) {
+                            stopRunning();
+                            System.out.println(this.getName() + "Stopping running");
+                        } else {
+                            setAppropriateRunTarget();
+                            if (getTarget() == null) throw new AssertionError(this.getName() + " has no target while running");
+                        }
+                        path.travel();
                     }
 					else if (isWaiting())
 						wait(delta);
@@ -352,7 +405,7 @@ public class Army extends Actor implements Destination {
 		//						setSpeed(calcSpeed());   // update speed
 		//						detectNearby();
 		//						if (isRunning()) {
-		//							run();
+		//							setAppropriateRunTarget();
 		//							// wait(delta);
 		//						}
 		//						else {
@@ -427,9 +480,15 @@ public class Army extends Actor implements Destination {
 	public void drawLOS() {
 		
 	}
-	
+
+	public boolean shouldDrawCrest() {
+        if (this.isInBattle() || this.isGarrisoned() || !this.isVisible() || (this.getFaction() == null)) return false;
+        return true;
+    }
+
 	public void drawCrest(SpriteBatch batch) {
-		if (this.isInBattle() || this.isGarrisoned() || !this.isVisible() || (this.getFaction() == null)) return;
+        if (!shouldDrawCrest()) return;
+
 		float size_factor = .7f;
 
 		size_factor +=  .004*this.party.getTotalSize();
@@ -448,12 +507,13 @@ public class Army extends Actor implements Destination {
 		Matrix4 tempMatrix = batch.getTransformMatrix();
 		batch.setTransformMatrix(mx4Font);
 
-		if (faction.crest != null) {
-            faction.crest.setPosition(-15*scale , 5 + 5*scale);
-            faction.crest.setSize(30*scale, 30*scale);
-//		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-            faction.crest.draw(batch, clear_white.a);
-        }
+		// TODO draw crest.
+//		if (faction.crest != null) {
+//            faction.crest.setPosition(-15*scale , 5 + 5*scale);
+//            faction.crest.setSize(30*scale, 30*scale);
+////		batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
+//            faction.crest.draw(batch, clear_white.a);
+//        }
 		
 		batch.setTransformMatrix(tempMatrix);
 		batch.setColor(temp);
@@ -466,8 +526,9 @@ public class Army extends Actor implements Destination {
 		
 		if (isInBattle()) return "In battle";
 		else if (forceWait) return "Regrouping (" + Panel.format(this.waitUntil-getKingdom().clock() + "", 2) + ")";
-		else if (isWaiting()) return "Waiting";
-		else if (isRunning()) return "Running from " + getRunFrom().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
+		else if (isWaiting()&& isRunning()) return "Waiting and Running?";
+        else if (isWaiting()) return "Waiting";
+        else if (isRunning()) return "Running from " + getRunFrom().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
 		//		else if (shouldRepair) return "SHOULD REPAIR";
 		else if (isInSiege()) return "Besieging " + siege.location.getName();
 		else if (getTarget() != null && getTarget().getType() == Destination.DestType.LOCATION) return "Travelling to " + getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
@@ -481,7 +542,7 @@ public class Army extends Actor implements Destination {
 	}
 
 	public boolean detectCollision() {
-	    if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
+//	    if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
 
 	    switch (target.getType()) {
 		case POINT: // point reached
@@ -827,7 +888,7 @@ public class Army extends Actor implements Destination {
 		if (army != null) {
 			if (shouldRunFrom(army) && runFrom != army)  {
 				runFrom(army);
-				//				System.out.println(this.getName() + " starting to run from " + army.getName());
+				//				System.out.println(this.getName() + " starting to setAppropriateRunTarget from " + army.getName());
 				return 1;
 			}
 			else if (!passive && shouldAttack(army) && (!hasTarget() || target != army)) {
@@ -853,7 +914,7 @@ public class Army extends Actor implements Destination {
 	//	}
 
 
-	// returns closest army should run from, else closest army should attack, or null if no armies are close.
+	// returns closest army should setAppropriateRunTarget from, else closest army should attack, or null if no armies are close.
 	// Will not return garrisons.
 	public Army closestHostileArmy() {
 		//		if (this.type == ArmyType.PATROL) System.out.println(getName() + " in closest hostile army"); 
@@ -861,7 +922,7 @@ public class Army extends Actor implements Destination {
 		// commented for testing
 		double closestDistance = Float.MAX_VALUE;
 		Army currentArmy = null;
-		boolean shouldRun = false; // true if should run from CHA, false otherwise
+		boolean shouldRun = false; // true if should setAppropriateRunTarget from CHA, false otherwise
 
 		// only within 2 levels of adjacent, can expand later
 		closeArmies.clear();
@@ -1048,7 +1109,7 @@ public class Army extends Actor implements Destination {
 	//	}
 
 	public void runFrom(Army runFrom) {
-		// only let armies run from a new army every .5 seconds
+		// only let armies setAppropriateRunTarget from a new army every .5 seconds
 		if (runFrom != null) {
 			if (timeSinceRunFrom < RUN_EVERY) {
 				timeSinceRunFrom += Gdx.graphics.getDeltaTime();
@@ -1056,7 +1117,8 @@ public class Army extends Actor implements Destination {
 			}
 			else timeSinceRunFrom = 0;
 		}
-		
+
+		setWaiting(false);
 		if (runFrom != null) setTarget(null);
 		this.runFrom = runFrom;
 	}
@@ -1071,44 +1133,43 @@ public class Army extends Actor implements Destination {
 		return runFrom;
 	}
 
-	public void run() { // for now, find a spot far away and set path there
-		if (normalWaiting) normalWaiting = false;
+	// What this does is ensure the army has a valid target.
+	public void setAppropriateRunTarget() { // for now, find a spot far away and set path there
+        if (shouldStopRunning()) throw new AssertionError(); // This check happens outside this method
+		if (isWaiting()) stopWaiting();
 
-		// this is the problem. path is not empty, but it's not getting empty;
-		if (startedRunning && this.hasTarget() && !this.path.isEmpty() ) {
-			//this.detectCollision();
-			//if (this.type == ArmyType.FARMER) System.out.println(this.getName() + " is running");
-			path.travel();
-			// return;
-		}
+        // this is the problem. path is not empty, but it's not getting empty;
+        // Problem is units are running to a town, but not actually moving...
+//		if (startedRunning && this.hasTarget() && !this.path.isEmpty() ) {
+//			//this.detectCollision();
+//			//if (this.type == ArmyType.FARMER) System.out.println(this.getName() + " is running");
+//            return;
+//		}
 
-		// Note that all this code will run o matter what now... even if army already has a target.
-			Location goTo = detectNearbyFriendlyCity();
-			if (shouldStopRunning()) {
-			    stopRunning();
-			    System.out.println(this.getName() + "Stopping running");
-                return;
-			}
-			else if (goTo != null) {
-				setTarget(goTo);
+		// Note that all this code will setAppropriateRunTarget o matter what now... even if army already has a target.
+
+        // NOTE: this is only cities! not villages...
+			Location goTo = detectNearbyFriendlyLocationForRunning();
+			if (goTo != null) {
+                System.out.println(getName() + " should go to " + goTo.getName());
+                if (goTo == this.getTarget()) {
+                    System.out.println(getName() + " already has target,  " + goTo.getName() + " ...");
+                    setSpeed(calcSpeed());   // update speed
+                    startedRunning = true;
+                    return;
+                }
+				if (!setTarget(goTo)) throw new AssertionError(goTo.getName() + " cant be set as target for " + getName());
 				setSpeed(calcSpeed());   // update speed
 			//	this.detectCollision();
-				path.travel();
 				startedRunning = true;
-
-				// All is good.
-				if (isGarrisoned()) {
-				    stopRunning();
-				    return;
-                }
-                if (getTarget() == null) throw new AssertionError();
                 //	System.out.println(this.getName() + " is travelling to target");
 			}
 			// find new target an appropriate distance away, travel there.
 			else { //if (!this.hasTarget()) {
-				//			System.out.println(getName() + " is running");
+                System.out.println(getName() + " no nearby city");
+                //			System.out.println(getName() + " is running");
 				//			setTarget(getKingdom().getCities().get(0));
-				//				System.out.println(getName() + " getting new random run target");
+				//				System.out.println(getName() + " getting new random setAppropriateRunTarget target");
 				float distance = getLineOfSight();
 
 				toTarget.x = getCenterX() - runFrom.getCenterX();
@@ -1130,27 +1191,13 @@ public class Army extends Actor implements Destination {
 					p.setPos(getCenterX(), getCenterY());
 					//				System.out.println("rotated all the way");
 				}
-				setTarget(p);
-				//				this.runTo = p;
+                if (!setTarget(p)) throw new AssertionError(p.getName() + " cant be set as target for " + getName());
 				startedRunning = true;
-                path.travel();
-                if (isGarrisoned()) {
-                    stopRunning();
-                    return;
-                }
-                if (getTarget() == null) throw new AssertionError();
             }
-//            if (getTarget() == null) throw new AssertionError();
-
-        // Successfully garrisoned.
-        if (this.isGarrisoned()) {
-            stopRunning();
-            return;
-        }
-        if (getTarget() == null) throw new AssertionError();
     }
 
-	public Location detectNearbyFriendlyCity() {
+    // By default, only allow parties to run and hide in cities.
+	public Location detectNearbyFriendlyLocationForRunning() {
 		for (City city : getKingdom().getCities()) {
 			if (!isAtWar(city) && this.distToCenter(city) < getLineOfSight() && this.distToCenter(city) < runFrom.distToCenter(city)) {
 				return city;
@@ -1332,14 +1379,12 @@ public class Army extends Actor implements Destination {
 		// don't add same target twice in a row... this is a problem.
 		//		if (newTarget.getType() == 2 && ((Army) newTarget).isGarrisoned()) System.out.println("***** TARGET GARRISONED! *****");
 
-
 		boolean isInWater = getKingdom().getMap().isInWater(newTarget);
 		// Allow the player to travel to water (they will stop at the border).
         // This prevents the player from clicking in the fog to figure out where water is
         if (isPlayer()) isInWater = false;
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
-			if (this.target != newTarget && (this.lastPathCalc == 0 || this.isPlayer())) {
-
+			if ((this.target != newTarget && this.lastPathCalc == 0) || this.isPlayer()) {
 				if (!this.isWaiting() && this.isGarrisoned()) this.eject(); 
 				
 				// don't add a bunch of useless point and army targets
@@ -1349,7 +1394,7 @@ public class Army extends Actor implements Destination {
 				}
 				this.target = newTarget;
 				//				if (newTarget != null && this.path.isEmpty()) {
-				if (newTarget != null && this.path.finalGoal != newTarget) {
+				if (this.path.finalGoal != newTarget) {
 					if (this.path.calcPathTo(newTarget, this.isPlayer())) {
 						this.lastPathCalc = A_STAR_FREQ;
 						path.next();
@@ -1362,8 +1407,18 @@ public class Army extends Actor implements Destination {
 				else if (newTarget == this.path.finalGoal) System.out.println("new goal is already in path");
 			}
 			else {
-				//				System.out.println(getName() + "adding same target twice");
-				return false;
+			    // Not sure if this is the best solution. This was causing bugs when farmers were running. TODO remove "lastPathCalc" and optimize in a smarter way.
+			    if (lastPathCalc != 0) {
+			        this.target = newTarget;
+			        return true;
+                }
+                if (this.target == newTarget) {
+                    System.out.println(getName() + " adding same target twice");
+                    throw new AssertionError();
+//
+                }
+                System.out.println("wtf?");
+			    return false;
 			}
 			if (newTarget.getType() == Destination.DestType.ARMY) ((Army) newTarget).targetOf.add(this);
 			return true;
@@ -1378,7 +1433,10 @@ public class Army extends Actor implements Destination {
 			setTarget(getKingdom().getMap().referencePoint);
 			return true;
 		}
-		else return false;
+		else {
+            System.out.println(getName() + " setting target failed");
+		    return false;
+        }
 	}
 	public boolean hasTarget() {
 		return getTarget() != null;
@@ -1404,8 +1462,9 @@ public class Army extends Actor implements Destination {
 		setTarget(target);
 	}
 	public void findTarget() {
-		//		if (this.type == ArmyType.BANDIT) System.out.println("bandit finding target"); 
-		setTarget(defaultTarget);
+		//		if (this.type == ArmyType.BANDIT) System.out.println("bandit finding target");
+        if (defaultTarget != getTarget())
+		    setTarget(defaultTarget);
 	}
 	public void setDefaultTarget(Destination defaultTarget) {
 		this.defaultTarget = defaultTarget;
@@ -1455,9 +1514,11 @@ public class Army extends Actor implements Destination {
 	//		else this.money = money;
 	//	}
 	public boolean isAtWar(Destination destination) {
-		if (destination.getFaction() == null) return true;
+		if (destination.getFaction() == null || this.faction == null) {
+		    if (destination.getFaction() == null && this.faction == null) return false;
+		    return true;
+        }
 		if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
-		if (this.faction == null) return true;
 		return faction.atWar(destination.getFaction());
 	}
 
@@ -1516,20 +1577,7 @@ public class Army extends Actor implements Destination {
 	public boolean isInBattle() {
 		return battleActor != null && battleActor.getBattle() != null;
 	}
-	@Override
-	public void setMouseOver(boolean mouseOver) {
-		if (this.mouseOver) {
-			if (!mouseOver)
-				getKingdom().getMapScreen().getSidePanel().returnToPrevious(false);
-		}
-		else if (mouseOver)
-			getKingdom().getMapScreen().getSidePanel().setActiveArmy(this);
 
-		this.mouseOver = mouseOver;
-	}
-	public boolean mousedOver() {
-		return mouseOver;
-	}
 	public boolean isGarrisoned() {
 		return (garrisonedIn != null);
 	}

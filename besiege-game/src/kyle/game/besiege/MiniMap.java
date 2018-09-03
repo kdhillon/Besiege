@@ -50,10 +50,12 @@ public class MiniMap extends Actor {
 		//this.setRotation(panel.getRotation());
 //		batch.draw(Assets.map.findRegion("smallMap"), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
 		if (panel.getActiveCrest() != null) {
-            panel.getActiveCrest().setPosition(getX(), getY());
-			panel.getActiveCrest().setSize(getWidth(), getHeight());
-			panel.getActiveCrest().draw(batch, parentAlpha);
-//			batch.draw(panel.getActiveCrest(), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
+		    // TODO use "crestDraw"
+            panel.getActiveCrest().defaultCrestDraw.setPosition(getX(), getY());
+			panel.getActiveCrest().defaultCrestDraw.setSize(getWidth(), getHeight());
+			panel.getActiveCrest().defaultCrestDraw.draw(batch, parentAlpha);
+
+//			batch.draw(panel.getActiveCrest().defaultCrestDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
 		}
 		if (panel.getSecondCrest() != null)  {
 			System.out.println("ignoring second crest");

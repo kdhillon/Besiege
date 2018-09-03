@@ -11,20 +11,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.Array;
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Destination;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Point;
-import kyle.game.besiege.Siege;
-import kyle.game.besiege.StrictArray;
-import kyle.game.besiege.army.Army;
-import kyle.game.besiege.army.Farmer;
-import kyle.game.besiege.army.Merchant;
-import kyle.game.besiege.army.Patrol;
+import kyle.game.besiege.*;
+import kyle.game.besiege.army.*;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleActor;
 import kyle.game.besiege.battle.Fire;
@@ -36,6 +30,7 @@ import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
 
 public class Location extends Group implements Destination {
+	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 	private final float SCALE = .06f;
 	public static final float MIN_ZOOM = 0.5f;
 	public static final float MAX_ZOOM = 2;
@@ -46,7 +41,6 @@ public class Location extends Group implements Destination {
 
 	// TODO ^ change this to a variable. later make city wealth affect quality of soldiers.
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
-	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 	private static final Color black = new Color(0f, 0f, 0f, 0.4f);
 
 	// for font rotation
@@ -85,8 +79,6 @@ public class Location extends Group implements Destination {
 	public StrictArray<Castle> closestEnemyCastles;
 	public StrictArray<Village> closestEnemyVillages;
 
-	private boolean mouseOver;
-
 	private Kingdom kingdom;
 	private String name;
 	private int index;
@@ -112,9 +104,13 @@ public class Location extends Group implements Destination {
 
 	public Siege siege;
 
+	private CrestDraw crestDraw;
+
 	// Farmer info
     public Array<Farmer> farmers;
-    int farmerCount;
+	public Array<HuntingParty> hunters;
+
+	int farmerCount;
     int hunterCount;
     private static final int MAX_FARMERS = 5;
     private static final int MAX_HUNTERS = 5;
@@ -156,12 +152,12 @@ public class Location extends Group implements Destination {
 	public Location(Kingdom kingdom, String name, int index, float posX, float posY, Center center, Corner corner) {
 		this.faction = null;
 		this.ruin = true;
-		
+		this.kingdom = kingdom;
+
 		basicConstruct(kingdom, name, index, posX, posY, center, corner);
 	}
 
-	public void basicConstruct(Kingdom kingdom, String name, int index, float posX, float posY, Center center, Corner corner) {
-		this.kingdom = kingdom;
+	public void basicConstruct(final Kingdom kingdom, String name, int index, float posX, float posY, Center center, Corner corner) {
 //		this.name = name;
 		this.index = index;
 
@@ -180,13 +176,54 @@ public class Location extends Group implements Destination {
 
 		this.setRotation(0);
 		this.setScale(1);
-		
+
 		spawnPoint = new Point(this.getCenterX(), this.getCenterY());
+
+		// Add touch listener
+		this.addListener(getNewInputListener());
+
+		crestDraw = new CrestDraw(this);
+		this.addActor(crestDraw);
+	}
+
+	private InputListener getNewInputListener() {
+		return new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y,
+								int pointer, int button) {
+				boolean touchdown=true;
+				//do your stuff
+				//it will work when finger is released..
+				System.out.println("Touched up " + getName());
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y,
+									 int pointer, int button) {
+				boolean touchdown=false;
+				//do your stuff it will work when u touched your actor
+				return true;
+			}
+
+			@Override
+			public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
+				System.out.println("Mousing over " + getName());
+				System.out.println("Setting panel! " + getName());
+				// TODO make this work with crestdraw
+				kingdom.setPanelTo((Location) event.getListenerActor());
+			}
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				System.out.println("returning to previous (exit)");
+				getKingdom().mouseOverCurrentPoint();
+			}
+		};
 	}
 	
 	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType, Center center, Corner corner) {
 		this.faction = faction;
         this.pType = pType;
+		this.kingdom = kingdom;
 
 		basicConstruct(kingdom, name, index, posX, posY, center, corner);
         createGarrison();
@@ -501,7 +538,7 @@ public class Location extends Group implements Destination {
 	}
 
 	public void autoManage() {
-		//contains actions in extensions
+		//contains actions in extension
 	}
 
 	@Override
@@ -514,9 +551,10 @@ public class Location extends Group implements Destination {
 		float scale = 4f;
 		scale *= this.getSizeFactor();
 		scale *= getAdjustedZoom(getKingdom());
+		this.setScale(scale * 10);
 
         batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), (int) (10 * scale), (int) (10 * scale), getRotation());
+				getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 		// for drawing candles
 		super.draw(batch, parentAlpha);
 	}
@@ -605,72 +643,24 @@ public class Location extends Group implements Destination {
 	    return discovered;
     }
 
-//	private boolean inFog() {
-//	    return !discovered;
-////		if (kingdom.getMapScreen().fogOn) {
-////			// Easy to optimize this -- just have a "discovered" boolean for all locations.
-////			if (getCenter() != null) {
-////				if (!getCenter().discovered) {
-////					return true;
-////				}
-////			} else if (getCorner() != null) {
-////				for (Center center : getCorner().touches) {
-////					if (!center.water && !center.discovered) {
-////						return true;
-////					}
-////				}
-////			}
-////		}
-////		return false;
-//	}
-
-	// lets be smart about this
-	// how exactly do we want to have cities etc disappear as you zoom out?
-	
-	// first off lets do city scale/size. are sizes appropriate? Max size should be smaller
+    // Even though crests are drawn as part of the actor stack, we should also draw them here so they're drawn on top of all other sprites.
 	public void drawCrest(SpriteBatch batch) {
 		if (this.getFaction() == null) return;
 		if (inFog()) return;
-		
-		float scale = 1.7f;
-//        scale *= this.getSizeFactor();
-        scale *= getAdjustedZoom(getKingdom());
 
-//		if ((this.type == LocationType.VILLAGE))
-//			size_factor = .5f * size_factor;
-//		if ((this.type == LocationType.CASTLE))
-//			size_factor = .8f * size_factor;
-
-		Color temp = batch.getColor();
-
-		if (shouldDraw()) {
-			// draw crest			
-			batch.setColor(clear_white);
-
-			mx4Font.idt();
-			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
-			mx4Font.trn(getCenterX(), getCenterY(), 0);
-			Matrix4 tempMatrix = batch.getTransformMatrix();
-			batch.setTransformMatrix(mx4Font);
-			
-//			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-			faction.crest.setPosition(-15*scale , 15*scale);
-			faction.crest.setSize(30*scale, 30*scale);
-//			batch.draw(this.getFaction().crest, -15*zoom, 5 + 5*zoom, 30*zoom, 45*zoom);
-			faction.crest.draw(batch, clear_white.a);
-			
-			batch.setColor(temp);
-
-			batch.setTransformMatrix(tempMatrix);
+		if (shouldDrawCrest()) {
+			draw(batch, 1);
 		}
 	}
+
+
 
 	public boolean inFog() {
         if (!discovered && kingdom.getMapScreen().fogOn) return true;
         return false;
     }
 	
-	public boolean shouldDraw() {
+	public boolean shouldDrawCrest() {
 		float zoom = getKingdom().getZoom();
 		if (zoom > 3.5f * getShouldDrawFactor()) return false;
 		return true;
@@ -703,7 +693,7 @@ public class Location extends Group implements Destination {
 		float zoom =  getAdjustedZoom(kingdom);
 		zoom *= size_factor; 
 
-		if (shouldDraw()) {
+		if (shouldDrawCrest()) {
 			BitmapFont font;			
 			font = Assets.pixel20forCities;
 
@@ -1122,7 +1112,10 @@ public class Location extends Group implements Destination {
             }
 //			this.garrison.setFaction(newFaction);
 		}
-		
+
+		// update crest
+		// TODO make crest an actor, and add input listener to it so we can mouse over crest
+		// remmeber to not update UI if the crest is not visible (i.e. zoom level too high)
 
 		if (this.type != LocationType.VILLAGE) {
 			// swap captured and garrison
@@ -1211,23 +1204,6 @@ public class Location extends Group implements Destination {
 	//		return Math.sqrt((d.getX()-getX())*(d.getX()-getX())+(d.getY()-getY())*(d.getY()-getY()));
 	//	}
 
-	@Override
-	public void setMouseOver(boolean mouseOver) {
-		if (this.mouseOver) {
-			if (!mouseOver) {
-				kingdom.getMapScreen().getSidePanel().returnToPrevious(false);
-				this.mouseOver = false;
-			}
-		}
-		else if (mouseOver) {
-			if (!this.mouseOver) {
-				System.out.println("MASODFHASIDj");
-				kingdom.getMapScreen().getSidePanel().setActiveLocation(this);
-				this.mouseOver = true;
-			}
-		}
-	}
-
 	public float getCenterX() {
 		return this.getX() + this.getOriginX();
 	}
@@ -1297,15 +1273,15 @@ public class Location extends Group implements Destination {
 	public float getDefenseFactor() {
 		return 1.5f; //TODO
 	}
-	// prepare this for saving (separate from map)
-	public void nullify() {
-		this.kingdom = null;
-		this.remove();
-	}
-	public void restore(Kingdom kingdom) {
-		this.kingdom = kingdom;
-		kingdom.addActor(this);
-	}
+//	// prepare this for saving (separate from map)
+//	public void nullify() {
+//		this.kingdom = null;
+//		this.remove();
+//	}
+//	public void restore(Kingdom kingdom) {
+//		this.kingdom = kingdom;
+//		kingdom.addActor(this);
+//	}
 	public void restoreTexture() {
 		this.setTextureRegion(textureName);
 	}
@@ -1320,7 +1296,16 @@ public class Location extends Group implements Destination {
         setContainerForArmy(farmer);
     }
 
-    public void removeFarmer(Farmer farmer) {
+	public void createHunter() {
+		if (this.farmers.size >= MAX_HUNTERS) return;
+		HuntingParty hunter = new HuntingParty(getKingdom(), getName() + " Hunters", getFaction(), getCenterX(), getCenterY());
+		getKingdom().addArmy(hunter);
+		hunter.setLocation(this);
+		hunters.add(hunter);
+		setContainerForArmy(hunter);
+	}
+
+	public void removeFarmer(Farmer farmer) {
         farmers.removeValue(farmer,true);
     }
 }

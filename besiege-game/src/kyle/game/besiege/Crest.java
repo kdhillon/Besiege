@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-public class Crest extends Actor {
-	private static TextureRegion basic = Assets.crests.findRegion("crestbase");;
 
+// Factions possess a crest. Locations and Armies hold a CrestDraw, which is a crest drawn at a specific position.
+public class Crest {
 	public static Crest BANDIT_CREST;
 	public static Crest ROGUE_CREST;
 	
@@ -15,28 +15,29 @@ public class Crest extends Actor {
 	int cOverlay;
 	String detail; // detail name
 	int cDetail;
-		
-	private Color orig;
-	// for now, base color is always white.
-	Color base = Color.WHITE;
 
 	transient TextureRegion overlayRegion;
 	transient TextureRegion details;
 	transient Color overlayColor;
 	transient Color detailColor;
-	
+
+	// default crest draw
+	public CrestDraw defaultCrestDraw;
+
 	// for kryo
 	public Crest() {
 		
 	}
-	
-	
+
 	public Crest(int overlay, int cOverlay, String detail, int cDetail) {
 		this.overlay = overlay;
 		this.cOverlay = cOverlay;
 		this.detail = detail;
 		this.cDetail = cDetail;
+
+		defaultCrestDraw = new CrestDraw(this);
 	}
+
 	
 	public void loadFromInts(RandomCrestGenerator rcg) {
 //		this.overlayRegion = rcg.singleOverlays[overlay];
@@ -49,32 +50,5 @@ public class Crest extends Actor {
 		if (detailColor == null) {
 			throw new java.lang.AssertionError();
 		}
-	}
-
-	@Override
-	public void draw(SpriteBatch batch, float parentAlpha) {
-		// for now, until I can figure out blending...
-		parentAlpha = 1;
-		
-		orig = batch.getColor();
-
-		base = overlayColor;
-		batch.setColor(base.r, base.g, base.b, parentAlpha);
-		batch.draw(basic, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		
-//		if (overlay >= 0) {
-//			batch.setColor(overlayColor.r, overlayColor.g, overlayColor.b, parentAlpha);
-//			batch.draw(overlayRegion, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-//			if (overlayRegion == null) throw new java.lang.AssertionError();
-//		}
-		
-		if (detail != null) {
-			batch.setColor(detailColor.r, detailColor.g, detailColor.b, parentAlpha);
-
-			batch.draw(details, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-			if (details == null) throw new java.lang.AssertionError();
-		}
-		
-		batch.setColor(orig);
 	}
 }

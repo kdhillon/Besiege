@@ -531,7 +531,7 @@ public class Map extends Actor {
 				//				Corner otherCorner = (Corner) borderCorners.(j);
 				// WaterTouches != 2 ensures that "dead end"/cul de sac corners are culled.
 				
-				// Note: we may want to move this "line needed" check below, and only run it if this is not a newly created corner
+				// Note: we may want to move this "line needed" check below, and only setAppropriateRunTarget it if this is not a newly created corner
 				if (otherCorner.waterTouches != 2 && lineNeeded(currentCorner, otherCorner)) {
 					// First add any adjacent corners.
 					// Removing this causes the "Long path" effect: This is partially what's broken. Because current corner doesn't have 

@@ -44,7 +44,7 @@ import com.badlogic.gdx.utils.Clipboard;
  * ApplicationListener is provided to a concrete Application instance as a parameter to the constructor or another initialization
  * method. Please refer to the documentation of the Application implementations for more information. Note that the
  * ApplicationListener can be provided to any Application implementation. This means that you only need to write your program
- * logic once and have it run on different platforms by passing it to a concrete Application implementation.
+ * logic once and have it setAppropriateRunTarget on different platforms by passing it to a concrete Application implementation.
  * </p>
  * 
  * <p>

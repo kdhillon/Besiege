@@ -192,7 +192,7 @@ public interface Graphics {
 	public boolean setDisplayMode (DisplayMode displayMode);
 
 	/** Tries to set the display mode width the given width and height in pixels. Will always succeed if fullscreen is set to false,
-	 * in which case the application will be run in windowed mode. Use {@link Graphics#getDisplayModes()} to get a list of
+	 * in which case the application will be setAppropriateRunTarget in windowed mode. Use {@link Graphics#getDisplayModes()} to get a list of
 	 * supported fullscreen modes.
 	 * 
 	 * @param width the width in pixels

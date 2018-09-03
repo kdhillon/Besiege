@@ -82,7 +82,7 @@ public interface Music extends Disposable {
 	
 	/** Register a callback to be invoked when the end of a music stream has been reached during playback. 
 	 * 
-	 * @param listener the callback that will be run. */
+	 * @param listener the callback that will be setAppropriateRunTarget. */
 	public void setOnCompletionListener(OnCompletionListener listener);
 	
    /**	

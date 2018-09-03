@@ -13,6 +13,7 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Random;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Farmer;
+import kyle.game.besiege.army.HuntingParty;
 import kyle.game.besiege.party.CultureType;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.voronoi.Biomes;
@@ -24,6 +25,9 @@ public class Village extends Location {
 //	private final int MED_WEALTH = 50;
 
 	private final String textureRegion = "Village";
+
+	private static final int MAX_FARMERS = 4;
+	private static final int MAX_HUNTERS = 4;
 
 	public float raidTimer = 0;
 
@@ -43,9 +47,10 @@ public class Village extends Location {
         POP_MAX = 500;
 
         this.population = Random.getRandomInRange(POP_MIN, POP_MAX);
-        this.farmerCount = (int) getWealth()/100 + 1; // arbitrary
+		this.farmerCount = getPop() / (POP_MAX / MAX_FARMERS) + 1; // arbitrary
+		this.hunterCount = getPop() / (POP_MAX / MAX_HUNTERS) + 10; // arbitrary
 
-        if (cultureType.name.equals("Plains")) {
+		if (cultureType.name.equals("Plains")) {
             setTextureRegion("tipi3");
         } else if (cultureType.name.equals("Forest")) {
             setTextureRegion("longhouse");
@@ -62,6 +67,8 @@ public class Village extends Location {
         }
 
         farmers = new Array<Farmer>();
+		hunters = new Array<HuntingParty>();
+
 		initializeBox();
 	}
 	
@@ -81,6 +88,9 @@ public class Village extends Location {
 		// Organize farmers
 		if (farmers.size < farmerCount) {
 			createFarmer();
+		}
+		if (hunters.size < hunterCount) {
+			createHunter();
 		}
 	}
 
