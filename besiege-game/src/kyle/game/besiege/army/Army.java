@@ -692,7 +692,7 @@ public class Army extends Group implements Destination {
 		}
 		else {
 			if (this.party == null) throw new AssertionError();
-			BattleActor b = new BattleActor(getKingdom(), this.party, targetParty);
+			BattleActor b = new BattleActor(getKingdom(), this.party, targetParty, siege);
 			this.setBattleActor(b);
 
 			if (targetArmy != null)

@@ -130,8 +130,7 @@ public class Siege extends Actor {
 		this.battleActor = armies.first().getBattleActor();
 //		else System.out.println("trying to attack with no armies!");
 		if (battleActor == null) return;
-		this.battleActor.setSiegeLocation(location);
-		if (this.battleActor.getSiegeLocation().siege != this) System.out.println("THIS IS REALLY FUCKED");
+		if (this.battleActor.getSiege() != this) throw new AssertionError();
 
     }
 	

@@ -99,14 +99,23 @@ public class VictoryManager {
 //    }
 
     // change faction of city if siegeOrRaid
-    public void handleVictory(StrictArray<Party> attackingParties, StrictArray<Party> defendingParties, boolean didAtkWin) {
+    public void handleVictory(StrictArray<Party> attackingParties,
+                              StrictArray<Party> defendingParties,
+                              StrictArray<Party> attackingPartiesRetreated,
+                              StrictArray<Party> defendingPartiesRetreated,
+                              boolean didAtkWin) {
         StrictArray<Party> victor, loser;
+        StrictArray<Party> victorRetreated, loserRetreated;
         if (didAtkWin) {
             victor = attackingParties;
             loser = defendingParties;
+            victorRetreated = attackingPartiesRetreated;
+            loserRetreated = defendingPartiesRetreated;
         } else {
             victor = defendingParties;
             loser = attackingParties;
+            victorRetreated = defendingPartiesRetreated;
+            loserRetreated = attackingPartiesRetreated;
         }
 
         int[] victorContribution = new int[victor.size]; // should depend on how much an army sacrificed in battle
@@ -134,8 +143,9 @@ public class VictoryManager {
         // Two options:
         //  when army loses all its troops, keep it in battle until end. then dole out penalties appropriately.
         // Destroy losers
-        for (int i = 0; i < loser.size; i++) {
-            Party party = loser.get(i);
+        if (loser.size != 0) throw new AssertionError();
+        for (int i = 0; i < loserRetreated.size; i++) {
+            Party party = loserRetreated.get(i);
             party.registerBattleLoss();
             System.out.println("Healthy troops: " + party.getHealthySize());
 
@@ -176,6 +186,7 @@ public class VictoryManager {
         // Handle siegeOrRaid victory
         if (siegeOf != null) {
             if (didAtkWin) {
+                System.out.println("handling siege success at " + this.siegeOf.getName());
                 if (siegeOf.isVillage()) {
                     Army attackingArmy = battle.getAttackingParties().first().army;
                     if (attackingArmy != null) {
@@ -185,6 +196,7 @@ public class VictoryManager {
                     siegeOf.getSiege().siegeSuccess();
                 }
             } else {
+                System.out.println("handling siege failure at " + this.siegeOf.getName());
                 siegeOf.getSiege().siegeFailure();
             }
         }

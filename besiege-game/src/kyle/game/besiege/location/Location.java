@@ -904,8 +904,6 @@ public class Location extends Group implements Destination {
 			attackers.first().createBattleWith(null, this);
 			BattleActor battleActor = attackers.first().getBattleActor();
 			if (battleActor != null) {
-				battleActor.setSiegeLocation(this);
-
 				//			System.out.println("siegeOf = " + this.getName());
 				battleActor.setPosition(this.getX()-this.getWidth()/2, this.getY()-this.getHeight()/2);
 				battleActor.getBattle().setDefensiveAdvantage(this.getDefenseFactor());

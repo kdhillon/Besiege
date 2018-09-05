@@ -1222,13 +1222,13 @@ public class BattleStage extends Group implements Battle {
 			else if (!isOver()) {
 				if (allies.noUnits() && !placementPhase) {
 //				/	BottomPanel.log("Defeat", "green");
-                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), false);
+                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), false);
                     displayVictoryText("Defeat");
                     this.isOver = true;
                     this.placementPhase = true;
                 }
 				else if (enemies.noUnits() && !placementPhase) {
-                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), true);
+                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), true);
                     // display "Victory" text.
 					displayVictoryText("Victory");
                     this.isOver = true;
@@ -1403,7 +1403,8 @@ public class BattleStage extends Group implements Battle {
         for (Unit u : retreated)
             u.soldier.subparty.healNoMessage(u.soldier);
 
-        victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), didAtkWin);
+		// victory is handled later.
+//        victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), didAtkWin);
 
 		if (winner.player) {
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
@@ -1677,14 +1678,14 @@ public class BattleStage extends Group implements Battle {
 	}
 
 	@Override
-	public StrictArray<Party> getAttackingRetreatingParties() {
+	public StrictArray<Party> getAttackingPartiesRetreated() {
 		// TODO
 //		return getAttacking();
 		return new StrictArray<Party>();
 	}
 
 	@Override
-	public StrictArray<Party> getDefendingRetreatingParties() {
+	public StrictArray<Party> getDefendingPartiesRetreated() {
 		return new StrictArray<Party>();
 	}
 

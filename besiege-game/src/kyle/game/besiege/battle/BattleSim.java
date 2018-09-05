@@ -152,12 +152,12 @@ public class BattleSim implements Battle {
     }
 
     @Override
-    public StrictArray<Party> getAttackingRetreatingParties() {
+    public StrictArray<Party> getAttackingPartiesRetreated() {
         return aPartiesRet;
     }
 
     @Override
-    public StrictArray<Party> getDefendingRetreatingParties() {
+    public StrictArray<Party> getDefendingPartiesRetreated() {
         return dPartiesRet;
     }
 
@@ -320,7 +320,7 @@ public class BattleSim implements Battle {
 
 
         if (victoryManager != null) {
-            victoryManager.handleVictory(aParties, dParties, didAtkWin);
+            victoryManager.handleVictory(aParties, dParties, aPartiesRet, dPartiesRet, didAtkWin);
         }
         destroy();
     }

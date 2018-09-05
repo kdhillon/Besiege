@@ -4,14 +4,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-import kyle.game.besiege.Assets;
-import kyle.game.besiege.Destination;
+import kyle.game.besiege.*;
 import kyle.game.besiege.Destination.DestType;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.party.Party;
 
 // Represents a battle on the world map. 
@@ -22,16 +19,17 @@ public class BattleActor extends Actor implements Destination {
 //	transient public TextureRegion halfCrest;
 	private String name;
 	private Kingdom kingdom;
-	private Location siegeOf; // only if a siegeOrRaid
+	private Siege siege; // only if a siegeOrRaid
 
 	// For Kryo
 	public BattleActor() {}
 	
-	public BattleActor(Kingdom kingdom, Party initAttackerParty, Party initDefenderParty) {
+	public BattleActor(Kingdom kingdom, Party initAttackerParty, Party initDefenderParty, Siege siege) {
 		Army initAttacker = initAttackerParty.army;
 		this.kingdom = kingdom;
 		this.name = initAttackerParty.getName() + " vs " + initDefenderParty.getName();
 		this.battle = new BattleSim(this, initAttackerParty, initDefenderParty);
+		this.siege = siege;
 		this.setScale(10);
 		
 		region = Assets.atlas.findRegion(REGION);
@@ -66,22 +64,22 @@ public class BattleActor extends Actor implements Destination {
 	}
 	
 	// change faction of city if siegeOrRaid
-	public void handleVictory(boolean didAtkWin) {
-		if (siegeOf != null) {
-			if (didAtkWin) {
-				if (siegeOf.isVillage()) {
-					Army attackingArmy = battle.getAttackingParties().first().army;
-					if (attackingArmy != null) {
-						((Village) siegeOf).handleRaidVictory(attackingArmy);
-					}
-				} else {
-					siegeOf.getSiege().siegeSuccess();
-				}
-			} else {
-				siegeOf.getSiege().siegeFailure();
-			}
-		}
-	}
+//	public void handleVictory(boolean didAtkWin) {
+//		if (siege != null) {
+//			if (didAtkWin) {
+//				if (siege.location.isVillage()) {
+//					Army attackingArmy = battle.getAttackingParties().first().army;
+//					if (attackingArmy != null) {
+//						((Village) siege.location).handleRaidVictory(attackingArmy);
+//					}
+//				} else {
+//                    siege.siegeSuccess();
+//				}
+//			} else {
+//                siege.siegeFailure();
+//			}
+//		}
+//	}
 
 	@Override
 	public Faction getFaction() {
@@ -110,16 +108,11 @@ public class BattleActor extends Actor implements Destination {
 	public void destroy() {
 		System.out.println("Destroying battle victory(army, army) " + this.getName());
 
-		if (this.siegeOf != null) {
-			if (this.siegeOf.siege != null) {
+        if (this.siege != null) {
 //				this.siegeOf.siegeOrRaid.destroy();
-				this.siegeOf.siege.battleActor = null;
-			}
-			else {
-				this.siegeOf = null;
-			}
-		}
-		
+            this.siege.battleActor = null;
+        }
+
 		this.kingdom.removeBattle(this);
 		this.remove();
 	}
@@ -131,12 +124,8 @@ public class BattleActor extends Actor implements Destination {
 	public Battle getBattle() {
 		return battle;
 	}
-	
-	// Todo use a builder for stuff like this, or add to constructor.
-	public void setSiegeLocation(Location siegeOf) {
-		this.siegeOf = siegeOf;
-	}
-	public Location getSiegeLocation() {
-		return siegeOf;
+
+	public Siege getSiege() {
+		return siege;
 	}
 }

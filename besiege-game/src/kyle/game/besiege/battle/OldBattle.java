@@ -458,7 +458,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 
 
 		if (victoryManager != null) {
-		    victoryManager.handleVictory(aParties, dParties, didAtkWin);
+		    victoryManager.handleVictory(aParties, dParties, aPartiesRet, dPartiesRet, didAtkWin);
         }
 		destroy();
 	}
@@ -616,12 +616,12 @@ public class OldBattle implements Battle { // new battle system involving Party
 	}
 
 	@Override
-	public StrictArray<Party> getAttackingRetreatingParties() {
+	public StrictArray<Party> getAttackingPartiesRetreated() {
 		return aPartiesRet;
 	}
 
 	@Override
-	public StrictArray<Party> getDefendingRetreatingParties() {
+	public StrictArray<Party> getDefendingPartiesRetreated() {
 		return dPartiesRet;
 	}
 

@@ -30,8 +30,8 @@ public interface Battle {
 	
 	public StrictArray<Party> getAttackingParties();
 	public StrictArray<Party> getDefendingParties();
-	public StrictArray<Party> getAttackingRetreatingParties();
-	public StrictArray<Party> getDefendingRetreatingParties();
+	public StrictArray<Party> getAttackingPartiesRetreated();
+	public StrictArray<Party> getDefendingPartiesRetreated();
 
 	public boolean shouldJoinAttackers(Army army);
     public boolean shouldJoinDefenders(Army army);	
