@@ -12,6 +12,7 @@ import kyle.game.besiege.battle.BattleActor;
 import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.SidePanel;
 
 public class Siege extends Actor {
 	private final float MAINTAIN = 10.0f; // siegeOrRaid will exist this long without any army present
@@ -21,7 +22,6 @@ public class Siege extends Actor {
 	public Location location;
 	public StrictArray<Army> armies;
 	public float duration;
-	public boolean inBattle;
 	private boolean empty; // no armies present;
 	private float countdown; // if no armies
 	public BattleActor battleActor;
@@ -43,11 +43,13 @@ public class Siege extends Actor {
 		if (armies.size == 0 && !empty) {
 			empty = true;
 			countdown = MAINTAIN;
+			BottomPanel.log("Breaking siege at: " + location.getName());
 		}
 		else if (armies.size >= 1 && empty)
 			empty = false;
 		else if (empty) {
 			countdown -= delta;
+			System.out.println("Siege is being broken at " + location.getName());
 			if (countdown <= 0) {
 				this.destroy();
 				return;
@@ -78,7 +80,7 @@ public class Siege extends Actor {
 		}
 		this.duration += delta;
 		
-		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0 && armies.size > 0) {
+		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0) {
 			if (!hasChecked) {
 				attackOrDestroy();
 				hasChecked = true;
@@ -88,16 +90,29 @@ public class Siege extends Actor {
 	}
 	
 	private void attackOrDestroy() {
-		if (Math.random() < 0.8f) return;
+//		if (Math.random() < 0.8f) return;
+		if (inBattle()) {
+			BottomPanel.log("Siege at " + this.location.getName() + " is in battle");
+			return;
+		}
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
 		double balance = OldBattle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
-		if (balance >= MIN_BALANCE_TO_ATTACK && !inBattle) attack();
-		else if (balance <= MAX_BALANCE_TO_BREAK && !inBattle) destroy(); // end siegeOrRaid if no chance
+		if (balance >= MIN_BALANCE_TO_ATTACK) attack();
+		else if (balance <= MAX_BALANCE_TO_BREAK || shouldDestroy()) destroy(); // end siegeOrRaid if no chance
 		else {
 			// previously maintained siegeOrRaid, now force attack:
 			attack();
 		}
+	}
+
+	private boolean inBattle() {
+		return this.battleActor != null;
+	}
+
+	private boolean shouldDestroy() {
+		if (this.armies.first().party.getHealthySize() == 0) return true;
+		return false;
 	}
 	
 	public void attack() {
@@ -109,7 +124,6 @@ public class Siege extends Actor {
 //			// make sure siegeOrRaid is set
 //			a.setSiege(this);
 //		}f
-		inBattle = true;
 
         location.siegeAttack(armies);
 //		if (armies.size >= 1)
@@ -120,10 +134,6 @@ public class Siege extends Actor {
 		if (this.battleActor.getSiegeLocation().siege != this) System.out.println("THIS IS REALLY FUCKED");
 
     }
-	public void endAttack() {
-		System.out.println("ending attack at " + location.getName() + " which has "  + location.getWealth());
-		inBattle = false;
-	}
 	
 	// handle a wealth transfer from city to victors
 	public void siegeSuccess() {

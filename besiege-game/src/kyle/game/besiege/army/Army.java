@@ -17,17 +17,12 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.Array;
 
-import kyle.game.besiege.Destination;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Path;
-import kyle.game.besiege.Point;
-import kyle.game.besiege.Siege;
-import kyle.game.besiege.StrictArray;
+import kyle.game.besiege.*;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleActor;
 import kyle.game.besiege.location.City;
@@ -43,7 +38,7 @@ import kyle.game.besiege.voronoi.Center;
 
 import static kyle.game.besiege.location.Location.getAdjustedZoom;
 
-public class Army extends Actor implements Destination {
+public class Army extends Group implements Destination {
 	private static final boolean OPTIMIZED_MODE = true;
 	private static final int UPDATE_POLYGON_FREQ = 100; // update polygon every x frames
 	public final static int SPEED_DISPLAY_FACTOR = 10; // what you multiply by to display speed
@@ -143,7 +138,9 @@ public class Army extends Actor implements Destination {
 	public boolean playerTouched; // kinda parallel to location.playerIn
 
 	private boolean justLoaded;
-	
+
+	public CrestDraw crestDraw;
+
 	public Army() {
 //		this.playerPartyPanel = PartyType.generateDefault(PartyType.Type.FARMERS);
 //		this.playerPartyPanel.army = this;
@@ -239,8 +236,11 @@ public class Army extends Actor implements Destination {
 		this.setVisible(false);
 
         this.addListener(getNewInputListener());
+		crestDraw = new CrestDraw(this);
+		// crest draw is actually child of kingdom.
+//		this.addActor(crestDraw);
 
-        calcInitWealth();
+		calcInitWealth();
 	}
 
     private InputListener getNewInputListener() {
@@ -266,7 +266,6 @@ public class Army extends Actor implements Destination {
             public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
                 System.out.println("Mousing over " + getName());
                 System.out.println("Setting panel! " + getName());
-                // TODO make this work with crestdraw
                 kingdom.setPanelTo((Army) event.getListenerActor());
             }
             @Override
@@ -454,6 +453,9 @@ public class Army extends Actor implements Destination {
 		party.act(delta);
 		momentumDecay();
 		//playerPartyPanel.distributeExp(60);
+
+		// This is a hack so that the crestdraw detects touches in the right location
+		super.act(delta);
 	}
 	
 	private boolean losOn() {
@@ -470,11 +472,30 @@ public class Army extends Actor implements Destination {
 //		if (this.getFaction() == null) {
 //			return;
 //		}
-        UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
+		// Don't draw while in battle.
+		if (isInBattle()) return;
+
+		float animationTime = 0;
+		if (isArmyMoving()) {
+			animationTime = stateTime;
+		}
+        UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), animationTime, getGeneral().getEquipment());
 
         // draw los
 		drawLOS();
+
+		// This is a hack so that the crestdraw is drawn upright.
+//		float rotation = this.getRotation();
+//		this.setRotation(0);
+		super.draw(batch, parentAlpha);
+//		this.setRotation(rotation);
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
+	}
+
+	private boolean isArmyMoving() {
+		if (this.isInSiege()) return false;
+		if (this.isWaiting()) return false;
+		return true;
 	}
 
 	public void drawLOS() {
@@ -612,11 +633,12 @@ public class Army extends Actor implements Destination {
         }
 
         // If targetArmy is null, we are attacking a location (garrison is a party not an army)
-        Party targetParty = null;
+        Party targetParty;
 		if (targetArmy != null) targetParty = targetArmy.party;
         else {
             targetParty = siegeOf.garrison;
         }
+        if (targetParty == null) throw new AssertionError(this.getName() + " " + siegeOf.getName());
 
 		if (this == getKingdom().getPlayer()) {
 			BottomPanel.log("Attacking " + targetParty.getName() + "!");
@@ -669,7 +691,8 @@ public class Army extends Actor implements Destination {
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
 		else {
-			BattleActor b = new BattleActor(getKingdom(), this.party, party);
+			if (this.party == null) throw new AssertionError();
+			BattleActor b = new BattleActor(getKingdom(), this.party, targetParty);
 			this.setBattleActor(b);
 
 			if (targetArmy != null)
@@ -867,7 +890,9 @@ public class Army extends Actor implements Destination {
 	 * @param delta time elapsed since last frame
 	 */
 	public void siegeAct(float delta) {
+		// Decide if should leave siege.
 
+		// Siege itself handles whether should attack.
 	}
 
 	public void eject() {
@@ -1151,10 +1176,10 @@ public class Army extends Actor implements Destination {
         // NOTE: this is only cities! not villages...
 			Location goTo = detectNearbyFriendlyLocationForRunning();
 			if (goTo != null) {
-                System.out.println(getName() + " should go to " + goTo.getName());
+//                System.out.println(getName() + " should go to " + goTo.getName());
                 if (goTo == this.getTarget()) {
-                    System.out.println(getName() + " already has target,  " + goTo.getName() + " ...");
-                    setSpeed(calcSpeed());   // update speed
+//                    System.out.println(getName() + " already has target,  " + goTo.getName() + " ...");
+//                    setSpeed(calcSpeed());   // update speed
                     startedRunning = true;
                     return;
                 }
@@ -1166,7 +1191,7 @@ public class Army extends Actor implements Destination {
 			}
 			// find new target an appropriate distance away, travel there.
 			else { //if (!this.hasTarget()) {
-                System.out.println(getName() + " no nearby city");
+//                System.out.println(getName() + " no nearby city");
                 //			System.out.println(getName() + " is running");
 				//			setTarget(getKingdom().getCities().get(0));
 				//				System.out.println(getName() + " getting new random setAppropriateRunTarget target");
@@ -1342,7 +1367,7 @@ public class Army extends Actor implements Destination {
 	public void leaveSiege() {
 		//		System.out.println(this.getName() + " is ending siegeOrRaid");
 		// force wait to see if it fixes slow siegeOrRaid end
-		this.forceWait(this.getForceWait());
+//		this.forceWait(this.getForceWait());
 		
 		nextTarget();
 		if (siege != null) {
@@ -1385,7 +1410,7 @@ public class Army extends Actor implements Destination {
         if (isPlayer()) isInWater = false;
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
 			if ((this.target != newTarget && this.lastPathCalc == 0) || this.isPlayer()) {
-				if (!this.isWaiting() && this.isGarrisoned()) this.eject(); 
+				if (!this.isWaiting() && this.isGarrisoned() && canEject()) this.eject();
 				
 				// don't add a bunch of useless point and army targets
 				if (this.target != null && this.target.getType() != Destination.DestType.ARMY && this.target.getType() != Destination.DestType.POINT && targetStack.size() < MAX_STACK_SIZE) {
@@ -1404,7 +1429,7 @@ public class Army extends Actor implements Destination {
 						this.path.calcStraightPathTo(newTarget);
 					}
 				}
-				else if (newTarget == this.path.finalGoal) System.out.println("new goal is already in path");
+//				else if (newTarget == this.path.finalGoal) System.out.println("new goal is already in path");
 			}
 			else {
 			    // Not sure if this is the best solution. This was causing bugs when farmers were running. TODO remove "lastPathCalc" and optimize in a smarter way.
@@ -1414,7 +1439,8 @@ public class Army extends Actor implements Destination {
                 }
                 if (this.target == newTarget) {
                     System.out.println(getName() + " adding same target twice");
-                    throw new AssertionError();
+//                    throw new AssertionError();
+					return false;
 //
                 }
                 System.out.println("wtf?");
@@ -1437,6 +1463,15 @@ public class Army extends Actor implements Destination {
             System.out.println(getName() + " setting target failed");
 		    return false;
         }
+	}
+	private boolean canEject() {
+		if (this.garrisonedIn == null) throw new AssertionError();
+
+		// For now, don't allow ejecting if under siege.
+		if (this.garrisonedIn.getSiege() != null) {
+			return false;
+		}
+		return true;
 	}
 	public boolean hasTarget() {
 		return getTarget() != null;

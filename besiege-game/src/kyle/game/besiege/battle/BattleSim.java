@@ -14,13 +14,18 @@ public class BattleSim implements Battle {
     private BattleActor battleActor; // parent
     private VictoryManager victoryManager;
 
+    // Ok for these to be null (if one party is a garrison, for instance).
     private StrictArray<Army> aArmies;
     private StrictArray<Army> dArmies;
+
+    // Armies that have retreated.
     private StrictArray<Army> aArmiesRet;
     private StrictArray<Army> dArmiesRet;
 
     private StrictArray<Party> aParties;
     private StrictArray<Party> dParties;
+
+    // Parties that have retreated.
     private StrictArray<Party> aPartiesRet;
     private StrictArray<Party> dPartiesRet;
 
@@ -31,7 +36,6 @@ public class BattleSim implements Battle {
     private boolean playerInA;
     private boolean playerInD;
 
-    // TODO set this
     private boolean isOver;
     private boolean didAtkWin;
 
@@ -41,11 +45,15 @@ public class BattleSim implements Battle {
     public BattleSim(BattleActor battleActor, Party initAttackerParty, Party initDefenderParty) {
         if (battleActor != null)
             this.kingdom = battleActor.getKingdom();
+        if (initAttackerParty == initDefenderParty) throw new AssertionError();
+        if (initAttackerParty.getHealthySize() == 0) throw new AssertionError(initAttackerParty.getName() + " size is 0");
+        if (initDefenderParty.getHealthySize() == 0) throw new AssertionError(initDefenderParty.getName() + " size is 0");
+
         this.battleActor = battleActor;
         Army initAttacker = initAttackerParty.army;
         Army initDefender = initDefenderParty.army;
 
-        aParties = new StrictArray<Party>();
+        aParties = new StrictArray<>();
         dParties = new StrictArray<Party>();
         aPartiesRet = new StrictArray<Party>();
         dPartiesRet = new StrictArray<Party>();
@@ -61,23 +69,34 @@ public class BattleSim implements Battle {
         if (initAttackerParty.player) playerInA = true;
         else if (initDefenderParty.player) playerInD = true;
 
-        if (initAttacker != null && initDefender != null) {
+        if (initAttacker != null) {
             aArmies = new StrictArray<Army>();
-            dArmies = new StrictArray<Army>();
             aArmiesRet = new StrictArray<Army>();
-            dArmiesRet = new StrictArray<Army>();
-
-            if (initAttacker.party.getHealthySize() > 0)
-                aArmies.add(initAttacker);
-            else throw new AssertionError();
-            if (initDefender.party.getHealthySize() > 0)
-                dArmies.add(initDefender);
 
             initAttacker.setStopped(true);
             initAttacker.setVisible(false);
+
+            if (initAttackerParty.getHealthySize() > 0)
+                aArmies.add(initAttacker);
+            else throw new AssertionError();
+        }
+
+        if (initDefender != null) {
+            dArmies = new StrictArray<Army>();
+            dArmiesRet = new StrictArray<Army>();
+
             initDefender.setStopped(true);
             initDefender.setVisible(false);
+
+            if (initDefender.party.getHealthySize() > 0)
+                dArmies.add(initDefender);
         }
+
+        double balanceAttackers = getLevelSum(aParties);
+        double balanceDefenders = getLevelSum(dParties);
+
+        System.out.println("Attacker strength: " + balanceAttackers);
+        System.out.println("Defender strength: " + balanceDefenders);
 
         calcBalance();
         checkIfVictory();
@@ -234,58 +253,68 @@ public class BattleSim implements Battle {
 
         if (killAttacker) {
             // Kill one soldier in every attacking army
-            for (Army a : aArmies)
-                killOne(a, true);
+            for (Party p : aParties)
+                killOne(p, true);
         } else {
             // Kill one soldier in every attacking army
-            for (Army a : dArmies)
-                killOne(a, false);
+            for (Party p : dParties)
+                killOne(p, false);
         }
-        double balanceAttackers = getLevelSum(aParties);
-        double balanceDefenders = getLevelSum(dParties);
+//        double balanceAttackers = getLevelSum(aParties);
+//        double balanceDefenders = getLevelSum(dParties);
 
-        System.out.println("Attacker strength: " + balanceAttackers);
-        System.out.println("Defender strength: " + balanceDefenders);
+//        System.out.println("Attacker strength: " + balanceAttackers);
+//        System.out.println("Defender strength: " + balanceDefenders);
 
         calcBalance();
         checkIfVictory();
     }
 
     private void checkIfVictory() {
-        if (aArmies.size == 0) {
-            victory(dArmies);
-        } else if (dArmies.size == 0) {
-            victory(aArmies);
+        if (aParties.size == 0) {
+            victory(dParties);
+        } else if (dParties.size == 0) {
+            victory(aParties);
         }
     }
 
-    private void victory(StrictArray<Army> victor) {
+    private void victory(StrictArray<Party> victor) {
         if (kingdom.getMapScreen().getSidePanel().getActivePanel().getClass() == PanelBattle.class &&
                 ((PanelBattle) (kingdom.getMapScreen().getSidePanel().getActivePanel())).battle == this)
             kingdom.getMapScreen().getSidePanel().setActiveArmy(kingdom.getPlayer());
 
-        if (victor == aArmies) didAtkWin = true;
-        else if (victor == dArmies) didAtkWin = false;
+        // May be null, if fighting a garrison
+        StrictArray<Army> victorArmies = null;
+        if (victor == aParties) {
+            didAtkWin = true;
+            victorArmies = aArmies;
+        }
+        else if (victor == dParties) {
+            didAtkWin = false;
+            victorArmies = dArmies;
+        }
 
         victor.shrink();
 
-        // manage victorious armies and calculate contributions
-        for (int i = 0; i < victor.size; i++) {
-            Army army = victor.get(i);
-            army.endBattle();
-            army.setStopped(false);
-            army.forceWait(army.getForceWait());
-            if (army.getParty().player) {
-                kingdom.getMapScreen().getSidePanel().setDefault(true);
-            }
+        if (victorArmies != null) {
+            // manage victorious armies and calculate contributions
+            for (int i = 0; i < victorArmies.size; i++) {
+                Army army = victorArmies.get(i);
+                army.endBattle();
+                army.setStopped(false);
+                army.forceWait(army.getForceWait());
+                if (army.getParty().player) {
+                    kingdom.getMapScreen().getSidePanel().setDefault(true);
+                }
 
-            //	log(army.getName() + " has won a battle", "cyan");
-            if (!army.isGarrisoned()) army.setVisible(true);
-            army.nextTarget(); //
+                //	log(army.getName() + " has won a battle", "cyan");
+                if (!army.isGarrisoned()) army.setVisible(true);
+                army.nextTarget(); //
 
-            if (army.getParty().player) {
+                if (army.getParty().player) {
 //				army.setStopped(true);
-                army.setTarget(null);
+                    army.setTarget(null);
+                }
             }
         }
 
@@ -298,63 +327,69 @@ public class BattleSim implements Battle {
 
 
     // kills/wounds one random troop in this army, weighted by the troop's defense
-    private void killOne(Army army, boolean wasInAttackers) {
-        Soldier random = army.party.getRandomWeightedInverseDefense();
+    private void killOne(Party party, boolean wasInAttackers) {
+        Soldier random = party.getRandomWeightedInverseDefense();
 		if (random == null) throw new java.lang.AssertionError();
 
         casualty(random, wasInAttackers);
 
-        if (army.getParty().getHealthySize() == 0) {
-            log(army.getName() + " lost all troops and was removed from battle", "red");
-            removeArmy(army, wasInAttackers);
+        if (party.getHealthySize() == 0) {
+            System.out.println(party.getName() + " lost all troops and was removed from battle");
+            log(party.getName() + " lost all troops and was removed from battle", "red");
+            removeParty(party, wasInAttackers);
         }
     }
 
-    private void removeArmy(Army army, boolean wasInAttackers) {
+    // TODO move prisoner management to the end of the battle
+    private void removeParty(Party party, boolean wasInAttackers) {
         if (wasInAttackers) {
-            if (playerInA) log(army.getName() + " was destroyed!", "red");
-            else log(army.getName() + " was destroyed!", "green");
-            for (Soldier s : army.getParty().getWounded())
-                army.getParty().givePrisoner(s, dArmies.random().getParty());
-            for (Soldier s : army.getParty().getPrisoners())
-                army.getParty().returnPrisoner(s, dArmies.random().getParty());
+            if (playerInA) log(party.getName() + " was defeated!", "red");
+            else log(party.getName() + " was defeated!", "green");
+            for (Soldier s : party.getWounded())
+                party.givePrisoner(s, dParties.random());
+            for (Soldier s : party.getPrisoners())
+                party.returnPrisoner(s, dParties.random());
         }
-        else if (dArmies.contains(army, true) || dArmiesRet.contains(army,true)) {
-            if (playerInD) log(army.getName() + " was destroyed!", "red");
-            else log(army.getName() + " was destroyed!", "green");
-            for (Soldier s : army.getParty().getWounded())
-                army.getParty().givePrisoner(s, aArmies.random().getParty());
-            for (Soldier s : army.getParty().getPrisoners())
-                army.getParty().returnPrisoner(s, aArmies.random().getParty());
+        else if (dParties.contains(party, true) || dPartiesRet.contains(party,true)) {
+            if (playerInD) log(party + " was defeated!", "red");
+            else log(party + " was defeated!", "green");
+            for (Soldier s : party.getWounded())
+                party.givePrisoner(s, aParties.random());
+            for (Soldier s : party.getPrisoners())
+                party.returnPrisoner(s, aParties.random());
         } else throw new AssertionError();
 //        increaseSpoilsForKill(army);
 
-        if (aArmies.contains(army, true)) {
-            aParties.removeValue(army.party, true);
-            aArmies.removeValue(army, true);
-        } else if (dArmies.contains(army, true)) {
-            dArmies.removeValue(army, true);
-            dParties.removeValue(army.party, true);
-        } else if (aArmiesRet.contains(army, true)) {
-            aArmiesRet.removeValue(army, true);
-            aParties.removeValue(army.party, true);
-        } else if (dArmiesRet.contains(army, true)) {
-            dParties.removeValue(army.party, true);
-            dArmiesRet.removeValue(army, true);
-        } else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
+        if (aParties.contains(party, true)) {
+            aParties.removeValue(party, true);
+            if (party.army != null)
+                aArmies.removeValue(party.army, true);
+            aPartiesRet.add(party);
+        } else if (dParties.contains(party, true)) {
+            dParties.removeValue(party, true);
+            if (party.army != null)
+                dArmies.removeValue(party.army, true);
+            dPartiesRet.add(party);
+        } else if (aPartiesRet.contains(party, true)) {
+           throw new AssertionError();
+        } else if (dPartiesRet.contains(party, true)) {
+            throw new AssertionError();
+        } else throw new AssertionError();
 
-        army.endBattle();
-        army.setStopped(false);
-        army.setVisible(false);
+        if (party.army != null) {
+            party.army.endBattle();
+            party.army.setStopped(false);
+            party.army.setVisible(false);
 
-        if (army == kingdom.getPlayer()) {
-            playerInA = false;
-            playerInD = false;
-            kingdom.getMapScreen().getSidePanel().setDefault(true);
-            this.simulate(.001f);// arbitrary time
+            if (party.army == kingdom.getPlayer()) {
+                playerInA = false;
+                playerInD = false;
+                kingdom.getMapScreen().getSidePanel().setDefault(true);
+                this.simulate(.001f);// arbitrary time
+            }
+
+            party.army.destroy();
         }
-
-        army.destroy();
     }
 
 	// If the given army is in this battle, force it to retreat.
@@ -415,14 +450,18 @@ public class BattleSim implements Battle {
 
         if (aArmies != null) {
             aArmies.clear();
-            dArmies.clear();
             aArmiesRet.clear();
-            dArmiesRet.clear();
-            aParties.clear();
-            dParties.clear();
-            aPartiesRet.clear();
-            dPartiesRet.clear();
         }
+
+        if (dArmies != null) {
+            dArmies.clear();
+            dArmiesRet.clear();
+        }
+
+        aParties.clear();
+        dParties.clear();
+        aPartiesRet.clear();
+        dPartiesRet.clear();
 
         aArmies = null;
         dArmies = null;

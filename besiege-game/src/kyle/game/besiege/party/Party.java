@@ -82,13 +82,12 @@ public class Party {
 			// put this guy in a subparty that's not full, or create a new par
 			Subparty p = getNonEmptySub();
 			if (p == null) {
-				createNewSubWithGeneral(soldier);
+				return createNewSubWithGeneral(soldier);
 			} else {
                 // Some soldiers are being added, but not getting counted in total size... suspicious. generals?
-                p.addSoldier(soldier);
+                return p.addSoldier(soldier);
             }
 		}
-		return true;
 	}
 	
 	public Soldier getBestSoldier() {
@@ -132,7 +131,8 @@ public class Party {
     }
 
     // create new subparty with the given soldier as general (should be a fresh soldier in no other subparty)
-    public void createNewSubWithGeneral(Soldier soldier) {
+	// Return true on success, false otherwise.
+    public boolean createNewSubWithGeneral(Soldier soldier) {
         Subparty newSub = new Subparty(this);
         root.addSub(newSub);
         sub.add(newSub);
@@ -142,7 +142,9 @@ public class Party {
             if (soldier.subparty != null)
                 soldier.subparty.removeSoldier(soldier);
             newSub.promoteToGeneral(soldier);
+            return true;
         }
+        return false;
     }
 //	
 //	// root is probably dead, move a subparty to be root and kill root.
@@ -390,7 +392,7 @@ public class Party {
 	
 	public General getGeneral() {
 	    if (root.general == null) {
-	        System.out.println(getName() + " has no general");
+	        System.out.println(getName() + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (sub.size - 1));
         }
 		return root.general;
 	}
@@ -449,7 +451,8 @@ public class Party {
 	}
 
 	public void registerBattleVictory() {
-		for (Subparty p : sub) {
+		for (int i = 0; i < sub.size; i++) {
+			Subparty p = sub.get(i);
 			for (Soldier s : p.healthy) {
 				s.registerBattleVictory();
 			}

@@ -267,12 +267,12 @@ public class Path {
         Army army = (Army) start;
         if (!army.hasTarget()) throw new AssertionError(army.getName() + " is traveling without a target");
         if (nextGoal == null) {
-            System.out.println("Next goal for " + army.getName() + " is null");
+//            System.out.println("Next goal for " + army.getName() + " is null");
             while (!dStack.empty() && dStack.peek() == null) {
                 nextGoal = dStack.pop();
             }
             if (nextGoal == null) {
-                System.out.println("Next goal for " + army.getName() + " is STILL null");
+//                System.out.println("Next goal for " + army.getName() + " is STILL null");
                 if (calcPathTo(army.getTarget(), army.player)) {
                     next();
                 } else {
@@ -284,7 +284,7 @@ public class Path {
 //                    throw new AssertionError("Couldn't calculate path to target");
                 }
             } else {
-                System.out.println("Next goal found!");
+//                System.out.println("Next goal found!");
             }
         }
             // make sure only doing detectCollision when close to goal
@@ -312,7 +312,7 @@ public class Path {
                         }
 //					this.finalGoal = null;
                         this.nextGoal = null;
-                        System.out.println("clearing");
+//                        System.out.println("clearing");
                     }
                     return;
                 }

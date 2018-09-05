@@ -100,8 +100,6 @@ public class PanelLocation extends Panel {
 		playerIn = false;
 //		this.hireMode = false;
 
-        if (!location.ruin)
-		    this.panelHire = new PanelHire(panel, location);
 				
 		location.needsUpdate = true;
 		System.out.println("just created new panellocation");
@@ -153,6 +151,8 @@ public class PanelLocation extends Panel {
             if (location.toHire != null && location.toHire.getHealthySize() > 0)
                 setButton(2, "Hire");
             playerIn = true;
+			if (this.panelHire == null)
+				this.panelHire = new PanelHire(panel, location);
         }
         // friendly player leaves
         else if (!location.playerIn && playerIn) {

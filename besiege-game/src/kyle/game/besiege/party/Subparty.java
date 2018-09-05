@@ -137,8 +137,14 @@ public class Subparty {
 //			System.out.println("wounded: " + wounded.size + " healthy: " + healthy.size);
 //		}
 	}
-	
+
+	// May need to delete this subparty if everyone is dead...
 	public void handleBattleEnded() {
+		if (healthy.size == 0 && wounded.size == 0) {
+			System.out.println("Destroying subparty of " + this.party.getName() + " with rank " + this.getRank());
+			this.destroy();
+			return;
+		}
 		if (general == null) promoteNextGeneral();
 		if (general == null) throw new java.lang.AssertionError();
 	}
@@ -188,10 +194,10 @@ public class Subparty {
 		if (party.player) BottomPanel.log(soldier.getTypeName() + " healed", "blue");
 	}
 	
-	public void addSoldier(Soldier soldier) {
-		if (general != null && this.getTotalSize() >= general.getMaxSubPartySize()) {
-			System.out.println("trying to add more than max size to subparty");
-			return;
+	public boolean addSoldier(Soldier soldier) {
+		if (general != null && isFull()) {
+			System.out.println("trying to add more than max size to subparty. total size: " + getTotalSize() + " max size: " + general.getMaxSubPartySize());
+			return false;
 		}
 		else {
 			party.updated = true;
@@ -209,6 +215,7 @@ public class Subparty {
 			soldier.party = this.party;
 			if (general != null) soldier.updateGeneral(this.general);
 			calcStats();
+			return true;
 		}
 	}
 	
@@ -297,16 +304,17 @@ public class Subparty {
 		}
 	}
 
-	//
-	public int getSpotsRemaining() {
-	    return HARD_MAX - this.getTotalSize();
-//	    if (this.general != null)
-//		    return this.general.getMaxSubPartySize() - this.getTotalSize();
-//	    else return HARD_MAX - this.getTotalSize(); // Gotta subtract 1 for general?
-	}
+//	//
+//	public int getSpotsRemaining() {
+//	    return HARD_MAX - this.getTotalSize();
+////	    if (this.general != null)
+////		    return this.general.getMaxSubPartySize() - this.getTotalSize();
+////	    else return HARD_MAX - this.getTotalSize(); // Gotta subtract 1 for general?
+//	}
 	
 	public boolean isFull() {
-		return getSpotsRemaining() == 0;
+		if (general == null) return this.getTotalSize() >= HARD_MAX;
+		return this.getTotalSize() >= general.getMaxSubPartySize();
 	}
 	
 	public void addSub(Subparty s) {

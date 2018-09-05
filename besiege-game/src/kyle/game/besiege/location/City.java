@@ -24,8 +24,8 @@ public class City extends Location {
 	
 	private final static float SCALE = 7;
 	private final static int MAX_PATROLS = 3;
-	private static final int MAX_FARMERS = 4;
-    private static final int MAX_HUNTERS = 4;
+	private static final int MAX_FARMERS = 3;
+    private static final int MAX_HUNTERS = 3;
     //	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 

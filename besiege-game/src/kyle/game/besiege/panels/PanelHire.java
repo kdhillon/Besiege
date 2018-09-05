@@ -86,6 +86,7 @@ public class PanelHire extends Panel {
         topTable.addBigLabel("PartySize", "Party Size:");
         topTable.addBigLabel("PartyWealth", "Party Wealth:");
 
+
         soldierTable = new HireSoldierTable(location.toHire, this);
         topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
         updateSoldierTable();

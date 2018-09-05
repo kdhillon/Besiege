@@ -192,7 +192,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			remove(army);
 		}
 		else BottomPanel.log("error when removing " + army.getName() + " from battle", "red");
-		victoryManager.handleArmyRetreat(army);
+//		victoryManager.handleArmyRetreat(army);
 
 		army.destroy();
 	}
@@ -217,7 +217,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			}
 			log(army.getName() + " is retreating!", "yellow");
 		}
-        victoryManager.handleArmyRetreat(army);
+//        victoryManager.handleArmyRetreat(army);
 	}
 
 	// returns false if there's been a victory so the next phase can be skipped

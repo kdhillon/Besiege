@@ -209,7 +209,6 @@ public class Location extends Group implements Destination {
 			public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
 				System.out.println("Mousing over " + getName());
 				System.out.println("Setting panel! " + getName());
-				// TODO make this work with crestdraw
 				kingdom.setPanelTo((Location) event.getListenerActor());
 			}
 			@Override
@@ -484,8 +483,8 @@ public class Location extends Group implements Destination {
 //            }
 
 //			if (!this.garrison.isInBattle()) {
-			if (siege == null)
-			    manageGarrison();
+//			if (siege == null)
+ 			manageGarrison();
 //			}
 
 			if (autoManage) {
@@ -520,12 +519,12 @@ public class Location extends Group implements Destination {
 	
 	// sometimes this decreases the size of the playerPartyPanel?
 	public boolean increaseGarrison() {
-		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.getAtk());
+		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.getTotalLevel());
 		Soldier rand = new Soldier(this.garrison.pt.randomSoldierType(), this.garrison);
 		if (this.garrison.addSoldier(rand, true)) {
 			if (!this.isCastle())
 				this.loseWealth((int) (rand.getBuyCost() * GARRISON_DISCOUNT));
-			System.out.println(" to " + this.garrison.getAtk());
+			System.out.println(" to " + this.garrison.getTotalLevel());
 			return true;
 		}
 		else return false;
@@ -533,7 +532,10 @@ public class Location extends Group implements Destination {
 	
 	// do this for villages and cities, but not for castles
 	public boolean shouldIncreaseGarrison() {
-		return this.garrison.getAtk() < this.getWealth() * garrisonBudget;
+		if (siege != null) return false;
+		int FIXED_GARRISON_STRENGTH = 100;
+		return this.garrison.getTotalLevel() < FIXED_GARRISON_STRENGTH;
+//				this.getWealth() * garrisonBudget;
 //		return this.getWealth() > 100;
 	}
 
@@ -870,7 +872,7 @@ public class Location extends Group implements Destination {
 
 	public void dailyPopIncrease() {
 		this.population += (DAILY_POP_INCREASE_BASE);
-		if (this.population > POP_MAX) this.population = POP_MAX;
+		if (this.population >= POP_MAX) this.population = POP_MAX - 1;
 	}
 
 	// TODO fix for battlestage
@@ -964,7 +966,7 @@ public class Location extends Group implements Destination {
 		return siege;
 	}
 	public void addFire() {
-		this.fire = new Fire( 100, 100, kingdom.getMapScreen(), this);
+		this.fire = new Fire( 20, 20, kingdom.getMapScreen(), this);
 		this.addActor(fire);
 	}
 	public void removeFire() {
@@ -1287,6 +1289,37 @@ public class Location extends Group implements Destination {
 	}
 
 
+	// Returns 1 random nearby center where units can fish (usually a center that borders water).
+	private Center getRandomCenterToFishAt() {
+		// TODO actually check for water.
+		// Set center
+		if (this.getCenter() != null) {
+			return this.getCenter();
+		} else {
+			Center centerToHuntIn;
+			centerToHuntIn = (Center) Random.getRandomValue(this.getCorner().touches.toArray());
+			while (centerToHuntIn.water) {
+				centerToHuntIn = (Center) Random.getRandomValue(this.getCorner().touches.toArray());
+			}
+			return centerToHuntIn;
+		}
+	}
+
+	// Returns 1 random nearby center where units can hunt.
+	private Center getRandomCenterToHuntAt() {
+		// Set center
+		if (this.getCenter() != null) {
+			return this.getCenter();
+		} else {
+			Center centerToHuntIn;
+			centerToHuntIn = (Center) Random.getRandomValue(this.getCorner().touches.toArray());
+			while (centerToHuntIn.water) {
+				centerToHuntIn = (Center) Random.getRandomValue(this.getCorner().touches.toArray());
+			}
+			return centerToHuntIn;
+		}
+	}
+
     public void createFarmer() {
         if (this.farmers.size >= MAX_FARMERS) return;
         Farmer farmer = new Farmer(getKingdom(), getName() + " Farmers", getFaction(), getCenterX(), getCenterY());
@@ -1301,11 +1334,15 @@ public class Location extends Group implements Destination {
 		HuntingParty hunter = new HuntingParty(getKingdom(), getName() + " Hunters", getFaction(), getCenterX(), getCenterY());
 		getKingdom().addArmy(hunter);
 		hunter.setLocation(this);
+		hunter.setCenterToHuntIn(getRandomCenterToHuntAt());
 		hunters.add(hunter);
 		setContainerForArmy(hunter);
 	}
 
 	public void removeFarmer(Farmer farmer) {
-        farmers.removeValue(farmer,true);
-    }
+		farmers.removeValue(farmer,true);
+	}
+	public void removeHunter(HuntingParty hunter) {
+		hunters.removeValue(hunter,true);
+	}
 }

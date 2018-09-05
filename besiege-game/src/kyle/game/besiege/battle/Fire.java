@@ -98,14 +98,6 @@ public class Fire extends Actor {
 	public void updateZoom(float zoom) {
         // Only update size based on zoom if on map.
         float scale = 1;
-		if (loc != null) {
-			scale = loc.getSizeFactor();
-			scale *= Location.getAdjustedZoom(loc.getKingdom());
-//			System.out.println("scale: " + scale + " min_ZOOm: " + loc.MIN_ZOOM);
-            if (scale < MIN_ZOOM) scale = MIN_ZOOM;
-            if (scale > MAX_ZOOM) scale = MAX_ZOOM;
-		}
-
         FLAME_WIDTH = _width * 2f * scale / 10;
         FLAME_HEIGHT = _height * 2f * scale / 10;
 
@@ -195,6 +187,9 @@ public class Fire extends Actor {
 			p.lifetime = (float) (Math.random()*10);
 			p.init_lifetime = p.lifetime;
 			p.vy *= 1;
+
+			// funnel smoke to be closer
+			p.vx *= 0.2f;
 
 			// element.innerHTML = "~";
 //			p._y -= FLAME_HEIGHT / 10;

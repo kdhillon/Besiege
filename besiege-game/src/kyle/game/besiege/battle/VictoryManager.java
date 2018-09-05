@@ -91,12 +91,12 @@ public class VictoryManager {
         }
     }
 
-    public void handleArmyRetreat(Army army) {
-        double wealthFactor = army.getParty().getWoundedSize() * 1.0 / army.getParty().getTotalSize();
-        int wealthChange = (int) (army.getParty().wealth * wealthFactor);
-        army.getParty().wealth -= wealthChange;
-        spoils += wealthChange;
-    }
+//    public void handleArmyRetreat(Army army) {
+//        double wealthFactor = army.getParty().getWoundedSize() * 1.0 / army.getParty().getTotalSize();
+//        int wealthChange = (int) (army.getParty().wealth * wealthFactor);
+//        army.getParty().wealth -= wealthChange;
+//        spoils += wealthChange;
+//    }
 
     // change faction of city if siegeOrRaid
     public void handleVictory(StrictArray<Party> attackingParties, StrictArray<Party> defendingParties, boolean didAtkWin) {
@@ -130,11 +130,22 @@ public class VictoryManager {
             distributeRewards(party, contribution, didAtkWin);
         }
 
+        // Why are losers still here? they were removed...
+        // Two options:
+        //  when army loses all its troops, keep it in battle until end. then dole out penalties appropriately.
         // Destroy losers
         for (int i = 0; i < loser.size; i++) {
             Party party = loser.get(i);
             party.registerBattleLoss();
             System.out.println("Healthy troops: " + party.getHealthySize());
+
+            // Kick losers out of siege
+            if (siegeOf != null) {
+                if (!didAtkWin) {
+                    if (party.army != null)
+                        party.army.leaveSiege();
+                }
+            }
             if (party.player) {
                 int playerTroopsKilled = aTroopsKilled;
                 int playerTroopsWounded = aTroopsWounded;

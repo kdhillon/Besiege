@@ -128,15 +128,10 @@ public class HuntingParty extends Army {
 		this.location = location;
 		if (getKingdom().night)
 			this.garrisonIn(location);
-		// Set center
-		if (location.getCenter() != null) {
-			this.centerToHuntIn = location.getCenter();
-		} else {
-			centerToHuntIn = (Center) Random.getRandomValue(location.getCorner().touches.toArray());
-			while (centerToHuntIn.water) {
-				centerToHuntIn = (Center) Random.getRandomValue(location.getCorner().touches.toArray());
-			}
-		}
+	}
+
+	public void setCenterToHuntIn(Center center) {
+		this.centerToHuntIn = center;
 	}
 	
 	// farmers can garrison in villages
@@ -165,6 +160,6 @@ public class HuntingParty extends Army {
 	public void destroy() {
 		getKingdom().removeArmy(this);
 		this.remove();
-//		getVillage().removeHunter(this);
+		location.removeHunter(this);
 	}
 }

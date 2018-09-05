@@ -26,8 +26,8 @@ public class Village extends Location {
 
 	private final String textureRegion = "Village";
 
-	private static final int MAX_FARMERS = 4;
-	private static final int MAX_HUNTERS = 4;
+	private static final int MAX_FARMERS = 2;
+	private static final int MAX_HUNTERS = 2;
 
 	public float raidTimer = 0;
 
@@ -48,7 +48,7 @@ public class Village extends Location {
 
         this.population = Random.getRandomInRange(POP_MIN, POP_MAX);
 		this.farmerCount = getPop() / (POP_MAX / MAX_FARMERS) + 1; // arbitrary
-		this.hunterCount = getPop() / (POP_MAX / MAX_HUNTERS) + 10; // arbitrary
+		this.hunterCount = getPop() / (POP_MAX / MAX_HUNTERS) + 1; // arbitrary
 
 		if (cultureType.name.equals("Plains")) {
             setTextureRegion("tipi3");

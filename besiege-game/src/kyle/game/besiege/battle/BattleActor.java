@@ -29,14 +29,13 @@ public class BattleActor extends Actor implements Destination {
 	
 	public BattleActor(Kingdom kingdom, Party initAttackerParty, Party initDefenderParty) {
 		Army initAttacker = initAttackerParty.army;
-		Army initDefender = initDefenderParty.army;
 		this.kingdom = kingdom;
-		this.name = initAttacker.getName() + " vs " + initDefender.getName();
+		this.name = initAttackerParty.getName() + " vs " + initDefenderParty.getName();
 		this.battle = new BattleSim(this, initAttackerParty, initDefenderParty);
 		this.setScale(10);
 		
 		region = Assets.atlas.findRegion(REGION);
-		this.setPosition((initAttacker.getCenterX() + initDefender.getCenterX())/2, (initAttacker.getCenterY() + initDefender.getCenterY())/2);
+		this.setPosition(initAttacker.getCenterX(), initAttacker.getCenterY());
 		this.setWidth(region.getRegionWidth()*getScaleX());
 		this.setHeight(region.getRegionHeight()*getScaleY());
 		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
@@ -108,7 +107,6 @@ public class BattleActor extends Actor implements Destination {
 		return this.getY() + this.getOriginY();
 	}
 
-	
 	public void destroy() {
 		System.out.println("Destroying battle victory(army, army) " + this.getName());
 

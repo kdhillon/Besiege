@@ -8,21 +8,20 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import kyle.game.besiege.panels.SidePanel;
 
 // Factions possess a crest. Locations and Armies hold a CrestDraw, which is a crest drawn at a specific position.
 public class CrestDraw extends Actor {
 	private static TextureRegion basic = Assets.crests.findRegion("crestbase");;
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 
-//	private Crest parentCrest;
+//	private Crest parentCrestForSidepanel;
 	private Color orig;
 	public Destination destination;
 
 	// for now, base color is always white.
 	private Color base = Color.WHITE;
 
-	private Crest parentCrest;
+	private Crest parentCrestForSidepanel;
 
 	// for kryo
 	public CrestDraw() {
@@ -32,26 +31,21 @@ public class CrestDraw extends Actor {
 	public CrestDraw(Destination destination) {
 		this.destination = destination;
 //		if (destination.getFaction() != null)
-//			this.parentCrest = destination.getFaction().crest;
+//			this.parentCrestForSidepanel = destination.getFaction().crest;
 		calcSize();
 //		this.setPosition(destination.getCenterX() - this.getWidth()/2, 0.7f);
-		if (getLocation() != null)
+		if (getLocation() != null || getArmy() != null)
 			this.addListener(getNewInputListener());
+		else throw new AssertionError();
 	}
 
 	// For use with side panel only.
 	public CrestDraw(Crest crest) {
-		this.parentCrest = crest;
+		this.parentCrestForSidepanel = crest;
 	}
 
-//	public void notifyFactionChanged() {
-//		if (destination.getFaction() != null) {
-//			this.parentCrest = destination.getFaction().crest;
-//		}
-//	}
-
 	private Crest getFactionCrest() {
-		if (parentCrest != null) return parentCrest;
+		if (parentCrestForSidepanel != null) return parentCrestForSidepanel;
 		if (destination.getFaction() != null)
 			return destination.getFaction().crest;
 		return null;
@@ -84,8 +78,8 @@ public class CrestDraw extends Actor {
 			this.setPosition( loc.getWidth() / 2 - this.getWidth()/2, loc.getHeight() * 1.2f);
 		} else if (army != null) {
 //			this.setPosition(-15 * army.getScaleX(), 15 * army.getScaleY());
-			this.setPosition(army.getCenterX() - this.getWidth()/2, 0.7f);
-			this.setSize(1.4f, 1.4f);
+//			this.setSize(15 + army.party.getTotalSize(), 15 + army.party.getTotalSize());
+//			this.setPosition( army.getX() + army.getWidth() / 2 - this.getWidth()/2, army.getY() + army.getHeight() * 10f);
 		} // TODO add battleactor
 		else throw new AssertionError();
 	}
@@ -93,9 +87,14 @@ public class CrestDraw extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Crest parentCrest = getFactionCrest();
-		if (this.parentCrest == null) {
-			if (getArmy() != null) {
-				if (!getArmy().shouldDrawCrest()) return;
+		if (this.parentCrestForSidepanel == null) {
+			Army army = getArmy();
+			if (army != null) {
+				if (!army.shouldDrawCrest()) {
+					return;
+				}
+				this.setSize(15 + army.party.getTotalSize() * 0.3f, 15 + army.party.getTotalSize() * 0.3f);
+				this.setPosition( army.getX() + army.getWidth() / 2 - this.getWidth()/2, army.getY() + army.getHeight() * 10f);
 			} else if (getLocation() != null) {
 				if (!getLocation().shouldDrawCrest()) return;
 			}
@@ -103,7 +102,7 @@ public class CrestDraw extends Actor {
 			if (parentCrest == null) return;
 			calcSize();
 		} else {
-			parentCrest = this.parentCrest;
+			parentCrest = this.parentCrestForSidepanel;
 		}
 		// for now, until I can figure out blending...
 		parentAlpha = 1;
@@ -154,7 +153,6 @@ public class CrestDraw extends Actor {
 			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
 				System.out.println("Mousing over " + getName());
 				System.out.println("Setting panel crest! " + getName());
-				// TODO make this work with crestdraw
 				Army army = getArmy();
 				Location location = getLocation();
 				if (location != null) location.getKingdom().setPanelTo(location);

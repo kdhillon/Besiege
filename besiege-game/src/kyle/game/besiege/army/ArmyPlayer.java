@@ -152,13 +152,13 @@ public class ArmyPlayer extends Army {
 		getParty().act(delta);
 		momentumDecay();
 		
-		
 //		System.out.println("stopped: " + this.isStopped());
 //		System.out.println("waiting: " + this.isWaiting());
 		//System.out.println("");
 //		setMorale(100);
 //		this.faction.goRogue();
 		//getParty().distributeExp(40);
+//		super.act(delta);
 	}
 	
 	@Override
@@ -189,6 +189,7 @@ public class ArmyPlayer extends Army {
 			sr.end();
 			batch.begin();
 		}
+		super.draw(batch, parentAlpha);
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
 	}
 
