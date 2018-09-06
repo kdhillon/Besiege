@@ -35,18 +35,18 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
     // Actual values
-	public static int cityCount = 60;
-	public static int castleCount = 0;
-	public static int ruinCount = 5;
-	public static int villageCount = 100;
-	int FACTION_COUNT = 25;
+//	public static int cityCount = 60;
+//	public static int castleCount = 0;
+//	public static int ruinCount = 5;
+//	public static int villageCount = 100;
+//	int FACTION_COUNT = 25;
 
 	// Fast values
-//    public static int cityCount = 15;
-//    public static int castleCount = 0;
-//    public static int ruinCount = 10;
-//    public static int villageCount = 20;
-//    int FACTION_COUNT = 15;
+    public static int cityCount = 15;
+    public static int castleCount = 0;
+    public static int ruinCount = 10;
+    public static int villageCount = 20;
+    int FACTION_COUNT = 15;
 
     public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
@@ -54,7 +54,6 @@ public class Kingdom extends Group {
 	public static final int MAX_BANDITS = 50;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
-
 
 	public static final float LIGHT_ADJUST_SPEED = .005f; //adjust this every frame when changing daylight
 	public static final float NIGHT_FLOAT = .6f;
@@ -1159,7 +1158,9 @@ public class Kingdom extends Group {
 		if (!this.getChildren().contains(add, true)) {
 			addActor(add);
 			// add the crestdraw for that army
-			addActor(add.crestDraw);
+
+			// the rotation on this guy needs to be adjusted in the same way
+			// that a location is updated.
 		}
 		//add.postAdd();
 	}

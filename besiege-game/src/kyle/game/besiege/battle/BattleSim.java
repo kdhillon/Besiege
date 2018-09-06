@@ -4,6 +4,7 @@ import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
+import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.*;
@@ -63,7 +64,7 @@ public class BattleSim implements Battle {
 
         calcBalance();
 
-        victoryManager = new VictoryManager(kingdom, this, battleActor.getSiegeLocation(), currentBalanceD);
+        victoryManager = new VictoryManager(kingdom, this, battleActor.getSiege(), currentBalanceD);
         victoryManager.addInitTroopCount(initAttackerParty.getHealthySize() + initDefenderParty.getHealthySize());
 
         if (initAttackerParty.player) playerInA = true;
@@ -100,6 +101,46 @@ public class BattleSim implements Battle {
 
         calcBalance();
         checkIfVictory();
+    }
+
+    // calculates the hypothetical initial balance (0 - 1.0) in a battle between these armies, for the first set (w/ no advantage)
+    public static double calcBalance(StrictArray<Army> first, double firstAdvantage, StrictArray<Party> second, double secondAdvantage) {
+        int firstAtk = 0;
+        int firstSize = 0;
+        for (Army a : first) {
+            firstAtk += a.getParty().getAtk();
+            firstSize += a.getParty().getTotalSize();
+        }
+        int secondAtk = 0;
+        int secondSize = 0;
+        for (Party p : second) {
+            secondAtk += p.getAtk();
+            secondSize += p.getTotalSize();
+        }
+        double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
+        double balanceSecond = secondAtk*secondAdvantage + secondSize;
+        double total = balanceFirst + balanceSecond;
+        return balanceFirst / total; // balanceA + balanceD = 1
+    }
+
+    // Identical to above, but takes nobles instead of Armies
+    public static double calcBalanceNobles(StrictArray<Noble> first, double firstAdvantage, StrictArray<Party> second, double secondAdvantage) {
+        int firstAtk =0;
+        int firstSize = 0;
+        for (Army a : first) {
+            firstAtk += a.getParty().getAtk();
+            firstSize += a.getParty().getTotalSize();
+        }
+        int secondAtk = 0;
+        int secondSize = 0;
+        for (Party p : second) {
+            secondAtk += p.getAtk();
+            secondSize += p.getTotalSize();
+        }
+        double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
+        double balanceSecond = secondAtk*secondAdvantage + secondSize;
+        double total = balanceFirst + balanceSecond;
+        return balanceFirst / total; // balanceA + balanceD = 1
     }
 
 	// Adds the given playerPartyPanel to the list of attackers. Disables the army until they leave the battle or are destroyed.

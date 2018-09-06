@@ -898,7 +898,7 @@ public class Location extends Group implements Destination {
 			for (Army a : attackers) {
 				attackerParties.add(a.party);
 			}
-			kingdom.getPlayer().createPlayerBattleWith(defenders, attackerParties, true, this);
+			kingdom.getPlayer().createPlayerBattleWith(defenders, attackerParties, true, this.siege);
 		}
 		else {
 			attackers.first().createBattleWith(null, this);

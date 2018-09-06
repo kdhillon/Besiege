@@ -289,7 +289,7 @@ public class Path {
         }
             // make sure only doing detectCollision when close to goal
             if (nextGoal != null) {
-                army.setRotation(calcRotation());
+                army.setActualRotation(calcRotation());
 
                 updatePosition();
                 army.updatePolygon();

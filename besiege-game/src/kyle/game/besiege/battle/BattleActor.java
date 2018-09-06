@@ -28,8 +28,8 @@ public class BattleActor extends Actor implements Destination {
 		Army initAttacker = initAttackerParty.army;
 		this.kingdom = kingdom;
 		this.name = initAttackerParty.getName() + " vs " + initDefenderParty.getName();
-		this.battle = new BattleSim(this, initAttackerParty, initDefenderParty);
 		this.siege = siege;
+		this.battle = new BattleSim(this, initAttackerParty, initDefenderParty);
 		this.setScale(10);
 		
 		region = Assets.atlas.findRegion(REGION);

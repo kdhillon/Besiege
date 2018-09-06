@@ -93,8 +93,8 @@ public class CrestDraw extends Actor {
 				if (!army.shouldDrawCrest()) {
 					return;
 				}
-				this.setSize(15 + army.party.getTotalSize() * 0.3f, 15 + army.party.getTotalSize() * 0.3f);
-				this.setPosition( army.getX() + army.getWidth() / 2 - this.getWidth()/2, army.getY() + army.getHeight() * 10f);
+				this.setSize(0.5f + army.party.getTotalSize() * 0.035f, 0.5f + army.party.getTotalSize() * 0.035f);
+				this.setPosition( army.getWidth() / 2 - this.getWidth()/2, army.getHeight() * 1.5f);
 			} else if (getLocation() != null) {
 				if (!getLocation().shouldDrawCrest()) return;
 			}

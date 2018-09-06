@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.BattleActor;
+import kyle.game.besiege.battle.BattleSim;
 import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
@@ -43,7 +44,7 @@ public class Siege extends Actor {
 		if (armies.size == 0 && !empty) {
 			empty = true;
 			countdown = MAINTAIN;
-			BottomPanel.log("Breaking siege at: " + location.getName());
+//			BottomPanel.log("Breaking siege at: " + location.getName());
 		}
 		else if (armies.size >= 1 && empty)
 			empty = false;
@@ -97,7 +98,7 @@ public class Siege extends Actor {
 		}
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
-		double balance = OldBattle.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
+		double balance = BattleSim.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
 		if (balance >= MIN_BALANCE_TO_ATTACK) attack();
 		else if (balance <= MAX_BALANCE_TO_BREAK || shouldDestroy()) destroy(); // end siegeOrRaid if no chance
 		else {

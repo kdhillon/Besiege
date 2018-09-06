@@ -389,7 +389,8 @@ public class Party {
 //	public Location getHome() {
 //		return getGeneral().home;
 //	}
-	
+
+	// TODO promote other subparty to root when general subparty has 0.
 	public General getGeneral() {
 	    if (root.general == null) {
 	        System.out.println(getName() + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (sub.size - 1));

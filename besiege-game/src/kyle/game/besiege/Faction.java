@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import kyle.game.besiege.army.Noble;
+import kyle.game.besiege.battle.BattleSim;
 import kyle.game.besiege.battle.OldBattle;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
@@ -373,7 +374,7 @@ public class Faction {
 	// Returns true if this faction should order a siegeOrRaid of location.
 	public boolean shouldSiege(Location location) {
 		if (this.atPeace(location.getFaction())) return false;
-		double balance = OldBattle.calcBalanceNobles(unoccupiedNobles, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
+		double balance = BattleSim.calcBalanceNobles(unoccupiedNobles, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
 		return balance >= Siege.MIN_BALANCE_TO_ATTACK;
 	}
 	public void orderSiegeOf(Location location) {

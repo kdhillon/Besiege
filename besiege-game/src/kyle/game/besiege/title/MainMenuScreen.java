@@ -34,6 +34,11 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.Random;
+import kyle.game.besiege.battle.BPoint;
+import kyle.game.besiege.battle.BattleMap;
+
+import static kyle.game.besiege.battle.BattleMap.RAINDROP_COLOR;
+import static kyle.game.besiege.battle.BattleMap.SNOW_COLOR;
 
 //import com.esotericsoftware.kryo.io.Input;
 
@@ -44,13 +49,15 @@ public class MainMenuScreen implements Screen {
 	private TextureRegion tree;
 
 	private final int PAD_BELOW_TITLE = 100;
-	private final int PAD_ABOVE_TITLE = -40;
+	private final int PAD_ABOVE_TITLE = -20;
 	private final int WIDTH = 500;
 	private final int SEPARATE = 120;
 	private final int MAX_NAME = 15;
 	private final int FIXED_SIZE_BOTTOM = 100;
 	
 	private static final float WIND_SPEED_INTENSITY = 0.2f;
+
+	private static final float DARKNESS = 0.5f;
 	
 	enum BackgroundType{Forest, Tundra, Beach, Jungle};
 	BackgroundType backgroundType;
@@ -83,8 +90,22 @@ public class MainMenuScreen implements Screen {
 	
 	private int candleX;
 	private int candleY;
-	
+
 	private class TitleBackground extends Group {
+		// Rain/snow
+		private int currentRainIndex;
+		private BPoint[] raindrops;
+		private Color rainColor;
+		private final float SECONDS_PER_DROP = 1f;
+		private int raindropsPerFrame; // this needs to be based on raindrop_count
+		private int raindrop_count = Random.getRandomInRange(50, 100);
+		private float rainDrawOffsetX;
+		private float rainDrawOffsetY;
+		private TextureRegion white = new TextureRegion(new Texture("whitepixel.png"));
+		private float X_SPEED = Random.getRandomInRange(1.f, 2.5f);
+		private float Y_SPEED = Random.getRandomInRange(2f, 3f);
+		private boolean X_RIGHT = Random.coinflip();
+
 		// colors of rectangles, top to bottom
         private final Color[] sunset = {
 //                new Color(68 / 256f, 0 / 256f, 76 / 256f, 1),
@@ -135,6 +156,25 @@ public class MainMenuScreen implements Screen {
 			}
 			for (int i = 0; i < starsFewer.length; i++) {
 				starsFewer[i] = new Star(Math.random(), Math.random() / colors.length, 0.75 + Math.random() / 2);
+			}
+
+			// initialize rain
+			raindrops = new BPoint[raindrop_count];
+			for (int i = 0; i < raindrop_count; i++) {
+				raindrops[i] = new BPoint(0, 0);
+			}
+
+			float delta = 1.0f / 60;
+			raindropsPerFrame = (int) (raindrop_count * delta / SECONDS_PER_DROP);
+			if (raindropsPerFrame < 1) raindropsPerFrame = 1;
+			System.out.println("raindrops per frame: " + raindropsPerFrame);
+
+			if (isRaining()) {
+				this.rainColor = RAINDROP_COLOR;
+				this.rainColor.mul(DARKNESS*1f);
+			}
+			else {
+				this.rainColor = SNOW_COLOR;
 			}
 		}
 
@@ -192,9 +232,90 @@ public class MainMenuScreen implements Screen {
 				batch.setColor(1, 1, 1, 1f);
 				batch.draw(tree, i * treeWidth, BesiegeMain.HEIGHT - stripeHeight * 3 - stripeHeight * 1.1f /16, treeWidth, treeHeight);
 			}
+
+
+			// draw rain/snow
+			boolean drawSnow = true;
+			if (drawSnow) {
+				if (isRaining() || isSnowing()) {
+
+					// Only add new drops while the list is not full. otherwise
+					// recycle drops
+					if (currentRainIndex < raindrops.length) {
+						for (int i = 0; i < raindropsPerFrame; i++) {
+							raindrops[currentRainIndex].pos_x = (int) (Math.random() * BesiegeMain.WIDTH);
+
+							raindrops[currentRainIndex].pos_y = (int) (Math.random() * BesiegeMain.HEIGHT);
+							// increment current rain index proportionally to the number of drops, otherwise the speed of drops
+							// will be too low.
+							currentRainIndex++;
+						}
+					}
+
+					Color c = batch.getColor();
+					Color mycolor = rainColor;
+
+					// we can figure out how much to fade drop by calculating distance between its index and currentrainindex,
+					// then divide by array size to get between 0 and 1 yay
+
+					// eg if index = 20 and currentIndex = 10, diff is (20-10)/40 = 1/4
+					// eg if index = 20 and currentIndex = 25, diff is 40 + (20 - 25) =
+
+					// This is nice because it makes the raindrops look "softer"
+					float alpha_minus = .2f;
+
+					if (isSnowing()) {
+						mycolor = SNOW_COLOR;
+
+						rainDrawOffsetX += X_SPEED;
+						rainDrawOffsetY += Y_SPEED;
+
+						alpha_minus = 0.0f; // makes snow last longer
+
+						//					if (rainDrawOffsetX >= this.total_width) rainDrawOffsetX = 0;
+					}
+
+					for (int i = 0; i < raindrops.length; i++) {
+						BPoint p = raindrops[i];
+						double indexDiff = i - currentRainIndex;
+						if (indexDiff < 0) indexDiff += raindrops.length;
+
+
+						float drawAtX = (p.pos_x + rainDrawOffsetX) % (BesiegeMain.WIDTH);
+						float drawAtY = (p.pos_y + rainDrawOffsetY) % (BesiegeMain.HEIGHT);
+
+						// IN this case, we make color based on height.
+						mycolor.a = 1 - (drawAtY / BesiegeMain.HEIGHT);
+						// This makes some drops disappear early for an interesting effect
+						mycolor.a *= (i * 1.f / raindrops.length);
+						if (mycolor.a < 0) mycolor.a = 0;
+
+						batch.setColor(mycolor);
+
+						if (X_RIGHT)
+							batch.draw(white, (drawAtX), BesiegeMain.HEIGHT - (drawAtY), 5, 5);
+						else
+							batch.draw(white, (BesiegeMain.WIDTH - drawAtX), BesiegeMain.HEIGHT - (drawAtY), 5, 5);
+					}
+
+					batch.setColor(c);
+				}
+			}
 		}
 	}
-	
+
+
+	public boolean isSnowing() {
+		return backgroundType == BackgroundType.Tundra;
+//		return this.maptype == BattleMap.MapType.ALPINE && snowing;
+	}
+
+	public boolean isRaining() {
+		return false;
+//		return !this.isSnowing() && stage.raining;
+	}
+
+
 	private Color getGroundColor(BackgroundType type) {
         switch (type) {
             case Forest:
@@ -235,7 +356,7 @@ public class MainMenuScreen implements Screen {
 		stage.addListener(new InputListener());
 		
 		backgroundType = randomBackgroundType();
-		backgroundType = BackgroundType.Jungle;
+//		backgroundType = BackgroundType.Tundra;
 		
 		tree = getTreeRegion(backgroundType);
 		

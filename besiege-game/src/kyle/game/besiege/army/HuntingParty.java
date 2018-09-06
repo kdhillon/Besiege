@@ -126,8 +126,8 @@ public class HuntingParty extends Army {
 	
 	public void setLocation(Location location) {
 		this.location = location;
-		if (getKingdom().night)
-			this.garrisonIn(location);
+//		if (getKingdom().night)
+		this.garrisonIn(location);
 	}
 
 	public void setCenterToHuntIn(Center center) {

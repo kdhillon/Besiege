@@ -115,7 +115,7 @@ public class UnitDraw extends Actor {
                 batch.setColor(1, 0, 0, 1);
             else if (unit.attacking != null) {
                 // maybe remove later
-                unit.face(unit.attacking);
+//                unit.face(unit.attacking, );
                 drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, unit.stateTime, unit.equipment);
             } else if (unit.moveSmooth) {
                 drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, unit.stateTime, unit.equipment);

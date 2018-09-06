@@ -1,6 +1,7 @@
 package kyle.game.besiege.battle;
 
 import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.Siege;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
@@ -22,7 +23,7 @@ public class VictoryManager {
     public static final int PARTY_DESTROY_THRESHOLD = 2;
 
     private final Kingdom kingdom;
-    private final Location siegeOf;
+    private final Siege siege;
     private final Battle battle;
 
     // Initial balance defenders
@@ -49,9 +50,9 @@ public class VictoryManager {
     private StrictArray<RangedWeaponType> rangedLoot;
     private StrictArray<ArmorType> armorLoot;
 
-    public VictoryManager(Kingdom kingdom, Battle battle, Location siegeOf, double initBalanceD) {
+    public VictoryManager(Kingdom kingdom, Battle battle, Siege siege, double initBalanceD) {
         this.kingdom = kingdom;
-        this.siegeOf = siegeOf;
+        this.siege = siege;
         this.battle = battle;
         this.initBalanceD = initBalanceD;
 
@@ -150,7 +151,7 @@ public class VictoryManager {
             System.out.println("Healthy troops: " + party.getHealthySize());
 
             // Kick losers out of siege
-            if (siegeOf != null) {
+            if (siege != null) {
                 if (!didAtkWin) {
                     if (party.army != null)
                         party.army.leaveSiege();
@@ -184,20 +185,20 @@ public class VictoryManager {
         }
 
         // Handle siegeOrRaid victory
-        if (siegeOf != null) {
+        if (siege != null) {
             if (didAtkWin) {
-                System.out.println("handling siege success at " + this.siegeOf.getName());
-                if (siegeOf.isVillage()) {
+                System.out.println("handling siege success at " + siege.getName());
+                if (siege.location.isVillage()) {
                     Army attackingArmy = battle.getAttackingParties().first().army;
                     if (attackingArmy != null) {
-                        ((Village) siegeOf).handleRaidVictory(attackingArmy);
+                        ((Village) siege.location).handleRaidVictory(attackingArmy);
                     }
                 } else {
-                    siegeOf.getSiege().siegeSuccess();
+                    siege.siegeSuccess();
                 }
             } else {
-                System.out.println("handling siege failure at " + this.siegeOf.getName());
-                siegeOf.getSiege().siegeFailure();
+                System.out.println("handling siege failure at " + this.siege.getName());
+                siege.siegeFailure();
             }
         }
     }

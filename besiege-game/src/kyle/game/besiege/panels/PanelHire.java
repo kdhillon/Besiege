@@ -216,8 +216,10 @@ public class PanelHire extends Panel {
     }
 
     public void hireSelected() {
-        hire(soldierTable.selected);
-        updateSoldierTable();
+        if (soldierTable.selected != null) {
+            hire(soldierTable.selected);
+            updateSoldierTable();
+        }
     }
 
     public void hireAll() { //Fixed iterator problem
@@ -245,12 +247,14 @@ public class PanelHire extends Panel {
 
     @Override
     public void button1() {
-        hireSelected();
+        if (getButton(1).isVisible())
+            hireSelected();
     }
 
     @Override
     public void button2() {
-        hireAll();
+        if (getButton(2).isVisible())
+            hireAll();
     }
 
     @Override

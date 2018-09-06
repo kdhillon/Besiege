@@ -133,6 +133,9 @@ public class Unit extends Group {
     public UnitDraw unitDraw;
 	public ThrownItem thrownItem;
 
+	// this prevents the unit from spazzing
+	private float lastAct = 0;
+
 	// This will be added to Unit, so that rotation/position is tied to that.
 	private static class ThrownItem extends Actor {
         public Animation sling;
@@ -307,6 +310,16 @@ public class Unit extends Group {
 			this.die(delta);
 			return;
 		}
+
+		// Here is where we prevent the unit from spazzing.
+        // Only allow them to change action every X seconds.
+        // TODO isolate the decision making actions from the other ones and put them before.
+//        float actEvery = 0.5f;
+//		if (lastAct > 0) {
+//            lastAct -= delta;
+//            return;
+//        } else
+//            lastAct = actEvery;
 
         if (this.hp <= 0) {
 			System.out.println("Still here not dying?");
@@ -638,7 +651,7 @@ public class Unit extends Group {
 
 		if (stage.selectedUnit == this) if (stage.entranceAt(point.pos_x, point.pos_y)) System.out.println("target is entrance");
 
-		this.face(point);
+		this.face(point, true);
 
 		Orientation original = this.orientation;
 
@@ -744,7 +757,7 @@ public class Unit extends Group {
 
 		this.reloading = rangedWeapon.rate * BASE_FIRE_RATE + RELOADING_THRESHHOLD;
 		Unit enemy = getNearestTarget();
-		face(enemy);
+		face(enemy, true);
 		Projectile projectile = new Projectile(this, enemy);
 
 		stage.addActor(projectile);
@@ -764,7 +777,7 @@ public class Unit extends Group {
 
 	private BPoint getNearestCover() {
 		if (this.nearestEnemy == null) return null;
-		this.face(nearestEnemy);
+		this.face(nearestEnemy, false);
 		Orientation thisOrientation = this.orientation;
 
 
@@ -1110,8 +1123,8 @@ public class Unit extends Group {
 			return;
 		}
 		//System.out.println("attack phase: " + attacking.hp);
-		this.face(attacking);
-		attacking.face(this);
+		this.face(attacking, true);
+		attacking.face(this, false);
 
 		double damage = this.atk-Math.random()*attacking.def;
 
@@ -1400,7 +1413,7 @@ public class Unit extends Group {
 		// if (should fight back / not already attacking)
 		// 		fight back
 		this.attacking = that;
-		this.face(that);
+		this.face(that, true);
 
 		// change this later
 		that.attacking = this;
@@ -1511,8 +1524,9 @@ public class Unit extends Group {
 		BottomPanel.log(status, color);
 	}
 
-	public void face(Unit that) {
+	public void face(Unit that, boolean forceInstant) {
 	    if (!that.inMap()) return;
+
 		//		int x_dif = that.pos_x - this.pos_x;
 		//		int y_dif = that.pos_y - this.pos_y;
 		//
@@ -1526,11 +1540,14 @@ public class Unit extends Group {
 		//		}
 		//		else if (y_dif > 0) this.orientation = Orientation.UP;
 		//		else this.orientation = Orientation.DOWN;
-		this.face(that.getPoint());
+		this.face(that.getPoint(), forceInstant);
 	}
 
 	// same as above but with point
-	public void face(BPoint that) {
+	public void face(BPoint that, boolean forceInstant) {
+	    // For now, just return
+	    if (!forceInstant) return;
+
 		int x_dif = that.pos_x - this.pos_x;
 		int y_dif = that.pos_y - this.pos_y;
 

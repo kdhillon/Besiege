@@ -10,11 +10,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
 
+import kyle.game.besiege.*;
 import kyle.game.besiege.Character;
-import kyle.game.besiege.Destination;
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Map;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
@@ -164,7 +161,11 @@ public class ArmyPlayer extends Army {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
           // Draw an animation of the player's current armor, and skin.
-        UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), stateTime, getGeneral().getEquipment());
+//		float animationTime = 0;
+//		if (isArmyMoving()) {
+//			animationTime = stateTime;
+//		}
+//        UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), animationTime, getGeneral().getEquipment());
 
         if (Map.debug){
 			batch.end();
@@ -296,10 +297,10 @@ public class ArmyPlayer extends Army {
 	}
 	
 	// create a battle involving the player
-	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean defending, Location siegeOf) {
+	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean defending, Siege siege) {
 		System.out.println("switching to battle view");
 		// first create battle stage with appropriate stuff
-		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siegeOf);
+		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siege);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);
 	}
 	

@@ -106,6 +106,10 @@ public class Army extends Group implements Destination {
 
 	private boolean startedRunning;
 
+	// This is what sets the unitdraw rotation. Keeping this separate from getRotation()
+	// allows us to draw the unit and its crest at different rotations
+	private float actualRotation;
+
 	private Location garrisonedIn;
 
 	public boolean shouldEject; // useful for farmers, who don't need to F during nighttime.
@@ -237,8 +241,7 @@ public class Army extends Group implements Destination {
 
         this.addListener(getNewInputListener());
 		crestDraw = new CrestDraw(this);
-		// crest draw is actually child of kingdom.
-//		this.addActor(crestDraw);
+		this.addActor(crestDraw);
 
 		calcInitWealth();
 	}
@@ -305,6 +308,10 @@ public class Army extends Group implements Destination {
 	    normalWaiting = false;
 	}
 
+	public void setActualRotation(float rotation) {
+		this.actualRotation = rotation;
+	}
+
 	@Override
 	public void act(float delta) {
 	    if (isRunning()) {
@@ -362,7 +369,7 @@ public class Army extends Group implements Destination {
 					if (isRunning()) {
                         if (shouldStopRunning()) {
                             stopRunning();
-                            System.out.println(this.getName() + "Stopping running");
+//                            System.out.println(this.getName() + "Stopping running");
                         } else {
                             setAppropriateRunTarget();
                             if (getTarget() == null) throw new AssertionError(this.getName() + " has no target while running");
@@ -479,7 +486,15 @@ public class Army extends Group implements Destination {
 		if (isArmyMoving()) {
 			animationTime = stateTime;
 		}
+
+		float oldRotation = getRotation();
+		setRotation(actualRotation);
         UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), animationTime, getGeneral().getEquipment());
+		setRotation(oldRotation);
+
+		// We're going to force rotation to be upright -- that way crest (a child) will be drawn upright
+		// This is the same way location works.
+		setRotation(kingdom.getMapScreen().rotation);
 
         // draw los
 		drawLOS();
@@ -492,9 +507,12 @@ public class Army extends Group implements Destination {
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
 	}
 
-	private boolean isArmyMoving() {
+	 boolean isArmyMoving() {
 		if (this.isInSiege()) return false;
 		if (this.isWaiting()) return false;
+		if (kingdom.isPaused()) return false;
+		if (target == null) return false;
+		if (path.isEmpty()) return false;
 		return true;
 	}
 
@@ -660,7 +678,7 @@ public class Army extends Group implements Destination {
 					nearEnemies.add(a.party);
 			}
 			
-			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siege);
 			
 			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
@@ -685,7 +703,7 @@ public class Army extends Group implements Destination {
 					nearAllies.add(a.party);
 			}
 			
-			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siege);
 			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
@@ -742,7 +760,7 @@ public class Army extends Group implements Destination {
 					allies.add(party);
 			}
 			else return;
-			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, battleActor.getSiegeLocation());
+			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, battleActor.getSiege());
 			
 			BottomPanel.log("Joining " + battleActor.getName());
 		}
@@ -1607,6 +1625,8 @@ public class Army extends Group implements Destination {
 		return forceWait;
 	}
 	public boolean isRunning() {
+		// This is a hack attempt
+		if (isWaiting()) stopWaiting();
 		return runFrom != null;
 	}
 	public boolean isInBattle() {
@@ -1697,14 +1717,14 @@ public class Army extends Group implements Destination {
 //		this.path.map = kingdom.getMap();
 //		this.faction = Faction.BANDITS_FACTION;
 	}
-
-    protected void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint) {
-        Color c = batch.getColor();
-        batch.setColor(tint);
-        TextureRegion region = animation.getKeyFrame(stateTime, loop);
-        batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation() - 90);
-        batch.setColor(c);
-    }
+//
+//    protected void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint) {
+//        Color c = batch.getColor();
+//        batch.setColor(tint);
+//        TextureRegion region = animation.getKeyFrame(stateTime, loop);
+//        batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation() - 90);
+//        batch.setColor(c);
+//    }
 
     protected Color getGeneralArmorColor() {
         return party.getGeneral().getArmor().color;

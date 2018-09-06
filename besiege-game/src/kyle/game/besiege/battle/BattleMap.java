@@ -22,8 +22,8 @@ public class BattleMap extends Group {
 	private static final float LADDER_SLOW = .75f;
     private static final double RAIN_INTENSITY = 2f;
     public static final Color SHADOW_COLOR = new Color(0, 0, 0, .13f);
-	private static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
-	private static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
+	public static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
+	public static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 	private static final Color CLEAR_WHITE = new Color(1, 1, 1, .5f);
 	private static final Color PLACEMENT_COLOR = new Color(0, 1, 0, .5f);
 	private static final Color COVER_COLOR = new Color(1, 1, 0, .5f);

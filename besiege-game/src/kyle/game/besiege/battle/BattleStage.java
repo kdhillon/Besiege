@@ -150,7 +150,7 @@ public class BattleStage extends Group implements Battle {
 //	private int currentFormationHeight;
 
 	// take in battle object containing arrays of armies and stuff
-	public BattleStage(MapScreen mapScreen, Array<Party> allyArray, Array<Party> enemyArray, boolean playerDefending, Location siegeOf) {
+	public BattleStage(MapScreen mapScreen, Array<Party> allyArray, Array<Party> enemyArray, boolean playerDefending, Siege siege) {
 		this.mapScreen = mapScreen;
 		
 		this.allies = new BattleParty(this, 0);
@@ -169,7 +169,7 @@ public class BattleStage extends Group implements Battle {
 
         this.kingdom = mapScreen.getKingdom();
 
-        this.victoryManager = new VictoryManager(kingdom, this, siegeOf, getBalanceDefenders());
+        this.victoryManager = new VictoryManager(kingdom, this, siege, getBalanceDefenders());
         this.victoryManager.addInitTroopCount(getTotalBattleSize());
 
         BottomPanel.log("Starting battle, probability of victory: " + (int) (100 * getBalanceAllies()) + "%", "white");
@@ -180,14 +180,14 @@ public class BattleStage extends Group implements Battle {
 		boolean forceSiege = false;
 		//		boolean forceSiege = true;
 
-		if (siegeOf != null || forceSiege) {
+		if (siege != null || forceSiege) {
 			//			siegeDefense = playerDefending;
 			//			siegeAttack = !siegeDefense;
 			//			//siegeAttack = true;
 			siegeOrRaid = true;
 
 			// TODO add different type of wall according to the type of location we're at
-			if (siegeOf.isCastle() || siegeOf.isCity()) {
+			if (siege.location.isCastle() || siege.location.isCity()) {
 			    hasWall = true;
             }
 		}
@@ -1222,13 +1222,15 @@ public class BattleStage extends Group implements Battle {
 			else if (!isOver()) {
 				if (allies.noUnits() && !placementPhase) {
 //				/	BottomPanel.log("Defeat", "green");
-                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), false);
+					if (kingdom != null)
+						victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), false);
                     displayVictoryText("Defeat");
                     this.isOver = true;
                     this.placementPhase = true;
                 }
 				else if (enemies.noUnits() && !placementPhase) {
-                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), true);
+					if (kingdom != null)
+	                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), true);
                     // display "Victory" text.
 					displayVictoryText("Victory");
                     this.isOver = true;

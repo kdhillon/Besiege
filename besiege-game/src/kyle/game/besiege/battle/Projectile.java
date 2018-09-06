@@ -419,16 +419,12 @@ public class Projectile extends Group {
 		}
 
 		if (ammoType.shouldSpin() && !stopped) {
-		    System.out.println("Rotating: " + getRotation());
+//		    System.out.println("Rotating: " + getRotation());
 			setRotation(getRotation() + spin);
 		}
 	
 		this.setScaleX(scaleX);
 		this.setScaleY(scaleY);
-
-
-		//change scale based on how high arrow is! TODO
-		//		System.out.println("height: " + this.height);
 
         // Regular draw
 		if (this.stuck == null) {

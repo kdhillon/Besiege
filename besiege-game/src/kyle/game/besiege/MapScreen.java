@@ -669,7 +669,8 @@ public class MapScreen implements Screen {
 		}
 		else {
 			InputMultiplexer inputMultiplexer = new InputMultiplexer();
-			inputMultiplexer.addProcessor(kingdomStage);
+			if (kingdomStage != null)
+				inputMultiplexer.addProcessor(kingdomStage);
 
 			if (Gdx.app.getType() == ApplicationType.Desktop)
 				inputMultiplexer.addProcessor(mapControllerDesktop);

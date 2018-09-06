@@ -82,7 +82,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		dParties.add(initDefenderParty);
 
 		calcStats();
-        victoryManager = new VictoryManager(kingdom, this, battleActor.getSiegeLocation(), balanceD);
+        victoryManager = new VictoryManager(kingdom, this, battleActor.getSiege(), balanceD);
         victoryManager.addInitTroopCount(initAttackerParty.getHealthySize() + initDefenderParty.getHealthySize());
 
 		if (initAttackerParty.player) playerInA = true;
@@ -497,46 +497,6 @@ public class OldBattle implements Battle { // new battle system involving Party
 	private void log(String text, String color) {
 		if (playerInA || playerInD) // only logs info if Player is in this battle
 			BottomPanel.log(text, color);
-	}
-
-	// calculates the hypothetical initial balance (0 - 1.0) in a battle between these armies, for the first set (w/ no advantage)
-	public static double calcBalance(StrictArray<Army> first, double firstAdvantage, StrictArray<Party> second, double secondAdvantage) {
-		int firstAtk = 0;
-		int firstSize = 0;
-		for (Army a : first) {
-			firstAtk += a.getParty().getAtk();
-			firstSize += a.getParty().getTotalSize();
-		}
-		int secondAtk = 0;
-		int secondSize = 0;
-		for (Party p : second) {
-			secondAtk += p.getAtk();
-			secondSize += p.getTotalSize();
-		}
-		double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
-		double balanceSecond = secondAtk*secondAdvantage + secondSize;
-		double total = balanceFirst + balanceSecond;
-		return balanceFirst / total; // balanceA + balanceD = 1
-	}
-
-	// Identical to above, but takes nobles instead of Armies
-	public static double calcBalanceNobles(StrictArray<Noble> first, double firstAdvantage, StrictArray<Party> second, double secondAdvantage) {
-		int firstAtk =0;
-		int firstSize = 0;
-		for (Army a : first) {
-			firstAtk += a.getParty().getAtk();
-			firstSize += a.getParty().getTotalSize();
-		}
-		int secondAtk = 0;
-		int secondSize = 0;
-		for (Party p : second) {
-			secondAtk += p.getAtk();
-			secondSize += p.getTotalSize();
-		}
-		double balanceFirst = firstAtk*firstAdvantage + firstSize; // method for computing balance
-		double balanceSecond = secondAtk*secondAdvantage + secondSize;
-		double total = balanceFirst + balanceSecond;
-		return balanceFirst / total; // balanceA + balanceD = 1
 	}
 
 //	// used in battle stage
