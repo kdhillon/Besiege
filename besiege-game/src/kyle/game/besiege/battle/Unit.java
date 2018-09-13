@@ -432,6 +432,7 @@ public class Unit extends Group {
 	}
 
 	public void startRetreating() {
+	    if (!this.canRetreat()) throw new AssertionError();
         this.retreating = true;
         this.attacking = null;
     }

@@ -275,17 +275,18 @@ public class MainMenuScreen implements Screen {
 						//					if (rainDrawOffsetX >= this.total_width) rainDrawOffsetX = 0;
 					}
 
-					for (int i = 0; i < raindrops.length; i++) {
+					for (int i = 0; i < currentRainIndex; i++) {
 						BPoint p = raindrops[i];
 						double indexDiff = i - currentRainIndex;
 						if (indexDiff < 0) indexDiff += raindrops.length;
 
-
-						float drawAtX = (p.pos_x + rainDrawOffsetX) % (BesiegeMain.WIDTH);
+						// Add a bit of variation based on the index
 						float drawAtY = (p.pos_y + rainDrawOffsetY) % (BesiegeMain.HEIGHT);
-
 						// IN this case, we make color based on height.
 						mycolor.a = 1 - (drawAtY / BesiegeMain.HEIGHT);
+
+						float drawAtX = (p.pos_x + rainDrawOffsetX + (mycolor.a * 200 * (i - raindrops.length/2f)/raindrops.length)) % (BesiegeMain.WIDTH);
+
 						// This makes some drops disappear early for an interesting effect
 						mycolor.a *= (i * 1.f / raindrops.length);
 						if (mycolor.a < 0) mycolor.a = 0;
@@ -306,8 +307,8 @@ public class MainMenuScreen implements Screen {
 
 
 	public boolean isSnowing() {
+//		return true;
 		return backgroundType == BackgroundType.Tundra;
-//		return this.maptype == BattleMap.MapType.ALPINE && snowing;
 	}
 
 	public boolean isRaining() {

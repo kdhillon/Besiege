@@ -46,8 +46,7 @@ public class BattleSubParty {
 	public Formation formation;
 	public float minSpeed;
 	public boolean retreating;
-	public boolean retreated;
-	
+
 	public float battleMoraleThreshold; // between 0 and 1. IF troop ratio drops below (1-currentMorale), will retreat.
 	
 	public int currentPosX;

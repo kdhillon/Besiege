@@ -56,8 +56,8 @@ public class ArmyPlayer extends Army {
 		sr = new ShapeRenderer();
 		
 		// debugging
-		this.getParty().distributeExp(100000);
-		this.getParty().wealth = 100000;
+//		this.getParty().distributeExp(100000);
+		this.getParty().wealth = 500;
 		
 		this.getParty().getGeneral().setName(getCharacter().name);
 		kingdom.updateArmyPolygon(this);
@@ -297,9 +297,20 @@ public class ArmyPlayer extends Army {
 	}
 	
 	// create a battle involving the player
-	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean defending, Siege siege) {
+	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean defending, Location siegeOrRaidOf) {
 		System.out.println("switching to battle view");
 		// first create battle stage with appropriate stuff
+
+		Siege siege = null;
+		if (siegeOrRaidOf != null) {
+			// If player is raiding, create a new "siege" for the raid.
+			if (siegeOrRaidOf.type == Location.LocationType.VILLAGE) {
+				siege = new Siege(siegeOrRaidOf, this.getFaction());
+			} else {
+				siege = siegeOrRaidOf.siege;
+			}
+			if (siege == null) throw new AssertionError();
+		}
 		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siege);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);
 	}

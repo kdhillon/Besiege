@@ -474,11 +474,24 @@ public class Army extends Group implements Destination {
 		//actions contained in extensions
 	}
 
+	private Center getCenter() {
+		if (containingCenter < 0) return null;
+		return kingdom.map.vg.centers.get(containingCenter);
+	}
+
+	private boolean inFog() {
+		if (getCenter() == null) return false;
+		if (!getCenter().discovered && kingdom.getMapScreen().fogOn) return true;
+		return false;
+	}
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 //		if (this.getFaction() == null) {
 //			return;
 //		}
+		if (inFog()) return;
+
 		// Don't draw while in battle.
 		if (isInBattle()) return;
 
@@ -677,8 +690,8 @@ public class Army extends Group implements Destination {
 				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this))
 					nearEnemies.add(a.party);
 			}
-			
-			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siege);
+
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
 			
 			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
@@ -702,8 +715,8 @@ public class Army extends Group implements Destination {
 				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))
 					nearAllies.add(a.party);
 			}
-			
-			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siege);
+
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
 			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
@@ -760,7 +773,9 @@ public class Army extends Group implements Destination {
 					allies.add(party);
 			}
 			else return;
-			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, battleActor.getSiege());
+			Location siegeOf = battleActor.getSiege() == null ? null : battleActor.getSiege().location;
+
+			((ArmyPlayer) this).createPlayerBattleWith(allies, enemies, defending, siegeOf);
 			
 			BottomPanel.log("Joining " + battleActor.getName());
 		}
@@ -1626,7 +1641,7 @@ public class Army extends Group implements Destination {
 	}
 	public boolean isRunning() {
 		// This is a hack attempt
-		if (isWaiting()) stopWaiting();
+//		if (isWaiting()) stopWaiting();
 		return runFrom != null;
 	}
 	public boolean isInBattle() {

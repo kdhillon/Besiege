@@ -57,18 +57,28 @@ public class Fire extends Actor {
 	float fullAt = 20; // time at which should be full grown
     boolean growing = false;
     float currentTimeElapsed;
+
+    private boolean onlySmoke;
+    private boolean stopMakingNew;
 	
 	Location loc;
-    public Fire(float _width, float _height, MapScreen mapScreen, Location loc) {
-        this(_width, _height, mapScreen, loc, false);
+
+	public Fire(float _width, float _height, MapScreen mapScreen, Location loc) {
+		this(_width, _height, mapScreen, loc, false, false);
+	}
+
+    public Fire(float _width, float _height, MapScreen mapScreen, Location loc, boolean onlySmoke) {
+        this(_width, _height, mapScreen, loc, false, onlySmoke);
     }
 
-	public Fire(float _width, float _height, MapScreen mapScreen, Location loc, boolean shouldGrow) {
+	public Fire(float _width, float _height, MapScreen mapScreen, Location loc, boolean shouldGrow, boolean onlySmoke) {
 		this.mapScreen = mapScreen;
 		this.region = new TextureRegion(new Texture("whitepixel.png"));
 		
 		this._width = _width;
 		this._height = _height;
+
+		this.onlySmoke = onlySmoke;
 
 		System.out.println("New fire being made!!!!!");
 		if (shouldGrow) {
@@ -177,7 +187,7 @@ public class Fire extends Actor {
 	// don't limit particle count
 	public void generateParticles() {
 		// if (particles.length < PARTICLE_COUNT) 
-		if (Math.random() < 1)
+		if (Math.random() < 1 &&!stopMakingNew)
 			particles.add(new Particle(this));
 	}
 
@@ -200,7 +210,15 @@ public class Fire extends Actor {
 		}
 		else {
 			this.particles.removeValue(p, true);
+			if (this.stopMakingNew && this.particles.size == 0) {
+				destroy();
+			}
 		}
+	}
+
+	private void destroy() {
+		if (loc == null)
+			loc.fire = null;
 	}
 
 	private void  calculateNewPosition(Particle p, float MS) {
@@ -290,6 +308,14 @@ public class Fire extends Actor {
         }
     }
 
+    public void turnToSmoke() {
+		this.onlySmoke = true;
+	}
+
+	public void fadeOut() {
+		this.stopMakingNew = true;
+	}
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 //		System.out.println("drawing fire: " + this.getParent().getX() + " " + this.getParent().getX());
@@ -299,6 +325,7 @@ public class Fire extends Actor {
 //		System.out.println("candle drawing");
 //		System.out.println("drawing");
 		for (Particle p : particles) {
+			if (onlySmoke && !p.isSmoke) continue;
 //			System.out.println("drawing");
 			o = batch.getColor();
 			batch.setColor(p.color);

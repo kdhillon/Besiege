@@ -140,9 +140,7 @@ public class VictoryManager {
             distributeRewards(party, contribution, didAtkWin);
         }
 
-        // Why are losers still here? they were removed...
-        // Two options:
-        //  when army loses all its troops, keep it in battle until end. then dole out penalties appropriately.
+        //  when army loses all its troops, keep it in battle inside "battle.retreatedparties" until end. then dole out penalties appropriately.
         // Destroy losers
         if (loser.size != 0) throw new AssertionError();
         for (int i = 0; i < loserRetreated.size; i++) {

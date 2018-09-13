@@ -106,7 +106,8 @@ public class Village extends Location {
 	public void handleRaidVictory(Army raider) {
 		this.raidTimer = RAID_COUNTDOWN;
 		System.out.println("handling raid victory");
-		this.addFire();
+		this.endSiege();
+		this.addSmoke();
 	}
 	
 	@Override

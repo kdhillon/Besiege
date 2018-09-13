@@ -49,7 +49,7 @@ public class BattleParty {
 	public int getLevelSum() {
 		int total = 0;
 		for (BattleSubParty p : subparties) {
-			if (!p.retreated) {
+			if (!p.retreating) {
 				total += p.getHealthyLevelSum();
 			}
 		}
@@ -59,7 +59,7 @@ public class BattleParty {
 	public int getAtk() {
 		int total = 0;
 		for (BattleSubParty p : subparties) {
-			if (!p.retreated) {
+			if (!p.retreating) {
 				total += p.getHealthySize();
 			}
 		}
@@ -69,7 +69,7 @@ public class BattleParty {
 	public int getHealthySize() {
 		int total = 0;
 		for (BattleSubParty p : subparties) {
-			if (!p.retreated) {
+			if (!p.retreating) {
 				total += p.getHealthySize();
 			}
 		}

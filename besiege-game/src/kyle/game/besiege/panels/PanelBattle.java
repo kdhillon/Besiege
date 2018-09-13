@@ -533,9 +533,9 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		updateTable(aTable, battle.getAttackingParties());
 		updateTable(dTable, battle.getDefendingParties());
 		//		if (battle.aArmiesRet.size >= 1)
-		updateTable(aRetTable, battle.getAttackingPartiesRetreated());
+//		updateTable(aRetTable, battle.getAttackingPartiesRetreated());
 		//		if (battle.dArmiesRet.size >= 1)
-		updateTable(dRetTable, battle.getDefendingPartiesRetreated());
+//		updateTable(dRetTable, battle.getDefendingPartiesRetreated());
 	}
 
 	public void updateTable(Table table, StrictArray<Party> parties) {

@@ -110,7 +110,7 @@ public class PanelLocation extends Panel {
 	@Override
 	public void act(float delta) {
         // hostile player touches
-        if (location.hostilePlayerTouched && !playerTouched) {
+        if (location.hostilePlayerTouched && !playerTouched && !location.isRuin()) {
             if (location.underSiege()) {
                 if (location.isVillage())
                     setButton(1, "Continue Raid");

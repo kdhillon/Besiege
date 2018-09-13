@@ -133,6 +133,8 @@ public class Projectile extends Group {
 		boolean shouldLead = true;
 		// lead the enemy unit a bit based on distance?
 		if (target.moveSmooth && shouldLead) {
+			if (firing.team == 0)
+				System.out.println("Leading enemy with shot: " + target.soldier.getName());
 			float leadBy = target.getSpeed() * time_to_collision;
 
 			//	System.out.println(leadBy);

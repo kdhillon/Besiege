@@ -85,6 +85,10 @@ public class BattleStage extends Group implements Battle {
 	public BattleParty allies;
 	public BattleParty enemies;
 
+	// These are for handling victories
+	public StrictArray<Party> retreatedAttackers = new StrictArray<>();
+	public StrictArray<Party> retreatedDefenders = new StrictArray<>();
+
 	public Array<SiegeUnit> siegeUnitsArray;
 
 	public boolean placementPhase;
@@ -185,6 +189,7 @@ public class BattleStage extends Group implements Battle {
 			//			siegeAttack = !siegeDefense;
 			//			//siegeAttack = true;
 			siegeOrRaid = true;
+			System.out.println("creating siege or raid battle");
 
 			// TODO add different type of wall according to the type of location we're at
 			if (siege.location.isCastle() || siege.location.isCity()) {
@@ -1216,9 +1221,13 @@ public class BattleStage extends Group implements Battle {
 				    // TODO make this work with multiple armies
 					victory(enemies.first(), allies.first());
 				} else if (enemies.noUnits()) {
+
 					victory(allies.first(), enemies.first());
 				}
 			}
+			// Note this only happens if it was a simulation.
+			// TODO make this happen no matter what -- and add a button to return to main screen.
+			// TODO add a "Battle Summary Panel" to the right hand side
 			else if (!isOver()) {
 				if (allies.noUnits() && !placementPhase) {
 //				/	BottomPanel.log("Defeat", "green");
@@ -1380,6 +1389,7 @@ public class BattleStage extends Group implements Battle {
 	//		if (unit.team == 1) enemies.addUnit(unit);
 	//	}
 
+	// Note this is only called if not a simulation
 	public void victory(Party winner, Party loser) {
 		System.out.println("Battle over!");
 		Army winnerArmy = winner.army; // May be null
@@ -1405,8 +1415,7 @@ public class BattleStage extends Group implements Battle {
         for (Unit u : retreated)
             u.soldier.subparty.healNoMessage(u.soldier);
 
-		// victory is handled later.
-//        victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), didAtkWin);
+        victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), didAtkWin);
 
 		if (winner.player) {
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
@@ -1681,14 +1690,33 @@ public class BattleStage extends Group implements Battle {
 
 	@Override
 	public StrictArray<Party> getAttackingPartiesRetreated() {
-		// TODO
-//		return getAttacking();
-		return new StrictArray<Party>();
+		if (!getAttacking().noUnits() && !getDefending().noUnits()) throw new AssertionError();
+
+		// For now, just return a copy of all the defeated parties.
+		// Main problem is that this ignores parties that have fled the battle on the winning side.
+		// Eventually need to fix this.
+		if (getAttacking().noUnits()) {
+			StrictArray<Party> retreated = new StrictArray<>(getAttacking().parties);
+			getAttacking().parties.clear();
+			return retreated;
+		} else return new StrictArray<>();
 	}
 
 	@Override
 	public StrictArray<Party> getDefendingPartiesRetreated() {
-		return new StrictArray<Party>();
+		if (!getAttacking().noUnits() && !getDefending().noUnits())
+			throw new AssertionError();
+
+		// For now, just return a copy of all the defeated parties.
+		// Main problem is that this ignores parties that have fled the battle
+		// on the winning side.
+		// Eventually need to fix this.
+		if (getDefending().noUnits()) {
+			StrictArray<Party> retreated = new StrictArray<>(getDefending()
+					.parties);
+			getDefending().parties.clear();
+			return retreated;
+		} else return new StrictArray<>();
 	}
 
 	@Override

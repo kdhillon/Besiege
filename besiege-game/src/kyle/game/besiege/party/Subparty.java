@@ -1,6 +1,7 @@
 package kyle.game.besiege.party;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.panels.BottomPanel;
@@ -49,6 +50,14 @@ public class Subparty {
         General g = (new General(s));
 		addSoldier(g);
         setGeneral(g);
+	}
+
+	public StrictArray<Soldier> getHealthy() {
+		return healthy;
+	}
+
+	public StrictArray<Soldier> getWounded() {
+		return wounded;
 	}
 	
 	public void setGeneral(General g) {
@@ -225,7 +234,21 @@ public class Subparty {
 	public StrictArray<StrictArray<Soldier>> getConsolWounded() {
 		return Party.getConsol(wounded);
 	} 
-	
+
+	// Ignores general.
+	public LinkedHashMap<UnitType, Integer> getTypeListHealthy() {
+		LinkedHashMap<UnitType, Integer> counts = new LinkedHashMap<>();
+		for (Soldier s : healthy) {
+			if (s.isGeneral()) continue;
+			if (counts.containsValue(s.unitType)) {
+				counts.put(s.unitType, counts.get(s));
+			} else {
+				counts.put(s.unitType, 1);
+			}
+  		}
+  		return counts;
+	}
+
 	public int getHealthySize() {
 		return healthy.size;
 	}

@@ -898,7 +898,9 @@ public class Location extends Group implements Destination {
 			for (Army a : attackers) {
 				attackerParties.add(a.party);
 			}
-			kingdom.getPlayer().createPlayerBattleWith(defenders, attackerParties, true, this.siege);
+
+			Location siegeOf = this.siege == null ? null : this.siege.location;
+			kingdom.getPlayer().createPlayerBattleWith(defenders, attackerParties, true, siegeOf);
 		}
 		else {
 			attackers.first().createBattleWith(null, this);
@@ -930,7 +932,7 @@ public class Location extends Group implements Destination {
 		siege.add(army);
 		kingdom.addActor(siege);
 		
-		this.addFire();
+		this.addSmoke();
 	}
 	public void joinSiege(Army army) {
 		needsUpdate = true;
@@ -965,6 +967,10 @@ public class Location extends Group implements Destination {
 	}
 	public void addFire() {
 		this.fire = new Fire( 20, 20, kingdom.getMapScreen(), this);
+		this.addActor(fire);
+	}
+	public void addSmoke() {
+		this.fire = new Fire( 20, 20, kingdom.getMapScreen(), this, true);
 		this.addActor(fire);
 	}
 	public void removeFire() {
