@@ -36,9 +36,7 @@ public class General extends Soldier {
 	public int courage;  // increases morale in battle, but also mutiny chance
 	public int preparation; // increases troop health in battle
 
-	public int infantryAttack;
-	public int infantryDefense;
-	
+	public int infantryCommand;
 	public int rangedCommand;
 
 	// for Kryo
@@ -94,9 +92,8 @@ public class General extends Soldier {
 		
 		morality = getRandomInit();		
 		
-		infantryAttack = getRandomInit();
-		infantryDefense = getRandomInit();
-		rangedCommand = getRandomInit();	
+		infantryCommand = getRandomInit();
+		rangedCommand = getRandomInit();
 	}
 	
 	private int getRandomInit() {
@@ -104,13 +101,13 @@ public class General extends Soldier {
 	}
 	
 	public float getBonusGeneralAtk() {
-		return (BONUS_MAX - BONUS_MIN) * infantryAttack/100.0f + BONUS_MIN;
+		return (BONUS_MAX - BONUS_MIN) * infantryCommand/100.0f + BONUS_MIN;
 	}
-	
+
 	public float getBonusGeneralDef() {
-		return (BONUS_MAX - BONUS_MIN) * infantryDefense/100.0f + BONUS_MIN;		
+		return (BONUS_MAX - BONUS_MIN) * infantryCommand/100.0f + BONUS_MIN;
 	}
-	
+
 	public float getBonusAccuracy() {
 		return (BONUS_MAX - BONUS_MIN) * rangedCommand/100.0f + BONUS_MIN;
 	}
@@ -139,7 +136,7 @@ public class General extends Soldier {
 	}
 	
 	public void increaseRandomStat() {
-		double MAX_VAL = 0.5;
+		double MAX_VAL = 0.4;
 		double rand = Math.random() * MAX_VAL;
 		int value = (int) (Math.random() * 5 + 1);
 		if (rand < 0.1) {
@@ -149,10 +146,7 @@ public class General extends Soldier {
 			preparation += value;			
 		}
 		else if (rand < 0.3) {
-			infantryAttack += value;
-		}
-		else if (rand < 0.4) {
-			infantryDefense += value;
+			infantryCommand += value;
 		}
 		else if (rand < MAX_VAL) {
 			rangedCommand += value;

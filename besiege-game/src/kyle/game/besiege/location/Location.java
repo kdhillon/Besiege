@@ -970,7 +970,7 @@ public class Location extends Group implements Destination {
 		this.addActor(fire);
 	}
 	public void addSmoke() {
-		this.fire = new Fire( 20, 20, kingdom.getMapScreen(), this, true);
+		this.fire = new Fire( 20, 20, kingdom.getMapScreen(), this, false, true);
 		this.addActor(fire);
 	}
 	public void removeFire() {

@@ -123,9 +123,9 @@ public class City extends Location {
 
 	public String getSizeString() {
 	    Size size = getSize();
-	    if (size == Size.TOWN) return "Town";
-	    if (size == Size.CITY) return "City";
-	    if (size == Size.LARGE_CITY) return "Large City";
+	    if (size == Size.TOWN) return "Small Town";
+	    if (size == Size.CITY) return "Town";
+	    if (size == Size.LARGE_CITY) return "City";
 	    throw new AssertionError();
     }
 	

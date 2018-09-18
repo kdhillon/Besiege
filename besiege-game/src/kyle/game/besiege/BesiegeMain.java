@@ -25,16 +25,16 @@ public class BesiegeMain extends Game {
 	@Override
 	public void create() {
 		Texture.setEnforcePotImages(false);
-		
-		Assets.load();
+
+        Assets.load();
 		mainMenuScreen = new MainMenuScreen(this);
 		
 //		mapTest = new MapTest();
 		
 //		setScreen(mapScreen); // eventually make mainMenu
 		setScreen(mainMenuScreen);
-		
-		// doesn't work!pppppppppp
+
+		// doesn't work!
 		switch (Gdx.app.getType()) {
 			case Desktop:
 				appType = 0; // CHANGE BACK

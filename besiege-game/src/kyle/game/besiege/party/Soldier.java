@@ -709,7 +709,14 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	public SoldierType getType() {
 		if (this.getHorse() != null) return SoldierType.CAVALRY;
-		if (this.unitType.ranged != null) return SoldierType.ARCHER;
+		if (this.unitType.ranged != null && (this.unitType.ranged.type ==
+				RangedWeaponType.Type.BOW || this.unitType.ranged.type ==
+				RangedWeaponType.Type.ATLATL ||this.unitType.ranged.type ==
+				RangedWeaponType.Type.SLING || this.unitType.ranged.type ==
+				RangedWeaponType.Type.BLOWGUN || this.unitType.ranged.type ==
+				RangedWeaponType.Type.FIREARM || this.unitType.ranged.type ==
+				RangedWeaponType.Type.CROSSBOW))
+			return SoldierType.ARCHER;
 		else return SoldierType.INFANTRY;
 	}
 	

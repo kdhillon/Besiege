@@ -74,7 +74,7 @@ public class CrestDraw extends Actor {
 
 		if (loc != null) {
 //			this.setPosition(-15 * loc.getScaleX(), 15 * loc.getScaleY());
-			this.setSize(1.4f, 1.4f);
+			this.setSize(1.2f, 1.2f);
 			this.setPosition( loc.getWidth() / 2 - this.getWidth()/2, loc.getHeight() * 1.2f);
 		} else if (army != null) {
 //			this.setPosition(-15 * army.getScaleX(), 15 * army.getScaleY());

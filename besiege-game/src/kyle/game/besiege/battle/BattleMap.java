@@ -743,7 +743,7 @@ public class BattleMap extends Group {
         stage.closed[posY][posX] = true;
 
         FireContainer fireContainer = new FireContainer();
-        Fire fire = new Fire(600, 800, stage.getMapScreen(), null, shouldGrow);
+        Fire fire = new Fire(600, 800, stage.getMapScreen(), null, shouldGrow, false);
         fireContainer.addFire(fire);
         float y = posY * stage.unit_height + stage.unit_height * 0.5f;
         if (objects[posY][posX] == Object.TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.0f; // note we move it a bit down (for aesthetics)

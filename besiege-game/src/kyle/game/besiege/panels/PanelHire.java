@@ -59,7 +59,7 @@ public class PanelHire extends Panel {
         lsG.font = Assets.pixel16;
         lsG.fontColor = Color.GRAY;
 
-        topTable = new TopTable(2);
+        topTable = new TopTable();
         topTable.updateTitle("Warrior Volunteers", new InputListener() {
             public boolean touchDown(InputEvent event, float x,
                                      float y, int pointer, int button) {
@@ -71,7 +71,7 @@ public class PanelHire extends Panel {
                 centerCamera();
             }
         });
-        topTable.updateSubtitle(location.getName(), new InputListener() {
+        topTable.addSubtitle("locationname", location.getName(), new InputListener() {
             public boolean touchDown(InputEvent event, float x,
                                      float y, int pointer, int button) {
                 return true;

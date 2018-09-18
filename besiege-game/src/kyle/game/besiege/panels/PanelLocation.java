@@ -62,7 +62,7 @@ public class PanelLocation extends Panel {
 		lsG.font = Assets.pixel16;
 		lsG.fontColor = Color.GRAY;
 		
-		topTable = new TopTable(2);
+		topTable = new TopTable();
 		topTable.updateTitle(location.getName(), new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
@@ -73,7 +73,7 @@ public class PanelLocation extends Panel {
 				centerCamera();
 			}
 		});
-		topTable.updateSubtitle(location.getFactionName(), new InputListener() {
+		topTable.addSubtitle("factionname", location.getFactionName(), new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -83,7 +83,7 @@ public class PanelLocation extends Panel {
 				setActiveFaction();
 			}
 		});
-		topTable.updateSubtitle2(location.getTypeStr(),  null);
+		topTable.addSubtitle("locationtype", location.getTypeStr(),  null);
 		
 		topTable.addBigLabel("Garrison", "Garrison:");
 		topTable.addSmallLabel("Pop", "Pop:");
@@ -232,11 +232,11 @@ public class PanelLocation extends Panel {
         }
 
         if (location.underSiege())
-            topTable.updateSubtitle("Under Siege!", null);
+            topTable.update("factionname", "Under Siege!", null);
         else {
             if (location.getKingdom().getPlayer().isAtWar(location))
-                topTable.updateSubtitle(location.getFactionName() + " (at war)", null);
-            else topTable.updateSubtitle(location.getFactionName(), null);
+                topTable.update("factionname", location.getFactionName() + " (at war)", null);
+            else topTable.update("factionname", location.getFactionName(), null);
         }
 
         if (location.needsUpdate) {

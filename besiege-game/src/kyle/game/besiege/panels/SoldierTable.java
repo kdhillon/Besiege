@@ -34,13 +34,18 @@ public class SoldierTable extends Table {
 	private final int r = 3; 
 	private final String tablePatch = "grey-d9";
 	private static final String LOCATION_EMPTY_TEXT = "No troops garrisoned!";
+	private static Color SELECTED_COLOR = Color.YELLOW;
 
 	private Table soldierTable;
     private ScrollPane soldierPane;
 
     public Soldier selected;
     public Soldier nextToSelect; // everytime you select a soldier, figure out which one you should select next if the soldier is hired.
+
+    private StrictArray<SoldierLabel> soldierLabels;
+
     public boolean hirePanel;
+    public boolean selectable;
 
     protected final Party party;
 
@@ -52,8 +57,8 @@ public class SoldierTable extends Table {
 	private final Label prisonersC;
 	private final Label emptyC;
 
-//	private boolean organizeByType = true;
-    private boolean allowSubpartyCollapse = false;
+    private boolean allowSubpartyCollapse = true;
+    private boolean preventSoldierExpand = false;
 
 	public SoldierTable(Party party) {
 		ls.font = Assets.pixel16;
@@ -75,14 +80,31 @@ public class SoldierTable extends Table {
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);
+
+		soldierLabels = new StrictArray<>();
 		
 		this.add(soldierPane).top().width(SidePanel.WIDTH - PAD*2).expandY().fillY();
+		this.selectable = true;
 	}
-	
+
+	// Only updates the colors of the soldierlabels (for selecting)
+	public void updateColors() {
+	    for (SoldierLabel soldierLabel : soldierLabels) {
+	        if (soldierLabel.soldier == selected) soldierLabel.setColor(SELECTED_COLOR);
+	        else if (soldierLabel.soldier.isGeneral()) {
+	            soldierLabel.setColor(soldierLabel.soldier.unitType.cultureType.colorDark);
+            } else {
+                soldierLabel.setColor(Color.GRAY);
+            }
+        }
+    }
+
+	// This does a full refresh.
 	public void update() {
 //	    if (playerPartyPanel == null || playerPartyPanel.getTotalSize() == 0) throw new AssertionError();
 		soldierTable.clear(); // clearing the table is a problem right now. it hides the scroll bar and prevents click-drag scrolling
 		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
+		soldierLabels.clear();
 
 //		garrisonC.setAlignment(Align.center);
 //		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
@@ -109,7 +131,7 @@ public class SoldierTable extends Table {
 		for (final Subparty s : party.sub) {
             SoldierLabel general;
 //            if (organizeByType) {
-            if (allowSubpartyCollapse) {
+            if (allowSubpartyCollapse && !hirePanel) {
                 updateTableWithTypesNew(s.getGeneral(), s.getConsolHealthy(), style);
 //                updateTableWithTypesNew(s.getGeneral(), s.getConsolWounded(), wounded);
             } else {
@@ -124,8 +146,12 @@ public class SoldierTable extends Table {
 
                         public void touchUp(InputEvent event, float x, float y,
                                             int pointer, int button) {
-                            if (hirePanel) {
-                                select(s.general);
+                            if (selectable) {
+                                if (selected == s.general) {
+                                    deselect();
+                                } else {
+                                    select(s.general);
+                                }
                             } else {
                                 switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
                             }
@@ -138,9 +164,12 @@ public class SoldierTable extends Table {
                     soldierTable.add(generalCount).right();
                     generalCount.setColor(s.general.unitType.cultureType.colorDark);
                     soldierTable.row();
+
+                    soldierLabels.add(general);
                 } else {
 //				general = new SoldierLabel("No general!", style, s.general);
                 }
+
 
                 updateTableWithTypes(s.getConsolHealthy(), style);
                 updateTableWithTypes(s.getConsolWounded(), wounded);
@@ -214,7 +243,6 @@ public class SoldierTable extends Table {
                 public void touchUp(InputEvent event, float x, float y,
                                     int pointer, int button) {
                     // Force table to be expanded the whole time.
-                    if (hirePanel) return;
                     if (allowSubpartyCollapse) {
                         if (expanded) {
                             clearExpand();
@@ -275,8 +303,9 @@ public class SoldierTable extends Table {
                 }
                 public void touchUp(InputEvent event, float x, float y,
                                     int pointer, int button) {
+                    if (preventSoldierExpand) return;
+
                     // Force table to be expanded the whole time.
-                    if (hirePanel) return;
                     if (expanded) {
                         clearExpand();
                         expanded = false;
@@ -293,7 +322,7 @@ public class SoldierTable extends Table {
                 SoldierLabel soldierName = new SoldierLabel(s.getName(), this.getStyle(), s);
                 soldierName.setColor(Color.GRAY);
                 if (s == selected) {
-                    soldierName.setColor(Color.YELLOW);
+                    soldierName.setColor(SELECTED_COLOR);
                 }
                 expand.add(soldierName).left().padBottom(PanelUnit.NEG).expandX();
 
@@ -304,14 +333,19 @@ public class SoldierTable extends Table {
                     }
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
-                        if (hirePanel) {
-                            select(s);
+                        if (selectable) {
+                            if (selected == s)
+                                deselect();
+                            else
+                                select(s);
                         } else {
                             switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
                         }
                     }
                 });
                 expand.row();
+
+                soldierLabels.add(soldierName);
             }
         }
         void clearExpand() {
@@ -405,12 +439,27 @@ public class SoldierTable extends Table {
 //
 //    }
 
-	public void select(Soldier soldier) {
-	    System.out.println("selecting: " + soldier.getName());
-	    this.selected = soldier;
-	    this.nextToSelect = getSoldierAfterSelectedOrBeforeIfNoneAfter();
-        update();
+
+    public void select(Soldier soldier) {
+        System.out.println("selecting: " + soldier.getName());
+        this.selected = soldier;
+        this.nextToSelect = getSoldierAfterSelectedOrBeforeIfNoneAfter();
+        updateColors();
     }
+
+    public void deselect() {
+        this.selected = null;
+        this.nextToSelect = null;
+        updateColors();
+    }
+
+//	public void select(Soldier soldier, Label label) {
+//	    System.out.println("selecting: " + soldier.getName());
+//	    this.selected = soldier;
+//	    this.nextToSelect = getSoldierAfterSelectedOrBeforeIfNoneAfter();
+//	    label.setColor(SELECTED_COLOR);
+////        update();
+//    }
 
     // For selecting a soldier after one has been hired.
     private Soldier getSoldierAfterSelectedOrBeforeIfNoneAfter() {
@@ -458,7 +507,6 @@ public class SoldierTable extends Table {
             selected = null;
         }
         update();
-
     }
 
 	public void updateWithPrisoners(Party party) {

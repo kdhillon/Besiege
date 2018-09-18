@@ -12,6 +12,7 @@ public class HireSoldierTable extends SoldierTable {
     public HireSoldierTable(Party party, PanelHire panelHire) {
         super(party);
         hirePanel = true;
+        selectable = true;
         this.panelHire = panelHire;
 
         this.selectFirstSoldier();

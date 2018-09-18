@@ -78,7 +78,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
             subTitle = party.getName();
         }
 
-		topTable = new TopTable(3);
+		topTable = new TopTable();
 		topTable.updateTitle(title, new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
@@ -93,7 +93,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		if (party.getFaction() != null) {
 			factionName = party.getFaction().name;
 		}
-		topTable.updateSubtitle(factionName, new InputListener() {
+		topTable.addSubtitle("factionname", factionName, new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
 					float y, int pointer, int button) {
 				return true;
@@ -105,8 +105,11 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		});
 		
 		if (!party.player) {
-			topTable.updateSubtitle2(subTitle, null);
+			topTable.addSubtitle("subtitle", subTitle, null);
 		}
+
+		if (army != null)
+			topTable.addSubtitle("action", army.getAction(), null);
 
 		topTable.addSmallLabel("Size", "Size:");
 		topTable.addSmallLabel("Atk", "Atk:");
@@ -157,16 +160,16 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				playerTouched = false;
 			}
 			if (party.player) {
-				topTable.updateSubtitle(army.getFactionName(), null);
+				topTable.update("factionname", army.getFactionName(), null);
 				topTable.updateTitle(army.getName(), null);
 			}
 
 			if (army.getKingdom().getPlayer().isAtWar(army))
-				topTable.updateSubtitle(army.getFactionName() + " (at war)", null);
+				topTable.update("factionname", army.getFactionName() + " (at war)", null);
 			else
-				topTable.updateSubtitle(army.getFactionName(), null);
+				topTable.update("factionname", army.getFactionName(), null);
 
-			topTable.updateSubtitle3(army.getAction(), null);
+			topTable.update("action", army.getAction(), null);
             topTable.update("Morale", army.getMoraleString() + "");
 			topTable.update("Wealth", "" + army.getParty().wealth);
 

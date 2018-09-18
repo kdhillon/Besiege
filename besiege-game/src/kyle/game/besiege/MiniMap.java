@@ -110,10 +110,9 @@ public class MiniMap extends Actor {
 			boolean drawWeaponInFront = false;
 
 			boolean drawingRangedWeapon = true;
-			if (toPreview.unitType.ranged == null || (unit != null && !unit.rangedWeaponOut())) {
+			if (toPreview.unitType.ranged == null || (unit != null && !unit.rangedWeaponOut()) || toPreview.unitType.ranged.type == RangedWeaponType.Type.THROWN || toPreview.unitType.ranged.type == RangedWeaponType.Type.THROWN_AXE) {
                 drawingRangedWeapon = false;
             }
-
 
             if (drawingRangedWeapon) {
 				weapon = WeaponDraw.GetRangedWeaponTextureForUnittype(toPreview.unitType);

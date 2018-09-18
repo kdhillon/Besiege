@@ -67,10 +67,6 @@ public class Fire extends Actor {
 		this(_width, _height, mapScreen, loc, false, false);
 	}
 
-    public Fire(float _width, float _height, MapScreen mapScreen, Location loc, boolean onlySmoke) {
-        this(_width, _height, mapScreen, loc, false, onlySmoke);
-    }
-
 	public Fire(float _width, float _height, MapScreen mapScreen, Location loc, boolean shouldGrow, boolean onlySmoke) {
 		this.mapScreen = mapScreen;
 		this.region = new TextureRegion(new Texture("whitepixel.png"));
@@ -192,7 +188,8 @@ public class Fire extends Actor {
 	}
 
 	private void removeParticle(Particle p) {
-		if (Math.random() < .1 && !p.isSmoke) {
+		// This smokes heavily if it's "only smoke"
+		if (((onlySmoke && Math.random() < 0.25) || Math.random() < .15) && !p.isSmoke) {
 			p.isSmoke = true;
 			p.lifetime = (float) (Math.random()*10);
 			p.init_lifetime = p.lifetime;
@@ -251,6 +248,9 @@ public class Fire extends Actor {
 			p.color.g = gray;
 			p.color.r = gray;
 			p.color.b = gray;
+
+			p.color.a = gray / 2 + 0.5f;
+
 		}
 		// p.g = parseInt((p._y / (INIT_TOP+50)) * 255);
 	}
