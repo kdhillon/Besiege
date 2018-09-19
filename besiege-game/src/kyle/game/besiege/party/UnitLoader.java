@@ -355,13 +355,19 @@ public class UnitLoader {
                 }
 
                 cultureTypes.put(currentClass, culture);
+
                 continue;
             }
 //			System.out.println(first);
 
             UnitType unit = new UnitType();
 
-            unit.tier = Integer.parseInt(first);
+            // This is a shaman!
+            if (first.equals("S")) {
+				unit.tier = 0;
+			} else {
+				unit.tier = Integer.parseInt(first);
+			}
             // remove numbers from name
             unit.name = addSpaces(in.next());
 //			System.out.println(unit.name);
@@ -430,7 +436,7 @@ public class UnitLoader {
         }
 		in.close();
 	}
-	
+
 	public static void printAllUnits() {
 		for (CultureType classType : cultureTypes.values()) {
 			for (UnitType unit : classType.units.values()) {

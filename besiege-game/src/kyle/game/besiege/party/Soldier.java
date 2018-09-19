@@ -23,7 +23,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	static int namesGenerated = 0;
 	
 	public static enum SoldierType {
-		INFANTRY, ARCHER, CAVALRY, GENERAL
+		INFANTRY, ARCHER, CAVALRY, GENERAL, SHAMAN
 	}
 
 	// getTier()  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
@@ -708,6 +708,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 
 	public SoldierType getType() {
+		if (this.isGeneral()) return SoldierType.GENERAL;
+		if (this.isShaman()) return SoldierType.SHAMAN;
 		if (this.getHorse() != null) return SoldierType.CAVALRY;
 		if (this.unitType.ranged != null && (this.unitType.ranged.type ==
 				RangedWeaponType.Type.BOW || this.unitType.ranged.type ==
@@ -737,6 +739,10 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 	
 	public boolean isGeneral() {
+		return false;
+	}
+
+	public boolean isShaman() {
 		return false;
 	}
 }

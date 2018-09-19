@@ -38,7 +38,7 @@ public class PanelUnit extends Panel {
 
 	protected TopTable topTable;
 
-	protected Table text;
+//	protected Table text;
 //	protected Label title;
 //	protected Label subTitle;
 	private Label armyName;
@@ -81,8 +81,6 @@ public class PanelUnit extends Panel {
         this.panel = panel;
 
         this.unit = unit;
-        //		unit = null;
-        //		this.unit = null;
 
         this.party = soldier.party;
 
@@ -107,14 +105,6 @@ public class PanelUnit extends Panel {
         lsG.font = Assets.pixel16;
         lsG.fontColor = Color.GRAY;
 
-//        levelSC = new Label("Level:", ls);
-//        hpSC = new Label("HP:", ls);
-//        moraleSC = new Label("Morale:", ls);
-//
-//        atkSC = new Label("Atk:", ls);
-//        defSC = new Label("Def:", ls);
-//        spdSC = new Label("Spd:", ls);
-
         generalStats = new Table();
 
 		topTable = new TopTable();
@@ -123,7 +113,6 @@ public class PanelUnit extends Panel {
 		String name = soldier.getName();
 		if (soldier.female) name += " (f)";
 		else name += " (m)";
-
 
 		topTable.addSubtitle("name", name, ls, null);
 
@@ -170,67 +159,6 @@ public class PanelUnit extends Panel {
 		topTable.row();
 
 		this.addTopTable(topTable);
-
-
-
-//        levelS = new Label("" + soldier.level, ls);
-//        hpS = new Label("", ls);
-//        moraleS = new Label("", ls);
-//        atkS = new Label("" + df.format(soldier.getAtk()), ls);
-//        defS = new Label("" + df.format(soldier.getDef()), ls);
-//        spdS = new Label("" + df.format(soldier.getSpd()), ls);
-//        weaponS = new Label("" + soldier.unitType.melee.name, ls);
-//        weaponS.setAlignment(0, 0);
-
-//        if (unit != null && unit.isRanged()) {
-//            rangedWeaponS = new Label(soldier.unitType.ranged.name + "(" + unit.quiver + ")", ls);
-//            rangedWeaponS.setAlignment(0, 0);
-//        }
-//        if (soldier.unitType.shieldType != null) {
-//            shieldS = new Label("" + soldier.unitType.shieldType.name, ls);
-//            shieldS.setAlignment(0, 0);
-//	    }
-//		armorS = new Label("" + soldier.unitType.armor.name, ls);
-//		armorS.setAlignment(0,0);
-
-//		equipmentS = new Label("", ls);
-		//TODO add health bar back in.
-		if (unit != null) {
-//			actionS = new Label("" + unit.getStatus(), ls);
-//			actionS.setAlignment(0,0);
-		}
-
-		// Create text
-		text = new Table();
-		//text.debug();
-		text.defaults().padTop(NEG).left();
-		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
-		text.add().colspan(2).width((SidePanel.WIDTH-PAD*2)/2);
-		text.row();
-		text.add(armyName).colspan(4).fillX().expandX();
-//		text.row();
-//		text.add(generalStats).colspan(4).fillX().expandX().padTop(MINI_PAD).padBottom(MINI_PAD);
-		text.row();
-
-//		text.add(levelSC).padLeft(PAD);
-//		text.add(levelS);
-//		text.add(atkSC).padLeft(MINI_PAD);
-//		text.add(atkS);
-//		text.row();
-//		text.add(hpSC).padLeft(PAD);
-//		text.add(hpS);
-//		text.add(defSC).padLeft(MINI_PAD);
-//		text.add(defS);
-//		text.row();
-//		text.add(moraleSC).padLeft(PAD);
-//		text.add(moraleS);
-//		text.add(spdSC).padLeft(MINI_PAD);
-//		text.add(spdS);
-
-//		text.row();
-
-		text.padLeft(MINI_PAD);
-//		this.addTopTable(text);
 
 		if (soldier.availableForHire()) {
 		    this.setButton(3, "Hire");
