@@ -3,203 +3,203 @@ crests1.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-wolf
+rain
   rotate: false
   xy: 2, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-water
+snake
   rotate: false
   xy: 20, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-twinarrows
+pyramid2
   rotate: false
   xy: 38, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-tomahawk
+spiral
   rotate: false
   xy: 56, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-thunderbird
+sun
   rotate: false
   xy: 74, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-sun3
+bearclaw
   rotate: false
   xy: 92, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-sun2
+pyramid
   rotate: false
   xy: 110, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-sun
+thunderbird
   rotate: false
   xy: 2, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-stonehead
+necklace
   rotate: false
   xy: 2, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-spiral2
+flower
   rotate: false
   xy: 2, 56
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-spiral
+buffalo
   rotate: false
   xy: 2, 74
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-snake
+arrowhead
   rotate: false
   xy: 2, 92
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-skull
+water
   rotate: false
   xy: 2, 110
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-raven
+spiral2
   rotate: false
   xy: 20, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-rain
+twinarrows
   rotate: false
   xy: 38, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-pyramid2
+stonehead
   rotate: false
   xy: 56, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-pyramid
+geometric
   rotate: false
   xy: 74, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-necklace
+raven
   rotate: false
   xy: 92, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-geometric
+wolf
   rotate: false
   xy: 110, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-flower
+bearface
   rotate: false
   xy: 20, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-fist
+sun2
   rotate: false
   xy: 20, 56
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-eagle
+sun3
   rotate: false
   xy: 20, 74
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-crestbase
+bird
   rotate: false
   xy: 20, 92
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-buffalo
+eagle
   rotate: false
   xy: 20, 110
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-bow
+fist
   rotate: false
   xy: 38, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-bird
+crestbase
   rotate: false
   xy: 56, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-bearface
+skull
   rotate: false
   xy: 74, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-bearclaw
+tomahawk
   rotate: false
   xy: 92, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-arrowhead
+bow
   rotate: false
   xy: 110, 38
   size: 16, 16

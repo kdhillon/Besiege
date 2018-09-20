@@ -34,6 +34,7 @@ public class SoldierTable extends Table {
 	private final int r = 3; 
 	private final String tablePatch = "grey-d9";
 	private static final String LOCATION_EMPTY_TEXT = "No troops garrisoned!";
+    private static Color SOLDIER_NAME_COLOR = Color.LIGHT_GRAY;
 	private static Color SELECTED_COLOR = Color.YELLOW;
 
 	private Table soldierTable;
@@ -84,7 +85,7 @@ public class SoldierTable extends Table {
 		soldierLabels = new StrictArray<>();
 		
 		this.add(soldierPane).top().width(SidePanel.WIDTH - PAD*2).expandY().fillY();
-		this.selectable = true;
+		this.selectable = false;
 	}
 
 	// Only updates the colors of the soldierlabels (for selecting)
@@ -94,7 +95,7 @@ public class SoldierTable extends Table {
 	        else if (soldierLabel.soldier.isGeneral()) {
 	            soldierLabel.setColor(soldierLabel.soldier.unitType.cultureType.colorDark);
             } else {
-                soldierLabel.setColor(Color.GRAY);
+                soldierLabel.setColor(SOLDIER_NAME_COLOR);
             }
         }
     }
@@ -132,7 +133,7 @@ public class SoldierTable extends Table {
             SoldierLabel general;
 //            if (organizeByType) {
             if (allowSubpartyCollapse && !hirePanel) {
-                updateTableWithTypesNew(s.getGeneral(), s.getConsolHealthy(), style);
+                updateTableWithTypesNew(s, style);
 //                updateTableWithTypesNew(s.getGeneral(), s.getConsolWounded(), wounded);
             } else {
                 if (s.general != null) {
@@ -226,14 +227,19 @@ public class SoldierTable extends Table {
 
     // This is a label of a general that includes a table of all subtypes below it
     public class SubpartyLabel extends Label {
+	    Subparty subparty;
 	    StrictArray<StrictArray<Soldier>> soldierLists;
         Table expand;
         public boolean expanded = false;
 
-        public SubpartyLabel(General general, StrictArray<StrictArray<Soldier>> soldierLists, LabelStyle ls) {
-            super(general.getRank() + " " + general.getLastName(), ls);
+        public SubpartyLabel(Subparty subparty, LabelStyle ls) {
+            super(subparty.general.getRank() + " " + subparty.general.getLastName(), ls);
+            General general = subparty.getGeneral();
+            StrictArray<StrictArray<Soldier>> types = subparty.getConsolHealthy();
+
+            this.subparty = subparty;
             this.setColor(general.unitType.cultureType.colorDark);
-            this.soldierLists = soldierLists;
+            this.soldierLists = subparty.getConsolHealthy();
             expand = new Table();
             this.addListener(new ClickListener() {
                 public boolean touchDown(InputEvent event, float x,
@@ -281,6 +287,37 @@ public class SoldierTable extends Table {
                     name.expanded = true;
                 }
             }
+
+            // Also add Shaman if necessary
+            if (subparty.shaman != null) {
+                SoldierLabel shamanLabel = new SoldierLabel(subparty.shaman.unitType.name, getStyle(), subparty.shaman);
+                expand.add(shamanLabel).left().expandX().padBottom(1*PanelUnit.NEG).colspan(2);
+                shamanLabel.setColor(SOLDIER_NAME_COLOR);
+                if (subparty.shaman == selected) {
+                    shamanLabel.setColor(SELECTED_COLOR);
+                }
+                soldierLabels.add(shamanLabel);
+
+
+                shamanLabel.addListener(new ClickListener() {
+                    public boolean touchDown(InputEvent event, float x,
+                                             float y, int pointer, int button) {
+                        return true;
+                    }
+                    public void touchUp(InputEvent event, float x, float y,
+                                        int pointer, int button) {
+                        if (selectable) {
+                            if (selected == subparty.shaman)
+                                deselect();
+                            else
+                                select(subparty.shaman);
+                        } else {
+                            switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
+                        }
+                    }
+                });
+                expand.row();
+            }
         }
         void clearExpand() {
             expanded = false;
@@ -320,7 +357,7 @@ public class SoldierTable extends Table {
         void createExpand() {
             for (final Soldier s : type) {
                 SoldierLabel soldierName = new SoldierLabel(s.getName(), this.getStyle(), s);
-                soldierName.setColor(Color.GRAY);
+                soldierName.setColor(SOLDIER_NAME_COLOR);
                 if (s == selected) {
                     soldierName.setColor(SELECTED_COLOR);
                 }
@@ -357,12 +394,12 @@ public class SoldierTable extends Table {
         MapScreen.sidePanelReference.setActiveUnit(s);
     }
 
-    public void updateTableWithTypesNew(General general, StrictArray<StrictArray<Soldier>> types, LabelStyle style) {
-        SubpartyLabel label = new SubpartyLabel(general, types, style);
+    public void updateTableWithTypesNew(Subparty s, LabelStyle style) {
+        SubpartyLabel label = new SubpartyLabel(s, style);
         soldierTable.add(label).left().expandX();
-        Label generalCount = new Label(general.subparty.getHealthySize() + "", style);
+        Label generalCount = new Label(s.getHealthySize() + "", style);
         soldierTable.add(generalCount).right();
-        generalCount.setColor(general.unitType.cultureType.colorDark);
+        generalCount.setColor(s.general.unitType.cultureType.colorDark);
         soldierTable.row();
 
         soldierTable.row();

@@ -19,6 +19,11 @@ public enum Equipment {
     HEADDRESS_FOREST_1 ("Forest Headdress", "forestHeaddress3", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_FOREST_2 ("Forest Headdress", "forestHeaddress2", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_FOREST_3 ("Forest Headdress", "forestHeaddress", Type.HEAD, 0, 1, 0, 20),
+
+	MASK_WOLF("Wolf Mask", "wolf-mask", Type.HEAD, 0, 0, 0, 20),
+	MASK_SKULL("Skull Mask", "skull-mask", Type.HEAD, 0, 0, 0, 20),
+	MASK_TROPICAL("Tropical Mask", "shaman-mask-skull", Type.HEAD, 0, 0, 0, 20),
+
     WOLFSKIN_CAP("Wolfskin Cap", "wolfskinCap", Type.HEAD, 0, 1, 0, 20),
     RED_FOX_TURBAN("Fox Turban", "foxTurban", Type.HEAD, 0, 1, 0, 20);
 

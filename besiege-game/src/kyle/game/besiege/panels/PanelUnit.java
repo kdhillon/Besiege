@@ -74,7 +74,7 @@ public class PanelUnit extends Panel {
 	private LabelStyle lsMed;
 	private LabelStyle lsG;
 
-	protected DecimalFormat df = new DecimalFormat("#.00"); 
+	protected DecimalFormat df = new DecimalFormat("0.00");
 
 	// can be used for soldier or unit
 	public PanelUnit(SidePanel panel, Unit unit, Soldier soldier) {

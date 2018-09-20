@@ -158,6 +158,33 @@ public class General extends Soldier {
 //			courage += value;
 //		}
 	}
+
+	public Equipment getHead() {
+		int bigHeadLimit = 100;
+		int medHeadLimit = 50;
+		if (this.getCulture().name.equals("Desert")) {
+			if (getFame() > bigHeadLimit)
+				return Equipment.HEADDRESS_MESO_3;
+			if (getFame() > medHeadLimit)
+				return Equipment.HEADDRESS_MESO_2;
+			else return Equipment.HEADDRESS_MESO_1;
+		}
+		if (this.getCulture().name.equals("Plains")) {
+			if (getFame() > bigHeadLimit)
+				return Equipment.HEADDRESS_PLAINS_3;
+			if (getFame() > medHeadLimit)
+				return Equipment.HEADDRESS_PLAINS_2;
+			else return Equipment.HEADDRESS_PLAINS_1;
+		}
+		if (this.getCulture().name.equals("Tundra") || this.getCulture().name.equals("Forest")) {
+			if (getFame() > bigHeadLimit)
+				return Equipment.HEADDRESS_FOREST_3;
+			if (getFame() > medHeadLimit)
+				return Equipment.HEADDRESS_FOREST_2;
+			else return Equipment.HEADDRESS_FOREST_1;
+		}
+		return null;
+	}
 	
 	public int getFame() {
 		return fame;

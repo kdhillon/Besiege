@@ -3,14 +3,14 @@ weapons1.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-warclubstone
+snarmed
   rotate: false
   xy: 2, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-war-hammer
+staff
   rotate: false
   xy: 2, 16
   size: 3, 12
@@ -24,14 +24,14 @@ voulge
   orig: 3, 12
   offset: 0, 0
   index: -1
-unarmed
+guisarme
   rotate: false
   xy: 2, 44
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-staff
+club
   rotate: false
   xy: 2, 58
   size: 3, 12
@@ -45,7 +45,7 @@ spear
   orig: 3, 12
   offset: 0, 0
   index: -1
-sling
+Military-Fork
   rotate: false
   xy: 2, 86
   size: 3, 12
@@ -59,105 +59,119 @@ shortbow
   orig: 3, 12
   offset: 0, 0
   index: -1
-rock
+warclubstone
   rotate: false
   xy: 2, 114
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Pitchfork
+falchion
   rotate: false
   xy: 7, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-pike
+War-Hammer
   rotate: false
   xy: 7, 16
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-morningstar
+sling
   rotate: false
   xy: 7, 30
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Military-Fork
+shortsword
   rotate: false
   xy: 7, 44
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-maul
+broadsword
   rotate: false
-  xy: 7, 58
+  xy: 7, 44
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
 mace
   rotate: false
+  xy: 7, 58
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+claymore
+  rotate: false
   xy: 7, 72
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-longsword
-  rotate: false
-  xy: 7, 86
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-longbow
-  rotate: false
-  xy: 7, 100
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-strongbow
-  rotate: false
-  xy: 7, 100
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-lance
-  rotate: false
-  xy: 7, 114
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
 hoe-bone
   rotate: false
-  xy: 12, 2
+  xy: 7, 86
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+maul
+  rotate: false
+  xy: 7, 100
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+rock
+  rotate: false
+  xy: 7, 114
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
 halberd
   rotate: false
+  xy: 12, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+crossbow
+  rotate: false
   xy: 17, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-guisarme
+Hvy-Crossbow
+  rotate: false
+  xy: 17, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Hatchet
   rotate: false
   xy: 22, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-falchion
+axe
+  rotate: false
+  xy: 22, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+longsword
   rotate: false
   xy: 27, 2
   size: 3, 12
@@ -171,91 +185,77 @@ dagger
   orig: 3, 12
   offset: 0, 0
   index: -1
-crossbow
+pitchfork
   rotate: false
   xy: 37, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-Hvy-Crossbow
-  rotate: false
-  xy: 37, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-club
+strongbow
   rotate: false
   xy: 42, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-claymore
+longbow
   rotate: false
-  xy: 47, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-broadsword
-  rotate: false
-  xy: 52, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-shortsword
-  rotate: false
-  xy: 52, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-Bow
-  rotate: false
-  xy: 57, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-recurve-bow
-  rotate: false
-  xy: 57, 2
+  xy: 42, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
 battleaxe
   rotate: false
+  xy: 47, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+lance
+  rotate: false
+  xy: 52, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+pike
+  rotate: false
+  xy: 57, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Bow
+  rotate: false
   xy: 62, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+Recurve-Bow
+  rotate: false
+  xy: 62, 2
+  size: 3, 12
+  orig: 3, 12
+  offset: 0, 0
+  index: -1
+morningstar
+  rotate: false
+  xy: 67, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
 bardiche
   rotate: false
-  xy: 67, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-glaive
-  rotate: false
-  xy: 67, 2
-  size: 3, 12
-  orig: 3, 12
-  offset: 0, 0
-  index: -1
-axe
-  rotate: false
   xy: 72, 2
   size: 3, 12
   orig: 3, 12
   offset: 0, 0
   index: -1
-hatchet
+Glaive
   rotate: false
   xy: 72, 2
   size: 3, 12

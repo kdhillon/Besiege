@@ -174,6 +174,7 @@ public class UnitDraw extends Actor {
     }
 
     public static void drawUnit(Actor actor, SpriteBatch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime, boolean loop, StrictArray<Equipment> equipment) {
+        if (skinColor == null || armorColor == null) throw new AssertionError();
         drawAnimationTint(batch, skin, stateTime, loop, skinColor, actor);
 
         if (armor != null) {

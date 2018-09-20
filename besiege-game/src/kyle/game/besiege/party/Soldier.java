@@ -137,23 +137,28 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 		this.healTime = that.healTime;
 	}
-	
-	public Soldier(UnitType unitType, Party party) {		
+
+	public Soldier(UnitType unitType, Party party) {
 //		this.equipment = Equipment.getBaseEquipment(unitType);
 
 		//		if (rangedWeapon != null) System.out.println(rangedWeapon.name);
 
 		this.party = party;
+		this.unitType = unitType;
 
 		//		if (Math.random() > 0.5)
 		//			getTier() = weapon.getTier();
 		//		else getTier() = weapon.getTier() + 1;
+		assignBaseStats();
+		init();
+	}
 
+	void assignBaseStats() {
 		this.atk = new MultiValue("Attack");
 		atk.addSubValue(TypeInfo.S_BASE_ATK);
 		atk.addSubValue(TypeInfo.S_WEAPON);
 		atk.addSubValue(TypeInfo.S_GENERAL);
-		
+
 		this.def = new MultiValue("Defense");
 		def.addSubValue(TypeInfo.S_BASE_DEF);
 //		def.addSubValue(TypeInfo.S_WEAPON);
@@ -167,16 +172,16 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		spd.addSubValue(TypeInfo.S_ARMOR);
 		spd.addSubValue(TypeInfo.S_GENERAL);
 		spd.addSubValue(TypeInfo.S_SHIELD);
-		
+
 		this.hp = new MultiValue("HP");
 		hp.addSubValue(TypeInfo.S_BASE_HP);
 		hp.addSubValue(TypeInfo.S_HP_DEF);
 		hp.addSubValue(TypeInfo.S_GENERAL);
-		
+
 		updateUnitType(unitType);
 
 		int tier = getTier();;
-		
+
 		int baseAtk = 0;
 		int baseDef = 0;
 		int baseSpd = 2;
@@ -185,22 +190,25 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 			if (DEF_TIER[i]) baseDef++;
 			if (SPD_TIER[i]) baseSpd++;
 		}
-		
+
 //		System.out.println("base speed: " + baseSpd);
 		atk.updateValue(TypeInfo.S_BASE_ATK, baseAtk);
 		def.updateValue(TypeInfo.S_BASE_DEF, baseDef);
 		spd.updateValue(TypeInfo.S_BASE_SPD, baseSpd);
-		
+
 		hp.updateValue(TypeInfo.S_BASE_HP, BASE_HP);
 		hp.updateValue(TypeInfo.S_HP_DEF, def);
-		
-		this.level = (short) (LEVEL_TIER[tier] + (short) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier])));
 
+		if (tier <= 0) this.level = 0;
+		else this.level = (short) (LEVEL_TIER[tier] + (short) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier])));
+	}
+
+	public void init() {
 		this.nextUpgrade = LEVEL_TIER[getTier()+1];
 
 		this.exp = 0;
-		this.next = (short) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT); 
-		
+		this.next = (short) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT);
+
 		wounded = false;
 		this.healTime = (float) (HEAL_TIME + Math.random() * HEAL_TIME - HEAL_TIME/2); //different for all units
 		timeWounded = 0;
@@ -213,9 +221,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 			this.female = true;
 		}
 		calcStats();
-		
+
 		ipKilled = new Array<General>();
-		
+
 		age = (short) (Math.random() * 20 + 18); // between 17 and 48
 	}
 
@@ -587,6 +595,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return false;
 	}
 	public void wound() {
+		// For now, don't let shamans be wounded.
+		if (this.isShaman()) return;
+
 		wounded = true;
 		if (party.army != null)
 			timeWounded = party.army.getKingdom().clock; // seconds elapsed when wounded
@@ -610,7 +621,6 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	
 	public float getAtk() {
 		return atk.getValue();
-//		return baseAtk + getBonusAtk();	
 	}
 	public float getDef() {
 		return def.getValue();	
@@ -644,31 +654,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	// Get helmet or headgear
     // See http://www.native-languages.org/headdresses.htm
+	// This is overriden by Genearl and Shaman
 	public Equipment getHead() {
-	    int bigHeadLimit = 100;
-        int medHeadLimit = 50;
-        if (this.isGeneral()) {
-            if (this.getCulture().name.equals("Desert")) {
-                if (((General) this).getFame() > bigHeadLimit)
-                    return Equipment.HEADDRESS_MESO_3;
-                if (((General) this).getFame() > medHeadLimit)
-                    return Equipment.HEADDRESS_MESO_2;
-                else return Equipment.HEADDRESS_MESO_1;
-            }
-            if (this.getCulture().name.equals("Plains")) {
-                if (((General) this).getFame() > bigHeadLimit)
-                    return Equipment.HEADDRESS_PLAINS_3;
-                if (((General) this).getFame() > medHeadLimit)
-                    return Equipment.HEADDRESS_PLAINS_2;
-                else return Equipment.HEADDRESS_PLAINS_1;
-            }
-            if (this.getCulture().name.equals("Tundra") || this.getCulture().name.equals("Forest")) {
-                if (((General) this).getFame() > bigHeadLimit)
-                    return Equipment.HEADDRESS_FOREST_3;
-                if (((General) this).getFame() > medHeadLimit)
-                    return Equipment.HEADDRESS_FOREST_2;
-                else return Equipment.HEADDRESS_FOREST_1;            }
-        }
         return null;
     }
 

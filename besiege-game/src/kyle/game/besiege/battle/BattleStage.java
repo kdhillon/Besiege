@@ -625,7 +625,12 @@ public class BattleStage extends Group implements Battle {
                         generalAdded = true;
                         addGeneral = true;
                         toAdd = bsp.general;
-                    }
+                    } else if (formation[i][j] == Soldier.SoldierType.SHAMAN){
+						if (bsp.shaman == null) continue;
+						generalAdded = true;
+						addGeneral = true;
+						toAdd = bsp.shaman;
+					}
                     if (toAdd == null) continue;
 
                     // Don't add general yet.

@@ -17,6 +17,11 @@ public class Subparty {
 	private StrictArray<Subparty> children;
 	
 	public General general; // who commands the playerPartyPanel!
+
+	// This doesn't count against party size, etc. Shamans are a special unit.
+	// Shamans heal instantly?
+	// TODO allow shamans to be wounded?
+	public Shaman shaman;
 	
 	public StrictArray<Soldier> healthy;
 	public StrictArray<Soldier> wounded;
@@ -50,6 +55,11 @@ public class Subparty {
         General g = (new General(s));
 		addSoldier(g);
         setGeneral(g);
+	}
+
+	public void addRandomShaman() {
+		shaman = new Shaman(party);
+		shaman.subparty = this;
 	}
 
 	public StrictArray<Soldier> getHealthy() {
@@ -106,7 +116,6 @@ public class Subparty {
 //		System.out.println("casualty: " + soldier.unitType.name);
 		// wound chance = base_chance*heal factor + (level of unit / max level)/2
 		double thisWoundChance = party.woundChance + (soldier.level / Soldier.MAX_LEVEL) / 2;
-//		thisWoundChance = 0; //TODO remove
 		if (Math.random() < thisWoundChance) {
 			wound(soldier);
 			return false;
@@ -193,8 +202,13 @@ public class Subparty {
 	public void wound(Soldier soldier) {
 //		if (army != null)
 		soldier.wound();
-		healthy.removeValue(soldier, true);
-		this.addSoldier(soldier);
+		// For now, don't let shamans be wounded.
+		if (soldier.isShaman()) {
+			if (healthy.contains(soldier, true)) throw new AssertionError();
+		} else {
+			healthy.removeValue(soldier, true);
+			this.addSoldier(soldier);
+		}
 		//	if (player) BottomPanel.log(soldier.name + " wounded", "orange");
 		calcStats();
 	}
@@ -282,10 +296,15 @@ public class Subparty {
 		else if (wounded.contains(soldier, true)) {
 			wounded.removeValue(soldier, true);
 			calcStats();
-		}
-		if (soldier == general) {
+		} else if (soldier.isShaman()) {
+			if (soldier != this.shaman) throw new AssertionError();
+			this.shaman = null;
+		} else if (soldier.isGeneral()) {
+			if (soldier != this.general) throw new AssertionError();
 //			System.out.println("setting general to be null");
 			this.general = null;
+		}else {
+			throw new AssertionError();
 		}
 	}
 

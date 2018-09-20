@@ -42,10 +42,6 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 
     public boolean hire; // Is this a "hire" party, in other words, no general.
 
-	//private final int maxTroopLevel;
-	//private final int minTotal;
-
-	
 	// also add generals!
 	public Party generate() {
 		return generate(false);
@@ -56,8 +52,6 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 		party.pt = this;
 				
 		party.player = player;
-
-//		if (unitTypes != null) {
 
 		// generate general first, use their fame to determine max playerPartyPanel size.
         if (!this.hire) {

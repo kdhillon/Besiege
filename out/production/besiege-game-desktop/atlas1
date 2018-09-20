@@ -66,14 +66,14 @@ tipi4
   orig: 29, 17
   offset: 0, 0
   index: -1
-temple
+temple-fort
   rotate: false
   xy: 62, 43
   size: 24, 16
   orig: 24, 16
   offset: 0, 0
   index: -1
-temple-fort
+temple
   rotate: false
   xy: 62, 61
   size: 24, 16
@@ -87,7 +87,7 @@ tipi
   orig: 19, 16
   offset: 0, 0
   index: -1
-inuithousesnow
+battle
   rotate: false
   xy: 44, 80
   size: 16, 16
@@ -101,7 +101,7 @@ inuithouse
   orig: 16, 16
   offset: 0, 0
   index: -1
-battle
+inuithousesnow
   rotate: false
   xy: 62, 97
   size: 16, 16
@@ -192,14 +192,14 @@ longhouse3
   orig: 18, 10
   offset: 0, 0
   index: -1
-inuitcitywhite
+inuitcity
   rotate: false
   xy: 184, 2
   size: 26, 9
   orig: 26, 9
   offset: 0, 0
   index: -1
-inuitcityruinwhite
+inuitcitywhite
   rotate: false
   xy: 212, 2
   size: 26, 9
@@ -213,7 +213,7 @@ inuitcityruin
   orig: 26, 9
   offset: 0, 0
   index: -1
-inuitcity
+inuitcityruinwhite
   rotate: false
   xy: 170, 14
   size: 26, 9
@@ -227,100 +227,93 @@ tipivillage
   orig: 15, 9
   offset: 0, 0
   index: -1
-Farmer
+Bandit
   rotate: false
   xy: 80, 97
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
-Bandit
+Farmer
   rotate: false
   xy: 107, 93
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
-Raider
+Player
   rotate: false
   xy: 198, 14
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
-Player
+Raider
   rotate: false
   xy: 225, 14
   size: 25, 8
   orig: 25, 8
   offset: 0, 0
   index: -1
-red9
+grey-mmd9
   rotate: false
   xy: 83, 79
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-lightFog
+grey-d9
   rotate: false
   xy: 124, 15
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-grey-mmd9
+red9
   rotate: false
   xy: 124, 25
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-grey-med9
+grey-md9
   rotate: false
   xy: 124, 35
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-grey-md9
+green9
   rotate: false
   xy: 124, 45
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-grey-lm9
+grey-dm9
   rotate: false
   xy: 124, 55
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-grey-dm9
+grey-lm9
   rotate: false
   xy: 124, 65
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-grey-d9
+lightFog
   rotate: false
   xy: 124, 75
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-green9
+grey-med9
   rotate: false
   xy: 124, 85
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-black9
-  rotate: false
-  xy: 124, 95
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
@@ -332,14 +325,21 @@ fog
   orig: 8, 8
   offset: 0, 0
   index: -1
-inuitvillagewhite
+black9
+  rotate: false
+  xy: 124, 95
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+inuitvillage
   rotate: false
   xy: 93, 120
   size: 15, 5
   orig: 15, 5
   offset: 0, 0
   index: -1
-inuitvillage
+inuitvillagewhite
   rotate: false
   xy: 124, 105
   size: 15, 5
@@ -353,28 +353,28 @@ desertvillage2
   orig: 13, 5
   offset: 0, 0
   index: -1
-grey-xl
+grey-light
   rotate: false
   xy: 37, 36
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
-grey-med
+grey-lm
   rotate: false
   xy: 37, 41
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
-grey-lm
+grey-med
   rotate: false
   xy: 37, 46
   size: 3, 3
   orig: 3, 3
   offset: 0, 0
   index: -1
-grey-light
+grey-xl
   rotate: false
   xy: 37, 51
   size: 3, 3

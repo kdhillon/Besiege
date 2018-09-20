@@ -19,9 +19,11 @@ Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
 5	Eagle_Nagual		War_Axe				Clothes		        	none
         
 3	Serpent_Axeman		War_Axe				Clothes		        	    Serpent_Axeman/Serpent_Swordsman
-4	Serpent_Axeman		War_Axe		Clothes/Round_Deerskin     Serpent_Nagual
+4	Serpent_Axeman		War_Axe		        Clothes/Round_Deerskin     Serpent_Nagual
 4	Serpent_Swordsman	Broadsword			Clothes		        	    Serpent_Nagual
 5	Serpent_Nagual		War_Axe				Clothes		        	    none
+
+S   Death_Shaman        Staff               Clothes             none
 
 
 Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
@@ -51,7 +53,6 @@ Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
 
 5	Nagual(W)		War_Axe				Clothes			none
 5	Nagual(B)		War_Axe				Clothes			none
-
 
 Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
 1	Villager		Knife(Flint)/Rocks			           None Warrior_(Nov)

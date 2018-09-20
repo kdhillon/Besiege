@@ -250,7 +250,7 @@ public class SidePanel extends Group {
 		if (force) this.setHardStay(false);
 			
 		if (mapScreen.battle != null)
-			setActiveBattle(mapScreen.getKingdom().getPlayer().getBattle());
+			setActiveBattle(mapScreen.battle);
 		else {
             setActive(playerPartyPanel); // can change
             kingdom.currentPanel = getPlayer();

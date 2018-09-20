@@ -15,10 +15,6 @@ public enum Formation {
 	public Soldier.SoldierType[][] getFormation(BattleSubParty party) {
 		Soldier.SoldierType[][] formation;
 
-		Array<Soldier> infantry = party.getHealthyInfantry();
-		Array<Soldier> cavalry = party.getHealthyCavalry();
-		Array<Soldier> archers = party.getHealthyArchers();
-
 		int iCount = party.infantrySizeWithoutGeneral();
 		int aCount = party.archersSizeWithoutGeneral();
 		int cCount = party.cavalrySizeWithoutGeneral();
@@ -27,7 +23,12 @@ public enum Formation {
 
 		// no soldiers
 		if (iCount + aCount + cCount == 0) {
-			formation = new Soldier.SoldierType[1][1];
+			if (party.shaman == null) {
+				formation = new Soldier.SoldierType[1][1];
+			} else {
+				formation = new Soldier.SoldierType[1][2];
+				formation[0][1] = Soldier.SoldierType.SHAMAN;
+			}
 			formation[0][0] = Soldier.SoldierType.GENERAL;
 			return formation;
 		};
@@ -65,6 +66,7 @@ public enum Formation {
 		else if (this == Formation.LINE) {
 			int formation_width = iCount + aCount + cCount;
 			int formation_height = 2;
+			if (formation_width == 1) formation_width = 2; // make it a bit bigger to fit a shaman :)
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
 
@@ -89,12 +91,13 @@ public enum Formation {
 				formation[1][i + infantry_right + aCount + infantry_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
 			}
 			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
-		} 
+			formation[0][formation_width/2 + 1] = Soldier.SoldierType.SHAMAN;
+		}
 		// Wall line - put archers on outside, infantry and cavalry in middle
         // This is totally flat (height = 1)
 		else if (this == Formation.WALL_LINE) {
 			int formation_width = iCount + aCount + cCount + 1;
-			int formation_height = 1;
+			int formation_height = 2;
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
 
@@ -104,26 +107,27 @@ public enum Formation {
 			int cavalry_left = cCount - cavalry_right;
 
 			for (int i = 0; i < archers_left; i++) {
-				formation[0][i] = Soldier.SoldierType.ARCHER;
+				formation[1][i] = Soldier.SoldierType.ARCHER;
 			}
 			for (int i = 0; i < cavalry_left; i++) {
-				formation[0][i + archers_left] = Soldier.SoldierType.CAVALRY;
+				formation[1][i + archers_left] = Soldier.SoldierType.CAVALRY;
 			}
 			int infantryLeft = iCount / 2;
 			for (int i = 0; i < infantryLeft; i++) {
-				formation[0][i + archers_left + cavalry_left] = Soldier.SoldierType.INFANTRY;
+				formation[1][i + archers_left + cavalry_left] = Soldier.SoldierType.INFANTRY;
 			}
 			// General in middle
-            formation[0][archers_left + cavalry_left + infantryLeft] = Soldier.SoldierType.GENERAL;
+            formation[1][archers_left + cavalry_left + infantryLeft] = Soldier.SoldierType.GENERAL;
+			formation[0][archers_left + cavalry_left + infantryLeft] = Soldier.SoldierType.SHAMAN;
 			int infantryRight = iCount - infantryLeft;
             for (int i = 0; i < infantryRight; i++) {
-                formation[0][i + archers_left + cavalry_left + 1 + infantryLeft] = Soldier.SoldierType.INFANTRY;
+                formation[1][i + archers_left + cavalry_left + 1 + infantryLeft] = Soldier.SoldierType.INFANTRY;
             }
 			for (int i = 0; i < cavalry_right; i++) {
-				formation[0][i + iCount + archers_left + cavalry_left + 1] = Soldier.SoldierType.CAVALRY;
+				formation[1][i + iCount + archers_left + cavalry_left + 1] = Soldier.SoldierType.CAVALRY;
 			}
 			for (int i = 0; i < archers_right; i++) {
-				formation[0][i + cavalry_left + iCount + archers_left + cavalry_right + 1] = Soldier.SoldierType.ARCHER;
+				formation[1][i + cavalry_left + iCount + archers_left + cavalry_right + 1] = Soldier.SoldierType.ARCHER;
 			}
         }
 		// Spread Line:   C C C C I I I I A A A A A I I I I C C C C
@@ -166,7 +170,8 @@ public enum Formation {
 				formation[1][i + infantry_right + aCount*2 + infantry_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
 			}
 			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
-		} 
+			formation[0][formation_width/2+1] = Soldier.SoldierType.SHAMAN;
+		}
 		//    Defensive Line
 		// CCCCC IIIII CCCCC
 		//    AAAAAAAAAAA
@@ -203,7 +208,8 @@ public enum Formation {
 				formation[1][i + bottom_start_left] = Soldier.SoldierType.ARCHER;
 			}
 			formation[0][formation_width / 2] = Soldier.SoldierType.GENERAL;
-		} 
+			formation[0][formation_width / 2+ 1] = Soldier.SoldierType.SHAMAN;
+		}
 		//   Vee Formation
 		// CC            CC
 		//   CC	       CC
@@ -224,6 +230,8 @@ public enum Formation {
 			System.out.println("width: " + formation_width);
 			int formation_height = top_row / 4 + archer_separation + 2;
 			System.out.println("height: " + formation_height);
+
+			if (formation_width == 1) formation_width = 2; // make it a bit bigger to fit a shaman :)
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
 
@@ -264,7 +272,8 @@ public enum Formation {
 				formation[1][i + bottom_start_left] = Soldier.SoldierType.ARCHER;
 			}
 			
-			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
+			formation[0][Math.max(0, formation_width/2 - 1)] = Soldier.SoldierType.GENERAL;
+			formation[0][Math.max(1, formation_width/2)] = Soldier.SoldierType.SHAMAN;
 		} 
 		// Flanking formation
 		//  CCCCC            IIIIIII              CCCCC
@@ -285,6 +294,7 @@ public enum Formation {
 			//			System.out.println("top row: " + top_row);
 
 			int formation_width = Math.max(top_row, bottom_row);
+			formation_width = Math.max(formation_width, 2);
 			int formation_height = 3;
 
 			formation = new Soldier.SoldierType[formation_height][formation_width];
@@ -308,9 +318,10 @@ public enum Formation {
 			for (int i = 0; i < aCount; i++) {
 				formation[1][i + bottom_start_left] = Soldier.SoldierType.ARCHER;
 			}
-			
-			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
-		} 
+
+			formation[0][Math.max(0, formation_width/2 - 1)] = Soldier.SoldierType.GENERAL;
+			formation[0][Math.max(1, formation_width/2)] = Soldier.SoldierType.SHAMAN;
+		}
 		
 		// Square: 
 		//				CCCCCII
@@ -322,7 +333,7 @@ public enum Formation {
 		//				AAA
 		//				   G
 		else if (this == Formation.SQUARE) {
-			int formation_width = (int) (Math.max(1, Math.sqrt(iCount + aCount + cCount)));
+			int formation_width = (int) (Math.max(2, Math.sqrt(iCount + aCount + cCount)));
 			double remaining = Math.sqrt(iCount + aCount + cCount) - formation_width;
 			if (remaining > 0) formation_width += 1;
 			int formation_height = formation_width + 1;
@@ -347,8 +358,9 @@ public enum Formation {
 				}
 			}
 			
-			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
-		} 
+			formation[0][Math.max(0, formation_width/2 - 1)] = Soldier.SoldierType.GENERAL;
+			formation[0][Math.max(1, formation_width/2)] = Soldier.SoldierType.SHAMAN;
+		}
 		else {
 		    formation = null;
 		    throw new AssertionError();

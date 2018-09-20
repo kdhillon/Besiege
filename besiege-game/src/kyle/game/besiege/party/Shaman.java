@@ -1,6 +1,13 @@
 package kyle.game.besiege.party;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
+import kyle.game.besiege.Assets;
 import kyle.game.besiege.MultiValue;
+import kyle.game.besiege.Random;
+
+import static kyle.game.besiege.party.Equipment.MASK_SKULL;
+import static kyle.game.besiege.party.Equipment.MASK_WOLF;
 
 // Represents a Shaman or priest unit.
 // Shamans are a special unit type that don't fight in battle.
@@ -14,34 +21,43 @@ public class Shaman extends Soldier {
     // They march into battle behind their BSPs, like their general
     enum Type {
         // Forest
-        WOLF("Wolf"),
+        WOLF("Wolf Shaman", "Forest", "weapon_name", "armor_name", MASK_WOLF),
         // Tundra
-        BEAR("Bear"),
+        BEAR("Bear Shaman", "Tundra", "weapon_name", "armor_name", MASK_SKULL),
         // Plains
-        HAWK("Hawk"),
+        HAWK("Hawk Shaman", "Plains", "weapon_name", "armor_name", MASK_SKULL),
         // Desert
-        DEATH("Death");
-        public String name;
-        public UnitType type;
-        Type(String name) {
-            this.name = name;
-            generateUnitType();
-        }
-
-        private void generateUnitType() {
-            this.type = new UnitType();
-            this.type.cultureType = null; // TODO
+        DEATH("Death Priest", "Desert", "weapon_name", "armor_name", MASK_SKULL);
+        public UnitType unitType;
+        private Equipment mask;
+        // TODO add weapon (staff), armor, and headdress
+        Type(String name, String cultureName, String weapon, String armor, Equipment mask) {
+            this.mask = mask;
+            weapon = "Staff";
+            armor = "Clothes";
+            this.unitType = new UnitType();
+            this.unitType.tier = 1; // start as level 1 unit
+            this.unitType.name = name;
+            this.unitType.cultureType = UnitLoader.cultureTypes.get(cultureName); // TODO
+            this.unitType.melee = UnitLoader.weaponTypes.get(weapon);
+            this.unitType.armor = UnitLoader.armorTypes.get(armor);
         }
     }
 
-    // Instead of attack, Shamans have a "
+    // Instead of attack, Shamans have a "power" level, which corresponds to their healing and AOE
     // Generates a random type for this party.
     public Shaman(Party party) {
         this.party = party;
+
+        // For now, just make the culture accoring to the general. TODO make this more flexible.
+        this.type = getRandomType(party.getGeneral().unitType.cultureType);
+        this.unitType = type.unitType;
+
+        this.assignBaseStats();
+        this.init();
+
         this.atk = null;
         this.power = new MultiValue();
-        this.type = getRandomType();
-
     }
 
     @Override
@@ -49,19 +65,22 @@ public class Shaman extends Soldier {
         return true;
     }
 
-    public Type getRandomType() {
-        return null; // TODO
+    public Type getRandomType(CultureType cultureType) {
+         // Fuck it do random sampling.
+        Type random = null;
+        while (random == null || random.unitType.cultureType != cultureType) {
+            random = (Type) Random.getRandomValue(Type.values());
+        }
+        return random;
     }
 
     @Override
-    public String getTypeName() {
-        if (this.unitType.cultureType.name == "Desert")
-            return type.name + " Priest";
-        else return type.name + " Shaman";
+    public Equipment getHead() {
+        return this.type.mask;
     }
 
     @Override
     public float getAtk() {
-        throw new AssertionError();
+        return 0;
     }
 }

@@ -41,6 +41,7 @@ public class Party {
 		player = false;
 
 		root = new Subparty(this);
+
 		sub = new StrictArray<Subparty>();
 		sub.add(root);
 
@@ -142,6 +143,10 @@ public class Party {
             if (soldier.subparty != null)
                 soldier.subparty.removeSoldier(soldier);
             newSub.promoteToGeneral(soldier);
+
+			newSub.addRandomShaman();
+            // Testing
+
             return true;
         }
         return false;

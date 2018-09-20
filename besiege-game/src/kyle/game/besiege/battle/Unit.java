@@ -43,11 +43,11 @@ public class Unit extends Group {
 	static final float CLIMB_HEIGHT = .1f; // how high can units climb
 
 	final static float CAVALRY_BONUS = 4f;
-	
+
 	final static float BASE_FIRE_RATE = 1.5f;
 	final static float INIT_RELOAD = 2f;
 
-	public BattleStage stage;	
+	public BattleStage stage;
 	public Unit attacking;
 	public SiegeUnit attackingSiege;
 
@@ -64,7 +64,7 @@ public class Unit extends Group {
 
 	public boolean isMounted = false;
 //	public boolean canRetreat = true;
-	
+
 	//	private boolean inCover;
 	private BPoint nearestCover;
 
@@ -99,6 +99,7 @@ public class Unit extends Group {
 	public int team;
 	//	public Array<Unit> enemyArray;
 	public BattleParty enemyParty;
+	public BattleParty friendlyParty;
 	public boolean isHit; // is unit hit
 	public boolean isDying;
 	boolean isHidden;
@@ -107,7 +108,7 @@ public class Unit extends Group {
 	public int pos_x = -1;
 	public int pos_y = -1;
 
-	public int prev_x; 
+	public int prev_x;
 	public int prev_y;
 	public boolean moving;
 	public boolean forceTwoMoves;
@@ -201,9 +202,15 @@ public class Unit extends Group {
 		this.bsp = bp;
 		this.party = soldier.party;
 		this.team = team;
-		if (this.team == 0) enemyParty = stage.enemies;
-		else enemyParty = stage.allies;
-		
+		if (this.team == 0) {
+			enemyParty = stage.enemies;
+			friendlyParty = stage.allies;
+		}
+		else {
+			enemyParty = stage.allies;
+			friendlyParty = stage.enemies;
+		}
+
 		this.original_x = 5000;
 		this.original_y = 5000;
 		this.setX( pos_x * stage.unit_width);
@@ -242,7 +249,7 @@ public class Unit extends Group {
 		if (rangedWeapon != null)
 			quiver = rangedWeapon.quiver;
 
-		//		if (rangedWeapon != null) 
+		//		if (rangedWeapon != null)
 		//			this.stance = Stance.DEFENSIVE;
 
 		// check if in cover
@@ -343,7 +350,7 @@ public class Unit extends Group {
 		}
 		else if (this.moving) {
 			//System.out.println("moving");
-			this.percentComplete += getSpeed() * delta;				
+			this.percentComplete += getSpeed() * delta;
 
 			if (percentComplete > 1) {
 				moveToggle = true;
@@ -373,7 +380,11 @@ public class Unit extends Group {
 			checkIfShouldManSiege();
 			//						System.out.println("moving2");
 			//			getRandomDirection(delta);
-			if (this.nearestCover != null && !this.inCover()) {
+			if (this.soldier.isShaman()) {
+				// if Shaman, move towards friendly general
+				moveToFriendlyGeneral();
+			}
+			else if (this.nearestCover != null && !this.inCover()) {
 				// refresh cover to make sure still empty
 				this.nearestCover = getNearestCover();
 				if (nearestCover != null)
@@ -512,11 +523,11 @@ public class Unit extends Group {
 		if (this.siegeUnit != null)		return "Manning " + siegeUnit.type.name;
 		if (this.retreating)		 	return "Retreating";
 		if (this.attacking != null) 	return "Attacking " + attacking.soldier.getTypeName();
-		if (this.moveSmooth && 
+		if (this.moveSmooth &&
 				nearestCover != null) 	return "Moving to cover";
 		if (this.moveSmooth) 			return "Charging";
-		if (this.isRanged() && 
-				this.reloading > 0 && 
+		if (this.isRanged() &&
+				this.reloading > 0 &&
 				inCover()) 				return "Firing from cover";
 		if (this.rangedWeaponOut() &&
 				this.reloading > 0) 		return "Firing";
@@ -524,7 +535,7 @@ public class Unit extends Group {
 	}
 
 	@Override
-	public void draw(SpriteBatch batch, float parentAlpha) {		
+	public void draw(SpriteBatch batch, float parentAlpha) {
 //		if (this.isHidden() && !this.isDying && this.team != 0) return;
         // First draws weapondraw (everything under Unit)
         // Then draws Unitdraw (Unit armor etc)
@@ -567,9 +578,39 @@ public class Unit extends Group {
 
 //	public int calcHP() {
 //		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
-//		//		else 
+//		//		else
 //		return (int) (15 + this.def*3 + soldier.subparty.getGeneral().getHPBonus());
 //	}
+
+	private Unit getNearbyFriendlyGeneral() {
+		Unit closest = null;
+		double closestDistance = 99999;
+
+		for (Unit that : friendlyParty.units) {
+			if (that.team != this.team) System.out.println("TEAM ERROR!!!");
+			if (!that.isGeneral()) continue;
+			// Immediately select the general from this subparty, if still alive.
+			if (that.soldier.subparty == this.soldier.subparty) return that;
+			if (notAccessible(that)) continue;
+			if (that.pos_x <= 0 || that.pos_y <= 0) continue;
+			double dist = this.distanceTo(that);
+			if (dist < closestDistance) {
+				closest = that;
+				closestDistance = dist;
+			}
+		}
+		return closest;
+	}
+
+	private void moveToFriendlyGeneral() {
+		Unit nearbyGeneral = getNearbyFriendlyGeneral();
+		if (nearbyGeneral == null) return;
+		if (isAdjacent(nearbyGeneral)) {
+			this.face(nearbyGeneral, true);
+			return;
+		}
+		moveToPoint(nearbyGeneral.getAdjacentPoint());
+	}
 
 	private void moveToEnemy() {
 	    // This is clearly messed up...
@@ -637,7 +678,7 @@ public class Unit extends Group {
 			//			if (!(point.pos_x == nearLadder.pos_x && point.pos_y == nearLadder.pos_y) && !stage.ladderAt(this.pos_x, this.pos_y))
 			this.moveToPoint(nearLadder);
 			return;
-		} 
+		}
 		//		// check if on same side of wall (also make sure to not check sides with entrances)
 		else if (stage.insideWall(this.pos_x, this.pos_y) != stage.insideWall(point.pos_x, point.pos_y) && !stage.entranceAt(point.pos_x, point.pos_y) && !stage.entranceAt(this.pos_x, this.pos_y) && !this.rangedWeaponOut()) {
 			BPoint nearestEntrance;
@@ -664,7 +705,7 @@ public class Unit extends Group {
 
 			// this happens way more than it should for some reason
 			// changed from "or" to "and" to be stricter
-			if (Math.random() < .01 && (!this.moveForward() && !this.unitMovingOutOfWay())) {	
+			if (Math.random() < .01 && (!this.moveForward() && !this.unitMovingOutOfWay())) {
 				//				System.out.println("desperate move");
 				// try the last two directions as a last resort
 				this.orientation = getOppositeOrientation(this.orientation);
@@ -734,7 +775,7 @@ public class Unit extends Group {
 		//		}
 		return false;
 	}
-	
+
 	public boolean isGeneral() {
 		return soldier.isGeneral();
 	}
@@ -839,7 +880,7 @@ public class Unit extends Group {
 		return true;
 	}
 
-	
+
 	// can make this super fast using a few simple ways
 	// if infantry, just check nearby area (16 squares or so)
 	// if nothing there, shoot line straight ahead to see if enemy is there.
@@ -986,7 +1027,7 @@ public class Unit extends Group {
 			point_x = 0;
 			point_y = pos_y;
 			if (canMove(point_x, point_y)) done = true;
-		} 
+		}
 		// top
 		if (!done && dist_to_top < dist_to_left && dist_to_top < dist_to_right && dist_to_top < dist_to_bottom) {
 			point_x = pos_x;
@@ -1046,22 +1087,22 @@ public class Unit extends Group {
 	//		Point closest = null;
 	//
 	//		double closestDistance = 99999;
-	//		
+	//
 	//		for (SiegeUnit s : stage.siegeUnitsArray) {
 	//			if (s)
 	//			Point point = s.getOperatorPoint();
 	//			if (point == null) continue;
-	//			
+	//
 	//			double dist = this.distanceTo(point);
 	//			if (dist < closestDistance) {
 	//				closest = point;
 	//				closestDistance = dist;
 	//			}
 	//		}
-	//		
+	//
 	////		if (closest == null) System.out.println("null closest");
 	////		else System.out.println("closest not null");
-	//		
+	//
 	//		return closest;
 	//	}
 
@@ -1072,19 +1113,19 @@ public class Unit extends Group {
 	//		SiegeUnit closest = null;
 	//
 	//		double closestDistance = 999999;
-	//		
+	//
 	//		for (SiegeUnit s : stage.siegeUnitsArray) {
 	//			if (s.hasMen()) continue;
 	//			Point point = s.getOperatorPoint();
 	//			if (point == null) continue;
-	//			
+	//
 	//			double dist = this.distanceTo(point);
 	//			if (dist < closestDistance) {
 	//				closest = s;
 	//				closestDistance = dist;
 	//			}
 	//		}
-	//		
+	//
 	//		return closest;
 	//	}
 
@@ -1165,15 +1206,15 @@ public class Unit extends Group {
 				attacker.bsp.handleKilledEnemy();
 			}
 			this.isDying = true;
-			
+
 			// this takes care of exp
 			this.kill();
-			
+
 			//			this.destroy();
 //			if (attacker != null) {
 //				if (attacker.attacking == this) attacker.attacking = null;
 //				// usually full level, but spread some out to playerPartyPanel
-//				// this happens in 
+//				// this happens in
 ////				attacker.soldier.registerKill(this.soldier, false);
 //			}
 		}
@@ -1190,9 +1231,9 @@ public class Unit extends Group {
         // Is there a way to bring units to the front, but bring thrown items *more* to the front?
 //		this.toBack();
         timeSinceDeath += delta;
-		
+
 		if (timeSinceDeath > DEATH_TIME) {
-			
+
 		}
 	}
 
@@ -1291,7 +1332,7 @@ public class Unit extends Group {
 	public boolean moveForward() {
 		return startMove(this.orientation);
 	}
-	
+
 	// return -1 if failure, 0 if success, 1 if enemy, 2 if friend
 	public int tryMoveTo(int x, int y) {
 		if (!canMove(x, y)) return -1;
@@ -1316,7 +1357,7 @@ public class Unit extends Group {
 
 		return 0;
 	}
-	
+
 	// returns false if move failed, true otherwise
 	public boolean startMove(Orientation direction) {
 		if (this.hp < 0) return false;
@@ -1335,7 +1376,7 @@ public class Unit extends Group {
 			moveResult = tryMoveTo(pos_x-1, pos_y);
 		}
 		else if (direction == Orientation.RIGHT) {
-			moveResult = tryMoveTo(pos_x+1, pos_y);	
+			moveResult = tryMoveTo(pos_x+1, pos_y);
 		}
 		if (moveResult == -1) return false;
 		if (moveResult == 1) return true;
@@ -1387,7 +1428,7 @@ public class Unit extends Group {
 		if (stage.units[next_y][next_x] != null) return false;
 		return canMove(next_x, next_y);
 	}
-	
+
 	public boolean canMove(int pos_x, int pos_y) {
 	    // Just for testing
 	    if (pos_x == 0 && pos_y == 0) return false;
@@ -1403,7 +1444,7 @@ public class Unit extends Group {
 	// return true if enemy, false if friend
 	public boolean collision(Unit that) {
 		if (this.team != that.team) {
-			if (!that.moving) 
+			if (!that.moving)
 				attack(that);
 			return true;
 		}
@@ -1453,7 +1494,7 @@ public class Unit extends Group {
 		}
 		this.hp = soldier.getHp();
 	}
-	
+
 	public void setStance(Stance s) {
 		this.stance = s;
 	}
@@ -1484,7 +1525,7 @@ public class Unit extends Group {
 		else stage.enemies.removeUnit(this, true);
 		if (pos_y >= 0 && pos_x >= 0)
 			stage.units[pos_y][pos_x] = null;
-		
+
 		this.pos_x = RETREAT_POS;
 		this.pos_y = RETREAT_POS;
 		this.outOfBattle = true;
@@ -1556,9 +1597,9 @@ public class Unit extends Group {
 		if (move_hor_prob < 0.5) move_hor_prob = move_hor_prob/10;
 		else if (move_hor_prob >= 0.5) move_hor_prob = move_hor_prob * 1.5;
 
-		if (this.stance == Stance.INLINE) 
+		if (this.stance == Stance.INLINE)
 			move_hor_prob = .01;
-		
+
 		// should move right
 		if (x_dif > 0) {
 			// up
@@ -1690,8 +1731,8 @@ public class Unit extends Group {
 
 	public boolean inMap() {
 		return pos_x < stage.size_x &&
-				pos_y < stage.size_y && 
-				pos_x >= 0 && 
+				pos_y < stage.size_y &&
+				pos_x >= 0 &&
 				pos_y >= 0;
 	}
 
@@ -1725,17 +1766,17 @@ public class Unit extends Group {
 	public boolean isHidden() {
 		return isHidden;
 	}
-	
+
 	public float getBaseRange() {
 		if (!this.isRanged()) return 0;
 		return this.rangedWeapon.range + soldier.subparty.getBonusGeneralRange();
 	}
-	
+
 	public float getRangeDmg() {
 		if (!this.isRanged()) return 0;
 		return this.ammoType.dmg;
 	}
-	
+
 	// probably shouldn't be here
 	public boolean shouldDrawPlacementRegion() {
 		return this == stage.selectedUnit;

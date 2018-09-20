@@ -748,7 +748,7 @@ public class BattleMap extends Group {
         float y = posY * stage.unit_height + stage.unit_height * 0.5f;
         if (objects[posY][posX] == Object.TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.0f; // note we move it a bit down (for aesthetics)
         if (objects[posY][posX] == Object.PALM_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.3f; // note we move it a bit down (for aesthetics)
-        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width * 0.35f, y); // we shift it a bit to the left to account for size.
+        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width * 0.4f, y); // we shift it a bit to the left to account for size.
         fc.add(fireContainer);
         //					fire.setPosition(0, 0);
         //			System.out.println("adding fire: " + j + " " + i);

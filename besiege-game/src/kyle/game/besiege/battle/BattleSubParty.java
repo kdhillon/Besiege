@@ -29,6 +29,8 @@ public class BattleSubParty {
 	// for placement
 	private StrictArray<Unit> infantry, cavalry, archers;
 	public Unit general;
+
+	public Unit shaman;
 	
 	public StrictArray<Unit> units;
 	
@@ -125,8 +127,16 @@ public class BattleSubParty {
         if (team == 1) System.out.println("Enemy general being added");
 
 		this.units.add(general);
-		this.parent.units.add(general);
+		this.parent.units.add(general); // is this necessary?
+
 		general.setStance(stance);
+
+		if (subparty.shaman != null) {
+			this.shaman = new Unit(stage, team, subparty.shaman, this);
+			this.units.add(shaman);
+			this.parent.units.add(shaman);
+			shaman.setStance(stance);
+		}
 		
 		this.calcMinSpeed();
 	}

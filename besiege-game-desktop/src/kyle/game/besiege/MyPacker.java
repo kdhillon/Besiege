@@ -17,12 +17,16 @@ public class MyPacker {
         	//TexturePacker2.process("C:/Users/kdhillon3/Documents/java/besiege/besiege-game-android/assets/weapons", "C:/Users/kdhillon3/Documents/java/besiege/besiege-game-android/assets", "weapons");
             System.out.println("packing");
             TexturePacker.Settings settings = new TexturePacker.Settings();
-        	TexturePacker.process(settings,"C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/textures","C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "atlas1");
-            TexturePacker.process(settings,"C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/weapons", "C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "weapons1");
-            TexturePacker.process(settings,"C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/units", "C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "units1");
-            TexturePacker.process(settings,"C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/map", "C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "map1");
-            TexturePacker.process(settings,"C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/equipment", "C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "equipment1");
-            TexturePacker.process(settings,"C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets/crests", "C:/Users/Kyle/Dropbox/LibGDX/repo/besiege/besiege-game-android/assets", "crests1");
+
+            String envVar = "PWD";
+            String outputDir = System.getenv(envVar) + "-android/assets/";
+
+        	TexturePacker.process(settings,System.getenv(envVar) + "-android/assets/textures",outputDir, "atlas1");
+            TexturePacker.process(settings,System.getenv(envVar) + "-android/assets/weapons", outputDir, "weapons1");
+            TexturePacker.process(settings,System.getenv(envVar) + "-android/assets/units", outputDir, "units1");
+            TexturePacker.process(settings,System.getenv(envVar) + "-android/assets/map", outputDir, "map1");
+            TexturePacker.process(settings,System.getenv(envVar) + "-android/assets/equipment", outputDir, "equipment1");
+            TexturePacker.process(settings,System.getenv(envVar) + "-android/assets/crests", outputDir, "crests1");
             System.out.println("done");
         }
 }
