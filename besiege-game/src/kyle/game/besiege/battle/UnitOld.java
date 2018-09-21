@@ -114,7 +114,7 @@
 //
 //	public WeaponDraw weaponDraw;
 //
-//	public float rotation;
+//	public float kingdomRotation;
 //	public boolean retreating;
 //
 //	public float updateNearestEnemy;
@@ -1121,7 +1121,7 @@
 //
 //	public void die(float delta) {
 //		if (!this.rotationFixed) {
-//			this.setRotation(this.rotation + (float) (Math.random() * 120 - 60));
+//			this.setKingdomRotation(this.kingdomRotation + (float) (Math.random() * 120 - 60));
 //			this.rotationFixed = true;
 //		}
 //		timeSinceDeath += delta;
@@ -1173,16 +1173,16 @@
 //
 //
 //	public void updateRotation() {
-//		rotation = 0;
-//		if (orientation == Orientation.DOWN) rotation = 180;
-//		if (orientation == Orientation.LEFT) rotation = 90;
-//		if (orientation == Orientation.RIGHT) rotation = 270;
+//		kingdomRotation = 0;
+//		if (orientation == Orientation.DOWN) kingdomRotation = 180;
+//		if (orientation == Orientation.LEFT) kingdomRotation = 90;
+//		if (orientation == Orientation.RIGHT) kingdomRotation = 270;
 //
 //		if (this.nearestTarget != null && this.rangedWeaponOut() && !this.moveSmooth) {
-//			rotation = angleToEnemy(this.nearestTarget);
+//			kingdomRotation = angleToEnemy(this.nearestTarget);
 //		}
 //
-//		this.setRotation(rotation);
+//		this.setKingdomRotation(kingdomRotation);
 //	}
 //
 //	public float angleToEnemy(UnitOld nearestTarget) {
@@ -1204,14 +1204,14 @@
 //
 //	public void drawAnimation(SpriteBatch batch, Animation animation, float stateTime, boolean loop) {
 //		TextureRegion region = animation.getKeyFrame(stateTime, loop);
-//		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());		
+//		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getKingdomRotation());
 //	}
 //
 //	public void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint) {
 //		Color c = batch.getColor();
 //		batch.setColor(tint);
 //		TextureRegion region = animation.getKeyFrame(stateTime, loop);
-//		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());		
+//		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getKingdomRotation());
 //		batch.setColor(c);
 //	}
 //

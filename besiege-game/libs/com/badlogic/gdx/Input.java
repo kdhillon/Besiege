@@ -379,7 +379,7 @@ public interface Input {
 	 * @return the roll in degrees */
 	public float getRoll ();
 
-	/** Returns the rotation matrix describing the devices rotation as per <a href=
+	/** Returns the kingdomRotation matrix describing the devices kingdomRotation as per <a href=
 	 * "http://developer.android.com/reference/android/hardware/SensorManager.html#getRotationMatrix(float[], float[], float[], float[])"
 	 * >SensorManager#getRotationMatrix(float[], float[], float[], float[])</a>. Does not manipulate the matrix if the platform
 	 * does not have an accelerometer.
@@ -417,7 +417,7 @@ public interface Input {
 	 * @return whether the peripheral is available or not. */
 	public boolean isPeripheralAvailable (Peripheral peripheral);
 
-	/** @return the rotation of the device with respect to its native orientation. */
+	/** @return the kingdomRotation of the device with respect to its native orientation. */
 	public int getRotation ();
 
 	/** @return the native orientation of the device. */

@@ -300,6 +300,7 @@ public class Path {
 
                 // if just moved into water, then move to nearest edge.
                 if (army.isPlayer() && (map.getCenter(army.containingCenter) == null || map.getCenter(army.containingCenter).water)) {
+                    army.endAmbush();
                     // push it towards nearest edge?
                     // push it back
                     army.translate(-toTarget.x, -toTarget.y);
@@ -341,12 +342,13 @@ public class Path {
 
         public void updatePosition () {
             Army army = (Army) start;
+            army.endAmbush();
 //		if (army.getParty().player)
-//			System.out.println("rotation before translate " + army.getRotation());
+//			System.out.println("kingdomRotation before translate " + army.getKingdomRotation());
             toTarget.nor();
             army.translate(toTarget.x * army.getSpeed(), toTarget.y * army.getSpeed());
 //		if (army.getParty().player)
-//			System.out.println("rotation after translate " + army.getRotation());
+//			System.out.println("kingdomRotation after translate " + army.getKingdomRotation());
         }
 
         public void detectPointCollision () {

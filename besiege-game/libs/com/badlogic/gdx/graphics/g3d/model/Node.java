@@ -38,15 +38,15 @@ public class Node {
 	public Node parent;
 	/** child nodes **/
 	public final Array<Node> children = new Array<Node>(2);
-	/** Whether this node is currently being animated, if so the translation, rotation and scale values are not used. */
+	/** Whether this node is currently being animated, if so the translation, kingdomRotation and scale values are not used. */
 	public boolean isAnimated;
 	/** the translation, relative to the parent, not modified by animations **/
 	public final Vector3 translation = new Vector3();
-	/** the rotation, relative to the parent, not modified by animations **/
+	/** the kingdomRotation, relative to the parent, not modified by animations **/
 	public final Quaternion rotation = new Quaternion(0, 0, 0, 1);
 	/** the scale, relative to the parent, not modified by animations **/
 	public final Vector3 scale = new Vector3(1, 1, 1);
-	/** the local transform, based on translation/rotation/scale ({@link #calculateLocalTransform()}) or any applied animation **/
+	/** the local transform, based on translation/kingdomRotation/scale ({@link #calculateLocalTransform()}) or any applied animation **/
 	public final Matrix4 localTransform = new Matrix4();
 	/** the global transform, product of local transform and transform of the parent node, calculated via {@link #calculateWorldTransform()}**/
 	public final Matrix4 globalTransform = new Matrix4();
@@ -54,7 +54,7 @@ public class Node {
 	public Array<NodePart> parts = new Array<NodePart>(2);
 	
 	/**
-	 * Calculates the local transform based on the translation, scale and rotation
+	 * Calculates the local transform based on the translation, scale and kingdomRotation
 	 * @return the local transform
 	 */
 	public Matrix4 calculateLocalTransform() {

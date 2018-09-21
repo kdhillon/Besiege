@@ -133,7 +133,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//        this.maptype = MapType.ALPINE;
+        this.maptype = MapType.FOREST;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -673,12 +673,12 @@ public class BattleMap extends Group {
 
     // Returns true if any of the adjacent squares is obstructed
     private boolean adjacentObstructed(int x, int y) {
-        System.out.println("checking: " + x + " " + y);
+//        System.out.println("checking: " + x + " " + y);
         boolean obstructed = false;
         for (int i = x - 1; i <= x+1; i++) {
             for (int j = y - 1; j <= y+1; j++) {
                 if (stage.inMap(i, j) && stage.closed[j][i]) { //!stage.inMap(i, j) ||
-                    System.out.println("checking: " + x + " " + y + ", obstructed by: " + i + " " + j);
+//                    System.out.println("checking: " + x + " " + y + ", obstructed by: " + i + " " + j);
                     obstructed = true;
                 }
             }
@@ -743,12 +743,12 @@ public class BattleMap extends Group {
         stage.closed[posY][posX] = true;
 
         FireContainer fireContainer = new FireContainer();
-        Fire fire = new Fire(600, 800, stage.getMapScreen(), null, shouldGrow, false);
+        Fire fire = new Fire(800, 1000, stage.getMapScreen(), null, shouldGrow, false);
         fireContainer.addFire(fire);
         float y = posY * stage.unit_height + stage.unit_height * 0.5f;
-        if (objects[posY][posX] == Object.TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.0f; // note we move it a bit down (for aesthetics)
-        if (objects[posY][posX] == Object.PALM_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.3f; // note we move it a bit down (for aesthetics)
-        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width * 0.4f, y); // we shift it a bit to the left to account for size.
+        if (objects[posY][posX] == Object.TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.5f; // note we move it a bit down (for aesthetics)
+        if (objects[posY][posX] == Object.PALM_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.5f; // note we move it a bit down (for aesthetics)
+        fireContainer.setPosition(posX * stage.unit_width + stage.unit_width * 0.5f, y); // we shift it a bit to the left to account for size.
         fc.add(fireContainer);
         //					fire.setPosition(0, 0);
         //			System.out.println("adding fire: " + j + " " + i);
@@ -1003,7 +1003,8 @@ public class BattleMap extends Group {
 
 
 		for (FireContainer f : fc) {
-			f.updateRotation(stage.getMapScreen().getRotation());
+			f.toFront();
+			f.updateRotation(stage.getMapScreen().getBattleRotation());
 		}
 
 		// TODO: make this happen first
@@ -1071,8 +1072,8 @@ public class BattleMap extends Group {
 		for (Ladder l : ladders) {
 			texture = ladder;
 			float rotation = getOrientationRotation(l.orientation);
-			//setRotation(rotation);
-			//atch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getRotation());	
+			//setKingdomRotation(kingdomRotation);
+			//atch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getKingdomRotation());
 
 			float x = l.pos_x*stage.unit_width;
 			float y = l.pos_y*stage.unit_height;

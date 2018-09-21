@@ -272,7 +272,7 @@ public class Center {
 			//			Color current = new Color(color.r * 0.7f + adjColor.r * 0.3f, color.g * 0.7f + adjColor.g * 0.3f, color.b * 0.7f + adjColor.b * 0.3f, 1);
 //			Color current = color;
 
-			// draw all 4 or 8 sub-triangles
+			// draw all 4 or 8 subparties-triangles
 			for (int i = -1; i < e.subEdges.length; i++) {
 				float x1, y1, z1, x2, y2, z2;
 				// case with first vertex and second edge
@@ -532,7 +532,7 @@ public class Center {
 	//		//					Color current = new Color(color.r * 0.7f + adjColor.r * 0.3f, color.g * 0.7f + adjColor.g * 0.3f, color.b * 0.7f + adjColor.b * 0.3f, 1);
 	//		Color current = color;
 	//
-	//		// draw all 4 or 8 sub-triangles
+	//		// draw all 4 or 8 subparties-triangles
 	//		for (int i = -1; i < e.subEdges.length; i++) {
 	//			float x1, y1, z1, x2, y2, z2;
 	//			// case with first vertex and second edge

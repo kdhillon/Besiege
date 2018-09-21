@@ -137,7 +137,7 @@ public class Unit extends Group {
 	// this prevents the unit from spazzing
 	private float lastAct = 0;
 
-	// This will be added to Unit, so that rotation/position is tied to that.
+	// This will be added to Unit, so that kingdomRotation/position is tied to that.
 	private static class ThrownItem extends Actor {
         public Animation sling;
         public TextureRegion textureRegion;
@@ -799,7 +799,7 @@ public class Unit extends Group {
 
 		this.reloading = rangedWeapon.rate * BASE_FIRE_RATE + RELOADING_THRESHHOLD;
 		Unit enemy = getNearestTarget();
-		face(enemy, true);
+//		face(enemy, true);
 		Projectile projectile = new Projectile(this, enemy);
 
 		stage.addActor(projectile);
@@ -1318,7 +1318,7 @@ public class Unit extends Group {
 
 //	public void drawAnimation(SpriteBatch batch, Animation animation, float stateTime, boolean loop) {
 //		TextureRegion region = animation.getKeyFrame(stateTime, loop);
-//		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+//		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getKingdomRotation());
 //	}
 
 	public float currentX() {

@@ -56,10 +56,10 @@ public class BattleActor extends Actor implements Destination {
 		
 //		if (aArmies.first() != null)
 //			batch.draw(this.aArmies.first().getFaction().crest, getX()+getWidth()/2, getY() + getHeight(), getOriginX(), getOriginY(),
-//				getWidth(), getHeight(), 1, 1, getRotation());
+//				getWidth(), getHeight(), 1, 1, getKingdomRotation());
 //		if (dArmies.first() != null)
 //			batch.draw(this.halfCrest, getX(), getY() + getHeight(), getOriginX(), getOriginY(),
-//				getWidth()/2, getHeight(), 1, 1, getRotation());
+//				getWidth()/2, getHeight(), 1, 1, getKingdomRotation());
 		super.draw(batch, parentAlpha);
 	}
 	

@@ -22,9 +22,9 @@ import kyle.game.besiege.*;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
-import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
+import kyle.game.besiege.panels.PanelBattle2;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
@@ -37,7 +37,7 @@ import static kyle.game.besiege.Kingdom.RAIN_FLOAT;
 public class BattleStage extends Group implements Battle {
 	public Biomes biome;
 //	public OldBattle battle;
-	private PanelBattle pb;
+	private PanelBattle2 pb;
 
     public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
     public static final int DEPRECATED_THRESHOLD = 2; // this field is now in victory manager
@@ -333,7 +333,7 @@ public class BattleStage extends Group implements Battle {
 		heights = new float[size_y][size_x];
 
 		// try this
-		pb = new PanelBattle(mapScreen.getSidePanel(), this);
+		pb = new PanelBattle2(mapScreen.getSidePanel(), this);
 		pb.battleStage = this;
 
 		this.battlemap = new BattleMap(this);
@@ -1442,7 +1442,7 @@ public class BattleStage extends Group implements Battle {
             if (p.army != null) {
                 p.army.endBattle();
             }
-            for (Subparty s : p.sub) {
+            for (Subparty s : p.subparties) {
 				s.handleBattleEnded();
 			}
 		}
@@ -1454,7 +1454,7 @@ public class BattleStage extends Group implements Battle {
 //                p.army.setStopped(false);
 //                p.army.setTarget(null);
             }
-			for (Subparty s : p.sub) {
+			for (Subparty s : p.subparties) {
 				s.handleBattleEnded();
 			}
 		}

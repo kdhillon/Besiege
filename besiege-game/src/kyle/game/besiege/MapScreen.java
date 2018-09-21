@@ -78,7 +78,8 @@ public class MapScreen implements Screen {
 	public OrthographicCamera battleCamera;
 
 	private OrthographicCamera minimap;
-	public float rotation;
+	public float kingdomRotation;
+	public float battleRotation;
 
 	private Stage currentStage;
 	private Stage kingdomStage;
@@ -237,7 +238,7 @@ public class MapScreen implements Screen {
 
 		//		kingdomStage.addActor(fog); // test to see if this is slowing things down
 		mousePos = new Vector2(0,0);
-		rotation = 0;
+		kingdomRotation = 0;
 		speedFactor = 1;
 
 		uiStage.addActor(sidePanel);
@@ -295,7 +296,7 @@ public class MapScreen implements Screen {
 
 			//		kingdomStage.addActor(fog); // test to see if this is slowing things down
 			mousePos = new Vector2(0,0);
-			rotation = 0;
+			kingdomRotation = 0;
 			speedFactor = 1;
 
 			uiStage.addActor(sidePanel);
@@ -572,7 +573,8 @@ public class MapScreen implements Screen {
 	//		currentCamera.up.scale(1/(SCROLL_SPEED*speedFactor)/currentCamera.zoom, 1/(SCROLL_SPEED*speedFactor)/currentCamera.zoom, 0).rotate(90, 0, 0, 1);
 	//	}
 	public void rotate(float factor) {
-		if (currentCamera == kingdomCamera) rotation += factor;
+		if (currentCamera == kingdomCamera) kingdomRotation += factor;
+		else battleRotation += factor;
 		currentCamera.rotate(factor, 0, 0, 1);
 	}
 	public void zoom(float factor) {
@@ -599,7 +601,8 @@ public class MapScreen implements Screen {
 	public void letRun() {
 		if (battle == null) {
 			kingdom.setPaused(false);
-			kingdom.getPlayer().setWaiting(true);	
+			kingdom.getPlayer().setWaiting(true);
+			kingdom.getPlayer().startAmbush();
 		}
 		else {
 			//			battle.setPaused(false);
@@ -607,6 +610,7 @@ public class MapScreen implements Screen {
 	}
 	public void endRun() {
 		if (battle == null) {
+			kingdom.getPlayer().endAmbush();
 			kingdom.getPlayer().setWaiting(false);
 			kingdom.setPaused(true);
 			System.out.println("end setAppropriateRunTarget");
@@ -926,6 +930,7 @@ public class MapScreen implements Screen {
 		this.currentCamera = battleCamera;
 		this.sidePanel.setActiveBattle(battle);
 		this.shouldCenter = false;
+		this.battleRotation = 0;
 		center();
 		battleCamera.zoom = 1f;
 		currentStage = battleStage;
@@ -1105,11 +1110,14 @@ public class MapScreen implements Screen {
 		return uiStage.getCamera();
 	}
 
-	public float getRotation() {
-		return rotation;
+	public float getBattleRotation() {
+		return battleRotation;
 	}
-	public void setRotation(float rotation) {
-		this.rotation = rotation;
+	public float getKingdomRotation() {
+		return kingdomRotation;
+	}
+	public void setKingdomRotation(float kingdomRotation) {
+		this.kingdomRotation = kingdomRotation;
 	}
 	//	public OrthographicCamera getCamera() {
 	//		return currentCamera;

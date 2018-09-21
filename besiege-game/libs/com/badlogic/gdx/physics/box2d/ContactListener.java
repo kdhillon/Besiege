@@ -34,7 +34,7 @@ public interface ContactListener {
 
 	/*
 	 * This lets you inspect a contact after the solver is finished. This is useful for inspecting impulses. Note: the contact
-	 * manifold does not include time of impact impulses, which can be arbitrarily large if the sub-step is small. Hence the
+	 * manifold does not include time of impact impulses, which can be arbitrarily large if the subparties-step is small. Hence the
 	 * impulse is provided explicitly in a separate data structure. Note: this is only called for contacts that are touching,
 	 * solid, and awake.
 	 */

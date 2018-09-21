@@ -270,18 +270,18 @@ public class SpriteBatch implements Disposable {
 
 	/** Draws a rectangle with the bottom left corner at x,y having the given width and height in pixels. The rectangle is offset by
 	 * originX, originY relative to the origin. Scale specifies the scaling factor by which the rectangle should be scaled around
-	 * originX, originY. Rotation specifies the angle of counter clockwise rotation of the rectangle around originX, originY. The
+	 * originX, originY. Rotation specifies the angle of counter clockwise kingdomRotation of the rectangle around originX, originY. The
 	 * portion of the {@link Texture} given by srcX, srcY and srcWidth, srcHeight is used. These coordinates and sizes are given in
 	 * texels. FlipX and flipY specify whether the texture portion should be fliped horizontally or vertically.
 	 * @param x the x-coordinate in screen space
 	 * @param y the y-coordinate in screen space
-	 * @param originX the x-coordinate of the scaling and rotation origin relative to the screen space coordinates
-	 * @param originY the y-coordinate of the scaling and rotation origin relative to the screen space coordinates
+	 * @param originX the x-coordinate of the scaling and kingdomRotation origin relative to the screen space coordinates
+	 * @param originY the y-coordinate of the scaling and kingdomRotation origin relative to the screen space coordinates
 	 * @param width the width in pixels
 	 * @param height the height in pixels
 	 * @param scaleX the scale of the rectangle around originX/originY in x
 	 * @param scaleY the scale of the rectangle around originX/originY in y
-	 * @param rotation the angle of counter clockwise rotation of the rectangle around originX/originY
+	 * @param rotation the angle of counter clockwise kingdomRotation of the rectangle around originX/originY
 	 * @param srcX the x-coordinate in texel space
 	 * @param srcY the y-coordinate in texel space
 	 * @param srcWidth the source with in texels
@@ -765,7 +765,7 @@ public class SpriteBatch implements Disposable {
 
 	/** Draws a rectangle with the bottom left corner at x,y and stretching the region to cover the given width and height. The
 	 * rectangle is offset by originX, originY relative to the origin. Scale specifies the scaling factor by which the rectangle
-	 * should be scaled around originX, originY. Rotation specifies the angle of counter clockwise rotation of the rectangle around
+	 * should be scaled around originX, originY. Rotation specifies the angle of counter clockwise kingdomRotation of the rectangle around
 	 * originX, originY. */
 	public void draw (TextureRegion region, float x, float y, float originX, float originY, float width, float height,
 		float scaleX, float scaleY, float rotation) {
@@ -889,7 +889,7 @@ public class SpriteBatch implements Disposable {
 	/** Draws a rectangle with the texture coordinates rotated 90 degrees. The bottom left corner at x,y and stretching the region
 	 * to cover the given width and height. The rectangle is offset by originX, originY relative to the origin. Scale specifies the
 	 * scaling factor by which the rectangle should be scaled around originX, originY. Rotation specifies the angle of counter
-	 * clockwise rotation of the rectangle around originX, originY.
+	 * clockwise kingdomRotation of the rectangle around originX, originY.
 	 * @param clockwise If true, the texture coordinates are rotated 90 degrees clockwise. If false, they are rotated 90 degrees
 	 *           counter clockwise. */
 	public void draw (TextureRegion region, float x, float y, float originX, float originY, float width, float height,

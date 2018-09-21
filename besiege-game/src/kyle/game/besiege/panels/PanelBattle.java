@@ -575,7 +575,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			//				table.add(count).right();
 			//				table.row();
 			//			}
-			for (Subparty s : party.sub) {
+			for (Subparty s : party.subparties) {
 				StrictArray<StrictArray<Soldier>> consolHealthy = s.getConsolHealthy();
 
 				for (StrictArray<Soldier> as : consolHealthy) {

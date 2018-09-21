@@ -25,7 +25,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.NumberUtils;
 
 /** <p/>
- * Represents a sprite in 3d space. Typical 3d transformations such as translation, rotation and scaling are supported. The
+ * Represents a sprite in 3d space. Typical 3d transformations such as translation, kingdomRotation and scaling are supported. The
  * position includes a z component other than setting the depth no manual layering has to be performed, correct overlay is
  * guaranteed by using the depth buffer.
  * <p/>
@@ -49,7 +49,7 @@ public class Decal {
 	protected Quaternion rotation = new Quaternion();
 	protected Vector2 scale = new Vector2(1, 1);
 
-	/** The transformation offset can be used to change the pivot point for rotation and scaling. By default the pivot is the middle
+	/** The transformation offset can be used to change the pivot point for kingdomRotation and scaling. By default the pivot is the middle
 	 * of the decal. */
 	public Vector2 transformationOffset = null;
 	protected Vector2 dimensions = new Vector2();
@@ -92,25 +92,25 @@ public class Decal {
 		vertices[C4] = color;
 	}
 	
-	/** Sets the rotation on the local X axis to the specified angle
+	/** Sets the kingdomRotation on the local X axis to the specified angle
 	 * 
-	 * @param angle Angle in degrees to set rotation to */
+	 * @param angle Angle in degrees to set kingdomRotation to */
 	public void setRotationX(float angle){
 		rotation.set(X_AXIS, angle);
 		updated = false;
 	}
 	
-	/** Sets the rotation on the local Y axis to the specified angle
+	/** Sets the kingdomRotation on the local Y axis to the specified angle
 	 * 
-	 * @param angle Angle in degrees to set rotation to */
+	 * @param angle Angle in degrees to set kingdomRotation to */
 	public void setRotationY(float angle){
 		rotation.set(Y_AXIS, angle);
 		updated = false;
 	}
 	
-	/** Sets the rotation on the local Z axis to the specified angle
+	/** Sets the kingdomRotation on the local Z axis to the specified angle
 	 * 
-	 * @param angle Angle in degrees to set rotation to */
+	 * @param angle Angle in degrees to set kingdomRotation to */
 	public void setRotationZ(float angle){
 		rotation.set(Z_AXIS, angle);
 		updated = false;
@@ -143,7 +143,7 @@ public class Decal {
 		updated = false;
 	}
 
-	/** Sets the rotation of this decal based on the (normalized) direction and up vector.
+	/** Sets the kingdomRotation of this decal based on the (normalized) direction and up vector.
 	 * @param dir the direction vector
 	 * @param up the up vector */
 	public void setRotation (Vector3 dir, Vector3 up) {
@@ -153,9 +153,9 @@ public class Decal {
 		updated = false;
 	}
 
-	/** Returns the rotation. The returned quaternion should under no circumstances be modified.
+	/** Returns the kingdomRotation. The returned quaternion should under no circumstances be modified.
 	 * 
-	 * @return Quaternion representing the rotation */
+	 * @return Quaternion representing the kingdomRotation */
 	public Quaternion getRotation () {
 		return rotation;
 	}
@@ -347,9 +347,9 @@ public class Decal {
 	/** Transforms the position component of the vertices using properties such as position, scale, etc. */
 	protected void transformVertices () {
 		/** It would be possible to also load the x,y,z into a Vector3 and apply all the transformations using already existing
-		 * methods. Especially the quaternion rotation already exists in the Quaternion class, it then would look like this:
+		 * methods. Especially the quaternion kingdomRotation already exists in the Quaternion class, it then would look like this:
 		 * ----------------------------------------------------------------------------------------------------
-		 * v3.set(vertices[xIndex] * scale.x, vertices[yIndex] * scale.y, vertices[zIndex]); rotation.transform(v3);
+		 * v3.set(vertices[xIndex] * scale.x, vertices[yIndex] * scale.y, vertices[zIndex]); kingdomRotation.transform(v3);
 		 * v3.add(position); vertices[xIndex] = v3.x; vertices[yIndex] = v3.y; vertices[zIndex] = v3.z;
 		 * ---------------------------------------------------------------------------------------------------- However, a half ass
 		 * benchmark with dozens of thousands decals showed that doing it "by hand", as done here, is about 10% faster. So while
@@ -367,7 +367,7 @@ public class Decal {
 		x = (vertices[X1] + tx) * scale.x;
 		y = (vertices[Y1] + ty) * scale.y;
 		z = vertices[Z1];
-		// then transform the vector using the rotation quaternion
+		// then transform the vector using the kingdomRotation quaternion
 		vertices[X1] = rotation.w * x + rotation.y * z - rotation.z * y;
 		vertices[Y1] = rotation.w * y + rotation.z * x - rotation.x * z;
 		vertices[Z1] = rotation.w * z + rotation.x * y - rotation.y * x;
@@ -379,7 +379,7 @@ public class Decal {
 		vertices[X1] = w * rotation.x + x * rotation.w + y * rotation.z - z * rotation.y;
 		vertices[Y1] = w * rotation.y + y * rotation.w + z * rotation.x - x * rotation.z;
 		vertices[Z1] = w * rotation.z + z * rotation.w + x * rotation.y - y * rotation.x;
-		rotation.conjugate(); // <- don't forget to conjugate the rotation back to normal
+		rotation.conjugate(); // <- don't forget to conjugate the kingdomRotation back to normal
 		// finally translate the vector according to position
 		vertices[X1] += position.x - tx;
 		vertices[Y1] += position.y - ty;
@@ -389,7 +389,7 @@ public class Decal {
 		x = (vertices[X2] + tx) * scale.x;
 		y = (vertices[Y2] + ty) * scale.y;
 		z = vertices[Z2];
-		// then transform the vector using the rotation quaternion
+		// then transform the vector using the kingdomRotation quaternion
 		vertices[X2] = rotation.w * x + rotation.y * z - rotation.z * y;
 		vertices[Y2] = rotation.w * y + rotation.z * x - rotation.x * z;
 		vertices[Z2] = rotation.w * z + rotation.x * y - rotation.y * x;
@@ -401,7 +401,7 @@ public class Decal {
 		vertices[X2] = w * rotation.x + x * rotation.w + y * rotation.z - z * rotation.y;
 		vertices[Y2] = w * rotation.y + y * rotation.w + z * rotation.x - x * rotation.z;
 		vertices[Z2] = w * rotation.z + z * rotation.w + x * rotation.y - y * rotation.x;
-		rotation.conjugate(); // <- don't forget to conjugate the rotation back to normal
+		rotation.conjugate(); // <- don't forget to conjugate the kingdomRotation back to normal
 		// finally translate the vector according to position
 		vertices[X2] += position.x - tx;
 		vertices[Y2] += position.y - ty;
@@ -411,7 +411,7 @@ public class Decal {
 		x = (vertices[X3] + tx) * scale.x;
 		y = (vertices[Y3] + ty) * scale.y;
 		z = vertices[Z3];
-		// then transform the vector using the rotation quaternion
+		// then transform the vector using the kingdomRotation quaternion
 		vertices[X3] = rotation.w * x + rotation.y * z - rotation.z * y;
 		vertices[Y3] = rotation.w * y + rotation.z * x - rotation.x * z;
 		vertices[Z3] = rotation.w * z + rotation.x * y - rotation.y * x;
@@ -423,7 +423,7 @@ public class Decal {
 		vertices[X3] = w * rotation.x + x * rotation.w + y * rotation.z - z * rotation.y;
 		vertices[Y3] = w * rotation.y + y * rotation.w + z * rotation.x - x * rotation.z;
 		vertices[Z3] = w * rotation.z + z * rotation.w + x * rotation.y - y * rotation.x;
-		rotation.conjugate(); // <- don't forget to conjugate the rotation back to normal
+		rotation.conjugate(); // <- don't forget to conjugate the kingdomRotation back to normal
 		// finally translate the vector according to position
 		vertices[X3] += position.x - tx;
 		vertices[Y3] += position.y - ty;
@@ -433,7 +433,7 @@ public class Decal {
 		x = (vertices[X4] + tx) * scale.x;
 		y = (vertices[Y4] + ty) * scale.y;
 		z = vertices[Z4];
-		// then transform the vector using the rotation quaternion
+		// then transform the vector using the kingdomRotation quaternion
 		vertices[X4] = rotation.w * x + rotation.y * z - rotation.z * y;
 		vertices[Y4] = rotation.w * y + rotation.z * x - rotation.x * z;
 		vertices[Z4] = rotation.w * z + rotation.x * y - rotation.y * x;
@@ -445,7 +445,7 @@ public class Decal {
 		vertices[X4] = w * rotation.x + x * rotation.w + y * rotation.z - z * rotation.y;
 		vertices[Y4] = w * rotation.y + y * rotation.w + z * rotation.x - x * rotation.z;
 		vertices[Z4] = w * rotation.z + z * rotation.w + x * rotation.y - y * rotation.x;
-		rotation.conjugate(); // <- don't forget to conjugate the rotation back to normal
+		rotation.conjugate(); // <- don't forget to conjugate the kingdomRotation back to normal
 		// finally translate the vector according to position
 		vertices[X4] += position.x - tx;
 		vertices[Y4] += position.y - ty;
@@ -525,7 +525,7 @@ public class Decal {
 
 	final static Vector3 dir = new Vector3();
 
-	/** Sets the rotation of the Decal to face the given point. Useful for billboarding.
+	/** Sets the kingdomRotation of the Decal to face the given point. Useful for billboarding.
 	 * @param position
 	 * @param up */
 	public void lookAt (Vector3 position, Vector3 up) {

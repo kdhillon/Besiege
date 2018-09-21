@@ -136,19 +136,19 @@ public class Body {
 		body->DestroyFixture(fixture);
 	*/
 
-	/** Set the position of the body's origin and rotation. This breaks any contacts and wakes the other bodies. Manipulating a
+	/** Set the position of the body's origin and kingdomRotation. This breaks any contacts and wakes the other bodies. Manipulating a
 	 * body's transform may cause non-physical behavior.
 	 * @param position the world position of the body's local origin.
-	 * @param angle the world rotation in radians. */
+	 * @param angle the world kingdomRotation in radians. */
 	public void setTransform (Vector2 position, float angle) {
 		jniSetTransform(addr, position.x, position.y, angle);
 	}
 
-	/** Set the position of the body's origin and rotation. This breaks any contacts and wakes the other bodies. Manipulating a
+	/** Set the position of the body's origin and kingdomRotation. This breaks any contacts and wakes the other bodies. Manipulating a
 	 * body's transform may cause non-physical behavior.
 	 * @param x the world position on the x-axis
 	 * @param y the world position on the y-axis
-	 * @param angle the world rotation in radians. */
+	 * @param angle the world kingdomRotation in radians. */
 	public void setTransform (float x, float y, float angle) {
 		jniSetTransform(addr, x, y, angle);
 	}
@@ -194,7 +194,7 @@ public class Body {
 	*/
 
 	/** Get the angle in radians.
-	 * @return the current world rotation angle in radians. */
+	 * @return the current world kingdomRotation angle in radians. */
 	public float getAngle () {
 		return jniGetAngle(addr);
 	}
@@ -735,7 +735,7 @@ inline b2BodyType getBodyType( int type )
 		return body->IsActive();
 	*/
 
-	/** Set this body to have fixed rotation. This causes the mass to be reset. */
+	/** Set this body to have fixed kingdomRotation. This causes the mass to be reset. */
 	public void setFixedRotation (boolean flag) {
 		jniSetFixedRotation(addr, flag);
 	}
@@ -745,7 +745,7 @@ inline b2BodyType getBodyType( int type )
 		body->SetFixedRotation(flag);
 	*/
 
-	/** Does this body have fixed rotation? */
+	/** Does this body have fixed kingdomRotation? */
 	public boolean isFixedRotation () {
 		return jniIsFixedRotation(addr);
 	}

@@ -30,7 +30,7 @@ public class Edge {
 
 	public static final int subDivisions = 8;
 	public static final double noiseFactor = .3;
-	// this contains the list of randomly generated sub-edges, which can be drawn to add extra noise to edges
+	// this contains the list of randomly generated subparties-edges, which can be drawn to add extra noise to edges
 	// Subedges go from v0 to v1.
 	public PointH[] subEdges;
 

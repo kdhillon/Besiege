@@ -16,9 +16,6 @@ import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.party.*;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * Represents a UI element that contains a list of soldiers. Usually contains a playerPartyPanel, but may
  * contain standalone units, for hire or upgrading. Basic display is a list of soldiers organized by unit type.
@@ -61,11 +58,18 @@ public class SoldierTable extends Table {
     private boolean allowSubpartyCollapse = true;
     private boolean preventSoldierExpand = false;
 
-	public SoldierTable(Party party) {
+    private boolean startAllCollapsed;
+
+    public SoldierTable(Party party) {
+        this(party, false);
+    }
+
+	public SoldierTable(Party party, boolean startAllCollapsed) {
 		ls.font = Assets.pixel16;
 		lsG.font = Assets.pixel16;
 
 		this.party = party;
+		this.startAllCollapsed = startAllCollapsed;
 
 		garrisonC = new Label("Garrison", ls);
 		noTroopsC = new Label(LOCATION_EMPTY_TEXT,ls);
@@ -87,6 +91,14 @@ public class SoldierTable extends Table {
 		this.add(soldierPane).top().width(SidePanel.WIDTH - PAD*2).expandY().fillY();
 		this.selectable = false;
 	}
+
+	public void setAllowSubpartyCollapse(boolean allowSubpartyCollapse) {
+	    this.allowSubpartyCollapse = allowSubpartyCollapse;
+    }
+
+    public void setPreventSoldierExpand(boolean preventSoldierExpand) {
+	    this.preventSoldierExpand = preventSoldierExpand;
+    }
 
 	// Only updates the colors of the soldierlabels (for selecting)
 	public void updateColors() {
@@ -128,8 +140,8 @@ public class SoldierTable extends Table {
 
 	// Currently the vertical size is too big, maybe because height isn't properly set?
 	private void updateWithParty(Party party, LabelStyle style, LabelStyle wounded) {
-		System.out.println("starting panelparty update: " + party.getName());
-		for (final Subparty s : party.sub) {
+		System.out.println("starting panelparty update: " + party.getName() + " with " + party.subparties.size + " subparties");
+		for (final Subparty s : party.subparties) {
             SoldierLabel general;
 //            if (organizeByType) {
             if (allowSubpartyCollapse && !hirePanel) {
@@ -408,7 +420,9 @@ public class SoldierTable extends Table {
 
         soldierTable.add(label.expand).expandX().left().padLeft(indent).colspan(2).fillX();
         soldierTable.row();
-        label.createExpand();
+
+        if (!startAllCollapsed)
+            label.createExpand();
     }
 
 	public void updateTableWithTypes(StrictArray<StrictArray<Soldier>> types, LabelStyle style) {
@@ -506,7 +520,7 @@ public class SoldierTable extends Table {
 
         Soldier toSelect = null;
 
-        for (final Subparty s : party.sub) {
+        for (final Subparty s : party.subparties) {
             StrictArray<StrictArray<Soldier>> lists = s.getConsolHealthy();
             for (int j = 0; j < lists.size; j++) {
                 StrictArray<Soldier> soldiers = lists.get(j);

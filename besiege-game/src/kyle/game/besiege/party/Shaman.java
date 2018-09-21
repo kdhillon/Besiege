@@ -6,8 +6,7 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.MultiValue;
 import kyle.game.besiege.Random;
 
-import static kyle.game.besiege.party.Equipment.MASK_SKULL;
-import static kyle.game.besiege.party.Equipment.MASK_WOLF;
+import static kyle.game.besiege.party.Equipment.*;
 
 // Represents a Shaman or priest unit.
 // Shamans are a special unit type that don't fight in battle.
@@ -23,9 +22,10 @@ public class Shaman extends Soldier {
         // Forest
         WOLF("Wolf Shaman", "Forest", "weapon_name", "armor_name", MASK_WOLF),
         // Tundra
-        BEAR("Bear Shaman", "Tundra", "weapon_name", "armor_name", MASK_SKULL),
+        BEAR("Bear Shaman", "Tundra", "weapon_name", "armor_name", MASK_BEAR),
         // Plains
-        HAWK("Hawk Shaman", "Plains", "weapon_name", "armor_name", MASK_SKULL),
+        HAWK("Hawk Shaman", "Plains", "weapon_name", "armor_name", MASK_HAWK),
+        BUFFALO("Buffalo Shaman", "Plains", "weapon_name", "armor_name", MASK_BUFFALO),
         // Desert
         DEATH("Death Priest", "Desert", "weapon_name", "armor_name", MASK_SKULL);
         public UnitType unitType;
@@ -34,7 +34,7 @@ public class Shaman extends Soldier {
         Type(String name, String cultureName, String weapon, String armor, Equipment mask) {
             this.mask = mask;
             weapon = "Staff";
-            armor = "Clothes";
+            armor = "None";
             this.unitType = new UnitType();
             this.unitType.tier = 1; // start as level 1 unit
             this.unitType.name = name;

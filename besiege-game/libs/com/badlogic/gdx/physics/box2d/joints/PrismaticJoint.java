@@ -19,7 +19,7 @@ package com.badlogic.gdx.physics.box2d.joints;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.World;
 
-/** A prismatic joint. This joint provides one degree of freedom: translation along an axis fixed in body1. Relative rotation is
+/** A prismatic joint. This joint provides one degree of freedom: translation along an axis fixed in body1. Relative kingdomRotation is
  * prevented. You can use a joint limit to restrict the range of motion and a joint motor to drive the motion or to model joint
  * friction. */
 public class PrismaticJoint extends Joint {

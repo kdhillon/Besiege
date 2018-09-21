@@ -118,14 +118,14 @@ public class TextureMapObject extends MapObject {
 	}
 	
 	/**
-	 * @return texture's rotation in radians
+	 * @return texture's kingdomRotation in radians
 	 */
 	public float getRotation() {
 		return rotation;
 	}
 	
 	/**
-	 * @param rotation new texture's rotation in radians
+	 * @param rotation new texture's kingdomRotation in radians
 	 */
 	public void setRotation(float rotation) {
 		this.rotation = rotation;

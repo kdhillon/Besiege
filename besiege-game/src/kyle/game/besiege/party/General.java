@@ -231,7 +231,7 @@ public class General extends Soldier {
 //			if (this.fame > GENERAL_THRESHOLD)
 //				return "General";
 					
-			if (this.party.sub.size > 1) {
+			if (this.party.subparties.size > 1) {
 				if (this.party.army != null && this.party.army.isBandit())
 					return "Warlord";
 				return "General";

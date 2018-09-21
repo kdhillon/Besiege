@@ -204,7 +204,7 @@ public class SidePanel extends Group {
 		setActive(location.panel);
 	}
 	public void setActiveBattle(Battle battle) {
-		PanelBattle pb = new PanelBattle(this, battle);
+		PanelBattle2 pb = new PanelBattle2(this, battle);
 		setActive(pb);
 	}
 	public void setActiveFaction(Faction faction) {

@@ -126,10 +126,10 @@ public abstract class Camera {
 		up.rotate(axis, angle);
 	}
 
-	/** Rotates the direction and up vector of this camera by the given rotation matrix. The direction and up vector
+	/** Rotates the direction and up vector of this camera by the given kingdomRotation matrix. The direction and up vector
 	 * will not be orthogonalized.
 	 * 
-	 * @param transform The rotation matrix */
+	 * @param transform The kingdomRotation matrix */
 	public void rotate(final Matrix4 transform) {
 		direction.rot(transform);
 		up.rot(transform);

@@ -21,8 +21,11 @@ public enum Equipment {
     HEADDRESS_FOREST_3 ("Forest Headdress", "forestHeaddress", Type.HEAD, 0, 1, 0, 20),
 
 	MASK_WOLF("Wolf Mask", "wolf-mask", Type.HEAD, 0, 0, 0, 20),
-	MASK_SKULL("Skull Mask", "skull-mask", Type.HEAD, 0, 0, 0, 20),
+	MASK_SKULL("Skull Mask", "blue-mask", Type.HEAD, 0, 0, 0, 20),
 	MASK_TROPICAL("Tropical Mask", "shaman-mask-skull", Type.HEAD, 0, 0, 0, 20),
+	MASK_BEAR("Bear Mask", "bear-mask", Type.HEAD, 0, 0, 0, 20),
+	MASK_HAWK("Hawk Mask", "hawk-mask", Type.HEAD, 0, 0, 0, 20),
+	MASK_BUFFALO("Buffalo Mask", "bison-mask", Type.HEAD, 0, 0, 0, 20),
 
     WOLFSKIN_CAP("Wolfskin Cap", "wolfskinCap", Type.HEAD, 0, 1, 0, 20),
     RED_FOX_TURBAN("Fox Turban", "foxTurban", Type.HEAD, 0, 1, 0, 20);
@@ -31,7 +34,7 @@ public enum Equipment {
 //	IRON_BREASTPLATE ("Breastplate", Type.CHEST, 0, 3, -2, 999999),
 //	IRON_HELM ("Iron Helm", Type.HEAD, 0, 1, 0, 10),
 //	WORK_HORSE ("Workhorse", Type.HORSE, 0, 0, 4, 20),
-//	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 6, 30);
+//	WAR_HORSE ("Warhorse", Type.HORSE, 0, 1, 6, 30);l
 	
 	public final String name;
 	public final String textureName;

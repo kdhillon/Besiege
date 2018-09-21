@@ -49,12 +49,20 @@ public class Panel extends Group {
 	private int time;
 
 	private ScrollPane topPane;
+	private ScrollPane topPane2;
 	private ScrollPane.ScrollPaneStyle spStyle;
 
 	private Label timeLabel;
 	private Label pausedLabel;
 	private Table buttons;
 	private Table topTable;
+	private Table topTable2;
+
+	private float topTableY;
+	private float topTableHeight;
+	private float HALF_Y;
+	private float HALF_HEIGHT;
+
 	private Array<Button> buttonArray;
 
 	private Button b1;
@@ -123,6 +131,12 @@ public class Panel extends Group {
 	public void addParentPanel(SidePanel panel) {
 		this.sidePanel = panel;
 		this.kingdom = panel.getMapScreen().getKingdom();
+
+		topTableY = PAD + BUTTONHEIGHT;
+		topTableHeight = sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2;
+
+		HALF_HEIGHT = topTableHeight / 2;
+		HALF_Y = PAD + sidePanel.getHeight() - SidePanel.WIDTH - HALF_HEIGHT;
 	}
 
 	public void setButton(int bc, String name) {
@@ -203,7 +217,7 @@ public class Panel extends Group {
 
 	@Override
 	public void act(float delta) {	
-		if (topPane.getHeight() != sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2) {
+		if (topPane.getHeight() != topTableHeight) {
 			resize();
 		}
 
@@ -224,9 +238,41 @@ public class Panel extends Group {
 		topPane = new ScrollPane(topTable, spStyle);
 		topPane.setScrollingDisabled(true, true);
 		topPane.setFadeScrollBars(false);
-		topPane.setBounds(PAD, PAD + BUTTONHEIGHT, SidePanel.WIDTH - PAD*2, sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2);
+		topPane.setBounds(PAD, topTableY, SidePanel.WIDTH - PAD*2, topTableHeight);
 
 		this.addActor(topPane);
+
+		if (topPane2 != null) {
+			this.removeActor(topPane2);
+			topPane2 = new ScrollPane(topTable2, spStyle);
+			topPane2.setScrollingDisabled(true, true);
+			topPane2.setFadeScrollBars(false);
+			topPane2.setBounds(PAD, BUTTONHEIGHT + PAD, SidePanel.WIDTH - PAD * 2, HALF_HEIGHT);
+
+			this.addActor(topPane2);
+		}
+	}
+
+	public void addTopTable2(Table topTable2) {
+		this.topTableY = HALF_Y;
+		this.topTableHeight = HALF_HEIGHT;
+
+		this.topTable2 = topTable2;
+		topTable2.top();
+		spStyle = new ScrollPane.ScrollPaneStyle();
+
+		spStyle.vScroll = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(barTexture), r,r,r,r));
+		spStyle.vScrollKnob = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(knobTexture), r,r,r,r));
+
+		topPane2 = new ScrollPane(topTable2, spStyle);
+		topPane2.setY(sidePanel.getHeight() - SidePanel.WIDTH);
+		topPane2.setX(0);
+		topPane2.setWidth(SidePanel.WIDTH-PAD*2);
+		topPane2.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
+
+		topPane2.setScrollingDisabled(true, true);
+
+		this.addActor(topPane2);
 	}
 
 	public void addTopTable(Table topTable) {

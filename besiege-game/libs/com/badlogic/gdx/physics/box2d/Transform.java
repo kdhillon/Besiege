@@ -19,7 +19,7 @@ package com.badlogic.gdx.physics.box2d;
 import com.badlogic.gdx.math.Vector2;
 
 /** Encodes a Box2D transform. We are lazy so we only store a 4 float wide array. First two floats are the position of the
- * b2Transform struct. Next two floats are the cosine and sine of the rotation angle.
+ * b2Transform struct. Next two floats are the cosine and sine of the kingdomRotation angle.
  * @author mzechner */
 public class Transform {
 	public static final int POS_X = 0;
@@ -59,7 +59,7 @@ public class Transform {
 		return position.set(vals[0], vals[1]);
 	}
 
-	/** Sets the rotation of this transform
+	/** Sets the kingdomRotation of this transform
 	 * @param angle angle in radians */
 	public void setRotation (float angle) {
 		float c = (float)Math.cos(angle), s = (float)Math.sin(angle);

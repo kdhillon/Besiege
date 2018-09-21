@@ -1159,7 +1159,7 @@ public class Kingdom extends Group {
 			addActor(add);
 			// add the crestdraw for that army
 
-			// the rotation on this guy needs to be adjusted in the same way
+			// the kingdomRotation on this guy needs to be adjusted in the same way
 			// that a location is updated.
 		}
 		//add.postAdd();

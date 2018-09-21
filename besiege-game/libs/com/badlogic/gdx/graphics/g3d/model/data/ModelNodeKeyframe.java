@@ -26,6 +26,6 @@ public class ModelNodeKeyframe {
 	public Vector3 translation;
 	/** the scale, in local space relative to the parent **/
 	public Vector3 scale;
-	/** the rotation, in local space relative to the parent **/
+	/** the kingdomRotation, in local space relative to the parent **/
 	public Quaternion rotation;
 }

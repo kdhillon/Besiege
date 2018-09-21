@@ -63,7 +63,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  * 
  * The class has a second matrix called the transformation matrix which is used to rotate, scale and translate shapes in a more
  * flexible manner. This mechanism works much like matrix operations in OpenGL ES 1.x. The following example shows how to rotate a
- * rectangle around its center using the z-axis as the rotation axis and placing it's center at (20, 12, 2):
+ * rectangle around its center using the z-axis as the kingdomRotation axis and placing it's center at (20, 12, 2):
  * 
  * <pre>
  * shapeRenderer.begin(ShapeType.Line);
@@ -168,7 +168,7 @@ public class ShapeRenderer {
 		matrixDirty = true;
 	}
 
-	/** Multiplies the current transformation matrix by a rotation matrix.
+	/** Multiplies the current transformation matrix by a kingdomRotation matrix.
 	 * @param angle angle in degrees */
 	public void rotate (float axisX, float axisY, float axisZ, float angle) {
 		transform.rotate(axisX, axisY, axisZ, angle);
@@ -486,14 +486,14 @@ public class ShapeRenderer {
 	}
 
 	/** Draws a rectangle in the x/y plane. The x and y coordinate specify the bottom left corner of the rectangle. The originX and
-	 * originY specify the point about which to rotate the rectangle. The rotation is in degrees. The {@link ShapeType} passed to
+	 * originY specify the point about which to rotate the rectangle. The kingdomRotation is in degrees. The {@link ShapeType} passed to
 	 * begin has to be {@link ShapeType#Filled} or {@link ShapeType#Line}. */
 	public void rect (float x, float y, float width, float height, float originX, float originY, float rotation) {
 		rect(x, y, width, height, originX, originY, rotation, color, color, color, color);
 	}
 
 	/** Draws a rectangle in the x/y plane. The x and y coordinate specify the bottom left corner of the rectangle. The originX and
-	 * originY specify the point about which to rotate the rectangle. The rotation is in degrees. The {@link ShapeType} passed to
+	 * originY specify the point about which to rotate the rectangle. The kingdomRotation is in degrees. The {@link ShapeType} passed to
 	 * begin has to be {@link ShapeType#Filled} or {@link ShapeType#Line}.
 	 * @param col1 The color at (x, y)
 	 * @param col2 The color at (x + width, y)

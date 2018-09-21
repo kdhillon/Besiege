@@ -29,7 +29,7 @@ public class Party {
 	public Subparty root;
 
 	private StrictArray<Soldier> prisoners;
-	public StrictArray<Subparty> sub;
+	public StrictArray<Subparty> subparties;
 
 	private int atkTotal;
 	private int defTotal;
@@ -42,8 +42,8 @@ public class Party {
 
 		root = new Subparty(this);
 
-		sub = new StrictArray<Subparty>();
-		sub.add(root);
+		subparties = new StrictArray<Subparty>();
+		subparties.add(root);
 
 		prisoners = new StrictArray<Soldier>();
 
@@ -94,7 +94,7 @@ public class Party {
 	public Soldier getBestSoldier() {
 		Soldier best = null;
 		int maxLevel = 0;
-		for (Subparty sub : sub) {
+		for (Subparty sub : subparties) {
 			for (Soldier soldier : sub.healthy) {
 				if (soldier.level > maxLevel && !soldier.isGeneral()) {
 					best = soldier;
@@ -116,8 +116,8 @@ public class Party {
 	}
 	
 	public Subparty getNonEmptySub() {
-		for (int i = 0; i < sub.size; i++) {
-			Subparty s = sub.get(i);
+		for (int i = 0; i < subparties.size; i++) {
+			Subparty s = subparties.get(i);
 			if (s.isFull()) continue;
 			return s;
 		}
@@ -136,7 +136,7 @@ public class Party {
     public boolean createNewSubWithGeneral(Soldier soldier) {
         Subparty newSub = new Subparty(this);
         root.addSub(newSub);
-        sub.add(newSub);
+        subparties.add(newSub);
 
         // promote best soldier to general
         if (newSub.general == null && !pt.hire) {
@@ -158,13 +158,13 @@ public class Party {
 //	}
 	
 	public void destroySub(Subparty toDestroy) {
-		// first check if any sub has this as its parent
-		// for now, everything is a child of the root sub. 
+		// first check if any subparties has this as its parent
+		// for now, everything is a child of the root subparties.
 		// so this should only happen if s is a root.
 		
 		StrictArray<Subparty> children = new StrictArray<Subparty>();
 		
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			if (s.parent == s) continue;
 			
 			if (s.parent == toDestroy) {
@@ -183,14 +183,14 @@ public class Party {
 			}
 		}	
 		
-		sub.removeValue(toDestroy, true);
+		subparties.removeValue(toDestroy, true);
 	}
 	
 	public void promoteToRoot(Subparty s) {
 		s.parent = null;
 		
 		// verify
-		for (Subparty that : sub) {
+		for (Subparty that : subparties) {
 			if (root == that) {
 				if (that.parent != null) throw new java.lang.AssertionError();
 			}
@@ -202,7 +202,7 @@ public class Party {
 	}
 	
 	public void removeSoldier(Soldier soldier) {
-		for (Subparty p : sub) {
+		for (Subparty p : subparties) {
 			p.removeSoldier(soldier);
 		}
 	}
@@ -212,13 +212,14 @@ public class Party {
 		soldier.timesCaptured++;
 		prisoners.add(soldier);
 		prisoners.sort();
+		soldier.subparty = null;
 	}
 
 
 	public StrictArray<Soldier> getUpgradable() {
 		StrictArray<Soldier> total = new StrictArray<Soldier>();
 		//		StrictArray<Subparty> subparties = getAllSub();
-		for (Subparty p : sub)
+		for (Subparty p : subparties)
 			total.addAll(p.getUpgradable());
 		return total;
 	}
@@ -228,7 +229,7 @@ public class Party {
 		defTotal = 0;
 		spdTotal = 0;
 		//		StrictArray<Subparty> subparties = getAllSub();
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			atkTotal += s.atkTotal;
 			defTotal += s.defTotal;
 			spdTotal += s.spdTotal;
@@ -246,7 +247,7 @@ public class Party {
 
 	public void givePrisoner(Soldier prisoner, Party recipient) {
 		boolean removed = false;
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			if (s.wounded.contains(prisoner, true)) {
 				s.wounded.removeValue(prisoner, true);
 				removed = true;
@@ -254,9 +255,17 @@ public class Party {
 			else if (s.healthy.contains(prisoner, true)) {
 				s.healthy.removeValue(prisoner, true);
 				removed = true;
+			} else if (prisoner == s.general) {
+				s.general = null;
+				removed = true;
+			} else if (prisoner == s.shaman) {
+				s.shaman = null;
+				removed = true;
 			}
 		}
-		if (!removed) BottomPanel.log("trying to add invalid prisoner", "red");
+		if (!removed) {
+			throw new AssertionError();
+		}
 		recipient.addPrisoner(prisoner);
 	}
 
@@ -269,14 +278,14 @@ public class Party {
 
 	public int getHealthySize() {
 		int total = 0; 
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			total += s.getHealthySize();
 		}
 		return total;
 	}
 	public int getWoundedSize() {
 		int total = 0; 
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			total += s.getWoundedSize();
 		}
 		return total;	
@@ -288,7 +297,7 @@ public class Party {
 
 	public int getTotalLevel() {
         int total = 0;
-	    for (Subparty s : sub) {
+	    for (Subparty s : subparties) {
             total += s.getHealthyLevelSum();
         }
         return total;
@@ -296,7 +305,7 @@ public class Party {
 
 	public StrictArray<Soldier> getHealthy() {
 		StrictArray<Soldier> healthy = new StrictArray<Soldier>();
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			healthy.addAll(s.healthy);
 		}		
 		return healthy;
@@ -304,7 +313,7 @@ public class Party {
 
 	public StrictArray<Soldier> getWounded() {
 		StrictArray<Soldier> wounded = new StrictArray<Soldier>();
-		for (Subparty s : sub) {
+		for (Subparty s : subparties) {
 			wounded.addAll(s.wounded);
 		}		
 		return wounded;
@@ -398,7 +407,7 @@ public class Party {
 	// TODO promote other subparty to root when general subparty has 0.
 	public General getGeneral() {
 	    if (root.general == null) {
-	        System.out.println(getName() + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (sub.size - 1));
+	        System.out.println(getName() + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (subparties.size - 1));
         }
 		return root.general;
 	}
@@ -457,8 +466,8 @@ public class Party {
 	}
 
 	public void registerBattleVictory() {
-		for (int i = 0; i < sub.size; i++) {
-			Subparty p = sub.get(i);
+		for (int i = 0; i < subparties.size; i++) {
+			Subparty p = subparties.get(i);
 			for (Soldier s : p.healthy) {
 				s.registerBattleVictory();
 			}
@@ -470,7 +479,7 @@ public class Party {
 	}
 
 	public void registerBattleLoss() {
-		for (Subparty p : sub) {
+		for (Subparty p : subparties) {
 			for (Soldier s : p.healthy) {
 				s.registerBattleLoss();
 			}

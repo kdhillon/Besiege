@@ -28,7 +28,7 @@ base speed + morale/100 + 1/party size
 use object pooling for Armies (allows reuse and efficient memory use)
 when drawing background image, disable blending!
 CLEAR SCREEN EACH FRAME
-use Sprite class for armies. So useful for rotation/stretching.
+use Sprite class for armies. So useful for kingdomRotation/stretching.
 use MapRenderer interface for maps?
 or perhaps scene2d makes the most sense for this type of game (actors and stage!)
 ^definitely makes the most sense (actions, draws all together, etc)

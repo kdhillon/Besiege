@@ -91,7 +91,7 @@ public enum Formation {
 				formation[1][i + infantry_right + aCount + infantry_left + cavalry_left] = Soldier.SoldierType.CAVALRY;
 			}
 			formation[0][formation_width/2] = Soldier.SoldierType.GENERAL;
-			formation[0][formation_width/2 + 1] = Soldier.SoldierType.SHAMAN;
+			formation[0][formation_width/2+1] = Soldier.SoldierType.SHAMAN;
 		}
 		// Wall line - put archers on outside, infantry and cavalry in middle
         // This is totally flat (height = 1)
@@ -207,8 +207,8 @@ public enum Formation {
 			for (int i = 0; i < aCount; i++) {
 				formation[1][i + bottom_start_left] = Soldier.SoldierType.ARCHER;
 			}
-			formation[0][formation_width / 2] = Soldier.SoldierType.GENERAL;
-			formation[0][formation_width / 2+ 1] = Soldier.SoldierType.SHAMAN;
+			formation[0][Math.max(0, formation_width/2 - 1)] = Soldier.SoldierType.GENERAL;
+			formation[0][Math.max(1, formation_width/2)] = Soldier.SoldierType.SHAMAN;
 		}
 		//   Vee Formation
 		// CC            CC

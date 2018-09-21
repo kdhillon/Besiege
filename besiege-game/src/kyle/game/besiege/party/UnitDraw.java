@@ -181,6 +181,10 @@ public class UnitDraw extends Actor {
             drawAnimationTint(batch, armor, stateTime, loop, armorColor, actor);
         }
 
+        Color c = batch.getColor();
+        if (armorColor.a < 0.5f)
+             batch.setColor(new Color(1, 1, 1, armorColor.a));
+
         if (equipment != null){
             for (Equipment equip : equipment) {
                 // TODO draw additional items
@@ -191,6 +195,8 @@ public class UnitDraw extends Actor {
                 drawItem(batch, equip.getRegion(), actor);
             }
         }
+
+        batch.setColor(c);
     }
 
     public static Color blend(Color c1, Color c2) {
@@ -205,5 +211,4 @@ public class UnitDraw extends Actor {
     private static void drawItem(SpriteBatch batch, TextureRegion textureRegion, Actor actor) {
         batch.draw(textureRegion, actor.getX(), actor.getY(), actor.getOriginX(), actor.getOriginY(), actor.getWidth(), actor.getHeight(), actor.getScaleX(), actor.getScaleY(), actor.getRotation());
     }
-    // TODO remove this, add "unit draw" class for drawing units, and add it between weapon draw and thrown weapon draw.
 }

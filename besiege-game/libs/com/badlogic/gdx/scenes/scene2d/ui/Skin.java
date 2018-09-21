@@ -257,7 +257,7 @@ public class Skin implements Disposable {
 		drawable = optional(name, TiledDrawable.class);
 		if (drawable != null) return drawable;
 
-		// Use texture or texture region. If it has splits, use ninepatch. If it has rotation or whitespace stripping, use sprite.
+		// Use texture or texture region. If it has splits, use ninepatch. If it has kingdomRotation or whitespace stripping, use sprite.
 		try {
 			TextureRegion textureRegion = getRegion(name);
 			if (textureRegion instanceof AtlasRegion) {

@@ -576,14 +576,14 @@ public class Army extends Actor implements Destination {
 			toTarget.scl(distance);
 			Point p = new Point(getCenterX() + toTarget.x, getCenterY() + toTarget.y);
 
-			float rotation = 10;
-			while (getKingdom().getMap().isInWater(p) && rotation < 360) {
-				toTarget.rotate(rotation);
-				rotation += 10;
+			float kingdomRotation = 10;
+			while (getKingdom().getMap().isInWater(p) && kingdomRotation < 360) {
+				toTarget.rotate(kingdomRotation);
+				kingdomRotation += 10;
 				p = new Point(getX() + toTarget.x, getY() + toTarget.y);
 //				System.out.println("rotating to find new target");
 			}
-			if (rotation > 360) {// no escape, probably in water
+			if (kingdomRotation > 360) {// no escape, probably in water
 				p = new Point(getCenterX(), getCenterY());
 //				System.out.println("rotated all the way");
 			}

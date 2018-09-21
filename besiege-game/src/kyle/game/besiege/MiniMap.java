@@ -47,19 +47,19 @@ public class MiniMap extends Actor {
 //		this.setOrigin(0, 0);
 
 //		this.setOrigin(panel.getOriginX() - getX(), panel.getOriginY() - getY()); // Buggy
-		//this.setRotation(panel.getRotation());
-//		batch.draw(Assets.map.findRegion("smallMap"), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
+		//this.setKingdomRotation(panel.getKingdomRotation());
+//		batch.draw(Assets.map.findRegion("smallMap"), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getKingdomRotation());
 		if (panel.getActiveCrest() != null) {
 		    // TODO use "crestDraw"
             panel.getActiveCrest().defaultCrestDraw.setPosition(getX(), getY());
 			panel.getActiveCrest().defaultCrestDraw.setSize(getWidth(), getHeight());
 			panel.getActiveCrest().defaultCrestDraw.draw(batch, parentAlpha);
 
-//			batch.draw(panel.getActiveCrest().defaultCrestDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
+//			batch.draw(panel.getActiveCrest().defaultCrestDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getKingdomRotation());
 		}
 		if (panel.getSecondCrest() != null)  {
 			System.out.println("ignoring second crest");
-//			batch.draw(panel.getSecondCrest(), getX()+getWidth()/2, getY(), getOriginX(), getOriginY(), getWidth()/2, getHeight(), 1, 1, getRotation());
+//			batch.draw(panel.getSecondCrest(), getX()+getWidth()/2, getY(), getOriginX(), getOriginY(), getWidth()/2, getHeight(), 1, 1, getKingdomRotation());
 		}
 
 		/* draw unit preview */

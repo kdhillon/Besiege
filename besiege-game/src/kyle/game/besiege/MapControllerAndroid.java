@@ -61,8 +61,8 @@ public class MapControllerAndroid implements GestureListener {
 	@Override
 	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
 			Vector2 pointer1, Vector2 pointer2) {
-//		Vector2 a = initialPointer2.sub(initialPointer1).nor();
-//		Vector2 b = pointer2.sub(pointer1).nor();
+//		Vector2 a = initialPointer2.subparties(initialPointer1).nor();
+//		Vector2 b = pointer2.subparties(pointer1).nor();
 //		float angle = (float)Math.toDegrees((Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x))/100);		
 //		camera.rotate(angle);
 		return false;

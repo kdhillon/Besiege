@@ -94,7 +94,7 @@ public class Matrix3 implements Serializable {
 		return this;
 	}
 
-	/** Sets this matrix to a rotation matrix that will rotate any vector in counter-clockwise direction around the z-axis.
+	/** Sets this matrix to a kingdomRotation matrix that will rotate any vector in counter-clockwise direction around the z-axis.
 	 * @param degrees the angle in degrees.
 	 * @return This matrix for the purpose of chaining operations. */
 	public Matrix3 setToRotation (float degrees) {
@@ -310,7 +310,7 @@ public class Matrix3 implements Serializable {
 		return this;
 	}
 
-	/** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
+	/** Postmultiplies this matrix with a (counter-clockwise) kingdomRotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
 	 * glTranslate/glRotate/glScale.
 	 * @param degrees The angle in degrees
 	 * @return This matrix for the purpose of chaining. */

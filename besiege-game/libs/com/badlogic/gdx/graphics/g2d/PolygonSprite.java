@@ -65,7 +65,7 @@ public class PolygonSprite {
 		dirty = sprite.dirty;
 	}
 
-	/** Sets the position and size of the sprite when drawn, before scaling and rotation are applied. If origin, rotation, or scale
+	/** Sets the position and size of the sprite when drawn, before scaling and kingdomRotation are applied. If origin, kingdomRotation, or scale
 	 * are changed, it is slightly more efficient to set the bounds after those operations. */
 	public void setBounds (float x, float y, float width, float height) {
 		this.x = x;
@@ -76,7 +76,7 @@ public class PolygonSprite {
 		dirty = true;
 	}
 
-	/** Sets the size of the sprite when drawn, before scaling and rotation are applied. If origin, rotation, or scale are changed,
+	/** Sets the size of the sprite when drawn, before scaling and kingdomRotation are applied. If origin, kingdomRotation, or scale are changed,
 	 * it is slightly more efficient to set the size after those operations. If both position and size are to be changed, it is
 	 * better to use {@link #setBounds(float, float, float, float)}. */
 	public void setSize (float width, float height) {
@@ -86,28 +86,28 @@ public class PolygonSprite {
 		dirty = true;
 	}
 
-	/** Sets the position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient
+	/** Sets the position where the sprite will be drawn. If origin, kingdomRotation, or scale are changed, it is slightly more efficient
 	 * to set the position after those operations. If both position and size are to be changed, it is better to use
 	 * {@link #setBounds(float, float, float, float)}. */
 	public void setPosition (float x, float y) {
 		translate(x - this.x, y - this.y);
 	}
 
-	/** Sets the x position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient
+	/** Sets the x position where the sprite will be drawn. If origin, kingdomRotation, or scale are changed, it is slightly more efficient
 	 * to set the position after those operations. If both position and size are to be changed, it is better to use
 	 * {@link #setBounds(float, float, float, float)}. */
 	public void setX (float x) {
 		translateX(x - this.x);
 	}
 
-	/** Sets the y position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient
+	/** Sets the y position where the sprite will be drawn. If origin, kingdomRotation, or scale are changed, it is slightly more efficient
 	 * to set the position after those operations. If both position and size are to be changed, it is better to use
 	 * {@link #setBounds(float, float, float, float)}. */
 	public void setY (float y) {
 		translateY(y - this.y);
 	}
 
-	/** Sets the x position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are
+	/** Sets the x position relative to the current position where the sprite will be drawn. If origin, kingdomRotation, or scale are
 	 * changed, it is slightly more efficient to translate after those operations. */
 	public void translateX (float xAmount) {
 		this.x += xAmount;
@@ -119,7 +119,7 @@ public class PolygonSprite {
 			vertices[i] += xAmount;
 	}
 
-	/** Sets the y position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are
+	/** Sets the y position relative to the current position where the sprite will be drawn. If origin, kingdomRotation, or scale are
 	 * changed, it is slightly more efficient to translate after those operations. */
 	public void translateY (float yAmount) {
 		y += yAmount;
@@ -131,7 +131,7 @@ public class PolygonSprite {
 			vertices[i] += yAmount;
 	}
 
-	/** Sets the position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are
+	/** Sets the position relative to the current position where the sprite will be drawn. If origin, kingdomRotation, or scale are
 	 * changed, it is slightly more efficient to translate after those operations. */
 	public void translate (float xAmount, float yAmount) {
 		x += xAmount;
@@ -162,7 +162,7 @@ public class PolygonSprite {
 			vertices[i] = color;
 	}
 
-	/** Sets the origin in relation to the sprite's position for scaling and rotation. */
+	/** Sets the origin in relation to the sprite's position for scaling and kingdomRotation. */
 	public void setOrigin (float originX, float originY) {
 		this.originX = originX;
 		this.originY = originY;
@@ -174,7 +174,7 @@ public class PolygonSprite {
 		dirty = true;
 	}
 
-	/** Sets the sprite's rotation relative to the current rotation. */
+	/** Sets the sprite's kingdomRotation relative to the current kingdomRotation. */
 	public void rotate (float degrees) {
 		rotation += degrees;
 		dirty = true;

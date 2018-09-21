@@ -43,7 +43,7 @@ public class Location extends Group implements Destination {
 	private final int CLOSE_LOC_DISTANCE = 1000; // distance away locations are considered "close"
 	private static final Color black = new Color(0f, 0f, 0f, 0.4f);
 
-	// for font rotation
+	// for font kingdomRotation
 	private Matrix4 mx4Font = new Matrix4();
 	
 	public transient ObjectLabel label;
@@ -549,7 +549,7 @@ public class Location extends Group implements Destination {
 		// Don't draw if covered by fog (even partially)
 		if (inFog()) return;
 		
-		setRotation(kingdom.getMapScreen().rotation);
+		setRotation(kingdom.getMapScreen().kingdomRotation);
 		float scale = 4f;
 		scale *= this.getSizeFactor();
 		scale *= getAdjustedZoom(getKingdom());
@@ -702,7 +702,7 @@ public class Location extends Group implements Destination {
 			String toDraw = getName();
 
 			mx4Font.idt();
-			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
+			mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getKingdomRotation());
 			mx4Font.trn(getX(), getY(), 0);
 			Matrix4 tempMatrix = batch.getTransformMatrix();
 			batch.setTransformMatrix(mx4Font);

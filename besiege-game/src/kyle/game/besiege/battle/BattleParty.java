@@ -32,7 +32,7 @@ public class BattleParty {
 		if (party == null) return;
 		this.parties.add(party);
 //		System.out.println("adding " + playerPartyPanel.army.getName());
-		for (Subparty s : party.sub) {
+		for (Subparty s : party.subparties) {
 			System.out.println("adding subparty of " + party.getName());
 			this.subparties.add(new BattleSubParty(this, s, team));
 		}

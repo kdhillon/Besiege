@@ -224,7 +224,10 @@ public class Subparty {
 		}
 		else {
 			party.updated = true;
-			if (soldier.isWounded()) {
+			if (soldier.isShaman()) {
+				if (this.shaman != null && this.shaman != soldier) throw new AssertionError();
+				this.shaman = (Shaman) soldier;
+			} else if (soldier.isWounded()) {
 				if (!wounded.contains(soldier, true))
 					wounded.add(soldier);
 				wounded.sort();
@@ -304,6 +307,7 @@ public class Subparty {
 //			System.out.println("setting general to be null");
 			this.general = null;
 		}else {
+			System.out.println("Can't remove " + soldier.getTypeName());
 			throw new AssertionError();
 		}
 	}

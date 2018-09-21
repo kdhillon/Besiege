@@ -23,7 +23,7 @@ import com.badlogic.gdx.graphics.GLCommon;
 
 /** Environment class holding references to the {@link Application}, {@link Graphics}, {@link Audio}, {@link Files} and
  * {@link Input} instances. The references are held in public static fields. Do not mess with this! This essentially allows you
- * static access to all sub systems. It is your responsiblity to keep things thread safe. Don't use Graphics in a thread that is
+ * static access to all subparties systems. It is your responsiblity to keep things thread safe. Don't use Graphics in a thread that is
  * not the rendering thread or things will go crazy. Really.
  * <p>
  * There's also references to {@link GLCommon}, {@link GL10}, {@link GL11}, and {@link GL20}. The same rules as above apply. Don't

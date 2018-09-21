@@ -8,11 +8,8 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 
-import kyle.game.besiege.Inventory;
-import kyle.game.besiege.MultiValue;
+import kyle.game.besiege.*;
 import kyle.game.besiege.MultiValue.TypeInfo;
-import kyle.game.besiege.NameGenerator;
-import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelUnit;
 
@@ -281,8 +278,17 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		// lightest is 225, 172, 150
 		// 1.3, 1.14
 		// generate base between 100 and 150
-		int skinColorRed = (int) (Math.random()*50);
-		skinColorRed += 100;
+		int min = 120;
+		int max = 150;
+		if (getCulture().name.equals("Tundra")) {
+			min = 150;
+			max = 200;
+		}
+		if (getCulture().name.equals("Desert")) {
+			min = 100;
+			max = 130;
+		}
+		int skinColorRed = Random.getRandomInRange(min, max);
 		int base_g = (int) (skinColorRed/1.4f);
 		int base_b = (int) (base_g/1.13f);
 		this.skinColor = new Color(skinColorRed/256.0f, base_g/256.0f, base_b/256.0f, 1);
@@ -386,7 +392,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 
 	public void updateGeneral(General general) {
-		this.atk.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralAtk());
+		if (this.atk != null)
+			this.atk.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralAtk());
 		this.def.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralDef());	
 	}
 

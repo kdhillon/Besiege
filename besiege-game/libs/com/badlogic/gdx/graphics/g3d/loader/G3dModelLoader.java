@@ -323,9 +323,9 @@ public class G3dModelLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 			throw new GdxRuntimeException("Node translation incomplete");
 		jsonNode.translation = translation == null ? null : new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2));
 		
-		JsonValue rotation = json.get("rotation");
+		JsonValue rotation = json.get("kingdomRotation");
 		if(rotation != null && rotation.size != 4)
-			throw new GdxRuntimeException("Node rotation incomplete");
+			throw new GdxRuntimeException("Node kingdomRotation incomplete");
 		jsonNode.rotation = rotation == null ? null : new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3));
 		
 		JsonValue scale = json.get("scale");
@@ -367,7 +367,7 @@ public class G3dModelLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 						if (val != null && val.size >= 3)
 							transform.translate(val.getFloat(0), val.getFloat(1), val.getFloat(2));
 						
-						val = bone.get("rotation");
+						val = bone.get("kingdomRotation");
 						if(val != null && val.size >= 4)
 							transform.rotate(tempQ.set(val.getFloat(0), val.getFloat(1), val.getFloat(2), val.getFloat(3)));
 						
@@ -426,7 +426,7 @@ public class G3dModelLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 					JsonValue translation = keyframe.get("translation");
 					if (translation != null && translation.size == 3)
 						kf.translation = new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2));
-					JsonValue rotation = keyframe.get("rotation");
+					JsonValue rotation = keyframe.get("kingdomRotation");
 					if (rotation != null && rotation.size == 4)
 						kf.rotation = new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3));
 					JsonValue scale = keyframe.get("scale");

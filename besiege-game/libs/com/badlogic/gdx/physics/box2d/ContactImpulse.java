@@ -16,7 +16,7 @@
 
 package com.badlogic.gdx.physics.box2d;
 
-/** Contact impulses for reporting. Impulses are used instead of forces because sub-step forces may approach infinity for rigid
+/** Contact impulses for reporting. Impulses are used instead of forces because subparties-step forces may approach infinity for rigid
  * body collisions. These match up one-to-one with the contact points in b2Manifold.
  * @author mzechner */
 public class ContactImpulse {

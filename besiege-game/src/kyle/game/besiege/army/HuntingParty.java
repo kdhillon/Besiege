@@ -86,6 +86,7 @@ public class HuntingParty extends Army {
 			if (this.isGarrisoned()) eject();
 			if (this.path.isEmpty()) {
 				if (waitToggle) {
+					startAmbush();
 					this.waitFor(Random.getRandomInRange(WAIT_MIN, WAIT_MAX));
 					huntStopsLeft--;
 //					System.out.println("waiting for " + WAIT);

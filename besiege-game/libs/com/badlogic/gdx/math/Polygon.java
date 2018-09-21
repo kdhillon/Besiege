@@ -43,12 +43,12 @@ public class Polygon {
 		this.localVertices = vertices;
 	}
 
-	/** Returns the polygon's local vertices without scaling or rotation and without being offset by the polygon position. */
+	/** Returns the polygon's local vertices without scaling or kingdomRotation and without being offset by the polygon position. */
 	public float[] getVertices () {
 		return localVertices;
 	}
 
-	/** Calculates and returns the vertices of the polygon after scaling, rotation, and positional translations have been applied,
+	/** Calculates and returns the vertices of the polygon after scaling, kingdomRotation, and positional translations have been applied,
 	 * as they are position within the world.
 	 * 
 	 * @return vertices scaled, rotated, and offset by the polygon position. */
@@ -140,7 +140,7 @@ public class Polygon {
 		dirty = true;
 	}
 
-	/** Applies additional rotation to the polygon by the supplied degrees. */
+	/** Applies additional kingdomRotation to the polygon by the supplied degrees. */
 	public void rotate (float degrees) {
 		rotation += degrees;
 		dirty = true;
@@ -252,7 +252,7 @@ public class Polygon {
 		return originY;
 	}
 
-	/** Returns the total rotation applied to the polygon. */
+	/** Returns the total kingdomRotation applied to the polygon. */
 	public float getRotation () {
 		return rotation;
 	}

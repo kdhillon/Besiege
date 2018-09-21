@@ -29,9 +29,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.utils.Pools;
 
-/** 2D scene graph node. An actor has a position, rectangular size, origin, scale, rotation, Z index, and color. The position
+/** 2D scene graph node. An actor has a position, rectangular size, origin, scale, kingdomRotation, Z index, and color. The position
  * corresponds to the unrotated, unscaled bottom left corner of the actor. The position is relative to the actor's parent. The
- * origin is relative to the position and is used for scale and rotation.
+ * origin is relative to the position and is used for scale and kingdomRotation.
  * <p>
  * An actor has a list of in-progress {@link Action actions} that are applied to the actor (over time). These are generally used to
  * change the presentation of the actor (moving it, resizing it, etc). See {@link #act(float)} and {@link Action}.
@@ -499,7 +499,7 @@ public class Actor {
 		this.rotation = degrees;
 	}
 
-	/** Adds the specified rotation to the current rotation. */
+	/** Adds the specified kingdomRotation to the current kingdomRotation. */
 	public void rotate (float amountInDegrees) {
 		rotation += amountInDegrees;
 	}

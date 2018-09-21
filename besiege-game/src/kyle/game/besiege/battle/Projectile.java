@@ -421,7 +421,7 @@ public class Projectile extends Group {
 		}
 
 		if (ammoType.shouldSpin() && !stopped) {
-//		    System.out.println("Rotating: " + getRotation());
+//		    System.out.println("Rotating: " + getKingdomRotation());
 			setRotation(getRotation() + spin);
 		}
 	
@@ -501,7 +501,7 @@ public class Projectile extends Group {
 					//				this.temp_offset_x = (float) Math.random() - .5f;h
 					//				this.temp_offset_y = (float) Math.random() - .5f;
 //					this.setPosition(100, 0);
-//					this.setRotation(0);
+//					this.setKingdomRotation(0);
 					//				//		
 					//				this.temp_offset_x *= 5;
 //					this.temp_offset_y *= 5;

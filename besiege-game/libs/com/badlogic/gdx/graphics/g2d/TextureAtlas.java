@@ -471,7 +471,7 @@ public class TextureAtlas implements Disposable {
 		/** The height of the image, after whitespace was removed for packing. */
 		public int packedHeight;
 
-		/** The width of the image, before whitespace was removed and rotation was applied for packing. */
+		/** The width of the image, before whitespace was removed and kingdomRotation was applied for packing. */
 		public int originalWidth;
 
 		/** The height of the image, before whitespace was removed for packing. */

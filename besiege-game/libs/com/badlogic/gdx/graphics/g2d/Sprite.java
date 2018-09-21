@@ -28,7 +28,7 @@ import static com.badlogic.gdx.graphics.g2d.SpriteBatch.*;
  * and a size given as width and height. The position is relative to the origin of the coordinate system specified via
  * {@link SpriteBatch#begin()} and the respective matrices. A Sprite is always rectangular and its position (x, y) are located in
  * the bottom left corner of that rectangle. A Sprite also has an origin around which rotations and scaling are performed (that
- * is, the origin is not modified by rotation and scaling). The origin is given relative to the bottom left corner of the Sprite,
+ * is, the origin is not modified by kingdomRotation and scaling). The origin is given relative to the bottom left corner of the Sprite,
  * its position.
  * @author mzechner
  * @author Nathan Sweet */
@@ -125,7 +125,7 @@ public class Sprite extends TextureRegion {
 		dirty = sprite.dirty;
 	}
 
-	/** Sets the position and size of the sprite when drawn, before scaling and rotation are applied. If origin, rotation, or scale
+	/** Sets the position and size of the sprite when drawn, before scaling and kingdomRotation are applied. If origin, kingdomRotation, or scale
 	 * are changed, it is slightly more efficient to set the bounds after those operations. */
 	public void setBounds (float x, float y, float width, float height) {
 		this.x = x;
@@ -153,7 +153,7 @@ public class Sprite extends TextureRegion {
 		if (rotation != 0 || scaleX != 1 || scaleY != 1) dirty = true;
 	}
 
-	/** Sets the size of the sprite when drawn, before scaling and rotation are applied. If origin, rotation, or scale are changed,
+	/** Sets the size of the sprite when drawn, before scaling and kingdomRotation are applied. If origin, kingdomRotation, or scale are changed,
 	 * it is slightly more efficient to set the size after those operations. If both position and size are to be changed, it is
 	 * better to use {@link #setBounds(float, float, float, float)}. */
 	public void setSize (float width, float height) {
@@ -180,28 +180,28 @@ public class Sprite extends TextureRegion {
 		if (rotation != 0 || scaleX != 1 || scaleY != 1) dirty = true;
 	}
 
-	/** Sets the position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient
+	/** Sets the position where the sprite will be drawn. If origin, kingdomRotation, or scale are changed, it is slightly more efficient
 	 * to set the position after those operations. If both position and size are to be changed, it is better to use
 	 * {@link #setBounds(float, float, float, float)}. */
 	public void setPosition (float x, float y) {
 		translate(x - this.x, y - this.y);
 	}
 
-	/** Sets the x position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient
+	/** Sets the x position where the sprite will be drawn. If origin, kingdomRotation, or scale are changed, it is slightly more efficient
 	 * to set the position after those operations. If both position and size are to be changed, it is better to use
 	 * {@link #setBounds(float, float, float, float)}. */
 	public void setX (float x) {
 		translateX(x - this.x);
 	}
 
-	/** Sets the y position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient
+	/** Sets the y position where the sprite will be drawn. If origin, kingdomRotation, or scale are changed, it is slightly more efficient
 	 * to set the position after those operations. If both position and size are to be changed, it is better to use
 	 * {@link #setBounds(float, float, float, float)}. */
 	public void setY (float y) {
 		translateY(y - this.y);
 	}
 
-	/** Sets the x position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are
+	/** Sets the x position relative to the current position where the sprite will be drawn. If origin, kingdomRotation, or scale are
 	 * changed, it is slightly more efficient to translate after those operations. */
 	public void translateX (float xAmount) {
 		this.x += xAmount;
@@ -215,7 +215,7 @@ public class Sprite extends TextureRegion {
 		vertices[X4] += xAmount;
 	}
 
-	/** Sets the y position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are
+	/** Sets the y position relative to the current position where the sprite will be drawn. If origin, kingdomRotation, or scale are
 	 * changed, it is slightly more efficient to translate after those operations. */
 	public void translateY (float yAmount) {
 		y += yAmount;
@@ -229,7 +229,7 @@ public class Sprite extends TextureRegion {
 		vertices[Y4] += yAmount;
 	}
 
-	/** Sets the position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are
+	/** Sets the position relative to the current position where the sprite will be drawn. If origin, kingdomRotation, or scale are
 	 * changed, it is slightly more efficient to translate after those operations. */
 	public void translate (float xAmount, float yAmount) {
 		x += xAmount;
@@ -282,25 +282,25 @@ public class Sprite extends TextureRegion {
 		vertices[C4] = color;
 	}
 
-	/** Sets the origin in relation to the sprite's position for scaling and rotation. */
+	/** Sets the origin in relation to the sprite's position for scaling and kingdomRotation. */
 	public void setOrigin (float originX, float originY) {
 		this.originX = originX;
 		this.originY = originY;
 		dirty = true;
 	}
 
-	/** Sets the rotation of the sprite in degrees. Rotation is centered on the origin set in {@link #setOrigin(float, float)} */
+	/** Sets the kingdomRotation of the sprite in degrees. Rotation is centered on the origin set in {@link #setOrigin(float, float)} */
 	public void setRotation (float degrees) {
 		this.rotation = degrees;
 		dirty = true;
 	}
 
-	/** @return the rotation of the sprite in degrees */
+	/** @return the kingdomRotation of the sprite in degrees */
 	public float getRotation () {
 		return rotation;
 	}
 
-	/** Sets the sprite's rotation in degrees relative to the current rotation. Rotation is centered on the origin set in
+	/** Sets the sprite's kingdomRotation in degrees relative to the current kingdomRotation. Rotation is centered on the origin set in
 	 * {@link #setOrigin(float, float)} */
 	public void rotate (float degrees) {
 		if(degrees == 0) return;
@@ -308,7 +308,7 @@ public class Sprite extends TextureRegion {
 		dirty = true;
 	}
 
-	/** Rotates this sprite 90 degrees in-place by rotating the texture coordinates. This rotation is unaffected by
+	/** Rotates this sprite 90 degrees in-place by rotating the texture coordinates. This kingdomRotation is unaffected by
 	 * {@link #setRotation(float)} and {@link #rotate(float)}. */
 	public void rotate90 (boolean clockwise) {
 		float[] vertices = this.vertices;

@@ -100,7 +100,7 @@ public class TiledMapTileLayer extends MapLayer {
 	}
 	
 	/**
-	 * @brief represents a cell in a TiledLayer: TiledMapTile, flip and rotation properties.
+	 * @brief represents a cell in a TiledLayer: TiledMapTile, flip and kingdomRotation properties.
 	 */
 	public static class Cell {
 		
@@ -161,14 +161,14 @@ public class TiledMapTileLayer extends MapLayer {
 		}
 		
 		/**
-		 * @return The rotation of this cell, in degrees.
+		 * @return The kingdomRotation of this cell, in degrees.
 		 */
 		public int getRotation() {
 			return rotation;
 		}
 		
 		/**
-		 * Sets the rotation of this cell, in degrees.
+		 * Sets the kingdomRotation of this cell, in degrees.
 		 * 
 		 * @param rotation
 		 */

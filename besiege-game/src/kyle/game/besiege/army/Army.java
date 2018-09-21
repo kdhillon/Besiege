@@ -52,8 +52,8 @@ public class Army extends Group implements Destination {
 	private static final float COLLISION_FACTOR = 10; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 
-	// TODO replace this with 200... I think this is causing farmer problems?
-	public static final int A_STAR_FREQ = 0; // army may only set new target every x frames
+//	 TODO replace this with 200... I think this is causing farmer problems?
+	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that playerPartyPanel size detracts from total speed
 	private static final float BASE_LOS = 200;
 	private static final int MAX_STACK_SIZE = 10;
@@ -72,7 +72,7 @@ public class Army extends Group implements Destination {
 
     Animation walkArmor, walkSkin;
 
-    // for font rotation
+    // for font kingdomRotation
 	private Matrix4 mx4Font = new Matrix4();
 	
 	protected int wealthFactor = 1; // set in children
@@ -106,7 +106,7 @@ public class Army extends Group implements Destination {
 
 	private boolean startedRunning;
 
-	// This is what sets the unitdraw rotation. Keeping this separate from getRotation()
+	// This is what sets the unitdraw kingdomRotation. Keeping this separate from getKingdomRotation()
 	// allows us to draw the unit and its crest at different rotations
 	private float actualRotation;
 
@@ -133,6 +133,7 @@ public class Army extends Group implements Destination {
 	public Array<Integer> closeCenters; 
 	
 	public boolean hiding;
+	public boolean inAmbush = false;
 	
 	private float timeSinceRunFrom = 0;
 
@@ -196,7 +197,7 @@ public class Army extends Group implements Destination {
         restoreAnimation();
 	
 		this.setPosition(posX, posY);
-//		this.setRotation(90);
+//		this.setKingdomRotation(90);
 
 		kingdom.updateArmyPolygon(this);
 
@@ -310,6 +311,14 @@ public class Army extends Group implements Destination {
 
 	public void setActualRotation(float rotation) {
 		this.actualRotation = rotation;
+	}
+
+	public void startAmbush() {
+		this.inAmbush = true;
+	}
+
+	public void endAmbush() {
+		this.inAmbush = false;
 	}
 
 	@Override
@@ -495,6 +504,8 @@ public class Army extends Group implements Destination {
 		// Don't draw while in battle.
 		if (isInBattle()) return;
 
+		if (isNonFriendlyAmbush(kingdom.getPlayer())) return;
+
 		float animationTime = 0;
 		if (isArmyMoving()) {
 			animationTime = stateTime;
@@ -505,19 +516,24 @@ public class Army extends Group implements Destination {
         UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), animationTime, getGeneral().getEquipment());
 		setRotation(oldRotation);
 
-		// We're going to force rotation to be upright -- that way crest (a child) will be drawn upright
+		// We're going to force kingdomRotation to be upright -- that way crest (a child) will be drawn upright
 		// This is the same way location works.
-		setRotation(kingdom.getMapScreen().rotation);
+		setRotation(kingdom.getMapScreen().kingdomRotation);
 
         // draw los
 		drawLOS();
 
 		// This is a hack so that the crestdraw is drawn upright.
-//		float rotation = this.getRotation();
-//		this.setRotation(0);
+//		float kingdomRotation = this.getKingdomRotation();
+//		this.setKingdomRotation(0);
 		super.draw(batch, parentAlpha);
-//		this.setRotation(rotation);
+//		this.setKingdomRotation(kingdomRotation);
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
+	}
+
+	// Is this army in an ambush and unfriendly towards the faction of the given army
+	public boolean isNonFriendlyAmbush(Army army) {
+		return this.inAmbush && this.faction != army.getFaction();
 	}
 
 	 boolean isArmyMoving() {
@@ -554,7 +570,7 @@ public class Army extends Group implements Destination {
 		batch.setColor(clear_white);
 		
 		mx4Font.idt();
-		mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getRotation());
+		mx4Font.rotate(new Vector3(0, 0, 1), getKingdom().getMapScreen().getKingdomRotation());
 		mx4Font.trn(getCenterX(), getCenterY(), 0);
 		Matrix4 tempMatrix = batch.getTransformMatrix();
 		batch.setTransformMatrix(mx4Font);
@@ -685,15 +701,14 @@ public class Army extends Group implements Destination {
 			for (Army a : kingdom.getArmies()) {
 				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight || (a.isGarrisoned() && siegeOf == null) || 
 						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true)) continue;
-				if (a.isAtWar(targetParty.getFaction()) && !a.isAtWar(this))
+				if (a.isAtWar(targetParty.getFaction()) && !a.isAtWar(this) && !a.passive)
 					nearAllies.add(a.party);
-				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this))
+				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this) && !a.passive)
 					nearEnemies.add(a.party);
 			}
 
 			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
-			
-			
+
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
 		}
@@ -1012,7 +1027,7 @@ public class Army extends Group implements Destination {
 			for (Army army : closeArmies) {
 				if (army.isGarrisoned() || army.hiding) continue;
 				double distToCenter = this.distToCenter(army);
-				if (distToCenter < lineOfSight) {
+				if (isVisibleToThis(army)) {
 					// hostile troop
 					if (isAtWar(army)) {
 						if (shouldRunFrom(army)) {
@@ -1037,6 +1052,12 @@ public class Army extends Group implements Destination {
 			//			System.out.println(this.getName() + " containing = null");
 			return null;
 		}
+	}
+
+	// Is the given army visible to this guy
+	private boolean isVisibleToThis(Army that) {
+		double distToCenter = this.distToCenter(that);
+		return distToCenter < lineOfSight && !that.isNonFriendlyAmbush(this);
 	}
 
 	public void updatePolygon() {
@@ -1112,7 +1133,7 @@ public class Army extends Group implements Destination {
 	public boolean targetLost() {
 		if (target != null && target.getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) target;
-			if (distToCenter(target) > lineOfSight || !targetArmy.hasParent() || targetArmy.isGarrisoned())
+			if (isVisibleToThis(targetArmy) || !targetArmy.hasParent() || targetArmy.isGarrisoned())
 				return true;
 			if (targetArmy.isInBattle()) {
 				if (!targetArmy.getBattle().shouldJoinAttackers(this) && !targetArmy.getBattle().shouldJoinDefenders(this)) // shouldn't join
@@ -1583,10 +1604,18 @@ public class Army extends Group implements Destination {
 	//	}
 	public boolean isAtWar(Destination destination) {
 		if (destination.getFaction() == null || this.faction == null) {
-		    if (destination.getFaction() == null && this.faction == null) return false;
+		    if (destination.getFaction() == null && this.faction == null) {
+				System.out.println(this.getName() + " is not at war with " + destination.getName());
+				return false;
+			}
+//		    System.out.println(this.getName() + " is at war with " + destination.getName());
 		    return true;
         }
+//		System.out.println(this.getName() + " not at war with " + destination.getName());
+
 		if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
+
+//		System.out.println(this.getName() + " depends on faction " + destination.getName());
 		return faction.atWar(destination.getFaction());
 	}
 
@@ -1737,16 +1766,28 @@ public class Army extends Group implements Destination {
 //        Color c = batch.getColor();
 //        batch.setColor(tint);
 //        TextureRegion region = animation.getKeyFrame(stateTime, loop);
-//        batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation() - 90);
+//        batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getKingdomRotation() - 90);
 //        batch.setColor(c);
 //    }
 
     protected Color getGeneralArmorColor() {
-        return party.getGeneral().getArmor().color;
-    }
+		if (inAmbush) {
+			Color c = new Color(party.getGeneral().getArmor().color);
+			c.a = 0.3f;
+			return c;
+		}
+		else
+			return party.getGeneral().getArmor().color;
+	}
 
     protected Color getGeneralSkinColor() {
-        return party.getGeneral().skinColor;
+		if (inAmbush) {
+			Color c = new Color(party.getGeneral().skinColor);
+			c.a = 0.3f;
+			return c;
+		}
+		else
+			return party.getGeneral().skinColor;
     }
 	
 	public boolean isNoble() {

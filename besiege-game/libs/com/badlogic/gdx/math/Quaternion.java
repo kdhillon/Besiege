@@ -216,7 +216,7 @@ public class Quaternion implements Serializable {
 
 	// TODO : the matrix4 set(quaternion) doesnt set the last row+col of the matrix to 0,0,0,1 so... that's why there is this
 // method
-	/** Fills a 4x4 matrix with the rotation matrix represented by this quaternion.
+	/** Fills a 4x4 matrix with the kingdomRotation matrix represented by this quaternion.
 	 * 
 	 * @param matrix Matrix to fill */
 	public void toMatrix (final float[] matrix) {
@@ -354,7 +354,7 @@ public class Quaternion implements Serializable {
 		return set((float)x, (float)y, (float)z, (float)w);
 	}
 	
-	/** Set this quaternion to the rotation between two vectors.
+	/** Set this quaternion to the kingdomRotation between two vectors.
 	 * @param v1 The base vector, which should be normalized.
 	 * @param v2 The target vector, which should be normalized.
 	 * @return This quaternion for chaining */
@@ -364,7 +364,7 @@ public class Quaternion implements Serializable {
 		return setFromAxis(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x, angle);
 	}
 	
-	/** Set this quaternion to the rotation between two vectors.
+	/** Set this quaternion to the kingdomRotation between two vectors.
 	 * @param x1 The base vectors x value, which should be normalized.
 	 * @param y1 The base vectors y value, which should be normalized.
 	 * @param z1 The base vectors z value, which should be normalized.
@@ -449,7 +449,7 @@ public class Quaternion implements Serializable {
 	}
 	
 	/**
-	 * Get the angle and the axis of rotation
+	 * Get the angle and the axis of kingdomRotation
 	 * @param axis axis to get
 	 * @return the angle
 	 */

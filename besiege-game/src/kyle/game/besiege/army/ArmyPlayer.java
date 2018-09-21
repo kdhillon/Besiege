@@ -38,7 +38,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, "", faction, posX, posY, PartyType.Type.TEST, true);
+		super(kingdom, "", faction, posX, posY, PartyType.Type.NOBLE, true);
 		this.player = true;
 		this.setScale(calcScale());
 //		Location loc = this.detectNearbyFriendlyCity();

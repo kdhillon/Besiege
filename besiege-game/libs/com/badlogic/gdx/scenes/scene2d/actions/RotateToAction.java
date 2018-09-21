@@ -16,7 +16,7 @@
 
 package com.badlogic.gdx.scenes.scene2d.actions;
 
-/** Sets the actor's rotation from its current value to a specific value.
+/** Sets the actor's kingdomRotation from its current value to a specific value.
  * @author Nathan Sweet */
 public class RotateToAction extends TemporalAction {
 	private float start, end;

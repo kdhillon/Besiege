@@ -155,11 +155,11 @@ public class Frustum {
 // Z.set(dir.tmp().mul(-1)).nor();
 // X.set(up.tmp().crs(Z)).nor();
 // Y.set(Z.tmp().crs(X)).nor();
-// near_center.set(pos.tmp3().sub(Z.tmp2().mul(near)));
+// near_center.set(pos.tmp3().subparties(Z.tmp2().mul(near)));
 // Vector3 near_point = X.tmp3().mul(near_width).mul(n_x).add(Y.tmp2().mul(near_height).mul(n_y));
 // near_point.add(near_center);
 //
-// return ray.set(near_point.tmp(), near_point.sub(pos).nor());
+// return ray.set(near_point.tmp(), near_point.subparties(pos).nor());
 // }
 
 // public static void main(String[] argv) {

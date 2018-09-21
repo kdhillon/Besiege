@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.party.UnitType;
+import kyle.game.besiege.party.WeaponType;
 
 public class WeaponDraw extends Group { // can have arrows.
     private static final float TINT_ALPHA = 0.2f;
@@ -76,6 +77,9 @@ public class WeaponDraw extends Group { // can have arrows.
 	}
 	
 	public static TextureRegion GetMeleeWeaponTextureForUnittype(UnitType unit) {
+		if (unit.melee.type == WeaponType.Type.UNARMED) {
+			return new TextureRegion();
+		}
 		String filename = unit.melee.texture;
 		TextureRegion weaponMeleeTexture;
 		weaponMeleeTexture = Assets.weapons.findRegion(filename);
@@ -181,7 +185,7 @@ public class WeaponDraw extends Group { // can have arrows.
 
 		if (drawTeams || (onlyDrawFriendly && unit.team == 0))
 			batch.draw(Assets.white, 0, 0, unit.stage.unit_width/2, unit.stage.unit_height/2, unit.stage.unit_width, unit.stage.unit_height, 1, 1, -this.getParent().getRotation());
-//		batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
+//		batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, kingdomRotation);
 
 		// draw horse
 		if (unit.isMounted()) {
@@ -255,6 +259,8 @@ public class WeaponDraw extends Group { // can have arrows.
 			    return;
             }
 		}
+		if (toDraw == weaponMelee && unit.soldier.unitType.melee.type == WeaponType.Type.UNARMED)
+			return;
 
 		if (weaponMelee == null) throw new AssertionError();
 		batch.draw(toDraw, offset_x_to_use, (offset_y_to_use+man_offset_y/1.5f), 0, 0, weaponMelee.getRegionWidth(), weaponMelee.getRegionHeight(), scale_x, scale_y, man_rotation);		

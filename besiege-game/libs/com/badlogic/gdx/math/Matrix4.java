@@ -71,15 +71,15 @@ public class Matrix4 implements Serializable {
 		this.set(values);
 	}
 
-	/** Constructs a rotation matrix from the given {@link Quaternion}.
+	/** Constructs a kingdomRotation matrix from the given {@link Quaternion}.
 	 * @param quaternion The quaternion to be copied. (The quaternion is not modified) */
 	public Matrix4 (Quaternion quaternion) {
 		this.set(quaternion);
 	}
 	
-	/** Construct a matrix from the given translation, rotation and scale.
+	/** Construct a matrix from the given translation, kingdomRotation and scale.
 	 * @param position The translation
-	 * @param rotation The rotation, must be normalized
+	 * @param rotation The kingdomRotation, must be normalized
 	 * @param scale The scale */
 	public Matrix4 (Vector3 position, Quaternion rotation, Vector3 scale) {
 		set(position, rotation, scale);
@@ -104,7 +104,7 @@ public class Matrix4 implements Serializable {
 		return this;
 	}
 
-	/** Sets the matrix to a rotation matrix representing the quaternion.
+	/** Sets the matrix to a kingdomRotation matrix representing the quaternion.
 	 * 
 	 * @param quaternion The quaternion that is to be used to set this matrix.
 	 * @return This matrix for the purpose of chaining methods together. */
@@ -112,7 +112,7 @@ public class Matrix4 implements Serializable {
 		return set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 	}
 	
-	/** Sets the matrix to a rotation matrix representing the quaternion.
+	/** Sets the matrix to a kingdomRotation matrix representing the quaternion.
 	 * 
 	 * @param x The X component of the quaternion that is to be used to set this matrix.
 	 * @param y The Y component of the quaternion that is to be used to set this matrix.
@@ -149,9 +149,9 @@ public class Matrix4 implements Serializable {
 		return this;
 	}
 	
-	/** Set this matrix to the specified translation, rotation and scale.
+	/** Set this matrix to the specified translation, kingdomRotation and scale.
 	 * @param position The translation
-	 * @param orientation The rotation, must be normalized
+	 * @param orientation The kingdomRotation, must be normalized
 	 * @param scale The scale
 	 * @return This matrix for chaining */
 	public Matrix4 set (Vector3 position, Quaternion orientation, Vector3 scale) {
@@ -564,7 +564,7 @@ public class Matrix4 implements Serializable {
 
 	static Quaternion quat = new Quaternion();
 
-	/** Sets the matrix to a rotation matrix around the given axis.
+	/** Sets the matrix to a kingdomRotation matrix around the given axis.
 	 * 
 	 * @param axis The axis
 	 * @param degrees The angle in degrees
@@ -577,7 +577,7 @@ public class Matrix4 implements Serializable {
 		return set(quat.set(axis, degrees));
 	}
 
-	/** Sets the matrix to a rotation matrix around the given axis.
+	/** Sets the matrix to a kingdomRotation matrix around the given axis.
 	 * 
 	 * @param axisX The x-component of the axis
 	 * @param axisY The y-component of the axis
@@ -592,7 +592,7 @@ public class Matrix4 implements Serializable {
 		return set(quat.setFromAxis(axisX, axisY, axisZ, degrees));
 	}
 
-	/** Set the matrix to a rotation matrix between two vectors.
+	/** Set the matrix to a kingdomRotation matrix between two vectors.
 	 * @param v1 The base vector
 	 * @param v2 The target vector
 	 * @return This matrix for the purpose of chaining methods together */
@@ -600,7 +600,7 @@ public class Matrix4 implements Serializable {
 		return set(quat.setFromCross(v1, v2));
 	}
 	
-	/** Set the matrix to a rotation matrix between two vectors.
+	/** Set the matrix to a kingdomRotation matrix between two vectors.
 	 * @param x1 The base vectors x value
 	 * @param y1 The base vectors y value
 	 * @param z1 The base vectors z value
@@ -612,7 +612,7 @@ public class Matrix4 implements Serializable {
 		return set(quat.setFromCross(x1, y1, z1, x2, y2, z2));
 	}
 	
-	/** Sets this matrix to a rotation matrix from the given euler angles.
+	/** Sets this matrix to a kingdomRotation matrix from the given euler angles.
 	 * @param yaw the yaw in degrees
 	 * @param pitch the pitch in degress
 	 * @param roll the roll in degrees
@@ -1001,7 +1001,7 @@ public class Matrix4 implements Serializable {
 		}
 	*/
 
-	/** Multiplies the vector with the top most 3x3 sub-matrix of the given matrix. The matrix array is assumed to hold a 4x4 column
+	/** Multiplies the vector with the top most 3x3 subparties-matrix of the given matrix. The matrix array is assumed to hold a 4x4 column
 	 * major matrix as you can get from {@link Matrix4#val}. The vector array is assumed to hold a 3-component vector, with x being
 	 * the first element, y being the second and z being the last component. The result is stored in the vector array. This is the
 	 * same as {@link Vector3#rot(Matrix4)}.
@@ -1011,7 +1011,7 @@ public class Matrix4 implements Serializable {
 		matrix4_rot(mat, vec);
 	*/
 
-	/** Multiplies the vectors with the top most 3x3 sub-matrix of the given matrix. The matrix array is assumed to hold a 4x4
+	/** Multiplies the vectors with the top most 3x3 subparties-matrix of the given matrix. The matrix array is assumed to hold a 4x4
 	 * column major matrix as you can get from {@link Matrix4#val}. The vectors array is assumed to hold 3-component vectors.
 	 * Offset specifies the offset into the array where the x-component of the first vector is located. The numVecs parameter
 	 * specifies the number of vectors stored in the vectors array. The stride parameter specifies the number of floats between
@@ -1083,7 +1083,7 @@ public class Matrix4 implements Serializable {
 		return this;
 	}
 
-	/** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
+	/** Postmultiplies this matrix with a (counter-clockwise) kingdomRotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
 	 * glTranslate/glRotate/glScale.
 	 * 
 	 * @param axis The vector axis to rotate around.
@@ -1095,7 +1095,7 @@ public class Matrix4 implements Serializable {
 		return rotate(quat);
 	}
 
-	/** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
+	/** Postmultiplies this matrix with a (counter-clockwise) kingdomRotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
 	 * glTranslate/glRotate/glScale
 	 * @param axisX The x-axis component of the vector to rotate around.
 	 * @param axisY The y-axis component of the vector to rotate around.
@@ -1108,7 +1108,7 @@ public class Matrix4 implements Serializable {
 		return rotate(quat);
 	}
 
-	/** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
+	/** Postmultiplies this matrix with a (counter-clockwise) kingdomRotation matrix. Postmultiplication is also used by OpenGL ES' 1.x
 	 * glTranslate/glRotate/glScale.
 	 * 
 	 * @param rotation
@@ -1119,7 +1119,7 @@ public class Matrix4 implements Serializable {
 		return this;
 	}
 	
-	/** Postmultiplies this matrix by the rotation between two vectors.
+	/** Postmultiplies this matrix by the kingdomRotation between two vectors.
 	 * @param v1 The base vector
 	 * @param v2 The target vector
 	 * @return This matrix for the purpose of chaining methods together */	

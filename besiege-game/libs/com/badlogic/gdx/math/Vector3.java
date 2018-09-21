@@ -423,7 +423,7 @@ public class Vector3 implements Serializable, Vector<Vector3> {
 			* l_w, (x * l_mat[Matrix4.M20] + y * l_mat[Matrix4.M21] + z * l_mat[Matrix4.M22] + l_mat[Matrix4.M23]) * l_w);
 	}
 
-	/** Multiplies this vector by the first three columns of the matrix, essentially only applying rotation and scaling.
+	/** Multiplies this vector by the first three columns of the matrix, essentially only applying kingdomRotation and scaling.
 	 * 
 	 * @param matrix The matrix
 	 * @return This vector for chaining */

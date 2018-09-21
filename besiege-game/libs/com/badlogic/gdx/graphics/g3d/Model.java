@@ -62,7 +62,7 @@ import com.badlogic.gdx.utils.Pool;
  * A model represents a 3D assets. It stores a hierarchy of nodes. A node has a transform and optionally
  * a graphical part in form of a {@link MeshPart} and {@link Material}. Mesh parts reference subsets of
  * vertices in one of the meshes of the model. Animations can be applied to nodes, to modify their
- * transform (translation, rotation, scale) over time.</p>
+ * transform (translation, kingdomRotation, scale) over time.</p>
  *
  * A model can be rendered by creating a {@link ModelInstance} from it. That instance has an additional
  * transform to position the model in the world, and allows modification of materials and nodes without
@@ -333,12 +333,12 @@ public class Model implements Disposable {
 	}
 	
 	/** Calculates the local and world transform of all {@link Node} instances in this model, recursively.
-	 * First each {@link Node#localTransform} transform is calculated based on the translation, rotation and
+	 * First each {@link Node#localTransform} transform is calculated based on the translation, kingdomRotation and
 	 * scale of each Node. Then each {@link Node#calculateWorldTransform()}
 	 * is calculated, based on the parent's world transform and the local transform of each Node.
 	 * Finally, the animation bone matrices are updated accordingly.</p>
 	 * 
-	 * This method can be used to recalculate all transforms if any of the Node's local properties (translation, rotation, scale)
+	 * This method can be used to recalculate all transforms if any of the Node's local properties (translation, kingdomRotation, scale)
 	 * was modified.
 	 */
 	public void calculateTransforms() {
