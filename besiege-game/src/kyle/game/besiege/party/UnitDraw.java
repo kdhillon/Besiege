@@ -153,6 +153,11 @@ public class UnitDraw extends Actor {
     }
 
     public static void drawAnimationTint(SpriteBatch batch, Animation animation, float stateTime, boolean loop, Color tint, Actor actor) {
+        TextureRegion region = animation.getKeyFrame(stateTime, loop);
+        drawItemTint(batch, region, tint, actor);
+    }
+
+    public static void drawItemTint(SpriteBatch batch, TextureRegion region, Color tint, Actor actor) {
         Color c = batch.getColor();
         Color c2 = new Color(batch.getColor());
         batch.setColor(tint);
@@ -160,7 +165,6 @@ public class UnitDraw extends Actor {
 //        System.out.println(c.toString());
         batch.setColor(blend(c, tint));
 //        System.out.println(batch.getColor().toString());
-        TextureRegion region = animation.getKeyFrame(stateTime, loop);
         drawItem(batch, region, actor);
         batch.setColor(c2);
     }
@@ -181,10 +185,6 @@ public class UnitDraw extends Actor {
             drawAnimationTint(batch, armor, stateTime, loop, armorColor, actor);
         }
 
-        Color c = batch.getColor();
-        if (armorColor.a < 0.5f)
-             batch.setColor(new Color(1, 1, 1, armorColor.a));
-
         if (equipment != null){
             for (Equipment equip : equipment) {
                 // TODO draw additional items
@@ -192,11 +192,9 @@ public class UnitDraw extends Actor {
 
 //                System.out.println("drawing equipment: " + equip.name);
 
-                drawItem(batch, equip.getRegion(), actor);
+                drawItemTint(batch, equip.getRegion(), new Color(1, 1, 1, armorColor.a), actor);
             }
         }
-
-        batch.setColor(c);
     }
 
     public static Color blend(Color c1, Color c2) {

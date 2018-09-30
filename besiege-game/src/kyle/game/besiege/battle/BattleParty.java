@@ -11,14 +11,13 @@ public class BattleParty {
 	
 	public boolean retreating;
 	
-	StrictArray<BattleSubParty> subparties;
+	public StrictArray<BattleSubParty> subparties;
 	StrictArray<Party> parties;
 	StrictArray<Unit> units; // reflects subparties' units
 
 	public BattleStage stage;
 	
 	public int team;
-
 
 	public BattleParty(BattleStage stage, int team) {
 		this.stage = stage;
@@ -37,7 +36,13 @@ public class BattleParty {
 			this.subparties.add(new BattleSubParty(this, s, team));
 		}
 	}
-	
+
+	public void setUpdated() {
+		for (Party p : parties) {
+			p.updated = true;
+		}
+	}
+
 	public Party first() {
 		for (Party p : this.parties) {
 		    if (p != null)

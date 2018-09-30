@@ -20,7 +20,7 @@ public class BattleSubParty {
 	public static float BASE_MORALE = 0.4f;
 	public static float MAX_MORALE = 0.9f;
 	
-	Subparty subparty;
+	public Subparty subparty;
 	BattleParty parent;
 	BattleStage stage;
 
@@ -140,6 +140,7 @@ public class BattleSubParty {
 		
 		this.calcMinSpeed();
 	}
+
 	
 	public void addUnitsToArrays() {
 		for (Unit unit : units) {
@@ -433,7 +434,7 @@ public class BattleSubParty {
 		return availableFormations.get(index);
 	}
 
-	
+
 	// TODO for efficiency, don't remove it fully, just remove it from the stage and change positions. Keep the guys alive in units array here.
 	// create three arrays of UNITS, inf, cav, archers, and keep them alive for redistribution.
 	public void updateFormation() {
@@ -492,6 +493,17 @@ public class BattleSubParty {
 			u.setStance(s);
 		}
 		general.setStance(s);
+		this.parent.setUpdated();
+	}
+
+	public Unit getUnit(Soldier soldier) {
+		System.out.println("lookin for " + soldier.getName());
+
+		for (Unit s : units) {
+			System.out.println(s.getName());
+			if (soldier == s.soldier) return s;
+		}
+		return null;
 	}
 
     public StrictArray<Unit> getInfantry() {

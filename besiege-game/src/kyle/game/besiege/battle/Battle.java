@@ -66,4 +66,6 @@ public interface Battle {
 	
 	public boolean isOver();
 	public boolean didAttackersWin();
+
+	VictoryManager getVictoryManager();
 }

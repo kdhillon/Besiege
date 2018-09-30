@@ -20,10 +20,6 @@ public class Bandit extends Army {
 			float posX, float posY) {
 		super(kingdom, name, Faction.BANDITS_FACTION, posX, posY, PartyType.Type.BANDIT, null);
 		
-		if (getParty().getTotalSize() >= MID_SIZE)
-			texture = "Raider";
-		else texture = "Bandit";
-		
 		this.setDefaultTarget(new Point(posX, posY));
 		this.type = ArmyType.BANDIT;
 	}

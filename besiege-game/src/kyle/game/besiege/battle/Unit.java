@@ -115,8 +115,21 @@ public class Unit extends Group {
 	float ladder_height;
 
 	public float percentComplete; // between 0 and 1, used for moving?
+
 	public enum Orientation {LEFT, UP, RIGHT, DOWN};
-	public enum Stance {AGGRESSIVE, DEFENSIVE, INLINE};
+
+	public enum Stance {
+		AGGRESSIVE("Aggressive"), DEFENSIVE("Defensive"), INLINE("In-Line");
+		String name;
+		Stance(String string) {
+			name = string;
+		}
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
 	public Orientation orientation;
 	public Stance stance;
 	public Unit nearestEnemy;
@@ -606,7 +619,8 @@ public class Unit extends Group {
 		Unit nearbyGeneral = getNearbyFriendlyGeneral();
 		if (nearbyGeneral == null) return;
 		if (isAdjacent(nearbyGeneral)) {
-			this.face(nearbyGeneral, true);
+		    if (nearestEnemy == null) return;
+			this.face(nearestEnemy, true);
 			return;
 		}
 		moveToPoint(nearbyGeneral.getAdjacentPoint());

@@ -42,8 +42,8 @@ public class Simulation extends Game {
         type1 = UnitLoader.cultureTypes.get("Plains");
         type2 = UnitLoader.cultureTypes.get("Forest");
 
-        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.NOBLE, type1),
-										PartyType.getPartyType(Type.NOBLE, type2));
+        bs = new BattleStage(mapScreen, PartyType.getPartyType(Type.SCOUT, type1),
+										PartyType.getPartyType(Type.SCOUT, type2));
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		

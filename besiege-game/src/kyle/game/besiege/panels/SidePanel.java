@@ -154,6 +154,7 @@ public class SidePanel extends Group {
 //			setActive(/playerPartyPanel);
 			return;
 		};
+		System.out.println("setting panel: " + newActivePanel.getClass());
 
 		if (newActivePanel == upgrades) upgrades.updateSoldierTable();
 		if (newActivePanel.getClass() == PanelParty.class) {
@@ -169,10 +170,12 @@ public class SidePanel extends Group {
         this.removeActor(this.activePanel);
 
         this.previousPanel = this.activePanel;
-        if (previousPanel != null)
-            System.out.println("previous panel is now: " + previousPanel.getClass());
+        if (previousPanel != null) {
+			System.out.println("previous panel is now: " + previousPanel.getClass());
+		}
 
-        this.activePanel = newActivePanel;
+
+		this.activePanel = newActivePanel;
 
         this.addActor(activePanel);
 //		}s

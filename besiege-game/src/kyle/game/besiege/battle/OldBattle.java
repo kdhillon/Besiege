@@ -668,4 +668,9 @@ public class OldBattle implements Battle { // new battle system involving Party
 	public boolean didAttackersWin() {
 		return didAtkWin;
 	}
+
+	@Override
+	public VictoryManager getVictoryManager() {
+		return victoryManager;
+	}
 }

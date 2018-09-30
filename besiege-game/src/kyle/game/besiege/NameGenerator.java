@@ -106,17 +106,18 @@ public class NameGenerator {
         return lowercase(villageGen.gen(6, 12, 4));
     }
 
-
     public String generateFirstNameMale() {
-        return  lowercase(firstMaleGen.gen(5, 10, 5));
+	    // prev 5 10 5
+        return  lowercase(firstMaleGen.gen(4, 8, 4));
     }
 
     public String generateFirstNameFemale() {
-        return  lowercase(firstFemaleGen.gen(5, 10, 5));
+	    // prev 5 10 5
+        return  lowercase(firstFemaleGen.gen(4, 8, 4));
     }
 
     public String generateLastName() {
-        return  lowercase(lastGen.gen(5, 10, 5));
+        return  lowercase(lastGen.gen(4, 8, 4));
     }
 
     public String generateFactionName() {

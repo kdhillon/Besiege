@@ -164,7 +164,7 @@ public class PanelUnit extends Panel {
 		    this.setButton(3, "Hire");
         }
 
-		if (battleStage == null)
+//		if (battleStage == null)
 			this.setButton(4, "Back");
 	}
 
@@ -373,11 +373,14 @@ public class PanelUnit extends Panel {
 	@Override
 	public void button4() {
 		if (getButton(4).isVisible()) {
-			if (battleStage == null) {
+//			if (battleStage == null) {
 				//				battle.retreat(sidePanel.getKingdom().getPlayer());
 				sidePanel.returnToPrevious(true);
+				if (battleStage != null) {
+					battleStage.unselectUnit();
+				}
 				return;
-			}
+//			}
 		}
 	}
 

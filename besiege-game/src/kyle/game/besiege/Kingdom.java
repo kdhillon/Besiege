@@ -130,7 +130,7 @@ public class Kingdom extends Group {
             clock = 12 * HOUR_TIME; // set initial time as noon
 			night = false;
 			day = 0;
-//			startRain();
+			startRain();
 			//		raining = false;
 
 			this.time(0);
@@ -228,6 +228,7 @@ public class Kingdom extends Group {
 
 	@Override
 	public void act(float delta) {
+		SoundPlayer.updateSounds(delta);
 		if (mouseOver) {
 			if (leftClicked) leftClick(mouse);
 			else if (rightClicked) rightClick(mouse);
@@ -339,7 +340,8 @@ public class Kingdom extends Group {
 			night = false;
 		if (timeOfDay <= DAWN || timeOfDay >= DUSK)
 			night = true;
-		
+
+//		if (!raining) startRain();
 		if (Math.random() < 1/RAIN_CHANCE) startRain();
 		if (raining && Math.random() < .0005) stopRain();
 	}

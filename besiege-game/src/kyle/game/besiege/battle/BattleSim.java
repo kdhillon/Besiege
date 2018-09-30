@@ -539,4 +539,9 @@ public class BattleSim implements Battle {
         if (playerInA || playerInD) // only logs info if Player is in this battle
             BottomPanel.log(text, color);
     }
+
+    @Override
+    public VictoryManager getVictoryManager() {
+        return victoryManager;
+    }
 }

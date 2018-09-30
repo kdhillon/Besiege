@@ -10,6 +10,8 @@ import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.*;
 
+import java.util.HashMap;
+
 public class VictoryManager {
     private final int BASE_MORALE_REWARD = 25;
     private static final int EXP_FACTOR = 3; // how much more exp is given to winning playerPartyPanel than total atk of enemies
@@ -33,16 +35,28 @@ public class VictoryManager {
     private int initialBattleSize;
 
     // Exp to be distributed if this team wins
-    private int expA;
-    private int expD;
+    public int expA;
+    public int expD;
 
     // Wealth to be gained after battle.
-    private int spoils;
+    public int spoils;
 
-    private int aTroopsKilled;
-    private int aTroopsWounded;
-    private int dTroopsKilled;
-    private int dTroopsWounded;
+    // Per-party rewards
+    public HashMap<Party, Integer> fameRewards = new HashMap<>();
+    public HashMap<Party, Integer> moraleRewards = new HashMap<>();
+    public HashMap<Party, Integer> expRewards = new HashMap<>();
+    public HashMap<Party, Integer> wealthRewards = new HashMap<>();
+//    public HashMap<Party, Integer> troopsKilled = new HashMap<>();
+//    public HashMap<Party, Integer> troopsWounded = new HashMap<>();
+
+    // holds troops that were killed/wounded in this battle for each side.
+    private HashMap<Party, StrictArray<Soldier>> woundedMap = new HashMap<>();
+    private HashMap<Party, StrictArray<Soldier>> killedMap = new HashMap<>();
+
+    public int aTroopsKilled;
+    public int aTroopsWounded;
+    public int dTroopsKilled;
+    public int dTroopsWounded;
 
     // TODO add prisoners to be gained/lost
 
@@ -73,12 +87,24 @@ public class VictoryManager {
         if (wasInAttackers) expD += soldier.getExpForKill();
         else expA += soldier.getExpForKill();
 
+        // add arbitrary value for now.
+        // TODO flesh out.
+        spoils += 5;
+
         if (wasInAttackers) {
             if (killed) aTroopsKilled++;
             else aTroopsWounded++;
         } else {
             if (killed) dTroopsKilled++;
             else dTroopsWounded++;
+        }
+
+        if (killed) {
+//            addTo(troopsKilled, soldier.party, 1);
+            addTo(killedMap, soldier.party, soldier);
+        } else {
+//            addTo(troopsWounded, soldier.party, 1);
+            addTo(woundedMap, soldier.party, soldier);
         }
 
         // add loot to loot drop
@@ -92,6 +118,28 @@ public class VictoryManager {
         }
     }
 
+    private void addTo(HashMap<Party, Integer> map, Party p, int value) {
+        if (map.containsKey(p)) {
+            map.put(p, map.get(p) + value);
+        } else map.put(p, value);
+    }
+
+    private void addTo(HashMap<Party, StrictArray<Soldier>> map, Party p, Soldier s) {
+        if (!map.containsKey(p)) {
+            map.put(p, new StrictArray<Soldier>());
+        }
+        map.get(p).add(s);
+    }
+
+    public StrictArray<Soldier> getKilledSoldiersIn(Party p) {
+        if (killedMap.containsKey(p)) return killedMap.get(p);
+        else return new StrictArray<>();
+    }
+
+    public StrictArray<Soldier> getWoundedSoldierIn(Party p) {
+        if (woundedMap.containsKey(p)) return woundedMap.get(p);
+        else return new StrictArray<>();
+    }
 //    public void handleArmyRetreat(Army army) {
 //        double wealthFactor = army.getParty().getWoundedSize() * 1.0 / army.getParty().getTotalSize();
 //        int wealthChange = (int) (army.getParty().wealth * wealthFactor);
@@ -202,9 +250,10 @@ public class VictoryManager {
     }
 
     private void distributeRewards(Party party, double contribution, boolean attackVictory) {
-        int reward = (int) (contribution*spoils);
+        int wealthReward = (int) (contribution*spoils);
         int expReward;
         int moraleReward;
+        int fameReward = 0;
         if (attackVictory) {
             expReward = (int) (contribution*expA);
             // Morale increases inversely with initial balance
@@ -221,7 +270,6 @@ public class VictoryManager {
         // TODO expand this to non-player parties;
         if (party.player) {
             // also distribute honor and fame
-            int fameReward;
             if (attackVictory) {
                 fameReward = (int) (this.initBalanceD * this.initialBattleSize) / 5;
                 if (this.initBalanceD < MIN_BALANCE) fameReward = 0;
@@ -239,7 +287,7 @@ public class VictoryManager {
                     kingdom.getMapScreen().getCharacter().inventory.addArmor(armorLoot);
                 }
             }
-            BottomPanel.log(party.getName() + " receives " + moraleReward + " morale, " + fameReward + " fame, " + reward + " gold and " + expReward + " experience!", "green");
+            BottomPanel.log(party.getName() + " receives " + moraleReward + " morale, " + fameReward + " fame, " + wealthReward + " wealth and " + expReward + " experience!", "green");
 
             if (weaponLoot.size > 0 || rangedLoot.size > 0 || armorLoot.size > 0) {
                 String lootString = party.getName() + " looted ";
@@ -249,7 +297,13 @@ public class VictoryManager {
                 BottomPanel.log(lootString, "green");
             }
         }
-        party.wealth += reward;
+
+        addTo(expRewards, party, expReward);
+        addTo(moraleRewards, party, moraleReward);
+        addTo(fameRewards, party, fameReward);
+        addTo(wealthRewards, party, wealthReward);
+
+        party.wealth += wealthReward;
         party.distributeExp(expReward);
         // TODO add momentum
 //        army.setMomentum(army.getMomentum()+moraleReward);

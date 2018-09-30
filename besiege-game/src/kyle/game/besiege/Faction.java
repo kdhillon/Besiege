@@ -553,9 +553,16 @@ public class Faction {
 
         // Set name if it hasn't been manually set
         if (name == null) {
-            this.name = cultureType.nameGenerator.generateFactionName();
-            this.name = this.name + " " + getRandomFactionTitle();
-            System.out.println("ksd: " + this.name);
+			// if this faction has just one city/town, just use that a the
+			// faction name:
+			if (this.cities != null && this.cities.size == 1) {
+				System.out.println("setting single city name");
+				this.name = cities.first().getName() + " City-State";
+			} else {
+				this.name = cultureType.nameGenerator.generateFactionName();
+				this.name = this.name + " " + getRandomFactionTitle();
+//        	System.out.println("ksd: " + this.name);
+			}
         }
 
         generateCrest();

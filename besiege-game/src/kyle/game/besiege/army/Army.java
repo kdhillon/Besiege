@@ -52,7 +52,8 @@ public class Army extends Group implements Destination {
 	private static final float COLLISION_FACTOR = 10; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 
-//	 TODO replace this with 200... I think this is causing farmer problems?
+	public static final int TIME_TO_SET_AMBUSH = 1;
+
 	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that playerPartyPanel size detracts from total speed
 	private static final float BASE_LOS = 200;
@@ -133,7 +134,8 @@ public class Army extends Group implements Destination {
 	public Array<Integer> closeCenters; 
 	
 	public boolean hiding;
-	public boolean inAmbush = false;
+	private boolean ambushStarted = false;
+	public float timeSinceAmbushSet;
 	
 	private float timeSinceRunFrom = 0;
 
@@ -314,11 +316,14 @@ public class Army extends Group implements Destination {
 	}
 
 	public void startAmbush() {
-		this.inAmbush = true;
+//		System.out.println("Starting ambush: " + timeSinceAmbushSet);
+		this.ambushStarted = true;
 	}
 
 	public void endAmbush() {
-		this.inAmbush = false;
+//		System.out.println("Ending ambush: " + timeSinceAmbushSet);
+		this.ambushStarted = false;
+		timeSinceAmbushSet = 0;
 	}
 
 	@Override
@@ -385,8 +390,10 @@ public class Army extends Group implements Destination {
                         }
                         path.travel();
                     }
-					else if (isWaiting())
+					else if (isWaiting()) {
+						incrementAmbush(delta);
 						wait(delta);
+					}
 					else if (isInSiege())
 						siegeAct(delta);
 					else {
@@ -473,6 +480,17 @@ public class Army extends Group implements Destination {
 		// This is a hack so that the crestdraw detects touches in the right location
 		super.act(delta);
 	}
+
+	protected void incrementAmbush(float delta) {
+		if (ambushStarted && timeSinceAmbushSet <= TIME_TO_SET_AMBUSH) {
+//							System.out.println(timeSinceAmbushSet + " ambush time");
+			timeSinceAmbushSet += delta;
+		}
+	}
+
+	public boolean isInAmbush() {
+		return ambushStarted && timeSinceAmbushSet > TIME_TO_SET_AMBUSH;
+	}
 	
 	private boolean losOn() {
 		if (getKingdom() == null) return false;
@@ -533,7 +551,7 @@ public class Army extends Group implements Destination {
 
 	// Is this army in an ambush and unfriendly towards the faction of the given army
 	public boolean isNonFriendlyAmbush(Army army) {
-		return this.inAmbush && this.faction != army.getFaction();
+		return this.isInAmbush() && this.faction != army.getFaction();
 	}
 
 	 boolean isArmyMoving() {
@@ -1605,7 +1623,7 @@ public class Army extends Group implements Destination {
 	public boolean isAtWar(Destination destination) {
 		if (destination.getFaction() == null || this.faction == null) {
 		    if (destination.getFaction() == null && this.faction == null) {
-				System.out.println(this.getName() + " is not at war with " + destination.getName());
+//				System.out.println(this.getName() + " is not at war with " + destination.getName());
 				return false;
 			}
 //		    System.out.println(this.getName() + " is at war with " + destination.getName());
@@ -1771,9 +1789,15 @@ public class Army extends Group implements Destination {
 //    }
 
     protected Color getGeneralArmorColor() {
-		if (inAmbush) {
+		if (ambushStarted) {
 			Color c = new Color(party.getGeneral().getArmor().color);
-			c.a = 0.3f;
+			float ambushColor = 0.5f;
+			if (!isInAmbush()) {
+				// Interpolate the color of the party as it hides, but add a small fudge factor so it's clear when it's done.
+				c.a = Math.min(1, ambushColor + 0.1f + (1 - timeSinceAmbushSet / TIME_TO_SET_AMBUSH) * (1 - ambushColor));
+			} else {
+				c.a = ambushColor;
+			}
 			return c;
 		}
 		else
@@ -1781,9 +1805,15 @@ public class Army extends Group implements Destination {
 	}
 
     protected Color getGeneralSkinColor() {
-		if (inAmbush) {
+		if (ambushStarted) {
 			Color c = new Color(party.getGeneral().skinColor);
-			c.a = 0.3f;
+			float ambushColor = 0.5f;
+			if (!isInAmbush()) {
+				// Interpolate the color of the party as it hides, but add a small fudge factor so it's clear when it's done.
+				c.a = Math.min(1, ambushColor + 0.1f + (1 - timeSinceAmbushSet / TIME_TO_SET_AMBUSH) * (1 - ambushColor));
+			} else {
+				c.a = ambushColor;
+			}
 			return c;
 		}
 		else

@@ -25,6 +25,7 @@ import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.panels.PanelBattle2;
+import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
@@ -38,6 +39,7 @@ public class BattleStage extends Group implements Battle {
 	public Biomes biome;
 //	public OldBattle battle;
 	private PanelBattle2 pb;
+	private PanelPostBattle postBattle;
 
     public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
     public static final int DEPRECATED_THRESHOLD = 2; // this field is now in victory manager
@@ -86,8 +88,8 @@ public class BattleStage extends Group implements Battle {
 	public BattleParty enemies;
 
 	// These are for handling victories
-	public StrictArray<Party> retreatedAttackers = new StrictArray<>();
-	public StrictArray<Party> retreatedDefenders = new StrictArray<>();
+	public StrictArray<Party> retreatedAttackers = null;
+	public StrictArray<Party> retreatedDefenders = null;
 
 	public Array<SiegeUnit> siegeUnitsArray;
 
@@ -144,6 +146,8 @@ public class BattleStage extends Group implements Battle {
 	private VictoryManager victoryManager;
 	
 	public boolean dragging;
+
+	private Label victoryText;
 
 	//	public Formation playerFormationChoice;
 	//	public Formation enemyFormationChoice;
@@ -1221,35 +1225,43 @@ public class BattleStage extends Group implements Battle {
 				chargeAll(false);
 			}
 
-			if (this.kingdom != null) {
-				if (allies.noUnits()) {
-				    // TODO make this work with multiple armies
-					victory(enemies.first(), allies.first());
-				} else if (enemies.noUnits()) {
-
-					victory(allies.first(), enemies.first());
-				}
-			}
+//			if (this.kingdom != null) {
+//				if (allies.noUnits()) {
+//				    // TODO make this work with multiple armies
+//					victory(enemies.first(), allies.first());
+//				} else if (enemies.noUnits()) {
+//
+//					victory(allies.first(), enemies.first());
+//				}
+//			}
 			// Note this only happens if it was a simulation.
 			// TODO make this happen no matter what -- and add a button to return to main screen.
 			// TODO add a "Battle Summary Panel" to the right hand side
-			else if (!isOver()) {
+			if (!isOver()) {
 				if (allies.noUnits() && !placementPhase) {
+					victory(enemies.first(), allies.first());
 //				/	BottomPanel.log("Defeat", "green");
-					if (kingdom != null)
-						victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), false);
+//					if (kingdom != null)
+//						victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), false);
                     displayVictoryText("Defeat");
-                    this.isOver = true;
-                    this.placementPhase = true;
+//                    this.isOver = true;
+//                    this.placementPhase = true;
+////					mapScreen.switchToKingdomView();
+//					postBattle = new PanelPostBattle(mapScreen.getSidePanel(), this);
+//					mapScreen.getSidePanel().setActive(postBattle);
                 }
 				else if (enemies.noUnits() && !placementPhase) {
-					if (kingdom != null)
-	                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), true);
+					victory(allies.first(), enemies.first());
+//					if (kingdom != null)
+//	                    victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), true);
                     // display "Victory" text.
 					displayVictoryText("Victory");
-                    this.isOver = true;
-//					BottomPanel.log("Victory", "green");
-					this.placementPhase = true;
+//                    this.isOver = true;
+////					BottomPanel.log("Victory", "green");
+//					this.placementPhase = true;
+////					mapScreen.switchToKingdomView();
+//					postBattle = new PanelPostBattle(mapScreen.getSidePanel(), this);
+//					mapScreen.getSidePanel().setActive(postBattle);
 				}
 			}
 		}
@@ -1275,9 +1287,13 @@ public class BattleStage extends Group implements Battle {
 			this.setPanelTo(u);
 		else if (selectedUnit != null)
 			this.setPanelTo(selectedUnit);
-		else {
+		else if (!isOver) {
+			// Reset panel to battlestage
 			currentPanel = null;
 			mapScreen.getSidePanel().setActive(pb);
+		} else {
+			if (postBattle == null) throw new AssertionError();
+			mapScreen.getSidePanel().setActive(postBattle);
 		}
 		// d.setMouseOver(true);
 	}
@@ -1352,6 +1368,17 @@ public class BattleStage extends Group implements Battle {
 		}
 	}
 
+	public void unselectUnit() {
+		selectedUnit = null;
+	}
+
+	public void selectUnit(Unit u) {
+		if (u == null) throw new AssertionError();
+		selectedUnit = u;
+		setPanelTo(u);
+		mouseOver(mouse);
+	}
+
 	private void rightClick(Point mouse) {
 		if (dragging) {
 			dragging = false;
@@ -1363,9 +1390,7 @@ public class BattleStage extends Group implements Battle {
 		Unit u = getUnitAt(mouse);
 
 		if (u != null) {
-			selectedUnit = u;
-			setPanelTo(u);
-			mouseOver(mouse);
+			selectUnit(u);
 			// System.out.println("unit at mouse is " + u.soldier.name);
 		} else {
 			selectedUnit = null;
@@ -1394,21 +1419,25 @@ public class BattleStage extends Group implements Battle {
 	//		if (unit.team == 1) enemies.addUnit(unit);
 	//	}
 
+
 	// Note this is only called if not a simulation
+	// Not anymore! we're consolidating.
 	public void victory(Party winner, Party loser) {
 		System.out.println("Battle over!");
 		Army winnerArmy = winner.army; // May be null
         Army loserArmy = loser.army;
 
-		if (winnerArmy != kingdom.getPlayer() && loserArmy != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
+		if (kingdom != null && winnerArmy != kingdom.getPlayer() && loserArmy != kingdom.getPlayer()) System.out.println("Player not involved in victory!!!");
 
 		this.isOver = true;
 
 		if (winner.player) {
 //			battle.logDefeat(loser);
-			kingdom.getMapScreen().getSidePanel().setHardStay(false);
-			if (winnerArmy != null)
-			    kingdom.getMapScreen().getSidePanel().setActiveArmy(winnerArmy);
+			if (kingdom != null) {
+				kingdom.getMapScreen().getSidePanel().setHardStay(false);
+				if (winnerArmy != null)
+					kingdom.getMapScreen().getSidePanel().setActiveArmy(winnerArmy);
+			}
 			if (!playerDefending) didAtkWin = true;
 			else didAtkWin = false;
 		} else {
@@ -1422,7 +1451,7 @@ public class BattleStage extends Group implements Battle {
 
         victoryManager.handleVictory(getAttackingParties(), getDefendingParties(), getAttackingPartiesRetreated(), getDefendingPartiesRetreated(), didAtkWin);
 
-		if (winner.player) {
+		if (kingdom != null && winner.player) {
 			kingdom.getMapScreen().getSidePanel().setHardStay(false);
 		}
 
@@ -1480,11 +1509,19 @@ public class BattleStage extends Group implements Battle {
 
 		this.pb = null;
 
-		// free up some memory
-		this.battlemap = null;
-
 		// see if player died
 		if (loserDestroyed && didAtkWin == playerDefending) mapScreen.playerDeath();
+
+//		mapScreen.switchToKingdomView();
+		postBattle = new PanelPostBattle(mapScreen.getSidePanel(), this, this);
+		mapScreen.getSidePanel().setActive(postBattle);
+	}
+
+	public void exitBattle() {
+		// free up some memory
+		this.battlemap = null;
+		this.postBattle = null;
+		clearVictoryText();
 
 		mapScreen.switchToKingdomView();
 	}
@@ -1664,11 +1701,16 @@ public class BattleStage extends Group implements Battle {
 	public void displayVictoryText(String text) {
 		LabelStyle ls = new LabelStyle();
 		ls.font = Assets.pixel100;
-		Label victoryText = new Label(text, ls);
+		victoryText = new Label(text, ls);
 		victoryText.addAction(Actions.fadeIn(2000, Interpolation.sine));
 		victoryText.setFillParent(true);
 		victoryText.setX(BesiegeMain.WIDTH * 0.4f);
 		mapScreen.getUIStage().addActor(victoryText);
+	}
+	public void clearVictoryText() {
+		if (victoryText != null)
+			victoryText.remove();
+		victoryText = null;
 	}
 
 	@Override
@@ -1697,14 +1739,22 @@ public class BattleStage extends Group implements Battle {
 	public StrictArray<Party> getAttackingPartiesRetreated() {
 		if (!getAttacking().noUnits() && !getDefending().noUnits()) throw new AssertionError();
 
+		if (retreatedAttackers != null) return retreatedAttackers;
+
 		// For now, just return a copy of all the defeated parties.
 		// Main problem is that this ignores parties that have fled the battle on the winning side.
 		// Eventually need to fix this.
 		if (getAttacking().noUnits()) {
-			StrictArray<Party> retreated = new StrictArray<>(getAttacking().parties);
+			System.out.println("retreated attacker size1: " + getAttacking().parties.size);
+			retreatedAttackers = new StrictArray<>(getAttacking().parties);
 			getAttacking().parties.clear();
-			return retreated;
-		} else return new StrictArray<>();
+			System.out.println("retreated attacker size: " + retreatedAttackers.size);
+
+			return retreatedAttackers;
+		} else {
+			System.out.println("returning empty attackers");
+			return new StrictArray<>();
+		}
 	}
 
 	@Override
@@ -1712,16 +1762,23 @@ public class BattleStage extends Group implements Battle {
 		if (!getAttacking().noUnits() && !getDefending().noUnits())
 			throw new AssertionError();
 
+		if (retreatedDefenders != null) return retreatedDefenders;
+
 		// For now, just return a copy of all the defeated parties.
 		// Main problem is that this ignores parties that have fled the battle
 		// on the winning side.
 		// Eventually need to fix this.
 		if (getDefending().noUnits()) {
-			StrictArray<Party> retreated = new StrictArray<>(getDefending()
+			System.out.println("retreated defenders size1: " + getDefending().parties.size);
+			retreatedDefenders = new StrictArray<>(getDefending()
 					.parties);
 			getDefending().parties.clear();
-			return retreated;
-		} else return new StrictArray<>();
+			System.out.println("retreated defender size: " + retreatedDefenders.size);
+			return retreatedDefenders;
+		} else  {
+			System.out.println("returning empty defenders");
+			return new StrictArray<>();
+		}
 	}
 
 	@Override
@@ -1818,5 +1875,10 @@ public class BattleStage extends Group implements Battle {
 	@Override
 	public boolean didAttackersWin() {
 		return didAtkWin;
+	}
+
+	@Override
+	public VictoryManager getVictoryManager() {
+		return victoryManager;
 	}
 }

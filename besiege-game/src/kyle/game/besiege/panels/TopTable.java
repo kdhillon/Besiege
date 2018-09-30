@@ -122,8 +122,8 @@ public class TopTable extends Table {
 		value.setWrap(false);
 		labels.put(key, value);
 
-		this.add(constantLabel).colspan(2).padLeft(MINI_PAD);
-		this.add(value).colspan(2).left().width(width/4);
+		this.add(constantLabel).colspan(2).padLeft(MINI_PAD).expandX();
+		this.add(value).colspan(2).expandX();
 		this.row();
 	}
 

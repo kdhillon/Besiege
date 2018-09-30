@@ -83,6 +83,8 @@ public class ArmyPlayer extends Army {
 //			System.out.println("is waiting");
 			setStopped(true);
 			this.hiding = true;
+			incrementAmbush(delta);
+
 			//this.wait(delta);
 			//System.out.println("setting stopped because waiting");
 		}
