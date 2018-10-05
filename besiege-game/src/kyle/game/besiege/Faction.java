@@ -19,6 +19,7 @@ import kyle.game.besiege.location.ObjectLabel;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.CultureType;
+import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.UnitLoader;
 import kyle.game.besiege.voronoi.Center;
 
@@ -78,7 +79,31 @@ public class Faction {
 	public Kingdom kingdom;
 
 	public int index; // for keeping track of relations
-	public String name; 
+	private String name;
+	public Type type;
+
+	// This is the type of faction we're dealing with.
+	// These are effectively the same right now, just for aesthetic purposes.
+	public enum Type {
+		// For bandits.
+		NONE("", ""),
+
+		CITYSTATE("City-State", "Chief"),
+
+		TRIBE("Tribe", "Chief"),
+		NATION("Nation", "Chief"),
+		CONFEDERACY("Confederacy", "Chief"),
+
+		EMPIRE("Empire", "Emperor"),
+		KINGDOM("Kingdom", "King");
+		String rank;
+		public String leaderTitle;
+		Type(String rank, String leaderTitle) {
+			this.rank = rank;
+			this.leaderTitle = leaderTitle;
+		}
+	}
+
 	public String textureName;
 //	transient public TextureRegion crest; // will have to load this separately
 	public Crest crest;
@@ -96,6 +121,10 @@ public class Faction {
 	public StrictArray<City> closeFriendlyCities;
 	public StrictArray<Castle> closeFriendlyCastles;
 	//	public StrictArray<Village> closeFriendlyVillages;
+
+	// This noble is the chief or emperor of the entire faction. For now, it's just a name.
+	public General leader;
+
 	public StrictArray<Noble> nobles;
 	public StrictArray<Noble> unoccupiedNobles; // nobles that aren't ordered to besiege any cities
 	public StrictArray<Location> locationsToAttack; //  and sieges these nobles are currently maintaining
@@ -140,9 +169,6 @@ public class Faction {
 
 	/**
 	 * Creates a faction. if name is null, will generate a random name. If crest is null, will generate a random crest.
-	 * @param kingdom
-	 * @param name
-	 * @param crest
 	 */
 	public Faction(Kingdom kingdom, String name, Crest crestIn, Color color) {
 		this.kingdom = kingdom;
@@ -421,7 +447,23 @@ public class Faction {
 		((City) location).nobles.add(noble);
 		noble.goToNewTarget();
 		location.setContainerForArmy(noble);
+
+		// Set leader
+		if (leader == null) {
+			setLeader(noble);
+		}
 	}
+
+	private void setLeader(Noble noble) {
+		this.leader = noble.getGeneral();
+	}
+
+	public General getLeader() {
+		if (this.leader == null) return null;
+		if (this.leader == null) throw new AssertionError("No leader for faction: " + this.name);
+		return leader;
+	}
+
 	public void addNoble(Noble noble) {
 		this.nobles.add(noble);
 		this.unoccupiedNobles.add(noble);
@@ -557,31 +599,48 @@ public class Faction {
 			// faction name:
 			if (this.cities != null && this.cities.size == 1) {
 				System.out.println("setting single city name");
-				this.name = cities.first().getName() + " City-State";
+				this.name = cities.first().getName();
 			} else {
 				this.name = cultureType.nameGenerator.generateFactionName();
-				this.name = this.name + " " + getRandomFactionTitle();
-//        	System.out.println("ksd: " + this.name);
 			}
         }
+
+        if (type == null) {
+			if (this.cities != null && this.cities.size == 1) {
+				this.type = Type.CITYSTATE;
+			} else {
+				this.type = randomTypeFor(cultureType);
+			}
+		}
 
         generateCrest();
     }
 
-    private String getRandomFactionTitle() {
-	    double rand = Math.random();
-	    int count = 8;
-	    double div = 1/ (double) count;
-	    if (rand < div) {
-	        return "Tribe";
-        } else if (rand < div * 2) {
-            return "Empire";
-        } else if (rand < div * 3) {
-            return "Nation";
-        } else if (rand < div * 4) {
-            return "Confederacy";
-        } else return "";
-    }
+    private Type randomTypeFor(CultureType cultureType) {
+		Type[] randomOptions = new Type[] {
+				Type.TRIBE,
+				Type.NATION,
+				Type.CONFEDERACY,
+				Type.EMPIRE,
+				Type.KINGDOM,
+		};
+		return (Type) Random.getRandomValue(randomOptions);
+	}
+
+//    private String getRandomFactionTitle() {
+//	    double rand = Math.random();
+//	    int count = 8;
+//	    double div = 1/ (double) count;
+//	    if (rand < div) {
+//	        return "Tribe";
+//        } else if (rand < div * 2) {
+//            return "Empire";
+//        } else if (rand < div * 3) {
+//            return "Nation";
+//        } else if (rand < div * 4) {
+//            return "Confederacy";
+//        } else return "";
+//    }
 
     private void generateCrest() {
 //        if (crestIn == null) {
@@ -932,6 +991,12 @@ public class Faction {
 		return total;
 	}
 
+	public String getName() {
+		return this.name;
+	}
+	public String getOfficialName() {
+		return this.name + " " + this.type.rank;
+	}
 	public City getRandomCity() {
 		if (cities.size > 0) {
 			return cities.random();

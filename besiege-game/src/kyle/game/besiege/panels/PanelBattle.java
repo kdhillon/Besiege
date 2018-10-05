@@ -449,8 +449,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		if (attackingParties.size >= 1) {
 			if (battle.getAttackingFactionOrNull() != null) {
 				if (aAllies)
-					attackers.setText(battle.getAttackingFactionOrNull().name + " and allies");
-				else attackers.setText(battle.getAttackingFactionOrNull().name);
+					attackers.setText(battle.getAttackingFactionOrNull().getName() + " and allies");
+				else attackers.setText(battle.getAttackingFactionOrNull().getName());
 			}
 			
 			String trpsStrA = attackingParties.first().getHealthySize() + "";
@@ -474,8 +474,8 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		if (defendingParties.size >= 1) {
 			if (battle.getDefendingFactionOrNull() != null) {
 				if (dAllies)
-					attackers.setText(battle.getDefendingFactionOrNull().name + " and allies");
-				else attackers.setText(battle.getDefendingFactionOrNull().name);
+					attackers.setText(battle.getDefendingFactionOrNull().getName() + " and allies");
+				else attackers.setText(battle.getDefendingFactionOrNull().getName());
 			}
 			
 			String trpsStrD = defendingParties.first().getHealthySize() + "";

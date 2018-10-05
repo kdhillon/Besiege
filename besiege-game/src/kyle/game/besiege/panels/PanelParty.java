@@ -73,10 +73,10 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 		String title = party.getName();
 		String subTitle = ""; // don't have a subtitle for a non-noble
-		if (party.army != null && party.army.isNoble()) {
-            title = party.getGeneral().getName();
-            subTitle = party.getName();
-        }
+//		if (party.army != null && party.army.isNoble()) {
+//            title = party.getGeneral().getName();
+//            subTitle = party.getName();
+//        }
 
 		topTable = new TopTable();
 		topTable.updateTitle(title, new InputListener() {
@@ -91,7 +91,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		});
 		String factionName = "default faction";
 		if (party.getFaction() != null) {
-			factionName = party.getFaction().name;
+			factionName = party.getFaction().getOfficialName();
 		}
 		topTable.addSubtitle("factionname", factionName, new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
@@ -204,9 +204,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	}
 
 	public void centerCamera() {
-		Camera camera = panel.getKingdom().getMapScreen().getCamera();
-		//		camera.translate(new Vector2(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y));
-		camera.translate(new Vector3(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y, 0));
+		army.getKingdom().getMapScreen().centerOn(army);
 	}
 
 	@Override

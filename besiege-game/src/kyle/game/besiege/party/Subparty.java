@@ -16,7 +16,7 @@ public class Subparty {
 	
 	private StrictArray<Subparty> children;
 	
-	public General general; // who commands the playerPartyPanel!
+	private General general; // who commands the playerPartyPanel! May not be null. May be wounde
 
 	// This doesn't count against party size, etc. Shamans are a special unit.
 	// Shamans heal instantly?
@@ -52,6 +52,7 @@ public class Subparty {
 	// player clicks "promote new general" - randomly generates new general from an existing soldier?
 	// player has option to "demote" them - but lowers morale, and chance of mutiny if popular!
 	public void promoteToGeneral(Soldier s) {
+		if (s == null) throw new AssertionError();
         General g = (new General(s));
 		addSoldier(g);
         setGeneral(g);
@@ -71,6 +72,8 @@ public class Subparty {
 	}
 	
 	public void setGeneral(General g) {
+		if (g == null) throw new AssertionError();
+
 		if (this.general != null) {
 			demoteGeneral(general);
 		}
@@ -82,6 +85,8 @@ public class Subparty {
 		for (Soldier s : wounded) {
 			s.updateGeneral(g);
 		}
+
+		if (general == null) throw new AssertionError();
 	}
 	
 	public void demoteGeneral(General general) {

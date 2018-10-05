@@ -103,7 +103,7 @@ public class NameGenerator {
     }
 
     public String generateVillage() {
-        return lowercase(villageGen.gen(6, 12, 4));
+        return lowercase(villageGen.gen(6, 8, 4));
     }
 
     public String generateFirstNameMale() {

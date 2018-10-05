@@ -71,7 +71,7 @@ public class Castle extends Location {
             throw new AssertionError();
         }
         if (getFaction().castles == null) {
-            System.out.println(getFaction().name);
+            System.out.println(getFaction().getName());
         }
 
 		this.getFaction().castles.add(this);
@@ -159,7 +159,7 @@ public class Castle extends Location {
 		Patrol scout = new Patrol(getKingdom(), this);
 		scout.patrolDist = 200;
 		scout.proximityToBase = .1;
-		scout.setName(getFaction().name + " Scout");
+		scout.setName(getFaction().getName() + " Scout");
 		scout.patrolAround(this);
 		getKingdom().addArmy(scout);
 		getPatrols().add(scout);

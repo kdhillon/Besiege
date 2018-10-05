@@ -96,7 +96,7 @@ public class PanelCenter extends Panel {
 	public void act(float delta) {
 //		biome.setText(center.biome.toString());
 		if (center.faction != null)
-			faction.setText(center.faction.name);
+			faction.setText(center.faction.getName());
 		super.act(delta);
 	}
 

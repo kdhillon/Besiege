@@ -35,7 +35,7 @@ import kyle.game.besiege.location.Village;
  * 	List of relations with other factions (or maybe do this on a separate panel?)
  *  	Mousing over relations should give detailed info (base of 0, military actions (-/+), nearby cities (-), trade (+)) 
  * 		
- * 
+ * // TODO convert to new toptable panel system.
  * 
  */
 public class PanelFaction extends Panel {
@@ -53,6 +53,7 @@ public class PanelFaction extends Panel {
 
 	private Table text;
 	private Label title;
+	private Label leader;
 	private Label wealth;
 	private Table cities;
 	private Label citiesC;
@@ -118,13 +119,17 @@ public class PanelFaction extends Panel {
 		relationsC = new Label("Faction Relations:", ls);
 		Label wealthC = new Label("Wealth:",ls); // maybe give this a mouseover for description.
 
+		Label leaderC = new Label("Leader:",ls); // maybe give this a mouseover for description.
+
 		title = new Label("", lsBig);
 		title.setAlignment(0,0);
 		title.setWrap(true);
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
-		title.setText(faction.name);
+		title.setText(faction.getOfficialName());
 
+		leader = new Label("", ls);
 		wealth = new Label("", ls);
+
 		cities = new Table();
 
 		// Create text
@@ -142,11 +147,15 @@ public class PanelFaction extends Panel {
 		//				centerCamera();
 		//			}
 		//		});
+		leader.setText(faction.getLeader().getOfficialName());
 
 		text.add(title).colspan(2).fillX().expandX().padBottom(MINI_PAD);
 		text.row();
 		text.add().width((SidePanel.WIDTH-PAD*2)/2);
 		text.add().width((SidePanel.WIDTH-PAD*2)/2);
+		text.row();
+		text.add(leaderC).padLeft(MINI_PAD).center();
+		text.add(leader).center();
 		text.row();
 		text.add(wealthC).padLeft(MINI_PAD).center();
 		text.add(wealth).center();
@@ -334,7 +343,7 @@ public class PanelFaction extends Panel {
 		nobles.add(noblesC).colspan(2).center();
 		nobles.row();
 		for (Noble noble : faction.nobles) {
-			ObjectLabel name = new ObjectLabel(noble.getName(), ls, noble);
+			ObjectLabel name = new ObjectLabel(noble.getOfficialName(), ls, noble);
 			name.addListener(new InputListener() {
 				public boolean touchDown(InputEvent event, float x,
 						float y, int pointer, int button) {
@@ -364,7 +373,7 @@ public class PanelFaction extends Panel {
 		for (Faction f : faction.kingdom.factions) {
 			if ((f != faction) && f != Faction.BANDITS_FACTION && f != Faction.ROGUE_FACTION) {
 				if (f.label == null) {
-					f.label = new ObjectLabel(f.name, ls, f);
+					f.label = new ObjectLabel(f.getName(), ls, f);
 					f.label.addListener(new InputListener() {
 						public boolean touchDown(InputEvent event, float x,
 								float y, int pointer, int button) {

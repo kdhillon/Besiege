@@ -55,7 +55,7 @@ public class PanelBattle2 extends Panel {
         StrictArray<Party> attackingParties = battle.getAttackingParties();
         String attackingFactionName = "Independent";
         if (attackingParties.first().getFaction() != null)
-            attackingFactionName = attackingParties.first().getFaction().name;
+            attackingFactionName = attackingParties.first().getFaction().getName();
 //        topTableAttackers.addSubtitle("attackers", "Attackers");
         topTableAttackers.addSubtitle("partyname", attackingParties.first().getName());
         topTableAttackers.addSubtitle("factionname", attackingFactionName);
@@ -83,7 +83,7 @@ public class PanelBattle2 extends Panel {
 
         String defendingFactionName = "Independent";
         if (defendingParties.first().getFaction() != null)
-            defendingFactionName = defendingParties.first().getFaction().name;
+            defendingFactionName = defendingParties.first().getFaction().getName();
 //        topTableDefenders.addSubtitle("attackers", "Attackers");
         topTableDefenders.addSubtitle("partyname", defendingParties.first().getName());
         topTableDefenders.addSubtitle("factionname", defendingFactionName);

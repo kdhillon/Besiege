@@ -53,7 +53,8 @@ public class SidePanel extends Group {
 	public PanelUpgrades upgrades;
 	public PanelInventory inventory;
 		
-	private boolean hardStay; // stay on current panel until set false
+	private boolean hardStay; // stay on current panel until player clicks a button
+	private boolean softStay; // prevents automatically returning to previous panel when user mouses off of a panel.
 		
 	// 5767 lines in Panels. \n[\s]* in *panel*.java
 	// lets see how much we can reduce.
@@ -142,6 +143,11 @@ public class SidePanel extends Group {
 		return mapScreen;
 	}
 	public void setActive(Panel newActivePanel) {
+		if (hardStay) {
+			System.out.println("Hard stay, can't change panel");
+			return;
+		}
+
 		if (newActivePanel == null) {
 			System.out.println("Returning to null panel");
 			if (playerPartyPanel != null && activePanel != playerPartyPanel) {
@@ -182,13 +188,19 @@ public class SidePanel extends Group {
     }
 	public void setActiveDestination(Destination destination) {
 		Destination.DestType type = destination.getType();
-		if (type == Destination.DestType.POINT) {
+		if (type == Destination.DestType.POINT && !softStay) {
 			returnToPrevious(false);
 			System.out.println("setting active destination to a point...");
 		}
-		else if (type == Destination.DestType.LOCATION) setActiveLocation((Location) destination);
-		else if (type == Destination.DestType.ARMY) setActiveArmy((Army) destination);
-		else if (type == Destination.DestType.BATTLE) setActiveBattle(((BattleActor) destination).getBattle());
+		else {
+			softStay = false;
+			if (type == Destination.DestType.LOCATION)
+				setActiveLocation((Location) destination);
+			else if (type == Destination.DestType.ARMY)
+				setActiveArmy((Army) destination);
+			else if (type == Destination.DestType.BATTLE)
+				setActiveBattle(((BattleActor) destination).getBattle());
+		}
 	}
 	public void setActiveArmy(Army army) {
 		if (army.getParty().player) {
@@ -250,7 +262,7 @@ public class SidePanel extends Group {
 	}
 	
 	public void setDefault(boolean force) {
-		if (force) this.setHardStay(false);
+//		if (force) this.setHardStay(false);
 			
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.battle);
@@ -259,16 +271,19 @@ public class SidePanel extends Group {
             kingdom.currentPanel = getPlayer();
         }
 	}
+
 	public void press(int button) {
-			if (button == 1)
-				activePanel.button1();
-			else if (button == 2)
-				activePanel.button2();
-			else if (button == 3)
-				activePanel.button3();
-			else if (button == 4)
-				activePanel.button4();
-			}
+		if (button == 1)
+			activePanel.button1();
+		else if (button == 2)
+			activePanel.button2();
+		else if (button == 3)
+			activePanel.button3();
+		else if (button == 4)
+			activePanel.button4();
+		setHardStay(false);
+	}
+
 	public void setKingdom(Kingdom kingdom) {
 		if (kingdom == null) {
 			throw new java.lang.AssertionError();
@@ -284,12 +299,11 @@ public class SidePanel extends Group {
 		} else return null;
 	}
 	
-	// it shuldn't really be a boolean, should be handled with previousPanel
-	// if you click a panel, it becomes active and previous
-//	public void setSoftStay(boolean b) {
-//		System.out.println("setting soft stay");
-//		this.previousPanel = this.activePanel;
-//	}
+	// SoftStay makes it so a panel will be sticky until user mouses over another Loc, Army, or Battle (not point).
+	public void setSoftStay(boolean b) {
+		System.out.println("setting soft stay");
+		this.softStay = b;
+	}
 
     // Hard stay means the player can only leave the panel by selecting a button.
     // Used for forcing the player to make decisions -- to attack or not.
@@ -305,9 +319,9 @@ public class SidePanel extends Group {
 	// TODO add yellow icon for when player is garrisoned in a city
 	// If you touch a
 	public void setHardStay(boolean b) {
-		System.out.println("hard stay is disabled");
+//		System.out.println("hard stay is disabled");
 		hardStay = b;
-		hardStay = false;
+//		hardStay = false;
 	}
 	public boolean getStay() {
 		return hardStay;

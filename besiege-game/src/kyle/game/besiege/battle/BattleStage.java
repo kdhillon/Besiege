@@ -702,7 +702,7 @@ public class BattleStage extends Group implements Battle {
             }
         }
 
-        if (!generalAdded && bsp.subparty.general != null) {
+        if (!generalAdded && bsp.subparty.getGeneral() != null) {
             System.out.println("formation: " + formationType.toString() + " has no spot for general");
             throw new AssertionError();
         }

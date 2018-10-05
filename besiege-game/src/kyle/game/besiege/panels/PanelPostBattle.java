@@ -1,12 +1,5 @@
 package kyle.game.besiege.panels;
 
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.esotericsoftware.tablelayout.Cell;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
@@ -35,10 +28,6 @@ public class PanelPostBattle extends Panel {
     private TopTable topTableDefenders;
 
     private StrictArray<SoldierTable> soldierTables = new StrictArray<>();
-
-//    private SoldierTable soldierTableDefenders;
-
-    public boolean playerTouched;
 
     public PanelPostBattle(SidePanel panel, Battle battle, BattleStage stage) {
         this.panel = panel;
@@ -89,23 +78,24 @@ public class PanelPostBattle extends Panel {
 
         String faction = "Independent";
         if (parties.first().getFaction() != null)
-            faction = p.getFaction().name;
+            faction = p.getFaction().getName();
 
 //        table.addSubtitle("victor", didWin ? "Victor" : "Loser");
         table.addSubtitle("partyname", p.getName());
-        table.addSubtitle("factionname", faction);
+//        table.addSubtitle("factionname", faction);
 
-        table.addSubtitle("summary", "Battle Summary");
+//        table.addSubtitle("summary", "Battle Summary");
 
-        table.addSmallLabel("lost", "Lost:");
-        table.addSmallLabel("wounded", "Wounded:");
+        table.addSmallLabel("lost", "Losses:");
+//        table.addSmallLabel("wounded", "Wounded:");
+        table.addSmallLabel("remaining", "Remain:");
 
-        table.update("lost", vm.getKilledSoldiersIn(p).size+"");
-        table.update("wounded", vm.getWoundedSoldierIn(p).size+"");
+        table.update("lost", vm.getKilledSoldiersIn(p).size+vm.getWoundedSoldierIn(p).size+"");
+//        table.update("wounded", vm.getWoundedSoldierIn(p).size+"");
 
 //        table.addSmallLabel("retreated", "Ret:");
-        table.addSmallLabel("remaining", "Remaining:");
-        table.addSmallLabel("empty", "");
+//        table.addSmallLabel("remaining", "Remaining:");
+//        table.addSmallLabel("empty", "");
 
         table.update("remaining", p.getHealthySize()+"");
 //        table.update("retreated", "");
@@ -117,23 +107,23 @@ public class PanelPostBattle extends Panel {
             table.addSmallLabel("morale", "Morale:");
             table.addSmallLabel("fame", "Fame:");
 
-            table.addSmallLabel("loot", "Items:");
+//            table.addSmallLabel("loot", "Items:");
             table.addSmallLabel("wealth", "Wealth:");
 
             table.addSmallLabel("exp", "Exp:");
-            table.addSmallLabel("prisoners", "Captured:");
+//            table.addSmallLabel("prisoners", "Captured:");
 
             // TODO do this for all parties in the battle, not just the first
             table.update("morale", vm.moraleRewards.get(p) + "");
             table.update("fame", vm.fameRewards.get(p) + "");
-            table.update("loot", "n/a");
+//            table.update("loot", "n/a");
             table.update("wealth", vm.wealthRewards.get(p)+"");
             table.update("exp", vm.expRewards.get(p) + "");
-            table.update("prisoners", "n/a");
+//            table.update("prisoners", "n/a");
         }
 
-        StrictArray<StrictArray<Soldier>> consolidatedKilled = Party.getConsol(vm.getKilledSoldiersIn(p));
-        StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldierIn(p));
+        StrictArray<StrictArray<Soldier>> consolidatedKilled = Party.getConsol(vm.getKilledSoldiersIn(p), true);
+        StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldierIn(p), true);
 
         SoldierTable soldierTable = new SoldierTable(null, true, battleStage, consolidatedKWounded, consolidatedKilled);
         parties.first().updated = true;

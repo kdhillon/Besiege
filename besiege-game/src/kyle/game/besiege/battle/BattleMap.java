@@ -1230,7 +1230,7 @@ public class BattleMap extends Group {
 				if (this.isSnowing()) {
 					mycolor = SNOW_COLOR;
 
-					float speed = 8;
+					float speed = 4;
 					rainDrawOffsetX += speed;
 					rainDrawOffsetY += speed;
 

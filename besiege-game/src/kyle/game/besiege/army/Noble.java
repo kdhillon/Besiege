@@ -36,8 +36,9 @@ public class Noble extends Army {
 	int rank;
 	int nextRank;
 	public Location home;
-	public String title; 	// "earl of x", "bandit warlord"
-	
+
+	// Title is maintained in General
+//	private String title; 	// "earl of x", "bandit warlord"
 	
 	private final float WAIT = 30;
 	//	private static final int MAX_LEVEL = 25;
@@ -62,8 +63,6 @@ public class Noble extends Army {
 		// set up initial playerPartyPanel, rank, etc
 		rank = 0;
 
-        title = "Warchief";
-
 		kingdom.addArmy(this);
 		this.type = ArmyType.NOBLE;
 		
@@ -82,8 +81,8 @@ public class Noble extends Army {
 //		giveReknown(MathUtils.random(50));
 
 		
-		if (title == null || title.equals("")) throw new java.lang.AssertionError(this.getName() + " reknown : " + this.getFame() + " " + title);
-		
+//		if (title == null || title.equals("")) throw new java.lang.AssertionError(this.getName() + " reknown : " + this.getFame() + " " + title);
+
 		this.updateName();
 	}
 	
@@ -172,17 +171,26 @@ public class Noble extends Army {
 		}
 	}
 	
+//	public String getTitle() {
+//		if (this.home != null) {
+//			return this.title + " of " + this.home.getName();
+//		}
+//		return this.title;
+//	}
+
+	// Returns a more official sounding name (Commander X, etc).
+	public String getOfficialName() {
+		return this.getGeneral().getOfficialName();
+	}
+
 	public String getTitle() {
-		if (this.home != null) {
-			return this.title + " of " + this.home.getName();			
-		}
-		return this.title;
+		return getGeneral().getRank();
 	}
 
 	public void updateHome(Location home) {
 		this.home = home;
 	}
-	
+
 //	public void updateRank() {
 ////		System.out.println("fame of this noble is : " + this.getGeneral().getFame());
 //        if (this.getGeneral() == null) {
@@ -277,7 +285,8 @@ public class Noble extends Army {
 //	}
 	
 	public void updateName() {
-		this.setName(title + " of " + home.getName());
+		this.setName(getOfficialName());
+//		this.setName(title + " of " + home.getName());
 	}
 	
 	@Override

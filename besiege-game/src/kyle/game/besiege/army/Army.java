@@ -606,14 +606,13 @@ public class Army extends Group implements Destination {
 	}
 
 	public String getAction() {
-		
 		// testing
 		//if (this.type == ArmyType.NOBLE && ((Noble) this).specialTarget != null) return "Special target: " + ((Noble) this).specialTarget.getName();
 		
 		if (isInBattle()) return "In battle";
 		else if (forceWait) return "Regrouping (" + Panel.format(this.waitUntil-getKingdom().clock() + "", 2) + ")";
 		else if (isWaiting()&& isRunning()) return "Waiting and Running?";
-        else if (isWaiting()) return "Waiting";
+//        else if (isWaiting()) return "Waiting";
         else if (isRunning()) return "Running from " + getRunFrom().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR + "", 2) + ")";
 		//		else if (shouldRepair) return "SHOULD REPAIR";
 		else if (isInSiege()) return "Besieging " + siege.location.getName();
@@ -1510,7 +1509,7 @@ public class Army extends Group implements Destination {
 			        return true;
                 }
                 if (this.target == newTarget) {
-                    System.out.println(getName() + " adding same target twice");
+//                    System.out.println(getName() + " adding same target twice");
 //                    throw new AssertionError();
 					return false;
 //
@@ -1597,6 +1596,8 @@ public class Army extends Group implements Destination {
 		this.name = name;
 	}
 	public String getName() {
+		if (this.isNoble()) return this.getGeneral().getOfficialName();
+//		return "army name";
 		return name;
 	}
 	public float getLineOfSight() {
@@ -1741,7 +1742,7 @@ public class Army extends Group implements Destination {
 	}
 	public String getFactionName() {
 	    if (faction == null) return Faction.INDEPENDENT_NAME;
-		return faction.name;
+		return faction.getName();
 	}
 	public void setParty(Party party) {
 		party.army = this;

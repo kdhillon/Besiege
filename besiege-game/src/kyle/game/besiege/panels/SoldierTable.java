@@ -54,6 +54,8 @@ public class SoldierTable extends Table {
     protected final Party party;
     private final StrictArray<StrictArray<Soldier>> consolidatedWounded;
     private final StrictArray<StrictArray<Soldier>> consolidatedKilled;
+    private int woundedCount;
+    private int killedCount;
 
 	private final LabelStyle ls = new LabelStyle();
     private final LabelStyle lsG = new LabelStyle();
@@ -88,6 +90,16 @@ public class SoldierTable extends Table {
 		this.party = party;
 		this.consolidatedWounded = wounded;
         this.consolidatedKilled = killed;
+        if (consolidatedWounded != null) {
+            for (StrictArray<Soldier> arr : consolidatedWounded) {
+                woundedCount += arr.size;
+            }
+        }
+        if (consolidatedKilled != null) {
+            for (StrictArray<Soldier> arr : consolidatedKilled) {
+                killedCount += arr.size;
+            }
+        }
 
         this.startAllCollapsed = startAllCollapsed;
 
@@ -184,7 +196,18 @@ public class SoldierTable extends Table {
     }
 
     private void updateForPostBattle(StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed, LabelStyle style) {
+        Label woundedLabel = new Label("Wounded", style);
+        Label woundedCount= new Label(this.woundedCount + "", style);
+        soldierTable.add(woundedLabel).left().padLeft(0);
+        soldierTable.add(woundedCount).right();
+        soldierTable.row();
         updateTableWithTypes(wounded, style);
+
+        Label killedLabel = new Label("Killed", style);
+        Label killedCount = new Label(this.killedCount + "", style);
+        soldierTable.add(killedLabel).left().padLeft(0);
+        soldierTable.add(killedCount).right();
+        soldierTable.row();
         updateTableWithTypes(killed, style);
         System.out.println("updating for post battle");
     }
@@ -204,9 +227,9 @@ public class SoldierTable extends Table {
 
                 // NOTE this stuff will only happen for panelhire
 
-                if (s.general != null) {
-//				System.out.println(s.general.getName());
-                    general = new SoldierLabel(s.general.getRank() + " " + s.general.getLastName(), style, s.general);
+                if (s.getGeneral() != null) {
+//				System.out.println(s.getGeneral().getName());
+                    general = new SoldierLabel(s.getGeneral().getOfficialName(), style, s.getGeneral());
                     general.addListener(new ClickListener() {
                         public boolean touchDown(InputEvent event, float x,
                                                  float y, int pointer, int button) {
@@ -216,10 +239,10 @@ public class SoldierTable extends Table {
                         public void touchUp(InputEvent event, float x, float y,
                                             int pointer, int button) {
                             if (selectable) {
-                                if (selected == s.general) {
+                                if (selected == s.getGeneral()) {
                                     deselect();
                                 } else {
-                                    select(s.general);
+                                    select(s.getGeneral());
                                 }
                             } else {
                                 switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
@@ -227,16 +250,16 @@ public class SoldierTable extends Table {
                         }
                     });
                     soldierTable.add(general).left().expandX();
-                    general.setColor(s.general.unitType.cultureType.colorDark);
+                    general.setColor(s.getGeneral().unitType.cultureType.colorDark);
 
                     Label generalCount = new Label(s.getHealthySize() + "", style);
                     soldierTable.add(generalCount).left();
-                    generalCount.setColor(s.general.unitType.cultureType.colorDark);
+                    generalCount.setColor(s.getGeneral().unitType.cultureType.colorDark);
                     soldierTable.row();
 
                     soldierLabels.add(general);
                 } else {
-//				general = new SoldierLabel("No general!", style, s.general);
+//				general = new SoldierLabel("No general!", style, s.getGeneral());
                 }
 
                 updateTableWithTypes(s.getConsolHealthy(), style);
@@ -301,9 +324,18 @@ public class SoldierTable extends Table {
         private BattleSubParty bsp;
 
         public SubpartyLabel(Subparty subparty, LabelStyle ls, final BattleSubParty bsp) {
-            super(subparty.general.getRank() + " " + subparty.general.getLastName(), ls);
+            super("", ls);
             General general = subparty.getGeneral();
-            StrictArray<StrictArray<Soldier>> types = subparty.getConsolHealthy();
+            if (general != null) {
+                setText(general.getRank() + " " + general.getLastName());
+            } else {
+                // This happens when the general was wounded or killed recently.
+                // TODO -- do we want to always have a general for a subparty?
+                // I think yes. Even if the general is wounded, the subparty is still technically under the general.
+                // If he dies, force the player to find a replacement or disband the subparty after the battle.
+                // For now, automatically assign.
+                throw new AssertionError();
+            }
             this.bsp = bsp;
             this.subparty = subparty;
             this.setColor(general.unitType.cultureType.colorDark);
@@ -487,7 +519,7 @@ public class SoldierTable extends Table {
         final Label generalCount = new Label(s.getHealthySize() + toAdd, style);
         generalTable.add(generalCount).right();
         soldierTable.add(generalTable).left().expandX().fillX();
-        generalCount.setColor(s.general.unitType.cultureType.colorDark);
+        generalCount.setColor(s.getGeneral().unitType.cultureType.colorDark);
         generalCount.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x,
                                      float y, int pointer, int button) {
@@ -570,7 +602,7 @@ public class SoldierTable extends Table {
 			name.type = type;
 			name.setColor(type.first().unitType.cultureType.colorLite);
             soldierTable.add(name).left().padLeft(indent);
-            soldierTable.add(count).left();
+            soldierTable.add(count).right();
             soldierTable.row();
 
 			float indentSub = DEFAULT_INDENT;

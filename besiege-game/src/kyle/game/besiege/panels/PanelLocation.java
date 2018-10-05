@@ -234,7 +234,7 @@ public class PanelLocation extends Panel {
         if (location.underSiege())
             topTable.update("factionname", "Under Siege!", null);
         else {
-            if (location.getKingdom().getPlayer().isAtWar(location))
+            if (location.type != Location.LocationType.RUIN && location.getKingdom().getPlayer().isAtWar(location))
                 topTable.update("factionname", location.getFactionName() + " (at war)", null);
             else topTable.update("factionname", location.getFactionName(), null);
         }
@@ -335,6 +335,7 @@ public class PanelLocation extends Panel {
 	public void button4() {
 		if (location.playerWaiting) {
 			location.stopWait();
+			sidePanel.setHardStay(true);
 		}
 		else if (playerBesieging) {
 			location.getKingdom().getPlayer().leaveSiege();

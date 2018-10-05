@@ -52,7 +52,7 @@ public class HuntingParty extends Army {
 	
 	@Override
 	public String getUniqueAction() {
-		return "Hunting around " + location.getName();
+		return "Hunting";
 	}
 
 	@Override

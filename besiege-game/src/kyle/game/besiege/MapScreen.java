@@ -628,6 +628,14 @@ public class MapScreen implements Screen {
         currentCamera.translate(kingdom.getPlayer().getCenterX() - currentCamera.position.x, kingdom.getPlayer().getCenterY() - currentCamera.position.y);
     }
 
+    // TODO make this smooth.
+    public void centerOn(Destination dest) {
+		this.shouldCenter = false;
+		Camera camera = getCamera();
+		//		camera.translate(new Vector2(army.getCenterX()-camera.position.x, army.getCenterY()-camera.position.y));
+		camera.translate(new Vector3(dest.getCenterX()-camera.position.x, dest.getCenterY()-camera.position.y, 0));
+	}
+
 	public void center() {
 		if (currentCamera == battleCamera) {
 			if (battle != null) battle.centerCameraOnPlayer();
@@ -647,6 +655,8 @@ public class MapScreen implements Screen {
 //            else if (ySpeed < -0.1) ySpeed = Math.min(ySpeed, -MIN_CENTER_SPEED);
 
             currentCamera.translate(new Vector3(xSpeed, ySpeed, 0));
+
+            if (xSpeed == 0 && ySpeed == 0) shouldCenter = false;
 		}
 		else if (kingdom != null && kingdom.map != null) {
 			currentCamera.translate(new Vector3(Map.WIDTH/2-currentCamera.position.x, Map.HEIGHT/2-currentCamera.position.y, 0));

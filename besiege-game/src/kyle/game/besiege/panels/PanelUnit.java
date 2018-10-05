@@ -181,7 +181,11 @@ public class PanelUnit extends Panel {
 		if (unit != null) {
 //			moraleS.setText(unit.bsp.getCurrentMoraleString());
 //			moraleS.setColor(unit.bsp.moraleColor);
-			topTable.update("morale", unit.bsp.getCurrentMoraleString(), null, unit.bsp.moraleColor);
+			if (unit.isDying) {
+				topTable.update("morale","Fallen", null, Color.RED);
+			} else {
+				topTable.update("morale", unit.bsp.getCurrentMoraleString(), null, unit.bsp.moraleColor);
+			}
 		}
 		
 //		expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
@@ -234,8 +238,6 @@ public class PanelUnit extends Panel {
             topTable.update("shield", unit.shield.name + " (Broken)");
         }
 
-
-
 		String mounted = "";
 		if (unit != null) {
 			if (unit.isMounted()) mounted = " (Mounted)";
@@ -248,8 +250,10 @@ public class PanelUnit extends Panel {
 			if (battleStage.playerAttacking() || battleStage.playerDefending()) {
 				if (!battleStage.placementPhase) {
 					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
-						this.setButton(1, "Retreat!");
-						this.getButton(1).setDisabled(false);
+						if (this.getButton(1) == null) {
+							this.setButton(1, "Retreat!");
+							this.getButton(1).setDisabled(false);
+						}
 					}
 					else if (!(battleStage.retreatTimerPlayer <= 0)) {
 						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
@@ -270,10 +274,11 @@ public class PanelUnit extends Panel {
 		}
 
 		if (battleStage != null && !battleStage.placementPhase) {
-			this.setButton(2, "Charge!");
-			
 			if (unit.bsp.stance == Stance.AGGRESSIVE)
 				this.getButton(2).setDisabled(true);
+			else if (this.getButton(2) == null) {
+				this.setButton(2, "Charge!");
+			}
 //			else this.setButton(2, null);
 		}
 

@@ -137,6 +137,27 @@ public class Location extends Group implements Destination {
 	
 	public PartyType.Type pType;
 	private int wealth;
+
+
+	// there should be a few statuses for locations:
+	// obviously there is default status.
+	// separate for village and city:
+	// village: when you raid a village, you have two options:
+	//    1. loot it but leave the village intact (you can raid it again in the future)
+	// 		  -- in this case the village enters a "raided" state and will take several days to recover.
+	// 	  2. completely destroy the village (turns it to ruin)
+	// TODO add the option to burn a village to the ground after a battle.
+
+	// Cities:
+	// 	after a successful siege, you have two options:
+	// 	   1. take over the city, doing some damage to the population but leaving it mostly intact
+	//	   2. destroy it (turns it to ruins)
+	//
+	// 2: looted. after a raid or a siege, the town loses most defensive capabilities but also all its wealth.
+	//    it can no longer be raided/besieged for a short time. no troops can be recruited from it. its population takes a big hit.
+	//    after a few days (maybe 1 week?) it will recover to become normal status, albiet with a lower population and
+	private boolean sacked;
+
 	
 	// do we need to update panel
 	public boolean needsUpdate = true;
@@ -1093,14 +1114,14 @@ public class Location extends Group implements Destination {
 				patrol.setFaction(newFaction);
 			
 
-			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());
+			BottomPanel.log(newFaction.getName() + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.CASTLE) {
 			for (Patrol patrol : this.patrols)
 				patrol.setFaction(newFaction);
 			this.faction.castles.removeValue((Castle) this, true);
 			newFaction.castles.add((Castle) this);
-			BottomPanel.log(newFaction.name + " has taken " + this.getName() + " from " + this.getFactionName());
+			BottomPanel.log(newFaction.getName() + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.VILLAGE) {
 			if (this.faction != null)
@@ -1263,7 +1284,7 @@ public class Location extends Group implements Destination {
 		    if (this.ruin) return "Abandoned";
 		    else return Faction.INDEPENDENT_NAME;
         }
-		return faction.name;
+		return faction.getOfficialName();
 	}
 	public String getTypeStr() {
 		if (this.isVillage())

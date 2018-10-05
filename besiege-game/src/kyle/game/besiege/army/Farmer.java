@@ -46,7 +46,7 @@ public class Farmer extends Army {
 	
 	@Override
 	public String getUniqueAction() {
-		return "Farming around " + location.getName();
+		return "Farming";
 	}
 
 	@Override

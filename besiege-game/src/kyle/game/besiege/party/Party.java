@@ -110,7 +110,7 @@ public class Party {
 	}
 	
 	public int getMaxSize() {
-	    if (this.getGeneral() != null)
+	    if (this.hasGeneral())
 		    return getGeneral().getMaxSize();
 	    else return pt.getMaxSize();
 	}
@@ -139,11 +139,12 @@ public class Party {
         subparties.add(newSub);
 
         // promote best soldier to general
-        if (newSub.general == null && !pt.hire) {
+        if (newSub.getGeneral() == null && !pt.hire) {
             if (soldier.subparty != null)
                 soldier.subparty.removeSoldier(soldier);
             newSub.promoteToGeneral(soldier);
 
+            System.out.println("adding random shaman");
 			newSub.addRandomShaman();
             // Testing
 
@@ -255,8 +256,9 @@ public class Party {
 			else if (s.healthy.contains(prisoner, true)) {
 				s.healthy.removeValue(prisoner, true);
 				removed = true;
-			} else if (prisoner == s.general) {
-				s.general = null;
+			} else if (prisoner == s.getGeneral()) {
+				s.demoteGeneral((General) prisoner);
+				s.promoteNextGeneral();
 				removed = true;
 			} else if (prisoner == s.shaman) {
 				s.shaman = null;
@@ -337,19 +339,22 @@ public class Party {
 	public StrictArray<StrictArray<Soldier>> getConsolPrisoners() {
 		return getConsol(prisoners);
 	}
+
+	// NOTE: THIS DOESN'T INCLUDE THE GENERAL (for a simpler display)
+	public  static StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier) {
+		return getConsol(arrSoldier, false);
+	}
+
 	// TODO maybe inefficient? can make more by sorting array by name
-	public static StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier) {
-	    // NOTE: THIS DOESN'T INCLUDE THE GENERAL (for a simpler display)
+	public static StrictArray<StrictArray<Soldier>> getConsol(StrictArray<Soldier> arrSoldier, boolean includeGeneral) {
 
 		// first thing: sort arrSoldier by name
 		arrSoldier.sort();
 
-
 		StrictArray<String> names = new StrictArray<String>();
 		StrictArray<StrictArray<Soldier>> consol = new StrictArray<StrictArray<Soldier>>();
 		for (Soldier s : arrSoldier) {
-            // NOTE: THIS DOESN'T INCLUDE THE GENERAL (for a simpler display)
-		    if (s.isGeneral()) continue;
+		    if (!includeGeneral && s.isGeneral()) continue;
 			if (!names.contains(s.getTypeName() + s.getCulture(), false)) {
 				names.add(s.getTypeName() + s.getCulture());
 				StrictArray<Soldier> type = new StrictArray<Soldier>();
@@ -384,7 +389,7 @@ public class Party {
 	    General general = new General(type, this, pt);
 
         // promote best soldier to general
-        if (root.general == null && !pt.hire) {
+        if (root.getGeneral() == null && !pt.hire) {
             if (general.subparty != null)
                 general.subparty.removeSoldier(general);
             root.promoteToGeneral(general);
@@ -404,12 +409,17 @@ public class Party {
 //		return getGeneral().home;
 //	}
 
+	public boolean hasGeneral() {
+		return root.getGeneral() != null;
+	}
+
 	// TODO promote other subparty to root when general subparty has 0.
 	public General getGeneral() {
-	    if (root.general == null) {
+	    if (root.getGeneral() == null) {
 	        System.out.println(getName() + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (subparties.size - 1));
+	        throw new AssertionError();
         }
-		return root.general;
+		return root.getGeneral();
 	}
 
 	@Override

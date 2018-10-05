@@ -39,6 +39,9 @@ public class TopTable extends Table {
 
 	// Optional green/red bar to add to the table,
 	private Table greenBar;
+
+	// To determine proper padding.
+	boolean wasLastSmallLabel = false;
 	
 	// in a 2 column table, this means that the next label added will be on the left. if false, will be on the right.
 	private boolean nextIsLeft = true;
@@ -87,6 +90,8 @@ public class TopTable extends Table {
 
 		this.add(subtitle).colspan(4).padBottom(0).fillX().expandX();
 		this.row();
+
+		wasLastSmallLabel = false;
 	}
 
 	public void addSubtitle(String key, String label, InputListener listener) {
@@ -99,12 +104,15 @@ public class TopTable extends Table {
 	public void addSmallLabel(String key, String label) {
 		Label constantLabel = new Label(label, ls);
 		Label value = new Label("", ls);
+		float padTop = 0;
+		if (wasLastSmallLabel) padTop = NEG;
 		if (nextIsLeft) {
-			this.add(constantLabel).padLeft(MINI_PAD).left();
+			this.add(constantLabel).padLeft(MINI_PAD).left().padTop(padTop);
 		} else {
-			this.add(constantLabel).padLeft(PAD).left();
+			this.add(constantLabel).padLeft(PAD).left().padTop(padTop);
+			wasLastSmallLabel = true;
 		}
-		this.add(value);
+		this.add(value).padTop(padTop);
 		labels.put(key+"LABEL", constantLabel);
 		labels.put(key, value);
 		if (nextIsLeft) {
@@ -122,9 +130,13 @@ public class TopTable extends Table {
 		value.setWrap(false);
 		labels.put(key, value);
 
-		this.add(constantLabel).colspan(2).padLeft(MINI_PAD).expandX();
-		this.add(value).colspan(2).expandX();
+		float padTop = 0;
+		if (wasLastSmallLabel) padTop = NEG;
+		this.add(constantLabel).colspan(2).padLeft(MINI_PAD).expandX().padTop(padTop);
+		this.add(value).colspan(2).expandX().padTop(padTop);
 		this.row();
+
+		wasLastSmallLabel = true;
 	}
 
 	public void addTable(Table table) {
@@ -141,6 +153,8 @@ public class TopTable extends Table {
 		green.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(greenPatch), r,r,r,r)));
 		this.add(health).colspan(4).padTop(MINI_PAD).padBottom(MINI_PAD);
 		this.row();
+
+		wasLastSmallLabel = false;
 	}
 
 	public void updateGreenBar(double percentage) {

@@ -35,18 +35,18 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
     // Actual values
-//	public static int cityCount = 60;
-//	public static int castleCount = 0;
-//	public static int ruinCount = 5;
-//	public static int villageCount = 100;
-//	int FACTION_COUNT = 25;
+	public static int cityCount = 60;
+	public static int castleCount = 0;
+	public static int ruinCount = 5;
+	public static int villageCount = 100;
+	int FACTION_COUNT = 25;
 
 	// Fast values
-    public static int cityCount = 15;
-    public static int castleCount = 0;
-    public static int ruinCount = 10;
-    public static int villageCount = 20;
-    int FACTION_COUNT = 15;
+//    public static int cityCount = 15;
+//    public static int castleCount = 0;
+//    public static int ruinCount = 10;
+//    public static int villageCount = 20;
+//    int FACTION_COUNT = 15;
 
     public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
@@ -450,7 +450,7 @@ public class Kingdom extends Group {
 	private void mouseOver(Point mouse) {
 		Destination d = getDestAt(mouse);
 		//		if (d.getType() != 0)
-		// TODO replace this with actor inputlisteners
+		// TODO I think this is only for battles now?
 		if (d.getType() != Destination.DestType.LOCATION && d.getType() != Destination.DestType.POINT && d.getType() != Destination.DestType.ARMY)
 			this.setPanelTo(d);
 		//			d.setMouseOver(true);
@@ -512,23 +512,21 @@ public class Kingdom extends Group {
 	private void leftClick(Point mouse) {		
 		Destination d = getDestAt(mouse);
 		System.out.println("leftclick()");
-		
-		mapScreen.getSidePanel().setHardStay(false);
 
 		if (d.getType() == Destination.DestType.BATTLE) { //battle
 			BattleActor battle = (BattleActor) d;
 			getMapScreen().getSidePanel().setActiveBattle(battle.getBattle());
-			mapScreen.getSidePanel().setHardStay(true);
+			mapScreen.getSidePanel().setSoftStay(true);
 		}
 		if (d.getType() == Destination.DestType.ARMY) { // army
 			Army destinationArmy = (Army) d;
 			getMapScreen().getSidePanel().setActiveArmy(destinationArmy);
-			mapScreen.getSidePanel().setHardStay(true);
+			mapScreen.getSidePanel().setSoftStay(true);
 		}
 		if (d.getType() == Destination.DestType.LOCATION) {
 			Location location = (Location) d;
 			getMapScreen().getSidePanel().setActiveLocation(location);
-			mapScreen.getSidePanel().setHardStay(true);
+			mapScreen.getSidePanel().setSoftStay(true);
 		}
 				
 		// check if a center 
@@ -545,7 +543,7 @@ public class Kingdom extends Group {
 			}
 			if (containing != null) {
 				getMapScreen().getSidePanel().setActiveCenter(containing);
-				mapScreen.getSidePanel().setHardStay(false);
+//				mapScreen.getSidePanel().setHardStay(false);
 			}
 			else {
 				// just for fun, do water as well

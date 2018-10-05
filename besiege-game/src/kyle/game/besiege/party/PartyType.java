@@ -288,8 +288,8 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //			break;
 		case NOBLE:
 			pt.name = "Noble";
-			pt.maxCount = 100;
-			pt.minCount = 40;
+			pt.maxCount = 70;
+			pt.minCount = 30;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
 		case RAIDING_PARTY:

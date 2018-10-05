@@ -3,6 +3,7 @@ package kyle.game.besiege.party;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 
+import kyle.game.besiege.Faction;
 import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.battle.BattleSubParty;
 
@@ -21,9 +22,8 @@ public class General extends Soldier {
 	private static final float FAME_PC_FACTOR = 1f;
 	
 	private static final int GENERAL_THRESHOLD = 100;
-	
-	// fill this in later
-	public String epithet; 	// "great", "hammer", etc 
+
+//	private Faction faction; // NEed to make sure this is updated when this general performs a mutiny, etc.
 	
 	public General rival;
 		
@@ -48,6 +48,8 @@ public class General extends Soldier {
 
 		this.isImportant = true;
 
+//		this.faction = party.getFaction();
+
 //		System.out.println("pt.getMaxSize " + pt.getMaxSize());
 		
 		this.absoluteMaxSize = pt.getMaxSize();
@@ -65,13 +67,14 @@ public class General extends Soldier {
 	public General(Soldier s) {
 		super(s); // copy constructor
 		this.isImportant = true;
-	
+
 		if (s.party != null) {
             this.increaseFame(getRandomFameFor(s.party.pt));
             this.absoluteMaxSize = s.party.pt.getMaxSize();
         }
+//		this.faction = party.getFaction();
 
-        generateRandomInitStats();
+		generateRandomInitStats();
 	}
 	
 	// use a reverse calculation to figure out how much fame to give this guy.
@@ -223,11 +226,22 @@ public class General extends Soldier {
 	public int getBodyguardForFame(int fame) {
 		return (int) (getFame() * FAME_PC_FACTOR + BASE_SUBPARTY);
 	}
-	
+
 	public String getRank() {
+		if (this.isFactionLeader()) {
+			return this.getFaction().type.leaderTitle;
+		}
+
+		if (subparty == null) {
+			return "TitleForNoSubparty";
+		}
+
 		if (this.subparty.getRank() == 0) {
-			if (this.party.army != null && this.party.army.isNoble()) return ((Noble)this.party.army).title;
-			
+//			if (this.party.army != null && this.party.army.isNoble()) return ((Noble)this.party.army).getTitle();
+			if (party != null && party.army != null && party.army.isNoble()) {
+				return "Warchief";
+			}
+
 //			if (this.fame > GENERAL_THRESHOLD)
 //				return "General";
 					
@@ -249,10 +263,33 @@ public class General extends Soldier {
 		}
 		return "None";
 	}
-	
+
+	// Returns the "official" name of this unit, Commander X or King Y
+	public String getOfficialName() {
+		return getRank() + " " + getLastName();
+	}
+
+
 	public void setName(String name) {
 //		System.out.println("Setting name: " + name);
 		if (name != null && name.length() > 0)
 			this.name = name;
+	}
+
+	public Faction getFaction() {
+		if (this.party == null) return null;
+		if (this.party.army == null) return null;
+		return this.party.army.getFaction();
+	}
+
+	// We associate Leader status with a General (not a Noble) because this ensures that even
+	// if the general is captured, he can still be the faction leader.
+	// This is historically accurate and should be more fun.
+	public boolean isFactionLeader() {
+		if (this.getFaction() == null) {
+			System.out.println("a general has no faction");
+			return false;
+		}
+		return this == getFaction().getLeader();
 	}
 }
