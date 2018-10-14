@@ -22,6 +22,7 @@ public class RaidingParty extends Army {
 	public RaidingParty(Kingdom kingdom, String name, Faction faction,
 			float posX, float posY) {
 		super(kingdom, name, faction, posX, posY, Type.RAIDING_PARTY, null);
+		throw new AssertionError();
 	}
 	
 	@Override

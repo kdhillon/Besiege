@@ -168,7 +168,7 @@ public class Panel extends Group {
 					public void touchUp(InputEvent event, float x, float y,
 							int pointer, int button) {
 						System.out.println("clicking b1");
-						button1();
+						sidePanel.press(1);
 					}
 				});
 			} 
@@ -182,7 +182,7 @@ public class Panel extends Group {
 
 					public void touchUp(InputEvent event, float x, float y,
 							int pointer, int button) {
-						button2();
+						sidePanel.press(2);
 					}
 				});
 			} else if (bc == 3) {
@@ -195,7 +195,7 @@ public class Panel extends Group {
 
 					public void touchUp(InputEvent event, float x, float y,
 							int pointer, int button) {
-						button3();
+						sidePanel.press(3);
 					}
 				});
 			} else if (bc == 4) {
@@ -208,7 +208,7 @@ public class Panel extends Group {
 
 					public void touchUp(InputEvent event, float x, float y,
 							int pointer, int button) {
-						button4();
+						sidePanel.press(4);
 					}
 				});
 			} else

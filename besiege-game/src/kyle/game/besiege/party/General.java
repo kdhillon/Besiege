@@ -227,6 +227,11 @@ public class General extends Soldier {
 		return (int) (getFame() * FAME_PC_FACTOR + BASE_SUBPARTY);
 	}
 
+	//
+	public boolean isPlayerUnit() {
+		return this.subparty.getRank() == 0 && this.party.player;
+	}
+
 	public String getRank() {
 		if (this.isFactionLeader()) {
 			return this.getFaction().type.leaderTitle;

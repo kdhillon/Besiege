@@ -48,6 +48,8 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	public boolean playerTouched;
 
+	private Soldier dragging;
+
 	public PanelParty(SidePanel panel, Party party) {
 		this.panel = panel;
 		this.party = party;

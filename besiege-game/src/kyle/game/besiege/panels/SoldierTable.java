@@ -121,7 +121,7 @@ public class SoldierTable extends Table {
 		soldierLabels = new StrictArray<>();
 		
 		this.add(soldierPane).top().width(SidePanel.WIDTH - PAD*2).expandY().fillY();
-		this.selectable = false;
+		this.selectable = true;
 	}
 
 	public void setAllowSubpartyCollapse(boolean allowSubpartyCollapse) {
@@ -218,7 +218,7 @@ public class SoldierTable extends Table {
 		for (final Subparty s : party.subparties) {
 		    BattleSubParty bsp = getBspForSubparty(s);
 
-            SoldierLabel general;
+            final SoldierLabel general;
 //            if (organizeByType) {
             if (allowSubpartyCollapse && !hirePanel) {
                 updateTableWithTypesNew(s, style, bsp);
@@ -226,18 +226,13 @@ public class SoldierTable extends Table {
             } else {
 
                 // NOTE this stuff will only happen for panelhire
-
                 if (s.getGeneral() != null) {
 //				System.out.println(s.getGeneral().getName());
                     general = new SoldierLabel(s.getGeneral().getOfficialName(), style, s.getGeneral());
                     general.addListener(new ClickListener() {
                         public boolean touchDown(InputEvent event, float x,
                                                  float y, int pointer, int button) {
-                            return true;
-                        }
-
-                        public void touchUp(InputEvent event, float x, float y,
-                                            int pointer, int button) {
+                            System.out.println("Dragging: " + general.getName());
                             if (selectable) {
                                 if (selected == s.getGeneral()) {
                                     deselect();
@@ -247,6 +242,12 @@ public class SoldierTable extends Table {
                             } else {
                                 switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
                             }
+                            return true;
+                        }
+
+                        public void touchUp(InputEvent event, float x, float y,
+                                            int pointer, int button) {
+                            System.out.println("Releasing: " + general.getName());
                         }
                     });
                     soldierTable.add(general).left().expandX();
@@ -325,7 +326,7 @@ public class SoldierTable extends Table {
 
         public SubpartyLabel(Subparty subparty, LabelStyle ls, final BattleSubParty bsp) {
             super("", ls);
-            General general = subparty.getGeneral();
+            final General general = subparty.getGeneral();
             if (general != null) {
                 setText(general.getRank() + " " + general.getLastName());
             } else {
@@ -344,10 +345,7 @@ public class SoldierTable extends Table {
             this.addListener(new ClickListener() {
                 public boolean touchDown(InputEvent event, float x,
                                          float y, int pointer, int button) {
-                    return true;
-                }
-                public void touchUp(InputEvent event, float x, float y,
-                                    int pointer, int button) {
+                    System.out.println("Dragging general: " + general.getName());
                     if (battleStage != null) {
                         battleStage.selectUnit(bsp.general);
                     }
@@ -361,6 +359,11 @@ public class SoldierTable extends Table {
                     } else {
                         switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
                     }
+                    return true;
+                }
+                public void touchUp(InputEvent event, float x, float y,
+                                    int pointer, int button) {
+                    System.out.println("Releasing general: " + general.getName());
                 }
             });
         }
@@ -396,7 +399,7 @@ public class SoldierTable extends Table {
 
             // Also add Shaman if necessary
             if (subparty.shaman != null) {
-                SoldierLabel shamanLabel = new SoldierLabel(subparty.shaman.unitType.name, getStyle(), subparty.shaman);
+                final SoldierLabel shamanLabel = new SoldierLabel(subparty.shaman.unitType.name, getStyle(), subparty.shaman);
                 expand.add(shamanLabel).left().expandX().padBottom(1*PanelUnit.NEG).colspan(2);
                 shamanLabel.setColor(SOLDIER_NAME_COLOR);
                 if (subparty.shaman == selected) {
@@ -407,10 +410,7 @@ public class SoldierTable extends Table {
                 shamanLabel.addListener(new ClickListener() {
                     public boolean touchDown(InputEvent event, float x,
                                              float y, int pointer, int button) {
-                        return true;
-                    }
-                    public void touchUp(InputEvent event, float x, float y,
-                                        int pointer, int button) {
+                        System.out.println("Dragging shaman: " + subparty.shaman.getName());
                         if (selectable) {
                             if (selected == subparty.shaman)
                                 deselect();
@@ -423,6 +423,11 @@ public class SoldierTable extends Table {
                                 battleStage.selectUnit(bsp.shaman);
                             }
                         }
+                        return true;
+                    }
+                    public void touchUp(InputEvent event, float x, float y,
+                                        int pointer, int button) {
+                        System.out.println("Releasing shaman: " + subparty.shaman.getName());
                     }
                 });
                 expand.row();
@@ -477,10 +482,7 @@ public class SoldierTable extends Table {
                 soldierName.addListener(new ClickListener() {
                     public boolean touchDown(InputEvent event, float x,
                                              float y, int pointer, int button) {
-                        return true;
-                    }
-                    public void touchUp(InputEvent event, float x, float y,
-                                        int pointer, int button) {
+                        System.out.println("Dragging: " + s.getName());
                         if (selectable) {
                             if (selected == s)
                                 deselect();
@@ -494,6 +496,12 @@ public class SoldierTable extends Table {
                                 battleStage.selectUnit(bsp.getUnit(((SoldierLabel) event.getListenerActor()).soldier));
                             }
                         }
+                        return true;
+                    }
+                    public void touchUp(InputEvent event, float x, float y,
+                                        int pointer, int button) {
+                        System.out.println("Releasing: " + s.getName());
+
                     }
                 });
                 expand.row();

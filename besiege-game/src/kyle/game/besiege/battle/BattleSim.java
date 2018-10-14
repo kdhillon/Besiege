@@ -355,6 +355,7 @@ public class BattleSim implements Battle {
                 if (army.getParty().player) {
 //				army.setStopped(true);
                     army.setTarget(null);
+                    army.nextTarget();
                 }
             }
         }
@@ -429,7 +430,7 @@ public class BattleSim implements Battle {
                 this.simulate(.001f);// arbitrary time
             }
 
-            party.army.destroy();
+//            party.army.destroy();
         }
     }
 

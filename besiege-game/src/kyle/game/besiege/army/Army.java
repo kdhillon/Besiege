@@ -113,7 +113,7 @@ public class Army extends Group implements Destination {
 
 	private Location garrisonedIn;
 
-	public boolean shouldEject; // useful for farmers, who don't need to F during nighttime.
+//	public boolean shouldEject; // useful for farmers, who don't need to F during nighttime.
 	//	protected boolean isNoble;
 	public enum ArmyType {PATROL, NOBLE, MERCHANT, BANDIT, FARMER, MILITIA, HUNTER}; // 3 for patrol,
 	public ArmyType type;
@@ -184,7 +184,7 @@ public class Army extends Group implements Destination {
 		this.siege = null;	
 		this.runFrom = null;
 		this.garrisonedIn = null;
-		this.shouldEject = true;
+//		this.shouldEject = true;
 
 		this.lastPathCalc = 0;
 		this.targetStack = new Stack<Destination>();
@@ -214,8 +214,10 @@ public class Army extends Group implements Destination {
 				    System.out.println(location.getName() + " hasn't had its biomes set " + (this.getName()));
 				    throw new AssertionError();
                 }
-                this.partyType = PartyType.generatePT(type, location);
+				if (this.isBandit()) System.out.println("Generating party type for bandit with location");
+				this.partyType = PartyType.generatePT(type, location);
 			} else {
+				if (this.isBandit()) System.out.println("Generating party type for bandit with containing");
 				// Initialize this playerPartyPanel with the location's garrison type.
 				this.partyType = PartyType.generatePT(type, containing);
 			}
@@ -336,6 +338,7 @@ public class Army extends Group implements Destination {
             stateTime += delta;
 
 //		System.out.println(this.getName() + " is acting");
+		// Why do we do this?
 		if (this.justLoaded) {
 			this.defaultTarget = this.faction.getRandomCity();
 		}
@@ -373,7 +376,7 @@ public class Army extends Group implements Destination {
 		else {
 			if (!isInBattle()) {
 				if (isGarrisoned()) 
-					garrisonAct(delta); 
+					garrisonAct(delta);
 				else {
 					setSpeed(calcSpeed());
 					detectNearby();
@@ -385,6 +388,8 @@ public class Army extends Group implements Destination {
                             stopRunning();
 //                            System.out.println(this.getName() + "Stopping running");
                         } else {
+                        	// If a good distance away, hide until enemy is gone.
+							// TODO allow army to hide (defensively).
                             setAppropriateRunTarget();
                             if (getTarget() == null) throw new AssertionError(this.getName() + " has no target while running");
                         }
@@ -400,12 +405,15 @@ public class Army extends Group implements Destination {
 						uniqueAct();
 						if (!path.isEmpty()) {
 							path.travel();
-							if (targetLost()) nextTarget(); // forgot to do this before...
+						} else {
+							System.out.println("Path is empty");
+							nextTarget();
 						}
-						else if (this.hasTarget()) {
+						if (this.hasTarget()) {
 							//							if (this.type == ArmyType.FARMER) System.out.println(getName() + " here"); 
 							detectCollision();
 						}
+						if (targetLost()) nextTarget(); // forgot to do this before...
 					}
 				}
 			} 
@@ -485,6 +493,11 @@ public class Army extends Group implements Destination {
 		if (ambushStarted && timeSinceAmbushSet <= TIME_TO_SET_AMBUSH) {
 //							System.out.println(timeSinceAmbushSet + " ambush time");
 			timeSinceAmbushSet += delta;
+
+			// Ambush is set. Stop any followers
+			if (timeSinceAmbushSet > TIME_TO_SET_AMBUSH) {
+				changeTargetOfAnyFollowers();
+			}
 		}
 	}
 
@@ -531,6 +544,14 @@ public class Army extends Group implements Destination {
 
 		float oldRotation = getRotation();
 		setRotation(actualRotation);
+
+		float scale = 1.25f;
+		scale *= this.getSizeFactor();
+		scale *= getAdjustedZoom(getKingdom());
+		this.setScale(scale * 10);
+
+		// TODO one way to make this look better might be to change the scale of the crest, but not the unit.
+
         UnitDraw.drawUnit(this, batch, walkArmor, walkSkin, getGeneralArmorColor(), getGeneralSkinColor(), animationTime, getGeneral().getEquipment());
 		setRotation(oldRotation);
 
@@ -547,6 +568,12 @@ public class Army extends Group implements Destination {
 		super.draw(batch, parentAlpha);
 //		this.setKingdomRotation(kingdomRotation);
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
+	}
+
+	// TODO make scale limits apply only to zoom level
+	public float getSizeFactor() {
+		float scale = 2f;
+		return scale;
 	}
 
 	// Is this army in an ambush and unfriendly towards the faction of the given army
@@ -623,12 +650,12 @@ public class Army extends Group implements Destination {
 
 	public String getUniqueAction() {
 		//contained in extensions;
-		return "Travelling"; // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2)+")";
+		if (this.getTarget() == null) return "Travelling (Null Target)";
+		return "Travelling " + this.getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2)+")";
 	}
 
 	public boolean detectCollision() {
 //	    if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
-
 	    switch (target.getType()) {
 		case POINT: // point reached
 			return detectPointCollision();
@@ -654,6 +681,14 @@ public class Army extends Group implements Destination {
 
 	public boolean detectArmyCollision() {
 		Army targetArmy = (Army) target;
+
+		// first check if army is even visible or available to go to
+		if (!hasVisibilityOf(targetArmy)) {
+			System.out.println(this.getName() + " no longer has visibility of " + targetArmy.getName() + ", setting next target");
+			nextTarget();
+			return false;
+		}
+
 		//		System.out.println("collision dist " + (getTroopCount() + targetArmy.getTroopCount())/COLLISION_FACTOR);
 		if (distToCenter(targetArmy) < ((getTroopCount() + targetArmy.getTroopCount()))/COLLISION_FACTOR && !targetArmy.isGarrisoned()) {			
 			if (isAtWar(targetArmy)) 
@@ -889,10 +924,7 @@ public class Army extends Group implements Destination {
 		garrisonedIn = targetCity;
 
 		setTarget(null);
-		for (Army followedBy : this.targetOf) {
-			if (followedBy.getTarget() == this) followedBy.nextTarget();
-			followedBy.targetStack.remove(this);
-		}
+		changeTargetOfAnyFollowers();
 
 		// wait/pause AFTER garrisoning!
 		if (party.player) {
@@ -936,10 +968,12 @@ public class Army extends Group implements Destination {
 				setTarget(null);
 				//					System.out.println("ejecting " + this.getName() + " with no target");
 			}
-			uniqueAct();
-			//			}
+			if (!isRunning()) {
+	    		uniqueAct();
+			}
 		}
 	}
+
 	
 	protected boolean shouldStopRunning() {
 		if (this.runFrom == null) return true;
@@ -1044,7 +1078,7 @@ public class Army extends Group implements Destination {
 			for (Army army : closeArmies) {
 				if (army.isGarrisoned() || army.hiding) continue;
 				double distToCenter = this.distToCenter(army);
-				if (isVisibleToThis(army)) {
+				if (hasVisibilityOf(army)) {
 					// hostile troop
 					if (isAtWar(army)) {
 						if (shouldRunFrom(army)) {
@@ -1072,9 +1106,16 @@ public class Army extends Group implements Destination {
 	}
 
 	// Is the given army visible to this guy
-	private boolean isVisibleToThis(Army that) {
+	private boolean hasVisibilityOf(Army that) {
 		double distToCenter = this.distToCenter(that);
-		return distToCenter < lineOfSight && !that.isNonFriendlyAmbush(this);
+		if (that.isNonFriendlyAmbush(this)) return false;
+		if (that.isGarrisoned()) return false;
+		if (that.isDestroyed()) return false;
+
+		// This makes it so poor villagers who leave the acting range around the player won't get attacked by armies who aren't affected by that.
+		// Need to make sure the acting range is large enough that the player won't see any weird effects this may cause.
+		if (OPTIMIZED_MODE && !that.withinActingRange()) return false;
+		return distToCenter < lineOfSight;
 	}
 
 	public void updatePolygon() {
@@ -1119,10 +1160,12 @@ public class Army extends Group implements Destination {
 	// should this army attack that army?
 	public boolean shouldAttack(Army that) {
 //		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
-//			return true; 
+//			return true;
+
+		float partyMaxDifferenceFactor = 2; // if a party is less than this fraction of the other one, won't attack.
 		// TODO take into account nearby parties
 		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1)
-				&& (this.getTroopCount() <= that.getTroopCount() * 2)
+				&& (this.getTroopCount() <= that.getTroopCount() * partyMaxDifferenceFactor || this.isBandit())
 				&& (that.getBattle() == null || that.getBattle().shouldJoinAttackers(this)))
 			return true; 
 		return false;
@@ -1138,7 +1181,7 @@ public class Army extends Group implements Destination {
 	}
 
 	public boolean shouldRepair() {
-		if (defaultTarget != null) {
+		if (defaultTarget != null && defaultTarget.getType() == DestType.LOCATION) {
 			boolean repair = this.getParty().getHealthySize() <= this.partyType.getMinSize()*REPAIR_FACTOR;
 			//			if (repair) System.out.println(this.getName() + " should repair (min size is " + this.partyType.getMinSize() + ") and defaultTarget is " + getDefaultTarget());
 			return (repair);
@@ -1150,7 +1193,7 @@ public class Army extends Group implements Destination {
 	public boolean targetLost() {
 		if (target != null && target.getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) target;
-			if (isVisibleToThis(targetArmy) || !targetArmy.hasParent() || targetArmy.isGarrisoned())
+			if (!hasVisibilityOf(targetArmy) || !targetArmy.hasParent() || targetArmy.isGarrisoned())
 				return true;
 			if (targetArmy.isInBattle()) {
 				if (!targetArmy.getBattle().shouldJoinAttackers(this) && !targetArmy.getBattle().shouldJoinDefenders(this)) // shouldn't join
@@ -1191,9 +1234,23 @@ public class Army extends Group implements Destination {
 			// do a noble kill -- either escaped, ransomed, or executed! Allow execution of nobles D:
 			this.faction.removeNoble((Noble) this);
 		}
-		
+
+		changeTargetOfAnyFollowers();
+
 		getKingdom().removeArmy(this);
 		this.remove();
+	}
+
+	private void changeTargetOfAnyFollowers() {
+		for (Army followedBy : this.targetOf) {
+			if (followedBy.getTarget() == this) followedBy.nextTarget();
+			followedBy.targetStack.remove(this);
+			System.out.println(this.getName() + " is no longer visible, setting next target for " + followedBy.getName());
+		}
+	}
+
+	public boolean isDestroyed() {
+		return !this.kingdom.getArmies().contains(this, true);
 	}
 
 	//	public void verifyTarget() {
@@ -1416,6 +1473,7 @@ public class Army extends Group implements Destination {
         setStopped(false);
         // Not sure about this one! what if you already had a target? TODO
         setTarget(null);
+		nextTarget();
 //        if (!((p.getHealthySize() <= DEPRECATED_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
         setVisible(true);
 		//		if (type == ArmyType.MERCHANT) System.out.println(getName() + " ending battle");
@@ -1460,10 +1518,9 @@ public class Army extends Group implements Destination {
 
 	public boolean setTarget(Destination newTarget) {
 		if (newTarget == null) {
-			path.dStack.clear();
-			path.nextGoal = null;
 			// figure out how to reconcile this with path?
 			//System.out.println(getName() + " has null target");
+			path.forceClear();
 			return false;
 		}	
 		// replace old targetof
@@ -1531,8 +1588,12 @@ public class Army extends Group implements Destination {
 			return true;
 		}
 		else {
-            System.out.println(getName() + " setting target failed");
-		    return false;
+            uniqueAct();
+            if (getTarget() == null) {
+				System.out.println(getName() + " setting target failed");
+				return false;
+            }
+            return true;
         }
 	}
 	private boolean canEject() {
@@ -1552,25 +1613,55 @@ public class Army extends Group implements Destination {
 	}
 	/* fix this */
 	public void nextTarget() {
+		this.target = null;
 		if (!targetStack.isEmpty()) {
-			if (targetStack.peek() == null || targetStack.peek() == target || 
-					(targetStack.peek().getType() == Destination.DestType.ARMY && !getKingdom().getArmies().contains((Army) getTarget(), true))) 
-				targetStack.pop(); // clean stack 
-			if (!targetStack.isEmpty() && targetStack.peek() != null) setTarget(targetStack.pop());
+			// Check if null or destroyed, clear if so.
+			if (targetStack.peek() == null || targetStack.peek() == target) {
+				targetStack.pop(); // clean stack
+				nextTarget();
+				return;
+			}
+			// Check if no longer visible, clear if so.
+			if (targetStack.peek().getType() == Destination.DestType.ARMY) {
+				Army army = (Army) targetStack.peek();
+				// If not visible to this,
+				if (!this.hasVisibilityOf(army) || ((Army) getTarget()).isDestroyed()) {
+					targetStack.pop(); // clean stack
+					nextTarget();
+					return;
+				}
+			}
+
+			if (!targetStack.isEmpty() && targetStack.peek() != null) {
+				setTarget(targetStack.pop());
+			}
 			else findTarget();
 		}
 		else {
 			findTarget();
 		}
+//		if (target == null) throw new AssertionError();
 	}
 	public void newTarget(Destination target) {
 		targetStack.removeAllElements();
 		setTarget(target);
 	}
 	public void findTarget() {
+		this.setTarget(null);
 		//		if (this.type == ArmyType.BANDIT) System.out.println("bandit finding target");
         if (defaultTarget != getTarget())
 		    setTarget(defaultTarget);
+
+        if (!hasTarget()) {
+        	// Remove any remaining targets.
+			path.forceClear();
+			uniqueAct();
+		}
+
+        if (!this.hasTarget()) {
+        	System.out.println(this.getName() + " can't find target");
+//        	throw new AssertionError(this.getName() + " can't find target");
+		}
 	}
 	public void setDefaultTarget(Destination defaultTarget) {
 		this.defaultTarget = defaultTarget;

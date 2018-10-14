@@ -216,7 +216,7 @@ public class VictoryManager {
                 BottomPanel.log("Troops wounded: " + playerTroopsWounded, "orange");
             }
             if (party.getHealthySize() <= PARTY_DESTROY_THRESHOLD) {
-                System.out.println("Destroying losing party");
+                System.out.println("Destroying losing party: " + party.getName());
                 Army army = party.army;
                 if (army != null) {
                     if (army.player) {
@@ -245,6 +245,20 @@ public class VictoryManager {
             } else {
                 System.out.println("handling siege failure at " + this.siege.getName());
                 siege.siegeFailure();
+            }
+        }
+
+        // Check all subparties and see if any generals died, if so, try to replace them
+        for (Party p : victor) {
+            for (int i = 0; i < p.subparties.size; i++) {
+                Subparty s = p.subparties.get(i);
+                s.checkIfGeneralDied();
+            }
+        }
+        for (Party p : loser) {
+            for (int i = 0; i < p.subparties.size; i++) {
+                Subparty s = p.subparties.get(i);
+                s.checkIfGeneralDied();
             }
         }
     }

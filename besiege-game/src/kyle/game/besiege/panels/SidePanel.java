@@ -263,7 +263,7 @@ public class SidePanel extends Group {
 	
 	public void setDefault(boolean force) {
 //		if (force) this.setHardStay(false);
-			
+		System.out.println("setting default");
 		if (mapScreen.battle != null)
 			setActiveBattle(mapScreen.battle);
 		else {
@@ -273,6 +273,8 @@ public class SidePanel extends Group {
 	}
 
 	public void press(int button) {
+		// for now, any button click will escape from hard stay
+		setHardStay(false);
 		if (button == 1)
 			activePanel.button1();
 		else if (button == 2)
@@ -281,7 +283,6 @@ public class SidePanel extends Group {
 			activePanel.button3();
 		else if (button == 4)
 			activePanel.button4();
-		setHardStay(false);
 	}
 
 	public void setKingdom(Kingdom kingdom) {
@@ -319,7 +320,7 @@ public class SidePanel extends Group {
 	// TODO add yellow icon for when player is garrisoned in a city
 	// If you touch a
 	public void setHardStay(boolean b) {
-//		System.out.println("hard stay is disabled");
+		System.out.println("setting hard stay: " + b);
 		hardStay = b;
 //		hardStay = false;
 	}

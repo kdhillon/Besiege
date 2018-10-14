@@ -23,6 +23,9 @@ public class RandomCrestGenerator extends Actor {
 	TextureRegion[] singleOverlays;
 	TextureRegion[][] doubleOverlays;
 	TextureRegion[] details;
+
+	private HashMap<Integer, Color> extraColors = new HashMap<>();
+
 //	boolean detailUsed[];
 //	Color[] colorsUsed;
 
@@ -79,6 +82,10 @@ public class RandomCrestGenerator extends Actor {
 //				throw new java.lang.AssertionError("cant find detail: " + (i + 1));
 //		}
 //		detailUsed = new boolean[DETAILS];
+	}
+
+	public void addSpecialColor(Color c, int index) {
+		extraColors.put(index, c);
 	}
 
 	public Crest create(CultureType type) {
@@ -177,6 +184,7 @@ public class RandomCrestGenerator extends Actor {
 	public Color getColor(int i) {
 		if (i < 0)
 			return Color.WHITE;
+		if (extraColors.containsKey(i)) return extraColors.get(i);
 		return colors[i % COLORS];
 	}
 

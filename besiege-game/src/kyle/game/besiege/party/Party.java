@@ -140,8 +140,9 @@ public class Party {
 
         // promote best soldier to general
         if (newSub.getGeneral() == null && !pt.hire) {
-            if (soldier.subparty != null)
-                soldier.subparty.removeSoldier(soldier);
+            if (soldier.subparty != null) {
+				soldier.subparty.removeSoldier(soldier);
+			}
             newSub.promoteToGeneral(soldier);
 
             System.out.println("adding random shaman");
@@ -259,6 +260,7 @@ public class Party {
 			} else if (prisoner == s.getGeneral()) {
 				s.demoteGeneral((General) prisoner);
 				s.promoteNextGeneral();
+				if (s.getGeneral() == null) throw new AssertionError();
 				removed = true;
 			} else if (prisoner == s.shaman) {
 				s.shaman = null;
@@ -402,6 +404,7 @@ public class Party {
 	    if (pt.hire) {
 	        throw new AssertionError();
         }
+        if (general == null) throw new AssertionError();
 		root.setGeneral(general);
 	}
 

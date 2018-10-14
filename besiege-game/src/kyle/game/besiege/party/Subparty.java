@@ -17,6 +17,7 @@ public class Subparty {
 	private StrictArray<Subparty> children;
 	
 	private General general; // who commands the playerPartyPanel! May not be null. May be wounde
+	private boolean generalDiedInBattle; // This is true if the general just died in battle. We don't want to null out the general (aka kill him) until after the battle.
 
 	// This doesn't count against party size, etc. Shamans are a special unit.
 	// Shamans heal instantly?
@@ -309,11 +310,22 @@ public class Subparty {
 			this.shaman = null;
 		} else if (soldier.isGeneral()) {
 			if (soldier != this.general) throw new AssertionError();
-//			System.out.println("setting general to be null");
-			this.general = null;
+			this.generalDiedInBattle = true;
 		}else {
 			System.out.println("Can't remove " + soldier.getTypeName());
 			throw new AssertionError();
+		}
+	}
+
+	public void checkIfGeneralDied() {
+		if (generalDiedInBattle) {
+			this.general = null;
+
+			if (this.getTotalSize() > 0) {
+				this.promoteNextGeneral();
+			} else {
+				this.destroy();
+			}
 		}
 	}
 

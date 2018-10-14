@@ -164,13 +164,13 @@ public class Faction {
 		// need to load crest after this is created.
 	}
 	public Faction(Kingdom kingdom) {
-	    this(kingdom, null, null, null);
+	    this(kingdom, null, null);
     }
 
 	/**
 	 * Creates a faction. if name is null, will generate a random name. If crest is null, will generate a random crest.
 	 */
-	public Faction(Kingdom kingdom, String name, Crest crestIn, Color color) {
+	public Faction(Kingdom kingdom, String name, Color color) {
 		this.kingdom = kingdom;
 
 		// don't set name until we have a few cities and can base the culture off of them.
@@ -484,6 +484,7 @@ public class Faction {
 		//		System.out.println(this.name + " initializing cities: ");
 		this.closeEnemyCities.clear();
 		this.closeEnemyCastles.clear();
+		if (this.isBandit()) return;
 		// find hostile locations near cities
 		for (City c: cities) {
 			//			System.out.println("  close to " + c.getName() + ":");
@@ -995,9 +996,12 @@ public class Faction {
 		return this.name;
 	}
 	public String getOfficialName() {
+		if (this.isBandit()) return this.name;
 		return this.name + " " + this.type.rank;
 	}
 	public City getRandomCity() {
+		if (this.isBandit() && cities.size > 0) throw new AssertionError();
+		if (this.isBandit()) return null;
 		if (cities.size > 0) {
 			return cities.random();
 		}

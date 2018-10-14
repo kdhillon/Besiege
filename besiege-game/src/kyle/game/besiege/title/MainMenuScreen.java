@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -394,11 +395,20 @@ public class MainMenuScreen implements Screen {
 		styleButtons = new LabelStyle();
 		styleButtons.font = Assets.pixel40;
 //		bs = new ButtonStyle();
-		
+
+		float titleFade = 3.5f;
+		float titleDelay = 1.5f;
 		labelTitle = new Label(TITLE, styleTitle);
+//		labelTitle.addAction(Actions.fadeIn(3));
+		labelTitle.addAction(Actions.sequence(Actions.alpha(0), Actions.delay(titleDelay), Actions.fadeIn(titleFade)));
+
+		float buttonFade = 2f;
+		float buttonDelay = 3f;
 		labelNew = new Label("N E W", styleButtons);
 		labelLoad = new Label("L O A D", styleButtons);
-		
+		labelNew.addAction(Actions.sequence(Actions.alpha(0), Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
+		labelLoad.addAction(Actions.sequence(Actions.alpha(0),  Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
+
 		mainTable.add(labelTitle).padBottom(PAD_BELOW_TITLE).padTop(PAD_ABOVE_TITLE);
 		mainTable.row();
 		mainTable.add(lowerTable).height(FIXED_SIZE_BOTTOM);
@@ -483,6 +493,8 @@ public class MainMenuScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Table.drawDebug(stage);
 		stage.draw();
+
+		mainTable.act(delta);
 
 		// check for a file every second
 		if (count > 1) {

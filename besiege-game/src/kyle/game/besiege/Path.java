@@ -265,7 +265,12 @@ public class Path {
     public void travel() {
         lastAStarFail--;
         Army army = (Army) start;
-        if (!army.hasTarget()) throw new AssertionError(army.getName() + " is traveling without a target");
+        if (!army.hasTarget()) {
+            this.forceClear();
+            System.out.println("warning: " + army.getName() + " is traveling without a target");
+            return;
+//            throw new AssertionError(army.getName() + " is traveling without a target");
+        }
         if (nextGoal == null) {
 //            System.out.println("Next goal for " + army.getName() + " is null");
             while (!dStack.empty() && dStack.peek() == null) {
@@ -319,12 +324,10 @@ public class Path {
                 }
 
                 // only do collision detect when close to enemy
-
-
                 if (dStack.isEmpty() && army.hasTarget()) {
-//				if (army.getParty().player) System.out.println("player detecting collision");
-                    // if detects collision, set nextGoal to null
-                    if (army.detectCollision()) nextGoal = null;
+                    // this handles the special case where an army was destroyed but this guy is still targeting it for whatever reason.
+                    if (army.isDestroyed()) nextGoal = null;
+                    else if (army.detectCollision()) nextGoal = null;
 //				if (army.runTo != null) army.runTo = null;
                 } else {
                     this.detectPointCollision();
@@ -387,6 +390,10 @@ public class Path {
             return false;
         }
 
+        public void forceClear() {
+            nextGoal = null;
+            dStack.clear();
+        }
 
         public double getRemainingDistance () {
             if (dStack.isEmpty()) return Double.POSITIVE_INFINITY;

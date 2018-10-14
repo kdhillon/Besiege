@@ -668,7 +668,7 @@ public class Location extends Group implements Destination {
 
     // Even though crests are drawn as part of the actor stack, we should also draw them here so they're drawn on top of all other sprites.
 	public void drawCrest(SpriteBatch batch) {
-		if (this.getFaction() == null) return;
+//		if (this.getFaction() == null) return;
 		if (inFog()) return;
 
 		if (shouldDrawCrest()) {
@@ -976,8 +976,11 @@ public class Location extends Group implements Destination {
 
 		kingdom.removeActor(siege);
 		siege = null;
-		playerBesieging = false;
-		
+
+		if (playerBesieging) {
+			playerBesieging = false;
+		}
+
 		this.removeFire();
 	}
 	public boolean underSiege() {
@@ -1031,6 +1034,7 @@ public class Location extends Group implements Destination {
 			System.out.println("ejecting player");
 			if (playerWaiting)
 				stopWait();
+			kingdom.getMapScreen().getSidePanel().setHardStay(false);
 		}
 	}
 	public void repair(Army army) {
@@ -1059,6 +1063,7 @@ public class Location extends Group implements Destination {
 			if (party.wealth - s.getHireCost() >= party.minWealth) {
 				party.wealth -= s.getHireCost();
 				toHire.removeSoldier(s);
+				s.subparty = null;
 				party.addSoldier(s, false);
 				s.party = party;
 				return true;
@@ -1114,14 +1119,14 @@ public class Location extends Group implements Destination {
 				patrol.setFaction(newFaction);
 			
 
-			BottomPanel.log(newFaction.getName() + " has taken " + this.getName() + " from " + this.getFactionName());
+			BottomPanel.log(newFaction.getOfficialName() + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.CASTLE) {
 			for (Patrol patrol : this.patrols)
 				patrol.setFaction(newFaction);
 			this.faction.castles.removeValue((Castle) this, true);
 			newFaction.castles.add((Castle) this);
-			BottomPanel.log(newFaction.getName() + " has taken " + this.getName() + " from " + this.getFactionName());
+			BottomPanel.log(newFaction.getOfficialName() + " has taken " + this.getName() + " from " + this.getFactionName());
 		}
 		else if (this.type == LocationType.VILLAGE) {
 			if (this.faction != null)

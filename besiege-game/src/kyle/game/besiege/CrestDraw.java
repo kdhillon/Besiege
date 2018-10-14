@@ -23,6 +23,8 @@ public class CrestDraw extends Actor {
 
 	private Crest parentCrestForSidepanel;
 
+	private static Crest defaultCrest = Crest.getBlank(Color.WHITE);
+
 	// for kryo
 	public CrestDraw() {
 
@@ -48,6 +50,8 @@ public class CrestDraw extends Actor {
 		if (parentCrestForSidepanel != null) return parentCrestForSidepanel;
 		if (destination.getFaction() != null)
 			return destination.getFaction().crest;
+		if (getLocation() != null && !getLocation().isRuin())
+			return defaultCrest;
 		return null;
 	}
 
@@ -77,6 +81,9 @@ public class CrestDraw extends Actor {
 			this.setSize(1.2f, 1.2f);
 			this.setPosition( loc.getWidth() / 2 - this.getWidth()/2, loc.getHeight() * 1.2f);
 		} else if (army != null) {
+//			this.setSize(3f, 3f);
+//			this.setPosition( army.getWidth() / 2 - this.getWidth()/2, army.getHeight() * 1.2f);
+
 //			this.setPosition(-15 * army.getScaleX(), 15 * army.getScaleY());
 //			this.setSize(15 + army.party.getTotalSize(), 15 + army.party.getTotalSize());
 //			this.setPosition( army.getX() + army.getWidth() / 2 - this.getWidth()/2, army.getY() + army.getHeight() * 10f);
@@ -93,8 +100,9 @@ public class CrestDraw extends Actor {
 				if (!army.shouldDrawCrest()) {
 					return;
 				}
-				this.setSize(0.5f + army.party.getTotalSize() * 0.035f, 0.5f + army.party.getTotalSize() * 0.035f);
-				this.setPosition( army.getWidth() / 2 - this.getWidth()/2, army.getHeight() * 1.5f);
+				float scale = 1f + army.party.getTotalSize() * 0.015f;
+				this.setSize(scale, scale);
+				this.setPosition( army.getWidth() / 2 - this.getWidth()/2, army.getHeight() * 1.2f);
 			} else if (getLocation() != null) {
 				if (!getLocation().shouldDrawCrest()) return;
 			}

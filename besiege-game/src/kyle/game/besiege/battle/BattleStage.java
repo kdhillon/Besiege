@@ -245,14 +245,14 @@ public class BattleStage extends Group implements Battle {
 	}
 
 	// constructor for simulations
-	public BattleStage(MapScreen mapScreen, PartyType p1, PartyType p2) {
+	public BattleStage(MapScreen mapScreen, PartyType p1, PartyType p2, int partiesEach) {
 		this.mapScreen = mapScreen;
 
 		Party allyParty1 = p1.generate();
 		allyParty1.player = true;
 		Party enemyParty1 = p2.generate();
-		allyParty1.setName("Allies");
-		enemyParty1.setName("Enemies");
+		allyParty1.setName("Your Party");
+		enemyParty1.setName("Evil Party");
 		
 		this.allies = new BattleParty(this, 0);
 		this.allies.player = true;
@@ -261,6 +261,15 @@ public class BattleStage extends Group implements Battle {
 		
 		this.allies.addParty(allyParty1);
 		this.enemies.addParty(enemyParty1);
+
+		for (int i = 1; i < partiesEach; i++) {
+			Party allyParty2 = p1.generate();
+			Party enemyParty2 = p2.generate();
+			allyParty2.setName("Friendly_" + (i+1));
+			enemyParty2.setName("Evil_" + (i+1));
+			this.allies.addParty(allyParty2);
+			this.enemies.addParty(enemyParty2);
+		}
 
         this.victoryManager = new VictoryManager(kingdom, this, null, getBalanceDefenders());
         this.victoryManager.addInitTroopCount(getTotalBattleSize());

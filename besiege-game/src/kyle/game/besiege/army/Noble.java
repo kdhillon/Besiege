@@ -101,7 +101,7 @@ public class Noble extends Army {
 
 	@Override
 	public void uniqueAct() {
-		
+		if (hasTarget()) return;
 		// TESTING
 //		if (getKingdom().map.isInWater(this)) {
 //			System.out.println(this.getName() + " is in water!");

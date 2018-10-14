@@ -6,12 +6,8 @@
 // group of actors, contains bg, all cities and all armies
 package kyle.game.besiege;
 
-import static kyle.game.besiege.Kingdom.getRandom;
-
 import java.util.HashSet;
-import java.util.Random;
 
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -23,7 +19,6 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.ArmyPlayer;
 import kyle.game.besiege.army.Bandit;
 import kyle.game.besiege.battle.BattleActor;
-import kyle.game.besiege.battle.BattleSim;
 import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
@@ -35,23 +30,23 @@ import kyle.game.besiege.voronoi.Corner;
 
 public class Kingdom extends Group {
     // Actual values
-	public static int cityCount = 60;
-	public static int castleCount = 0;
-	public static int ruinCount = 5;
-	public static int villageCount = 100;
-	int FACTION_COUNT = 25;
+//	public static int cityCount = 60;
+//	public static int castleCount = 0;
+//	public static int ruinCount = 5;
+//	public static int villageCount = 100;
+//	int FACTION_COUNT = 25;
 
 	// Fast values
-//    public static int cityCount = 15;
-//    public static int castleCount = 0;
-//    public static int ruinCount = 10;
-//    public static int villageCount = 20;
-//    int FACTION_COUNT = 15;
+    public static int cityCount = 15;
+    public static int castleCount = 0;
+    public static int ruinCount = 10;
+    public static int villageCount = 20;
+    int FACTION_COUNT = 15;
 
     public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
-	public static final int MAX_BANDITS = 50;
+	public static final int TOTAL_BANDITS = 50;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
 
@@ -261,15 +256,15 @@ public class Kingdom extends Group {
 		if (rightClicked) rightClicked = false;
 		
 	}
-	
 
 	public void manageBandits() {
-		if (banditCount <= MAX_BANDITS && cities.size != 0) {
-			if (Math.random() < 1.0/BANDIT_FREQ) {
-				City originCity = cities.random();
+		if (banditCount <= TOTAL_BANDITS && cities.size != 0) {
+//			if (Math.random() < 1.0/BANDIT_FREQ) {
+//				City originCity = cities.random();
+				Center center = getRandomCenter(getMap().connected);
 				//					if (originCity.getVillages().size == 0) 
-				createBandit(originCity);
-			}
+				createBandit(center);
+//			}
 		}
 	}
 	
@@ -679,9 +674,11 @@ public class Kingdom extends Group {
 
 		// add player faction (index 0) 
 		
-		Faction.BANDITS_FACTION = new Faction(this, "Bandit", Crest.BANDIT_CREST, Color.BLACK);
-		Faction.ROGUE_FACTION = new Faction(this,"Rogue", Crest.ROGUE_CREST, Color.BLACK);
-		
+		Faction.BANDITS_FACTION = new Faction(this, "Bandits", Color.BLACK);
+		Faction.BANDITS_FACTION.crest = Crest.getBlank(Color.GRAY);
+		Faction.ROGUE_FACTION = new Faction(this,"Rogue", Color.BLACK);
+		Faction.ROGUE_FACTION.crest = Crest.getBlank(Color.WHITE);
+
 		addFaction(Faction.ROGUE_FACTION);
 		// add bandits faction (index 1)
 		addFaction(Faction.BANDITS_FACTION);	
@@ -723,6 +720,7 @@ public class Kingdom extends Group {
 //		System.out.println("initializing faction city info");
 		for (Faction f : factions) { 
 //			System.out.println("initializeing fci! " + f.name);
+			if (f == Faction.BANDITS_FACTION || f == Faction.ROGUE_FACTION) continue;
 			f.initializeCloseLocations();
 			f.centers.clear();
 		}
@@ -1195,7 +1193,7 @@ public class Kingdom extends Group {
 		//player.getParty().wound(player.getParty().getHealthy().random());
 		//		getMapScreen().getFog().updateFog();
 	}
-	public void createBandit(City originCity) {
+	public void createBandit(Center center) {
 		//get a good bandit location, out of player's LOS, away from other armies, etc.
 		Bandit bandit = new Bandit(this, "Bandit", 0, 0);
 		float posX, posY;
@@ -1205,13 +1203,13 @@ public class Kingdom extends Group {
 		int count = 0;
 		do {
 			count++;
-			posX = (float) (originCity.getCenterX() + (Math.random()+0.5)*bandit.getLineOfSight());
-			posY = (float) (originCity.getCenterY() + (Math.random()+0.5)*bandit.getLineOfSight());
+			posX = center.loc.x + Random.getRandomInRange(-bandit.getLineOfSight(), bandit.getLineOfSight());
+			posY = Map.HEIGHT - center.loc.y + Random.getRandomInRange(-bandit.getLineOfSight(), bandit.getLineOfSight());
 			p.setPos(posX, posY); 
 			//			System.out.println("creating bandit spot");
 		} while ((map.isInWater(p) || Kingdom.distBetween(p, player) <= player.getLineOfSight()) && count < 10); // makes sure bandit is out of sight of player!
 		if (count == 10) return;
-		bandit.setDefaultTarget(cities.random());
+
 		bandit.setPosition(posX, posY);
 		//		System.out.println("new bandit created at " + origin.getName() + posX + "  " + posY);
 		this.addArmy(bandit);
@@ -1233,7 +1231,11 @@ public class Kingdom extends Group {
 		armies.removeValue(remove, true);
 		if (remove.getContaining() != null)
 			remove.getContaining().armies.removeValue(remove, true);
-		
+
+		for (Army other : armies) {
+			if (other.getTarget() == remove) other.nextTarget();
+		}
+
 		remove.remove();
 		this.removeActor(remove);
 		armies.removeValue(remove, true);
@@ -1343,7 +1345,7 @@ public class Kingdom extends Group {
 	
 	public static Corner getRandom(HashSet<Corner> myHashSet) {
 		int size = myHashSet.size();
-		int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+		int item = Random.getRandom(size); // In real life, the Random object should be rather more shared than this
 		int i = 0;
 		for(Corner obj : myHashSet)
 		{
@@ -1356,7 +1358,7 @@ public class Kingdom extends Group {
 
 	public static Center getRandomCenter(HashSet<Center> myHashSet) {
 		int size = myHashSet.size();
-		int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+		int item = Random.getRandom(size);
 		int i = 0;
 		for(Center obj : myHashSet)
 		{

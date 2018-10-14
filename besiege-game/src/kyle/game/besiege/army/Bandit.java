@@ -5,15 +5,10 @@
  ******************************************************************************/
 package kyle.game.besiege.army;
 
-import kyle.game.besiege.Faction;
-import kyle.game.besiege.Kingdom;
-import kyle.game.besiege.Point;
+import kyle.game.besiege.*;
 import kyle.game.besiege.party.PartyType;
 
 public class Bandit extends Army {
-	private final int MID_SIZE = 15;
-	private String texture;
-
 	public Bandit() {}
 	
 	public Bandit(Kingdom kingdom, String name,
@@ -33,12 +28,20 @@ public class Bandit extends Army {
 	@Override
 	public void uniqueAct() {
 		if (!this.hasTarget()) { //key
-			// create new random target
-			float dx = (float) ((Math.random()*2-1)*getLineOfSight()); //number btw -1 and 1
-			float dy = (float) ((Math.random()*2-1)*getLineOfSight());
+//			 create new random target
+			float dx = Random.getRandomInRange(-getLineOfSight(), getLineOfSight()); //number btw -1 and 1
+			float dy = Random.getRandomInRange(-getLineOfSight(), getLineOfSight()); //number btw -1 and 1
 			Point newTarget = new Point(getCenterX() + dx, getCenterY() + dy);
 			setTarget(newTarget);
 		}
+	}
+
+	@Override
+	public boolean setTarget(Destination dest) {
+		if (dest != null && dest.getType() == DestType.LOCATION) {
+			throw new AssertionError();
+		}
+		return super.setTarget(dest);
 	}
 	
 	@Override

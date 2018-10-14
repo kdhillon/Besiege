@@ -90,16 +90,29 @@ public class PanelPostBattle extends Panel {
 //        table.addSmallLabel("wounded", "Wounded:");
         table.addSmallLabel("remaining", "Remain:");
 
-        table.update("lost", vm.getKilledSoldiersIn(p).size+vm.getWoundedSoldierIn(p).size+"");
+        table.update("lost", vm.getKilledSoldiersIn(p).size + vm.getWoundedSoldierIn(p).size + "");
 //        table.update("wounded", vm.getWoundedSoldierIn(p).size+"");
 
 //        table.addSmallLabel("retreated", "Ret:");
 //        table.addSmallLabel("remaining", "Remaining:");
 //        table.addSmallLabel("empty", "");
 
-        table.update("remaining", p.getHealthySize()+"");
+        table.update("remaining", p.getHealthySize() + "");
 //        table.update("retreated", "");
 //        table.update("empty", "");
+
+        StrictArray<StrictArray<Soldier>> consolidatedKilled = Party.getConsol(vm.getKilledSoldiersIn(p), true);
+        StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldierIn(p), true);
+
+        SoldierTable soldierTable = new SoldierTable(null, true, battleStage, consolidatedKWounded, consolidatedKilled);
+        parties.first().updated = true;
+        table.add(soldierTable).colspan(4).top().padTop(0).expandY();
+        soldierTables.add(soldierTable);
+        soldierTable.update();
+
+        table.row();
+        table.add().colspan(4).padBottom(PAD);
+        table.row();
 
         if (didWin) {
             table.addSubtitle("rewards", "Battle Rewards");
@@ -121,19 +134,6 @@ public class PanelPostBattle extends Panel {
             table.update("exp", vm.expRewards.get(p) + "");
 //            table.update("prisoners", "n/a");
         }
-
-        StrictArray<StrictArray<Soldier>> consolidatedKilled = Party.getConsol(vm.getKilledSoldiersIn(p), true);
-        StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldierIn(p), true);
-
-        SoldierTable soldierTable = new SoldierTable(null, true, battleStage, consolidatedKWounded, consolidatedKilled);
-        parties.first().updated = true;
-        table.add(soldierTable).colspan(4).top().padTop(0).expandY();
-        soldierTables.add(soldierTable);
-        soldierTable.update();
-
-        table.row();
-        table.add().colspan(4).padBottom(PAD);
-        table.row();
 
         table.row();
     }

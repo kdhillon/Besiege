@@ -130,6 +130,9 @@ public class PanelLocation extends Panel {
             setButton(1, null);
             setButton(2, null);
             setButton(4, "Back");
+			sidePanel.setHardStay(false);
+			sidePanel.setDefault(false);
+            // Player just left, reset the buttons
             playerTouched = false;
         } else if (location.playerBesieging && !playerBesieging) {
             // turn on siegeOrRaid panel
