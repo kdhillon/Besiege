@@ -108,6 +108,7 @@ public class PanelBattle2 extends Panel {
         topTableDefenders.addBigLabel("size", "Size:");
 
         defenderSoldierTables = new StrictArray<>();
+        defenderSoldierTables.size = defendingParties.size;
         for (int i = 0; i < defendingParties.size; i++) {
             Party p = defendingParties.get(i);
             SoldierTable defender = new SoldierTable(p, true, battleStage);
@@ -156,11 +157,12 @@ public class PanelBattle2 extends Panel {
         int totalSize = parties.first().getHealthySize();
         String size = "(" + parties.first().getHealthySize();
         System.out.println("Parties size: " + parties.size);
+        System.out.println("tables size: " + soldierTables.size);
         for (int i = 0; i < parties.size; i++) {
             Party current = parties.get(i);
-            System.out.println("checking " + current.getName());
+//            System.out.println("checking " + current.getName());
             if (current.updated) {
-                System.out.println("updating " + current.getName());
+//                System.out.println("updating " + current.getName());
                 soldierTables.get(i).update();
                 current.updated = false;
                 // Always update bar in defenders.
@@ -206,36 +208,28 @@ public class PanelBattle2 extends Panel {
     public void resize() {
         // TODO when you update these, make sure it preserves which subparties were expanded or not.
         for (int i = 0; i < attackerSoldierTables.size; i++) {
-//            Cell cell = topTableAttackers.getCell(soldierTable);
+            Cell cell = topTableAttackers.getCell(attackerSoldierTables.get(i));
 //            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-            SoldierTable soldierTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
-            defenderSoldierTables.removeIndex(i);
-            attackerSoldierTables.set(i, soldierTable);
-            soldierTable.update();
+            SoldierTable newTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
+//            attackerSoldierTables.removeIndex(i);
+            attackerSoldierTables.set(i, newTable);
+            newTable.update();
             battle.getAttackingParties().get(i).updated = true;
-            soldierTable.setHeight((panel.getHeight() - DESC_HEIGHT));
-//            cell.setWidget(soldierTable);
+            newTable.setHeight((panel.getHeight() - DESC_HEIGHT));
+            cell.setWidget(newTable);
         }
 
         for (int i = 0; i < defenderSoldierTables.size; i++) {
-//            Cell cell = topTableDefenders.getCell(soldierTable);
+            Cell cell = topTableDefenders.getCell(defenderSoldierTables.get(i));
 //            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-            SoldierTable soldierTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
-            defenderSoldierTables.removeIndex(i);
-            defenderSoldierTables.set(i, soldierTable);
-            soldierTable.update();
+            SoldierTable newTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
+//            defenderSoldierTables.removeIndex(i);
+            defenderSoldierTables.set(i, newTable);
+            newTable.update();
             battle.getDefendingParties().get(i).updated = true;
-            soldierTable.setHeight((panel.getHeight() - DESC_HEIGHT));
-//            cell.setWidget(soldierTable);
+            newTable.setHeight((panel.getHeight() - DESC_HEIGHT));
+            cell.setWidget(newTable);
         }
-//
-//        if (attackerSoldierTables.size > 0) throw new AssertionError();
-//        if (defenderSoldierTables.size > 0) throw new AssertionError();
-//
-//        for (int i = 0; i < battle.getDefendingParties().size; i++) {
-//
-//        }
-
         super.resize();
     }
 
