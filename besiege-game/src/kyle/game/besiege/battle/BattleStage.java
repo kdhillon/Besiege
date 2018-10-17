@@ -347,7 +347,6 @@ public class BattleStage extends Group implements Battle {
 
 		// try this
 		pb = new PanelBattle2(mapScreen.getSidePanel(), this);
-		pb.battleStage = this;
 
 		this.battlemap = new BattleMap(this);
 		this.addActor(battlemap);

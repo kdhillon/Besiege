@@ -50,14 +50,15 @@ public class Location extends Group implements Destination {
 
 	protected int DAILY_WEALTH_INCREASE_BASE;
 	protected double DAILY_POP_INCREASE_BASE;
-	public int POP_MIN;
-	public int POP_MAX;
 
 	transient private TextureRegion region;
 	public String textureName;
 
 	public enum LocationType {CITY, CASTLE, VILLAGE, RUIN};
 	public LocationType type;
+
+	public int POP_MIN;
+	public int POP_MAX;
 
 	// relative prevalence of biomes surrounding this location
 	public float[] biomeDistribution;
@@ -135,7 +136,6 @@ public class Location extends Group implements Destination {
 	
 	// TODO make wealth belong to location, not garrison. doesn't make sense when changing factions.
 	
-	public PartyType.Type pType;
 	private int wealth;
 
 
@@ -240,10 +240,13 @@ public class Location extends Group implements Destination {
 		};
 	}
 	
-	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, PartyType.Type pType, Center center, Corner corner) {
+	public Location(Kingdom kingdom, String name, int index, Faction faction, float posX, float posY, Center center, Corner corner, int popMin, int popMax, Location.LocationType type) {
 		this.faction = faction;
-        this.pType = pType;
 		this.kingdom = kingdom;
+		this.type = type;
+		this.POP_MIN = popMin;
+		this.POP_MAX = popMax;
+		this.population = Random.getRandomInRange(popMin, popMax);
 
 		basicConstruct(kingdom, name, index, posX, posY, center, corner);
         createGarrison();
@@ -276,13 +279,34 @@ public class Location extends Group implements Destination {
 		String name = this.getName() + " Garrison";
 //		if (getFaction() != null) name = this.getName() + " Garrison " + getFaction().name;
 //		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType, this);
-        this.garrison = PartyType.getPartyType(pType, cultureType).generate();
+
+		// TODO make this determined by the wealth/population of the city.
+        this.garrison = PartyType.getPartyType(getCurrentPartyType(), cultureType).generate();
         this.garrison.setName(name);
 //		this.garrison.isGarrison = true;
 //		this.garrison.passive = true;
 
 //		manageGarrison();
 		this.needsUpdate = true;
+	}
+
+	private PartyType.Type getCurrentPartyType() {
+		if (this.isVillage()) return PartyType.Type.VILLAGE_GARRISON;
+		if (this.isCastle()) return PartyType.Type.CASTLE_GARRISON;
+		if (this.isCity()) {
+			City.Size size = ((City) this).getSize();
+			switch(size) {
+				case TOWN:
+					return PartyType.Type.TOWN_GARRISON;
+				case CITY:
+					return PartyType.Type.CITY_GARRISON;
+				case LARGE_CITY:
+					return PartyType.Type.LARGE_CITY_GARRISON;
+				default:
+					throw new AssertionError();
+			}
+		}
+		throw new AssertionError();
 	}
 
 	private CultureType calculateCultureType() {
@@ -534,7 +558,10 @@ public class Location extends Group implements Destination {
 	// make sure garrison is at least size it should be
 	public void manageGarrison() {
 		while (shouldIncreaseGarrison()) {
-			if (!increaseGarrison()) break;
+			if (!increaseGarrison()) {
+				System.out.println("cancelling increase");
+				break;
+			}
 		}
 	}
 	
@@ -542,18 +569,28 @@ public class Location extends Group implements Destination {
 	public boolean increaseGarrison() {
 		System.out.println("increasing garrison of " + this.getName() + " from " + this.garrison.getTotalLevel());
 		Soldier rand = new Soldier(this.garrison.pt.randomSoldierType(), this.garrison);
-		if (this.garrison.addSoldier(rand, true)) {
-			if (!this.isCastle())
-				this.loseWealth((int) (rand.getBuyCost() * GARRISON_DISCOUNT));
-			System.out.println(" to " + this.garrison.getTotalLevel());
-			return true;
+		if (this.canAfford(rand)) {
+			if (this.garrison.addSoldier(rand, true)) {
+				if (!this.isCastle())
+					this.loseWealth((int) (rand.getBuyCost() * GARRISON_DISCOUNT));
+
+				System.out.println(" to " + this.garrison.getTotalLevel());
+				return true;
+			}
 		}
-		else return false;
+		return false;
+	}
+
+	// Can we afford to hire for garrison.
+	private boolean canAfford(Soldier soldier) {
+		return this.getWealth() > soldier.getBuyCost() * GARRISON_DISCOUNT;
 	}
 	
 	// do this for villages and cities, but not for castles
 	public boolean shouldIncreaseGarrison() {
 		if (siege != null) return false;
+		int ARBITRARY_WEALTH_THRESHOLD = 20;
+		if (this.wealth < ARBITRARY_WEALTH_THRESHOLD) return false;
 		int FIXED_GARRISON_STRENGTH = 100;
 		return this.garrison.getTotalLevel() < FIXED_GARRISON_STRENGTH;
 //				this.getWealth() * garrisonBudget;
@@ -1299,7 +1336,7 @@ public class Location extends Group implements Destination {
 		else if (type == LocationType.CITY)
 			return ((City) this).getSizeString();
 		else if (type == LocationType.RUIN)
-			return "Ruins";
+			return "";
 		return "No Type";
 	}
 	public float getDefenseFactor() {

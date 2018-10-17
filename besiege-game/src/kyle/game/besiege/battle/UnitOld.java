@@ -78,7 +78,7 @@
 //
 //	boolean rotationFixed;
 //
-//	float timer = ATTACK_EVERY;
+//	float attackTimer = ATTACK_EVERY;
 //	float reloading = 0f;
 //	//float lastFace = 0f;
 //	public int hp;
@@ -309,11 +309,11 @@
 //			//			this.retreat();
 //		}
 //		if (this.attacking != null) {
-//			timer += delta;
-//			if (timer > ATTACK_EVERY) 
+//			attackTimer += delta;
+//			if (attackTimer > ATTACK_EVERY)
 //			{
 //				attack();
-//				timer = 0;
+//				attackTimer = 0;
 //			}
 //		}
 //		else if (this.moving) {
@@ -359,10 +359,10 @@
 //			}
 //			else { // either defensive stance or aggressive but ranged within range
 //				// just use attack every for convenience
-//				timer += delta;
-//				//				if (timer > ATTACK_EVERY){
+//				attackTimer += delta;
+//				//				if (attackTimer > ATTACK_EVERY){
 //				//					faceEnemy();
-//				//					timer = 0;
+//				//					attackTimer = 0;
 //				//				}
 //				// if enemy is within one unit and fighting, can move to them.
 //				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.rangedWeaponOut()))

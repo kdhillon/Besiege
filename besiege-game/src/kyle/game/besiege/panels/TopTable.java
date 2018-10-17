@@ -18,6 +18,7 @@ public class TopTable extends Table {
 	private final float PAD = 10;
 	private final float MINI_PAD = 5;
 	private final float NEG = -5;
+	private final float NEG_MINI = -2;
 
 	// for health bar only
 	private final int r = 3;
@@ -61,10 +62,11 @@ public class TopTable extends Table {
 		title.setWrap(true);
 		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
 
-		this.defaults().padTop(NEG).left();
+		// previously padded with neg
+		this.defaults().padTop(NEG_MINI).left();
 //		this.debug();
 		
-		this.add(title).colspan(4).fillX().expandX().padBottom(0);
+		this.add(title).colspan(4).fillX().expandX().padBottom(NEG);
 		this.row();
 		this.width = SidePanel.WIDTH-PAD*2;
 		this.add().colspan(2).width(width/2);
@@ -125,15 +127,20 @@ public class TopTable extends Table {
 
 	// Big label has a fixed label and a value (e.g. "Troops: 20". It fits one row across.
 	public void addBigLabel(String key, String label) {
+		Table table = new Table();
 		Label constantLabel = new Label(label, ls);
 		Label value = new Label("", ls);
 		value.setWrap(false);
 		labels.put(key, value);
 
+		table.add(constantLabel).padLeft(MINI_PAD).expandX();
+		float afterColon = 5;
+		table.add(value).expandX().left().padLeft(afterColon);
+
 		float padTop = 0;
 		if (wasLastSmallLabel) padTop = NEG;
-		this.add(constantLabel).colspan(2).padLeft(MINI_PAD).expandX().padTop(padTop);
-		this.add(value).colspan(2).expandX().padTop(padTop);
+
+		this.add(table).colspan(4).expandX().padTop(padTop);
 		this.row();
 
 		wasLastSmallLabel = true;

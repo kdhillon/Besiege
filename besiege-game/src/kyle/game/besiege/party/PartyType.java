@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Random;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
@@ -16,7 +17,7 @@ import kyle.game.besiege.voronoi.Center;
 public class PartyType { // todo add ability for max playerPartyPanel size
 	public static Array<PartyType> types;
 	
-	public enum Type {FARMERS, PATROL, MERCHANT, CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
+	public enum Type {FARMERS, PATROL, MERCHANT, TOWN_GARRISON, CITY_GARRISON, LARGE_CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
 						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST, TEST_1, TEST_2, TEST_ALL};
 	
 	//	private final Weapon[] troopTypes;
@@ -67,13 +68,18 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //		int toGenerate = MathUtils.random(minCount, playerPartyPanel.getMaxSize());
 //        System.out.println("to generate" + toGenerate);
 
+		StrictArray<Soldier> soldiers = new StrictArray<>();
         while (toGenerate > 0) {
 			// generate random unit from available tiers in available class TODO
 //            System.out.println("to generate" + toGenerate);
 			UnitType type = randomSoldierType();
-			party.addSoldier(new Soldier(type, party), false);
+			soldiers.add(new Soldier(type, party));
 			toGenerate--;
 		}
+		if (!this.hire)
+			party.initializeWith(soldiers);
+        else
+        	party.initializeForToHire(soldiers);
 //        System.out.println("Done generating!");
 //		UnitType unitType, Party playerPartyPanel, String title, Location home
 
@@ -250,7 +256,19 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.minCount = 15;
 			pt.tiers = new int[]{2, 3};
 			break;
+		case TOWN_GARRISON:
+			pt.name = "Garrison";
+			pt.maxCount = 50;
+			pt.minCount = 20;
+			pt.tiers = new int[]{1, 2, 3};
+			break;
 		case CITY_GARRISON:
+			pt.name = "Garrison";
+			pt.maxCount = 70;
+			pt.minCount = 40;
+			pt.tiers = new int[]{2, 3, 4};
+			break;
+		case LARGE_CITY_GARRISON:
 			pt.name = "Garrison";
 			pt.maxCount = 100;
 			pt.minCount = 50;
@@ -323,8 +341,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.maxCount = 8;
 			pt.minCount = 1;
 			pt.tiers = new int[]{1, 2, 3};
-            pt.hire = true;
-            break;
+			pt.hire = true;
 		case TEST:
 			pt.name = "Test";
 			pt.maxCount = 100;

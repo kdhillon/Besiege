@@ -23,7 +23,7 @@ public class CrestDraw extends Actor {
 
 	private Crest parentCrestForSidepanel;
 
-	private static Crest defaultCrest = Crest.getBlank(Color.WHITE);
+	public static Crest defaultCrest = Crest.getBlank(Color.WHITE);
 
 	// for kryo
 	public CrestDraw() {
@@ -52,6 +52,7 @@ public class CrestDraw extends Actor {
 			return destination.getFaction().crest;
 		if (getLocation() != null && !getLocation().isRuin())
 			return defaultCrest;
+		if (getArmy() != null) return defaultCrest;
 		return null;
 	}
 

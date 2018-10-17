@@ -60,9 +60,8 @@ public class Castle extends Location {
 	
 	public Castle(Kingdom kingdom, String name, int index, Faction faction, float posX,
                   float posY, Center center, Corner corner) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CASTLE_GARRISON, center, corner);
-		this.type = LocationType.CASTLE;
-				
+		super(kingdom, name, index, faction, posX, posY, center, corner, 0, 10, LocationType.CASTLE);
+
 		setWealth(calcInitialWealth());
 		
 		this.DAILY_WEALTH_INCREASE_BASE = 0;

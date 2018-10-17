@@ -87,7 +87,7 @@ public class Unit extends Group {
 
 	boolean rotationFixed;
 
-	float timer = ATTACK_EVERY;
+	float attackTimer = 0;
 	float reloading;
 	//float lastFace = 0f;
 	public float hp;
@@ -354,14 +354,15 @@ public class Unit extends Group {
 		    if (!this.attacking.inMap()) {
                 attacking = null;
 		    } else {
-                timer += delta;
-                if (timer > ATTACK_EVERY) {
+                attackTimer += delta;
+                if (attackTimer > ATTACK_EVERY) {
                     attack();
-                    timer = 0;
+                    attackTimer = 0;
                 }
             }
 		}
 		else if (this.moving) {
+
 			//System.out.println("moving");
 			this.percentComplete += getSpeed() * delta;
 
@@ -409,10 +410,10 @@ public class Unit extends Group {
 			}
 			else { // either defensive stance or aggressive but ranged within range
 				// just use attack every for convenience
-				timer += delta;
-				//				if (timer > ATTACK_EVERY){
+				attackTimer += delta;
+				//				if (attackTimer > ATTACK_EVERY){
 				//					faceEnemy();
-				//					timer = 0;
+				//					attackTimer = 0;
 				//				}
 				// if enemy is within one unit and fighting, can move to them.
 				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.rangedWeaponOut()))

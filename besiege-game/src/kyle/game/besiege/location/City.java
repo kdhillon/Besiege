@@ -23,9 +23,9 @@ public class City extends Location {
 	private final static float INITIAL_WEALTH_VARIANCE_MAX = 2f;
 	
 	private final static float SCALE = 7;
-	private final static int MAX_PATROLS = 3;
-	private static final int MAX_FARMERS = 3;
-    private static final int MAX_HUNTERS = 3;
+	private final static int MAX_PATROLS = 2;
+	private static final int MAX_FARMERS = 2;
+    private static final int MAX_HUNTERS = 2;
     //	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 
@@ -49,14 +49,8 @@ public class City extends Location {
 	
 	public City(Kingdom kingdom, String name, int index, Faction faction, float posX,
 			float posY, Center center, Corner corner) {
-		super(kingdom, name, index, faction, posX, posY, PartyType.Type.CITY_GARRISON, center, corner);
-		this.type = LocationType.CITY;
-						
-		POP_MIN = 500;
-		POP_MAX = 15000;
-		
-		this.population = Random.getRandomInRange(POP_MIN, POP_MAX);
-				
+		super(kingdom, name, index, faction, posX, posY, center, corner, 500, 10000, LocationType.CITY);
+
 		this.DAILY_WEALTH_INCREASE_BASE = 5;
 		this.DAILY_POP_INCREASE_BASE = 5;
 		
@@ -118,6 +112,8 @@ public class City extends Location {
 
 	public Size getSize() {
         int index = getPop() / (POP_MAX / Size.values().length);
+        if (index >= Size.values().length) index = Size.values().length -1;
+        if (index < 0) index = 0;
         return Size.values()[index];
 	}
 

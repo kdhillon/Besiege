@@ -27,7 +27,7 @@ public class PanelBattle2 extends Panel {
     private SidePanel panel;
     public Battle battle;
 
-    public BattleStage battleStage;
+    public final BattleStage battleStage;
 
     private TopTable topTableAttackers;
     private TopTable topTableDefenders;
@@ -38,6 +38,8 @@ public class PanelBattle2 extends Panel {
     public PanelBattle2(SidePanel panel, Battle battle) {
         this.panel = panel;
         this.battle = battle;
+        if (battle instanceof BattleStage) battleStage = (BattleStage) battle;
+        else battleStage = null;
 
         this.addParentPanel(panel);
 
@@ -47,7 +49,7 @@ public class PanelBattle2 extends Panel {
         Label.LabelStyle lsFaction = new Label.LabelStyle();
         lsFaction.font = Assets.pixel18;
 
-        String title = "Battle!";
+        String title = "Attackers";
 
         topTableAttackers = new TopTable();
         topTableAttackers.updateTitle(title, null);
@@ -56,16 +58,22 @@ public class PanelBattle2 extends Panel {
         String attackingFactionName = "Independent";
         if (attackingParties.first().getFaction() != null)
             attackingFactionName = attackingParties.first().getFaction().getName();
-//        topTableAttackers.addSubtitle("attackers", "Attackers");
-        topTableAttackers.addSubtitle("partyname", attackingParties.first().getName());
+        String attackerName = attackingParties.first().getName();
+        if (attackingParties.size > 1) {
+            for (int i = 1; i < attackingParties.size; i++) {
+                attackerName += ", " + attackingParties.get(i).getName();
+            }
+        }
+        topTableAttackers.addSubtitle("partyname", attackerName);
         topTableAttackers.addSubtitle("factionname", attackingFactionName);
-        topTableAttackers.addSmallLabel("size", "Size:");
-        topTableAttackers.addSmallLabel("empty1", "");
+        topTableAttackers.addBigLabel("size", "Size:");
 
         attackerSoldierTables = new StrictArray<>();
-        for (Party p : attackingParties) {
+        attackerSoldierTables.size = attackingParties.size;
+        for (int i = 0 ; i < attackingParties.size; i++) {
+            Party p = attackingParties.get(i);
             SoldierTable attacker = new SoldierTable(p, true, battleStage);
-            attackerSoldierTables.add(attacker);
+            attackerSoldierTables.set(i, attacker);
             topTableAttackers.add(attacker).colspan(4).top().padTop(0).expandY();
             topTableAttackers.row();
             p.updated = true;
@@ -81,8 +89,7 @@ public class PanelBattle2 extends Panel {
 
         topTableDefenders = new TopTable();
 
-        // Put the balancebar in the middle
-        topTableDefenders.addGreenBar();
+        topTableDefenders.updateTitle("Defenders", null);
 
         StrictArray<Party> defendingParties = battle.getDefendingParties();
 
@@ -98,13 +105,13 @@ public class PanelBattle2 extends Panel {
         }
         topTableDefenders.addSubtitle("partyname", defenderName);
         topTableDefenders.addSubtitle("factionname", defendingFactionName);
-        topTableDefenders.addSmallLabel("size", "Size:");
-        topTableDefenders.addSmallLabel("empty1", "");
+        topTableDefenders.addBigLabel("size", "Size:");
 
         defenderSoldierTables = new StrictArray<>();
-        for (Party p : defendingParties) {
+        for (int i = 0; i < defendingParties.size; i++) {
+            Party p = defendingParties.get(i);
             SoldierTable defender = new SoldierTable(p, true, battleStage);
-            defenderSoldierTables.add(defender);
+            defenderSoldierTables.set(i, defender);
             topTableDefenders.add(defender).colspan(4).top().padTop(0).expandY();
             topTableDefenders.row();
             p.updated = true;
@@ -140,44 +147,47 @@ public class PanelBattle2 extends Panel {
                 }
             }
         }
+
+        // Put the balancebar in the middle
+        topTableDefenders.addGreenBar();
+    }
+
+    private void actForPartyList(StrictArray<Party> parties, StrictArray<SoldierTable> soldierTables, TopTable topTable) {
+        int totalSize = parties.first().getHealthySize();
+        String size = "(" + parties.first().getHealthySize();
+        System.out.println("Parties size: " + parties.size);
+        for (int i = 0; i < parties.size; i++) {
+            Party current = parties.get(i);
+            System.out.println("checking " + current.getName());
+            if (current.updated) {
+                System.out.println("updating " + current.getName());
+                soldierTables.get(i).update();
+                current.updated = false;
+                // Always update bar in defenders.
+                topTableDefenders.updateGreenBar(1 - battle
+                        .getBalanceDefenders());
+            }
+            if (i > 0) {
+                totalSize += current.getHealthySize();
+                size += " + " + current.getHealthySize();
+            }
+            // Recall that the bar is always on the defender table, I think.
+
+        }
+        size += ")";
+
+        String toDisplay = totalSize + "";
+        if (soldierTables.size > 1) {
+            toDisplay +=  " " + size;
+        }
+        topTable.update("size", toDisplay);
     }
 
     @Override
     public void act(float delta) {
         // is either side fighting with allies?
-        StrictArray<Party> attackingParties = battle.getAttackingParties();
-        StrictArray<Party> defendingParties = battle.getDefendingParties();
-
-        String sizeAtk = attackingParties.first().getHealthySize() + "";
-        for (int i = 0; i < attackerSoldierTables.size; i++) {
-            if (attackingParties.get(i).updated) {
-                attackerSoldierTables.get(i).update();
-                attackingParties.get(i).updated = false;
-                topTableDefenders.updateGreenBar(1 - battle
-                        .getBalanceDefenders());
-            }
-            if (i > 0)
-                sizeAtk += " + " + attackingParties.get(i).getHealthySize();
-            // Recall that the bar is always on the defender table, I think.
-
-        }
-        topTableAttackers.update("size", sizeAtk);
-
-        String sizeDef = defendingParties.first().getHealthySize() + "";
-        for (int i = 0; i < defenderSoldierTables.size; i++) {
-            if (defendingParties.get(i).updated) {
-                defenderSoldierTables.get(i).update();
-                defendingParties.get(i).updated = false;
-                topTableDefenders.updateGreenBar(1 - battle
-                        .getBalanceDefenders());
-            }
-            if (i > 0)
-                sizeDef += " + " + defendingParties.get(i).getHealthySize();
-
-        }
-        topTableDefenders.update("size", sizeDef);
-
-        // Green bar is on the defenders table
+        actForPartyList(battle.getAttackingParties(), attackerSoldierTables, topTableAttackers);
+        actForPartyList(battle.getDefendingParties(), defenderSoldierTables, topTableDefenders);
 
         super.act(delta);
     }
@@ -194,32 +204,37 @@ public class PanelBattle2 extends Panel {
 
     @Override
     public void resize() {
+        // TODO when you update these, make sure it preserves which subparties were expanded or not.
         for (int i = 0; i < attackerSoldierTables.size; i++) {
-            SoldierTable soldierTable = attackerSoldierTables.get(i);
-            attackerSoldierTables.removeValue(soldierTable, true);
-            Cell cell = topTableAttackers.getCell(soldierTable);
-            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-            soldierTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
-            attackerSoldierTables.add(soldierTable);
+//            Cell cell = topTableAttackers.getCell(soldierTable);
+//            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+            SoldierTable soldierTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
+            defenderSoldierTables.removeIndex(i);
+            attackerSoldierTables.set(i, soldierTable);
             soldierTable.update();
-            soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-            cell.setWidget(soldierTable);
+            battle.getAttackingParties().get(i).updated = true;
+            soldierTable.setHeight((panel.getHeight() - DESC_HEIGHT));
+//            cell.setWidget(soldierTable);
         }
 
         for (int i = 0; i < defenderSoldierTables.size; i++) {
-            SoldierTable soldierTable = defenderSoldierTables.get(i);
-            defenderSoldierTables.removeValue(soldierTable, true);
-            Cell cell = topTableDefenders.getCell(soldierTable);
-            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-            soldierTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
-            defenderSoldierTables.add(soldierTable);
+//            Cell cell = topTableDefenders.getCell(soldierTable);
+//            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+            SoldierTable soldierTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
+            defenderSoldierTables.removeIndex(i);
+            defenderSoldierTables.set(i, soldierTable);
             soldierTable.update();
-            soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-            cell.setWidget(soldierTable);
+            battle.getDefendingParties().get(i).updated = true;
+            soldierTable.setHeight((panel.getHeight() - DESC_HEIGHT));
+//            cell.setWidget(soldierTable);
         }
-
-        battle.getAttackingParties().first().updated = true;
-        battle.getDefendingParties().first().updated = true;
+//
+//        if (attackerSoldierTables.size > 0) throw new AssertionError();
+//        if (defenderSoldierTables.size > 0) throw new AssertionError();
+//
+//        for (int i = 0; i < battle.getDefendingParties().size; i++) {
+//
+//        }
 
         super.resize();
     }

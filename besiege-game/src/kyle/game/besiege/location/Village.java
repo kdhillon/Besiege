@@ -26,8 +26,8 @@ public class Village extends Location {
 
 	private final String textureRegion = "Village";
 
-	private static final int MAX_FARMERS = 2;
-	private static final int MAX_HUNTERS = 2;
+	private static final int MAX_FARMERS = 1;
+	private static final int MAX_HUNTERS = 1;
 
 	public float raidTimer = 0;
 
@@ -35,16 +35,12 @@ public class Village extends Location {
 	
 	public Village(Kingdom kingdom, String name, int index, Faction faction,
 			float posX, float posY, Center center) {
-        super(kingdom, name, index, faction, posX, posY, PartyType.Type.VILLAGE_GARRISON, center, null);
-        this.type = LocationType.VILLAGE;
+        super(kingdom, name, index, faction, posX, posY, center, null, 50, 500, LocationType.VILLAGE);
 
         setCenter(center);
 
         this.DAILY_WEALTH_INCREASE_BASE = 1;
         this.DAILY_POP_INCREASE_BASE = 0.01;
-
-        POP_MIN = 50;
-        POP_MAX = 500;
 
         this.population = Random.getRandomInRange(POP_MIN, POP_MAX);
 		this.farmerCount = getPop() / (POP_MAX / MAX_FARMERS) + 1; // arbitrary

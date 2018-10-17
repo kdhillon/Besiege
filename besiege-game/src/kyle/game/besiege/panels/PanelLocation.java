@@ -17,10 +17,15 @@ import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
+import kyle.game.besiege.CrestDraw;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.Party;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PanelLocation extends Panel {
 	private final float MINI_PAD = 5;
@@ -30,7 +35,7 @@ public class PanelLocation extends Panel {
 	
 	private TopTable topTable;
 	
-	private SoldierTable soldierTable;
+//	private SoldierTable soldierTable;
 	
 	private LabelStyle ls;
 	private LabelStyle lsMed;
@@ -41,6 +46,8 @@ public class PanelLocation extends Panel {
 	private boolean playerTouched;
 	private boolean playerWaiting;
 	private boolean playerBesieging;
+
+	private HashMap<Party, SoldierTable> garrisonedTables = new HashMap<>();
 
 	public PanelLocation(SidePanel panel, Location location) {
 		this.panel = panel;
@@ -73,26 +80,37 @@ public class PanelLocation extends Panel {
 				centerCamera();
 			}
 		});
+		topTable.addSubtitle("locationtype", location.getTypeStr(),  null);
 		topTable.addSubtitle("factionname", location.getFactionName(), new InputListener() {
 			public boolean touchDown(InputEvent event, float x,
-					float y, int pointer, int button) {
+									 float y, int pointer, int button) {
 				return true;
 			}
 			public void touchUp(InputEvent event, float x, float y,
-					int pointer, int button) {
+								int pointer, int button) {
 				setActiveFaction();
 			}
 		});
-		topTable.addSubtitle("locationtype", location.getTypeStr(),  null);
 		
 		topTable.addBigLabel("Garrison", "Garrison:");
 		topTable.addSmallLabel("Pop", "Pop:");
 		topTable.addSmallLabel("Wealth", "Wealth:");
 
-		soldierTable = new SoldierTable(location.getParty());
-		topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
-
+		SoldierTable soldierTable = new SoldierTable(location.getParty());
 		topTable.row();
+		topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
+		topTable.row();
+//		if (location.getParty() != null)
+		garrisonedTables.put(location.getParty(), soldierTable);
+
+		for (Army a : location.getGarrisoned()) {
+			if (a.passive) continue;
+			SoldierTable st = new SoldierTable(a.getParty());
+			topTable.add(st).colspan(4).top().padTop(MINI_PAD).expandY();
+			topTable.row();
+			garrisonedTables.put(a.getParty(), st);
+		}
+
 		//stats.debug();
 		topTable.padLeft(MINI_PAD);
 		this.addTopTable(topTable);
@@ -100,7 +118,6 @@ public class PanelLocation extends Panel {
 		playerIn = false;
 //		this.hireMode = false;
 
-				
 		location.needsUpdate = true;
 		System.out.println("just created new panellocation");
 		
@@ -242,11 +259,20 @@ public class PanelLocation extends Panel {
             else topTable.update("factionname", location.getFactionName(), null);
         }
 
+        // Update all parties.
         if (location.needsUpdate) {
-            soldierTable.update();
+            garrisonedTables.get(location.getParty()).update();
 //            if (Math.random() < 0.3f)
             location.needsUpdate = false;
         }
+        Set<Party> parties = garrisonedTables.keySet();
+        for (Party p : parties) {
+        	if (p == null) continue;
+        	if (p.updated) {
+        		garrisonedTables.get(p).update();
+        		p.updated = false;
+			}
+		}
         super.act(delta);
     }
 	
@@ -265,12 +291,23 @@ public class PanelLocation extends Panel {
 	
 	@Override
 	public void resize() { // problem with getting scroll bar to appear...
-		Cell cell = topTable.getCell(soldierTable);
-		cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-		soldierTable = new SoldierTable(getParty());
+		Set<Party> set = new HashSet<>(garrisonedTables.keySet());
+		// p may be null (for ruins)
+		for (Party p : set) {
+			SoldierTable soldierTable = garrisonedTables.get(p);
+			garrisonedTables.remove(p);
+
+			Cell cell = topTable.getCell(soldierTable);
+//			cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+			soldierTable = new SoldierTable(p);
+//			soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+			cell.setWidget(soldierTable);
+			garrisonedTables.put(p, soldierTable);
+			soldierTable.update();
+			// may be unnecessary
+//			p.updated = true;
+		}
 		location.needsUpdate = true;
-		soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-		cell.setWidget(soldierTable);
 		super.resize();
 	}
 	
@@ -351,7 +388,8 @@ public class PanelLocation extends Panel {
 	
 	@Override
 	public Crest getCrest() {
-		if (location.getFaction() == null) return null;
+		if (location.isRuin()) return null;
+		if (location.getFaction() == null) return CrestDraw.defaultCrest;
 		return location.getFaction().crest;
 	}
 }

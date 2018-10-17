@@ -13,7 +13,8 @@ public class HireSoldierTable extends SoldierTable {
         selectable = true;
         this.panelHire = panelHire;
 
-        this.selectFirstSoldier();
+        if (party.subparties.get(0).getConsolHealthy().get(0).size > 0)
+            this.selectFirstSoldier();
     }
 
     @Override

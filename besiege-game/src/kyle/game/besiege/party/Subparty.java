@@ -34,6 +34,8 @@ public class Subparty {
 	
 	public float randomGreen;
 	public float randomBlue;
+
+//	public boolean expandedForUI; // used to create consistency, even when soldiertables are updated...
 	
 	// for kryo
 	public Subparty() {} ;
@@ -425,4 +427,8 @@ public class Subparty {
 	public float getMoraleBonus() {
 		if (general == null) return 0;
 		return general.getMoraleBonus();	}
+
+	public String getPartyName() {
+		return party.getName();
+	}
 }

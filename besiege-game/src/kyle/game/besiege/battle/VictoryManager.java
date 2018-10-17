@@ -211,9 +211,9 @@ public class VictoryManager {
                     playerTroopsWounded = dTroopsWounded;
                 }
 
-                BottomPanel.log("Battle lost!", "red");
-                BottomPanel.log("Troops lost: " + playerTroopsKilled, "red");
-                BottomPanel.log("Troops wounded: " + playerTroopsWounded, "orange");
+                BottomPanel.log("Battle lost!", "orange");
+//                BottomPanel.log("Troops lost: " + playerTroopsKilled, "red");
+//                BottomPanel.log("Troops wounded: " + playerTroopsWounded, "orange");
             }
             if (party.getHealthySize() <= PARTY_DESTROY_THRESHOLD) {
                 System.out.println("Destroying losing party: " + party.getName());

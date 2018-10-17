@@ -46,7 +46,7 @@ public class Kingdom extends Group {
     public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
-	public static final int TOTAL_BANDITS = 50;
+	public static final int TOTAL_BANDITS = 25;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
 
@@ -60,7 +60,7 @@ public class Kingdom extends Group {
 	private final int DUSK = 21;
 	private final double RAIN_CHANCE = 5000; // higher is less likely
 //	public static final double THUNDER_CHANCE = 1.0/800;
-    public static final double THUNDER_CHANCE = 1.0/1000;
+    public static final double THUNDER_CHANCE = 1.0/2000;
 
     public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds

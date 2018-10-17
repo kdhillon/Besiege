@@ -107,13 +107,16 @@ public class NameGenerator {
     }
 
     public String generateFirstNameMale() {
+
+	    return "";
 	    // prev 5 10 5
-        return  lowercase(firstMaleGen.gen(4, 8, 4));
+//        return  lowercase(firstMaleGen.gen(4, 8, 4));
     }
 
     public String generateFirstNameFemale() {
+	    return "";
 	    // prev 5 10 5
-        return  lowercase(firstFemaleGen.gen(4, 8, 4));
+//        return  lowercase(firstFemaleGen.gen(4, 8, 4));
     }
 
     public String generateLastName() {

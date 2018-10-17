@@ -595,7 +595,7 @@ public class Army extends Group implements Destination {
 	}
 
 	public boolean shouldDrawCrest() {
-        if (this.isInBattle() || this.isGarrisoned() || !this.isVisible() || (this.getFaction() == null)) return false;
+        if (this.isInBattle() || this.isGarrisoned() || !this.isVisible()) return false;
         return true;
     }
 
@@ -949,19 +949,19 @@ public class Army extends Group implements Destination {
 		}
 		// if garrisoned and patrolling, check if coast is clear
 		else if (hasTarget() || type == ArmyType.NOBLE) {
-//			Army army = closestHostileArmy();
+			Army army = closestHostileArmy();
 			// if Noble with faction containing only one city
-//			if (type == ArmyType.NOBLE) {
+			if (type == ArmyType.NOBLE) {
 //				if (this.getFaction().cities.size <= 1) {
-//					// only eject for special reasons
-//					if (army != null && shouldAttack(army))  {
-//						setTarget(army);
-//						eject(); 
-//					}
+					// only eject for special reasons
+					if (army != null && shouldAttack(army))  {
+						setTarget(army);
+						eject();
+					}
 //				}
-//			}
+			}
 			//			else if (army == null || !shouldRunFrom(army)) {
-			if (this.isRunning() && shouldStopRunning()) {
+			if (this.isRunning() && shouldStopRunning() && safeToEject()) {
 //				System.out.println("player should stop running...");
 				runFrom = null;
 				eject();
@@ -982,6 +982,13 @@ public class Army extends Group implements Destination {
 			return true;
 		}
 		return false;
+	}
+
+	private boolean safeToEject() {
+		for (Army army : closeArmies) {
+			if (shouldRunFrom(army)) return false;
+		}
+		return true;
 	}
 
 	/** do this while sieging

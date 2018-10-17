@@ -25,9 +25,11 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	// getTier()  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
 	private final static short[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
-	public final static boolean[] ATK_TIER = {true, false, false, true, false, true, false, false, true, false, false};
-	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, false, true, false, false, false};
-	public final static boolean[] SPD_TIER = {true, true, true, false, false, false, true, false, false, true, false};
+	public final static boolean[] ATK_TIER = {true, true, false, true, false, true, false, true, false, false, true};
+	public final static boolean[] DEF_TIER = {true, false, true, false, true, false, true, false, false, true, false};
+
+	// Don't ever gain/lose speed from leveling.
+	public final static boolean[] SPD_TIER = {false, false, false, false, false, false, false, false, false, false, false};
 	private static final float LEVEL_FACTOR = 1.1f; // exp needed for next level each time;
 	private static final int INITIAL_NEXT = 20;
 	private static final float HEAL_TIME = 120; // seconds
@@ -35,6 +37,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	private static final double COST_FACTOR = 2; // 
 	private static final double UPGRADE_FACTOR = 2;
 	private static final int BASE_HP = 15;
+	private static final int BASE_SPEED = 4;
 
 //	private static final String VETERAN = "Vet."; // "Veteran" or maybe invisible
 
@@ -181,7 +184,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 		int baseAtk = 0;
 		int baseDef = 0;
-		int baseSpd = 2;
+		int baseSpd = BASE_SPEED;
 		for (int i = 0; i <= getTier(); i++) {
 			if (ATK_TIER[i]) baseAtk++;
 			if (DEF_TIER[i]) baseDef++;
@@ -667,6 +670,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
     }
 
 	// square function
+	// Cost for a city to hire as garrison.
 	public int getBuyCost() {
 		return (int) (Math.pow(this.level, 1.2) * COST_FACTOR);
 	}
@@ -676,6 +680,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 	
 	public int getHireCost() {
+//		return 0;
+		// For now, allow free basic soldiers.
+		if (this.getTier() <= 2) return 0;
 		return (int) (this.level * UPGRADE_FACTOR);
 	}
 

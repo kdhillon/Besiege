@@ -74,15 +74,25 @@ public class Party {
 		}
 	}
 
-	public boolean addSoldier(Soldier soldier, boolean force) {
+	// TODO make this smarter.
+	// 1) make all subparties have equal size. Pre-calculate the max number of subparties this party can have based on its current (or max) size.
+	// 2) put certain units into certain subparties. Either put best units in one subparty (root), separate by class (archers, infantry, etc), or evenly distribute (random)
+	public boolean addSoldier(Soldier soldier, boolean force, boolean toSmallest) {
 		if (isFull() && !force) {
 			System.out.println("trying to add more than max size");
 			return false;
 		}
 		else {
 			// put this guy in a subparty that's not full, or create a new par
-			Subparty p = getNonEmptySub();
+			// TODO see above.  This is currently doing greedy (place in first available party). Instead, let's pre-create a few subparties up to a certian amount,
+			Subparty p;
+			if (toSmallest)
+				p = getSmallestSub();
+			else
+				p = getNonEmptySub();
+
 			if (p == null) {
+				if (toSmallest) throw new AssertionError();
 				return createNewSubWithGeneral(soldier);
 			} else {
                 // Some soldiers are being added, but not getting counted in total size... suspicious. generals?
@@ -90,19 +100,59 @@ public class Party {
             }
 		}
 	}
-	
-	public Soldier getBestSoldier() {
+
+	public boolean addSoldier(Soldier soldier, boolean force) {
+		return addSoldier(soldier, force, false);
+	}
+
+	void initializeForToHire(StrictArray<Soldier> soldiers) {
+		for (Soldier s : soldiers) {
+			addSoldier(s, false);
+		}
+	}
+
+	// Initialize this subparty with the given soldier list.
+	// Basic algo:
+	// 		decide how many subparties we need (say, 3)
+	// 		Pick the best 3 soldiers and create subparties with them as generals.
+	// 		Using one of several party-organization systems, allocate the remaining soldiers.
+	void initializeWith(StrictArray<Soldier> soldiers) {
+		// Figure out the smallest number of subparties we can generate.
+		// ie, if there  22 units and general can command 19 under him (20 total), we need to have 2 subparties
+
+		int subpartyCount = soldiers.size / getGeneral().getMaxSubPartySize() + 1;
+
+		// Note we skip the first subparty, as it was already created when the general was added.
+		for (int i = 1; i < subpartyCount; i++) {
+			Soldier best = getBestSoldier(soldiers);
+			createNewSubWithGeneral(best);
+			soldiers.removeValue(best, true);
+		}
+
+		for (Soldier s : soldiers) {
+			addSoldier(s, false, true);
+		}
+	}
+
+	public Soldier getBestSoldier(StrictArray<Soldier> soldiers) {
 		Soldier best = null;
 		int maxLevel = 0;
-		for (Subparty sub : subparties) {
-			for (Soldier soldier : sub.healthy) {
-				if (soldier.level > maxLevel && !soldier.isGeneral()) {
-					best = soldier;
-					maxLevel = soldier.level;
-				}
+		for (Soldier soldier : soldiers) {
+			if (soldier.level > maxLevel && !soldier.isGeneral()) {
+				best = soldier;
+				maxLevel = soldier.level;
 			}
 		}
 		return best;
+	}
+	
+	public Soldier getBestSoldier() {
+		// not efficient, but consistent with above.
+		StrictArray<Soldier> soldiers = new StrictArray<>();
+		for (Subparty sub : subparties) {
+			soldiers.addAll(sub.healthy);
+		}
+		return getBestSoldier(soldiers);
 	}
 	
 	public boolean isFull() {
@@ -122,6 +172,19 @@ public class Party {
 			return s;
 		}
 		return null;
+	}
+
+	Subparty getSmallestSub() {
+		int smallestSize = 99999;
+		Subparty smallest = null;
+		for (int i = 0; i < subparties.size; i++) {
+			Subparty s = subparties.get(i);
+			if (s.getTotalSize() < smallestSize) {
+				smallest = s;
+				smallestSize = s.getTotalSize();
+			}
+		}
+		return smallest;
 	}
 	
 	// promote an existing soldier from another party to be general of a new subparty

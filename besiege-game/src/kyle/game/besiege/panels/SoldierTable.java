@@ -59,7 +59,9 @@ public class SoldierTable extends Table {
 
 	private final LabelStyle ls = new LabelStyle();
     private final LabelStyle lsG = new LabelStyle();
-	private final Label garrisonC;
+    private final LabelStyle lsBig = new LabelStyle();
+
+    private final Label garrisonC;
 	protected final Label noTroopsC;
 	private final Label nullC;
 	private final Label prisonersC;
@@ -79,11 +81,13 @@ public class SoldierTable extends Table {
 
     public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle) {
         this(party, startAllCollapsed, battle, null, null);
+        if (battle == null) throw new AssertionError();
     }
 
 	public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle, StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed) {
 		ls.font = Assets.pixel16;
 		lsG.font = Assets.pixel16;
+		lsBig.font = Assets.pixel18;
 
 		this.battleStage = battle;
 
@@ -191,8 +195,9 @@ public class SoldierTable extends Table {
                 }
             }
             return bsp;
-        }
-        return null;
+        } return null;
+//        /throw new AssertionError();
+//        return null;
     }
 
     private void updateForPostBattle(StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed, LabelStyle style) {
@@ -217,6 +222,7 @@ public class SoldierTable extends Table {
 //		System.out.println("starting panelparty update: " + party.getName() + " with " + party.subparties.size + " subparties");
 		for (final Subparty s : party.subparties) {
 		    BattleSubParty bsp = getBspForSubparty(s);
+//		    if (bsp == null) throw new AssertionError();
 
             final SoldierLabel general;
 //            if (organizeByType) {
@@ -235,7 +241,7 @@ public class SoldierTable extends Table {
                             System.out.println("Dragging: " + general.getName());
                             if (selectable) {
                                 if (selected == s.getGeneral()) {
-                                    deselect();
+                                    // Deselect happens in touchup
                                 } else {
                                     select(s.getGeneral());
                                 }
@@ -248,6 +254,13 @@ public class SoldierTable extends Table {
                         public void touchUp(InputEvent event, float x, float y,
                                             int pointer, int button) {
                             System.out.println("Releasing: " + general.getName());
+                            // Deselect happens in touchup
+                            if (selectable) {
+                                if (selected == s.getGeneral()) {
+                                    deselect();
+                                }
+                            }
+
                         }
                     });
                     soldierTable.add(general).left().expandX();
@@ -266,55 +279,8 @@ public class SoldierTable extends Table {
                 updateTableWithTypes(s.getConsolHealthy(), style);
                 updateTableWithTypes(s.getConsolWounded(), wounded);
             }
-//            else {
-//                updateTableWithSubparty(s, style);
-//            }
         }
 	}
-
-//	public class SubpartyLabel extends Label {
-//	    LinkedHashMap<UnitType, Integer> types;
-//        Table expand;
-//        public boolean expanded = false;
-//
-//        public SubpartyLabel(String name, LabelStyle ls) {
-//            super(name, ls);
-//            expand = new Table();
-//            this.addListener(new ClickListener() {
-//                public boolean touchDown(InputEvent event, float x,
-//                                         float y, int pointer, int button) {
-//                    return true;
-//                }
-//
-//                public void touchUp(InputEvent event, float x, float y,
-//                                    int pointer, int button) {
-//                    // Force table to be expanded the whole time.
-//                    if (hirePanel) return;
-//                    if (expanded) {
-//                        clearExpand();
-//                        expanded = false;
-//                    } else {
-//                        createExpand();
-//                        expanded = true;
-//                    }
-//                }
-//            });
-//        }
-//        public void createExpand() {
-//            for (final Map.Entry<UnitType, Integer> entry : types.entrySet()) {
-//                Label typeName = new Label((entry.getKey()).name, this.getStyle());
-//                typeName.setColor(Color.GRAY);
-//                expand.add(typeName).left().padBottom(PanelUnit.NEG).expandX();
-//                Label typeCount = new Label((entry.getValue()) + "", this.getStyle());
-//                typeCount.setColor(Color.GRAY);
-//                expand.add(typeCount).left().padBottom(PanelUnit.NEG).expandX();
-//                expand.row();
-//            }
-//        }
-//        public void clearExpand() {
-//            expand.clear();
-//        }
-//    }
 
     // This is a label of a general that includes a table of all subtypes below it
     public class SubpartyLabel extends Label {
@@ -401,7 +367,7 @@ public class SoldierTable extends Table {
             if (subparty.shaman != null) {
                 final SoldierLabel shamanLabel = new SoldierLabel(subparty.shaman.unitType.name, getStyle(), subparty.shaman);
                 expand.add(shamanLabel).left().expandX().padBottom(1*PanelUnit.NEG).colspan(2);
-                shamanLabel.setColor(SOLDIER_NAME_COLOR);
+                shamanLabel.setColor(subparty.shaman.getCulture().colorLite);
                 if (subparty.shaman == selected) {
                     shamanLabel.setColor(SELECTED_COLOR);
                 }
@@ -412,9 +378,9 @@ public class SoldierTable extends Table {
                                              float y, int pointer, int button) {
                         System.out.println("Dragging shaman: " + subparty.shaman.getName());
                         if (selectable) {
-                            if (selected == subparty.shaman)
-                                deselect();
-                            else
+                            if (selected == subparty.shaman) {
+                                // Deselect happens in touchup
+                            } else
                                 select(subparty.shaman);
                         } else {
                             if (bsp == null) {
@@ -428,6 +394,11 @@ public class SoldierTable extends Table {
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
                         System.out.println("Releasing shaman: " + subparty.shaman.getName());
+                        if (selectable) {
+                            if (selected == subparty.shaman) {
+                                deselect();
+                            }
+                        }
                     }
                 });
                 expand.row();
@@ -484,9 +455,9 @@ public class SoldierTable extends Table {
                                              float y, int pointer, int button) {
                         System.out.println("Dragging: " + s.getName());
                         if (selectable) {
-                            if (selected == s)
-                                deselect();
-                            else
+                            if (selected == s) {
+                                // deselect happens in touch up
+                            } else
                                 select(s);
                         } else {
                             if (bsp == null) {
@@ -501,7 +472,11 @@ public class SoldierTable extends Table {
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
                         System.out.println("Releasing: " + s.getName());
-
+                        if (selectable) {
+                            if (selected == s) {
+                                deselect();
+                            }
+                        }
                     }
                 });
                 expand.row();
@@ -519,6 +494,15 @@ public class SoldierTable extends Table {
     }
 
     public void updateTableWithTypesNew(final Subparty s, LabelStyle style, final BattleSubParty bsp) {
+        // Add title of the party:
+        if (s.getRank() == 0) {
+            Label label = new Label(s.getPartyName(), ls);
+            label.setAlignment(Align.center);
+            label.setWrap(true);
+            soldierTable.add(label).expandX().fillX();
+            soldierTable.row();
+        }
+
         final SubpartyLabel label = new SubpartyLabel(s, style, bsp);
         Table generalTable = new Table();
         generalTable.add(label).left().expandX();

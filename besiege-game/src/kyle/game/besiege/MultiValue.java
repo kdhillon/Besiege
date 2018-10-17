@@ -11,7 +11,7 @@ public class MultiValue implements Value {
 	String multiDesc;
 	
 	// hopefully will save some space?
-	public static enum TypeInfo {
+	public enum TypeInfo {
 		S_BASE_ATK("Base", "Base Attack"), 
 		S_BASE_DEF("Base", "Base Defense"),
 		S_BASE_SPD("Base", "Base Speed"),
