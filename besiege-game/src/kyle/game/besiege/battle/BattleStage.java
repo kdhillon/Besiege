@@ -89,6 +89,9 @@ public class BattleStage extends Group implements Battle {
     public int MIN_PLACE_Y_2;
     public int MAX_PLACE_Y_2;
 
+    public BPoint placementCenter1;
+    public BPoint placementCenter2;
+
     // from mouse to register
 
     public BattleParty allies;
@@ -425,6 +428,9 @@ public class BattleStage extends Group implements Battle {
 
         MIN_PLACE_Y_2 = size_y - this.MAX_PLACE_Y_1;
         MAX_PLACE_Y_2 = size_y - this.MIN_PLACE_Y_1;
+
+        placementCenter1 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_1 - MIN_PLACE_Y_1) * 0.5f));
+        placementCenter2 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_1 - MIN_PLACE_Y_1) * 0.5f));
 
         // set up orignal base points
         originalPoint = new BPoint(size_x / 2, BOTTOM_PAD + PLACE_HEIGHT / 2);

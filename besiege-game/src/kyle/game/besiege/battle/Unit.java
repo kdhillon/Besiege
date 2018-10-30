@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
+import kyle.game.besiege.Assets;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
@@ -62,7 +63,7 @@ public class Unit extends Group {
 //	public boolean canRetreat = true;
 
 	//	private boolean inCover;
-	private BPoint nearestCover;
+	BPoint nearestCover;
 
 	boolean outOfBattle = false;
 
@@ -422,7 +423,7 @@ public class Unit extends Group {
 				//					attackTimer = 0;
 				//				}
 				// if enemy is within one unit and fighting, can move to them.
-				if (nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.rangedWeaponOut()))
+				if (defendingButShouldAttackNearestEnemy())
 					moveToEnemy();
 				else if (isFiring() && nearestTarget != null) {
 					if (nearestTarget.isDying || nearestTarget.outOfBattle) {
@@ -462,6 +463,10 @@ public class Unit extends Group {
 		}
 	}
 
+	private boolean defendingButShouldAttackNearestEnemy() {
+		return nearestEnemy != null && (nearestEnemy.distanceTo(this) < DEFENSE_DISTANCE && nearestEnemy.attacking != null && !this.rangedWeaponOut());
+	}
+
 	private boolean unitSafelyAwayFromFriends(Unit nearestTarget) {
 		return nearestTarget.distanceTo(nearestTarget.getNearestEnemy()) > SAFE_DISTANCE;
 	}
@@ -484,7 +489,9 @@ public class Unit extends Group {
 	//  Defensive, or
 	// 	They can fire at the enemy (enough ammo, within range, no friendly units near enemy)
     private boolean shouldMoveToCover() {
-		return this.stance == Stance.DEFENSIVE || (this.rangedWeaponOut() && nearestTarget != null && unitSafelyAwayFromFriends(nearestTarget));
+		boolean should = !defendingButShouldAttackNearestEnemy() && (this.stance == Stance.DEFENSIVE || (this.rangedWeaponOut() && nearestTarget != null && unitSafelyAwayFromFriends(nearestTarget)));
+		if (!should) nearestCover = null;
+		return should;
 	}
 
 	private void reload(float delta) {
@@ -524,6 +531,7 @@ public class Unit extends Group {
 			if (nearestCover == null) return false;
 		}
 		if (this.pos_x == nearestCover.pos_x && this.pos_y == nearestCover.pos_y) return true;
+		// Could do a check here to see if we're in a cover spot that's not the one we initially set...
 		return false;
 
 	}
@@ -600,6 +608,14 @@ public class Unit extends Group {
 //System.out.println("Drawing because not hidden");
 		this.setScale(1 + this.getFloorHeight() / 5f);
         super.draw(batch, parentAlpha);
+
+
+		// Debug only -- draw nearest cover
+		if (this.nearestCover != null && this.isSelected()) {
+			batch.setColor(Color.MAGENTA);
+			batch.draw(Assets.white, (nearestCover.pos_x * stage.unit_width), stage.unit_height  * nearestCover.pos_y, stage.unit_width/2, stage.unit_height/2, stage.unit_width, stage.unit_height, 1, 1, -this.getParent().getRotation());
+		}
+
 //		}
 //		else {
 
@@ -650,6 +666,13 @@ public class Unit extends Group {
 		moveToPoint(nearbyGeneral.getAdjacentPoint());
 	}
 
+	private boolean allEnemiesHiddenOrInaccessible() {
+		for (Unit enemy : enemyParty.units) {
+			if (enemy.inMap() && !this.notAccessible(enemy) && !enemy.isHidden) return false;
+		}
+		return true;
+	}
+
 	private void moveToEnemy() {
 	    // This is clearly messed up...
 //		if (nearestEnemy != null && !nearestEnemy.inMap()) {
@@ -657,7 +680,20 @@ public class Unit extends Group {
 //		}
 //		if (nearestEnemy == null)  {
 			nearestEnemy = getNearestEnemy();
-			if (nearestEnemy == null) return;
+
+
+			// Default behavior if enemy is hidden.
+			if (nearestEnemy == null) {
+				if (!allEnemiesHiddenOrInaccessible()) throw new AssertionError();
+
+				if (this.team == 0) {
+					moveToPoint(stage.placementCenter2);
+					return;
+				} else {
+					moveToPoint(stage.placementCenter1);
+					return;
+				}
+			}
 //		}
 //		nearestEnemy = getNearestEnemy();
 //        System.out.println("going to nearest enemy: " + nearestEnemy.pos_x + " " + nearestEnemy.pos_y);
@@ -858,6 +894,8 @@ public class Unit extends Group {
 
 	private BPoint getNearestCover() {
 		if (this.nearestEnemy == null) return null;
+
+		// First check that we're not already in cover!
 		Orientation orientationToEnemy = getOrientationTo(nearestEnemy);
 
 		// check to see if should move to cover
@@ -866,14 +904,15 @@ public class Unit extends Group {
 
 		for (BPoint p : stage.battlemap.cover) { // && nearestEnemy.distanceTo(p) < rangedWeapon.range  ?
 			if (p.orientation == orientationToEnemy && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
-				if (nearestEnemy.distanceTo(p) < this.getCurrentRange()) {
+//				if (nearestEnemy.distanceTo(p) < this.getCurrentRange()) { // TODO this means that only units who can fire at the enemy will hide? doesn't really make sense.
+					// Special case, if we're standing on the spot.
 					float dist = (float) distanceTo(p);
 					if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
 						closest = p;
 						closestDistance = dist;
 					}
 
-				}
+//				}
 			}
 		}
 
@@ -964,10 +1003,10 @@ public class Unit extends Group {
             }
 			return closest;
 		}
-		else if (closestHidden != null) {
-			nearestEnemy = closestHidden;
-			return closestHidden;
-		}
+//		else if (closestHidden != null) {
+//			nearestEnemy = closestHidden; // TODO have some logic for if no enemies are detected because they're all hidden.
+//			return closestHidden;
+//		}
 		else if (closestRetreating == null) {
 //			Unit toChase = enemyParty.units.random();
 //			if (toChase != null && !toChase.inMap()) {
