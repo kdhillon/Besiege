@@ -68,7 +68,6 @@ public class ArmyPlayer extends Army {
 	@Override
 	public void act(float delta) {	
 		if (this.lastPathCalc > 0) this.lastPathCalc--;
-		this.hiding = false;
         super.updateVisibility();
         if (!isWaiting())
             stateTime += delta;
@@ -82,7 +81,6 @@ public class ArmyPlayer extends Army {
 		if (isWaiting()) {
 //			System.out.println("is waiting");
 			setStopped(true);
-			this.hiding = true;
 			incrementAmbush(delta);
 
 			//this.wait(delta);

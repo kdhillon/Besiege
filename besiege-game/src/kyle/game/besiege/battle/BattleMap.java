@@ -22,13 +22,14 @@ public class BattleMap extends Group {
 	private static final float LADDER_SLOW = .75f;
     private static final double RAIN_INTENSITY = 2f;
     public static final Color SHADOW_COLOR = new Color(0, 0, 0, .13f);
-	public static final Color RAINDROP_COLOR = new Color(0, 0, .8f, .5f);
+	public static final Color RAINDROP_COLOR = new Color(0, 0, .8f, 1f); // ALPHA is replaced later of course.
 	public static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 	private static final Color CLEAR_WHITE = new Color(1, 1, 1, .5f);
 	private static final Color PLACEMENT_COLOR = new Color(0, 1, 0, .5f);
 	private static final Color COVER_COLOR = new Color(1, 1, 0, .5f);
 	private static final Color CLOSED_COLOR = new Color(1, 0, 0, .5f);
 	private static final Color RANGE_COLOR = new Color(1, 0, 0, .15f);
+	private static final Color LOS_COLOR = new Color(0, 0, 1, .15f);
 
 	private static final int TREE_X_OFFSET = 1;
 	private static final int TREE_Y_OFFSET = 1;
@@ -118,7 +119,7 @@ public class BattleMap extends Group {
 	private TextureRegion[][] groundTexture;
 
 	public Object[][] objects;
-	public float obscurity_factor;
+	public float obscurity_factor; // This makes it harder to see units on certain types of maps.
 
 	private float rainDrawOffsetX;
 	private float rainDrawOffsetY;
@@ -133,7 +134,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//        this.maptype = MapType.FOREST;
+        this.maptype = MapType.DESERT;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -167,9 +168,7 @@ public class BattleMap extends Group {
 
 		fc = new StrictArray<FireContainer>();
 
-		if (this.maptype == MapType.ALPINE && Math.random() < .75) snowing = true;
-
-		if (isRaining() || isSnowing()) {
+		if (stage.isRaining() || stage.isSnowing()) {
 		    raindrop_count = 100 + (int) (Math.random() * 400);
 		    // 100 - 500 is good
 
@@ -183,9 +182,9 @@ public class BattleMap extends Group {
             if (raindropsPerFrame < 1) raindropsPerFrame = 1;
             System.out.println("raindrops per frame: " + raindropsPerFrame);
 
-			if (isRaining()) {
+			if (stage.isRaining()) {
 				this.rainColor = RAINDROP_COLOR;
-				this.rainColor.mul(stage.targetDarkness *1f);
+//				this.rainColor.mul(stage.targetDarkness *1f);
 			}
 			else {
 				this.rainColor = SNOW_COLOR;
@@ -380,8 +379,8 @@ public class BattleMap extends Group {
 			}
 		}
 
-		if (this.isSnowing()) obscurity_factor *= 1.5f;
-		if (this.isRaining()) obscurity_factor *= 1.2f;
+		if (stage.isSnowing()) obscurity_factor *= 1.5f;
+		if (stage.isRaining()) obscurity_factor *= 1.2f;
 
 		rainDrawOffsetX = 0;
 		rainDrawOffsetY = 0;
@@ -1115,9 +1114,12 @@ public class BattleMap extends Group {
 		//		if (stage.selectedUnit != null) drawAll = true;
 
 		// draw range of selected unit
-		if (!drawAll && stage.currentPanel != null && !stage.dragging) {
+		if (!drawAll && stage.currentPanel != null && !stage.dragging && !stage.isOver()) {
 			Unit drawRange = stage.currentPanel;
-			drawRange(drawRange, batch);
+
+			boolean drewRange = drawRange(drawRange, batch);
+
+			if (!drewRange) drawLOS(drawRange, batch);
 		}
 		//		else if (drawAll && stage.currentPanel != null) {
 		//			if (stage.currentPanel.team == 0) {
@@ -1129,7 +1131,6 @@ public class BattleMap extends Group {
 		//					drawRange(drawRange, batch);
 		//			}
 		//		}
-
 
 		// draw cover
 		boolean drawCover = false;
@@ -1204,7 +1205,7 @@ public class BattleMap extends Group {
 		// draw rain
 		boolean drawRain = true;
 		if (drawRain) {
-			if (isRaining() || isSnowing()) {
+			if (stage.isRaining() || stage.isSnowing()) {
 
 				for (int i = 0; i < raindropsPerFrame; i++) {
 					raindrops[currentRainIndex].pos_x = (int) (Math.random()*stage.size_x);
@@ -1225,16 +1226,16 @@ public class BattleMap extends Group {
 				// eg if index = 20 and currentIndex = 25, diff is 40 + (20 - 25) = 
 
                 // This is nice because it makes the raindrops look "softer"
-				float alpha_minus = .2f;
+				float MAX_ALPHA = .3f;
 
-				if (this.isSnowing()) {
+				if (stage.isSnowing()) {
 					mycolor = SNOW_COLOR;
 
 					float speed = 4;
 					rainDrawOffsetX += speed;
 					rainDrawOffsetY += speed;
 
-					alpha_minus = 0.0f; // makes snow last longer
+					MAX_ALPHA = 1f; // makes snow last longer
 
 					//					if (rainDrawOffsetX >= this.total_width) rainDrawOffsetX = 0;
 				}
@@ -1245,7 +1246,7 @@ public class BattleMap extends Group {
 					double indexDiff = i - currentRainIndex;
 					if (indexDiff < 0) indexDiff += raindrops.length;
 
-					mycolor.a = (float) (Math.max(0, (indexDiff / raindrops.length)  - alpha_minus));
+					mycolor.a = (float) (Math.max(0, (indexDiff / raindrops.length) * MAX_ALPHA));
 					batch.setColor(mycolor);
 
 					float drawAtX = (p.pos_x*stage.unit_width + rainDrawOffsetX) % (this.stage.size_x*stage.unit_width);
@@ -1262,13 +1263,13 @@ public class BattleMap extends Group {
 		super.draw(batch, parentAlpha);
 	}
 
-	public boolean isSnowing() {
-		return this.maptype == MapType.ALPINE && snowing;
-	}
-
-	public boolean isRaining() {
-		return !this.isSnowing() && stage.raining;
-	}
+//	public boolean isSnowing() {
+//		return stage.isSnowing();
+//	}
+//
+//	public boolean isRaining() {
+//		return stage.raining;
+//	}
 
 	// used to draw trees after units have been drawn
 	public void drawTrees(SpriteBatch batch) {
@@ -1319,11 +1320,10 @@ public class BattleMap extends Group {
 		batch.draw(texture, x, y + height * 0.3f, width/2, height * 0.2f, width, height, scale, scale * sunStretch, sunRotation);
 		batch.setColor(o);
 	}
-	
-	private void drawRange(Unit drawRange, SpriteBatch batch) {
-		if (drawRange.rangedWeaponOut() && !drawRange.isRetreating()) {
+
+	private void drawRadius(Unit drawRange, SpriteBatch batch, boolean diminishing, Color color, int radius, boolean quarter) {
 			Color c = batch.getColor();
-			groundcolor.set(RANGE_COLOR);
+			groundcolor.set(color);
 
 			float max_alpha = .3f;
 			float base_alpha = .1f;
@@ -1333,31 +1333,47 @@ public class BattleMap extends Group {
 			int center_x = drawRange.pos_x;
 			int center_y = drawRange.pos_y;
 
-			int range = (int) drawRange.getCurrentRange();
+			int range = radius;
 			for (int i = -range; i < range; i++) {
 				for (int j = -range; j < range; j++) {
 					if (i == 0 && j == 0) continue;
 					if (i*i + j*j < range*range && center_x+i >= 0 && center_y+j >= 0 && center_x+i < stage.size_x && center_y+j < stage.size_y) {
-						// calculate distance as fraction of range
-						float alpha_factor = (float)(Math.sqrt(i*i+j*j)/range);
-						groundcolor.a = (1-alpha_factor) * max_alpha + base_alpha;
+
+						if (diminishing) {
+							// calculate distance as fraction of range
+							float alpha_factor = (float) (Math.sqrt(i * i + j * j) / range);
+
+							groundcolor.a = (1 - alpha_factor) * max_alpha + base_alpha;
+						}
 						batch.setColor(groundcolor);
 
-						if (drawRange.orientation == Orientation.UP)
-							if (Math.abs(i) < Math.abs(j) && j > 0) 
-								batch.draw(white, (center_x+i)*stage.unit_width, (center_y+j)*stage.unit_height , stage.unit_width, stage.unit_height);
-						if (drawRange.orientation == Orientation.DOWN) 
-							if (Math.abs(i) < Math.abs(j) && j < 0) 
-								batch.draw(white, (center_x+i)*stage.unit_width, (center_y+j)*stage.unit_height , stage.unit_width, stage.unit_height);
-						if (drawRange.orientation == Orientation.LEFT)
-							if (Math.abs(i) > Math.abs(j) && i < 0) 
-								batch.draw(white, (center_x+i)*stage.unit_width, (center_y+j)*stage.unit_height , stage.unit_width, stage.unit_height);
-						if (drawRange.orientation == Orientation.RIGHT)
-							if (Math.abs(i) > Math.abs(j) && i > 0) 
-								batch.draw(white, (center_x+i)*stage.unit_width, (center_y+j)*stage.unit_height , stage.unit_width, stage.unit_height);
+						if (quarter) {
+							if (drawRange.orientation == Orientation.UP)
+								if (Math.abs(i) < Math.abs(j) && j > 0)
+									batch.draw(white, (center_x + i) * stage.unit_width, (center_y + j) * stage.unit_height, stage.unit_width, stage.unit_height);
+							if (drawRange.orientation == Orientation.DOWN)
+								if (Math.abs(i) < Math.abs(j) && j < 0)
+									batch.draw(white, (center_x + i) * stage.unit_width, (center_y + j) * stage.unit_height, stage.unit_width, stage.unit_height);
+							if (drawRange.orientation == Orientation.LEFT)
+								if (Math.abs(i) > Math.abs(j) && i < 0)
+									batch.draw(white, (center_x + i) * stage.unit_width, (center_y + j) * stage.unit_height, stage.unit_width, stage.unit_height);
+							if (drawRange.orientation == Orientation.RIGHT)
+								if (Math.abs(i) > Math.abs(j) && i > 0)
+									batch.draw(white, (center_x + i) * stage.unit_width, (center_y + j) * stage.unit_height, stage.unit_width, stage.unit_height);
+						} else {
+							batch.draw(white, (center_x + i) * stage.unit_width, (center_y + j) * stage.unit_height, stage.unit_width, stage.unit_height);
+						}
 					}
 				}
 			}
+			batch.setColor(c);
+	}
+	
+	private boolean drawRange(Unit drawRange, SpriteBatch batch) {
+		if (drawRange.rangedWeaponOut() && !drawRange.isRetreating()) {
+			drawRadius(drawRange, batch, true, RANGE_COLOR, (int) drawRange.getCurrentRange(), true);
+
+			Color c = batch.getColor();
 			batch.setColor(Color.BLACK);
 
 			// draw target
@@ -1366,7 +1382,13 @@ public class BattleMap extends Group {
 				batch.draw(white, (drawRange.nearestTarget.getX()), (drawRange.nearestTarget.getY()), stage.unit_width, stage.unit_height);
 			}
 			batch.setColor(c);
+			return true;
 		}
+		return false;
+	}
+
+	void drawLOS(Unit drawLos, SpriteBatch batch) {
+		drawRadius(drawLos, batch, false, LOS_COLOR, drawLos.getLineOfSight(), false);
 	}
 
 	private boolean addWall(int pos_x, int pos_y, Object object, Orientation orientation, int width) {

@@ -676,6 +676,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 
 	public int getUpgradeCost() {
+		if (this.getTier() <= 2) return 0;
 		return (int) (this.level * UPGRADE_FACTOR);
 	}
 	

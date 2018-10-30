@@ -152,7 +152,7 @@ public class BattleSubParty {
 	}
 
 	public void removeUnit(Unit remove, boolean dying) {
-        System.out.println("units: " + units.size);
+        System.out.println("removing unit. units: " + units.size);
         units.removeValue(remove, true);
 		parent.units.removeValue(remove, true);
 		if (remove.inMap())
@@ -236,7 +236,14 @@ public class BattleSubParty {
 	}
 	
 	public String getCurrentMoraleString() {
+		if (getHealthySize() == 0) return "Defeated";
 		return currentMoraleString;
+	}
+
+	public String getStanceString() {
+		if (getHealthySize() == 0) return "";
+		if (retreating) return "Retreating";
+		return stance.toString();
 	}
 
 	public int getHealthySize() {
@@ -289,8 +296,17 @@ public class BattleSubParty {
 	}
 
 	public void updateHiddenAll() {
-		for (Unit unit : units) unit.updateHidden();
+		for (int i = 0; i < units.size; i++) {
+			Unit unit = units.get(i);
+			unit.updateHidden();
+		}
 		//		System.out.println("updating hidden");
+	}
+
+	public void revealAll() {
+		for (Unit unit : units) {
+			unit.reveal();
+		}
 	}
 
 	public boolean isPlayer() {

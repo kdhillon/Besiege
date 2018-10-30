@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.Random;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 
 
@@ -196,18 +195,14 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			best = randomSoldierType();
 		return best;
 	}
-	
+
 	// for use by cities and armies created in cities
 	public static PartyType generatePT(Type type, Location location) {
-		PartyType pt = generatePartyType(type);
-		pt.cultureType = null;
+		PartyType pt = generatePartyType(type, location.cultureType);
 
-		// TEMPORARY! Try out using "primary class"
-        pt.cultureType = location.cultureType;
-        System.out.println("PRIMARY CLASS: " + location.cultureType.name);
-
+		// TODO use biome distribution for party generation instead of single culturetype
 		if (location.biomeDistribution == null) {
-			System.out.println("NO BIOME FOR: " + location.getTypeStr() + " " + location.getName());
+			throw new AssertionError("NO BIOME FOR: " + location.getTypeStr() + " " + location.getName());
 		}
 //		pt.biomeWeights = location.biomeDistribution;
 		return pt;
@@ -215,23 +210,18 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 	
 	public static PartyType generatePT(Type type, Center center) {
 //		System.out.println("getting default pt for: " + center.biome.toString());
-		
-		PartyType pt = generatePartyType(type);
-		pt.cultureType = center.cultureType;
 		if (center.cultureType == null) {
-		    throw new AssertionError();
-        }
+			throw new AssertionError();
+		}
+
+		PartyType pt = generatePartyType(type, center.cultureType);
+
 //		pt.biomeWeights = center.getBiomeDistribution();
 		return pt;
 	}
-	
-	public static PartyType generatePartyType(Type type) {
-		CultureType none = null;
-		return getPartyType(type, none);	
-	}
 
 	// generates a playerPartyPanel type for this particular type
-	public static PartyType getPartyType(Type type, CultureType cultureType) {
+	public static PartyType generatePartyType(Type type, CultureType cultureType) {
 		// We allow no party type, for random armies that aren't from a location?
 		PartyType pt = new PartyType();
 		pt.cultureType = cultureType;
@@ -342,6 +332,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.minCount = 1;
 			pt.tiers = new int[]{1, 2, 3};
 			pt.hire = true;
+			break;
 		case TEST:
 			pt.name = "Test";
 			pt.maxCount = 100;
@@ -376,7 +367,6 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.maxCount = 30;
 			pt.minCount = 30;
 			pt.tiers = new int[]{1, 2, 3, 4};
-
 			break;
 //		case ENLIGHTENMENT:
 //			pt.name = "Enlightenment";
@@ -385,10 +375,6 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //			pt.tiers = new int[]{2, 3};
 //			break;
 		}
-//		pt.name = "Default";
-//		pt.tiers = new int[]{1, 2, 3};
-	
-		
 		return pt;
 	}
 }

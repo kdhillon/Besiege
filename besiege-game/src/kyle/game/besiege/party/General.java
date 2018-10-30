@@ -224,7 +224,10 @@ public class General extends Soldier {
 	}
 	
 	public int getBodyguardForFame(int fame) {
-		return (int) (getFame() * FAME_PC_FACTOR + BASE_SUBPARTY);
+		// TODO make this real
+//		return (int) (getFame() * FAME_PC_FACTOR + BASE_SUBPARTY);
+
+		return 20;
 	}
 
 	//
@@ -292,7 +295,7 @@ public class General extends Soldier {
 	// This is historically accurate and should be more fun.
 	public boolean isFactionLeader() {
 		if (this.getFaction() == null) {
-			System.out.println("a general has no faction");
+//			System.out.println("a general has no faction");
 			return false;
 		}
 		return this == getFaction().getLeader();

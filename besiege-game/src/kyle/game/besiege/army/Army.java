@@ -49,7 +49,7 @@ public class Army extends Group implements Destination {
 	private static final float scale = .6f;
 	private static final float cityCollisionDistance = 25;
 	private static final float battleCollisionDistance = 15;
-	private static final float COLLISION_FACTOR = 10; // higher means must be closer
+	private static final float COLLISION_FACTOR = 5; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 
 	public static final int TIME_TO_SET_AMBUSH = 1;
@@ -133,7 +133,6 @@ public class Army extends Group implements Destination {
 	public transient Array<Army> closeArmies;
 	public Array<Integer> closeCenters; 
 	
-	public boolean hiding;
 	private boolean ambushStarted = false;
 	public float timeSinceAmbushSet;
 	
@@ -178,7 +177,6 @@ public class Army extends Group implements Destination {
 		this.stopped = true;
 		this.normalWaiting = false;
 		this.waitUntil = 0;
-		this.hiding = false;
 
 		this.battleActor = null;
 		this.siege = null;	
@@ -319,7 +317,10 @@ public class Army extends Group implements Destination {
 
 	public void startAmbush() {
 //		System.out.println("Starting ambush: " + timeSinceAmbushSet);
-		this.ambushStarted = true;
+		if (!ambushStarted) {
+			this.ambushStarted = true;
+			timeSinceAmbushSet = 0;
+		}
 	}
 
 	public void endAmbush() {
@@ -406,8 +407,10 @@ public class Army extends Group implements Destination {
 						if (!path.isEmpty()) {
 							path.travel();
 						} else {
-							System.out.println("Path is empty");
+//							System.out.println("Path is empty");
 							nextTarget();
+							if (getTarget() == null) throw new AssertionError();
+//							if (path.isEmpty()) throw new AssertionError();
 						}
 						if (this.hasTarget()) {
 							//							if (this.type == ArmyType.FARMER) System.out.println(getName() + " here"); 
@@ -954,9 +957,11 @@ public class Army extends Group implements Destination {
 			if (type == ArmyType.NOBLE) {
 //				if (this.getFaction().cities.size <= 1) {
 					// only eject for special reasons
-					if (army != null && shouldAttack(army))  {
+					if (army != null && shouldAttack(army) && !isRunning())  {
 						setTarget(army);
-						eject();
+
+						if (isGarrisoned())
+							eject();
 					}
 //				}
 			}
@@ -1005,11 +1010,16 @@ public class Army extends Group implements Destination {
 		
 		if (isGarrisoned())
 			garrisonedIn.eject(this);
-		else System.out.println("trying to eject from nothing");
+		else {
+			throw new AssertionError("trying to eject from nothing");
+		}
 	}
 
 	// returns 0 if no army nearby, 1 if shouldRun (runFrom != null), and 2 if shouldAttack nearby army (target == army)
 	public int detectNearby() {
+		// Problem with using "closest" -- if the closest army is a baby, and you want to kill it,
+		// but there's a big boy nearby who wants to kill you, you'll prioritize the baby.
+		// Wait -- that might not be true. API for closest hostile army specifies it prioritizes running.
 		Army army = closestHostileArmy();
 		//		if (this.type == ArmyType.MERCHANT) {
 		//			if (army != null) System.out.println(getName() + " has cha " + army.getName());
@@ -1044,7 +1054,7 @@ public class Army extends Group implements Destination {
 	//		}
 	//	}
 
-
+	// TODO investigate the performance of this method. This may be one of the most expensive logic calls.
 	// returns closest army should setAppropriateRunTarget from, else closest army should attack, or null if no armies are close.
 	// Will not return garrisons.
 	public Army closestHostileArmy() {
@@ -1083,30 +1093,26 @@ public class Army extends Group implements Destination {
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
 
 			for (Army army : closeArmies) {
-				if (army.isGarrisoned() || army.hiding) continue;
+				if (!hasVisibilityOf(army)) continue;
 				double distToCenter = this.distToCenter(army);
-				if (hasVisibilityOf(army)) {
-					// hostile troop
-					if (isAtWar(army)) {
-						if (shouldRunFrom(army)) {
-							if (distToCenter < closestDistance) {
-								shouldRun = true;
-								closestDistance = distToCenter;
-								currentArmy = army;
-							}
+				// hostile troop
+				if (isAtWar(army)) {
+					if (shouldRunFrom(army)) {
+						if (distToCenter < closestDistance) {
+							shouldRun = true;
+							closestDistance = distToCenter;
+							currentArmy = army;
 						}
-						else if (!shouldRun) {
-							if (distToCenter < closestDistance) {
-								closestDistance = distToCenter;
-								currentArmy = army;
-							}
+					} else if (!shouldRun) {
+						if (distToCenter < closestDistance) {
+							closestDistance = distToCenter;
+							currentArmy = army;
 						}
 					}
 				}
 			}
 			return currentArmy;
-		}
-		else {
+		} else {
 			//			System.out.println(this.getName() + " containing = null");
 			return null;
 		}
@@ -1660,14 +1666,17 @@ public class Army extends Group implements Destination {
 		    setTarget(defaultTarget);
 
         if (!hasTarget()) {
-        	// Remove any remaining targets.
+			System.out.println(this.getName() + " unique acting to find a target");
+			// Remove any remaining targets.
 			path.forceClear();
+			if (this.isFarmer()) ((Farmer) this).resetWaitToggle();
+			if (this.isHuntingParty()) ((HuntingParty) this).resetWaitToggle();
 			uniqueAct();
 		}
 
-        if (!this.hasTarget()) {
+        if (!hasTarget()) {
         	System.out.println(this.getName() + " can't find target");
-//        	throw new AssertionError(this.getName() + " can't find target");
+        	//        	throw new AssertionError(this.getName() + " can't find target");
 		}
 	}
 	public void setDefaultTarget(Destination defaultTarget) {
@@ -1924,6 +1933,9 @@ public class Army extends Group implements Destination {
 	}
 	public boolean isFarmer() {
 		return (this.type == ArmyType.FARMER);
+	}
+	public boolean isHuntingParty() {
+		return (this.type == ArmyType.HUNTER);
 	}
 	public boolean isMerchant() {
 		return (this.type == ArmyType.MERCHANT);

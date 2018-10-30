@@ -33,7 +33,7 @@
 //	static public float NEAR_COVER_DISTANCE = 4;
 //	static public float HEIGHT_RANGE_FACTOR = 6;
 //	static public float MAN_SIEGE_DISTANCE = 40;
-//	static public float HIDE_DISTANCE = 30;
+//	static public float BASE_LOS = 30;
 //
 //	static final float DEATH_TIME = 300;
 //	static final float BASE_SPEED = .2f;
@@ -1594,7 +1594,7 @@
 //		if (this.canHide()) {
 //			this.nearestEnemy = this.getNearestEnemy();
 //			if (this.nearestEnemy == null) this.isHidden = false;
-//			else if (this.nearestEnemy.distanceTo(this) > HIDE_DISTANCE*this.stage.battlemap.obscurity_factor) {
+//			else if (this.nearestEnemy.distanceTo(this) > BASE_LOS*this.stage.battlemap.obscurity_factor) {
 //				this.isHidden = true;
 //			}
 //			else this.isHidden = false;

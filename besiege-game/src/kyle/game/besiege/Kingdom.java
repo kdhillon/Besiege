@@ -220,7 +220,6 @@ public class Kingdom extends Group {
 		initialized = true;
 	}
 
-
 	@Override
 	public void act(float delta) {
 		SoundPlayer.updateSounds(delta);

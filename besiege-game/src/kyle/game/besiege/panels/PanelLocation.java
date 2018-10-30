@@ -176,6 +176,7 @@ public class PanelLocation extends Panel {
         }
         // friendly player leaves
         else if (!location.playerIn && playerIn) {
+        	System.out.println("friendly player leavin, setting buttons to null");
             setButton(1, null);
             setButton(2, null);
             playerIn = false;
@@ -201,7 +202,9 @@ public class PanelLocation extends Panel {
         }
         // if friendly player is inside
         else if (location.playerIn && playerIn) {
-            //start Wait
+//			System.out.println("player inside location");
+
+			//start Wait
             if (location.playerWaiting && playerWaiting) {
                 setButton(1, null);
                 setButton(4, "Stop");

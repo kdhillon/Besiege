@@ -145,6 +145,7 @@ public class Panel extends Group {
 		else if (bc == 2) b = b2; 
 		else if (bc == 3) b = b3;
 		else b = b4;
+		System.out.println("setting button: " + name);
 
 		if (name == null) {
 			b.clearChildren();
@@ -155,7 +156,7 @@ public class Panel extends Group {
 			b.clearChildren();
 			b.add(label);
 			b.setVisible(true);
-			System.out.println("setting button: " + name);
+//			System.out.println("setting button: " + name);
 			// can simplify if make button1() button2() etc into one method with int argument
 			if (bc == 1) {
 				b1.clearListeners();

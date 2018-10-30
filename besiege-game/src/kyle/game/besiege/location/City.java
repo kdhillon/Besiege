@@ -276,7 +276,8 @@ public class City extends Location {
 		// some random stuff should happen here, small chance of getting a really good crop of soldiers
 		// high chance of sucky ones!
 //		double random = Math.random();
-		this.nextHire = PartyType.generatePT(PartyType.Type.CITY_HIRE, this).generate();
+		PartyType pt = PartyType.generatePT(PartyType.Type.CITY_HIRE, this);
+		this.nextHire = pt.generate();
 //		System.out.println("updating to hire for " + this.getName());
 //		System.out.println(toHire.getAvgSpd());
 //		if (random > .9) 		this.nextHire = PartyType.CITY_HIRE_1.generate();

@@ -1,5 +1,6 @@
 package kyle.game.besiege.panels;
 
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.esotericsoftware.tablelayout.Cell;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
@@ -70,6 +71,8 @@ public class PanelPostBattle extends Panel {
         this.addTopTable2(topTableDefenders);
 
         this.setButton(1, "Continue");
+//        this.getButton(1).setDisabled(false);
+//        this.getButton(1).setTouchable(Touchable.enabled);
     }
     
     private void populateTopTable(TopTable table, StrictArray<Party> parties, boolean didWin, Battle battle) {
@@ -177,6 +180,7 @@ public class PanelPostBattle extends Panel {
 
     @Override
     public void button1() {
+        System.out.println("Clicking b1 post battle");
         if (getButton(1).isVisible()) {
             battleStage.exitBattle();
         }

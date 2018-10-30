@@ -51,6 +51,9 @@ public class SoldierTable extends Table {
     public boolean hirePanel;
     public boolean selectable;
 
+    // Flip-flop logic
+    private boolean justSelected;
+
     protected final Party party;
     private final StrictArray<StrictArray<Soldier>> consolidatedWounded;
     private final StrictArray<StrictArray<Soldier>> consolidatedKilled;
@@ -255,11 +258,12 @@ public class SoldierTable extends Table {
                                             int pointer, int button) {
                             System.out.println("Releasing: " + general.getName());
                             // Deselect happens in touchup
-                            if (selectable) {
+                            if (selectable && !justSelected) {
                                 if (selected == s.getGeneral()) {
                                     deselect();
                                 }
                             }
+                            justSelected = false;
 
                         }
                     });
@@ -394,11 +398,12 @@ public class SoldierTable extends Table {
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
                         System.out.println("Releasing shaman: " + subparty.shaman.getName());
-                        if (selectable) {
+                        if (selectable && !justSelected) {
                             if (selected == subparty.shaman) {
                                 deselect();
                             }
                         }
+                        justSelected = false;
                     }
                 });
                 expand.row();
@@ -472,11 +477,12 @@ public class SoldierTable extends Table {
                     public void touchUp(InputEvent event, float x, float y,
                                         int pointer, int button) {
                         System.out.println("Releasing: " + s.getName());
-                        if (selectable) {
+                        if (selectable && !justSelected) {
                             if (selected == s) {
                                 deselect();
                             }
                         }
+                        justSelected = false;
                     }
                 });
                 expand.row();
@@ -544,7 +550,7 @@ public class SoldierTable extends Table {
         if (bsp != null) {
             float indent = 10;
             Table statusTable = new Table();
-            final Label stance = new Label(bsp.stance.toString(), style);
+            final Label stance = new Label(bsp.getStanceString(), style);
             statusTable.add(stance).left().expandX();
             stance.addListener(new ClickListener() {
                 public boolean touchDown(InputEvent event, float x,
@@ -646,17 +652,18 @@ public class SoldierTable extends Table {
 //
 //    }
 
-
     public void select(Soldier soldier) {
         System.out.println("selecting: " + soldier.getName());
         this.selected = soldier;
         this.nextToSelect = getSoldierAfterSelectedOrBeforeIfNoneAfter();
         updateColors();
+        justSelected = true;
     }
 
     public void deselect() {
         this.selected = null;
         this.nextToSelect = null;
+        System.out.println("Deselecting");
         updateColors();
     }
 

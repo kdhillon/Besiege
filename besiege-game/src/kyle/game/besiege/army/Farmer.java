@@ -38,6 +38,10 @@ public class Farmer extends Army {
 //		if (shouldEject) System.out.println("should eject");
 		farm();
 	}
+
+	public void resetWaitToggle() {
+		this.waitToggle = false;
+	}
 	
 //	@Override
 //	public void drawUniqueInfo(SpriteBatch batch, float parentAlpha) {
@@ -106,8 +110,15 @@ public class Farmer extends Army {
 			count++;
 		}
 		while (getKingdom().getMap().isInWater(newTarget) && count < 10); // do this until sets a valid target 
-		if (count == 10) System.out.println("count is 10");
-		else setTarget(newTarget);
+		if (count == 10) {
+			if (location == null) throw new AssertionError();
+			setTarget(location);
+			System.out.println("hunter just searched for 10 targets and couldn't find valid");
+		}
+		else {
+			setTarget(newTarget);
+		}
+		if (!hasTarget()) throw new AssertionError();
 	}
 	
 	public void setLocation(Location location) {

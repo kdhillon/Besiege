@@ -38,37 +38,8 @@ public class PanelUnit extends Panel {
 
 	protected TopTable topTable;
 
-//	protected Table text;
-//	protected Label title;
-//	protected Label subTitle;
 	private Label armyName;
-	private Label partyName;
-	private Label type;
-
-	//	private Table stats;
-	//	private Label nameS;
-//	protected Label atkSC;
-//	protected Label defSC;
-//	protected Label levelSC;
-//	protected Label hpSC;
-//	protected Label moraleSC;
-//	protected Label spdSC;
-
 	protected Table generalStats;
-
-//	protected Label levelS;
-//	protected Label hpS;
-//	protected Label moraleS;
-//	protected Label atkS;
-//	protected Label defS;
-//	protected Label spdS;
-//	private Label weaponS;
-//	private Label armorS;
-//	private Label equipmentS;
-//	private Label actionS;
-
-	//	private Table soldierTable;
-	//	private ScrollPane soldierPane;
 
 	protected LabelStyle ls;
 	private LabelStyle lsMed;
@@ -249,17 +220,15 @@ public class PanelUnit extends Panel {
 		if (battleStage != null) {
 			if (battleStage.playerAttacking() || battleStage.playerDefending()) {
 				if (!battleStage.placementPhase) {
-					if (battleStage.retreatTimerPlayer <= 0 && !battleStage.allies.retreating) {
-						if (this.getButton(1) == null) {
-							this.setButton(1, "Retreat!");
-							this.getButton(1).setDisabled(false);
-						}
-					}
-					else if (!(battleStage.retreatTimerPlayer <= 0)) {
+					if (!(battleStage.retreatTimerPlayer <= 0)) {
 						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
 						this.getButton(1).setDisabled(true);
-					}
-					else if (battleStage.allies.retreating) {
+					} else if (!unit.bsp.retreating) {
+//						if (this.getButton(1) == null) {
+						this.setButton(1, "Retreat!");
+						this.getButton(1).setDisabled(false);
+//						}
+					} else {
 						this.setButton(1, "Retreat!");
 						this.getButton(1).setDisabled(true);
 						this.getButton(1).setVisible(true);

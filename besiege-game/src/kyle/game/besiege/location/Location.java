@@ -33,7 +33,7 @@ public class Location extends Group implements Destination {
 	private static final Color clear_white = new Color(1f, 1f, 1f, .6f);
 	private final float SCALE = .06f;
 	public static final float MIN_ZOOM = 0.5f;
-	public static final float MAX_ZOOM = 2;
+	public static final float MAX_ZOOM = 1.7f;
 	private final int offset = 30;
 	private final int HIRE_REFRESH = 600; // seconds it takes for soldiers to refresh in city
 	private final float garrisonBudget = 0.20f; // this percent of wealth can be used to buy/upgrade garrison
@@ -192,7 +192,6 @@ public class Location extends Group implements Destination {
 
 		garrisonedArmies = new StrictArray<Army>();
 
-		playerIn = false;
 		hostilePlayerTouched = false;
 
 		this.setRotation(0);
@@ -206,6 +205,8 @@ public class Location extends Group implements Destination {
 		crestDraw = new CrestDraw(this);
 		this.addActor(crestDraw);
 	}
+
+
 
 	private InputListener getNewInputListener() {
 		return new InputListener() {
@@ -281,7 +282,7 @@ public class Location extends Group implements Destination {
 //		this.garrison = new Army(getKingdom(), name, getFaction(), getCenterX(), getCenterY(), pType, this);
 
 		// TODO make this determined by the wealth/population of the city.
-        this.garrison = PartyType.getPartyType(getCurrentPartyType(), cultureType).generate();
+        this.garrison = PartyType.generatePartyType(getCurrentPartyType(), cultureType).generate();
         this.garrison.setName(name);
 //		this.garrison.isGarrison = true;
 //		this.garrison.passive = true;
@@ -1067,6 +1068,9 @@ public class Location extends Group implements Destination {
 		army.setGarrisonedIn(null);
 		army.setVisible(true);
 		kingdom.addArmy(army);
+		if (army.isPlayer())
+			playerIn = false;
+
 		if (army == getKingdom().getPlayer()) {
 			System.out.println("ejecting player");
 			if (playerWaiting)
@@ -1110,9 +1114,6 @@ public class Location extends Group implements Destination {
 	}
 	public Party getToHire() {
 		return toHire;
-	}
-	public void setToHire(Party toHire) {
-		this.toHire = toHire;
 	}
 	
 	public Point getSpawnPoint() {

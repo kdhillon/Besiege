@@ -74,11 +74,12 @@ public class SoundPlayer {
         } else Assets.thunder2.play(MASTER_VOLUME * (float) (.2 + Math.random() * 0.5));
     }
 
-    static void updateSounds(float delta) {
+    public static void updateSounds(float delta) {
         rain.update(delta);
     }
 
     public static void startRain() {
+        System.out.println("fading in rain");
         rain.fadeIn();
     }
 

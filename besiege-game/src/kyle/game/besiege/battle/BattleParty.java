@@ -8,9 +8,9 @@ import kyle.game.besiege.party.Subparty;
 public class BattleParty {
 	public boolean besieging;
 	public boolean player;
-	
+
 	public boolean retreating;
-	
+
 	public StrictArray<BattleSubParty> subparties;
 	StrictArray<Party> parties;
 	StrictArray<Unit> units; // reflects subparties' units

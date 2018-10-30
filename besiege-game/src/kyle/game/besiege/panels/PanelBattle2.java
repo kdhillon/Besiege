@@ -156,8 +156,8 @@ public class PanelBattle2 extends Panel {
     private void actForPartyList(StrictArray<Party> parties, StrictArray<SoldierTable> soldierTables, TopTable topTable) {
         int totalSize = parties.first().getHealthySize();
         String size = "(" + parties.first().getHealthySize();
-        System.out.println("Parties size: " + parties.size);
-        System.out.println("tables size: " + soldierTables.size);
+//        System.out.println("Parties size: " + parties.size);
+//        System.out.println("tables size: " + soldierTables.size);
         for (int i = 0; i < parties.size; i++) {
             Party current = parties.get(i);
 //            System.out.println("checking " + current.getName());
@@ -211,7 +211,6 @@ public class PanelBattle2 extends Panel {
             Cell cell = topTableAttackers.getCell(attackerSoldierTables.get(i));
 //            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
             SoldierTable newTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
-//            attackerSoldierTables.removeIndex(i);
             attackerSoldierTables.set(i, newTable);
             newTable.update();
             battle.getAttackingParties().get(i).updated = true;
@@ -223,7 +222,6 @@ public class PanelBattle2 extends Panel {
             Cell cell = topTableDefenders.getCell(defenderSoldierTables.get(i));
 //            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
             SoldierTable newTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
-//            defenderSoldierTables.removeIndex(i);
             defenderSoldierTables.set(i, newTable);
             newTable.update();
             battle.getDefendingParties().get(i).updated = true;
@@ -236,10 +234,9 @@ public class PanelBattle2 extends Panel {
     @Override
     public void button1() {
         if (getButton(1).isVisible()) {
-
-
+            // TODO make this the same as panel unit for retreating.
             if (battleStage == null) {
-                //				battle.retreat(sidePanel.getKingdom().getPlayer());
+                // battle.retreat(sidePanel.getKingdom().getPlayer());
                 return;
             }
             else {

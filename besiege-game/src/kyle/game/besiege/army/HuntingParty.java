@@ -39,7 +39,12 @@ public class HuntingParty extends Army {
 		this.type = ArmyType.HUNTER;
 		this.passive = true;
 	}
-	
+
+
+	public void resetWaitToggle() {
+		this.waitToggle = false;
+	}
+
 	@Override
 	public void uniqueAct() {
 		hunt();
@@ -121,8 +126,12 @@ public class HuntingParty extends Army {
 			count++;
 		}
 		while (getKingdom().getMap().isInWater(newTarget) && count < 10); // do this until sets a valid target 
-		if (count == 10) System.out.println("count is 10");
+		if (count == 10) {
+			setTarget(location);
+			System.out.println("hunter just searched for 10 targets and couldn't find valid");
+		}
 		else setTarget(newTarget);
+		if (!hasTarget()) throw new AssertionError();
 	}
 	
 	public void setLocation(Location location) {
