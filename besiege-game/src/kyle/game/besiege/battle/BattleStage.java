@@ -43,7 +43,7 @@ public class BattleStage extends Group implements Battle {
     private PanelBattle2 pb;
     private PanelPostBattle postBattle;
 
-    private static boolean FORCE_RAIN = true;
+    private static boolean FORCE_RAIN = false;
     public static final double RETREAT_THRESHOLD = 0.3; // if balance less
     // than this, army will retreat (btw 0 and 1, but obviously below 0.5)
     public static final int DEPRECATED_THRESHOLD = 2; // this field is now in
@@ -111,6 +111,8 @@ public class BattleStage extends Group implements Battle {
 
     public boolean siegeOrRaid;
     private boolean hasWall;
+    private boolean village;
+    private boolean ruins;
 
     public boolean closed[][]; // open or closed?
     public double slow[][]; // 0 is normal speed, 1 is very slow.
@@ -216,6 +218,10 @@ public class BattleStage extends Group implements Battle {
             // location we're at
             if (siege.location.isCastle() || siege.location.isCity()) {
                 hasWall = true;
+            } else if (siege.location.isRuin()) {
+                ruins = true;
+            } else if (siege.location.isVillage()) {
+                village = true;
             }
         }
 
@@ -690,6 +696,14 @@ public class BattleStage extends Group implements Battle {
     // Should the battlemap have a wall?
     public boolean hasWall() {
         return hasWall;
+    }
+
+    public boolean isVillage() {
+        return village;
+    }
+
+    public boolean isRuins() {
+        return true;
     }
 
     // TODO put units on wall if a siege

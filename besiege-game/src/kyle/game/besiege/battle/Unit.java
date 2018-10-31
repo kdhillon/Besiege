@@ -319,6 +319,7 @@ public class Unit extends Group {
         stateTime += delta;
         firingStateTime += delta;
 
+
 		if (nearestTarget != null && nearestTarget.outOfBattle) nearestTarget = null;
         if (nearestEnemy != null && nearestEnemy.outOfBattle) nearestEnemy = null;
 
@@ -384,7 +385,7 @@ public class Unit extends Group {
 			this.moveForward();
 			this.forceTwoMoves = false;
 		}
-		else if (this.retreating || this.bsp.retreating) {
+		else if ((this.retreating || this.bsp.retreating) && !stage.isOver()) {
 			this.retreating = true;
 			retreat();
 		}
@@ -406,11 +407,13 @@ public class Unit extends Group {
 				// if Shaman, move towards friendly general
 				moveToFriendlyGeneral();
 			}
-			else if (this.shouldMoveToCover() && !this.inCover() && this.nearestCover != null) {
-				// refresh cover to make sure still empty
-				this.nearestCover = getNearestCover();
-				if (nearestCover != null)
-					moveToPoint(nearestCover);
+			else if (this.shouldMoveToCover() && !this.inCover() && getNearestCover()) {
+				moveToPoint(nearestCover);
+
+				// Try this, update nearest target.
+				if (nearestTarget != null) {
+					nearestTarget = getNearestTarget();
+				}
 			}
 			else if (stance != Stance.DEFENSIVE && (!(this.isRanged() && distanceTo(getNearestEnemy()) < this.getCurrentRange()) || this.quiver <= 0)) {
 			    reloading = INIT_RELOAD;
@@ -420,7 +423,7 @@ public class Unit extends Group {
 				// just use attack every for convenience
 				attackTimer += delta;
 				//				if (attackTimer > ATTACK_EVERY){
-				//					faceEnemy();
+//									faceEnemy();
 				//					attackTimer = 0;
 				//				}
 				// if enemy is within one unit and fighting, can move to them.
@@ -449,17 +452,21 @@ public class Unit extends Group {
 							else {
 								this.nearestTarget = getNearestTarget();
 								if (this.nearestTarget == null && !this.inCover()) moveToEnemy();
+								else faceStrict(nearestEnemy);
+								reload(delta);
 							}
 						}
 						else {
-							if (this.stance != Stance.DEFENSIVE)
+							if (this.stance != Stance.DEFENSIVE && !inCover())
 								moveToEnemy();
+							else faceStrict(nearestEnemy);
 						}
 					}
 					// move to orignial position for infantry
-					else if (!this.rangedWeaponOut() && this.stance == Stance.DEFENSIVE) {
+					else if (!this.rangedWeaponOut() && this.stance == Stance.DEFENSIVE && !inCover()) {
 						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new BPoint(original_x, original_y));
 					}
+					else faceStrict(nearestEnemy);
 				}
 			}
 		}
@@ -534,10 +541,10 @@ public class Unit extends Group {
 	}
 
 	public boolean inCover() {
-		if (shouldMoveToCover() && nearestCover == null) {
-			// Not sure why we need to do this double check...
-			nearestCover = getNearestCover();
-		}
+//		if (shouldMoveToCover() && nearestCover == null) {
+////			// Not sure why we need to do this double check...
+////			nearestCover = getNearestCover();
+////		}
 		if (nearestCover == null) return false;
 		if (this.pos_x == nearestCover.pos_x && this.pos_y == nearestCover.pos_y) return true;
 		// Could do a check here to see if we're in a cover spot that's not the one we initially set...
@@ -895,11 +902,11 @@ public class Unit extends Group {
 		}
 	}
 
-	//	private void faceEnemy() {
-	//		Unit nearest = this.getNearestEnemy();
-	//		if (nearest == null) return;
-	//		this.face(nearest);
-	//	}
+		private void faceEnemy() {
+			Unit nearest = this.getNearestEnemy();
+			if (nearest == null) return;
+			this.faceStrict(nearest);
+		}
 
 	//	private void faceEnemyAlt() {
 	//		Unit nearest = this.getNearestEnemy();
@@ -907,22 +914,31 @@ public class Unit extends Group {
 	//		this.faceAlt(nearest);
 	//	}
 
-	private BPoint getNearestCover() {
-		if (this.nearestEnemy == null) return null;
+	private boolean getNearestCover() {
+		if (nearestEnemy == null) {
+			this.nearestEnemy = getNearestEnemy();
+
+			if (nearestEnemy == null) {
+				nearestCover = null;
+				return false;
+			}
+		}
 
 		// First check that we're not already in cover!
 		Orientation orientationToEnemy = getOrientationTo(nearestEnemy);
 
 		// check to see if should move to cover
 		BPoint closest = null;
-		float closestDistance = Float.MAX_VALUE;
+		float closestDistance = NEAR_COVER_DISTANCE;
 
 		for (BPoint p : stage.battlemap.cover) { // && nearestEnemy.distanceTo(p) < rangedWeapon.range  ?
 			if (p.orientation == orientationToEnemy && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
-//				if (nearestEnemy.distanceTo(p) < this.getCurrentRange()) { // TODO this means that only units who can fire at the enemy will hide? doesn't really make sense.
+				if (stage.closed[p.pos_y][p.pos_x]) continue;
+				// TODO this means that only units who can fire at the enemy will hide? doesn't really make sense.
+//				if (!this.rangedWeaponOut() || nearestEnemy.distanceTo(p) < this.getCurrentRange()) {
 					// Special case, if we're standing on the spot.
 					float dist = (float) distanceTo(p);
-					if (dist < closestDistance && stage.units[p.pos_y][p.pos_x] == null) {
+					if (dist < closestDistance && (stage.units[p.pos_y][p.pos_x] == null || stage.units[p.pos_y][p.pos_x] == this)) {
 						closest = p;
 						closestDistance = dist;
 					}
@@ -935,10 +951,15 @@ public class Unit extends Group {
 //			if (closest.orientation != )
 //		}
 
-		if (closestDistance > NEAR_COVER_DISTANCE) return null;
+		if (closestDistance >= NEAR_COVER_DISTANCE) {
+			nearestCover = null;
+			return false;
+		}
 //		System.out.println("Closest cover is " + closestDistance);
 
-		return closest;
+		nearestCover = closest;
+		if (nearestCover == null) return false;
+		return true;
 	}
 
 	// return true if that is surrounded by units or not accessible
@@ -1485,6 +1506,7 @@ public class Unit extends Group {
 	// returns false if move failed, true otherwise
 	public boolean startMove(Orientation direction) {
 		if (this.hp < 0) return false;
+		if (stage.isOver()) return false;
 		prev_x = pos_x;
 		prev_y = pos_y;
 		this.orientation = direction;
@@ -1740,13 +1762,16 @@ public class Unit extends Group {
 		this.orientation = getOrientationTo(that);
 	}
 	public void faceStrict(Unit that) {
+		if (that == null) return;
+		if (stage.isOver()) return;
 		this.orientation = getOrientationTo(that);
 	}
 
 	// same as above but with point
 	public void face(BPoint that, boolean forceInstant) {
 		if (stage.placementPhase) throw new AssertionError();
-	    // For now, just return
+		if (stage.isOver()) return;
+		// For now, just return
 	    if (!forceInstant) return;
 
 		int x_dif = that.pos_x - this.pos_x;

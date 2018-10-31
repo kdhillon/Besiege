@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.Random;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.voronoi.Biomes;
@@ -41,7 +42,7 @@ public class BattleMap extends Group {
 	public Color bgColor = new Color();
 
 	private enum MapType {
-		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, ALPINE, MEADOW, CRAG, RIVER, VILLAGE
+		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, SNOW, MEADOW, CRAG, RIVER, VILLAGE
 	}
 	private MapType maptype;
 
@@ -163,7 +164,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//        this.maptype = MapType.FOREST;
+        this.maptype = MapType.FOREST;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -255,8 +256,7 @@ public class BattleMap extends Group {
 			}
 			// add walls
 
-			if (stage.hasWall())
-                addWall();
+			addAppropriateLocationFeatures();
 
 			addFences(5);
 			addTrees(.03*Math.random() + .01);
@@ -273,8 +273,7 @@ public class BattleMap extends Group {
 				}
 			}
 
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 
 			addTrees(.001);
 			addFences(1);
@@ -292,8 +291,7 @@ public class BattleMap extends Group {
 				}
 			}
 
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 
 			addTrees(.01);
 			addFences(15);
@@ -327,10 +325,9 @@ public class BattleMap extends Group {
 
 			stage.MIN_PLACE_X = maxWaterX + 1;
 
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 
-            addPalms(.005);
+			addPalms(.005);
 
             bgColor = new Color(143f/256, 202/256f, 85/256f, 1);
 		}
@@ -345,14 +342,13 @@ public class BattleMap extends Group {
 				}
 			}
 			this.addFences(20);
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 
 			addPalms(Math.random() * 0.005);
 
 			bgColor = new Color(204/256f, 188/256f, 74/256f, 1);
 		}
-		if (maptype == MapType.ALPINE) {
+		if (maptype == MapType.SNOW) {
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
 					double random = Math.random();
@@ -362,8 +358,7 @@ public class BattleMap extends Group {
 					else ground[i][j] = GroundType.MUD;
 				}
 			}
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 			bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
 		}
 		if (maptype == MapType.CRAG) {
@@ -377,8 +372,7 @@ public class BattleMap extends Group {
 			}
 			stage.targetDarkness = .5f;
 
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 
 			addFire(.001);
 			addStumps(.01);
@@ -393,8 +387,7 @@ public class BattleMap extends Group {
 					else if (random < 1) ground[i][j] = GroundType.DIRT;
 				}
 			}
-			if (stage.hasWall())
-				addWall();
+			addAppropriateLocationFeatures();
 			bgColor = new Color(65/256f, 138/256f, 92/256f, 1);
 		}
 
@@ -529,8 +522,8 @@ public class BattleMap extends Group {
 	public static MapType getMapTypeForBiome(Biomes biome) {
 		switch(biome) {
 		case BEACH : 			            return MapType.BEACH;
-		case SNOW : 		               	return MapType.ALPINE;
-		case TUNDRA : 			            return MapType.ALPINE;
+		case SNOW : 		               	return MapType.SNOW;
+		case TUNDRA : 			            return MapType.SNOW;
 		case MOUNTAINS: 			        return MapType.CRAG;
 		case SCORCHED :			            return MapType.CRAG;
 		case TAIGA :			            return MapType.FOREST;
@@ -540,7 +533,7 @@ public class BattleMap extends Group {
 		case GRASSLAND : 					return MapType.MEADOW;
 		case SUBTROPICAL_DESERT : 			return MapType.DESERT;
 		case SHRUBLAND: 					return MapType.GRASSLAND;
-		case ICE : 							return MapType.ALPINE;
+		case ICE : 							return MapType.SNOW;
 		case MARSH : 						return MapType.SWAMP;
 		case TROPICAL_RAIN_FOREST : 		return MapType.SWAMP;
 		case TROPICAL_SEASONAL_FOREST : 	return MapType.SWAMP;
@@ -612,6 +605,17 @@ public class BattleMap extends Group {
 					entrances.add(entrance);
 				}
 			} 
+		}
+	}
+
+	private void addAppropriateLocationFeatures() {
+		if (stage.hasWall()) {
+			addWall();
+		}
+		else if (stage.isVillage()) {
+
+		} else if (stage.isRuins()) {
+			addRuins();
 		}
 	}
 
@@ -931,6 +935,106 @@ public class BattleMap extends Group {
 		this.entrances.add(entrance);
 	}
 
+	private void addRuins() {
+		// Basically adds a few square fences, with some impassable obstacles (TODO)
+		// move down and to the right adding houses randomly
+		int last_x = 0;
+		int last_y = 0;
+
+		int min_house_size = 5;
+		int max_house_size = 10;
+
+		int limit_min = 5;
+		int limit_max = 10;
+
+		int start_x = Random.getRandomInRange(limit_min, limit_max);
+		int end_x = Random.getRandomInRange(stage.size_x - max_house_size - limit_max,  stage.size_x - max_house_size - limit_min);
+
+		int start_y = Random.getRandomInRange(limit_min, limit_max);
+		int end_y = Random.getRandomInRange(stage.size_y - max_house_size - limit_max,  stage.size_y - max_house_size - limit_min);
+
+		for (int i = start_x; i < end_x; i++) {
+			for (int j = start_y; j < end_y; j++) {
+				if (Math.random() < 0.01) {
+					int size = Random.getRandomInRange(min_house_size, max_house_size);
+					addRuinSquare(i, j, size);
+					j += size;
+					i += Random.getRandomInRange(min_house_size, max_house_size);
+				}
+			}
+		}
+
+		// Also add some walls
+		addFences(10);
+	}
+
+	private void addRuinSquare(int bottom_left_x, int bottom_left_y, int size) {
+		addFence(bottom_left_x, bottom_left_y, size, true);
+		addFence(bottom_left_x, bottom_left_y, size, false);
+
+		addFence(bottom_left_x + size, bottom_left_y, size, true);
+		addFence(bottom_left_x , bottom_left_y + size, size, false);
+
+		if (maptype == MapType.SNOW) return; // Don't do it for snow maps (snow covered the ground).
+
+		// Make floor brown
+		GroundType toUse = GroundType.DIRT;
+		ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
+		if (size >= BLOCK_SIZE * 2) {
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE - 1] = toUse;
+
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE - 1] = toUse;
+			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+		}
+
+	}
+
+	private void addFence(int wall_start_x, int wall_start_y, int wall_length, boolean vertical) {
+		for (int i = 0; i < wall_length; i++) {
+			if (Math.random() < .9) {
+				if (vertical && objects[wall_start_y + i][wall_start_x] == null) {
+					objects[wall_start_y + i][wall_start_x] = Object.SMALL_WALL_V;
+					stage.slow[wall_start_y + i][wall_start_x] = WALL_SLOW;
+
+					// add cover
+					BPoint cover_right = new BPoint(wall_start_x + 1, wall_start_y + i);
+					cover_right.orientation = Orientation.LEFT;
+					if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null)
+
+						cover.add(cover_right);
+
+					BPoint cover_left = new BPoint(wall_start_x - 1, wall_start_y + i);
+					cover_left.orientation = Orientation.RIGHT;
+					if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null)
+						cover.add(cover_left);
+				} else if (!vertical && objects[wall_start_y][wall_start_x + i] == null) {
+					objects[wall_start_y][wall_start_x + i] = Object.SMALL_WALL_H;
+					stage.slow[wall_start_y][wall_start_x + i] = WALL_SLOW;
+
+					// add cover
+					BPoint cover_up = new BPoint(wall_start_x + i, wall_start_y + 1);
+					if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null)
+						cover.add(cover_up);
+					cover_up.orientation = Orientation.DOWN;
+
+					BPoint cover_down = new BPoint(wall_start_x + i, wall_start_y - 1);
+					if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null)
+						cover.add(cover_down);
+					cover_down.orientation = Orientation.UP;
+				}
+			}
+		}
+	}
+
+	// TODO use specifically seeded random generator for this and
+	// for ruin generator, so that when you go back to the same ruin or village
+	// It will have the same layout
 	private void addFences(int maxWalls) {
 		int number_walls = (int)(Math.random()*maxWalls + .5);
 		for (int count = 0; count < number_walls; count++) {
@@ -941,36 +1045,7 @@ public class BattleMap extends Group {
 			boolean vertical = true;
 			if (Math.random() < .5) vertical = false;
 
-			for (int i = 0; i < wall_length; i++) {
-				if (Math.random() < .9) {
-					if (vertical && objects[wall_start_y+i][wall_start_x] == null) {
-						objects[wall_start_y+i][wall_start_x] = Object.SMALL_WALL_V;
-						stage.slow[wall_start_y+i][wall_start_x] = WALL_SLOW;
-
-						// add cover 
-						BPoint cover_right = new BPoint(wall_start_x+1, wall_start_y+i);
-						cover_right.orientation = Orientation.LEFT;
-						if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null) cover.add(cover_right);
-
-						BPoint cover_left = new BPoint(wall_start_x-1, wall_start_y+i);
-						cover_left.orientation = Orientation.RIGHT;
-						if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null) cover.add(cover_left);
-					}
-					else if (!vertical && objects[wall_start_y][wall_start_x+i] == null) {
-						objects[wall_start_y][wall_start_x+i] = Object.SMALL_WALL_H;
-						stage.slow[wall_start_y][wall_start_x+i] = WALL_SLOW;
-
-						// add cover 
-						BPoint cover_up = new BPoint(wall_start_x+i, wall_start_y+1);
-						if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null) cover.add(cover_up);
-						cover_up.orientation = Orientation.DOWN;
-
-						BPoint cover_down = new BPoint(wall_start_x+i, wall_start_y-1);
-						if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null) cover.add(cover_down);
-						cover_down.orientation = Orientation.UP;
-					}
-				}
-			}
+			addFence(wall_start_x, wall_start_y, wall_length, vertical);
 		}
 	}
 
