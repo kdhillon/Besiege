@@ -124,8 +124,9 @@ public class Subparty {
 //		System.out.println("casualty: " + soldier.unitType.name);
 		// wound chance = base_chance*heal factor + (level of unit / max level)/2
 		double thisWoundChance = party.woundChance + (soldier.level / Soldier.MAX_LEVEL) / 2;
-		if (Math.random() < thisWoundChance) {
+		if (Math.random() < thisWoundChance || soldier.isGeneral()) { // TODO handle special case for Nobles and player being killed.
 			wound(soldier);
+			party.updated = true;
 			return false;
 		}
 		else kill(soldier);

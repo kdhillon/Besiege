@@ -25,11 +25,12 @@ public class BattleMap extends Group {
 	public static final Color RAINDROP_COLOR = new Color(0, 0, .8f, 1f); // ALPHA is replaced later of course.
 	public static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
 	private static final Color CLEAR_WHITE = new Color(1, 1, 1, .5f);
-	private static final Color PLACEMENT_COLOR = new Color(0, 1, 0, .5f);
+	private static final Color PLACEMENT_COLOR = new Color(0, 1, 0, .2f);
 	private static final Color COVER_COLOR = new Color(1, 1, 0, .5f);
 	private static final Color CLOSED_COLOR = new Color(1, 0, 0, .5f);
 	private static final Color RANGE_COLOR = new Color(1, 0, 0, .15f);
-	private static final Color LOS_COLOR = new Color(0, 0, 1, .15f);
+	private static final Color LOS_COLOR = new Color(1, 1, 0, .15f);
+	private static final Color HIDE_COLOR = new Color(0, 0, 1, .15f);
 
 	private static final int TREE_X_OFFSET = 1;
 	private static final int TREE_Y_OFFSET = 1;
@@ -86,8 +87,36 @@ public class BattleMap extends Group {
 
 	private boolean wallDamaged;
 
-	private enum GroundType {
-		GRASS, DIRT, SAND, DARKGRASS, MUD, WATER, LIGHTGRASS, SNOW, ROCK, DARKROCK, LIGHTSAND, LIGHTSNOW, FLOWERS, FLOWERS2, SWAMP, SWAMP2
+	// Also have a stealth bonus.
+	public enum GroundType {
+		GRASS(1),
+		DARKGRASS(1.5),
+		DIRT(1),
+		SAND(1),
+		LIGHTSAND(1),
+		MUD(1),
+		WATER(1),
+		LIGHTGRASS(1),
+		SNOW(1),
+		LIGHTSNOW(1),
+		ROCK(1),
+		DARKROCK(1),
+		FLOWERS(1),
+		FLOWERS2(1),
+		SWAMP(1),
+		SWAMP2(1);
+
+		public double stealthBonus;
+
+		GroundType(double stealthBonus) {
+			this.stealthBonus = stealthBonus;
+		}
+	}
+
+	public GroundType getGroundAt(Unit unit) {
+		if (unit == null) return null;
+		if (!unit.inMap()) return null;
+		return ground[unit.pos_x / BLOCK_SIZE][unit.pos_y / BLOCK_SIZE];
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
@@ -134,7 +163,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-        this.maptype = MapType.DESERT;
+//        this.maptype = MapType.FOREST;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -983,14 +1012,17 @@ public class BattleMap extends Group {
 				texture = groundTexture[j][i];
 
 				boolean offMap = false;
-				if (i < ground[0].length * this.edge_size_percent - 1|| i >= ground[0].length - ground[0].length * this.edge_size_percent) offMap = true;
-				if (j < ground.length * this.edge_size_percent - 1 || j >= ground.length - ground.length * this.edge_size_percent) offMap = true;
+				if (i < ground[0].length * this.edge_size_percent - 1 || i >= ground[0].length - ground[0].length * this.edge_size_percent)
+
+					offMap = true;
+				if (j < ground.length * this.edge_size_percent - 1 || j >= ground.length - ground.length * this.edge_size_percent)
+					offMap = true;
 
 				Color c = batch.getColor();
 				groundcolor.set(c);
 //
 				if (offMap) {
-					groundcolor.a = c.a*0.6f;
+					groundcolor.a = c.a * 0.6f;
 					batch.setColor(groundcolor);
 				}
 				batch.draw(texture, getDrawX(j), getDrawY(i), getDrawWidth(), getDrawHeight());
@@ -1018,11 +1050,11 @@ public class BattleMap extends Group {
 				texture = null;
 				boolean flashWhite = false;
 				// Don't draw trees here
-				if (objects[i][j] == Object.SMALL_WALL_V) 
+				if (objects[i][j] == Object.SMALL_WALL_V)
 					texture = wallV;
-				else if (objects[i][j] == Object.SMALL_WALL_H) 
+				else if (objects[i][j] == Object.SMALL_WALL_H)
 					texture = wallH;
-				else if (objects[i][j] == Object.STUMP) 
+				else if (objects[i][j] == Object.STUMP)
 					texture = stump;
 				else if (objects[i][j] == Object.CASTLE_WALL) {
 					texture = castleWall;
@@ -1035,8 +1067,7 @@ public class BattleMap extends Group {
 							}
 						}
 					}
-				}
-				else if (objects[i][j] == Object.CASTLE_WALL_FLOOR) {
+				} else if (objects[i][j] == Object.CASTLE_WALL_FLOOR) {
 					texture = castleWallFloor;
 					if (wallDamaged) {
 						for (Wall wall : walls) {
@@ -1052,16 +1083,16 @@ public class BattleMap extends Group {
 				float stretch = this.sunStretch;
 				float rotation = this.sunRotation;
 
-				if (texture != null) { 
+				if (texture != null) {
 					// TODO 
-					drawShadow(batch, texture, (j*stage.unit_width), (i*stage.unit_height), texture.getRegionWidth()*stage.unit_width/8, texture.getRegionHeight()*stage.unit_height/8);
-					batch.draw(texture, (j*stage.unit_width), (i*stage.unit_height), texture.getRegionWidth()*stage.unit_width/8, texture.getRegionHeight()*stage.unit_height/8);
+					drawShadow(batch, texture, (j * stage.unit_width), (i * stage.unit_height), texture.getRegionWidth() * stage.unit_width / 8, texture.getRegionHeight() * stage.unit_height / 8);
+					batch.draw(texture, (j * stage.unit_width), (i * stage.unit_height), texture.getRegionWidth() * stage.unit_width / 8, texture.getRegionHeight() * stage.unit_height / 8);
 				}
 				if (flashWhite) {
 					Color c = batch.getColor();
 					groundcolor.set(CLEAR_WHITE);
 					batch.setColor(groundcolor);
-					batch.draw(white, (j*stage.unit_width), (i*stage.unit_height), stage.unit_width, stage.unit_height);
+					batch.draw(white, (j * stage.unit_width), (i * stage.unit_height), stage.unit_width, stage.unit_height);
 					batch.setColor(c);
 				}
 			}
@@ -1074,20 +1105,20 @@ public class BattleMap extends Group {
 			//setKingdomRotation(kingdomRotation);
 			//atch.draw(toDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),getScaleY(), getKingdomRotation());
 
-			float x = l.pos_x*stage.unit_width;
-			float y = l.pos_y*stage.unit_height;
+			float x = l.pos_x * stage.unit_width;
+			float y = l.pos_y * stage.unit_height;
 
-			float width = texture.getRegionWidth()*stage.unit_width/8;
-			float height = texture.getRegionHeight()*stage.unit_height/8;
+			float width = texture.getRegionWidth() * stage.unit_width / 8;
+			float height = texture.getRegionHeight() * stage.unit_height / 8;
 
-			batch.draw(texture, x, y, width/2, height/4, width, height, 1, 1, rotation);
+			batch.draw(texture, x, y, width / 2, height / 4, width, height, 1, 1, rotation);
 		}
 
 		if (stage.selectedUnit != null && stage.placementPhase && !stage.isOver()) {
 			stage.selectedUnit.bsp.drawPlacement(batch);
 		}
 
-		boolean drawPlacementArea = true; 
+		boolean drawPlacementArea = true;
 
 		if (drawPlacementArea && stage.dragging && !stage.isOver() && stage.placementPhase) {
 			Color c = batch.getColor();
@@ -1096,13 +1127,13 @@ public class BattleMap extends Group {
 
 			for (int i = stage.MIN_PLACE_X; i < stage.MAX_PLACE_X; i++) {
 				for (int j = stage.MIN_PLACE_Y_1; j < stage.MAX_PLACE_Y_1; j++) {
-					batch.draw(white, (i*stage.unit_width), (j*stage.unit_height), stage.unit_width, stage.unit_height);
+					batch.draw(white, (i * stage.unit_width), (j * stage.unit_height), stage.unit_width, stage.unit_height);
 				}
 			}
 
 			for (int i = stage.MIN_PLACE_X; i < stage.MAX_PLACE_X; i++) {
 				for (int j = stage.MIN_PLACE_Y_2; j < stage.MAX_PLACE_Y_2; j++) {
-					batch.draw(white, (i*stage.unit_width), (j*stage.unit_height), stage.unit_width, stage.unit_height);
+					batch.draw(white, (i * stage.unit_width), (j * stage.unit_height), stage.unit_width, stage.unit_height);
 				}
 			}
 
@@ -1119,7 +1150,41 @@ public class BattleMap extends Group {
 
 			boolean drewRange = drawRange(drawRange, batch);
 
-			if (!drewRange) drawLOS(drawRange, batch);
+//			if (!drewRange)
+		}
+
+		// Draw Hide radius around friendly unit
+		boolean drawHideRadius = true;
+		if (drawHideRadius && stage.currentPanel != null && !stage.isOver()) {
+			Unit unit = stage.currentPanel;
+			if (unit.isHidden() && unit.bsp.stance == Unit.Stance.DEFENSIVE) {
+				drawHideRadius(unit.bsp, batch);
+
+				// Also draw LOS radius around enemies.
+				for (BattleSubParty bsp : unit.enemyParty.subparties) {
+					drawLOS(bsp, batch);
+				}
+
+			}
+		}
+
+		boolean debugDrawLosSelected = false;
+		// Draw LOS radius around selected BSP
+		if (debugDrawLosSelected && stage.currentPanel != null && !stage.isOver()) {
+			Unit unit = stage.currentPanel;
+			boolean allEnemiesHidden = true;
+			for (BattleSubParty bsp : unit.enemyParty.subparties) {
+				if (bsp.isRevealed()) allEnemiesHidden = false;
+			}
+			if (allEnemiesHidden)
+				drawLOS(unit.bsp, batch);
+		}
+
+		boolean drawAllLOS = false;
+		if (drawAllLOS) {
+			for (BattleSubParty bsp : stage.enemies.subparties) {
+				drawLOS(bsp, batch);
+			}
 		}
 		//		else if (drawAll && stage.currentPanel != null) {
 		//			if (stage.currentPanel.team == 0) {
@@ -1321,7 +1386,62 @@ public class BattleMap extends Group {
 		batch.setColor(o);
 	}
 
-	private void drawRadius(Unit drawRange, SpriteBatch batch, boolean diminishing, Color color, int radius, boolean quarter) {
+	private StrictArray<BPoint> getAllHidePoints(BattleSubParty bsp) {
+		StrictArray<BPoint> allPoints = new StrictArray<>();
+		for (Unit unit : bsp.units) {
+			if (unit.team == 1) throw new AssertionError();
+			if (!unit.inMap()) continue;
+
+			StrictArray<BPoint> unitPoints = getRadiusPoints(unit, unit.getHideRadius());
+			for (int i = 0; i < unitPoints.size; i++) {
+				BPoint p = unitPoints.get(i);
+				if (allPoints.contains(p, false)) {
+//					System.out.println("encountered duplicate point in battlemap. good");
+					continue; // Using .equals comparison here.
+				}
+				allPoints.add(p);
+			}
+		}
+		return allPoints;
+	}
+
+	private StrictArray<BPoint> getAllLOSPoints(BattleSubParty bsp) {
+		StrictArray<BPoint> allPoints = new StrictArray<>();
+		for (Unit unit : bsp.units) {
+			if (!unit.inMap()) continue;
+			if (unit.team == 1 && unit.isHidden()) continue;
+
+			StrictArray<BPoint> unitPoints = getRadiusPoints(unit, unit.getLineOfSight());
+			for (int i = 0; i < unitPoints.size; i++) {
+				BPoint p = unitPoints.get(i);
+				if (allPoints.contains(p, false)) {
+//					System.out.println("encountered duplicate point in battlemap. good");
+					continue; // Using .equals comparison here.
+				}
+				allPoints.add(p);
+			}
+		}
+		return allPoints;
+	}
+
+	private StrictArray<BPoint> getRadiusPoints(Unit unit, int range) {
+		StrictArray<BPoint> points = new StrictArray<>();
+		int center_x = unit.pos_x;
+		int center_y = unit.pos_y;
+
+		for (int i = -range + 1; i < range; i++) {
+			for (int j = -range + 1; j < range; j++) {
+				if (i == 0 && j == 0) continue;
+				if (i*i + j*j <= range*range && center_x+i >= 0 && center_y+j >= 0 && center_x+i < stage.size_x && center_y+j < stage.size_y) {
+					BPoint point = new BPoint(center_x + i, center_y + j);
+					points.add(point);
+				}
+			}
+		}
+		return points;
+	}
+
+	private void drawRadius(Unit drawRange, SpriteBatch batch, boolean diminishing, Color color, int range, boolean quarter) {
 			Color c = batch.getColor();
 			groundcolor.set(color);
 
@@ -1333,11 +1453,10 @@ public class BattleMap extends Group {
 			int center_x = drawRange.pos_x;
 			int center_y = drawRange.pos_y;
 
-			int range = radius;
-			for (int i = -range; i < range; i++) {
-				for (int j = -range; j < range; j++) {
+			for (int i = -range + 1; i < range; i++) {
+				for (int j = -range + 1; j < range; j++) {
 					if (i == 0 && j == 0) continue;
-					if (i*i + j*j < range*range && center_x+i >= 0 && center_y+j >= 0 && center_x+i < stage.size_x && center_y+j < stage.size_y) {
+					if (i*i + j*j <= range*range && center_x+i >= 0 && center_y+j >= 0 && center_x+i < stage.size_x && center_y+j < stage.size_y) {
 
 						if (diminishing) {
 							// calculate distance as fraction of range
@@ -1368,7 +1487,32 @@ public class BattleMap extends Group {
 			}
 			batch.setColor(c);
 	}
-	
+	private void drawHideRadius(BattleSubParty bsp, SpriteBatch batch) {
+		Color c = batch.getColor();
+
+		StrictArray<BPoint> points = getAllHidePoints(bsp);
+
+		batch.setColor(HIDE_COLOR);
+
+		for (BPoint p : points) {
+			batch.draw(white, p.pos_x * stage.unit_width, p.pos_y * stage.unit_height, stage.unit_width, stage.unit_height);
+		}
+		batch.setColor(c);
+	}
+
+	private void drawLOS(BattleSubParty bsp, SpriteBatch batch) {
+		Color c = batch.getColor();
+
+		StrictArray<BPoint> points = getAllLOSPoints(bsp);
+
+		batch.setColor(LOS_COLOR);
+
+		for (BPoint p : points) {
+			batch.draw(white, p.pos_x * stage.unit_width, p.pos_y * stage.unit_height, stage.unit_width, stage.unit_height);
+		}
+		batch.setColor(c);
+	}
+
 	private boolean drawRange(Unit drawRange, SpriteBatch batch) {
 		if (drawRange.rangedWeaponOut() && !drawRange.isRetreating()) {
 			drawRadius(drawRange, batch, true, RANGE_COLOR, (int) drawRange.getCurrentRange(), true);
@@ -1389,6 +1533,11 @@ public class BattleMap extends Group {
 
 	void drawLOS(Unit drawLos, SpriteBatch batch) {
 		drawRadius(drawLos, batch, false, LOS_COLOR, drawLos.getLineOfSight(), false);
+	}
+
+	void drawHideRadius(Unit unit, SpriteBatch batch) {
+		System.out.println("Drawing hide radius");
+		drawRadius(unit, batch, false, HIDE_COLOR, unit.getHideRadius(), false);
 	}
 
 	private boolean addWall(int pos_x, int pos_y, Object object, Orientation orientation, int width) {

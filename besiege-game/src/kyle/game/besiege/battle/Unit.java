@@ -28,6 +28,7 @@ public class Unit extends Group {
 	static public float HEIGHT_RANGE_FACTOR = 6;
 	static public float MAN_SIEGE_DISTANCE = 40;
 	static public float BASE_LOS = 10;
+	static public int BASE_HIDE = 15;
 
 	static public int RETREAT_POS = 10000;
 
@@ -247,7 +248,7 @@ public class Unit extends Group {
 		// TODO check if position already occupied before creating
 		this.orientation = Orientation.DOWN;
 		if (this.team == 0) this.orientation = Orientation.UP;
-		this.stance = Stance.AGGRESSIVE;
+		this.stance = Stance.DEFENSIVE;
 
 		this.soldier = soldier;
 		this.weapon = soldier.unitType.melee;
@@ -423,8 +424,10 @@ public class Unit extends Group {
 				//					attackTimer = 0;
 				//				}
 				// if enemy is within one unit and fighting, can move to them.
-				if (defendingButShouldAttackNearestEnemy())
+				if (defendingButShouldAttackNearestEnemy()) {
+					nearestCover = null;
 					moveToEnemy();
+				}
 				else if (isFiring() && nearestTarget != null) {
 					if (nearestTarget.isDying || nearestTarget.outOfBattle) {
 						nearestTarget = getNearestTarget();
@@ -437,9 +440,8 @@ public class Unit extends Group {
 				}
 				// if ranged, fire weapon
 				else {
-					nearestTarget = getNearestTarget();
-
 					if (this.rangedWeaponOut() && !shouldMove()) {
+						nearestTarget = getNearestTarget();
 						if (nearestTarget != null) {
 							if (reloading < RELOADING_THRESHHOLD && nearestTarget.distanceTo(this) < this.getCurrentRange() && unitSafelyAwayFromFriends(nearestTarget) && nearestTarget.attacking == null) {
 								fireAtEnemy();
@@ -486,10 +488,16 @@ public class Unit extends Group {
     }
 
     // Units should be in cover if:
+	//  Not hiding, not attacking,
 	//  Defensive, or
 	// 	They can fire at the enemy (enough ammo, within range, no friendly units near enemy)
     private boolean shouldMoveToCover() {
-		boolean should = !defendingButShouldAttackNearestEnemy() && (this.stance == Stance.DEFENSIVE || (this.rangedWeaponOut() && nearestTarget != null && unitSafelyAwayFromFriends(nearestTarget)));
+		boolean should =
+				!defendingButShouldAttackNearestEnemy() &&
+						!isHidden() &&
+						(this.stance == Stance.DEFENSIVE || (this
+								.rangedWeaponOut() && nearestTarget != null &&
+								unitSafelyAwayFromFriends(nearestTarget)));
 		if (!should) nearestCover = null;
 		return should;
 	}
@@ -526,10 +534,11 @@ public class Unit extends Group {
 	}
 
 	public boolean inCover() {
-		if (nearestCover == null) {
+		if (shouldMoveToCover() && nearestCover == null) {
+			// Not sure why we need to do this double check...
 			nearestCover = getNearestCover();
-			if (nearestCover == null) return false;
 		}
+		if (nearestCover == null) return false;
 		if (this.pos_x == nearestCover.pos_x && this.pos_y == nearestCover.pos_y) return true;
 		// Could do a check here to see if we're in a cover spot that's not the one we initially set...
 		return false;
@@ -660,7 +669,7 @@ public class Unit extends Group {
 		if (nearbyGeneral == null) return;
 		if (isAdjacent(nearbyGeneral)) {
 		    if (nearestEnemy == null) return;
-			this.face(nearestEnemy, true);
+			this.faceStrict(nearestEnemy);
 			return;
 		}
 		moveToPoint(nearbyGeneral.getAdjacentPoint());
@@ -674,13 +683,13 @@ public class Unit extends Group {
 	}
 
 	private void moveToEnemy() {
-	    // This is clearly messed up...
+		if (stage.isOver()) return;
+		// This is clearly messed up...
 //		if (nearestEnemy != null && !nearestEnemy.inMap()) {
 //			nearestEnemy = getNearestEnemy();
 //		}
 //		if (nearestEnemy == null)  {
 			nearestEnemy = getNearestEnemy();
-
 
 			// Default behavior if enemy is hidden.
 			if (nearestEnemy == null) {
@@ -873,11 +882,17 @@ public class Unit extends Group {
 		this.quiver -= 1;
 
 		this.reloading = rangedWeapon.rate * BASE_FIRE_RATE + RELOADING_THRESHHOLD;
-		Unit enemy = getNearestTarget();
+		Unit enemy = nearestTarget;
+		if (nearestTarget == null)
+			enemy = getNearestTarget();
 //		face(enemy, true);
 		Projectile projectile = new Projectile(this, enemy);
 
 		stage.addActor(projectile);
+
+		if (quiver == 0) {
+			nearestTarget = null;
+		}
 	}
 
 	//	private void faceEnemy() {
@@ -1024,6 +1039,7 @@ public class Unit extends Group {
 
 	// returns nearest enemy that's a certain distance away
 	private Unit getNearestTarget() {
+		if (quiver <= 0) throw new AssertionError();
 		Unit closest = null;
 		Unit closestRetreating = null;
 		Unit closestNormal = null; // prioritize archers
@@ -1695,8 +1711,16 @@ public class Unit extends Group {
 	}
 
 	private Orientation getOrientationTo(Unit that) {
-		int x_dif = that.pos_x - this.pos_x;
-		int y_dif = that.pos_y - this.pos_y;
+		return getOrientationTo(that.pos_x, that.pos_y);
+	}
+
+	private Orientation getOrientationTo(BPoint that) {
+		return getOrientationTo(that.pos_x, that.pos_y);
+	}
+
+	private Orientation getOrientationTo(int pos_x, int pos_y) {
+		int x_dif = pos_x - this.pos_x;
+		int y_dif = pos_y - this.pos_y;
 
 		// Prioritize x direction.
 		if (Math.abs(x_dif) > Math.abs(y_dif)) {
@@ -1709,6 +1733,14 @@ public class Unit extends Group {
 			if (y_dif == 0) throw new AssertionError();
 			return Orientation.DOWN;
 		}
+	}
+
+	// This always faces the given point, doesn't do any horizontal adjustment
+	public void faceStrict(BPoint that) {
+		this.orientation = getOrientationTo(that);
+	}
+	public void faceStrict(Unit that) {
+		this.orientation = getOrientationTo(that);
 	}
 
 	// same as above but with point
@@ -1877,8 +1909,16 @@ public class Unit extends Group {
 //		return !this.weapon.isPolearm();
 	}
 
+	// TODO add general bonus
 	public int getLineOfSight() {
-		return (int) (BASE_LOS *stage.battlemap.obscurity_factor);
+		return (int) (BASE_LOS * (1.0/stage.battlemap.obscurity_factor));
+	}
+
+	// TODO add unit modifier
+	public int getHideRadius() {
+		if (stage.battlemap.getGroundAt(this) == null) return BASE_HIDE;
+
+		return (int) (BASE_HIDE * (1.0 / stage.battlemap.getGroundAt(this).stealthBonus));
 	}
 
 	// This reveals the unit if necessary.
@@ -1894,7 +1934,7 @@ public class Unit extends Group {
 //				this.isHidden = false;
 //				System.out.println("no nearest enemy");
 			}
-			else if (this.nearestEnemy.distanceTo(this) < getLineOfSight()) {
+			else if (this.nearestEnemy.distanceTo(this) < getLineOfSight() + this.getHideRadius()) {
 				this.bsp.revealAll();
 			}
 //			else {

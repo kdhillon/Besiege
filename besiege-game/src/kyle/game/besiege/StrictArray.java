@@ -15,6 +15,7 @@ public class StrictArray<Object> extends Array<Object> {
 	@Override
 	public void add(Object s) {
 		if (this.contains(s, true)) return;
+
 		super.add(s);
 	}
 }

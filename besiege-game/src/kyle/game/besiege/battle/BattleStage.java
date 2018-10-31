@@ -133,7 +133,7 @@ public class BattleStage extends Group implements Battle {
 
     private boolean snowing;
 
-    public boolean playerDefending = false;
+    public boolean playerDefending = true;
 
     //	public Stance allies.stance;
     //	public Stance enemies.stance;
@@ -430,7 +430,7 @@ public class BattleStage extends Group implements Battle {
         MAX_PLACE_Y_2 = size_y - this.MIN_PLACE_Y_1;
 
         placementCenter1 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_1 - MIN_PLACE_Y_1) * 0.5f));
-        placementCenter2 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_1 - MIN_PLACE_Y_1) * 0.5f));
+        placementCenter2 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_2 - MIN_PLACE_Y_2) * 0.5f));
 
         // set up orignal base points
         originalPoint = new BPoint(size_x / 2, BOTTOM_PAD + PLACE_HEIGHT / 2);

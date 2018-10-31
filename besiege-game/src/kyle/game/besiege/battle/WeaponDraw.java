@@ -229,7 +229,7 @@ public class WeaponDraw extends Group { // can have arrows.
 
         batch.setColor(c);
 
-        if (unit.rangedWeaponOut()) {
+        if (unit.rangedWeaponOut()) { //  || unit.isFiring()
 			toDraw = weaponRanged;
 //			if (unit.rangedWeapon != RangedWeapon.ADV_CROSSBOW  && unit.rangedWeapon != RangedWeapon.CROSSBOW) {
 				offset_x_to_use = offset_x_ranged;

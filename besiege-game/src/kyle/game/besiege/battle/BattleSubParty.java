@@ -57,6 +57,8 @@ public class BattleSubParty {
 	public int currentRegHeight;
 	
 	int team;
+
+	boolean revealed;
 	
 	TextureRegion white;
 	Color c;
@@ -300,6 +302,7 @@ public class BattleSubParty {
 			Unit unit = units.get(i);
 			unit.updateHidden();
 		}
+		if (stance != Stance.DEFENSIVE) revealAll();
 		//		System.out.println("updating hidden");
 	}
 
@@ -307,6 +310,7 @@ public class BattleSubParty {
 		for (Unit unit : units) {
 			unit.reveal();
 		}
+		revealed = true;
 	}
 
 	public boolean isPlayer() {
@@ -533,4 +537,8 @@ public class BattleSubParty {
     public StrictArray<Unit> getCavalry() {
         return cavalry;
     }
+
+    public boolean isRevealed() {
+		return revealed;
+	}
 }

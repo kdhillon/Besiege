@@ -948,6 +948,8 @@ public class MapScreen implements Screen {
 	}
 
 	public void switchToKingdomView() {
+		if (kingdom == null) throw new AssertionError();
+
 		//this.battle = null;
 		this.battleStage.clear();
 		this.battle = null;
