@@ -29,7 +29,7 @@ public class Village extends Location {
 	private static final int MAX_FARMERS = 1;
 	private static final int MAX_HUNTERS = 1;
 
-	public float raidTimer = 0;
+	private float raidTimer = 0;
 
 	public Village(){}
 	
@@ -97,13 +97,16 @@ public class Village extends Location {
 	public boolean isVillage() {
 		return true;
 	}
-	
-	
+
 	public void handleRaidVictory(Army raider) {
 		this.raidTimer = RAID_COUNTDOWN;
 		System.out.println("handling raid victory");
 		this.endSiege();
 		this.addSmoke();
+	}
+
+	public boolean raided() {
+		return raidTimer > 0;
 	}
 	
 	@Override

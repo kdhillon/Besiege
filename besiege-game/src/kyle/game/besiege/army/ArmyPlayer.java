@@ -13,13 +13,11 @@ import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.*;
 import kyle.game.besiege.Character;
 import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
-import kyle.game.besiege.party.UnitDraw;
 
 public class ArmyPlayer extends Army {
 //	private final String TEXTURE_REGION = "Player";
@@ -88,7 +86,7 @@ public class ArmyPlayer extends Army {
 		}
 		else if (this.getBattle() != null && isStopped())
 			setStopped(false);
-//		if (!this.isWaiting() && this.isGarrisoned() && this.getTarget() != null) { // eject
+//		if (!this.isWaiting() && this.isGarrisonedSafely() && this.getTarget() != null) { // eject
 //			System.out.println("ejecting player");
 //			getGarrisonedIn().playerIn = false;
 //			getGarrisonedIn().eject(this);
@@ -275,7 +273,7 @@ public class ArmyPlayer extends Army {
 	public boolean targetLost() {
 		if (hasTarget() && getTarget().getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) getTarget();
-			if (!targetArmy.hasParent() || targetArmy.isGarrisoned()) {
+			if (!targetArmy.hasParent() || targetArmy.isGarrisonedSafely()) {
 				return true;
 			}
 			if (targetArmy.isInBattle()){
@@ -304,12 +302,17 @@ public class ArmyPlayer extends Army {
 		Siege siege = null;
 		if (siegeOrRaidOf != null) {
 			// If player is raiding, create a new "siege" for the raid.
-			if (siegeOrRaidOf.type == Location.LocationType.VILLAGE) {
+			if (siegeOrRaidOf.isVillage()) {
+				siege = new Siege(siegeOrRaidOf, this.getFaction());
+			} else if (siegeOrRaidOf.isRuin()) {
+				// TODO this may be too complicated.
 				siege = new Siege(siegeOrRaidOf, this.getFaction());
 			} else {
 				siege = siegeOrRaidOf.siege;
 			}
-			if (siege == null) throw new AssertionError();
+			if (siege == null) {
+				throw new AssertionError();
+			}
 		}
 		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siege);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);

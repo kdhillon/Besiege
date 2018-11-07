@@ -1,27 +1,32 @@
 tier name 			weapon				armor		upgrades_to
 
 Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
-1	Hunter			Unarmed/Sling		None			        Slinger
-1	Farmer			Spear				Clothes			        Spearman
-1   Villager        Knife(Flint)/Rocks  Clothes                 Spearman/Slinger
-        
-2	Slinger			Dagger/Sling		Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
-2	Spearman		Spear				Clothes			        Jaguar_Spearman/Eagle_Slinger/Serpent_Axeman
-        
-3	Jaguar_Spearman    	Spear				Clothes		        	    Jaguar_Maceman/Jaguar_Spearman
-4	Jaguar_Maceman		Mace/Atlatl			Clothes		        	    Jaguar_Nagual
-4	Jaguar_Spearman 	Spear	        	Clothes/Round_Deerskin  	Jaguar_Nagual
-5	Jaguar_Nagual		War_Axe				Clothes		        	    none
-        
-3	Eagle_Slinger		Dagger/Sling		Clothes		        	Eagle_Bowman/Eagle_Warrior
-4	Eagle_Bowman    	Dagger/Bow/Arrow	Clothes		        	Eagle_Nagual
-4	Eagle_Warrior		Dagger/Atlatl		Clothes		        	Eagle_Nagual
-5	Eagle_Nagual		War_Axe				Clothes		        	none
-        
-3	Serpent_Axeman		War_Axe				Clothes		        	    Serpent_Axeman/Serpent_Swordsman
-4	Serpent_Axeman		War_Axe		        Clothes/Round_Deerskin     Serpent_Nagual
-4	Serpent_Swordsman	Broadsword			Clothes		        	    Serpent_Nagual
-5	Serpent_Nagual		War_Axe				Clothes		        	    none
+1	Hunter			Unarmed/Sling(Maguey)	Loincloth		Slinger/Clubman
+1	Farmer			Staff       		Maguey_Clothes	    Spearman/Clubman
+1   Villager        Knife(Obsidian)/Rocks  Loincloth        Spearman/Slinger
+
+// Ranged tree
+2	Slinger			Knife(Obsidian)/Sling(Maguey)       Loincloth   Slinger_(Vet)/Archer
+3   Slinger_(Vet)   Knife(Obsidian)/Sling(Maguey)       Loincloth   none
+3   Archer          Knife(Obsidian)/War_Bow(Oak)        Loincloth   Archer_(Vet)
+4   Archer_(Vet)    Knife(Obsidian)/War_Bow(Tepozan)    Loincloth   none
+
+// Shock tree
+2	Spearman		Spear(Obsidian)		        Maguey_Clothes      Spearman_(Vet)/Swordsman
+3	Spearman_(Vet)	Spear(Obsidian)/Atlatl(Oak)	Cotton_Armor/Round_Leather    none
+
+2	Clubman 		War_Club(Wood)		Maguey_Clothes  Clubman_(Vet)
+3	Clubman_(Vet)	War_Club(Stone)		Maguey_Clothes  none
+
+// TODO Make clubmen stealthy!
+
+3	Swordsman		Broadsword(Obsidian)/Atlatl(Oak)	Maguey_Clothes/Round_Leather    Swordsman_(Vet)
+4	Swordsman_(Vet)	Broadsword(Obsidian)/Atlatl(Oak)	Cotton_Armor/Round_Cotton    none
+
+5   Jaguar_Warrior  Broadsword(Obsidian)/Atlatl(Tepozan)    Warrior_Suit(Jaguar)/Round_Cotton  none
+5   Eagle_Archer    Spear(Obsidian)/War_Bow(Tepozan)        Warrior_Suit(Eagle)/Round_Leather  none
+
+// TODO add shorn ones and otomies.
 
 S   Death_Shaman        Staff               Clothes             none
 
@@ -54,6 +59,9 @@ Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
 5	Nagual(W)		War_Axe				Clothes			none
 5	Nagual(B)		War_Axe				Clothes			none
 
+
+
+
 Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
 1	Villager		Knife(Flint)/Rocks			           None Warrior_(Nov)
 1	Farmer			Hoe(Bone)					           None Warrior_(Nov)
@@ -80,12 +88,15 @@ Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
 5	Nagual(W)		War_Axe				Clothes			none
 5	Nagual(B)		War_Axe				Clothes			none
 
+
+
+// TODO Make this not generic
 Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
-1	Hunter			Unarmed/Bow/Arrow	None			Bowman
+1	Hunter			Unarmed/Bow(Ash)/Arrow	None			Bowman
 1	Fisher			Spear				None			Spearman
 1   Villager        Knife(Flint)        Clothes         Bowman/Spearman
 
-2	Bowman			Dagger/Sling		Clothes			Axeman(W)/Bowman(H)/Clubman(B)
+2	Bowman			Dagger/Bow(Ash)		Clothes			Axeman(W)/Bowman(H)/Clubman(B)
 2	Spearman		Spear				Clothes			Axeman(W)/Bowman(H)/Clubman(B)
 
 3	Axeman(W)		War_Axe				None			Axeman(W)/Spearman(W)
@@ -93,12 +104,12 @@ Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
 4	Spearman(W)		Spear		        None			Nagual(W)
 5	Nagual(W)		War_Axe				Clothes			none
 
-3	Bowman(H)		Dagger/Bow/Arrow	Clothes			Bowman(H)/Warrior(H)
-4	Bowman(H)		Dagger/Bow/Arrow	Clothes			Nagual(H)
+3	Bowman(H)		Dagger/Bow(Ash)/Arrow	Clothes			Bowman(H)/Warrior(H)
+4	Bowman(H)		Dagger/Bow(Ash)/Arrow	Clothes			Nagual(H)
 4	Warrior(H)		Dagger	        	Clothes			Nagual(H)
 5	Nagual(H)		War_Axe				Clothes			none
 
-3	Clubman(B)		Club				Clothes			Clubman(B)/Spearman(B)
-4	Clubman(B)		Club        		Clothes			Nagual(B)
+3	Clubman(B)		Club(Whalebone)			Clothes			Clubman(B)/Spearman(B)
+4	Clubman(B)		Club(Whalebone)    		Clothes			Nagual(B)
 4	Spearman(B)		Spear	        	Clothes			Nagual(B)
 5	Nagual(B)		War_Axe				Clothes			none

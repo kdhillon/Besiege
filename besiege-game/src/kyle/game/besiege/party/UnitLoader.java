@@ -146,21 +146,11 @@ public class UnitLoader {
 			if (armor.color == null) throw new java.lang.NullPointerException("Can't find color: " + colorToGet);
 			armor.defMod 	= in.nextInt();
 			armor.spdMod	= in.nextInt();
-			armor.type 	= toArmorType(in.next());
+			armor.type 	= ArmorType.toArmorType(in.next());
 			armorTypes.put(armor.name, armor);
 //				printArmor(armor);
 		}
 		in.close();
-	}
-
-	private static ArmorType.Type toArmorType(String name) {
-		if (name.equals("naked")) return ArmorType.Type.NAKED;
-		if (name.equals("chest")) return ArmorType.Type.CHEST;
-		if (name.equals("basic")) return ArmorType.Type.BASIC;
-		if (name.equals("clothes")) return ArmorType.Type.CLOTHES;
-
-		System.out.println("Armor type not found: " + name);
-		return null;
 	}
 
 	public static void loadWeapons() {

@@ -164,7 +164,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-        this.maptype = MapType.FOREST;
+//        this.maptype = MapType.DESERT;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -613,7 +613,8 @@ public class BattleMap extends Group {
 			addWall();
 		}
 		else if (stage.isVillage()) {
-
+			// TODO have addVillage();
+			addRuins();
 		} else if (stage.isRuins()) {
 			addRuins();
 		}
@@ -935,12 +936,8 @@ public class BattleMap extends Group {
 		this.entrances.add(entrance);
 	}
 
+	// We add Ruins to the side of the map where the defenders are
 	private void addRuins() {
-		// Basically adds a few square fences, with some impassable obstacles (TODO)
-		// move down and to the right adding houses randomly
-		int last_x = 0;
-		int last_y = 0;
-
 		int min_house_size = 5;
 		int max_house_size = 10;
 
@@ -950,12 +947,15 @@ public class BattleMap extends Group {
 		int start_x = Random.getRandomInRange(limit_min, limit_max);
 		int end_x = Random.getRandomInRange(stage.size_x - max_house_size - limit_max,  stage.size_x - max_house_size - limit_min);
 
-		int start_y = Random.getRandomInRange(limit_min, limit_max);
-		int end_y = Random.getRandomInRange(stage.size_y - max_house_size - limit_max,  stage.size_y - max_house_size - limit_min);
+//		int start_y = stage.MIN_PLACE_Y_1 + Random.getRandomInRange(-5, 5);
+		int start_y = 0;
+		int end_y = stage.size_y / 2 - 10;
+
+//		int end_y = Random.getRandomInRange(stage.size_y - max_house_size - limit_max,  stage.size_y - max_house_size - limit_min);
 
 		for (int i = start_x; i < end_x; i++) {
 			for (int j = start_y; j < end_y; j++) {
-				if (Math.random() < 0.01) {
+				if (Math.random() < 0.02) {
 					int size = Random.getRandomInRange(min_house_size, max_house_size);
 					addRuinSquare(i, j, size);
 					j += size;
@@ -975,23 +975,33 @@ public class BattleMap extends Group {
 		addFence(bottom_left_x + size, bottom_left_y, size, true);
 		addFence(bottom_left_x , bottom_left_y + size, size, false);
 
-		if (maptype == MapType.SNOW) return; // Don't do it for snow maps (snow covered the ground).
+//		if (maptype == MapType.SNOW) return; // Don't do it for snow maps (snow covered the ground).
 
 		// Make floor brown
-		GroundType toUse = GroundType.DIRT;
-		ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
-		if (size >= BLOCK_SIZE * 2) {
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+		GroundType toUse = GroundType.DARKROCK;
 
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE - 1] = toUse;
-
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE - 1] = toUse;
-			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+		// Iterate through the center of the square and set all appropriate ground colors
+		int gap = BLOCK_SIZE / 2;
+		gap = 0;
+		for (int i = bottom_left_x + gap; i < bottom_left_x + size - gap; i += BLOCK_SIZE) {
+			for (int j = bottom_left_y + gap; j < bottom_left_y + size - gap; j += BLOCK_SIZE) {
+				ground[(i + BLOCK_SIZE / 2) / BLOCK_SIZE][(j+ BLOCK_SIZE / 2) / BLOCK_SIZE] = toUse;
+			}
 		}
+
+//		ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
+//		if (size >= BLOCK_SIZE * 2) {
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+//
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE] = toUse;
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE - 1] = toUse;
+//
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE + 1][(bottom_left_y + size / 2)/BLOCK_SIZE - 1] = toUse;
+//			ground[(bottom_left_x + size / 2) / BLOCK_SIZE - 1][(bottom_left_y + size / 2)/BLOCK_SIZE + 1] = toUse;
+//		}
 
 	}
 

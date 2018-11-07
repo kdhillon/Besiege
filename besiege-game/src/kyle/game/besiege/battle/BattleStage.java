@@ -205,7 +205,6 @@ public class BattleStage extends Group implements Battle {
         //		this.isPlayer()Defending = false;
 
         boolean forceSiege = false;
-        //		boolean forceSiege = true;
 
         if (siege != null || forceSiege) {
             //			siegeDefense = playerDefending;
@@ -323,6 +322,11 @@ public class BattleStage extends Group implements Battle {
         biomeColor = new Color(1, 0.9f, 0.7f, 1); // orange
 
         this.targetDarkness = 1;
+
+        boolean FORCE_RUIN = true;
+        if (Math.random() < 0.3f || FORCE_RUIN) {
+            ruins = true;
+        }
 
         init();
 
@@ -703,7 +707,7 @@ public class BattleStage extends Group implements Battle {
     }
 
     public boolean isRuins() {
-        return true;
+        return ruins;
     }
 
     // TODO put units on wall if a siege
@@ -1152,6 +1156,7 @@ public class BattleStage extends Group implements Battle {
         unit.original_x = x;
         unit.original_y = y;
         addActor(unit);
+        unit.updateCover();
     }
 
     public void removeSubParty(BattleSubParty s) {

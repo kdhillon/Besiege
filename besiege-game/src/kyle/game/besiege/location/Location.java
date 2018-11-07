@@ -60,6 +60,9 @@ public class Location extends Group implements Destination {
 	public int POP_MIN;
 	public int POP_MAX;
 
+	// TODO should we add a battle here, or should we set Siege to be null while this is being raided?
+	// Let's add a siege.
+
 	// relative prevalence of biomes surrounding this location
 	public float[] biomeDistribution;
 
@@ -103,6 +106,7 @@ public class Location extends Group implements Destination {
 
 	private float timeSinceFreshHire;
 
+	// This can be for a village or for a city
 	public Siege siege;
 
 	private CrestDraw crestDraw;
@@ -128,7 +132,7 @@ public class Location extends Group implements Destination {
 	public boolean playerWaiting; // is player waiting inside?
 	public boolean playerBesieging;
 
-	private Point spawnPoint; // point where armies and farmers should spawn if on water
+	public Point spawnPoint; // point where armies and farmers should spawn if on water
 	private int center = -1; // one of these will be null
 	private int corner = -1;
 
@@ -572,6 +576,7 @@ public class Location extends Group implements Destination {
 		Soldier rand = new Soldier(this.garrison.pt.randomSoldierType(), this.garrison);
 		if (this.canAfford(rand)) {
 			if (this.garrison.addSoldier(rand, true)) {
+				this.needsUpdate = true;
 				if (!this.isCastle())
 					this.loseWealth((int) (rand.getBuyCost() * GARRISON_DISCOUNT));
 
@@ -590,6 +595,8 @@ public class Location extends Group implements Destination {
 	// do this for villages and cities, but not for castles
 	public boolean shouldIncreaseGarrison() {
 		if (siege != null) return false;
+		if (isVillage() && ((Village) this ).raided()) return false;
+
 		int ARBITRARY_WEALTH_THRESHOLD = 20;
 		if (this.wealth < ARBITRARY_WEALTH_THRESHOLD) return false;
 		int FIXED_GARRISON_STRENGTH = 100;
@@ -1032,8 +1039,11 @@ public class Location extends Group implements Destination {
 		this.addActor(fire);
 	}
 	public void addSmoke() {
-		this.fire = new Fire( 20, 20, kingdom.getMapScreen(), this, false, true);
-		this.addActor(fire);
+		if (fire == null) {
+			this.fire = new Fire(20, 20, kingdom.getMapScreen(), this, false, true);
+
+			this.addActor(fire);
+		}
 	}
 	public void removeFire() {
 		this.removeActor(fire);
@@ -1054,8 +1064,6 @@ public class Location extends Group implements Destination {
 		}
 		needsUpdate = true;
 		garrisonedArmies.add(army);
-		army.setVisible(false);
-		army.setPosition(this.spawnPoint.getX()-army.getOriginX(), spawnPoint.getY()-army.getOriginY());
 
 		// attmepting this
 		//kingdom.removeArmy(army);
@@ -1330,8 +1338,11 @@ public class Location extends Group implements Destination {
 		return faction.getOfficialName();
 	}
 	public String getTypeStr() {
-		if (this.isVillage())
+		if (this.isVillage()) {
+			if (((Village) this).raided())
+				return "Village (Raided)";
 			return "Village";
+		}
 		else if (this.isCastle())
 			return "Castle";
 		else if (type == LocationType.CITY)

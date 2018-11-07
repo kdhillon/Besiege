@@ -15,8 +15,24 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.SidePanel;
 
+
+/**
+ * Represents a prolonged siege of a location.
+ * Need to differentiate between a siege and a raid.
+ *
+ * Maybe get rid of concept of a siege entirely? There was only one example of
+ * a siege in the native history I found.
+ * A siege is surrounding a city in preparation to attack it.
+ * Reasons for a siege in M&B is to starve out the enemy. Enemies inside can't leave.
+ * You can wait for a friendly army to come support you while you hold the fort.
+ *
+ * To make things simple, let's have sieges behave the same for villages and for cities.
+ * You can besiege a village. We can just have a shorter duration of the siege.
+ *
+ */
 public class Siege extends Actor {
-	private final float MAINTAIN = 10.0f; // siegeOrRaid will exist this long without any army present
+	private final float MAINTAIN = 10.0f; // siegeOrRaid will exist this many seconds without any army present
+	private final float MAINTAIN_VILLAGE = 10.0f; // siegeOrRaid will exist this many seconds without any army present
 	private final float CHECK_FREQ = 5; // every this seconds will check if should attack;
 	public final static float MIN_BALANCE_TO_ATTACK = 0.2f;
 	public final static float MAX_BALANCE_TO_BREAK = 0.1f;
@@ -43,7 +59,12 @@ public class Siege extends Actor {
 	public void act(float delta) {
 		if (armies.size == 0 && !empty) {
 			empty = true;
-			countdown = MAINTAIN;
+
+			if (location.isVillage()) {
+				countdown = MAINTAIN_VILLAGE;
+			} else {
+				countdown = MAINTAIN;
+			}
 //			BottomPanel.log("Breaking siege at: " + location.getName());
 		}
 		else if (armies.size >= 1 && empty)
@@ -59,7 +80,7 @@ public class Siege extends Actor {
 		
 		// remove armies that are at peace
 		for (int i = 0; i < armies.size; i++) {
-			if (armies.get(i) != null && armies.get(i).getFaction().atPeace(location.getFaction())) {
+			if (armies.get(i) != null && !armies.get(i).isAtWar(location)) {
 				armies.get(i).leaveSiege();
 			}
 		}
@@ -96,10 +117,16 @@ public class Siege extends Actor {
 			BottomPanel.log("Siege at " + this.location.getName() + " is in battle");
 			return;
 		}
+
+		if (location.garrison.getHealthySize() <= 0) {
+			destroy();
+			return;
+		}
+
 		//judges whether or not to attack the city
 		// calculate probability of victory, add a randomness factor, then attack
 		double balance = BattleSim.calcBalance(armies, 1f, location.getGarrisonedAndGarrison(), location.getDefenseFactor());
-		if (balance >= MIN_BALANCE_TO_ATTACK) attack();
+		if (balance >= MIN_BALANCE_TO_ATTACK || location.isVillage()) attack();
 		else if (balance <= MAX_BALANCE_TO_BREAK || shouldDestroy()) destroy(); // end siegeOrRaid if no chance
 		else {
 			// previously maintained siegeOrRaid, now force attack:
@@ -139,6 +166,7 @@ public class Siege extends Actor {
 	public void siegeSuccess() {
 		System.out.println("siegeOrRaid success at " + location.getName() + " which has "  + location.getWealth());
 
+		// TODO handle this for a bandit -- just loot the city.
 		location.changeFaction(besieging);
 		if (location.playerBesieging) {
 			location.getKingdom().getPlayer().garrisonIn(location);

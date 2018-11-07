@@ -1,12 +1,12 @@
-name				color_name	def	spd	texture
+name			    	color_name	def	spd	texture
 
-None				TAN			0	0	naked
+None			    	TAN			0	0	naked
 
-Clothes				DK_BROWN    0	0   basic
+Clothes		    		DK_BROWN    0	0   basic
 	
-Cotton				LT_BROWN 	1	0	basic
-Tunic				BROWN_G		2	0	basic
-War_Suit			BROWN_R		3	-1	basic
+Cotton			    	LT_BROWN 	1	0	basic
+Tunic			    	BROWN_G		2	0	basic
+War_Suit		    	BROWN_R		3	-1	basic
 
 
 // Forest armors
@@ -18,6 +18,12 @@ Wolf_Rawhide		    LT_GRAY		2	0	basic
 Bear_Rawhide		    DK_BROWN	2	0	basic
 
 // Meso armors
+Loincloth               LT_BROWN    0   0   loincloth
+Maguey_Clothes          TAN         1   0   basic
+Cotton_Armor            OFF_WHITE   2   0   chest
+Warrior_Suit(Jaguar)    LT_YELLOW   3   0   basic
+Warrior_Suit(Eagle)     LT_RED   3   0   basic
+
 
 // Tundra armors
 

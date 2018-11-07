@@ -149,13 +149,15 @@ public class HuntingParty extends Army {
 	public Location detectNearbyFriendlyLocationForRunning() {
 		for (City city : getKingdom().getCities()) {
 			if (!isAtWar(city)) {
-				if (this.distToCenter(city) < getLineOfSight() && this.distToCenter(city) < getRunFrom().distToCenter(city)) {
+				double dist = this.distToCenter(city);
+				if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(city)) {
 					return city;
 				}
 			}
 		} 
 		for (Village village : getKingdom().villages) {
-			if (this.distToCenter(village) < getLineOfSight() && this.distToCenter(village) < getRunFrom().distToCenter(village)) {
+			double dist = this.distToCenter(village);
+			if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(village)) {
 				return village;
 			}
 		}

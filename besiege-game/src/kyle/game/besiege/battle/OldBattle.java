@@ -10,7 +10,6 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Army.ArmyType;
-import kyle.game.besiege.army.Noble;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.party.Party;
@@ -162,7 +161,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		army.endBattle();
 		army.setStopped(false);
 		army.setVisible(false);
-//		if (kingdom.getArmies().contains(army, true) && army.isGarrisoned()) this.setVisible(true);
+//		if (kingdom.getArmies().contains(army, true) && army.isGarrisonedSafely()) this.setVisible(true);
 
 		if (army == kingdom.getPlayer()) {
 			playerInA = false;

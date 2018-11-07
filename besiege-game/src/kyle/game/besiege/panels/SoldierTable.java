@@ -84,7 +84,7 @@ public class SoldierTable extends Table {
 
     public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle) {
         this(party, startAllCollapsed, battle, null, null);
-        if (battle == null) throw new AssertionError();
+//        if (battle == null) throw new AssertionError();
     }
 
 	public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle, StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed) {

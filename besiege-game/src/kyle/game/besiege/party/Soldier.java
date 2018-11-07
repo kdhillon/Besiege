@@ -541,6 +541,10 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		
 		if (playerInD || playerInA) {
 			String status = getTypeName();
+			if (isGeneral()) {
+				status = ((General) this).getOfficialName();
+			}
+
 			if (killedBy != null) {
 				if (killed) status += " was killed by " + killedBy.getTypeName() + "!";
 				else status += " was wounded by " + killedBy.getTypeName() + "!";

@@ -52,7 +52,7 @@ public class Army extends Group implements Destination {
 	private static final float COLLISION_FACTOR = 5; // higher means must be closer
 	public static final float ORIGINAL_SPEED_FACTOR = .020f;
 
-	public static final int TIME_TO_SET_AMBUSH = 1;
+	public static final int TIME_TO_SET_AMBUSH = 10;
 
 	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
 	private static final float SIZE_FACTOR = .025f; // amount that playerPartyPanel size detracts from total speed
@@ -376,7 +376,7 @@ public class Army extends Group implements Destination {
 		}
 		else {
 			if (!isInBattle()) {
-				if (isGarrisoned()) 
+				if (isGarrisoned())
 					garrisonAct(delta);
 				else {
 					setSpeed(calcSpeed());
@@ -428,7 +428,7 @@ public class Army extends Group implements Destination {
 		//				forceWait = false;
 		//		}
 		//		else {
-		//			if (!isGarrisoned()) {
+		//			if (!isGarrisonedSafely()) {
 		//				if (!isInSiege()) {
 		//					if (shouldRepair() && !shouldRepair) shouldRepair = true;
 		//					else if ((!shouldRepair() || defaultTarget == null) && shouldRepair) shouldRepair = false;
@@ -463,7 +463,7 @@ public class Army extends Group implements Destination {
 		//					detectNearbyRunOnly();
 		//				}
 		//			}
-		//			else if (isGarrisoned()) {
+		//			else if (isGarrisonedSafely()) {
 		//
 		//				playerPartyPanel.checkUpgrades();
 		//				// if garrisoned and waiting, wait
@@ -693,7 +693,7 @@ public class Army extends Group implements Destination {
 		}
 
 		//		System.out.println("collision dist " + (getTroopCount() + targetArmy.getTroopCount())/COLLISION_FACTOR);
-		if (distToCenter(targetArmy) < ((getTroopCount() + targetArmy.getTroopCount()))/COLLISION_FACTOR && !targetArmy.isGarrisoned()) {			
+		if (distToCenter(targetArmy) < ((getTroopCount() + targetArmy.getTroopCount()))/COLLISION_FACTOR && !targetArmy.isGarrisonedSafely()) {
 			if (isAtWar(targetArmy)) 
 				enemyArmyCollision(targetArmy);	
 			else 
@@ -706,7 +706,8 @@ public class Army extends Group implements Destination {
 
 	public void enemyArmyCollision(Army targetArmy) {
 		if (targetArmy.getBattle() == null) {
-			createBattleWith(targetArmy, null);
+			if (targetArmy.isGarrisonedUnsafely())
+				createBattleWith(targetArmy, targetArmy.garrisonedIn);
 		}
 		else {
 			// join battle
@@ -734,6 +735,15 @@ public class Army extends Group implements Destination {
 		    throw new AssertionError();
         }
 
+        // TODO two options for village and ruin:
+		// TODO	 1) player can't garrison inside them. Player can approach them, interact with them, but not "enter" them. This makes logic easier for enemies deciding who to attack.
+		// TODO  2) player can enter them. in this case, pursuing enemies will still attack the location (so the parties can't be removed from safe location list).
+		// I like 2 better. it also means that villages are special (weaker) compared to cities.
+        // Get nearby ruins or village? if necessary.
+//		if (siegeOf == null) {
+//			if ()
+//		}
+
         // If targetArmy is null, we are attacking a location (garrison is a party not an army)
         Party targetParty;
 		if (targetArmy != null) targetParty = targetArmy.party;
@@ -754,8 +764,8 @@ public class Army extends Group implements Destination {
 
 			// TODO: this is O(N)
 			for (Army a : kingdom.getArmies()) {
-				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight || (a.isGarrisoned() && siegeOf == null) || 
-						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true)) continue;
+				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight || (a.isGarrisonedSafely() && siegeOf == null) ||
+						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true) || a.passive) continue;
 				if (a.isAtWar(targetParty.getFaction()) && !a.isAtWar(this) && !a.passive)
 					nearAllies.add(a.party);
 				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this) && !a.passive)
@@ -778,8 +788,8 @@ public class Army extends Group implements Destination {
 			nearEnemies.add(this.party);
 			
 			for (Army a : kingdom.getArmies()) {
-				if (a == targetArmy || a == this || a.distToCenter(targetArmy) > this.lineOfSight || (a.isGarrisoned() && siegeOf == null) || 
-						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true)) continue;
+				if (a == targetArmy || a == this || a.distToCenter(targetArmy) > this.lineOfSight || (a.isGarrisonedSafely() && siegeOf == null) ||
+						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true) || a.passive) continue;
 				if (a.isAtWar(targetArmy) && !a.isAtWar(this))
 					nearEnemies.add(a.party);
 				else if (!a.isAtWar(targetArmy) && a.isAtWar(this))
@@ -887,22 +897,19 @@ public class Army extends Group implements Destination {
 
 	public void enemyLocationCollision(Location targetLocation) {
 		if (!this.passive) {
-			if (targetLocation.isVillage()) {
-				raid((Village) targetLocation);
-			}
-			else {
-				if (type == ArmyType.BANDIT) 
-					this.nextTarget();
-				else {
+//			if (targetLocation.isVillage()) {
+//				raid((Village) targetLocation);
+//			}
+//			else {
 					setStopped(true);
 					if (targetLocation.underSiege())
 						targetLocation.getSiege().add(this);
 					else {
 						targetLocation.beginSiege(this);
 					}
-				}
-			}
-		}
+
+//			}
+		} else throw new AssertionError("Why was a passive army targeting an enemy city? Maybe this city recently changed factions?");
 	}
 
 	public void friendlyLocationCollision(Location targetLocation) {
@@ -926,8 +933,15 @@ public class Army extends Group implements Destination {
 		targetCity.garrison(this); 
 		garrisonedIn = targetCity;
 
+		setVisible(false);
+		setPosition(garrisonedIn.spawnPoint.getX()-this.getOriginX(), garrisonedIn.spawnPoint.getY()-this.getOriginY());
 		setTarget(null);
-		changeTargetOfAnyFollowers();
+
+		if (isGarrisonedSafely()) {
+			changeTargetOfAnyFollowers();
+		} else {
+			System.out.println("garrisoning in a non-safe location");
+		}
 
 		// wait/pause AFTER garrisoning!
 		if (party.player) {
@@ -1105,6 +1119,9 @@ public class Army extends Group implements Destination {
 						}
 					} else if (!shouldRun) {
 						if (distToCenter < closestDistance) {
+//							if (army.player) {
+//								System.out.println("KSD: " + this.getName() + " Chasing player");
+//							}
 							closestDistance = distToCenter;
 							currentArmy = army;
 						}
@@ -1122,7 +1139,7 @@ public class Army extends Group implements Destination {
 	private boolean hasVisibilityOf(Army that) {
 		double distToCenter = this.distToCenter(that);
 		if (that.isNonFriendlyAmbush(this)) return false;
-		if (that.isGarrisoned()) return false;
+		if (that.isGarrisonedSafely()) return false;
 		if (that.isDestroyed()) return false;
 
 		// This makes it so poor villagers who leave the acting range around the player won't get attacked by armies who aren't affected by that.
@@ -1206,7 +1223,7 @@ public class Army extends Group implements Destination {
 	public boolean targetLost() {
 		if (target != null && target.getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) target;
-			if (!hasVisibilityOf(targetArmy) || !targetArmy.hasParent() || targetArmy.isGarrisoned())
+			if (!hasVisibilityOf(targetArmy) || !targetArmy.hasParent() || targetArmy.isGarrisonedSafely())
 				return true;
 			if (targetArmy.isInBattle()) {
 				if (!targetArmy.getBattle().shouldJoinAttackers(this) && !targetArmy.getBattle().shouldJoinDefenders(this)) // shouldn't join
@@ -1543,7 +1560,7 @@ public class Army extends Group implements Destination {
 
 		//		if (this.type == ArmyType.FARMER)System.out.println("farmer in setTarget"); 
 		// don't add same target twice in a row... this is a problem.
-		//		if (newTarget.getType() == 2 && ((Army) newTarget).isGarrisoned()) System.out.println("***** TARGET GARRISONED! *****");
+		//		if (newTarget.getType() == 2 && ((Army) newTarget).isGarrisonedSafely()) System.out.println("***** TARGET GARRISONED! *****");
 
 		boolean isInWater = getKingdom().getMap().isInWater(newTarget);
 		// Allow the player to travel to water (they will stop at the border).
@@ -1676,7 +1693,7 @@ public class Army extends Group implements Destination {
 
         if (!hasTarget()) {
         	System.out.println(this.getName() + " can't find target");
-        	//        	throw new AssertionError(this.getName() + " can't find target");
+//        	        	throw new AssertionError(this.getName() + " can't find target");
 		}
 	}
 	public void setDefaultTarget(Destination defaultTarget) {
@@ -1734,13 +1751,16 @@ public class Army extends Group implements Destination {
 //				System.out.println(this.getName() + " is not at war with " + destination.getName());
 				return false;
 			}
+			// For now, say you're at war with ruins to prevent garrisoning.
+			if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
 //		    System.out.println(this.getName() + " is at war with " + destination.getName());
 		    return true;
         }
 //		System.out.println(this.getName() + " not at war with " + destination.getName());
 
+		// For now, say you're at war with ruins to prevent garrisoning.
 		if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
-
+//
 //		System.out.println(this.getName() + " depends on faction " + destination.getName());
 		return faction.atWar(destination.getFaction());
 	}
@@ -1804,7 +1824,14 @@ public class Army extends Group implements Destination {
 	}
 
 	public boolean isGarrisoned() {
-		return (garrisonedIn != null);
+		return garrisonedIn != null;
+	}
+
+	public boolean isGarrisonedSafely() {
+		return (garrisonedIn != null && !garrisonedIn.isRuin());
+	}
+	public boolean isGarrisonedUnsafely() {
+		return isGarrisoned() && !isGarrisonedSafely();
 	}
 	public void setGarrisonedIn(Location city) {
 		this.garrisonedIn = city;

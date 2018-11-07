@@ -154,8 +154,10 @@ public class PanelBattle2 extends Panel {
     }
 
     private void actForPartyList(StrictArray<Party> parties, StrictArray<SoldierTable> soldierTables, TopTable topTable) {
-        int totalSize = parties.first().getHealthySize();
-        String size = "(" + parties.first().getHealthySize();
+        int totalSize = 0;
+        if (parties.first() != null) totalSize = parties.first().getHealthySize();
+
+        String size = "(" + totalSize;
 //        System.out.println("Parties size: " + parties.size);
 //        System.out.println("tables size: " + soldierTables.size);
         for (int i = 0; i < parties.size; i++) {

@@ -46,7 +46,7 @@ public class Simulation extends Game {
 //										PartyType.generatePartyType(Type.SCOUT, type2));
 
 		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.SCOUT, type1),
-										PartyType.generatePartyType(Type.SCOUT, type2), 2);
+										PartyType.generatePartyType(Type.SCOUT, type2), 1);
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		

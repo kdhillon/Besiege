@@ -7,8 +7,13 @@ Round_Bearskin	    DK_BROWN	16	0   round
 Large_Bark    	    DK_BROWN	20	-1  large
 Large_Wood      	BROWN   	25	-1  large
 
-// Plains shields (shield culture)
+// Plains shields (heavy shield culture)
 Round_Buffalo       LT_BROWN    12  0   round
 White_Buckskin      WHITE       14  0   round
 Large_Elkskin       TAN         16  0   large
 Large_Buffalo       LT_BROWN    20  0   large
+
+// Desert shields
+Round_Leather       TAN         14  0   round
+Round_Cotton        OFF_WHITE   16  0   round
+

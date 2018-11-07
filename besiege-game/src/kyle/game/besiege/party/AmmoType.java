@@ -12,7 +12,7 @@ public class AmmoType {
         THROWN,
         THROWN_AXE,
         THROWN_FIRE,
-        SLING,
+        ROCK,
         CROSSBOW_BOLT,
         BULLET
     }
@@ -40,8 +40,8 @@ public class AmmoType {
         if (typeString.equals("arrow_fire")) {
             type = Type.ARROW_FIRE;
         }
-        if (typeString.equals("sling"))
-            type = Type.SLING;
+        if (typeString.equals("rock"))
+            type = Type.ROCK;
         if (typeString.equals("dart"))
             type = Type.DART;
         if (typeString.equals("crossbow"))
@@ -71,7 +71,7 @@ public class AmmoType {
             case THROWN_AXE:
                 return Assets.map.findRegion("axe");
             case THROWN_FIRE:
-            case SLING:
+            case ROCK:
                 return Assets.map.findRegion("slingstone");
         }
         return Assets.map.findRegion("catapult");
@@ -94,7 +94,7 @@ public class AmmoType {
                     return Assets.map.findRegion("half axe2");
                 return Assets.map.findRegion("half axe3");
             case THROWN_FIRE:
-            case SLING:
+            case ROCK:
                 return Assets.map.findRegion("slingstone");
         }
         return Assets.map.findRegion("catapult");
@@ -111,7 +111,7 @@ public class AmmoType {
                 return false;
             case THROWN_AXE:
             case THROWN_FIRE:
-            case SLING:
+            case ROCK:
             case BULLET:
                 return true;
         }

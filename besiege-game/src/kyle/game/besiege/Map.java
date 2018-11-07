@@ -225,7 +225,7 @@ public class Map extends Actor {
 
 	private void calcReference() {
 		System.out.println("Calculating reference");
-		double BOUND = .20; // *100 = percent range
+		double BOUND = .05; // *100 = percent range
 		// think of a way to guarantee it's in the middle of the island
 		for (Center c : vg.centers) {
 			if (!c.water) {
@@ -239,7 +239,7 @@ public class Map extends Actor {
 			}
 		}
 		if (reference == null) {
-			
+			throw new AssertionError();
 		}
 	}
 

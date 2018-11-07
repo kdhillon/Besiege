@@ -307,6 +307,12 @@ public class Unit extends Group {
 		}
 	}
 
+	public void updateCover() {
+		if (shouldMoveToCover()) {
+			System.out.println("found nearest cover: " + getNearestCover());
+		}
+	}
+
 
 	@Override
 	public void act(float delta) {
@@ -400,6 +406,8 @@ public class Unit extends Group {
 			else this.orientation = siegeUnit.orientation; // do nothing
 		}
 		else {
+			if (stage.isOver()) return;
+
 			checkIfShouldManSiege();
 			//						System.out.println("moving2");
 			//			getRandomDirection(delta);
@@ -426,6 +434,7 @@ public class Unit extends Group {
 //									faceEnemy();
 				//					attackTimer = 0;
 				//				}
+
 				// if enemy is within one unit and fighting, can move to them.
 				if (defendingButShouldAttackNearestEnemy()) {
 					nearestCover = null;
@@ -443,6 +452,8 @@ public class Unit extends Group {
 				}
 				// if ranged, fire weapon
 				else {
+					if (stage.isOver()) return;
+
 					if (this.rangedWeaponOut() && !shouldMove()) {
 						nearestTarget = getNearestTarget();
 						if (nearestTarget != null) {
@@ -451,7 +462,7 @@ public class Unit extends Group {
 							}
 							else {
 								this.nearestTarget = getNearestTarget();
-								if (this.nearestTarget == null && !this.inCover()) moveToEnemy();
+								if (this.nearestTarget == null && !this.shouldMoveToCover()) moveToEnemy();
 								else faceStrict(nearestEnemy);
 								reload(delta);
 							}
@@ -499,6 +510,7 @@ public class Unit extends Group {
 	//  Defensive, or
 	// 	They can fire at the enemy (enough ammo, within range, no friendly units near enemy)
     private boolean shouldMoveToCover() {
+		// TODO add check that enemy is firing on us.
 		boolean should =
 				!defendingButShouldAttackNearestEnemy() &&
 						!isHidden() &&
@@ -628,9 +640,12 @@ public class Unit extends Group {
 
 		// Debug only -- draw nearest cover
 		if (this.nearestCover != null && this.isSelected()) {
+			Color c = batch.getColor();
 			batch.setColor(Color.MAGENTA);
 			batch.draw(Assets.white, (nearestCover.pos_x * stage.unit_width), stage.unit_height  * nearestCover.pos_y, stage.unit_width/2, stage.unit_height/2, stage.unit_width, stage.unit_height, 1, 1, -this.getParent().getRotation());
+			batch.setColor(c);
 		}
+
 
 //		}
 //		else {
@@ -935,7 +950,10 @@ public class Unit extends Group {
 			if (p.orientation == orientationToEnemy && Math.abs(stage.heights[p.pos_y][p.pos_x] - this.getFloorHeight()) < Unit.CLIMB_HEIGHT) {
 				if (stage.closed[p.pos_y][p.pos_x]) continue;
 				// TODO this means that only units who can fire at the enemy will hide? doesn't really make sense.
-//				if (!this.rangedWeaponOut() || nearestEnemy.distanceTo(p) < this.getCurrentRange()) {
+
+				// TODO Ok this is one of the last remaining cover bugs. So an archer needs to decide if they should go to cover.
+				// It's ok for them to move to cover if the distance is within firing range, OR if the enemy is charging at them (so the enemy will move towards them)
+				if (!this.rangedWeaponOut() || (nearestEnemy.stance != Stance.DEFENSIVE || nearestEnemy.distanceTo(p) < this.getCurrentRange())) {
 					// Special case, if we're standing on the spot.
 					float dist = (float) distanceTo(p);
 					if (dist < closestDistance && (stage.units[p.pos_y][p.pos_x] == null || stage.units[p.pos_y][p.pos_x] == this)) {
@@ -943,7 +961,7 @@ public class Unit extends Group {
 						closestDistance = dist;
 					}
 
-//				}
+				}
 			}
 		}
 
@@ -1540,7 +1558,6 @@ public class Unit extends Group {
 
 		if (prev_y != pos_y && prev_x != pos_x) System.out.println("error!");
 
-		this.orientation = direction;
 		return true;
 	}
 
@@ -1764,13 +1781,14 @@ public class Unit extends Group {
 	public void faceStrict(Unit that) {
 		if (that == null) return;
 		if (stage.isOver()) return;
+		if (moveSmooth) return;
 		this.orientation = getOrientationTo(that);
 	}
 
 	// same as above but with point
 	public void face(BPoint that, boolean forceInstant) {
 		if (stage.placementPhase) throw new AssertionError();
-		if (stage.isOver()) return;
+		if (stage.isOver()) throw new AssertionError();
 		// For now, just return
 	    if (!forceInstant) return;
 
@@ -1781,8 +1799,8 @@ public class Unit extends Group {
 		if (move_hor_prob < 0.5) move_hor_prob = move_hor_prob/10;
 		else if (move_hor_prob >= 0.5) move_hor_prob = move_hor_prob * 1.5;
 
-		if (this.stance == Stance.INLINE)
-			move_hor_prob = .01;
+//		if (this.stance == Stance.INLINE)
+//			move_hor_prob = .01;
 
 		// should move right
 		if (x_dif > 0) {
@@ -1847,6 +1865,8 @@ public class Unit extends Group {
 	}
 
 	public void faceAlt(BPoint that) {
+		if (stage.isOver()) throw new AssertionError();
+
 		int x_dif = that.pos_x - this.pos_x;
 		int y_dif = that.pos_y - this.pos_y;
 

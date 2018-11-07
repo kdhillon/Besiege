@@ -246,7 +246,7 @@ public class Noble extends Army {
 		if (this.path.isEmpty()) {
 			goToNewTarget();
 			toggleWait = true;
-			//			System.out.println("doesn't have target and is waiting? " + this.isWaiting() + " and is garrisoned? " + isGarrisoned());
+			//			System.out.println("doesn't have target and is waiting? " + this.isWaiting() + " and is garrisoned? " + isGarrisonedSafely());
 			//				System.out.println("starting to wait");
 
 			//System.out.println(this.getName() + "getting new target");

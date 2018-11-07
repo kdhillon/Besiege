@@ -171,7 +171,7 @@ public class PanelLocation extends Panel {
             if (location.toHire != null && location.toHire.getHealthySize() > 0)
                 setButton(2, "Hire");
             playerIn = true;
-			if (this.panelHire == null)
+			if (this.panelHire == null && !this.location.isRuin())
 				this.panelHire = new PanelHire(panel, location);
         }
         // friendly player leaves
@@ -266,8 +266,9 @@ public class PanelLocation extends Panel {
         if (location.needsUpdate) {
             garrisonedTables.get(location.getParty()).update();
 //            if (Math.random() < 0.3f)
-            location.needsUpdate = false;
-        }
+			topTable.update("locationtype", location.getTypeStr(),  null);
+			location.needsUpdate = false;
+		}
         Set<Party> parties = garrisonedTables.keySet();
         for (Party p : parties) {
         	if (p == null) continue;

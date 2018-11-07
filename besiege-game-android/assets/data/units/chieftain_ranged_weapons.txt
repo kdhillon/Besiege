@@ -1,29 +1,34 @@
 name			range	acc		reload	quiver  type    texture
+// Atlatls
+Atlatl(Oak)		15		8		3		2       atlatl  spear
+Atlatl(Tepozan)	20		8		3		2       atlatl  spear
 
+// Slings
+Sling(Sinew)    60		4		4		5       sling   sling
+Sling(Maguey)   60		4		4		5       sling   sling
 
-Bow				35		6		3		10      bow
+//Poison_Sling	10		6		4		10      bow     poison_sling
 
-Atlatl			15		8		3		2       atlatl  spear
-
-Blowgun			10		8		6		2       blowgun club
-
-Poison_Sling	10		6		4		10      bow     poison_sling
-
-// Forest ranged weapons
-Rocks			10		6		2	    4      thrown  rock
-
-Bow(Ash)	   	25		6		6		3       bow
-Bow(Hickory)	30		6		6		5       bow
-Bow(Locust)  	35		6		6		7       bow
-
-Strongbow(Maple)  40    6       4       15      bow
+// Bows
+Bow(Ash)	      25	6		6		3       bow
+Bow(Hickory)	  30	6		6		5       bow
+Bow(Locust)  	  35	6		6		7       bow
+Strongbow(Maple)  40    6       4       10      bow
 Strongbow(Cedar)  40    6       4       15      bow
 
-Tomahawk(Flint)	15		8		5       1       thrown_axe  axe
-Spear(Flint)	10		8		5       1       thrown  spear
+War_Bow(Oak)	   	25	6		6		10       bow
+War_Bow(Tepozan)	35	6		6		15       bow
 
-// Plains ranged weapons
 Bow(Elk_Horn)   30      6       6       4       bow
-Sling			30		6		3		8       sling   sling
+
+// Thrown weapons
+Rocks			10		6		2	    4       thrown  rock
+Spear(Flint)	10		8		5       1       thrown  spear
+Tomahawk(Flint)	15		8		5       1       thrown_axe  axe
+
 Lance           8       7       4       1       thrown  lance
 Firebomb        10      7       5       3       thrown  rock
+
+
+
+//Blowgun			10		8		6		2       blowgun club
