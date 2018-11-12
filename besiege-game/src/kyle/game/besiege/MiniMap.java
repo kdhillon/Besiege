@@ -17,6 +17,7 @@ import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Equipment;
 import kyle.game.besiege.party.RangedWeaponType;
 import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.party.WeaponType;
 
 public class MiniMap extends Actor {
 //	private final float BORDER = .04f;
@@ -109,10 +110,18 @@ public class MiniMap extends Actor {
 			TextureRegion weapon = WeaponDraw.GetMeleeWeaponTextureForUnittype(toPreview.unitType);
 			boolean drawWeaponInFront = false;
 
-			boolean drawingRangedWeapon = true;
-			if (toPreview.unitType.ranged == null || (unit != null && !unit.rangedWeaponOut()) || toPreview.unitType.ranged.type == RangedWeaponType.Type.THROWN || toPreview.unitType.ranged.type == RangedWeaponType.Type.THROWN_AXE) {
-                drawingRangedWeapon = false;
-            }
+			boolean drawingRangedWeapon = false;
+			if (toPreview.unitType.ranged != null) {
+				if (unit != null) {
+					drawingRangedWeapon = unit.isFiring() || toPreview.unitType.melee.type == WeaponType.Type.UNARMED;
+				} else {
+					if (toPreview.unitType.ranged.quiver > 2)
+						drawingRangedWeapon = true;
+				}
+			}
+//			if (toPreview.unitType.ranged == null || (unit != null && !unit.rangedWeaponOut()) || toPreview.unitType.ranged.type == RangedWeaponType.Type.THROWN || toPreview.unitType.ranged.type == RangedWeaponType.Type.THROWN_AXE) {
+//                drawingRangedWeapon = false;
+//            }
 
             if (drawingRangedWeapon) {
 				weapon = WeaponDraw.GetRangedWeaponTextureForUnittype(toPreview.unitType);
@@ -132,6 +141,8 @@ public class MiniMap extends Actor {
 				y -= getWidth()*3f/8;
 //				drawInFront = false;
 			}
+
+			if (weapon.getTexture() == null) throw new AssertionError(toPreview.unitType.melee.name + " not found");
 
 			if (!drawWeaponInFront)
                 drawWeapon(batch, weapon, x_boost, y, rotation);
@@ -173,6 +184,7 @@ public class MiniMap extends Actor {
 		}
 	}
     private void drawWeapon(SpriteBatch batch, TextureRegion weapon, float x_boost, float y, float rotation) {
+		if (weapon == null) throw new AssertionError();
         batch.draw(weapon, getX() - getWidth() / 8 + x_boost, y, getWidth() * 3f / 16, getWidth() * 12f / 16, getWidth() * 3f / 8, getWidth() * 12f / 8, 1, 1, rotation);
     }
 }

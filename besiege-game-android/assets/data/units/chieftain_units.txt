@@ -31,7 +31,28 @@ Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
 S   Death_Shaman        Staff               Clothes             none
 
 
-Class:	Forest		LT_GREEN    GREEN   oneida-no-weird.txt
+// TODO replace names with mayan names
+Class:	Jungle	    LT_GREEN   GREEN  mexica.txt
+1	Hunter			Unarmed/Atlatl(Oak)	Loincloth		Warrior
+1   Villager        Knife(Obsidian)/Rocks  Loincloth        Warrior
+
+2   Warrior         Shortsword(Obsidian)/Atlatl(Oak)    Loincloth   Swordsman/Spearman
+
+3   Swordsman       Shortsword(Obsidian)/Atlatl(Oak)    Loincloth/Round_Cotton  Swordsman_(Vet)/Stealth_Swordsman
+3   Spearman        Spear(Obsidian)                     Cotton_Armwrap/Round_Cotton   Spearman_(Vet)/Fire_Spearman
+// TODO add atlatlist if necessary
+
+4   Swordsman_(Vet) Shortsword(Obsidian)/Atlatl(Oak)    Cotton_Armwrap/Round_Cotton  Nagual(J)
+4   Stealth_Swordsman Shortsword(Obsidian)/Atlatl(Oak)  Loincloth/Round_Cotton      Nagual(J)
+4   Spearman_(Vet)  Spear(Obsidian)                     Cotton_Armor/Large_Round   Nagual(J)
+4   Fire_Spearman   Spear(Obsidian)/Spear(Fire)         Cotton_Armwrap/Round_Cotton  Nagual(J)
+
+// TODO add legendary mayan units -- there is evidence of warrior societies but not a lot
+5   Nagual(J)       Shortsword(Obsidian)/Atlatl(Oak)    Cotton_Armor/Round_Cotton   none
+
+S   Jaguar_Shaman   Staff               Clothes             none
+
+Class:	Forest		LT_RED    RED   oneida-no-weird.txt
 1	Villager		Knife(Flint)/Rocks	               	   None			Warrior_(Nov)/Axeman/Archer/Spearman
 1	Hunter			Unarmed/Bow(Ash)/Hunting(Flint)        None			Warrior_(Nov)/Axeman/Archer
 1   Fisher          Spear(Flint)                           None            Warrior_(Nov)/Axeman/Spearman

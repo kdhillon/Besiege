@@ -129,7 +129,10 @@ public class Subparty {
 			party.updated = true;
 			return false;
 		}
-		else kill(soldier);
+		else {
+//			System.out.println("Soldier was killed" + thisWoundChance);
+			kill(soldier);
+		}
 		party.updated = true;
 		return true;
 	}

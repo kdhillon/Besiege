@@ -178,7 +178,9 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			// set speed to be current travel speed, not playerPartyPanel speed
 			topTable.update("Spd", Panel.format("" + army.getSpeed() * Army.SPEED_DISPLAY_FACTOR, 2));
 		}
-		topTable.update("Size", party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+playerPartyPanel.getMaxSize());
+		topTable.update("Size", getSizeString()); //+"/"+playerPartyPanel.getMaxSize());
+//		topTable.update("Captives", party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+playerPartyPanel.getMaxSize());
+
 		topTable.update("Atk", ""+ party.getAtk());
 		topTable.update("Def", Panel.format(""+party.getAvgDef(), 2));
 		
@@ -195,6 +197,14 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 		// minor leak is not here?
 		super.act(delta);
+	}
+
+	public String getSizeString() {
+		String s = party.getHealthySize()+"/"+party.getTotalSize();
+		if (army != null && party.getPrisoners().size > 0) {
+			return s + "+" + party.getPrisoners().size;
+		}
+		return s;
 	}
 
 	public void setActiveFaction() {

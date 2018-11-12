@@ -10,6 +10,7 @@ public class ArmorType {
 		BASIC, 		// Covers full top/bottom
 		CHEST,		// Covers top minus sleeves, plus bottom
 		LOINCLOTH,		// Glorified Speedo
+		ARMWRAP,		// Wrap only on dominant hand
 	}
 	public String name;
 	
@@ -73,6 +74,7 @@ public class ArmorType {
 		if (name.equals("basic")) return ArmorType.Type.BASIC;
 		if (name.equals("clothes")) return ArmorType.Type.CLOTHES;
 		if (name.equals("loincloth")) return Type.LOINCLOTH;
+		if (name.equals("armwrap")) return Type.ARMWRAP;
 
 		System.out.println("Armor type not found: " + name);
 		return null;

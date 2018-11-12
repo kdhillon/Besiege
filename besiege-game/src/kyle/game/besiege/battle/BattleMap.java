@@ -90,8 +90,8 @@ public class BattleMap extends Group {
 
 	// Also have a stealth bonus.
 	public enum GroundType {
-		GRASS(1),
-		DARKGRASS(1.5),
+		GRASS(1.5),
+		DARKGRASS(2),
 		DIRT(1),
 		SAND(1),
 		LIGHTSAND(1),
@@ -104,8 +104,8 @@ public class BattleMap extends Group {
 		DARKROCK(1),
 		FLOWERS(1),
 		FLOWERS2(1),
-		SWAMP(1),
-		SWAMP2(1);
+		SWAMP(1.5),
+		SWAMP2(1.8);
 
 		public double stealthBonus;
 
@@ -114,10 +114,14 @@ public class BattleMap extends Group {
 		}
 	}
 
+	private GroundType getGroundAt(int x, int y) {
+		return ground[x / BLOCK_SIZE][y / BLOCK_SIZE];
+	}
+
 	public GroundType getGroundAt(Unit unit) {
 		if (unit == null) return null;
 		if (!unit.inMap()) return null;
-		return ground[unit.pos_x / BLOCK_SIZE][unit.pos_y / BLOCK_SIZE];
+		return getGroundAt(unit.pos_x, unit.pos_y);
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
@@ -164,7 +168,7 @@ public class BattleMap extends Group {
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-//        this.maptype = MapType.DESERT;
+        this.maptype = MapType.FOREST;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -233,7 +237,7 @@ public class BattleMap extends Group {
 		//		wallBottom = 10;
 		//		wallRight = 60;
 
-		if (stage.hasWall() && !stage.playerDefending)
+		if (stage.hasWall() && !stage.alliesDefending)
 			wallBottom = stage.size_y * 2/ 3;
 
 		// create castle
@@ -722,7 +726,10 @@ public class BattleMap extends Group {
 	private void addTrees(double probability) {
         for (int i = 0; i < stage.size_x; i++) {
             for (int j = 0; j < stage.size_y; j++) {
-                if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && stage.canPlaceUnit(i, j) && !adjacentObstructed(i, j)) {
+            	// TODO get the ground type and add trees probabilistically according to what it is.
+				GroundType g = getGroundAt(i, j);
+				double prob = probability * getTreeProb(g);
+                if (Math.random() < prob && objects[j][i] == null && !insideWalls(i, j) && stage.canPlaceUnit(i, j) && !adjacentObstructed(i, j)) {
                     objects[j][i] = Object.TREE;
                     stage.closed[j][i] = true;
                     //					mainmap.closed[i][j] = true;
@@ -731,6 +738,21 @@ public class BattleMap extends Group {
             }
         }
     }
+
+    private float getTreeProb(GroundType ground) {
+		switch(ground) {
+			case ROCK: return 0.1f;
+			case DARKROCK: return 0.0f;
+			case SAND: return 0.2f;
+			case SNOW: return 0.5f;
+			case DIRT: return 0.5f;
+			case GRASS: return 1.5f;
+			case DARKGRASS: return 3.5f;
+			case MUD: return 0.5f;
+			case WATER: return 0;
+			default: return 1;
+		}
+	}
 
     private void addPalms(double probability) {
         for (int i = 0; i < stage.size_x; i++) {

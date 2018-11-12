@@ -1371,9 +1371,9 @@ public class Kingdom extends Group {
 //	public void printArmyStats() {
 //		System.out.println("Total soldiers " + getTotalSoldiers());
 //		Soldier champ = getSoldierWithMostKills();
-////		if (champ.kills > 10) {
-//			System.out.println("Most kills: " + champ.getTypeName() + " (" + champ.playerPartyPanel.getName() + ") with " + champ.kills +
-//				" kills after " + champ.battlesWon + " wins, " + champ.battlesFled + " retreats out of " + champ.battlesSurvived + " total battles");
+////		if (champ.enemyCasualties > 10) {
+//			System.out.println("Most enemyCasualties: " + champ.getTypeName() + " (" + champ.playerPartyPanel.getName() + ") with " + champ.enemyCasualties +
+//				" enemyCasualties after " + champ.battlesWon + " wins, " + champ.battlesFled + " retreats out of " + champ.battlesSurvived + " total battles");
 //			System.out.println();
 ////		}
 //		Soldier champ2 = getSoldierWithMostCaptures();
@@ -1396,14 +1396,14 @@ public class Kingdom extends Group {
 		int max = -1; 
 		for (Army a : armies) {
 			for (Soldier s : a.party.getHealthy()) {
-				if (s.kills > max) {
-					max = s.kills;
+				if (s.enemyCasualties > max) {
+					max = s.enemyCasualties;
 					champion = s;
 				}
 			}
 			for (Soldier s : a.party.getWounded()) {
-				if (s.kills > max) {
-					max = s.kills;
+				if (s.enemyCasualties > max) {
+					max = s.enemyCasualties;
 					champion = s;
 				}
 			}

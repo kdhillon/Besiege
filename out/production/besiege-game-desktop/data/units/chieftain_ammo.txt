@@ -24,9 +24,9 @@ Broadhead(Copper)   7   arrow
 Poisoned(Root)      5   arrow_poison
 Fire_Arrow          5   arrow_fire
 
-Tomahawk(Flint)	 5      thrown_axe
-Spear(Flint)	 6     thrown
-
+Tomahawk(Flint)	 5     thrown_axe
+Spear(Flint)	 6     spear
+Spear(Fire)	     8     spear_fire
 
 // Plains ammo
 Firebomb            8   thrown_fire

@@ -3,7 +3,6 @@ package kyle.game.besiege.battle;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.MapScreen;
@@ -14,10 +13,8 @@ import kyle.game.besiege.party.UnitLoader;
 
 public class Simulation extends Game {
 	SpriteBatch batch;
-	Texture img;
-	Stage mainstage;
-	MapScreen mapScreen;
-	BattleStage bs;
+	private MapScreen mapScreen;
+	private BattleStage bs;
 
 	@Override
 	public void create () {
@@ -36,17 +33,13 @@ public class Simulation extends Game {
         if (Math.random() < 0.5) {
             type2 = UnitLoader.cultureTypes.get("Desert");
         }
-        type1 = UnitLoader.cultureTypes.get("Plains");
-        if (type1 == null || type2 == null) throw new AssertionError();
+        type1 = UnitLoader.cultureTypes.get("Jungle");
+		type2 = UnitLoader.cultureTypes.get("Jungle");
 
-        type1 = UnitLoader.cultureTypes.get("Plains");
-        type2 = UnitLoader.cultureTypes.get("Forest");
+		if (type1 == null || type2 == null) throw new AssertionError();
 
-//        bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.SCOUT, type1),
-//										PartyType.generatePartyType(Type.SCOUT, type2));
-
-		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.SCOUT, type1),
-										PartyType.generatePartyType(Type.SCOUT, type2), 1);
+		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.TEST_ALL, type1),
+										PartyType.generatePartyType(Type.TEST_ALL, type2), 1);
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		
@@ -54,13 +47,4 @@ public class Simulation extends Game {
 		
 		setScreen(mapScreen); // eventually make mainMenu
 	}
-
-//	@Override
-//	public void render () {
-//		Gdx.gl.glClearColor(0, 0, 0, 1);
-//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//
-//		mainstage.act();
-//		mainstage.draw();
-//	}
 }

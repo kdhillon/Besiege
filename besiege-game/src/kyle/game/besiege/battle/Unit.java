@@ -27,7 +27,9 @@ public class Unit extends Group {
 	static public float NEAR_COVER_DISTANCE = 6;
 	static public float HEIGHT_RANGE_FACTOR = 6;
 	static public float MAN_SIEGE_DISTANCE = 40;
-	static public float BASE_LOS = 10;
+
+	// For now, let's do 0 LOS. everything managed by discovery radius
+	static public float BASE_LOS = 0;
 	static public int BASE_HIDE = 15;
 
 	static public int RETREAT_POS = 10000;
@@ -295,8 +297,8 @@ public class Unit extends Group {
         firingStateTime = 0f;
         stateTime = 0f;
 
-//		if (this.team == 0 && stage.siegeOrRaid && stage.playerDefending) this.canRetreat = false;
-//		if (this.team == 1 && stage.siegeOrRaid && !stage.playerDefending) this.canRetreat = false;
+//		if (this.team == 0 && stage.siegeOrRaid && stage.alliesDefending) this.canRetreat = false;
+//		if (this.team == 1 && stage.siegeOrRaid && !stage.alliesDefending) this.canRetreat = false;
 
 		// Initially, hide all units and reveal if necessary
 		if (this.canHide()) {
@@ -437,6 +439,7 @@ public class Unit extends Group {
 
 				// if enemy is within one unit and fighting, can move to them.
 				if (defendingButShouldAttackNearestEnemy()) {
+					System.out.println("defending but should attack nearby");
 					nearestCover = null;
 					moveToEnemy();
 				}
@@ -454,15 +457,16 @@ public class Unit extends Group {
 				else {
 					if (stage.isOver()) return;
 
-					if (this.rangedWeaponOut() && !shouldMove()) {
+					if (this.rangedWeaponOut() && !shouldMoveBeforeFiring()) {
 						nearestTarget = getNearestTarget();
 						if (nearestTarget != null) {
 							if (reloading < RELOADING_THRESHHOLD && nearestTarget.distanceTo(this) < this.getCurrentRange() && unitSafelyAwayFromFriends(nearestTarget) && nearestTarget.attacking == null) {
+								System.out.println("firing");
 								fireAtEnemy();
 							}
 							else {
 								this.nearestTarget = getNearestTarget();
-								if (this.nearestTarget == null && !this.shouldMoveToCover()) moveToEnemy();
+								if (this.nearestTarget == null && !this.shouldMoveToCover() && stance != Stance.DEFENSIVE) moveToEnemy();
 								else faceStrict(nearestEnemy);
 								reload(delta);
 							}
@@ -475,7 +479,10 @@ public class Unit extends Group {
 					}
 					// move to orignial position for infantry
 					else if (!this.rangedWeaponOut() && this.stance == Stance.DEFENSIVE && !inCover()) {
-						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) this.moveToPoint(new BPoint(original_x, original_y));
+						if ((this.pos_x != original_x || this.pos_y != original_y) && canMove(pos_x, pos_y)) {
+							System.out.println("moving to better point to fire.");
+							this.moveToPoint(new BPoint(original_x, original_y));
+						}
 					}
 					else faceStrict(nearestEnemy);
 				}
@@ -705,6 +712,7 @@ public class Unit extends Group {
 	}
 
 	private void moveToEnemy() {
+//		if (team == 0) throw new AssertionError();
 		if (stage.isOver()) return;
 		// This is clearly messed up...
 //		if (nearestEnemy != null && !nearestEnemy.inMap()) {
@@ -856,15 +864,17 @@ public class Unit extends Group {
 	}
 
 	// should move checks if archer needs to move before shooting, then moves them away from an obstruction or to cover
-	private boolean shouldMove() {
+	private boolean shouldMoveBeforeFiring() {
 		BPoint facing = getAdjacentPoint();
 		if (inCover()) return false;
+		if (isHidden()) return false;
 		if (facing == null) return false; // facing off stage
 		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
 
 		// check if object in front is too height
 		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Projectile.INITIAL_HEIGHT+this.getFloorHeight())) {
 			//			System.out.println("should move");
+
 			this.startMove(getRandomDirection());
 			return true;
 		}
@@ -1350,7 +1360,7 @@ public class Unit extends Group {
 		this.isHit = true;
 		if (this.hp <= 0 && !this.outOfBattle) {
 			if (this.soldier != null && attacker != null && attacker.soldier != null) {
-				this.soldier.killedBy = attacker.soldier;
+				this.soldier.killedOrWoundedBy = attacker.soldier;
 				attacker.bsp.handleKilledEnemy();
 			}
 			this.isDying = true;
@@ -1363,7 +1373,7 @@ public class Unit extends Group {
 //				if (attacker.attacking == this) attacker.attacking = null;
 //				// usually full level, but spread some out to playerPartyPanel
 //				// this happens in
-////				attacker.soldier.registerKill(this.soldier, false);
+////				attacker.soldier.registerKillOrWoundEnemy(this.soldier, false);
 //			}
 		}
 		//		System.out.println(this.hp);
@@ -1699,7 +1709,7 @@ public class Unit extends Group {
 		this.removeActor(weaponDraw);
         this.removeActor(thrownItem);
 
-		boolean wasAttacker = (this.team == 0) == (stage.playerDefending);
+		boolean wasAttacker = (this.team == 0) == (stage.alliesDefending);
 		stage.casualty(this.soldier, wasAttacker);
 	}
 

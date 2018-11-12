@@ -654,7 +654,7 @@ public class Army extends Group implements Destination {
 	public String getUniqueAction() {
 		//contained in extensions;
 		if (this.getTarget() == null) return "Travelling (Null Target)";
-		return "Travelling " + this.getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2)+")";
+		return "Travelling";// + this.getTarget().getName(); // + " (Speed: " + Panel.format(getSpeed()*SPEED_DISPLAY_FACTOR+"", 2)+")";
 	}
 
 	public boolean detectCollision() {
@@ -706,7 +706,7 @@ public class Army extends Group implements Destination {
 
 	public void enemyArmyCollision(Army targetArmy) {
 		if (targetArmy.getBattle() == null) {
-			if (targetArmy.isGarrisonedUnsafely())
+			if (!targetArmy.isGarrisoned() || targetArmy.isGarrisonedUnsafely())
 				createBattleWith(targetArmy, targetArmy.garrisonedIn);
 		}
 		else {
@@ -726,7 +726,6 @@ public class Army extends Group implements Destination {
 
 	public void friendlyArmyCollision(Army targetArmy) {
 		//follow
-		
 	}
 
 	public void createBattleWith(Army targetArmy, Location siegeOf) {
@@ -796,7 +795,7 @@ public class Army extends Group implements Destination {
 					nearAllies.add(a.party);
 			}
 
-			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
+			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, true, siegeOf);
 			
 			//			getKingdom().getMapScreen().getSidePanel().setActiveBattle(b);
 			//			getKingdom().getMapScreen().getSidePanel().setStay(true);
@@ -935,7 +934,7 @@ public class Army extends Group implements Destination {
 
 		setVisible(false);
 		setPosition(garrisonedIn.spawnPoint.getX()-this.getOriginX(), garrisonedIn.spawnPoint.getY()-this.getOriginY());
-		setTarget(null);
+		clearTarget();
 
 		if (isGarrisonedSafely()) {
 			changeTargetOfAnyFollowers();
@@ -952,6 +951,12 @@ public class Army extends Group implements Destination {
 		}
 		else if (type == ArmyType.MERCHANT && ((Merchant) this).goal == targetCity) waitFor(Merchant.MERCHANT_WAIT);
 		else if (type != ArmyType.NOBLE) waitFor(WAIT); //arbitrary
+	}
+
+	void clearTarget() {
+		path.forceClear();
+		if (!isGarrisoned() && !isInBattle())
+			this.nextTarget();
 	}
 
 	/** do this while garrisoned
@@ -984,7 +989,7 @@ public class Army extends Group implements Destination {
 //				System.out.println("player should stop running...");
 				runFrom = null;
 				eject();
-				setTarget(null);
+				clearTarget();
 				//					System.out.println("ejecting " + this.getName() + " with no target");
 			}
 			if (!isRunning()) {
@@ -1302,7 +1307,7 @@ public class Army extends Group implements Destination {
 		}
 
 		setWaiting(false);
-		if (runFrom != null) setTarget(null);
+		if (runFrom != null) clearTarget();
 		this.runFrom = runFrom;
 	}
 
@@ -1502,7 +1507,7 @@ public class Army extends Group implements Destination {
 		battleActor = null;
         setStopped(false);
         // Not sure about this one! what if you already had a target? TODO
-        setTarget(null);
+		clearTarget();
 		nextTarget();
 //        if (!((p.getHealthySize() <= DEPRECATED_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
         setVisible(true);
@@ -1549,9 +1554,10 @@ public class Army extends Group implements Destination {
 	public boolean setTarget(Destination newTarget) {
 		if (newTarget == null) {
 			// figure out how to reconcile this with path?
-			//System.out.println(getName() + " has null target");
+			System.out.println(getName() + " setting a null target");
 			path.forceClear();
-			return false;
+			throw new AssertionError();
+//			return false;
 		}	
 		// replace old targetof
 		if (getTarget() != null && getTarget().getType() == Destination.DestType.ARMY) {
@@ -1677,7 +1683,8 @@ public class Army extends Group implements Destination {
 		setTarget(target);
 	}
 	public void findTarget() {
-		this.setTarget(null);
+		path.forceClear();
+
 		//		if (this.type == ArmyType.BANDIT) System.out.println("bandit finding target");
         if (defaultTarget != getTarget())
 		    setTarget(defaultTarget);

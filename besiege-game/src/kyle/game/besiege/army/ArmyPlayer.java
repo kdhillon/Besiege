@@ -36,7 +36,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, "", faction, posX, posY, PartyType.Type.FARMERS, true);
+		super(kingdom, "", faction, posX, posY, PartyType.Type.SCOUT, true);
 		this.player = true;
 		this.setScale(calcScale());
 //		Location loc = this.detectNearbyFriendlyCity();
@@ -295,7 +295,7 @@ public class ArmyPlayer extends Army {
 	}
 	
 	// create a battle involving the player
-	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean defending, Location siegeOrRaidOf) {
+	public void createPlayerBattleWith(Array<Party> allies, Array<Party> enemies, boolean alliesDefending, Location siegeOrRaidOf) {
 		System.out.println("switching to battle view");
 		// first create battle stage with appropriate stuff
 
@@ -314,7 +314,7 @@ public class ArmyPlayer extends Army {
 				throw new AssertionError();
 			}
 		}
-		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, defending, siege);
+		BattleStage bs = new BattleStage(this.getKingdom().getMapScreen(), allies, enemies, alliesDefending, siege);
 		this.getKingdom().getMapScreen().switchToBattleView(bs);
 	}
 	
@@ -358,8 +358,13 @@ public class ArmyPlayer extends Army {
 	@Override
 	public void nextTarget() {
 		System.out.println("next target player");
-		setTarget(null);
+		clearTarget();
 		setPaused(true);
+	}
+
+	@Override
+	void clearTarget() {
+		path.forceClear();
 	}
 
 	public void setPaused(boolean paused) {

@@ -53,6 +53,8 @@ public class VictoryManager {
     private HashMap<Party, StrictArray<Soldier>> woundedMap = new HashMap<>();
     private HashMap<Party, StrictArray<Soldier>> killedMap = new HashMap<>();
 
+    private HashMap<Party, StrictArray<Soldier>> prisonersToReceive = new HashMap<>();
+
     public int aTroopsKilled;
     public int aTroopsWounded;
     public int dTroopsKilled;
@@ -83,6 +85,7 @@ public class VictoryManager {
 
     // Store loot, etc for this soldier
     public void handleCasualty(Soldier soldier, boolean wasInAttackers, boolean killed) {
+
         // add to total exp sum
         if (wasInAttackers) expD += soldier.getExpForKill();
         else expA += soldier.getExpForKill();
@@ -105,6 +108,15 @@ public class VictoryManager {
         } else {
 //            addTo(troopsWounded, soldier.party, 1);
             addTo(woundedMap, soldier.party, soldier);
+
+            Soldier woundedBy = soldier.killedOrWoundedBy;
+            if (woundedBy != null) {
+                // Make a note that if this soldier loses the battle, this soldier will be captured by the enemy.
+                // TODO have a random chance of escaping capture.
+                addTo(prisonersToReceive, woundedBy.party, soldier);
+            } else {
+                throw new AssertionError();
+            }
         }
 
         // add loot to loot drop
@@ -136,7 +148,7 @@ public class VictoryManager {
         else return new StrictArray<>();
     }
 
-    public StrictArray<Soldier> getWoundedSoldierIn(Party p) {
+    public StrictArray<Soldier> getWoundedSoldiersIn(Party p) {
         if (woundedMap.containsKey(p)) return woundedMap.get(p);
         else return new StrictArray<>();
     }
@@ -186,6 +198,7 @@ public class VictoryManager {
             double contribution = victorContribution[i]/1.0d/totalContribution;
             party.registerBattleVictory();
             distributeRewards(party, contribution, didAtkWin);
+            distributePrisoners(party);
         }
 
         //  when army loses all its troops, keep it in battle inside "battle.retreatedparties" until end. then dole out penalties appropriately.
@@ -259,6 +272,17 @@ public class VictoryManager {
             for (int i = 0; i < p.subparties.size; i++) {
                 Subparty s = p.subparties.get(i);
                 s.checkIfGeneralDied();
+            }
+        }
+    }
+
+    // Give all the captives that were wounded during the battle.
+    private void distributePrisoners(Party party) {
+        StrictArray<Soldier> prisoners = prisonersToReceive.get(party);
+        if (prisoners != null) {
+            for (Soldier s : prisoners) {
+                System.out.println("Soldier was captured: " + party.getName());
+                s.handleCapturedBy(party);
             }
         }
     }

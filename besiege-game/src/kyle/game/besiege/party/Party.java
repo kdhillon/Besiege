@@ -310,7 +310,7 @@ public class Party {
 	//		return p;
 	//	}
 
-	public void givePrisoner(Soldier prisoner, Party recipient) {
+	public void givePrisonerFromThis(Soldier prisoner, Party recipient) {
 		boolean removed = false;
 		for (Subparty s : subparties) {
 			if (s.wounded.contains(prisoner, true)) {

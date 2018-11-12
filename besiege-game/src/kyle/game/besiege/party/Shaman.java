@@ -27,7 +27,9 @@ public class Shaman extends Soldier {
         HAWK("Hawk Shaman", "Plains", "weapon_name", "armor_name", MASK_HAWK),
         BUFFALO("Buffalo Shaman", "Plains", "weapon_name", "armor_name", MASK_BUFFALO),
         // Desert
-        DEATH("Death Priest", "Desert", "weapon_name", "armor_name", MASK_SKULL);
+        DEATH("Death Priest", "Desert", "weapon_name", "armor_name", MASK_SKULL),
+        JAGUAR("Jaguar Priest", "Jungle", "weapon_name", "armor_name", MASK_SKULL);
+
         public UnitType unitType;
         private Equipment mask;
         // TODO add weapon (staff), armor, and headdress

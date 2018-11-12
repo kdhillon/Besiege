@@ -24,9 +24,12 @@ Flail(Stone)        5   -1   club     morningstar
 
 // Desert weapons
 Spear(Obsidian)		 5	-1  polearm spear
-Broadsword(Obsidian) 5	0   1h      shortsword
+Broadsword(Obsidian) 5	0   1h      broadsword
 // Also warclub, stone and wood.
 Knife(Obsidian)      2  0   1h      dagger
+
+// Jungle weapons
+Shortsword(Obsidian) 4	0   1h      shortsword
 
 // Tundra weapons
 Club(Whalebone)     4   0   club    warclubstone

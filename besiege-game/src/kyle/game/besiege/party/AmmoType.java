@@ -9,9 +9,10 @@ public class AmmoType {
         ARROW_FIRE,
         ARROW_POISON,
         DART,
-        THROWN,
         THROWN_AXE,
         THROWN_FIRE,
+        SPEAR,
+        SPEAR_FIRE,
         ROCK,
         CROSSBOW_BOLT,
         BULLET
@@ -46,8 +47,10 @@ public class AmmoType {
             type = Type.DART;
         if (typeString.equals("crossbow"))
             type = Type.CROSSBOW_BOLT;
-        if (typeString.equals("thrown"))
-            type = Type.THROWN;
+        if (typeString.equals("spear"))
+            type = Type.SPEAR;
+        if (typeString.equals("spear_fire"))
+            type = Type.SPEAR_FIRE;
         if (typeString.equals("thrown_axe"))
             type = Type.THROWN_AXE;
         if (typeString.equals("thrown_fire"))
@@ -58,6 +61,16 @@ public class AmmoType {
         if (type == null) throw new AssertionError("type not found " + typeString);
     }
 
+    public boolean isOnFire() {
+        switch(type) {
+            case ARROW_FIRE:
+            case THROWN_FIRE:
+            case SPEAR_FIRE:
+                return true;
+        }
+        return false;
+    }
+
     public TextureRegion getRegion() {
         switch (type) {
             case ARROW:
@@ -66,7 +79,8 @@ public class AmmoType {
                 return Assets.map.findRegion("arrow");
             case DART:
                 return Assets.map.findRegion("dart");
-            case THROWN:
+            case SPEAR:
+            case SPEAR_FIRE:
                 return Assets.map.findRegion("dart");
             case THROWN_AXE:
                 return Assets.map.findRegion("axe");
@@ -84,7 +98,8 @@ public class AmmoType {
             case ARROW_POISON:
                 return Assets.map.findRegion("half arrow");
             case DART:
-            case THROWN:
+            case SPEAR:
+            case SPEAR_FIRE:
                 return Assets.map.findRegion("half dart");
             case THROWN_AXE:
                 double rand = Math.random();
@@ -106,7 +121,8 @@ public class AmmoType {
             case ARROW_FIRE:
             case ARROW_POISON:
             case DART:
-            case THROWN:
+            case SPEAR:
+            case SPEAR_FIRE:
             case CROSSBOW_BOLT:
                 return false;
             case THROWN_AXE:

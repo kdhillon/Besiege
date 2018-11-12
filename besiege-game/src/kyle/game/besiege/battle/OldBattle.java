@@ -176,7 +176,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (playerInA) log(army.getName() + " was destroyed!", "red");
 			else log(army.getName() + " was destroyed!", "green");
 			for (Soldier s : army.getParty().getWounded())
-				army.getParty().givePrisoner(s, dArmies.random().getParty());
+				army.getParty().givePrisonerFromThis(s, dArmies.random().getParty());
 			for (Soldier s : army.getParty().getPrisoners())
 				army.getParty().returnPrisoner(s, dArmies.random().getParty());
 			remove(army);
@@ -185,7 +185,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 			if (playerInD) log(army.getName() + " was destroyed!", "red");
 			else log(army.getName() + " was destroyed!", "green");
 			for (Soldier s : army.getParty().getWounded())
-				army.getParty().givePrisoner(s, aArmies.random().getParty());
+				army.getParty().givePrisonerFromThis(s, aArmies.random().getParty());
 			for (Soldier s : army.getParty().getPrisoners())
 				army.getParty().returnPrisoner(s, aArmies.random().getParty());
 			remove(army);
@@ -364,7 +364,7 @@ public class OldBattle implements Battle { // new battle system involving Party
 		}
 	}
 
-	private void killOne(Army army, boolean wasInAttackers) { // kills/wounds one random troop in this army, weighted by the troop's defense
+	private void killOne(Army army, boolean wasInAttackers) { // enemyCasualties/wounds one random troop in this army, weighted by the troop's defense
 		// Now choose a random soldier weighted by def
 		Soldier random = army.party.getRandomWeightedInverseDefense();
 //		if (random == null) throw new java.lang.AssertionError();

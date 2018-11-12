@@ -8,6 +8,7 @@ public class Random {
     }
 
     public static Object getRandomValue(Object[] array) {
+        if (array.length == 0) return null;
         return array[getRandomIndex(array)];
     }
 

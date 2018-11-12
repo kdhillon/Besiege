@@ -1,12 +1,9 @@
 package kyle.game.besiege.panels;
 
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.esotericsoftware.tablelayout.Cell;
-import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.StrictArray;
-import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.VictoryManager;
@@ -93,8 +90,8 @@ public class PanelPostBattle extends Panel {
 //        table.addSmallLabel("wounded", "Wounded:");
         table.addSmallLabel("remaining", "Remain:");
 
-        table.update("lost", vm.getKilledSoldiersIn(p).size + vm.getWoundedSoldierIn(p).size + "");
-//        table.update("wounded", vm.getWoundedSoldierIn(p).size+"");
+        table.update("lost", vm.getKilledSoldiersIn(p).size + vm.getWoundedSoldiersIn(p).size + "");
+//        table.update("wounded", vm.getWoundedSoldiersIn(p).size+"");
 
 //        table.addSmallLabel("retreated", "Ret:");
 //        table.addSmallLabel("remaining", "Remaining:");
@@ -105,7 +102,7 @@ public class PanelPostBattle extends Panel {
 //        table.update("empty", "");
 
         StrictArray<StrictArray<Soldier>> consolidatedKilled = Party.getConsol(vm.getKilledSoldiersIn(p), true);
-        StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldierIn(p), true);
+        StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldiersIn(p), true);
 
         SoldierTable soldierTable = new SoldierTable(null, true, battleStage, consolidatedKWounded, consolidatedKilled);
         parties.first().updated = true;

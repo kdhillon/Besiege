@@ -1201,9 +1201,9 @@ public class Location extends Group implements Destination {
 			garrison.clearPrisoners();
 
 			for (Soldier newPrisoner : garrison.getWounded()) 
-				this.garrison.givePrisoner(newPrisoner, this.garrison);
+				this.garrison.givePrisonerFromThis(newPrisoner, this.garrison);
 			for (Soldier newPrisoner : garrison.getHealthy())
-				this.garrison.givePrisoner(newPrisoner, this.garrison);
+				this.garrison.givePrisonerFromThis(newPrisoner, this.garrison);
 
 			for (Soldier newSoldier : oldCaptured) 
 				this.garrison.addPrisoner(newSoldier);

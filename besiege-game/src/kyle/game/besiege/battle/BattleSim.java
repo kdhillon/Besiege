@@ -2,6 +2,7 @@ package kyle.game.besiege.battle;
 
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Kingdom;
+import kyle.game.besiege.Random;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.army.Noble;
@@ -368,7 +369,7 @@ public class BattleSim implements Battle {
     }
 
 
-    // kills/wounds one random troop in this army, weighted by the troop's defense
+    // enemyCasualties/wounds one random troop in this army, weighted by the troop's defense
     private void killOne(Party party, boolean wasInAttackers) {
         Soldier random = party.getRandomWeightedInverseDefense();
 		if (random == null) throw new java.lang.AssertionError();
@@ -387,18 +388,20 @@ public class BattleSim implements Battle {
         if (wasInAttackers) {
             if (playerInA) log(party.getName() + " was defeated!", "red");
             else log(party.getName() + " was defeated!", "green");
-            for (Soldier s : party.getWounded())
-                party.givePrisoner(s, dParties.random());
-            for (Soldier s : party.getPrisoners())
-                party.returnPrisoner(s, dParties.random());
+            // This now happens in victorymanager.
+//            for (Soldier s : party.getWounded())
+//                party.givePrisonerFromThis(s, dParties.random());
+//            for (Soldier s : party.getPrisoners())
+//                party.returnPrisoner(s, dParties.random());
         }
         else if (dParties.contains(party, true) || dPartiesRet.contains(party,true)) {
             if (playerInD) log(party + " was defeated!", "red");
             else log(party + " was defeated!", "green");
-            for (Soldier s : party.getWounded())
-                party.givePrisoner(s, aParties.random());
-            for (Soldier s : party.getPrisoners())
-                party.returnPrisoner(s, aParties.random());
+            // This now happens in victorymanager
+//            for (Soldier s : party.getWounded())
+//                party.givePrisonerFromThis(s, aParties.random());
+//            for (Soldier s : party.getPrisoners())
+//                party.returnPrisoner(s, aParties.random());
         } else throw new AssertionError();
 //        increaseSpoilsForKill(army);
 
@@ -452,13 +455,32 @@ public class BattleSim implements Battle {
 	public void casualty(Soldier soldier, boolean wasInAttackers) {
         Soldier killer = getRandomKiller(!wasInAttackers);
         boolean killed = soldier.casualty(wasInAttackers, killer, playerInA, playerInD);
+        soldier.killedOrWoundedBy = killer;
 
         victoryManager.handleCasualty(soldier, wasInAttackers, killed);
     }
 
     private Soldier getRandomKiller(boolean fromAttackers) {
-	    // for now, return null
-        return null;
+        StrictArray<Party> parties;
+        if (fromAttackers) parties = aParties;
+        else parties = dParties;
+
+        if (parties.size == 0) {
+            System.out.println("warning, parties size is 0 when getting random killer");
+            return null;
+        }
+        // TODO eventually make this weighted by level.
+        // Also, this isn't really random (weighted towards units in smaller subparties)
+        Object randomObj = Random.getRandomValue(parties.toArray());
+        Party randomParty = (Party) randomObj;
+        if (randomParty == null) {
+            return null;
+        }
+        Subparty randomSub = (Subparty) Random.getRandomValue(randomParty.subparties.toArray());
+        Soldier s =  (Soldier) Random.getRandomValue(randomSub.healthy.toArray());
+        return s;
+        // for now, return null
+//        return null;
 //        StrictArray<Army> armies;
 //        if (fromAttackers) armies = aArmies;
 //        else armies = dArmies;

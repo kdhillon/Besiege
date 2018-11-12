@@ -707,7 +707,7 @@ public class SiegeUnit extends Group {
 //		this.pos_y = -100;
 //		this.removeActor(weaponDraw);
 //
-//		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
+//		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.alliesDefending));
 //
 //		//		System.out.println("DESTROYED");
 //		//playerPartyPanel.casualty(soldier);

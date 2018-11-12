@@ -113,7 +113,7 @@ public class SoldierTable extends Table {
 		garrisonC = new Label("Garrison", ls);
 		noTroopsC = new Label(LOCATION_EMPTY_TEXT,ls);
         nullC = new Label("Garrison is null!",ls);
-		prisonersC = new Label("Captured", ls);
+		prisonersC = new Label("Captives", ls);
 		emptyC = new Label("", ls);
 		
 		soldierTable = new Table();
@@ -238,40 +238,12 @@ public class SoldierTable extends Table {
                 if (s.getGeneral() != null) {
 //				System.out.println(s.getGeneral().getName());
                     general = new SoldierLabel(s.getGeneral().getOfficialName(), style, s.getGeneral());
-                    general.addListener(new ClickListener() {
-                        public boolean touchDown(InputEvent event, float x,
-                                                 float y, int pointer, int button) {
-                            System.out.println("Dragging: " + general.getName());
-                            if (selectable) {
-                                if (selected == s.getGeneral()) {
-                                    // Deselect happens in touchup
-                                } else {
-                                    select(s.getGeneral());
-                                }
-                            } else {
-                                switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
-                            }
-                            return true;
-                        }
-
-                        public void touchUp(InputEvent event, float x, float y,
-                                            int pointer, int button) {
-                            System.out.println("Releasing: " + general.getName());
-                            // Deselect happens in touchup
-                            if (selectable && !justSelected) {
-                                if (selected == s.getGeneral()) {
-                                    deselect();
-                                }
-                            }
-                            justSelected = false;
-
-                        }
-                    });
+                    general.addListener(createSoldierClickListener(s.getGeneral(), bsp));
                     soldierTable.add(general).left().expandX();
                     general.setColor(s.getGeneral().unitType.cultureType.colorDark);
 
                     Label generalCount = new Label(s.getHealthySize() + "", style);
-                    soldierTable.add(generalCount).left();
+                    soldierTable.add(generalCount).right();
                     generalCount.setColor(s.getGeneral().unitType.cultureType.colorDark);
                     soldierTable.row();
 
@@ -284,7 +256,20 @@ public class SoldierTable extends Table {
                 updateTableWithTypes(s.getConsolWounded(), wounded);
             }
         }
+
+        // Add prisoners.
+        addPrisoners(party);
 	}
+
+	private void addPrisoners(Party party) {
+        if (party.getPrisoners() == null || party.getPrisoners().size == 0) return;
+
+        prisonersC.setAlignment(Align.center);
+//        soldierTable.add(prisonersC).colspan(2).center().width(SidePanel.WIDTH - PAD * 2);
+//        soldierTable.row();
+
+        updateTableWithTypes(party.getConsolPrisoners(), lsG);
+    }
 
     // This is a label of a general that includes a table of all subtypes below it
     public class SubpartyLabel extends Label {
@@ -377,35 +362,7 @@ public class SoldierTable extends Table {
                 }
                 soldierLabels.add(shamanLabel);
 
-                shamanLabel.addListener(new ClickListener() {
-                    public boolean touchDown(InputEvent event, float x,
-                                             float y, int pointer, int button) {
-                        System.out.println("Dragging shaman: " + subparty.shaman.getName());
-                        if (selectable) {
-                            if (selected == subparty.shaman) {
-                                // Deselect happens in touchup
-                            } else
-                                select(subparty.shaman);
-                        } else {
-                            if (bsp == null) {
-                                switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
-                            } else {
-                                battleStage.selectUnit(bsp.shaman);
-                            }
-                        }
-                        return true;
-                    }
-                    public void touchUp(InputEvent event, float x, float y,
-                                        int pointer, int button) {
-                        System.out.println("Releasing shaman: " + subparty.shaman.getName());
-                        if (selectable && !justSelected) {
-                            if (selected == subparty.shaman) {
-                                deselect();
-                            }
-                        }
-                        justSelected = false;
-                    }
-                });
+                shamanLabel.addListener(createSoldierClickListener(subparty.shaman, bsp));
                 expand.row();
             }
         }
@@ -413,6 +370,38 @@ public class SoldierTable extends Table {
             expanded = false;
             expand.clear();
         }
+    }
+
+    private ClickListener createSoldierClickListener(final Soldier soldier, /**Optional*/ final BattleSubParty bsp) {
+        return new ClickListener() {
+            public boolean touchDown(InputEvent event, float x,
+                                     float y, int pointer, int button) {
+                System.out.println("Dragging soldier: " + soldier.getName());
+                if (selectable) {
+                    if (selected == soldier) {
+                        // Deselect happens in touchup
+                    } else
+                        select(soldier);
+                } else {
+                    if (bsp == null) {
+                        switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
+                    } else {
+                        battleStage.selectUnit(bsp.shaman);
+                    }
+                }
+                return true;
+            }
+            public void touchUp(InputEvent event, float x, float y,
+                                int pointer, int button) {
+                System.out.println("Releasing soldier: " + soldier.getName());
+                if (selectable && !justSelected) {
+                    if (selected == soldier) {
+                        deselect();
+                    }
+                }
+                justSelected = false;
+            }
+        };
     }
 
     public class TypeLabel extends Label {
@@ -446,6 +435,7 @@ public class SoldierTable extends Table {
                 }
             });
         }
+
         void createExpand() {
             for (final Soldier s : type) {
                 SoldierLabel soldierName = new SoldierLabel(s.getName(), this.getStyle(), s);
@@ -455,40 +445,12 @@ public class SoldierTable extends Table {
                 }
                 expand.add(soldierName).left().padBottom(PanelUnit.NEG).expandX();
 
-                soldierName.addListener(new ClickListener() {
-                    public boolean touchDown(InputEvent event, float x,
-                                             float y, int pointer, int button) {
-                        System.out.println("Dragging: " + s.getName());
-                        if (selectable) {
-                            if (selected == s) {
-                                // deselect happens in touch up
-                            } else
-                                select(s);
-                        } else {
-                            if (bsp == null) {
-                                switchToPanel(((SoldierLabel) event.getListenerActor()).soldier);
-                            } else {
-                                System.out.println("Selecting unit");
-                                battleStage.selectUnit(bsp.getUnit(((SoldierLabel) event.getListenerActor()).soldier));
-                            }
-                        }
-                        return true;
-                    }
-                    public void touchUp(InputEvent event, float x, float y,
-                                        int pointer, int button) {
-                        System.out.println("Releasing: " + s.getName());
-                        if (selectable && !justSelected) {
-                            if (selected == s) {
-                                deselect();
-                            }
-                        }
-                        justSelected = false;
-                    }
-                });
+                soldierName.addListener(createSoldierClickListener(s, bsp));
                 expand.row();
 
                 soldierLabels.add(soldierName);
             }
+
         }
         void clearExpand() {
             expand.clear();
@@ -499,6 +461,12 @@ public class SoldierTable extends Table {
         MapScreen.sidePanelReference.setActiveUnit(s);
     }
 
+    /**
+     *
+     * @param s Subparty to update
+     * @param style Style to use for this table
+     * @param bsp Optional, only present if this is in a battle
+     */
     public void updateTableWithTypesNew(final Subparty s, LabelStyle style, final BattleSubParty bsp) {
         // Add title of the party:
         if (s.getRank() == 0) {
@@ -723,13 +691,13 @@ public class SoldierTable extends Table {
         update();
     }
 
-	public void updateWithPrisoners(Party party) {
-        if (party != null && party.getPrisoners().size > 0)
-            prisonersC.setText("Captured");
-        else prisonersC.setText("");
-        prisonersC.setAlignment(0, 0);
-        soldierTable.add(prisonersC).colspan(2).width(SidePanel.WIDTH - PAD * 2).expandX().fillX().padTop(0);
-        soldierTable.row();
-        updateTableWithTypes(party.getConsolPrisoners(), ls);
-    }
+//	public void updateWithPrisoners(Party party) {
+//        if (party != null && party.getPrisoners().size > 0)
+//            prisonersC.setText("Captives");
+//        else prisonersC.setText("");
+//        prisonersC.setAlignment(0, 0);
+//        soldierTable.add(prisonersC).colspan(2).width(SidePanel.WIDTH - PAD * 2).expandX().fillX().padTop(0);
+//        soldierTable.row();
+//        updateTableWithTypes(party.getConsolPrisoners(), ls);
+//    }
 }

@@ -36,7 +36,7 @@ package kyle.game.besiege.party;
 //
 //	public Party playerPartyPanel;
 //
-//	public Soldier killedBy; // once killed
+//	public Soldier killedOrWoundedBy; // once killed
 //
 //	public int level;
 //	public int exp;

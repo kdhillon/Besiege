@@ -113,7 +113,7 @@ public class Farmer extends Army {
 		if (count == 10) {
 			if (location == null) throw new AssertionError();
 			setTarget(location);
-			System.out.println("hunter just searched for 10 targets and couldn't find valid");
+			System.out.println("farmer just searched for 10 targets and couldn't find valid");
 		}
 		else {
 			setTarget(newTarget);

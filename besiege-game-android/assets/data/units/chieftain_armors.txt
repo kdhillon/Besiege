@@ -19,10 +19,15 @@ Bear_Rawhide		    DK_BROWN	2	0	basic
 
 // Meso armors
 Loincloth               LT_BROWN    0   0   loincloth
-Maguey_Clothes          TAN         1   0   basic
-Cotton_Armor            OFF_WHITE   2   0   chest
-Warrior_Suit(Jaguar)    LT_YELLOW   3   0   basic
-Warrior_Suit(Eagle)     LT_RED   3   0   basic
+Maguey_Clothes          TAN         0   0   basic
+Cotton_Armor            OFF_WHITE   2   -1   chest
+Warrior_Suit(Jaguar)    LT_YELLOW   3   -1   basic
+Warrior_Suit(Eagle)     LT_RED      3   -1   basic
+
+// Jungle armors
+Cotton_Armwrap          OFF_WHITE   1   0   armwrap
+
+// TODO add armwrap texture
 
 
 // Tundra armors

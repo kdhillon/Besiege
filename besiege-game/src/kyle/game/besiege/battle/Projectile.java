@@ -158,7 +158,7 @@ public class Projectile extends Group {
 		initializeMovement(accuracy_factor, time_to_collision, initialHeight, targetHeight);
 
 		// TODO with Ammo
-		if (ammoType.type == AmmoType.Type.ARROW_FIRE) {
+		if (ammoType.isOnFire()) {
 //			System.out.println("creating fire");
 			fc = new FireContainer();
             Fire fire = new Fire(400, 500, firing.stage.getMapScreen(), null);
@@ -370,7 +370,7 @@ public class Projectile extends Group {
 
 			// Tree collision, maybe generate fire
 			if (object == BattleMap.Object.PALM || object == BattleMap.Object.TREE) {
-                if (firing.ammoType != null && firing.ammoType.type == AmmoType.Type.ARROW_FIRE) {
+                if (firing.ammoType != null && firing.ammoType.isOnFire()) {
                     if (Math.random() < 0.2)
                         stage.battlemap.createFireAt(pos_x_int, pos_y_int);
                 }
@@ -526,7 +526,7 @@ public class Projectile extends Group {
 				
 				// more exp for killing someone based on their level
 //				if (that.isDying) {
-//					firing.soldier.registerKill(that.soldier, true);
+//					firing.soldier.registerKillOrWoundEnemy(that.soldier, true);
 //				}
 
 //				that.NEAR_COVER_DISTANCE += damage * UNIT_COVER_DIST_CHANGE;

@@ -24,7 +24,10 @@ Bow(Elk_Horn)   30      6       6       4       bow
 // Thrown weapons
 Rocks			10		6		2	    4       thrown  rock
 Spear(Flint)	10		8		5       1       thrown  spear
+Spear(Fire)     10      7       8       2       thrown  spear
+
 Tomahawk(Flint)	15		8		5       1       thrown_axe  axe
+
 
 Lance           8       7       4       1       thrown  lance
 Firebomb        10      7       5       3       thrown  rock

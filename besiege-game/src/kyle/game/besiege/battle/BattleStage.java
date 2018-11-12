@@ -25,7 +25,6 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.panels.PanelBattle;
 import kyle.game.besiege.panels.PanelBattle2;
 import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
@@ -135,7 +134,7 @@ public class BattleStage extends Group implements Battle {
 
     private boolean snowing;
 
-    public boolean playerDefending = true;
+    public boolean alliesDefending;
 
     //	public Stance allies.stance;
     //	public Stance enemies.stance;
@@ -174,8 +173,7 @@ public class BattleStage extends Group implements Battle {
 
     // take in battle object containing arrays of armies and stuff
     public BattleStage(MapScreen mapScreen, Array<Party> allyArray,
-                       Array<Party> enemyArray, boolean playerDefending, Siege
-                               siege) {
+                       Array<Party> enemyArray, boolean alliesDefending, Siege siege) {
         this.mapScreen = mapScreen;
 
         this.allies = new BattleParty(this, 0);
@@ -201,13 +199,14 @@ public class BattleStage extends Group implements Battle {
         BottomPanel.log("Starting battle, probability of victory: " + (int)
                 (100 * getBalanceAllies()) + "%", "white");
 
-        this.playerDefending = playerDefending;
+        this.alliesDefending = alliesDefending;
+
         //		this.isPlayer()Defending = false;
 
         boolean forceSiege = false;
 
         if (siege != null || forceSiege) {
-            //			siegeDefense = playerDefending;
+            //			siegeDefense = alliesDefending;
             //			siegeAttack = !siegeDefense;
             //			//siegeAttack = true;
             siegeOrRaid = true;
@@ -241,7 +240,7 @@ public class BattleStage extends Group implements Battle {
 
 //		for (Party p : enemies.getPartiesCopy()) {
 //			if (p != enemies.first()) {
-//				if (playerDefending) {
+//				if (alliesDefending) {
 //					this.battle.addToAttackers(p.army);
 //				} else {
 //					this.battle.addToDefenders(p.army);
@@ -251,7 +250,7 @@ public class BattleStage extends Group implements Battle {
 //		}
 //		for (Party p : allies.getPartiesCopy()) {
 //			if (p != allies.first()) {
-//				if (!playerDefending) {
+//				if (!alliesDefending) {
 //					this.battle.addToAttackers(p.army);
 //				} else {
 //					this.battle.addToDefenders(p.army);
@@ -282,6 +281,8 @@ public class BattleStage extends Group implements Battle {
         this.enemies = new BattleParty(this, 1);
         this.enemies.player = false;
 
+        alliesDefending = true;
+
         this.allies.addParty(allyParty1);
         this.enemies.addParty(enemyParty1);
 
@@ -307,7 +308,7 @@ public class BattleStage extends Group implements Battle {
 
 //		// must modify battle so it can support a null kingdom
 //		// attacker, defender
-//		if (playerDefending)
+//		if (alliesDefending)
 //			this.battle = new OldBattle(null, enemyParty1, allyParty1);
 //		else 
 //			this.battle = new OldBattle(null, allyParty1, enemyParty1);
@@ -364,7 +365,7 @@ public class BattleStage extends Group implements Battle {
         //		this.isPlayer() = player;
         //		this.enemy = enemy
 
-        if (playerDefending) {
+        if (alliesDefending) {
             allies.setStance(Stance.DEFENSIVE);
             enemies.setStance(Stance.AGGRESSIVE);
         } else {
@@ -409,7 +410,7 @@ public class BattleStage extends Group implements Battle {
         // formations available");
 
         // set up default formations
-        if (playerDefending) {
+        if (alliesDefending) {
             enemies.setGlobalFormation(Formation.DEFENSIVE_LINE);
             allies.setGlobalFormation(Formation.DEFENSIVE_LINE);
         } else {
@@ -420,9 +421,9 @@ public class BattleStage extends Group implements Battle {
 //			allies.setGlobalFormation(Formation.SQUARE);
         }
 
-        if (siegeOrRaid && playerDefending)
+        if (siegeOrRaid && alliesDefending)
             allies.setGlobalFormation(Formation.WALL_LINE);
-        else if (siegeOrRaid && !playerDefending)
+        else if (siegeOrRaid && !alliesDefending)
             enemies.setGlobalFormation(Formation.WALL_LINE);
 
 
@@ -486,7 +487,7 @@ public class BattleStage extends Group implements Battle {
         double balanceAllies = getBalanceAllies();
         double balanceEnemies = 1 - balanceAllies;
 
-        if (playerDefending) {
+        if (alliesDefending) {
             return balanceAllies;
         } else {
             return balanceEnemies;
@@ -588,7 +589,7 @@ public class BattleStage extends Group implements Battle {
         addAllSubparties(enemies.subparties);
 
         if (siegeOrRaid) {
-            if (playerDefending) {
+            if (alliesDefending) {
 //				addSiegeUnits(enemies);
             } else {
 //				addSiegeUnits(allies);
@@ -1403,13 +1404,13 @@ public class BattleStage extends Group implements Battle {
             this.retreatTimerPlayer -= delta;
             this.retreatTimerEnemy -= delta;
 
-            if ((playerDefending && (1 - getBalanceDefenders()) <
-                    RETREAT_THRESHOLD / 2) || (!playerDefending &&
+            if ((alliesDefending && (1 - getBalanceDefenders()) <
+                    RETREAT_THRESHOLD / 2) || (!alliesDefending &&
                     getBalanceDefenders() < RETREAT_THRESHOLD / 2)) {
                 tryToRetreatAll(false);
             }
-            if ((playerDefending && (1 - getBalanceDefenders()) >
-                    CHARGE_THRESHOLD) || (!playerDefending &&
+            if ((alliesDefending && (1 - getBalanceDefenders()) >
+                    CHARGE_THRESHOLD) || (!alliesDefending &&
                     getBalanceDefenders() > CHARGE_THRESHOLD)) {
                 chargeAll(false);
             }
@@ -1636,10 +1637,10 @@ public class BattleStage extends Group implements Battle {
                     kingdom.getMapScreen().getSidePanel().setActiveArmy
                             (winnerArmy);
             }
-            if (!playerDefending) didAtkWin = true;
+            if (!alliesDefending) didAtkWin = true;
             else didAtkWin = false;
         } else {
-            if (playerDefending) didAtkWin = true;
+            if (alliesDefending) didAtkWin = true;
             else didAtkWin = false;
         }
 
@@ -1715,7 +1716,7 @@ public class BattleStage extends Group implements Battle {
         this.pb = null;
 
         // see if player died
-        if (loserDestroyed && didAtkWin == playerDefending)
+        if (loserDestroyed && didAtkWin == alliesDefending)
             mapScreen.playerDeath();
 
 //		mapScreen.switchToKingdomView();
@@ -2027,7 +2028,7 @@ public class BattleStage extends Group implements Battle {
     }
 
     public BattleParty getAttacking() {
-        if (playerDefending) {
+        if (alliesDefending) {
             return enemies;
         } else {
             return allies;
@@ -2035,7 +2036,7 @@ public class BattleStage extends Group implements Battle {
     }
 
     public BattleParty getDefending() {
-        if (!playerDefending) {
+        if (!alliesDefending) {
             return enemies;
         } else {
             return allies;
@@ -2070,19 +2071,19 @@ public class BattleStage extends Group implements Battle {
 
     @Override
     public void casualty(Soldier soldier, boolean wasAttacker) {
-        // We already set killedBy previously if present.
-        boolean killed = soldier.casualty(wasAttacker, soldier.killedBy, !playerDefending, playerDefending);
+        // We already set killedOrWoundedBy previously if present.
+        boolean killed = soldier.casualty(wasAttacker, soldier.killedOrWoundedBy, !alliesDefending, alliesDefending);
         victoryManager.handleCasualty(soldier, wasAttacker, killed);
     }
 
     @Override
     public boolean playerAttacking() {
-        return !playerDefending;
+        return !alliesDefending;
     }
 
     @Override
     public boolean playerDefending() {
-        return playerDefending;
+        return alliesDefending;
     }
 
     @Override

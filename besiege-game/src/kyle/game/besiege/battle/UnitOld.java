@@ -1106,7 +1106,7 @@
 //
 //		this.isHit = true;
 //		if (this.hp <= 0) {
-//			this.soldier.killedBy = attacker.soldier;
+//			this.soldier.killedOrWoundedBy = attacker.soldier;
 //			this.isDying = true;
 //			this.kill();
 //			//			this.destroy();
@@ -1386,7 +1386,7 @@
 //		if (this.team == 1) stage.enemies.units.removeValue(this, true);
 //		this.removeActor(weaponDraw);
 //
-//		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.playerDefending));
+//		stage.battle.casualty(this.soldier, (this.team == 0) == (stage.alliesDefending));
 //
 //		//		System.out.println("DESTROYED");
 //		//playerPartyPanel.casualty(soldier);

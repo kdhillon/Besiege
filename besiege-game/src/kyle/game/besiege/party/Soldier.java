@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.Array;
 import kyle.game.besiege.*;
 import kyle.game.besiege.MultiValue.TypeInfo;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.panels.PanelUnit;
 
 public class Soldier implements Comparable<Soldier> { // should create a heal-factor, so garrisonning will heal faster
 	public static boolean WEAPON_NEEDED = false;
@@ -55,7 +54,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	// can use this to generate epithet (high speed = "the quick", low speed = "the slow")
 	
 	// battle statistics
-	public short kills = 0; // this could start randomized. instead, start at 0.
+	public short enemyCasualties = 0; // this could start randomized. instead, start at 0.
 	public short battlesWon = 0; // even if wounded
 	public short battlesSurvived = 0;
 	public short battlesFled = 0;
@@ -63,7 +62,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	
 	public Array<General> ipKilled;
 	
-	public Soldier killedBy; // once killed
+	public Soldier killedOrWoundedBy; // once killed
 
 	public short level;
 	public short exp;
@@ -103,7 +102,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.age = that.age; // fixed for now, later should change based on year
 		this.name = that.name;
 
-		this.kills = that.kills; // this could start randomized. instead, start at 0.
+		this.enemyCasualties = that.enemyCasualties; // this could start randomized. instead, start at 0.
 		this.battlesWon = that.battlesWon; // even if wounded
 		this.battlesSurvived = that.battlesSurvived;
 		this.battlesFled = that.battlesFled;
@@ -111,7 +110,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		
 		this.ipKilled = that.ipKilled;
 		
-		this.killedBy = that.killedBy; // once killed
+		this.killedOrWoundedBy = that.killedOrWoundedBy; // once killed
 
 		this.level = that.level;
 		this.exp = that.exp;
@@ -479,6 +478,10 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 //		return true;
 	}
 
+	public void handleCapturedBy(Party capturedBy) {
+		this.party.givePrisonerFromThis(this, capturedBy);
+	}
+
 	// Old upgrade method, maybe delete this.
 	public boolean upgrade(UnitType unitType) { // returns true if upgraded, false otherwise	
 		int cost;
@@ -528,15 +531,15 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		boolean killed = subparty.casualty(this);
 		
 		// randomize who gets the kill
-		if (killedBy == null) {
-			killedBy = killer;
+		if (killedOrWoundedBy == null) {
+			killedOrWoundedBy = killer;
 		}
 		
-		if (killedBy == this) killedBy = null;
+		if (killedOrWoundedBy == this) killedOrWoundedBy = null;
 		
-		if (killedBy != null) {
-//			System.out.println("casualty for " + killedBy.getTypeName() + " of " + killedBy.party.getName() +" killing " + getTypeName() + " of " + party.getName());
-			killedBy.registerKill(this);
+		if (killedOrWoundedBy != null) {
+//			System.out.println("casualty for " + killedOrWoundedBy.getTypeName() + " of " + killedOrWoundedBy.party.getName() +" killing " + getTypeName() + " of " + party.getName());
+			killedOrWoundedBy.registerKillOrWoundEnemy(this);
 		}
 		
 		if (playerInD || playerInA) {
@@ -545,9 +548,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 				status = ((General) this).getOfficialName();
 			}
 
-			if (killedBy != null) {
-				if (killed) status += " was killed by " + killedBy.getTypeName() + "!";
-				else status += " was wounded by " + killedBy.getTypeName() + "!";
+			if (killedOrWoundedBy != null) {
+				if (killed) status += " was killed by " + killedOrWoundedBy.getTypeName() + "!";
+				else status += " was wounded by " + killedOrWoundedBy.getTypeName() + "!";
 			}
 			else {
 				if (killed) status += " was killed!";
@@ -579,9 +582,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		return 10;
 	}
 
-	public void registerKill(Soldier that) {
+	public void registerKillOrWoundEnemy(Soldier that) {
 		this.addExp(that.getExpForKill());
-		this.kills++;
+		this.enemyCasualties++;
 		if (that.isImportant) this.ipKilled.add((General) that);
 	}
 	

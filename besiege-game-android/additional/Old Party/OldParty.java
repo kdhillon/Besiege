@@ -172,7 +172,7 @@ package kyle.game.besiege.party;
 //		if (!player) minWealth = (int) (MIN_WEALTH_FACTOR*getTotalSize());
 //		else minWealth = 0;
 //	}
-//	public void givePrisoner(Soldier prisoner, PartyOld recipient) {
+//	public void givePrisonerFromThis(Soldier prisoner, PartyOld recipient) {
 //		if (this.wounded.contains(prisoner, true))
 //			this.wounded.removeValue(prisoner, true);
 //		else if (this.healthy.contains(prisoner, true))
