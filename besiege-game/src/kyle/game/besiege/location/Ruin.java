@@ -40,7 +40,9 @@ public class Ruin extends Location {
         }
         else if (cultureType.name.equals("Desert")){
             setTextureRegion("templeruin");
-        }
+        } else if (cultureType.name.equals("Jungle")){
+			setTextureRegion("templeruin");
+		}
         else {
             setTextureRegion("Castle");
         }

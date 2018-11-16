@@ -86,7 +86,9 @@ public class City extends Location {
             farmerCount = 0;
         } else if (cultureType.name.equals("Desert")){
             setTextureRegion("temple2");
-        } else {
+        } else if (cultureType.name.equals("Jungle")){
+			setTextureRegion("temple2");
+		} else {
             setTextureRegion("City");
         }
 

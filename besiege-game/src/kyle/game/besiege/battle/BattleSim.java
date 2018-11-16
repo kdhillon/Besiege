@@ -474,10 +474,22 @@ public class BattleSim implements Battle {
         Object randomObj = Random.getRandomValue(parties.toArray());
         Party randomParty = (Party) randomObj;
         if (randomParty == null) {
+            System.out.println("warning, random party is null");
             return null;
         }
-        Subparty randomSub = (Subparty) Random.getRandomValue(randomParty.subparties.toArray());
-        Soldier s =  (Soldier) Random.getRandomValue(randomSub.healthy.toArray());
+
+        Soldier s = null;
+        int tries = 0;
+        while (s == null && tries < 5) {
+            Subparty randomSub = (Subparty) Random.getRandomValue(randomParty.subparties.toArray());
+            s = (Soldier) Random.getRandomValue(randomSub.healthy
+                    .toArray());
+            tries++;
+        }
+        // Escape hatch, return null
+        if (tries == 5) {
+            System.out.println("could not get a healthy random soldier, returning null");
+        }
         return s;
         // for now, return null
 //        return null;

@@ -211,6 +211,7 @@ public class Unit extends Group {
 	public Unit(BattleStage parent, int team, Soldier soldier, BattleSubParty bp) {
 		stage = parent;
 
+		if (soldier.subparty == null) throw new AssertionError();
 		//		texture = new TextureRegion(new Texture("red.png"));
 		this.bsp = bp;
 		this.party = soldier.party;

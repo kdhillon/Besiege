@@ -48,11 +48,12 @@ public class Shaman extends Soldier {
 
     // Instead of attack, Shamans have a "power" level, which corresponds to their healing and AOE
     // Generates a random type for this party.
-    public Shaman(Party party) {
+    public Shaman(Party party, Subparty subparty) {
         this.party = party;
+        this.subparty = subparty;
 
         // For now, just make the culture accoring to the general. TODO make this more flexible.
-        this.type = getRandomType(party.getGeneral().unitType.cultureType);
+        this.type = getRandomType(subparty.getGeneral().unitType.cultureType);
         this.unitType = type.unitType;
 
         this.assignBaseStats();

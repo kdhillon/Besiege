@@ -5,8 +5,8 @@ Tundra				Tundra
 Mountains			null
 Taiga				Tundra
 Wasteland   		null
-Rainforest			Desert
-Swamp				Desert
+Rainforest			Jungle
+Swamp				Jungle
 Desert				Desert
 Beach				null
 Scorched			null

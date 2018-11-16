@@ -62,8 +62,7 @@ public class Subparty {
 	}
 
 	public void addRandomShaman() {
-		shaman = new Shaman(party);
-		shaman.subparty = this;
+		shaman = new Shaman(party, this);
 	}
 
 	public StrictArray<Soldier> getHealthy() {
@@ -172,6 +171,7 @@ public class Subparty {
 	public void handleBattleEnded() {
 		if (healthy.size == 0 && wounded.size == 0) {
 			System.out.println("Destroying subparty of " + this.party.getName() + " with rank " + this.getRank());
+			// TODO make sure this works by deleting all subparties in the correct order. 
 			this.destroy();
 			return;
 		}
@@ -317,6 +317,7 @@ public class Subparty {
 		} else if (soldier.isGeneral()) {
 			if (soldier != this.general) throw new AssertionError();
 			this.generalDiedInBattle = true;
+			System.out.println("General casualty in battle");
 		}else {
 			System.out.println("Can't remove " + soldier.getTypeName());
 			throw new AssertionError();

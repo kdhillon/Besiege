@@ -281,7 +281,7 @@ public class VictoryManager {
         StrictArray<Soldier> prisoners = prisonersToReceive.get(party);
         if (prisoners != null) {
             for (Soldier s : prisoners) {
-                System.out.println("Soldier was captured: " + party.getName());
+                System.out.println("Soldier was captured: " + s.getName() + " by " + party.getName());
                 s.handleCapturedBy(party);
             }
         }

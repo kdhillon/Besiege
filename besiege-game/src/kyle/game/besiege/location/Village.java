@@ -57,7 +57,9 @@ public class Village extends Location {
             farmerCount = 0;
         } else if (cultureType.name.equals("Desert")){
             setTextureRegion("desertvillage2");
-        }
+        } else if (cultureType.name.equals("Jungle")){
+			setTextureRegion("desertvillage2");
+		}
         else {
 		    setTextureRegion(textureRegion);
         }

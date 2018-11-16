@@ -199,6 +199,7 @@ public class Party {
     public boolean createNewSubWithGeneral(Soldier soldier) {
         Subparty newSub = new Subparty(this);
         root.addSub(newSub);
+        if (root.getTotalSize() == 0) throw new AssertionError();
         subparties.add(newSub);
 
         // promote best soldier to general
@@ -226,7 +227,8 @@ public class Party {
 		// first check if any subparties has this as its parent
 		// for now, everything is a child of the root subparties.
 		// so this should only happen if s is a root.
-		
+		System.out.println("Destroying subparty of " + this.getName() + " with rank " + toDestroy.getRank());
+
 		StrictArray<Subparty> children = new StrictArray<Subparty>();
 		
 		for (Subparty s : subparties) {
@@ -264,6 +266,8 @@ public class Party {
 			}
 		}
 		this.root = s;
+
+		if (s.getTotalSize() == 0) throw new AssertionError();
 	}
 	
 	public void removeSoldier(Soldier soldier) {
@@ -313,17 +317,38 @@ public class Party {
 	public void givePrisonerFromThis(Soldier prisoner, Party recipient) {
 		boolean removed = false;
 		for (Subparty s : subparties) {
+			// TODO wounded/healthy still contain general, so we need to handle that.
 			if (s.wounded.contains(prisoner, true)) {
 				s.wounded.removeValue(prisoner, true);
 				removed = true;
+				if (prisoner == s.getGeneral()) {
+					if (s.getGeneral().isPlayerUnit())
+						throw new AssertionError();
+					s.demoteGeneral((General) prisoner);
+					if (s.getHealthySize() > 0 || s.getWoundedSize() > 0)
+						s.promoteNextGeneral();
+//					if (s.getGeneral() == null) throw new AssertionError();
+					removed = true;
+				}
 			}
 			else if (s.healthy.contains(prisoner, true)) {
 				s.healthy.removeValue(prisoner, true);
 				removed = true;
+				if (prisoner == s.getGeneral()) {
+					if (s.getGeneral().isPlayerUnit())
+						throw new AssertionError();
+					s.demoteGeneral((General) prisoner);
+					if (s.getHealthySize() > 0 || s.getWoundedSize() > 0)
+						s.promoteNextGeneral();
+//					if (s.getGeneral() == null) throw new AssertionError();
+					removed = true;
+				}
 			} else if (prisoner == s.getGeneral()) {
+				if (s.getGeneral().isPlayerUnit()) throw new AssertionError();
 				s.demoteGeneral((General) prisoner);
-				s.promoteNextGeneral();
-				if (s.getGeneral() == null) throw new AssertionError();
+				if (s.getHealthySize() > 0 || s.getWoundedSize() > 0)
+					s.promoteNextGeneral();
+//				if (s.getGeneral() == null) throw new AssertionError();
 				removed = true;
 			} else if (prisoner == s.shaman) {
 				s.shaman = null;

@@ -333,11 +333,16 @@ public class ArmyPlayer extends Army {
 
 	@Override 
 	public boolean setTarget(Destination target) {
-		if (target != null)
+		if (target != null) {
 			System.out.println("setting player target  " + target.getName());
-		boolean toReturn = super.setTarget(target);
-		setStopped(false);
-		return toReturn;
+			boolean toReturn = super.setTarget(target);
+			setStopped(false);
+			return toReturn;
+		} else {
+			path.forceClear();
+			setStopped(false);
+			return false;
+		}
 	}
 	
 	@Override

@@ -908,7 +908,10 @@ public class Army extends Group implements Destination {
 					}
 
 //			}
-		} else throw new AssertionError("Why was a passive army targeting an enemy city? Maybe this city recently changed factions?");
+		} else {
+			nextTarget();
+			System.out.println("warning: Why was a passive army targeting an enemy city? Maybe this city recently changed factions?");
+		}
 	}
 
 	public void friendlyLocationCollision(Location targetLocation) {
@@ -1506,6 +1509,7 @@ public class Army extends Group implements Destination {
 		if (siege != null) leaveSiege();
 		battleActor = null;
         setStopped(false);
+        runFrom = null;
         // Not sure about this one! what if you already had a target? TODO
 		clearTarget();
 		nextTarget();
@@ -1727,7 +1731,10 @@ public class Army extends Group implements Destination {
 		this.name = name;
 	}
 	public String getName() {
-		if (this.isNoble()) return this.getGeneral().getOfficialName();
+		if (this.isNoble()) {
+			if (this.getGeneral() == null) return "Null general!";
+			return this.getGeneral().getOfficialName();
+		}
 //		return "army name";
 		return name;
 	}

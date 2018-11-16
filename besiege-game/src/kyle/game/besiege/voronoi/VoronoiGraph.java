@@ -49,8 +49,8 @@ public class VoronoiGraph {
     private PerlinNoiseGenerator perlin;
 
     // Lower is hotter...
-    private float tempTopRight = 0.8f;
-    private float tempTopLeft  = 0.9f;
+    private float tempTopRight = 0.77f;
+    private float tempTopLeft  = 0.87f;
     private float tempBotRight = 0.0f;
     private float tempBotLeft  = 0.0f;
 
@@ -1025,7 +1025,7 @@ public class VoronoiGraph {
         } else {
             if (p.moisture > 0.80) {
                 return Biomes.SWAMP;
-            } else if (p.moisture > 0.4) {
+            } else if (p.moisture > 0.45) {
                 return Biomes.TROPICAL_RAIN_FOREST;
             } else {
                 return Biomes.SUBTROPICAL_DESERT;
