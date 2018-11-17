@@ -111,10 +111,15 @@ public class VictoryManager {
 
             Soldier woundedBy = soldier.killedOrWoundedBy;
             if (woundedBy != null) {
-                // Make a note that if this soldier loses the battle, this soldier will be captured by the enemy.
-                // TODO have a random chance of escaping capture.
-                addTo(prisonersToReceive, woundedBy.party, soldier);
+                if (soldier.isGeneral() && ((General) soldier).isPlayerUnit()) {
+
+                } else {
+                    // Make a note that if this soldier loses the battle, this soldier will be captured by the enemy.
+                    // TODO have a random chance of escaping capture.
+                    addTo(prisonersToReceive, woundedBy.party, soldier);
+                }
             } else {
+                // TODO we actually need to handle this gracefully.
                 throw new AssertionError();
             }
         }

@@ -91,6 +91,10 @@ public class BattleStage extends Group implements Battle {
     public BPoint placementCenter1;
     public BPoint placementCenter2;
 
+    // if true, defenders cannot change their start location, and attackers
+    // can place themselves anywhere in either placement area.
+    boolean ambush = true;
+
     // from mouse to register
 
     public BattleParty allies;
@@ -440,18 +444,32 @@ public class BattleStage extends Group implements Battle {
         MIN_PLACE_Y_2 = size_y - this.MAX_PLACE_Y_1;
         MAX_PLACE_Y_2 = size_y - this.MIN_PLACE_Y_1;
 
-        placementCenter1 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_1 - MIN_PLACE_Y_1) * 0.5f));
-        placementCenter2 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f), (int) ((MAX_PLACE_Y_2 - MIN_PLACE_Y_2) * 0.5f));
-
-        // set up orignal base points
-        originalPoint = new BPoint(size_x / 2, BOTTOM_PAD + PLACE_HEIGHT / 2);
-        placementPoint = originalPoint;
+       updatePlacementPoints();
 
         this.retreatTimerPlayer = RETREAT_TIME_BASE;// / allies.first()
         // .getAvgSpd() * 2;
         this.retreatTimerEnemy = RETREAT_TIME_BASE;// / enemies.first()
         // .getAvgSpd() * 2;
 
+    }
+
+    void updatePlacementPoints() {
+        if (battlemap.getMaxX() < MAX_PLACE_X) {
+            MAX_PLACE_X = battlemap.getMaxX();
+            System.out.println("updating max x to: " + MAX_PLACE_X);
+        }
+        if (battlemap.getMinX() > MIN_PLACE_X) {
+            MIN_PLACE_X = battlemap.getMinX();
+            System.out.println("updating min x to: " + MIN_PLACE_X);
+        }
+
+        placementCenter1 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f + MIN_PLACE_X), (int) ((MAX_PLACE_Y_1 - MIN_PLACE_Y_1) * 0.5f) + MIN_PLACE_Y_1);
+        placementCenter2 = new BPoint((int) ((MAX_PLACE_X - MIN_PLACE_X) * 0.5f + MIN_PLACE_X), (int) ((MAX_PLACE_Y_2 - MIN_PLACE_Y_2) * 0.5f) + MIN_PLACE_Y_2);
+        System.out.println("updating placement center 1 to: " + placementCenter1.toString());
+
+        // set up orignal base points
+        originalPoint = new BPoint(placementCenter1.pos_x, BOTTOM_PAD + PLACE_HEIGHT / 2);
+        placementPoint = originalPoint;
     }
 
     public void centerCamera() {
@@ -644,19 +662,20 @@ public class BattleStage extends Group implements Battle {
             } else { // not already on field
                 FIXED_SPACING_X = region_width + 1;
 
+                System.out.println("using placement center: " + placementCenter1.pos_x);
                 if (horizontal_position == 0) {
                     spacesToRightOfCenter = FIXED_SPACING_X;
                     spacesToLeftOfCenter = 0;
-                    base_x = size_x / 2;
+                    base_x = placementCenter1.pos_x;
                 }
                 // If even, subtract width so this party is far enough away
                 else if (horizontal_position % 2 == 0) {
                     spacesToLeftOfCenter += FIXED_SPACING_X;
-                    base_x = size_x / 2 - spacesToLeftOfCenter;
+                    base_x = placementCenter1.pos_x - spacesToLeftOfCenter;
                 }
                 // If odd, add this width for next party.
                 else {
-                    base_x = size_x / 2 + spacesToRightOfCenter;
+                    base_x = placementCenter1.pos_x + spacesToRightOfCenter;
                     spacesToRightOfCenter += FIXED_SPACING_X;
                 }
 
@@ -686,12 +705,12 @@ public class BattleStage extends Group implements Battle {
 
             System.out.println("Adding at x: " + base_x);
 
-            addUnitsFromSubparty(bsp, base_x, base_y);
 
             bsp.currentPosX = base_x;
             bsp.currentPosY = base_y;
             bsp.currentRegHeight = region_height;
             bsp.currentRegWidth = region_width;
+            bsp.tryPlaceSubParty();
 
             this.allies.updateHiddenAll();
             this.enemies.updateHiddenAll();
@@ -712,8 +731,11 @@ public class BattleStage extends Group implements Battle {
     }
 
     // TODO put units on wall if a siege
-    public void addUnitsFromSubparty(BattleSubParty bsp, int base_x, int
+    // returns true if success, false if couldn't place a unit.
+    public boolean addUnitsFromSubparty(BattleSubParty bsp, int base_x, int
             base_y) {
+        if (base_x< 0 || base_x > size_x) return false;
+
         Formation formationType = bsp.formation;
         Stance partyStance = bsp.stance;
 
@@ -827,7 +849,8 @@ public class BattleStage extends Group implements Battle {
                         }
                         if (!unitPlaced) {
                             System.out.println("NO VALID LOCATIONS, UNIT NOT " +
-                                    "PLACED");
+                                    "PLACED: " + base_x);
+                            return false;
                         }
                     }
                 }
@@ -844,6 +867,9 @@ public class BattleStage extends Group implements Battle {
         bsp.currentPosY = base_y;
         bsp.currentRegHeight = region_height;
         bsp.currentRegWidth = region_width;
+
+        System.out.println("bsp placed at: " + base_x);
+        return true;
     }
 
     private int getTotalBattleSize() {
@@ -1867,15 +1893,15 @@ public class BattleStage extends Group implements Battle {
 
     public boolean canPlaceUnit(int pos_x, int pos_y) {
         if (pos_x < 0 || pos_y < 0 || pos_x >= size_x || pos_y >= size_y) {
-            System.out.println("outside of size");
+//            System.out.println("outside of size");
             return false;
         }
         if (closed[pos_y][pos_x]) {
-            System.out.println("area closed");
+//            System.out.println("area closed");
             return false;
         }
         if (units[pos_y][pos_x] != null) {
-            System.out.println("already occupied");
+//            System.out.println("already occupied");
             return false;
         }
         return true;

@@ -171,7 +171,7 @@ public class Subparty {
 	public void handleBattleEnded() {
 		if (healthy.size == 0 && wounded.size == 0) {
 			System.out.println("Destroying subparty of " + this.party.getName() + " with rank " + this.getRank());
-			// TODO make sure this works by deleting all subparties in the correct order. 
+			// TODO make sure this works by deleting all subparties in the correct order.
 			this.destroy();
 			return;
 		}
@@ -321,6 +321,9 @@ public class Subparty {
 		}else {
 			System.out.println("Can't remove " + soldier.getTypeName());
 			throw new AssertionError();
+		}
+		if (getTotalSize() == 0) {
+			destroy();
 		}
 	}
 

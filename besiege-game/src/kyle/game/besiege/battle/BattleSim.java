@@ -480,14 +480,14 @@ public class BattleSim implements Battle {
 
         Soldier s = null;
         int tries = 0;
-        while (s == null && tries < 5) {
+        while (s == null && tries < 50) {
             Subparty randomSub = (Subparty) Random.getRandomValue(randomParty.subparties.toArray());
             s = (Soldier) Random.getRandomValue(randomSub.healthy
                     .toArray());
             tries++;
         }
         // Escape hatch, return null
-        if (tries == 5) {
+        if (s == null) {
             System.out.println("could not get a healthy random soldier, returning null");
         }
         return s;

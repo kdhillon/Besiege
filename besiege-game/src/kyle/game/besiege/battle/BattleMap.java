@@ -163,12 +163,15 @@ public class BattleMap extends Group {
 	//	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
 	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump, palm, treeShadow, palmShadow;
 
+	private int min_x;
+	private int max_x;
+
 	public BattleMap(BattleStage mainmap) {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
 		this.maptype = getMapTypeForBiome(mainmap.biome);
-        this.maptype = MapType.FOREST;
+        this.maptype = MapType.BEACH;
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -201,6 +204,9 @@ public class BattleMap extends Group {
 		this.sunRotation = (float) Math.random() * 360;
 
 		fc = new StrictArray<FireContainer>();
+
+		min_x = 0;
+		max_x = stage.size_x;
 
 		if (stage.isRaining() || stage.isSnowing()) {
 		    raindrop_count = 100 + (int) (Math.random() * 400);
@@ -305,29 +311,38 @@ public class BattleMap extends Group {
 			// this will have to be tweaked for the new map size
 			double slope = Math.random()*3+3;
 			double slope2 = Math.random()*1;
-			double thresh = Math.random()*stage.size_x/2/ BLOCK_SIZE +stage.size_x/2/ BLOCK_SIZE;
+			double thresh = Random.getRandomInRange(BLOCK_SIZE * 1f, BLOCK_SIZE * 5f);
 
 			// TODO mirror this step.
 			int maxWaterX = 0;
-			boolean left = Math.random() < 0.5;
+			boolean left = Random.coinflip();
 			for (int i = 0; i < ground.length; i++) {
 				for (int j = 0; j < ground[0].length; j++) {
-					ground[i][j] = GroundType.SAND;
-					if (Math.random() < .01) ground[i][j] = GroundType.MUD;
+					int i1 = i;
+					int j1 = j;
+					if (!left) {
+						i1 = ground.length - i - 1;
+					}
+
+					ground[i1][j1] = GroundType.SAND;
+					if (Math.random() < .01) ground[i1][j1] = GroundType.MUD;
 					double leftSide = slope*i + slope2*j;
 
 					if (leftSide < thresh || (leftSide - thresh < 4 && Math.random() < .5)) {
-						ground[i][j] = GroundType.WATER;
+						ground[i1][j1] = GroundType.WATER;
 						if (i > maxWaterX)
 							maxWaterX = i;
 						// set as closed
-						closeGround(j, i);
-					} 
-					else if (leftSide > thresh + 100/ BLOCK_SIZE * Math.random() + 150/ BLOCK_SIZE) ground[i][j] = GroundType.LIGHTGRASS;
+						closeGround(j1, i1);
+					}
+					else if (leftSide > thresh + Random.getRandomInRange(100/ BLOCK_SIZE, 150/ BLOCK_SIZE)) ground[i1][j1] = GroundType.LIGHTGRASS;
 				} 
 			}
-
-			stage.MIN_PLACE_X = maxWaterX + 1;
+			if (left) {
+				min_x = (maxWaterX + 1) * BLOCK_SIZE;
+			} else {
+				max_x = (ground.length - maxWaterX ) * BLOCK_SIZE;
+			}
 
 			addAppropriateLocationFeatures();
 
@@ -412,6 +427,15 @@ public class BattleMap extends Group {
 		rainDrawOffsetY = 0;
 
 		initializeGround();
+	}
+
+	// Takes into account water, etc.
+	public int getMinX() {
+		return min_x;
+	}
+
+	public int getMaxX() {
+		return max_x;
 	}
 
 	public void initializeGround() {
@@ -1007,7 +1031,11 @@ public class BattleMap extends Group {
 		gap = 0;
 		for (int i = bottom_left_x + gap; i < bottom_left_x + size - gap; i += BLOCK_SIZE) {
 			for (int j = bottom_left_y + gap; j < bottom_left_y + size - gap; j += BLOCK_SIZE) {
-				ground[(i + BLOCK_SIZE / 2) / BLOCK_SIZE][(j+ BLOCK_SIZE / 2) / BLOCK_SIZE] = toUse;
+				int x = (i + BLOCK_SIZE / 2) / BLOCK_SIZE;
+				int y = (j+ BLOCK_SIZE / 2) / BLOCK_SIZE;
+				if (ground[x][y] != GroundType.WATER) {
+					ground[x][y] = toUse;
+				}
 			}
 		}
 
@@ -1027,36 +1055,53 @@ public class BattleMap extends Group {
 
 	}
 
-	private void addFence(int wall_start_x, int wall_start_y, int wall_length, boolean vertical) {
+	private void addFence(int wall_start_x, int wall_start_y, int wall_length,
+						  boolean vertical) {
 		for (int i = 0; i < wall_length; i++) {
 			if (Math.random() < .9) {
-				if (vertical && objects[wall_start_y + i][wall_start_x] == null) {
-					objects[wall_start_y + i][wall_start_x] = Object.SMALL_WALL_V;
-					stage.slow[wall_start_y + i][wall_start_x] = WALL_SLOW;
+				if (vertical) {
+					if (objects[wall_start_y + i][wall_start_x] == null &&
+							!stage.closed[wall_start_y + i][wall_start_x]) {
+						if (!stage.closed[wall_start_x][wall_start_y + i])
+							objects[wall_start_y + i][wall_start_x] = Object
+									.SMALL_WALL_V;
+						stage.slow[wall_start_y + i][wall_start_x] = WALL_SLOW;
 
-					// add cover
-					BPoint cover_right = new BPoint(wall_start_x + 1, wall_start_y + i);
-					cover_right.orientation = Orientation.LEFT;
-					if (inMap(cover_right) && objects[cover_right.pos_y][cover_right.pos_x] == null)
+						// add cover
+						BPoint cover_right = new BPoint(wall_start_x + 1,
+								wall_start_y + i);
+						cover_right.orientation = Orientation.LEFT;
+						if (inMap(cover_right) && objects[cover_right
+								.pos_y][cover_right.pos_x] == null)
 
-						cover.add(cover_right);
+							cover.add(cover_right);
 
-					BPoint cover_left = new BPoint(wall_start_x - 1, wall_start_y + i);
-					cover_left.orientation = Orientation.RIGHT;
-					if (inMap(cover_left) && objects[cover_left.pos_y][cover_left.pos_x] == null)
-						cover.add(cover_left);
-				} else if (!vertical && objects[wall_start_y][wall_start_x + i] == null) {
-					objects[wall_start_y][wall_start_x + i] = Object.SMALL_WALL_H;
+						BPoint cover_left = new BPoint(wall_start_x - 1,
+								wall_start_y + i);
+						cover_left.orientation = Orientation.RIGHT;
+						if (inMap(cover_left) && objects[cover_left
+								.pos_y][cover_left.pos_x] == null)
+							cover.add(cover_left);
+					}
+				} else if (objects[wall_start_y][wall_start_x +
+						i] == null && !stage.closed[wall_start_y][wall_start_x
+						+ i]) {
+					objects[wall_start_y][wall_start_x + i] = Object
+							.SMALL_WALL_H;
 					stage.slow[wall_start_y][wall_start_x + i] = WALL_SLOW;
 
 					// add cover
-					BPoint cover_up = new BPoint(wall_start_x + i, wall_start_y + 1);
-					if (inMap(cover_up) && objects[cover_up.pos_y][cover_up.pos_x] == null)
+					BPoint cover_up = new BPoint(wall_start_x + i,
+							wall_start_y + 1);
+					if (inMap(cover_up) && objects[cover_up.pos_y][cover_up
+							.pos_x] == null)
 						cover.add(cover_up);
 					cover_up.orientation = Orientation.DOWN;
 
-					BPoint cover_down = new BPoint(wall_start_x + i, wall_start_y - 1);
-					if (inMap(cover_down) && objects[cover_down.pos_y][cover_down.pos_x] == null)
+					BPoint cover_down = new BPoint(wall_start_x + i,
+							wall_start_y - 1);
+					if (inMap(cover_down) && objects[cover_down
+							.pos_y][cover_down.pos_x] == null)
 						cover.add(cover_down);
 					cover_down.orientation = Orientation.UP;
 				}
@@ -1238,9 +1283,15 @@ public class BattleMap extends Group {
 				}
 			}
 
-			for (int i = stage.MIN_PLACE_X; i < stage.MAX_PLACE_X; i++) {
-				for (int j = stage.MIN_PLACE_Y_2; j < stage.MAX_PLACE_Y_2; j++) {
-					batch.draw(white, (i * stage.unit_width), (j * stage.unit_height), stage.unit_width, stage.unit_height);
+			// for now, only draw enemy's placement area if we can actually place there
+			// TODO make enemy's area visible for certain cases.
+			if (stage.ambush) {
+				for (int i = stage.MIN_PLACE_X; i < stage.MAX_PLACE_X; i++) {
+					for (int j = stage.MIN_PLACE_Y_2; j < stage.MAX_PLACE_Y_2; j++) {
+						batch.draw(white, (i * stage.unit_width), (j * stage.unit_height), stage.unit_width, stage.unit_height);
+
+
+					}
 				}
 			}
 

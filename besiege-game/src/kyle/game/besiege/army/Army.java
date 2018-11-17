@@ -1699,6 +1699,7 @@ public class Army extends Group implements Destination {
 			path.forceClear();
 			if (this.isFarmer()) ((Farmer) this).resetWaitToggle();
 			if (this.isHuntingParty()) ((HuntingParty) this).resetWaitToggle();
+			this.runFrom(null);
 			uniqueAct();
 		}
 

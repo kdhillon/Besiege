@@ -287,7 +287,7 @@ public class Location extends Group implements Destination {
 
 		// TODO make this determined by the wealth/population of the city.
         this.garrison = PartyType.generatePartyType(getCurrentPartyType(), cultureType).generate();
-        this.garrison.setName(name);
+        this.garrison.setLocation(this);
 //		this.garrison.isGarrison = true;
 //		this.garrison.passive = true;
 

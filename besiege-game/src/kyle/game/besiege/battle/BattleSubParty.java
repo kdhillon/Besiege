@@ -454,14 +454,33 @@ public class BattleSubParty {
 		return availableFormations.get(index);
 	}
 
+	public void tryPlaceSubParty() {
+		int MAX_INDEX = 300;
+		int x = currentPosX;
+		int y = currentPosY;
+
+		int index = 0;
+		while (!stage.addUnitsFromSubparty(this, x, y) && index < MAX_INDEX) {
+//			throw new AssertionError();
+//			System.out.println("Moving right: " + index);
+			index++;
+			if (index % 2 == 0) {
+				x = currentPosX + -index / 2 - 1;
+			} else {
+				x = currentPosX + index / 2 + 1;
+			}
+			System.out.println("x is " + x);
+			stage.removeSubParty(this);
+		}
+		if (index == MAX_INDEX) throw new AssertionError("couldn't place bsp, not enough tries");
+	}
 
 	// TODO for efficiency, don't remove it fully, just remove it from the stage and change positions. Keep the guys alive in units array here.
 	// create three arrays of UNITS, inf, cav, archers, and keep them alive for redistribution.
 	public void updateFormation() {
 		stage.removeSubParty(this);
 
-		// re-add subparty at it's current position.
-        stage.addUnitsFromSubparty(this, this.currentPosX, this.currentPosY);
+		tryPlaceSubParty();
 //		stage.add(this, this.parent.subparties.indexOf(this, true));
 	}
 	

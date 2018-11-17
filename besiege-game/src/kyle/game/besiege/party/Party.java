@@ -8,9 +8,11 @@ package kyle.game.besiege.party;
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
+import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 
 public class Party {
+	private static final String GARRISON_STRING = "Garrison";
 	private final double BASE_CHANCE = .3;
 	private final double MIN_WEALTH_FACTOR = 1.4; // times troopcount
 
@@ -21,8 +23,9 @@ public class Party {
 
 	public boolean player;
 	public Army army;
+	private Location location; // This will only be set for Garrisons.
 
-	private String name; // This will only be set for Garrisons.
+	private String name;
 
 	public PartyType pt;
 	
@@ -74,7 +77,6 @@ public class Party {
 		}
 	}
 
-	// TODO make this smarter.
 	// 1) make all subparties have equal size. Pre-calculate the max number of subparties this party can have based on its current (or max) size.
 	// 2) put certain units into certain subparties. Either put best units in one subparty (root), separate by class (archers, infantry, etc), or evenly distribute (random)
 	public boolean addSoldier(Soldier soldier, boolean force, boolean toSmallest) {
@@ -83,8 +85,8 @@ public class Party {
 			return false;
 		}
 		else {
-			// put this guy in a subparty that's not full, or create a new par
-			// TODO see above.  This is currently doing greedy (place in first available party). Instead, let's pre-create a few subparties up to a certian amount,
+			System.out.println("current subs: " + subparties.size);
+			// TODO when a garrison is destroyed, all subparties are removed.
 			Subparty p;
 			if (toSmallest)
 				p = getSmallestSub();
@@ -198,8 +200,13 @@ public class Party {
 	// Return true on success, false otherwise.
     public boolean createNewSubWithGeneral(Soldier soldier) {
         Subparty newSub = new Subparty(this);
-        root.addSub(newSub);
-        if (root.getTotalSize() == 0) throw new AssertionError();
+
+        if (root == null) {
+        	root = newSub;
+		} else {
+        	if (root.getTotalSize() == 0) throw new AssertionError();
+			root.addSub(newSub);
+		}
         subparties.add(newSub);
 
         // promote best soldier to general
@@ -229,11 +236,21 @@ public class Party {
 		// so this should only happen if s is a root.
 		System.out.println("Destroying subparty of " + this.getName() + " with rank " + toDestroy.getRank());
 
+		if (toDestroy == root) {
+//			throw new AssertionError(); // this is actually ok. just for testing.
+		}
+
 		StrictArray<Subparty> children = new StrictArray<Subparty>();
 		
 		for (Subparty s : subparties) {
 			if (s.parent == s) continue;
-			
+
+			// special case, clean up empty children subparties
+			if (s.getTotalSize() == 0 && s.getRank() != 0) {
+				continue;
+				// TODO actually remove this subparty from subparties list, it shouldn't be there.
+			}
+
 			if (s.parent == toDestroy) {
 				children.add(s);
 			}
@@ -244,13 +261,21 @@ public class Party {
 			Subparty newRoot = children.first();
 			promoteToRoot(newRoot);
 			children.removeValue(newRoot, true);
-			
+
 			for (Subparty s : children) {
 				s.parent = newRoot;
 			}
-		}	
-		
+		}
+
 		subparties.removeValue(toDestroy, true);
+		if (subparties.size == 0) {
+			if (this.army != null) {
+				this.army.destroy();
+				System.out.println("Destroying party");
+			} else {
+				System.out.println(location.getName() + " garrison completely destroyed");
+			}
+		}
 	}
 	
 	public void promoteToRoot(Subparty s) {
@@ -463,6 +488,10 @@ public class Party {
 		else return null;
 	}
 
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
 	public void setName(String name) {
 	    // ONLY SET FOR GARRISONS
         this.name = name;
@@ -470,6 +499,7 @@ public class Party {
 
 	public String getName() {
 		if (army != null) return army.getName();
+		if (location != null) return location.getName() + " " + GARRISON_STRING;
 		if (name != null) return name;
 //		throw new java.lang.AssertionError();
 		return "No name set!";
@@ -507,7 +537,7 @@ public class Party {
 	// TODO promote other subparty to root when general subparty has 0.
 	public General getGeneral() {
 	    if (root.getGeneral() == null) {
-	        System.out.println(getName() + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (subparties.size - 1));
+	        System.out.println( "a party of type " + this.army.type + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (subparties.size - 1));
 	        throw new AssertionError();
         }
 		return root.getGeneral();

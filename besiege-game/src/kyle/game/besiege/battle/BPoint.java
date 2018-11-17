@@ -21,6 +21,10 @@ public class BPoint {
 		return Math.sqrt((that.pos_x-this.pos_x)*(that.pos_x-this.pos_x) + (that.pos_y-this.pos_y)*(that.pos_y-this.pos_y));
 	}
 
+	@Override
+	public String toString() {
+		return pos_x + ", " + pos_y;
+	}
 
 	@Override
 	public boolean equals(Object o) {
