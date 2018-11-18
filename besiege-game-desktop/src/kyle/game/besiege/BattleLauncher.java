@@ -8,7 +8,7 @@ public class BattleLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.useGL20 = true;
-		config.title = "Chieftain Battle Simulator";
+		config.title = BesiegeMain.GAME_NAME + " Battle Simulator";
 		LwjglApplication app = new LwjglApplication(new kyle.game.besiege.battle.Simulation(), config);
         config.addIcon("textures/icon-temple.png", Files.FileType.Internal);
 

@@ -20,8 +20,8 @@ public class Bandit extends Army {
 	public Bandit() {}
 	
 	public Bandit(Kingdom kingdom, String name,
-			float posX, float posY) {
-		super(kingdom, name, Faction.BANDITS_FACTION, posX, posY, PartyType.Type.BANDIT, null);
+			float posX, float posY, Faction faction) {
+		super(kingdom, name, faction, posX, posY, PartyType.Type.BANDIT, null);
 		
 		this.setDefaultTarget(new Point(posX, posY));
 		this.type = ArmyType.BANDIT;
@@ -29,7 +29,6 @@ public class Bandit extends Army {
 	
 	@Override
 	public void act(float delta) {
-//		System.out.println("Bandit act");
 		super.act(delta);
 	}
 	
@@ -89,7 +88,7 @@ public class Bandit extends Army {
 	
 	@Override
 	public void destroy() {
-		getKingdom().banditCount--;
+		((NomadicFaction) getFaction()).banditCount--;
 		super.destroy();
 	}
 }

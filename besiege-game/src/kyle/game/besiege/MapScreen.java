@@ -349,11 +349,11 @@ public class MapScreen implements Screen {
 	}
 	
 	private void startLog() {
-		BottomPanel.log("Welcome to Besiege! This is the alpha release. Enjoy!", "green");
+		BottomPanel.log("Welcome to " + BesiegeMain.GAME_NAME + " This is the alpha release. Enjoy!", "green");
 		BottomPanel.log("Controls: ", "orange");
 		BottomPanel.log("Move: right-click       Pan camera: WASD       Rotate camera: Q,E       Zoom: mouse wheel       Wait: hold space", "orange");
 		BottomPanel.log("View map info: g       View factions: t         8x Speed: hold f          Toggle Line of Sight: l", "orange");
-		BottomPanel.log("Check out the source code at github.com/kdhillon/besiege", "yellow");
+//		BottomPanel.log("Check out the source code at github.com/kdhillon/besiege", "yellow");
 	}
 
 	@Override

@@ -246,15 +246,21 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.minCount = 15;
 			pt.tiers = new int[]{2, 3};
 			break;
+		case VILLAGE_GARRISON:
+			pt.name = "Village Garrison";
+			pt.maxCount = 70;
+			pt.minCount = 30;
+			pt.tiers = new int[]{1, 2};
+			break;
 		case TOWN_GARRISON:
 			pt.name = "Garrison";
-			pt.maxCount = 50;
-			pt.minCount = 20;
-			pt.tiers = new int[]{1, 2, 3};
+			pt.maxCount = 70;
+			pt.minCount = 30;
+			pt.tiers = new int[]{2, 3};
 			break;
 		case CITY_GARRISON:
 			pt.name = "Garrison";
-			pt.maxCount = 70;
+			pt.maxCount = 80;
 			pt.minCount = 40;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
@@ -270,12 +276,6 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.minCount = 1;
 			pt.tiers = new int[]{2, 3, 4};
 			break;
-		case VILLAGE_GARRISON:
-			pt.name = "Village Garrison";
-			pt.maxCount = 20;
-			pt.minCount = 1;
-			pt.tiers = new int[]{1, 2};
-			break;
 		case SCOUT:
 			pt.name = "Scout";
 			pt.maxCount = 25;
@@ -284,7 +284,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			break;
 		case BANDIT:
 			pt.name = "Bandit";
-			pt.maxCount = 60;
+			pt.maxCount = 30;
 			pt.minCount = 5;
 			pt.tiers = new int[]{2, 3};
 			break;

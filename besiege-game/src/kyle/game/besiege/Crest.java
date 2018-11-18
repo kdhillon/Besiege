@@ -1,10 +1,7 @@
 package kyle.game.besiege;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-
 
 // Factions possess a crest. Locations and Armies hold a CrestDraw, which is a crest drawn at a specific position.
 public class Crest {

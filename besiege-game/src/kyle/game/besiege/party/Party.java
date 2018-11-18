@@ -85,7 +85,7 @@ public class Party {
 			return false;
 		}
 		else {
-			System.out.println("current subs: " + subparties.size);
+//			System.out.println("current subs: " + subparties.size);
 			// TODO when a garrison is destroyed, all subparties are removed.
 			Subparty p;
 			if (toSmallest)
@@ -201,10 +201,10 @@ public class Party {
     public boolean createNewSubWithGeneral(Soldier soldier) {
         Subparty newSub = new Subparty(this);
 
-        if (root == null) {
+        if (root == null || root.getTotalSize() == 0) {
+        	subparties.removeValue(root, true);
         	root = newSub;
 		} else {
-        	if (root.getTotalSize() == 0) throw new AssertionError();
 			root.addSub(newSub);
 		}
         subparties.add(newSub);

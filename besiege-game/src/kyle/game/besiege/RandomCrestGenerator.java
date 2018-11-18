@@ -17,6 +17,9 @@ import kyle.game.besiege.party.CultureType;
  */
 // Code from  http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
 public class RandomCrestGenerator extends Actor {
+	public static final int COLOR_INDEX_WHITE = -6;
+	public static final int COLOR_INDEX_BLACK = -5;
+
 	// static Stack<Color> colors;
 	Color[] colors;
 	int colorsPopped;
@@ -38,10 +41,12 @@ public class RandomCrestGenerator extends Actor {
 	HashMap<String, Array<String>> cultureToCrests = new HashMap();
 	String[] forestCrests = {"bearclaw", "arrowhead", "twinarrows", "tomahawk", "bow", "necklace", "wolf", "bird"};
 	String[] plainsCrests = {"eagle", "buffalo", "raven", "sun", "sun2", "sun3", "fist", "rain", "water", "thunderbird"};
-	String[] mesoCrests = {"skull", "snake", "pyramid", "stonehead", "spiral", "spiral2", "flower", "pyramid2", "geometric"};
-    int forestIndex = 0;
+	String[] mesoCrests = {"snake", "pyramid", "flower", "pyramid2", "geometric", "skull", "stonehead", "spiral", "spiral2", "flower"};
+
+	int forestIndex = 0;
     int plainsIndex = 0;
     int mesoIndex = 0;
+	int mayaIndex = 0;
 
 	public RandomCrestGenerator() {
 		int coloursToGenerate = 50;
@@ -49,6 +54,7 @@ public class RandomCrestGenerator extends Actor {
         cultureToCrests.put("Tundra", new Array<>(forestCrests));
         cultureToCrests.put("Forest", new Array<>(forestCrests));
         cultureToCrests.put("Desert", new Array<>(mesoCrests));
+		cultureToCrests.put("Jungle", new Array<>(mesoCrests));
         cultureToCrests.put("Plains", new Array<>(plainsCrests));
 
 		// The colours at the start that you don't want (White and Black are the
@@ -85,16 +91,22 @@ public class RandomCrestGenerator extends Actor {
 	}
 
 	public void addSpecialColor(Color c, int index) {
+		System.out.println("putting special color: " + index);
 		extraColors.put(index, c);
 	}
 
-	public Crest create(CultureType type) {
+	public Crest create(CultureType type, boolean bandit) {
 		colorsPopped += (int) (Math.random() * 2);
 
 		int overlay = 0;
-		int cOverlay = getNextColor();
+		int cOverlay = getNextColor(type);
 		String detail = getDetail(type);
-		int cDetail = getNextColor();
+		int cDetail = getNextColor(type);
+		if (bandit) {
+			cOverlay = COLOR_INDEX_BLACK;
+			cDetail = COLOR_INDEX_WHITE;
+			System.out.println("using black overlay");
+		}
 		Crest crest = new Crest(overlay, cOverlay, detail, cDetail);
 
 		return crest;
@@ -111,7 +123,7 @@ public class RandomCrestGenerator extends Actor {
                 return getRandomDetail(type);
             return plainsCrests[plainsIndex++];
         }
-        if (type.name.equals("Desert")) {
+        if (type.name.equals("Desert") || type.name.equals("Jungle")) {
             if (mesoIndex == mesoCrests.length)
                 return getRandomDetail(type);
             return mesoCrests[mesoIndex++];
@@ -120,7 +132,9 @@ public class RandomCrestGenerator extends Actor {
     }
 
 	public String getRandomDetail(CultureType type) {
-	    Array<String> regions = cultureToCrests.get(type.name);
+		Array<String> regions;
+		regions = cultureToCrests.get(type.name);
+
 	    if (regions == null) {
 	        System.out.println("No crests found for " + type.name);
         }
@@ -129,7 +143,7 @@ public class RandomCrestGenerator extends Actor {
 
 //	public int getUnusedDetail() {
 //		boolean allUsed = true;
-//		for (int i = 0; i < details.length; i++) {
+//		for (int i = 0; i 1 details.length; i++) {
 //			if (!detailUsed[i])
 //				allUsed = false;
 //		}
@@ -155,11 +169,11 @@ public class RandomCrestGenerator extends Actor {
 		if (Math.random() < 0.6) {
 			if (detail == null) {
 				detail = getRandomDetail(type);
-				cDetail = getNextColor();
+				cDetail = getNextColor(type);
 			} else {
 				// change color
 				if (Math.random() < 0.5) {
-					cDetail = getNextColor();
+					cDetail = getNextColor(type);
 				}
 				// change detail
 				else {
@@ -169,7 +183,7 @@ public class RandomCrestGenerator extends Actor {
 		} else {
 			if (Math.random() < 0.5) {
 				// change overlay color
-				cOverlay = getNextColor();
+				cOverlay = getNextColor(type);
 			} else {
 				do {
 					overlay = (int) (Math.random() * OVERLAYS);
@@ -182,13 +196,18 @@ public class RandomCrestGenerator extends Actor {
 	}
 
 	public Color getColor(int i) {
+		System.out.println("searching for index: " + i);
+		if (extraColors.containsKey(i)) {
+			System.out.println("Getting color: " + extraColors.get(i).toString());
+			return extraColors.get(i);
+		}
 		if (i < 0)
 			return Color.WHITE;
-		if (extraColors.containsKey(i)) return extraColors.get(i);
 		return colors[i % COLORS];
 	}
 
-	public int getNextColor() {
+	public int getNextColor(CultureType type) {
+//		if (type == null) return -1;
 //		System.out.println("using color: " + colorsPopped);
 		return colorsPopped++;
 	}

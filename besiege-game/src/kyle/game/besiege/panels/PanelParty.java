@@ -201,6 +201,9 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	public String getSizeString() {
 		String s = party.getHealthySize()+"/"+party.getTotalSize();
+		if (party.getHealthySize() == party.getTotalSize()) {
+			s = party.getHealthySize()+"";
+		}
 		if (army != null && party.getPrisoners().size > 0) {
 			return s + "+" + party.getPrisoners().size;
 		}

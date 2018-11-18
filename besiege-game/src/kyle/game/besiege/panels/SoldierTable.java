@@ -265,8 +265,8 @@ public class SoldierTable extends Table {
         if (party.getPrisoners() == null || party.getPrisoners().size == 0) return;
 
         prisonersC.setAlignment(Align.center);
-//        soldierTable.add(prisonersC).colspan(2).center().width(SidePanel.WIDTH - PAD * 2);
-//        soldierTable.row();
+        soldierTable.add(prisonersC).colspan(2).center().width(SidePanel.WIDTH - PAD * 2);
+        soldierTable.row();
 
         updateTableWithTypes(party.getConsolPrisoners(), lsG);
     }

@@ -23,7 +23,7 @@ public class CrestDraw extends Actor {
 
 	private Crest parentCrestForSidepanel;
 
-	public static Crest defaultCrest = Crest.getBlank(Color.WHITE);
+	public static Crest defaultCrest = Crest.getBlank(Color.RED);
 
 	// for kryo
 	public CrestDraw() {

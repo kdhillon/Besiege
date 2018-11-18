@@ -25,8 +25,12 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Ruin;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
+
+import static kyle.game.besiege.RandomCrestGenerator.COLOR_INDEX_BLACK;
+import static kyle.game.besiege.RandomCrestGenerator.COLOR_INDEX_WHITE;
 
 public class Kingdom extends Group {
     // Actual values
@@ -46,7 +50,6 @@ public class Kingdom extends Group {
     public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
-	public static final int TOTAL_BANDITS = 25;
 	public static boolean drawCrests = true;
 	public static boolean drawArmyCrests = true;
 
@@ -62,6 +65,8 @@ public class Kingdom extends Group {
 //	public static final double THUNDER_CHANCE = 1.0/800;
     public static final double THUNDER_CHANCE = 1.0/2000;
 
+    public static final int BANDIT_FACTIONS = 5;
+
     public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
 	private int day;
@@ -72,6 +77,8 @@ public class Kingdom extends Group {
 
 	public Map map;
 	transient private MapScreen mapScreen;
+
+	// includes both nomadic and sedentary factions
 	public StrictArray<Faction> factions;
 
 //	private int factionCount;
@@ -85,8 +92,6 @@ public class Kingdom extends Group {
 	
 	private StrictArray<BattleActor> battles;
 	private ArmyPlayer player;
-
-	public int banditCount;
 
 	public Destination currentPanel;
 
@@ -214,7 +219,6 @@ public class Kingdom extends Group {
 			cities.get(i).findCloseLocations();
 		
 		mouse = new Point(0,0);
-		banditCount = 0;
 		currentPanel = new Point(0,0);
 		
 		initialized = true;
@@ -233,8 +237,6 @@ public class Kingdom extends Group {
 			time(delta);
 			super.act(delta);
 
-			if (player != null)
-				manageBandits();
 			factionAct(delta);
 		}
 		else {
@@ -253,20 +255,8 @@ public class Kingdom extends Group {
 		}
 		if (leftClicked) leftClicked = false;
 		if (rightClicked) rightClicked = false;
-		
 	}
 
-	public void manageBandits() {
-		if (banditCount <= TOTAL_BANDITS && cities.size != 0) {
-//			if (Math.random() < 1.0/BANDIT_FREQ) {
-//				City originCity = cities.random();
-				Center center = getRandomCenter(getMap().connected);
-				//					if (originCity.getVillages().size == 0) 
-				createBandit(center);
-//			}
-		}
-	}
-	
 	public boolean centerContainsDestination(Center center, Destination army) {
 		// checks if in connected (all connected have polygon)
 		if (center.polygon != null) {
@@ -398,7 +388,7 @@ public class Kingdom extends Group {
 				if (a.isFarmer()) farmerCount++;
 				if (a.isPatrol()) patrolCount++;
 				if (a.isNoble()) nobleCount++;
-				if (a.getFaction() == Faction.BANDITS_FACTION) banditCount++;
+				if (a.isBandit()) banditCount++;
 			}
 			System.out.println("merchants: " + merchantCount);
 			System.out.println("farmers: " + farmerCount);
@@ -664,7 +654,7 @@ public class Kingdom extends Group {
 	
 
 	public void initializeFactions(Kingdom kingdom) {
-		RandomCrestGenerator rcg = new RandomCrestGenerator();
+		RandomCrestGenerator rcg = Faction.rc;
 		
 		factions = new StrictArray<Faction>();
 
@@ -672,15 +662,10 @@ public class Kingdom extends Group {
 		//		factionMilitaryAction = new StrictArray<StrictArray<Integer>>();
 
 		// add player faction (index 0) 
-		
-		Faction.BANDITS_FACTION = new Faction(this, "Bandits", Color.BLACK);
-		Faction.BANDITS_FACTION.crest = Crest.getBlank(Color.GRAY);
-		Faction.ROGUE_FACTION = new Faction(this,"Rogue", Color.BLACK);
-		Faction.ROGUE_FACTION.crest = Crest.getBlank(Color.WHITE);
+		rcg.addSpecialColor(Color.BLACK, COLOR_INDEX_BLACK);
+		rcg.addSpecialColor(Color.WHITE, COLOR_INDEX_WHITE);
 
-		addFaction(Faction.ROGUE_FACTION);
-		// add bandits faction (index 1)
-		addFaction(Faction.BANDITS_FACTION);	
+		addBanditFactions();
 
 		for (int i = 0; i < FACTION_COUNT; i++) {
 			createFaction();
@@ -691,8 +676,7 @@ public class Kingdom extends Group {
 			f.kingdom = kingdom;
 			f.initializeRelations();
 		}
-		Faction.BANDITS_FACTION.goRogue();
-		Faction.ROGUE_FACTION.goRogue();
+//		Faction.ROGUE_FACTION.goRogue();
 		Faction.initialized = true;
 	}
 	
@@ -710,6 +694,16 @@ public class Kingdom extends Group {
 		factions.add(faction);
 		faction.index = factions.indexOf(faction, true);		
 	}
+	public void addBanditFactions() {
+		for (int i = 0; i < BANDIT_FACTIONS; i++) {
+			Center center = getRandomCenterWithNoLocations(getMap().connected);
+			String name = Biomes.values()[center.getBiomeIndex()].toString() + " Bandits";
+			NomadicFaction banditFaction = new NomadicFaction(this, name, Color.BLACK, center);
+			factions.add(banditFaction);
+			banditFaction.goRogue();
+			banditFaction.isBandit = true;
+		}
+	}
 	
 	
 	/** Initialize each faction's list of hostile cities, faction control map 
@@ -719,7 +713,7 @@ public class Kingdom extends Group {
 //		System.out.println("initializing faction city info");
 		for (Faction f : factions) { 
 //			System.out.println("initializeing fci! " + f.name);
-			if (f == Faction.BANDITS_FACTION || f == Faction.ROGUE_FACTION) continue;
+			if (f.isNomadic()) continue;
 			f.initializeCloseLocations();
 			f.centers.clear();
 		}
@@ -1008,7 +1002,7 @@ public class Kingdom extends Group {
 		double closestDistance = 99999999;
 		Faction closestFaction = null;
 		for (Faction f : factions) {
-			if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
+			if (f.isNomadic()) continue;
 			if (f == null) continue;
 			
 			if (!f.hasNewCenter()) {
@@ -1083,7 +1077,7 @@ public class Kingdom extends Group {
 		double closestDistance = Double.MAX_VALUE;
 		Faction closestFaction = null;
 		for (Faction f : factions) {
-			if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
+			if (f.isNomadic()) continue;
 			if (f == null) continue;
 			double distance = this.pathDistBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
 			if (distance < closestDistance) {
@@ -1126,7 +1120,7 @@ public class Kingdom extends Group {
 			double closestDistance = Double.MAX_VALUE;
 			Faction closestFaction = null;
 			for (Faction f : factions) {
-				if (f == Faction.ROGUE_FACTION || f == Faction.BANDITS_FACTION) continue;
+				if (f.isNomadic()) continue;
 				if (f == null) continue;
 				double distance = Kingdom.distBetween(new Point(f.faction_center_x, f.faction_center_y), new Point(x, y));
 				if (distance < closestDistance) {
@@ -1192,28 +1186,28 @@ public class Kingdom extends Group {
 		//player.getParty().wound(player.getParty().getHealthy().random());
 		//		getMapScreen().getFog().updateFog();
 	}
-	public void createBandit(Center center) {
-		//get a good bandit location, out of player's LOS, away from other armies, etc.
-		Bandit bandit = new Bandit(this, "Bandit", 0, 0);
-		float posX, posY;
-		//		float posX = 2048;
-		//		float posY = 2048;
-		Point p = new Point(0,0);
-		int count = 0;
-		do {
-			count++;
-			posX = center.loc.x + Random.getRandomInRange(-bandit.getLineOfSight(), bandit.getLineOfSight());
-			posY = Map.HEIGHT - center.loc.y + Random.getRandomInRange(-bandit.getLineOfSight(), bandit.getLineOfSight());
-			p.setPos(posX, posY); 
-			//			System.out.println("creating bandit spot");
-		} while ((map.isInWater(p) || Kingdom.distBetween(p, player) <= player.getLineOfSight()) && count < 10); // makes sure bandit is out of sight of player!
-		if (count == 10) return;
-
-		bandit.setPosition(posX, posY);
-		//		System.out.println("new bandit created at " + origin.getName() + posX + "  " + posY);
-		this.addArmy(bandit);
-		banditCount++;
-	}
+//	public void createBandit(Center center) {
+//		//get a good bandit location, out of player's LOS, away from other armies, etc.
+//		Bandit bandit = new Bandit(this, "Bandit", 0, 0, );
+//		float posX, posY;
+//		//		float posX = 2048;
+//		//		float posY = 2048;
+//		Point p = new Point(0,0);
+//		int count = 0;
+//		do {
+//			count++;
+//			posX = center.loc.x + Random.getRandomInRange(-bandit.getLineOfSight(), bandit.getLineOfSight());
+//			posY = Map.HEIGHT - center.loc.y + Random.getRandomInRange(-bandit.getLineOfSight(), bandit.getLineOfSight());
+//			p.setPos(posX, posY);
+//			//			System.out.println("creating bandit spot");
+//		} while ((map.isInWater(p) || Kingdom.distBetween(p, player) <= player.getLineOfSight()) && count < 10); // makes sure bandit is out of sight of player!
+//		if (count == 10) return;
+//
+//		bandit.setPosition(posX, posY);
+//		//		System.out.println("new bandit created at " + origin.getName() + posX + "  " + posY);
+//		this.addArmy(bandit);
+//		banditCount++;
+//	}
 	
 	public StrictArray<Location> getAllLocationsCopy() {
 		StrictArray<Location> locations = new StrictArray<Location>();
@@ -1355,7 +1349,7 @@ public class Kingdom extends Group {
 		return null;
 	}
 
-	public static Center getRandomCenter(HashSet<Center> myHashSet) {
+	private static Center getRandomCenter(HashSet<Center> myHashSet) {
 		int size = myHashSet.size();
 		int item = Random.getRandom(size);
 		int i = 0;
@@ -1367,7 +1361,52 @@ public class Kingdom extends Group {
 		}
 		return null;
 	}
-	
+
+	// returns a random center that's far away from locations
+	private Center getRandomCenterWithNoLocations(HashSet<Center> myHashSet) {
+		Center c;
+		do {
+			c = getRandomCenter(myHashSet);
+		}
+		while(hasAdjacentLocations(c) && c != null);
+		return c;
+	}
+
+	// Checks if the center has any locations within a range around it.
+	private boolean hasAdjacentLocations(Center center) {
+		for (City c : cities) {
+			if (c.getCorner() != null) {
+				for (Corner corner : center.corners) {
+					if (corner == c.getCorner()) return true;
+				}
+			} else {
+				if (center == c.getCenter()) return true;
+			}
+		}
+		for (Village v : villages) {
+			if (v.getCenter() == center) return true;
+		}
+		for (Ruin c : ruins) {
+			if (c.getCorner() != null) {
+				for (Corner corner : center.corners) {
+					if (corner == c.getCorner()) return true;
+				}
+			} else {
+				if (center == c.getCenter()) return true;
+			}
+		}
+		for (Castle c : castles) {
+			if (c.getCorner() != null) {
+				for (Corner corner : center.corners) {
+					if (corner == c.getCorner()) return true;
+				}
+			} else {
+				if (center == c.getCenter()) return true;
+			}
+		}
+		return false;
+	}
+
 //	public void printArmyStats() {
 //		System.out.println("Total soldiers " + getTotalSoldiers());
 //		Soldier champ = getSoldierWithMostKills();

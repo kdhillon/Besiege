@@ -14,8 +14,8 @@ import com.badlogic.gdx.graphics.Texture;
 import kyle.game.besiege.title.MainMenuScreen;
 	
 public class BesiegeMain extends Game {
-	public static boolean CHIEFTAIN = true;
-	
+	public static final String GAME_NAME = "WARCHIEF";
+
 	public static int WIDTH = 400;
 	public static int HEIGHT = 512;
 	public static int appType; // 0: desktop, 1: android, 2: Html5, 3: iOS

@@ -190,8 +190,10 @@ public class PanelBattle2 extends Panel {
     @Override
     public void act(float delta) {
         // is either side fighting with allies?
-        actForPartyList(battle.getAttackingParties(), attackerSoldierTables, topTableAttackers);
-        actForPartyList(battle.getDefendingParties(), defenderSoldierTables, topTableDefenders);
+        if (battle.getAttackingParties() != null)
+            actForPartyList(battle.getAttackingParties(), attackerSoldierTables, topTableAttackers);
+        if (battle.getDefendingParties() != null)
+            actForPartyList(battle.getDefendingParties(), defenderSoldierTables, topTableDefenders);
 
         super.act(delta);
     }

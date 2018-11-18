@@ -62,8 +62,8 @@ public class Faction {
 	//	private final static int WAR_THRESHOLD = -10; //cross this and you're at war
 	//	public static final int WAR_THRESHOLD = 10; //cross this and you're at war
 
-	public static Faction BANDITS_FACTION;
-	public static Faction ROGUE_FACTION;
+//	public static NomadicFaction BANDITS_FACTION;
+//	public static Faction ROGUE_FACTION;
 	public static boolean initialized = false;
 
 	public static final Color BROWN = new Color(184/256.0f, 119/256.0f, 25/256.0f, 1);
@@ -152,6 +152,8 @@ public class Faction {
 	public int faction_center_y; 
 
 	private final int NOBLE_COUNT = 5; //TODO
+
+	boolean isBandit = false;
 
 	//	private static StrictArray<StrictArray<Integer>> factionMilitaryAction; // is this worth it?
 	//	private static StrictArray<StrictArray<Integer>> factionNearbyCities; // not needed, calced in real time?
@@ -261,7 +263,8 @@ public class Faction {
 		//			timeSinceIncrease = 0;
 		//		}
 
-		if (this != ROGUE_FACTION) autoManage(delta);
+//		if (this != ROGUE_FACTION)
+ 		autoManage(delta);
 	}
 
 	public void autoManage(float delta) {
@@ -270,7 +273,7 @@ public class Faction {
 		// that's it for now :D
 		// Check once per day
 		if (kingdom.getTotalHour() % FACTION_UPDATE_FREQ == 0 && !hasChecked) {
-			if (this != Faction.BANDITS_FACTION && this != Faction.ROGUE_FACTION)
+			if (!this.isNomadic())
 				manageDiplomacy();
 			manageNobles();
 			hasChecked = true;
@@ -319,20 +322,16 @@ public class Faction {
 //		if (this.atWar == null || this.atPeace == null) refreshAtWar();
 		for (Faction that : this.atWar) {
 			if (Math.random() < PEACE_PROBABILITY && 
-					that != Faction.BANDITS_FACTION &&
-					this != Faction.BANDITS_FACTION &&
-					that != Faction.ROGUE_FACTION &&
-					this != Faction.ROGUE_FACTION) {
+					!that.isNomadic() &&
+					!this.isNomadic()) {
 				this.declarePeace(that);
 				return;
 			}
 		}
 		for (Faction that : this.atPeace) {
-			if (Math.random() < WAR_PROBABILITY  && 
-					that != Faction.BANDITS_FACTION &&
-					this != Faction.BANDITS_FACTION &&
-					that != Faction.ROGUE_FACTION &&
-					this != Faction.ROGUE_FACTION) {
+			if (Math.random() < WAR_PROBABILITY  &&
+					!that.isNomadic() &&
+					!this.isNomadic()) {
 				this.declareWar(that);
 				return;
 			}
@@ -484,7 +483,7 @@ public class Faction {
 		//		System.out.println(this.name + " initializing cities: ");
 		this.closeEnemyCities.clear();
 		this.closeEnemyCastles.clear();
-		if (this.isBandit()) return;
+		if (this.isNomadic()) return;
 		// find hostile locations near cities
 		for (City c: cities) {
 			//			System.out.println("  close to " + c.getName() + ":");
@@ -614,7 +613,7 @@ public class Faction {
 			}
 		}
 
-        generateCrest();
+        generateCrest(false);
     }
 
     private Type randomTypeFor(CultureType cultureType) {
@@ -643,9 +642,9 @@ public class Faction {
 //        } else return "";
 //    }
 
-    private void generateCrest() {
+	void generateCrest(boolean bandit) {
 //        if (crestIn == null) {
-        this.crest = rc.create(cultureType);
+        this.crest = rc.create(cultureType, bandit);
 //        }
 //        else {
 //            this.crest = crestIn;
@@ -977,9 +976,9 @@ public class Faction {
 			}
 		}
 	}
-	
+
 	public boolean isBandit() {
-		return this == Faction.BANDITS_FACTION;
+		return isBandit;
 	}
 
 	public int getTotalWealth() {
@@ -1000,11 +999,15 @@ public class Faction {
 		return this.name + " " + this.type.rank;
 	}
 	public City getRandomCity() {
-		if (this.isBandit() && cities.size > 0) throw new AssertionError();
-		if (this.isBandit()) return null;
+		if (this.isNomadic() && cities.size > 0) throw new AssertionError();
+		if (this.isNomadic()) return null;
 		if (cities.size > 0) {
 			return cities.random();
 		}
 		else return null;
+	}
+
+	public boolean isNomadic() {
+		return false;
 	}
 }

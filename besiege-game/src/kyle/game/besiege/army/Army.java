@@ -204,7 +204,11 @@ public class Army extends Group implements Destination {
 		if (type != null) {
 			Center containing = kingdom.getMap().getCenter(containingCenter);
 			if (containing == null) {
-				containing = kingdom.getMap().reference;
+				if (faction.isNomadic()) {
+					containing = ((NomadicFaction) faction).baseCenter;
+				} else {
+					containing = kingdom.getMap().reference;
+				}
 //				 throw new java.lang.NullPointerException();
 			}
 			if (location != null) {

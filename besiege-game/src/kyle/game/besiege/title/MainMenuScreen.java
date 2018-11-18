@@ -45,7 +45,9 @@ import static kyle.game.besiege.battle.BattleMap.SNOW_COLOR;
 
 public class MainMenuScreen implements Screen {
 //	private static final String TITLE = "CHIEFTAIN";
-	private static final String TITLE = "C H I E F T A I N";
+	private static final String TITLE_1 = "C H I E F T A I N";
+	private static final String TITLE = "W A R C H I E F";
+
 	private static TextureRegion region = new TextureRegion(new Texture("whitepixel.png"));
 	private TextureRegion tree;
 

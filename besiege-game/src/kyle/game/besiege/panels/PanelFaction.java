@@ -371,7 +371,7 @@ public class PanelFaction extends Panel {
 
 		// don't want to recreate these things every frame  yo
 		for (Faction f : faction.kingdom.factions) {
-			if ((f != faction) && f != Faction.BANDITS_FACTION && f != Faction.ROGUE_FACTION) {
+			if ((f != faction) && !f.isBandit()) {
 				if (f.label == null) {
 					f.label = new ObjectLabel(f.getName(), ls, f);
 					f.label.addListener(new InputListener() {
