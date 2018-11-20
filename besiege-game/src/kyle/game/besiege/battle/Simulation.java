@@ -33,13 +33,13 @@ public class Simulation extends Game {
         if (Math.random() < 0.5) {
             type2 = UnitLoader.cultureTypes.get("Desert");
         }
-        type1 = UnitLoader.cultureTypes.get("Jungle");
+        type1 = UnitLoader.cultureTypes.get("Tundra");
 		type2 = UnitLoader.cultureTypes.get("Jungle");
 
 		if (type1 == null || type2 == null) throw new AssertionError();
 
-		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.TEST_ALL, type1),
-										PartyType.generatePartyType(Type.TEST_ALL, type2), 2);
+		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.BANDIT, type1),
+										PartyType.generatePartyType(Type.BANDIT, type2), 2);
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
 		

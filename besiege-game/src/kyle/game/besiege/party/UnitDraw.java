@@ -134,7 +134,10 @@ public class UnitDraw extends Actor {
 
     private void assignColor() {
         this.armorTint = soldier.unitType.armor.color;
-        if (soldier.unitType.armor.isNaked()) armorTint = Color.CLEAR;
+        if (soldier.unitType.armor.isNaked() || soldier.unitType.armor.type
+                == ArmorType.Type.LOINCLOTH || soldier.unitType.armor.type ==
+                ArmorType.Type.ARMWRAP)
+            armorTint = Color.CLEAR;
         this.skinTint = soldier.getColor();
     }
 

@@ -7,10 +7,12 @@ public class ArmorType {
 	public enum Type {
 		NAKED, 		// No armor
 		CLOTHES, 	// Can be produced for free (won't be won/lost in battles)
-		BASIC, 		// Covers full top/bottom
+		BASIC, 		// Covers full top/bottom except hands
+		FULL, 		// Covers full top/bottom including hands
 		CHEST,		// Covers top minus sleeves, plus bottom
-		LOINCLOTH,		// Glorified Speedo
-		ARMWRAP,		// Wrap only on dominant hand
+		LOINCLOTH,	// Glorified Speedo
+		ARMWRAP,    // Wrap only on hands/loincloth
+		HOODED,		// Full + hood
 	}
 	public String name;
 	
@@ -64,8 +66,13 @@ public class ArmorType {
     }
 
     public String getPreviewTexture() {
-        if (type == Type.CHEST) return "preview-chest-armor";
-        return "preview-armor";
+		if (type == Type.FULL) return "preview-armor-2";
+		if (type == Type.CHEST) return "preview-chest-armor-2";
+		if (type == Type.ARMWRAP) return "preview-armwrap-armor";
+		if (type == Type.LOINCLOTH) return "preview-loincloth-armor";
+		if (type == Type.HOODED) return "preview-hood-armor";
+		// basic, clothes
+		return "preview-basic-armor";
     }
 
 	public static ArmorType.Type toArmorType(String name) {
@@ -75,6 +82,8 @@ public class ArmorType {
 		if (name.equals("clothes")) return ArmorType.Type.CLOTHES;
 		if (name.equals("loincloth")) return Type.LOINCLOTH;
 		if (name.equals("armwrap")) return Type.ARMWRAP;
+		if (name.equals("hooded")) return Type.HOODED;
+		if (name.equals("full")) return Type.FULL;
 
 		System.out.println("Armor type not found: " + name);
 		return null;

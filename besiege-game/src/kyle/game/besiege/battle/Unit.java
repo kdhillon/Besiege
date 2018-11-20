@@ -866,19 +866,23 @@ public class Unit extends Group {
 
 	// should move checks if archer needs to move before shooting, then moves them away from an obstruction or to cover
 	private boolean shouldMoveBeforeFiring() {
-		BPoint facing = getAdjacentPoint();
-		if (inCover()) return false;
-		if (isHidden()) return false;
-		if (facing == null) return false; // facing off stage
-		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
+		// Maybe this is just not worth it...
+//		return false;
 
-		// check if object in front is too height
-		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Projectile.INITIAL_HEIGHT+this.getFloorHeight())) {
-			//			System.out.println("should move");
-
-			this.startMove(getRandomDirection());
-			return true;
-		}
+		// This stuff is most recently commented.
+//		BPoint facing = getAdjacentPoint();
+//		if (inCover()) return false;
+//		if (isHidden()) return false;
+//		if (facing == null) return false; // facing off stage
+//		BattleMap.Object object = stage.battlemap.objects[facing.pos_y][facing.pos_x];
+//
+//		// check if object in front is too height
+//		if (object != null && (object.height+stage.heights[facing.pos_y][facing.pos_x] > Projectile.INITIAL_HEIGHT+this.getFloorHeight())) {
+//			//			System.out.println("should move");
+//
+//			this.startMove(getRandomDirection());
+////			return true;
+//		}
 
 		//		if (nearestEnemy != null && !inCover()) {
 		//			this.nearestCover = this.getNearestCover();

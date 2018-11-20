@@ -34,7 +34,7 @@ ICE            180    180    255
 ORANGE        255    128    0
 YELLOW        255    255    0
 PURPLE        171    0    255
-CYAN        0    255    255
+CYAN            0    255    255
 MAGENTA        255    0    255
 
 LT_RED      255     200     200

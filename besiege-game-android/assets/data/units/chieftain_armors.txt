@@ -1,25 +1,23 @@
 name			    	color_name	def	spd	texture
 
-None			    	TAN			0	0	naked
+None			    	MAGENTA		0	0	naked
 
-Clothes		    		DK_BROWN    0	0   basic
-	
-Cotton			    	LT_BROWN 	1	0	basic
-Tunic			    	BROWN_G		2	0	basic
-War_Suit		    	BROWN_R		3	-1	basic
+Clothes		    		DK_BROWN    0	0   clothes
 
+// Tunic			    BROWN_G		2	0	clothes
+// War_Suit		    	BROWN_R		3	-1	basic
 
 // Forest armors
 Furs                    LT_BROWN    1   0   chest
-Breastplate(Wood_Rods)	LT_BROWN    2	-1	chest
-Breastplate(Wood_Slats) LT_BROWN   	3	-1	chest
+Breastplate(Wood_Rods)	LT_YELLOW   2	-1	chest
+Breastplate(Wood_Slats) BROWN_R   	3	-1	chest
 Wicker_Mail(Reeds)	    LT_BROWN    4	-1	basic
 Wolf_Rawhide		    LT_GRAY		2	0	basic
 Bear_Rawhide		    DK_BROWN	2	0	basic
 
 // Meso armors
-Loincloth               LT_BROWN    0   0   loincloth
-Maguey_Clothes          TAN         0   0   basic
+Loincloth               OFF_WHITE    0   0   loincloth
+Maguey_Clothes          LT_BROWN      0   0  clothes
 Cotton_Armor            OFF_WHITE   2   -1   chest
 Warrior_Suit(Jaguar)    LT_YELLOW   3   -1   basic
 Warrior_Suit(Eagle)     LT_RED      3   -1   basic
@@ -27,10 +25,12 @@ Warrior_Suit(Eagle)     LT_RED      3   -1   basic
 // Jungle armors
 Cotton_Armwrap          OFF_WHITE   1   0   armwrap
 
-// TODO add armwrap texture
-
-
 // Tundra armors
+Light_Furs              TAN        1    0   hooded
+Walrus_Furs             LT_BROWN   2    0   hooded
+Bear_Furs               OFF_WHITE  3    0   hooded
+
+// A few more armors.
 
 // Plains armors
 Elk_Hide                TAN        2    0   basic

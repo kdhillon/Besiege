@@ -10,23 +10,30 @@ mock
   orig: 12, 12
   offset: 0, 0
   index: -1
-die1-chest-armor
+preview-hood-armor
   rotate: false
   xy: 16, 2
+  size: 8, 9
+  orig: 8, 9
+  offset: 0, 0
+  index: -1
+die1-chest-armor
+  rotate: false
+  xy: 26, 2
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
   index: -1
 die1-skin
   rotate: false
-  xy: 50, 2
+  xy: 60, 2
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
   index: -1
 die1-armor
   rotate: false
-  xy: 84, 2
+  xy: 94, 2
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
@@ -131,42 +138,84 @@ walk-chest-armor
   index: -1
 shadow
   rotate: false
-  xy: 118, 2
+  xy: 74, 16
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-skin
   rotate: false
-  xy: 74, 16
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-preview-armor
-  rotate: false
   xy: 84, 16
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-preview-chest-armor
+preview-loincloth-armor
   rotate: false
   xy: 94, 16
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-skin-preview-2
+preview-armor
   rotate: false
   xy: 104, 16
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-sling
+preview-armor-2
+  rotate: false
+  xy: 114, 16
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-chest-armor
   rotate: false
   xy: 20, 26
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-armwrap-armor
+  rotate: false
+  xy: 20, 36
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-chest-armor-2
+  rotate: false
+  xy: 20, 46
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+skin-preview-2
+  rotate: false
+  xy: 20, 56
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+skin-preview-3
+  rotate: false
+  xy: 20, 66
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-basic-armor
+  rotate: false
+  xy: 20, 76
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+sling
+  rotate: false
+  xy: 30, 26
   size: 56, 7
   orig: 56, 7
   offset: 0, 0

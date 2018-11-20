@@ -14,10 +14,7 @@ import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.battle.WeaponDraw;
 import kyle.game.besiege.panels.PanelUnit;
 import kyle.game.besiege.panels.SidePanel;
-import kyle.game.besiege.party.Equipment;
-import kyle.game.besiege.party.RangedWeaponType;
-import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.WeaponType;
+import kyle.game.besiege.party.*;
 
 public class MiniMap extends Actor {
 //	private final float BORDER = .04f;
@@ -33,7 +30,8 @@ public class MiniMap extends Actor {
 
 	public MiniMap(SidePanel panel) {
 		this.panel = panel;
-		unitSkin = Assets.units.findRegion("skin-preview-2");
+		unitSkin = Assets.units.findRegion("skin-preview-3");
+		if (unitSkin == null) throw new AssertionError();
 	}
 
 	@Override
@@ -82,6 +80,7 @@ public class MiniMap extends Actor {
 			if (toPreview.getArmor().getPreviewTexture() != currentArmorString) {
                 currentArmorString = toPreview.getArmor().getPreviewTexture();
                 unitArmor = Assets.units.findRegion(currentArmorString);
+                if (unitArmor == null) throw new AssertionError("Can't find : " + toPreview.getArmor().name);
                 System.out.println("updating unit preview armor");
             }
 
@@ -151,9 +150,13 @@ public class MiniMap extends Actor {
 			batch.setColor(toPreview.skinColor);
 			batch.draw(unitSkin, getX() + x_boost, getY(), getOriginX(), getOriginY(), getWidth(), getWidth(), 1, 1, getRotation());
 
+			// TODO account for extra high armors (hoods)
             if (!toPreview.unitType.armor.isNaked()) {
                 batch.setColor(toPreview.unitType.armor.color);
-                batch.draw(unitArmor, getX() + x_boost, getY(), getOriginX(), getOriginY(), getWidth(), getWidth(), 1, 1, getRotation());
+                float height = getHeight();
+                if (toPreview.unitType.armor.type == ArmorType.Type.HOODED)
+                	height *= 9f/8;
+                batch.draw(unitArmor, getX() + x_boost, getY(), getOriginX(), getOriginY(), getWidth(), height, 1, 1, getRotation());
             }
 
 			batch.setColor(c);

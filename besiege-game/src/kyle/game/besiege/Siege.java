@@ -144,6 +144,15 @@ public class Siege extends Actor {
 	}
 	
 	public void attack() {
+		this.battleActor = armies.first().getBattleActor();
+//		else System.out.println("trying to attack with no armies!");
+		if (battleActor == null) return;
+		if (this.battleActor.getSiege() != this) {
+			System.out.print("Warning: " + armies.first().getName() + " is already in a siege/battle that's not this");
+			return;
+//			return;
+		}
+
 		System.out.println("attack at " + location.getName() + " which has " + location.getWealth() + " wealth and " + location.garrison.getTotalSize() + " defenders");
 		// make sure siegeOrRaid is set
 		location.siege = this;
@@ -155,10 +164,7 @@ public class Siege extends Actor {
 
         location.siegeAttack(armies);
 //		if (armies.size >= 1)
-		this.battleActor = armies.first().getBattleActor();
-//		else System.out.println("trying to attack with no armies!");
-		if (battleActor == null) return;
-		if (this.battleActor.getSiege() != this) throw new AssertionError();
+
 
     }
 	

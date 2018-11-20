@@ -20,23 +20,21 @@ public class Shaman extends Soldier {
     // They march into battle behind their BSPs, like their general
     enum Type {
         // Forest
-        WOLF("Wolf Shaman", "Forest", "weapon_name", "armor_name", MASK_WOLF),
+        WOLF("Wolf Shaman", "Forest", "Staff", "None", MASK_WOLF),
         // Tundra
-        BEAR("Bear Shaman", "Tundra", "weapon_name", "armor_name", MASK_BEAR),
+        BEAR("Bear Shaman", "Tundra", "Staff", "Heavy Furs", MASK_BEAR),
         // Plains
-        HAWK("Hawk Shaman", "Plains", "weapon_name", "armor_name", MASK_HAWK),
-        BUFFALO("Buffalo Shaman", "Plains", "weapon_name", "armor_name", MASK_BUFFALO),
+        HAWK("Hawk Shaman", "Plains", "Staff", "None", MASK_HAWK),
+        BUFFALO("Buffalo Shaman", "Plains", "Staff", "None", MASK_BUFFALO),
         // Desert
-        DEATH("Death Priest", "Desert", "weapon_name", "armor_name", MASK_SKULL),
-        JAGUAR("Jaguar Priest", "Jungle", "weapon_name", "armor_name", MASK_SKULL);
+        DEATH("Death Priest", "Desert", "Staff", "None", MASK_SKULL),
+        JAGUAR("Jaguar Priest", "Jungle", "Staff", "None", MASK_SKULL);
 
         public UnitType unitType;
         private Equipment mask;
         // TODO add weapon (staff), armor, and headdress
         Type(String name, String cultureName, String weapon, String armor, Equipment mask) {
             this.mask = mask;
-            weapon = "Staff";
-            armor = "None";
             this.unitType = new UnitType();
             this.unitType.tier = 1; // start as level 1 unit
             this.unitType.name = name;
