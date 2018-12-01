@@ -370,6 +370,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 			System.out.println(unitType.name + " doesn't have a melee weapon!");
 		}
 		this.updateWeapon(unitType.melee);
+		if (unitType.armor == null) {
+			System.out.println(unitType.name + " doesn't have armor!");
+		}
 		this.updateArmor(unitType.armor);
 //		if (unitType.shield)
 		this.updateShield(this.getShield());

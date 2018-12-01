@@ -207,6 +207,8 @@ public class Faction {
 
 	// should only be called once per faction
 	public void initializeRelations() {
+		if (this.isBandit()) return;
+
 		//		System.out.println(this.name + " initializing relations");
 		warEffects = new StrictArray<Integer>();
 
@@ -219,9 +221,8 @@ public class Faction {
 			//			System.out.println("declaring peace " + f.name);
 			//			if (!this.atPeace(f))
 			if (f == this) continue;
-			System.out.println("initializing peace");
 			this.declarePeace(f);
-			if (Math.random() < 0.5)
+			if (Math.random() < 0.5 || f.isBandit() || this.isBandit())
 				this.declareWar(f);
 		}
 	}
@@ -290,7 +291,7 @@ public class Faction {
 		for (Noble noble : city.nobles) {
 			//			if (this.cities.size == 0) noble.destroy(); // kill noble for now
 			//			else {
-			//				City newCity = this.getRandomCity();
+			//				City newCity = this.getRandomLocation();
 			//				if (!newCity.nobles.contains(noble, true)) newCity.addNoble(noble);
 			//			}
 			// Just destroy all nobles for now, in future, can make them nobles of other cities
@@ -319,6 +320,7 @@ public class Faction {
 	}
 
 	public void manageDiplomacy() {
+		if (this.isBandit()) return;
 //		if (this.atWar == null || this.atPeace == null) refreshAtWar();
 		for (Faction that : this.atWar) {
 			if (Math.random() < PEACE_PROBABILITY && 
@@ -444,7 +446,9 @@ public class Faction {
 		// randomize size
 		this.addNoble(noble);
 		((City) location).nobles.add(noble);
-		noble.goToNewTarget();
+
+		if (!noble.isGarrisoned())
+			noble.goToNewTarget();
 		location.setContainerForArmy(noble);
 
 		// Set leader
@@ -802,6 +806,8 @@ public class Faction {
 
 	// this isn't stored, but calculated on demand
 	public int calcRelations(Faction that) {
+		if (this.isBandit()) return -99;
+
 		/* 		nearby cities/troops (negative)
 		 * 
 		 * 		// "war effects":
@@ -940,6 +946,8 @@ public class Faction {
 	}
 
 	public void declarePeace(Faction that) {
+//		if (this.isBandit()) throw new AssertionError();
+
 		if (this.atPeace.contains(that, true)) {
 			System.out.println(this.name + " ALREADY AT PEACE with " + that.name);
 		}
@@ -968,11 +976,10 @@ public class Faction {
 	public void goRogue() { // just for testing, declares war on all factions other than this one
 		for (int i = 0; i < kingdom.factions.size; i++) {
 			if (i != index) {
-				if (this.atPeace(kingdom.factions.get(i))) {
-
-					System.out.println(this.name + " declaring war against: " + kingdom.factions.get(i).name);
-					kingdom.factions.get(i).declareWar(this);
-				}
+				Faction that = kingdom.factions.get(i);
+				declarePeace(that);
+				System.out.println(this.name + " declaring war against: " + that.name);
+				declareWar(that);
 			}
 		}
 	}
@@ -998,13 +1005,27 @@ public class Faction {
 		if (this.isBandit()) return this.name;
 		return this.name + " " + this.type.rank;
 	}
-	public City getRandomCity() {
+
+	public Location getRandomLocation() {
 		if (this.isNomadic() && cities.size > 0) throw new AssertionError();
-		if (this.isNomadic()) return null;
-		if (cities.size > 0) {
-			return cities.random();
+		if (this.isNomadic()) {
+			System.out.println(this.getName() + " is nomadic");
+			return null;
 		}
-		else return null;
+		if (cities.size > 0) {
+			City city = cities.random();
+			if (city == null) throw new AssertionError();
+			return city;
+		}
+		else if (villages.size > 0) {
+			Village v = villages.random();
+			if (v == null) throw new AssertionError();
+			return v;
+		}
+		else {
+			throw new AssertionError();
+//			return null;
+		}
 	}
 
 	public boolean isNomadic() {

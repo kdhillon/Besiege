@@ -7,7 +7,6 @@ package kyle.game.besiege.army;
 
 import com.badlogic.gdx.math.MathUtils;
 
-import kyle.game.besiege.Destination;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.location.City;
 import kyle.game.besiege.location.Location;
@@ -99,19 +98,29 @@ public class Noble extends Army {
 //		return general;
 //	}
 
+	// Finds a target
 	@Override
 	public void uniqueAct() {
-		if (hasTarget()) return;
+		if (hasTarget()) {
+//			System.out.println(getName() + " already has target");
+			return;
+		}
+
+
 		// TESTING
 //		if (getKingdom().map.isInWater(this)) {
 //			System.out.println(this.getName() + " is in water!");
 //		}
-		
+
+
+
 		// nobles do: 
 		// travel between their own cities (by default)
 		// or are sent to besiege other cities (by faction)
 		if (shouldRepair()) {
+//			System.out.println(getName() + " only one city");
 			this.returnHome();
+			if (!hasTarget()) throw new AssertionError();
 		}
 		else if (this.hasSpecialTarget() && !this.isGarrisonedIn(specialTargetToBesiege)) {
 			if (getKingdom().currentPanel == this) System.out.println(getName() + " has special target");
@@ -128,16 +137,25 @@ public class Noble extends Army {
 
 			if (this.isGarrisoned()) this.eject();
 			manageSpecialTarget();
+			if (!hasTarget()) throw new AssertionError();
 		}
 		else if (getFaction().cities.size > 1) {
 			if (getKingdom().currentPanel == this) System.out.println(getName() + " wandering between cities");
 
+			if (isGarrisoned()) eject();
+
 			wanderBetweenCities();
+			if (!hasTarget()) throw new AssertionError();
 		}
 		else {
-			//System.out.println(getName() + " only one city");
+//			System.out.println(getName() + " only one city");
 			// wait in city
+			if (!isGarrisoned()) {
+				returnHome();
+				if (!hasTarget()) throw new AssertionError();
+			}
 		}
+		if (!isGarrisoned() && !hasTarget()) throw new AssertionError();
 	}
 
 	@Override
@@ -233,7 +251,7 @@ public class Noble extends Army {
 	public void returnHome() {
 //		System.out.println(this.getName() + " returning home");
 		if (getHome() == null) {
-			updateHome(this.getFaction().getRandomCity());
+			updateHome(this.getFaction().getRandomLocation());
 		}
 		if (getHome() == null) this.destroy();
 		this.specialTargetToBesiege = null;
@@ -242,6 +260,8 @@ public class Noble extends Army {
 	}
 
 	public void wanderBetweenCities() {
+		clearAllTargets();
+
 		// I think this is the problem
 		if (this.path.isEmpty()) {
 			goToNewTarget();
@@ -249,24 +269,33 @@ public class Noble extends Army {
 			//			System.out.println("doesn't have target and is waiting? " + this.isWaiting() + " and is garrisoned? " + isGarrisonedSafely());
 			//				System.out.println("starting to wait");
 
-			//System.out.println(this.getName() + "getting new target");
+			System.out.println(this.getName() + "getting new target");
+			if (!hasTarget()) throw new AssertionError();
 		}
 		// make sure not going to enemy city - weird glitch
 		else {
+			throw new AssertionError();
 //			System.out.println(getName() + " has path");
-			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && this.path.nextGoal.getFaction().atWar(this.getFaction()))
-				goToNewTarget();
+//			if (this.path.nextGoal != null && this.path.nextGoal.getType() == Destination.DestType.LOCATION && this.path.nextGoal.getFaction().atWar(this.getFaction()))
+//				goToNewTarget();
 		}
 	}
 
 	public void goToNewTarget() {
-		Location newTarget = this.getFaction().getRandomCity();
+		Location newTarget = this.getFaction().getRandomLocation();
 		if (this.getGarrisonedIn() != newTarget) {
-			if (newTarget != null)
-				setTarget(newTarget);
-			else {
-//				System.out.println(getName() + " wanderBetweenCities target");
+			if (newTarget != null) {
+				if (setTarget(newTarget)) {
+					if (!hasTarget()) throw new AssertionError();
+				}
 			}
+			else {
+				System.out.println(getName() + " wanderBetweenCities target is null");
+				if (!hasTarget()) throw new AssertionError();
+			}
+		} else {
+			System.out.println(this.getName() + " is already garrisoned in new target: " + newTarget.getName());
+			if (!hasTarget()) throw new AssertionError();
 		}
 //		else System.out.println("new target is garrisoned in");
 	}

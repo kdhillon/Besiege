@@ -35,6 +35,17 @@ public class ArmorType {
 	    return type == Type.CHEST;
     }
 
+    public Color getColorTopDown() {
+		if (isNaked()) return Color.CLEAR;
+		if (type == Type.LOINCLOTH) return Color.CLEAR;
+		return color;
+	}
+
+	public Color getColorPreview() {
+		if (isNaked()) return Color.CLEAR;
+		return color;
+	}
+
     public String getWalkAnimation() {
 	    if (type == Type.CHEST) return "walk-chest-armor";
 	    return "walk-armor";

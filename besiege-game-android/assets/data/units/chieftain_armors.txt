@@ -1,4 +1,4 @@
-name			    	color_name	def	spd	texture
+name			    	color_name	def	spd	type
 
 None			    	MAGENTA		0	0	naked
 
@@ -26,8 +26,8 @@ Warrior_Suit(Eagle)     LT_RED      3   -1   basic
 Cotton_Armwrap          OFF_WHITE   1   0   armwrap
 
 // Tundra armors
-Light_Furs              TAN        1    0   hooded
-Walrus_Furs             LT_BROWN   2    0   hooded
+Light_Furs              LT_BROWN   1    0   hooded
+Walrus_Furs             DK_BROWN   2    0   hooded
 Bear_Furs               OFF_WHITE  3    0   hooded
 
 // A few more armors.

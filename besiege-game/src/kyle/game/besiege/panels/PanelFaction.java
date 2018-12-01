@@ -147,7 +147,8 @@ public class PanelFaction extends Panel {
 		//				centerCamera();
 		//			}
 		//		});
-		leader.setText(faction.getLeader().getOfficialName());
+		if (faction.getLeader() != null)
+			leader.setText(faction.getLeader().getOfficialName());
 
 		text.add(title).colspan(2).fillX().expandX().padBottom(MINI_PAD);
 		text.row();

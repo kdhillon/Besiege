@@ -36,7 +36,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, "", faction, posX, posY, PartyType.Type.SCOUT, true);
+		super(kingdom, "", faction, posX, posY, PartyType.Type.NOBLE, true);
 		this.player = true;
 		this.setScale(calcScale());
 //		Location loc = this.detectNearbyFriendlyCity();
@@ -241,13 +241,16 @@ public class ArmyPlayer extends Army {
 	
 	@Override
 	public void enemyArmyCollision(Army targetArmy) {
+		System.out.println("Enemy army collision: " + targetArmy.getName());
 		setPaused(true);
 		if (!targetArmy.isInBattle() && !this.isInBattle() && targetArmy.getTarget() != this) {
 			targetArmy.playerTouched = true;
 			getKingdom().getMapScreen().getSidePanel().setActiveArmy(targetArmy);
 			getKingdom().getMapScreen().getSidePanel().setHardStay(true); // when an army is reached, force a user decision
+			System.out.println("Forcing player decision");
 		}
 		else if (targetArmy.isInBattle() && !this.isInBattle()){
+			System.out.println("Enemy in battle");
 			// join battle?
 			if (targetArmy.getBattle().shouldJoinAttackers(this)) {
 				targetArmy.getBattle().addToAttackers(this);
@@ -332,14 +335,17 @@ public class ArmyPlayer extends Army {
 	}
 
 	@Override 
-	public boolean setTarget(Destination target) {
-		if (target != null) {
-			System.out.println("setting player target  " + target.getName());
-			boolean toReturn = super.setTarget(target);
+	public boolean setTarget(Destination newTarget) {
+		if (newTarget != null) {
+			System.out.println("setting player target  " + newTarget.getName());
+			clearAllTargets();
+			boolean toReturn = super.setTarget(newTarget);
+//			if (!toReturn) throw new AssertionError(); // TODO remove.
 			setStopped(false);
 			return toReturn;
-		} else {
-			path.forceClear();
+		}
+		else {
+			clearAllTargets();
 			setStopped(false);
 			return false;
 		}
@@ -363,12 +369,12 @@ public class ArmyPlayer extends Army {
 	@Override
 	public void nextTarget() {
 		System.out.println("next target player");
-		clearTarget();
+		clearCurrentTarget();
 		setPaused(true);
 	}
 
 	@Override
-	void clearTarget() {
+	void clearCurrentTarget() {
 		path.forceClear();
 	}
 

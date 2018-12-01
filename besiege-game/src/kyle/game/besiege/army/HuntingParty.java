@@ -131,7 +131,7 @@ public class HuntingParty extends Army {
 			System.out.println("hunter just searched for 10 targets and couldn't find valid");
 		}
 		else setTarget(newTarget);
-		if (!hasTarget()) throw new AssertionError();
+//		if (!hasTarget()) throw new AssertionError();
 	}
 	
 	public void setLocation(Location location) {

@@ -112,7 +112,7 @@ public class MiniMap extends Actor {
 			boolean drawingRangedWeapon = false;
 			if (toPreview.unitType.ranged != null) {
 				if (unit != null) {
-					drawingRangedWeapon = unit.isFiring() || toPreview.unitType.melee.type == WeaponType.Type.UNARMED;
+					drawingRangedWeapon = unit.isFiring() || toPreview.unitType.melee.type == WeaponType.Type.UNARMED || toPreview.unitType.ranged.quiver > 2;
 				} else {
 					if (toPreview.unitType.ranged.quiver > 2)
 						drawingRangedWeapon = true;
@@ -152,7 +152,7 @@ public class MiniMap extends Actor {
 
 			// TODO account for extra high armors (hoods)
             if (!toPreview.unitType.armor.isNaked()) {
-                batch.setColor(toPreview.unitType.armor.color);
+                batch.setColor(toPreview.unitType.armor.getColorPreview());
                 float height = getHeight();
                 if (toPreview.unitType.armor.type == ArmorType.Type.HOODED)
                 	height *= 9f/8;

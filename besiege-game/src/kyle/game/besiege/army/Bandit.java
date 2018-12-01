@@ -39,18 +39,25 @@ public class Bandit extends Army {
 				villageToAttack = getNearbyVillageToAttack();
 				if (villageToAttack != null && villageToAttack.garrison.getHealthySize() > 0) {
 					System.out.println("Bandit is gonna go raid village: " + villageToAttack.getName());
-					this.setTarget(villageToAttack);
-					return;
+					if (this.setTarget(villageToAttack));
+						return;
 				}
 			} else {
 				villageToAttack = null;
 			}
 
+			Point newTarget;
+			do {
 //			 create new random target
-			float dx = Random.getRandomInRange(-getLineOfSight(), getLineOfSight()); //number btw -1 and 1
-			float dy = Random.getRandomInRange(-getLineOfSight(), getLineOfSight()); //number btw -1 and 1
-			Point newTarget = new Point(getCenterX() + dx, getCenterY() + dy);
-			setTarget(newTarget);
+				float dx = Random.getRandomInRange(-getLineOfSight(), getLineOfSight()); //number btw -1 and 1
+
+				float dy = Random.getRandomInRange(-getLineOfSight(), getLineOfSight()); //number btw -1 and 1
+				newTarget = new Point(getCenterX() + dx, getCenterY() + dy);
+			} while (getKingdom().getMap().isInWater(newTarget));
+
+			if (!setTarget(newTarget)) {
+				throw new AssertionError();
+			}
 		}
 	}
 
@@ -77,14 +84,14 @@ public class Bandit extends Army {
 		return nearestVillage;
 	}
 
-	@Override
-	public boolean setTarget(Destination dest) {
-		if (dest != null && dest.getType() == DestType.LOCATION) {
-//			BottomPanel.log("Bandit is attacking " + dest.getName());
-//			throw new AssertionError();
-		}
-		return super.setTarget(dest);
-	}
+//	@Override
+//	public boolean setTarget(Destination dest) {
+////		if (dest != null && dest.getType() == DestType.LOCATION) {
+//////			BottomPanel.log("Bandit is attacking " + dest.getName());
+//////			throw new AssertionError();
+////		}
+//		return super.setTarget(dest);
+//	}
 	
 	@Override
 	public void destroy() {

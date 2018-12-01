@@ -38,7 +38,7 @@ public class Simulation extends Game {
 
 		if (type1 == null || type2 == null) throw new AssertionError();
 
-		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.BANDIT, type1),
+		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.NOBLE, type1),
 										PartyType.generatePartyType(Type.BANDIT, type2), 2);
 		
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));

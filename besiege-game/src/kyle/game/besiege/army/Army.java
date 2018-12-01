@@ -54,7 +54,9 @@ public class Army extends Group implements Destination {
 
 	public static final int TIME_TO_SET_AMBUSH = 10;
 
-	public static final int A_STAR_FREQ = 200; // army may only set new target every x frames
+	public static final int A_STAR_FREQ = 0; // army may only set new target every x frames // Hack, let's find a smarter way to optimize astar calculations.
+
+
 	private static final float SIZE_FACTOR = .025f; // amount that playerPartyPanel size detracts from total speed
 	private static final float BASE_LOS = 200;
 	private static final int MAX_STACK_SIZE = 10;
@@ -345,7 +347,7 @@ public class Army extends Group implements Destination {
 //		System.out.println(this.getName() + " is acting");
 		// Why do we do this?
 		if (this.justLoaded) {
-			this.defaultTarget = this.faction.getRandomCity();
+			this.defaultTarget = this.faction.getRandomLocation();
 		}
 		
 		if (this.party == null) {
@@ -396,9 +398,9 @@ public class Army extends Group implements Destination {
                         	// If a good distance away, hide until enemy is gone.
 							// TODO allow army to hide (defensively).
                             setAppropriateRunTarget();
-                            if (getTarget() == null) throw new AssertionError(this.getName() + " has no target while running");
+                            if (getTarget() == null && !isGarrisoned()) throw new AssertionError(this.getName() + " has no target while running");
+                            path.travel();
                         }
-                        path.travel();
                     }
 					else if (isWaiting()) {
 						incrementAmbush(delta);
@@ -408,19 +410,25 @@ public class Army extends Group implements Destination {
 						siegeAct(delta);
 					else {
 						uniqueAct();
-						if (!path.isEmpty()) {
-							path.travel();
-						} else {
+						// Possible this guy just garrisoned himself
+						if (!isGarrisoned()) {
+							if (!path.isEmpty()) {
+								path.travel();
+							} else {
 //							System.out.println("Path is empty");
-							nextTarget();
-							if (getTarget() == null) throw new AssertionError();
+								nextTarget();
+								if (getTarget() == null && !isGarrisoned()) {
+									throw new AssertionError(this.getName() + " doesn't have a target");
+								}
 //							if (path.isEmpty()) throw new AssertionError();
+							}
+							if (this.hasTarget()) {
+								//							if (this.type == ArmyType.FARMER) System.out.println(getName() + " here");
+								detectCollision();
+							}
+							if (targetLost())
+								nextTarget(); // forgot to do this before...
 						}
-						if (this.hasTarget()) {
-							//							if (this.type == ArmyType.FARMER) System.out.println(getName() + " here"); 
-							detectCollision();
-						}
-						if (targetLost()) nextTarget(); // forgot to do this before...
 					}
 				}
 			} 
@@ -663,7 +671,9 @@ public class Army extends Group implements Destination {
 
 	public boolean detectCollision() {
 //	    if (type == ArmyType.FARMER) System.out.println(getName() + " target  = " + target.getName());
-	    switch (target.getType()) {
+//		if (player) System.out.println(target.getType());
+
+		switch (target.getType()) {
 		case POINT: // point reached
 			return detectPointCollision();
 		case LOCATION: // location reached
@@ -687,6 +697,9 @@ public class Army extends Group implements Destination {
 	}
 
 	public boolean detectArmyCollision() {
+//		if (player)
+//			System.out.println("Checking for army collision");
+
 		Army targetArmy = (Army) target;
 
 		// first check if army is even visible or available to go to
@@ -941,9 +954,10 @@ public class Army extends Group implements Destination {
 
 		setVisible(false);
 		setPosition(garrisonedIn.spawnPoint.getX()-this.getOriginX(), garrisonedIn.spawnPoint.getY()-this.getOriginY());
-		clearTarget();
+		clearCurrentTarget();
 
 		if (isGarrisonedSafely()) {
+			System.out.println("just garrisoned " + this.getName() + " in " + garrisonedIn.getName() + ", changing target of followers");
 			changeTargetOfAnyFollowers();
 		} else {
 			System.out.println("garrisoning in a non-safe location");
@@ -960,10 +974,20 @@ public class Army extends Group implements Destination {
 		else if (type != ArmyType.NOBLE) waitFor(WAIT); //arbitrary
 	}
 
-	void clearTarget() {
+	// Just reset this shit.
+	void clearCurrentTarget() {
 		path.forceClear();
 		if (!isGarrisoned() && !isInBattle())
 			this.nextTarget();
+		if (isGarrisoned()) {
+			this.target = null;
+			this.targetStack.clear();
+		}
+	}
+
+	void clearAllTargets() {
+		path.forceClear();
+		this.target = null;
 	}
 
 	/** do this while garrisoned
@@ -988,7 +1012,14 @@ public class Army extends Group implements Destination {
 
 						if (isGarrisoned())
 							eject();
+					} else {
+//						System.out.println("Unique acting: " + this.getName());
+						clearCurrentTarget();
+						// Just unique act for christ's sake. get out and do something!
+						uniqueAct();
 					}
+
+
 //				}
 			}
 			//			else if (army == null || !shouldRunFrom(army)) {
@@ -996,10 +1027,11 @@ public class Army extends Group implements Destination {
 //				System.out.println("player should stop running...");
 				runFrom = null;
 				eject();
-				clearTarget();
+				clearCurrentTarget();
 				//					System.out.println("ejecting " + this.getName() + " with no target");
 			}
 			if (!isRunning()) {
+				this.clearCurrentTarget();
 	    		uniqueAct();
 			}
 		}
@@ -1153,6 +1185,7 @@ public class Army extends Group implements Destination {
 		if (that.isNonFriendlyAmbush(this)) return false;
 		if (that.isGarrisonedSafely()) return false;
 		if (that.isDestroyed()) return false;
+		if (this.player && !losOn()) return true; // Hack for debugging.
 
 		// This makes it so poor villagers who leave the acting range around the player won't get attacked by armies who aren't affected by that.
 		// Need to make sure the acting range is large enough that the player won't see any weird effects this may cause.
@@ -1314,7 +1347,7 @@ public class Army extends Group implements Destination {
 		}
 
 		setWaiting(false);
-		if (runFrom != null) clearTarget();
+		if (runFrom != null) clearCurrentTarget();
 		this.runFrom = runFrom;
 	}
 
@@ -1351,6 +1384,8 @@ public class Army extends Group implements Destination {
 //                    System.out.println(getName() + " already has target,  " + goTo.getName() + " ...");
 //                    setSpeed(calcSpeed());   // update speed
                     startedRunning = true;
+                    clearCurrentTarget();
+                    this.setTarget(goTo);
                     return;
                 }
 				if (!setTarget(goTo)) throw new AssertionError(goTo.getName() + " cant be set as target for " + getName());
@@ -1358,6 +1393,7 @@ public class Army extends Group implements Destination {
 			//	this.detectCollision();
 				startedRunning = true;
                 //	System.out.println(this.getName() + " is travelling to target");
+				if (!hasTarget())  throw new AssertionError();
 			}
 			// find new target an appropriate distance away, travel there.
 			else { //if (!this.hasTarget()) {
@@ -1388,6 +1424,7 @@ public class Army extends Group implements Destination {
 				}
                 if (!setTarget(p)) throw new AssertionError(p.getName() + " cant be set as target for " + getName());
 				startedRunning = true;
+				if (!hasTarget())  throw new AssertionError();
             }
     }
 
@@ -1515,10 +1552,11 @@ public class Army extends Group implements Destination {
         setStopped(false);
         runFrom = null;
         // Not sure about this one! what if you already had a target? TODO
-		clearTarget();
+		clearCurrentTarget();
 		nextTarget();
 //        if (!((p.getHealthySize() <= DEPRECATED_THRESHOLD && !p.player) || p.getHealthySize() <= 0))
         setVisible(true);
+        System.out.println("ending battle: " + this.getName());
 		//		if (type == ArmyType.MERCHANT) System.out.println(getName() + " ending battle");
 	}
 	public void besiege(Location location) {
@@ -1581,6 +1619,7 @@ public class Army extends Group implements Destination {
         // This prevents the player from clicking in the fog to figure out where water is
         if (isPlayer()) isInWater = false;
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
+			lastPathCalc = 0; // HACK, inefficient.
 			if ((this.target != newTarget && this.lastPathCalc == 0) || this.isPlayer()) {
 				if (!this.isWaiting() && this.isGarrisoned() && canEject()) this.eject();
 				
@@ -1591,23 +1630,54 @@ public class Army extends Group implements Destination {
 				}
 				this.target = newTarget;
 				//				if (newTarget != null && this.path.isEmpty()) {
-				if (this.path.finalGoal != newTarget) {
+//				if (this.path.finalGoal != newTarget) {
 					if (this.path.calcPathTo(newTarget, this.isPlayer())) {
 						this.lastPathCalc = A_STAR_FREQ;
-						path.next();
+						// Just removed this, maybe wait to travel until after?
+//						path.next();
 					}
 					else {
 						System.out.println(getName() + " failed A*");
 						this.path.calcStraightPathTo(newTarget);
 					}
-				}
+//				}
+				if (newTarget == null) throw new AssertionError();
+				if (this.target == null) throw new AssertionError();
+				if (path.isEmpty()) throw new AssertionError();
+				if (!hasTarget()) throw new AssertionError();
 //				else if (newTarget == this.path.finalGoal) System.out.println("new goal is already in path");
 			}
 			else {
 			    // Not sure if this is the best solution. This was causing bugs when farmers were running. TODO remove "lastPathCalc" and optimize in a smarter way.
 			    if (lastPathCalc != 0) {
-			        this.target = newTarget;
-			        return true;
+			    	// Just don't change your target
+//			        this.target = newTarget;
+//
+//
+//					this.path.calcStraightPathTo(newTarget);
+//					return false;
+//			        this.
+					if (hasTarget()) {
+//						System.out.println("Not changing target!");
+						return true;
+					}
+					// Not sure if this is ok, this is kind of what was happening before we added all the asserts.
+					else if (!this.path.isEmpty()) {
+						target = newTarget;
+						return true;
+					} else {
+						System.out.println("Fuck, expensive changing target!");
+						this.target = newTarget;
+						if (this.path.calcPathTo(newTarget, this.isPlayer())) {
+							this.lastPathCalc = A_STAR_FREQ;
+							// Just removed this, maybe wait to travel until after?
+//						path.next();
+						}
+						return true;
+					}
+
+//					if (!hasTarget()) throw new AssertionError();
+//					return true;
                 }
                 if (this.target == newTarget) {
 //                    System.out.println(getName() + " adding same target twice");
@@ -1632,12 +1702,14 @@ public class Army extends Group implements Destination {
 			return true;
 		}
 		else {
-            uniqueAct();
-            if (getTarget() == null) {
-				System.out.println(getName() + " setting target failed");
-				return false;
-            }
-            return true;
+//			System.out.println("point is in water...");
+			return false;
+//            uniqueAct();
+//            if (getTarget() == null) {
+//				System.out.println(getName() + " setting target failed");
+//				return false;
+//            }
+//            return true;
         }
 	}
 	private boolean canEject() {
@@ -1650,7 +1722,11 @@ public class Army extends Group implements Destination {
 		return true;
 	}
 	public boolean hasTarget() {
-		return getTarget() != null;
+//		if (getTarget() != null && path.isEmpty()) {
+//			nextTarget();
+////			throw new AssertionError();
+//		}
+		return getTarget() != null && !path.isEmpty();
 	}
 	public Destination getTarget() {
 		return target;
@@ -1658,6 +1734,7 @@ public class Army extends Group implements Destination {
 	/* fix this */
 	public void nextTarget() {
 		this.target = null;
+		this.path.forceClear();
 		if (!targetStack.isEmpty()) {
 			// Check if null or destroyed, clear if so.
 			if (targetStack.peek() == null || targetStack.peek() == target) {
@@ -1677,14 +1754,21 @@ public class Army extends Group implements Destination {
 			}
 
 			if (!targetStack.isEmpty() && targetStack.peek() != null) {
-				setTarget(targetStack.pop());
+				System.out.println(this.getName() + " setting target: " + targetStack.peek());
+				Destination d = targetStack.pop();
+				if (!setTarget(d)) throw new AssertionError(d.getName() + " cant be set as target for " + getName());
+
+				if (!hasTarget()) {
+					nextTarget();
+					return;
+				}
 			}
 			else findTarget();
 		}
 		else {
 			findTarget();
 		}
-//		if (target == null) throw new AssertionError();
+		if (target == null) throw new AssertionError(this.getName() + " can't find a target");
 	}
 	public void newTarget(Destination target) {
 		targetStack.removeAllElements();
@@ -1694,23 +1778,27 @@ public class Army extends Group implements Destination {
 		path.forceClear();
 
 		//		if (this.type == ArmyType.BANDIT) System.out.println("bandit finding target");
-        if (defaultTarget != getTarget())
-		    setTarget(defaultTarget);
+        if (defaultTarget != getTarget()) {
+//        	System.out.println(this.getName() + " setting default target");
+			setTarget(defaultTarget);
+		}
 
         if (!hasTarget()) {
-			System.out.println(this.getName() + " unique acting to find a target");
+//			System.out.println(this.getName() + " unique acting to find a target");
 			// Remove any remaining targets.
 			path.forceClear();
 			if (this.isFarmer()) ((Farmer) this).resetWaitToggle();
 			if (this.isHuntingParty()) ((HuntingParty) this).resetWaitToggle();
 			this.runFrom(null);
 			uniqueAct();
+		} else {
+//			System.out.println(this.getName() + " has target set: " + this.target.getName());
 		}
 
-        if (!hasTarget()) {
-        	System.out.println(this.getName() + " can't find target");
-//        	        	throw new AssertionError(this.getName() + " can't find target");
-		}
+        if (!hasTarget())
+//        	System.out.println(this.getName() + " can't find target");
+        	        	throw new AssertionError(this.getName() + " can't find target");
+//		}
 	}
 	public void setDefaultTarget(Destination defaultTarget) {
 		this.defaultTarget = defaultTarget;
@@ -1944,18 +2032,19 @@ public class Army extends Group implements Destination {
 
     protected Color getGeneralArmorColor() {
 		if (ambushStarted) {
-			Color c = new Color(party.getGeneral().getArmor().color);
+			Color c = new Color(party.getGeneral().getArmor().getColorTopDown());
+
 			float ambushColor = 0.5f;
 			if (!isInAmbush()) {
 				// Interpolate the color of the party as it hides, but add a small fudge factor so it's clear when it's done.
-				c.a = Math.min(1, ambushColor + 0.1f + (1 - timeSinceAmbushSet / TIME_TO_SET_AMBUSH) * (1 - ambushColor));
+				c.a = c.a * Math.min(1, ambushColor + 0.1f + (1 - timeSinceAmbushSet / TIME_TO_SET_AMBUSH) * (1 - ambushColor));
 			} else {
-				c.a = ambushColor;
+				c.a = c.a * ambushColor;
 			}
 			return c;
 		}
 		else
-			return party.getGeneral().getArmor().color;
+			return party.getGeneral().getArmor().getColorTopDown();
 	}
 
     protected Color getGeneralSkinColor() {

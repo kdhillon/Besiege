@@ -34,20 +34,22 @@ import static kyle.game.besiege.RandomCrestGenerator.COLOR_INDEX_WHITE;
 
 public class Kingdom extends Group {
     // Actual values
-	public static int cityCount = 60;
-	public static int castleCount = 0;
-	public static int ruinCount = 5;
-	public static int villageCount = 100;
-	int FACTION_COUNT = 25;
+//	public static int cityCount = 60;
+//	public static int castleCount = 0;
+//	public static int ruinCount = 5;
+//	public static int villageCount = 100;
+//	int FACTION_COUNT = 25;
+//	public static final int BANDIT_FACTIONS = 10;
 
 	// Fast values
-//    public static int cityCount = 15;
-//    public static int castleCount = 0;
-//    public static int ruinCount = 10;
-//    public static int villageCount = 20;
-//    int FACTION_COUNT = 15;
+    public static int cityCount = 15;
+    public static int castleCount = 0;
+    public static int ruinCount = 10;
+    public static int villageCount = 20;
+    int FACTION_COUNT = 15;
+	public static final int BANDIT_FACTIONS = 10;
 
-    public static final double DECAY = .1;
+	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
 	public static boolean drawCrests = true;
@@ -65,7 +67,6 @@ public class Kingdom extends Group {
 //	public static final double THUNDER_CHANCE = 1.0/800;
     public static final double THUNDER_CHANCE = 1.0/2000;
 
-    public static final int BANDIT_FACTIONS = 5;
 
     public float clock;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
@@ -432,8 +433,12 @@ public class Kingdom extends Group {
 	}
 
 	private void mouseOver(Point mouse) {
+		// TODO deprecate the old way of "getDestAt()" using fixed distance, want player
+		// to be able to click crest of enemy and go there.
 		Destination d = getDestAt(mouse);
 		//		if (d.getType() != 0)
+
+
 		// TODO I think this is only for battles now?
 		if (d.getType() != Destination.DestType.LOCATION && d.getType() != Destination.DestType.POINT && d.getType() != Destination.DestType.ARMY)
 			this.setPanelTo(d);
@@ -665,11 +670,10 @@ public class Kingdom extends Group {
 		rcg.addSpecialColor(Color.BLACK, COLOR_INDEX_BLACK);
 		rcg.addSpecialColor(Color.WHITE, COLOR_INDEX_WHITE);
 
-		addBanditFactions();
-
 		for (int i = 0; i < FACTION_COUNT; i++) {
 			createFaction();
 		}
+		addBanditFactions();
 
 		for (int i = 0; i < factions.size; i++) {
 			Faction f = factions.get(i);
@@ -1023,7 +1027,7 @@ public class Kingdom extends Group {
 		    System.out.println("NULL CLOSEST FACTION -- This is because citycenters contains a center not connected to the center of the world map (even though we checked all of them). weird!");
 		    return;
         }
-		
+
 		city = new City(this, null, -1, closestFaction, x, Map.HEIGHT-y, center, corner);
 
 		addCity(city);
@@ -1368,7 +1372,7 @@ public class Kingdom extends Group {
 		do {
 			c = getRandomCenter(myHashSet);
 		}
-		while(hasAdjacentLocations(c) && c != null);
+		while(hasAdjacentLocations(c) && c != null || c.water);
 		return c;
 	}
 

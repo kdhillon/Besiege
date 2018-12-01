@@ -267,9 +267,10 @@ public class Path {
         Army army = (Army) start;
         if (!army.hasTarget()) {
             this.forceClear();
+
             System.out.println("warning: " + army.getName() + " is traveling without a target");
-            return;
-//            throw new AssertionError(army.getName() + " is traveling without a target");
+//            return;
+            throw new AssertionError(army.getName() + " is traveling without a target");
         }
         if (nextGoal == null) {
 //            System.out.println("Next goal for " + army.getName() + " is null");

@@ -22,7 +22,7 @@ public class Shaman extends Soldier {
         // Forest
         WOLF("Wolf Shaman", "Forest", "Staff", "None", MASK_WOLF),
         // Tundra
-        BEAR("Bear Shaman", "Tundra", "Staff", "Heavy Furs", MASK_BEAR),
+        BEAR("Bear Shaman", "Tundra", "Staff", "Light Furs", MASK_BEAR),
         // Plains
         HAWK("Hawk Shaman", "Plains", "Staff", "None", MASK_HAWK),
         BUFFALO("Buffalo Shaman", "Plains", "Staff", "None", MASK_BUFFALO),

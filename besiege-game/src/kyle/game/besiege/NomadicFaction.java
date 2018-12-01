@@ -34,7 +34,10 @@ public class NomadicFaction extends Faction {
 	    cultureType = null;
 	    this.baseCenter = baseCenter;
 	    this.cultureType = baseCenter.cultureType;
-	    if (cultureType == null) throw new AssertionError();
+	    if (cultureType == null) {
+	        System.out.println("can't find culturetype: " + baseCenter.biome.toString());
+	        throw new AssertionError();
+        }
         generateCrest(true);
     }
 
