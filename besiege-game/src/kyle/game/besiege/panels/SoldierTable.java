@@ -471,6 +471,18 @@ public class SoldierTable extends Table {
         // Add title of the party:
         if (s.getRank() == 0) {
             Label label = new Label(s.getPartyName(), ls);
+            // This selects the panel of the party. Shouldn't do anything if the party is currently selected. But useful for a battle or a location.
+            label.addListener(new ClickListener() {
+                public boolean touchDown(InputEvent event, float x,
+                                         float y, int pointer, int button) {
+                    return true;
+                }
+                public void touchUp(InputEvent event, float x, float y,
+                                    int pointer, int button) {
+                    if (s.party.army != null)
+                        SidePanel.sidePanel.setActiveArmy(s.party.army);
+                }
+            });
             label.setAlignment(Align.center);
             label.setWrap(true);
             soldierTable.add(label).expandX().fillX();

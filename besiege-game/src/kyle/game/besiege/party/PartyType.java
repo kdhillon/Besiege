@@ -282,9 +282,10 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.minCount = 10;
 			pt.tiers = new int[]{2, 3};
 			break;
+		// TODO add multiple bandit types
 		case BANDIT:
 			pt.name = "Bandit";
-			pt.maxCount = 30;
+			pt.maxCount = 50;
 			pt.minCount = 5;
 			pt.tiers = new int[]{2, 3};
 			break;

@@ -152,7 +152,7 @@ public class Party {
 		// not efficient, but consistent with above.
 		StrictArray<Soldier> soldiers = new StrictArray<>();
 		for (Subparty sub : subparties) {
-			soldiers.addAll(sub.healthy);
+			soldiers.addAllFromStrictArray(sub.healthy);
 		}
 		return getBestSoldier(soldiers);
 	}
@@ -314,7 +314,7 @@ public class Party {
 		StrictArray<Soldier> total = new StrictArray<Soldier>();
 		//		StrictArray<Subparty> subparties = getAllSub();
 		for (Subparty p : subparties)
-			total.addAll(p.getUpgradable());
+			total.addAllFromStrictArray(p.getUpgradable());
 		return total;
 	}
 
@@ -341,7 +341,8 @@ public class Party {
 
 	public void givePrisonerFromThis(Soldier prisoner, Party recipient) {
 		boolean removed = false;
-		for (Subparty s : subparties) {
+		for (int i = 0; i < subparties.size; i++) {
+			Subparty s = subparties.get(i);
 			// TODO wounded/healthy still contain general, so we need to handle that.
 			if (s.wounded.contains(prisoner, true)) {
 				s.wounded.removeValue(prisoner, true);
@@ -423,7 +424,7 @@ public class Party {
 	public StrictArray<Soldier> getHealthy() {
 		StrictArray<Soldier> healthy = new StrictArray<Soldier>();
 		for (Subparty s : subparties) {
-			healthy.addAll(s.healthy);
+			healthy.addAllFromStrictArray(s.healthy);
 		}		
 		return healthy;
 	}
@@ -431,7 +432,7 @@ public class Party {
 	public StrictArray<Soldier> getWounded() {
 		StrictArray<Soldier> wounded = new StrictArray<Soldier>();
 		for (Subparty s : subparties) {
-			wounded.addAll(s.wounded);
+			wounded.addAllFromStrictArray(s.wounded);
 		}		
 		return wounded;
 	}

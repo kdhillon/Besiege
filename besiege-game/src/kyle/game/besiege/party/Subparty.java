@@ -11,7 +11,7 @@ import kyle.game.besiege.party.Soldier.SoldierType;
 public class Subparty {
 	public static int HARD_MAX = 20;
 	
-	private Party party;
+	public Party party;
 	Subparty parent; // this is the boss, null usually.
 	
 	private StrictArray<Subparty> children;

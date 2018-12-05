@@ -62,7 +62,7 @@ public class Bandit extends Army {
 	}
 
 	private boolean shouldAttackNearbyVillage() {
-		return this.party.getHealthySize() > RAID_VILLAGE_SIZE;
+		return true;
 	}
 
 	private Village getNearbyVillageToAttack() {
@@ -71,7 +71,7 @@ public class Bandit extends Army {
 
 		for (Village village : getKingdom().villages) {
 			double dist = this.distToCenter(village);
-			if (dist < getLineOfSight() && dist < minDist) {
+			if (dist < getLineOfSight() && dist < minDist && shouldRaidOrBesiege(village)) {
 				nearestVillage = village;
 				minDist = dist;
 			}

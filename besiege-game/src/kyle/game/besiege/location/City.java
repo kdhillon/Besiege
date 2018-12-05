@@ -23,9 +23,9 @@ public class City extends Location {
 	private final static float INITIAL_WEALTH_VARIANCE_MAX = 2f;
 	
 	private final static float SCALE = 7;
-	private final static int MAX_PATROLS = 2;
-	private static final int MAX_FARMERS = 2;
-    private static final int MAX_HUNTERS = 2;
+	private final static int MAX_PATROLS = 1;
+	private static final int MAX_FARMERS = 1;
+    private static final int MAX_HUNTERS = 1;
     //	private static int CITY_UPPER_VALUE = Assets.cityNames.size; // highest of cities possible
 	private static double MERCHANT_COST_FACTOR = .98;
 
@@ -36,7 +36,6 @@ public class City extends Location {
 //	private final int merchantCost;
 	
 	private Array<Merchant> merchants;
-	public Array<Noble> nobles;
 	private boolean[] merchantExists;
 	private Array<RaidingParty> raiders;
 	private boolean[] raiderExists;
@@ -223,11 +222,6 @@ public class City extends Location {
 		merchants.removeValue(merchant, true);
 	}
 
-	public void addNoble(Noble noble) {
-		assert(!this.nobles.contains(noble, true));
-		this.nobles.add(noble);
-		noble.setHome(this);
-	}
 	
 	public float getAvgAdjacentWealth() {
 		float sum = 0;

@@ -86,7 +86,12 @@ public class Patrol extends Army {
 		patrolAround = null;
 		findTarget();
 	}
-	
+
+	@Override
+	public boolean canHideInVillage() {
+		return true;
+	}
+
 	@Override
 	public void destroy() {
 		getKingdom().removeArmy(this);

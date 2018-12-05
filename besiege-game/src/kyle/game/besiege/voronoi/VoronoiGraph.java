@@ -989,7 +989,6 @@ public class VoronoiGraph {
             return Biomes.BEACH;
         }
         else if (p.elevation / maxElevation > 0.8) {
-            // TODO make these dependant on nearby biomes
             if (p.temperature > 0.75) {
                 return Biomes.MOUNTAINS;
             } else if (p.temperature > 0.3) {
@@ -998,11 +997,7 @@ public class VoronoiGraph {
                 return Biomes.SCORCHED;
             }
         }
-        // TODO: idea, have buffer zones between organized temperature zones to smooth out biomes:
-        //  to avoid having isolated pockets of forest in a grassland, for example, have a wasteland or neutral zone
-        // between them.
-        // Kyle modified these values
-        // originally 0.8
+
         else if (p.temperature > 0.83) {
             if (p.moisture > 0.60) {
                 return Biomes.SNOW;
@@ -1015,7 +1010,8 @@ public class VoronoiGraph {
                 return Biomes.SHRUBLAND;
             }
         } else if (p.temperature > 0.5) {
-             if (p.moisture > 0.6) {
+            // TODO figure out how to properly distribute decidous forest, maybe group different moisture regions more closely.
+             if (p.moisture > 0.65) {
                 return Biomes.TEMPERATE_DECIDUOUS_FOREST;
             } else if (p.moisture > 0) {
                 return Biomes.GRASSLAND;

@@ -101,16 +101,26 @@ public class Siege extends Actor {
 //			System.out.println(location.playerBesieging + " " + !location.getKingdom().getPlayer().isStopped());
 		}
 		this.duration += delta;
-		
+
+//		System.out.println("Siege acting: " + location.getName() + " " + location.getKingdom().getTotalHour());
 		if (location.getKingdom().getTotalHour() % CHECK_FREQ == 0) {
+//			System.out.println("Checking if should attack/destroy: " + location.getName());
 			if (!hasChecked) {
+//				System.out.println("Attack/destroy: " + location.getName());
 				attackOrDestroy();
 				hasChecked = true;
 			}
 		}
 		else if (hasChecked) hasChecked = false;
 	}
-	
+
+	// Should the givne army join this siege?
+	public boolean shouldJoin(Army army) {
+		// Make sure at peace with the attacking faction
+		if (!army.passive && army.getFaction().atPeace(this.besieging))
+			return true;
+		return false;
+	}
 	private void attackOrDestroy() {
 //		if (Math.random() < 0.8f) return;
 		if (inBattle()) {
@@ -146,8 +156,11 @@ public class Siege extends Actor {
 	public void attack() {
 		this.battleActor = armies.first().getBattleActor();
 //		else System.out.println("trying to attack with no armies!");
-		if (battleActor == null) return;
-		if (this.battleActor.getSiege() != this) {
+//		if (battleActor == null) {
+//			System.out.println("null battleactor");
+//			return;
+//		}
+		if (this.battleActor != null && this.battleActor.getSiege() != this) {
 			System.out.print("Warning: " + armies.first().getName() + " is already in a siege/battle that's not this");
 			return;
 //			return;
@@ -160,12 +173,11 @@ public class Siege extends Actor {
 //		for (Army a : armies) {
 //			// make sure siegeOrRaid is set
 //			a.setSiege(this);
-//		}f
+//		}
 
         location.siegeAttack(armies);
 //		if (armies.size >= 1)
-
-
+		this.battleActor = armies.first().getBattleActor();
     }
 	
 	// handle a wealth transfer from city to victors

@@ -1215,10 +1215,10 @@ public class Kingdom extends Group {
 	
 	public StrictArray<Location> getAllLocationsCopy() {
 		StrictArray<Location> locations = new StrictArray<Location>();
-		locations.addAll(cities);
-		locations.addAll(castles);
-		locations.addAll(villages);
-		locations.addAll(ruins);
+		locations.addAllFromStrictArray(cities);
+		locations.addAllFromStrictArray(castles);
+		locations.addAllFromStrictArray(villages);
+		locations.addAllFromStrictArray(ruins);
 		return locations;
 	}
 	

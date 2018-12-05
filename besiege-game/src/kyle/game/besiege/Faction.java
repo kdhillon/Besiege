@@ -207,8 +207,6 @@ public class Faction {
 
 	// should only be called once per faction
 	public void initializeRelations() {
-		if (this.isBandit()) return;
-
 		//		System.out.println(this.name + " initializing relations");
 		warEffects = new StrictArray<Integer>();
 
@@ -324,16 +322,16 @@ public class Faction {
 //		if (this.atWar == null || this.atPeace == null) refreshAtWar();
 		for (Faction that : this.atWar) {
 			if (Math.random() < PEACE_PROBABILITY && 
-					!that.isNomadic() &&
-					!this.isNomadic()) {
+					!that.isBandit() &&
+					!this.isBandit()) {
 				this.declarePeace(that);
 				return;
 			}
 		}
 		for (Faction that : this.atPeace) {
 			if (Math.random() < WAR_PROBABILITY  &&
-					!that.isNomadic() &&
-					!this.isNomadic()) {
+					!that.isBandit() &&
+					!this.isBandit()) {
 				this.declareWar(that);
 				return;
 			}
@@ -442,10 +440,11 @@ public class Faction {
 		this.unoccupiedNobles.add(noble);
 	}
 	public void createNobleAt(Location location) {
+		if (!(location.type == Location.LocationType.CITY || location.type == Location.LocationType.VILLAGE)) throw new AssertionError();
 		Noble noble = new Noble(location.getKingdom(), location);
 		// randomize size
 		this.addNoble(noble);
-		((City) location).nobles.add(noble);
+		location.nobles.add(noble);
 
 		if (!noble.isGarrisoned())
 			noble.goToNewTarget();
@@ -806,7 +805,10 @@ public class Faction {
 
 	// this isn't stored, but calculated on demand
 	public int calcRelations(Faction that) {
-		if (this.isBandit()) return -99;
+		if (this == that) return 99;
+		if (that == null) return 0;
+
+		if (this.isBandit() || that.isBandit()) return -99;
 
 		/* 		nearby cities/troops (negative)
 		 * 
@@ -817,7 +819,6 @@ public class Faction {
 		 * 		current wars (negative) 
 		 * 		alliance (positive)
 		 */
-		if (that == null) return 0;
 		//		if (this.warEffects == null) System.out.println("war effects are null for " + this.name);
 		int warEffect = 0;
 		if (this.atWar(that)) warEffect = STATIC_WAR_EFFECT;
@@ -975,12 +976,12 @@ public class Faction {
 
 	public void goRogue() { // just for testing, declares war on all factions other than this one
 		for (int i = 0; i < kingdom.factions.size; i++) {
-			if (i != index) {
 				Faction that = kingdom.factions.get(i);
 				declarePeace(that);
-				System.out.println(this.name + " declaring war against: " + that.name);
-				declareWar(that);
-			}
+				if (that != this) {
+					System.out.println(this.name + " declaring war against: " + that.name);
+					declareWar(that);
+				}
 		}
 	}
 

@@ -166,7 +166,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				topTable.updateTitle(army.getName(), null);
 			}
 
-			if (army.getKingdom().getPlayer().isAtWar(army))
+			if (!army.player && army.getKingdom().getPlayer().isAtWar(army))
 				topTable.update("factionname", army.getFactionName() + " (at war)", null);
 			else
 				topTable.update("factionname", army.getFactionName(), null);

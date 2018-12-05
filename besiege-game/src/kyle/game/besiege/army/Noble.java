@@ -98,6 +98,37 @@ public class Noble extends Army {
 //		return general;
 //	}
 
+	@Override
+	public void garrisonAct(float delta) {
+		super.garrisonAct(delta);
+
+//		System.out.println(this.getName() + " is garrison acting: " + isGarrisoned() + " safe: " + safeToEject() + " hasTarget " + hasTarget());
+		if (isGarrisoned() && safeToEject() && !hasTarget()) {
+//			System.out.println(this.getName() + " is unique acting");
+			uniqueAct();
+		}
+		// May be garrisoned because it's between cities?
+		// Also will have to do this with farmers?
+
+
+//		if (this.getFaction().cities.size > 1) {
+//		Army army = closestHostileArmy();
+//		// only eject for special reasons
+//		if (army != null && shouldAttack(army.party) && !isRunning()) {
+//			setTarget(army);
+//
+//			if (isGarrisoned())
+//				eject();
+//		} else {
+////						System.out.println("Unique acting: " + this.getName());
+//			clearCurrentTarget();
+//			// Just unique act for christ's sake. get out and do something!
+//			uniqueAct();
+//		}
+
+//				}
+	}
+
 	// Finds a target
 	@Override
 	public void uniqueAct() {
@@ -111,8 +142,6 @@ public class Noble extends Army {
 //		if (getKingdom().map.isInWater(this)) {
 //			System.out.println(this.getName() + " is in water!");
 //		}
-
-
 
 		// nobles do: 
 		// travel between their own cities (by default)
@@ -134,15 +163,16 @@ public class Noble extends Army {
 
 			//			System.out.println(getName() + " managing special target " + this.specialTarget.getName());
 			// go to city to besiege/raid
-
-			if (this.isGarrisoned()) this.eject();
+			if (this.isGarrisoned() && canEject()) {
+				this.eject();
+			}
 			manageSpecialTarget();
 			if (!hasTarget()) throw new AssertionError();
 		}
 		else if (getFaction().cities.size > 1) {
 			if (getKingdom().currentPanel == this) System.out.println(getName() + " wandering between cities");
 
-			if (isGarrisoned()) eject();
+			if (isGarrisoned() && canEject()) eject();
 
 			wanderBetweenCities();
 			if (!hasTarget()) throw new AssertionError();
@@ -172,7 +202,11 @@ public class Noble extends Army {
 	public void manageSpecialTarget() {
 		if (this.path.isEmpty() || this.getTarget() != specialTargetToBesiege) {
 			if (specialTargetToBesiege != null && this.getTarget() != specialTargetToBesiege) {
-				setTarget(specialTargetToBesiege);
+				if (shouldRaidOrBesiege(specialTargetToBesiege))
+					setTarget(specialTargetToBesiege);
+				else {
+					returnHome();
+				}
 				//System.out.println(getName() + " setting special target " + specialTarget.getName());
 			//	path.travel();
 			}
@@ -269,7 +303,7 @@ public class Noble extends Army {
 			//			System.out.println("doesn't have target and is waiting? " + this.isWaiting() + " and is garrisoned? " + isGarrisonedSafely());
 			//				System.out.println("starting to wait");
 
-			System.out.println(this.getName() + "getting new target");
+//			System.out.println(this.getName() + "getting new target");
 			if (!hasTarget()) throw new AssertionError();
 		}
 		// make sure not going to enemy city - weird glitch

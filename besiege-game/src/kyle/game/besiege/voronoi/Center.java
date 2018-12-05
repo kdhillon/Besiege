@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.Faction;
 import kyle.game.besiege.Map;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.geom.PointH;
 import kyle.game.besiege.party.CultureType;
@@ -46,9 +47,9 @@ public class Center {
 	// contains the 4 or 6 triangles in this center
 	transient public Mesh mesh;
 
-	transient public Array<Army> armies; // armies within this polygon
+	transient public StrictArray<Army> armies; // armies within this polygon
 	public Polygon polygon;
-	public Array<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
+	public StrictArray<float[]> triangles; // x0, y0, x1, y1, x2, y2 (already converted)
 
 	private float[] verts;
 	private Color ogColor;
@@ -84,13 +85,13 @@ public class Center {
 	
 	// For kryo
 	public Center() {
-		armies = new Array<Army>();
+		armies = new StrictArray<Army>();
 		//		initMesh(null);
 		// 6 * 3 vertices, 7 attributes
 	}
 
 	public void calcTriangles() {
-		triangles = new Array<float[]>();
+		triangles = new StrictArray<float[]>();
 		for (Edge border : borders) {
 			if (border.v0 != null && border.v1 != null) {
 				float[] vertices = new float[6];

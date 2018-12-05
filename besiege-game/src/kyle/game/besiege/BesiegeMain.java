@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.Texture;
 import kyle.game.besiege.title.MainMenuScreen;
 	
 public class BesiegeMain extends Game {
-	public static final String GAME_NAME = "WARCHIEF";
+	public static final String GAME_NAME = "Warchief";
 
 	public static int WIDTH = 400;
 	public static int HEIGHT = 512;

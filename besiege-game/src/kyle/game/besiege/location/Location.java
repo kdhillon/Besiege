@@ -111,6 +111,8 @@ public class Location extends Group implements Destination {
 
 	private CrestDraw crestDraw;
 
+	public Array<Noble> nobles;
+
 	// Farmer info
     public Array<Farmer> farmers;
 	public Array<HuntingParty> hunters;
@@ -458,6 +460,12 @@ public class Location extends Group implements Destination {
 	//		Party gParty = PartyType.getDefault(type, this).generate();
 	//		this.garrison.setParty(gParty);
 	//	}
+
+	public void addNoble(Noble noble) {
+		assert(!this.nobles.contains(noble, true));
+		this.nobles.add(noble);
+		noble.setHome(this);
+	}
 
 	public void initializeBox() {
 		this.setWidth(region.getRegionWidth()*SCALE);

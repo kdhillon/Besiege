@@ -20,7 +20,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.utils.Array;
 
 import kyle.game.besiege.*;
 import kyle.game.besiege.battle.Battle;
@@ -130,10 +129,10 @@ public class Army extends Group implements Destination {
 	public Path path;
 	protected Army runFrom;
 //	public Destination runTo; // use for running
-	public Array<Army> targetOf; // armies that have this army as a target
+	public StrictArray<Army> targetOf; // armies that have this army as a target
 	public int containingCenter = -1;
-	public transient Array<Army> closeArmies;
-	public Array<Integer> closeCenters; 
+	public transient StrictArray<Army> closeArmies;
+	public StrictArray<Integer> closeCenters;
 	
 	private boolean ambushStarted = false;
 	public float timeSinceAmbushSet;
@@ -155,7 +154,7 @@ public class Army extends Group implements Destination {
 		//for loading
 		// restore kingdom, texture region, 
 		// not sure if this will fix saving bug
-		this.closeArmies = new Array<Army>();
+		this.closeArmies = new StrictArray<Army>();
 		this.justLoaded = true;
 	}
 	
@@ -189,10 +188,10 @@ public class Army extends Group implements Destination {
 		this.lastPathCalc = 0;
 		this.targetStack = new Stack<Destination>();
 
-		this.targetOf = new Array<Army>();
+		this.targetOf = new StrictArray<Army>();
 
-		this.closeArmies = new Array<Army>();
-		this.closeCenters = new Array<Integer>();
+		this.closeArmies = new StrictArray<Army>();
+		this.closeCenters = new StrictArray<Integer>();
 
 		this.path = new Path(this, kingdom);
 
@@ -410,8 +409,10 @@ public class Army extends Group implements Destination {
 						siegeAct(delta);
 					else {
 						uniqueAct();
+
+						// This kind of starts the whole act() thing over again.
 						// Possible this guy just garrisoned himself
-						if (!isGarrisoned()) {
+						if (!isGarrisoned() && !isWaiting()) {
 							if (!path.isEmpty()) {
 								path.travel();
 							} else {
@@ -772,10 +773,10 @@ public class Army extends Group implements Destination {
 			BottomPanel.log("Attacking " + targetParty.getName() + "!");
 			
 			// get nearby armies and make them join battle
-			Array<Party> nearAllies = new Array<Party>();
+			StrictArray<Party> nearAllies = new StrictArray<Party>();
 			nearAllies.add(this.party);
-		
-			Array<Party> nearEnemies = new Array<Party>();
+
+			StrictArray<Party> nearEnemies = new StrictArray<Party>();
 			nearEnemies.add(targetParty);
 
 			// TODO: this is O(N)
@@ -797,10 +798,10 @@ public class Army extends Group implements Destination {
 			BottomPanel.log("Attacked by " + this.getName() + "!");
 			
 			// get nearby armies and join them
-			Array<Party> nearAllies = new Array<Party>();
+			StrictArray<Party> nearAllies = new StrictArray<Party>();
 			nearAllies.add(targetArmy.party);
-			
-			Array<Party> nearEnemies = new Array<Party>();
+
+			StrictArray<Party> nearEnemies = new StrictArray<Party>();
 			nearEnemies.add(this.party);
 			
 			for (Army a : kingdom.getArmies()) {
@@ -840,9 +841,9 @@ public class Army extends Group implements Destination {
 
 	public void joinBattle(BattleActor battleActor) {
 		if (this.party.player) {
-			
-			Array<Party> allies = new Array<Party>();
-			Array<Party> enemies = new Array<Party>();
+
+			StrictArray<Party> allies = new StrictArray<Party>();
+			StrictArray<Party> enemies = new StrictArray<Party>();
 			Battle battle = battleActor.getBattle();
 			
 			allies.add(this.party);
@@ -912,7 +913,7 @@ public class Army extends Group implements Destination {
 	}
 
 	public void enemyLocationCollision(Location targetLocation) {
-		if (!this.passive) {
+		if (this.shouldRaidOrBesiege(targetLocation)) {
 //			if (targetLocation.isVillage()) {
 //				raid((Village) targetLocation);
 //			}
@@ -927,7 +928,7 @@ public class Army extends Group implements Destination {
 //			}
 		} else {
 			nextTarget();
-			System.out.println("warning: Why was a passive army targeting an enemy city? Maybe this city recently changed factions?");
+			System.out.println(this.getName() + " Shouldn't be targeting location " + targetLocation.getName() + "  Maybe this city recently changed factions?");
 		}
 	}
 
@@ -1001,38 +1002,26 @@ public class Army extends Group implements Destination {
 			wait(delta);
 		}
 		// if garrisoned and patrolling, check if coast is clear
-		else if (hasTarget() || type == ArmyType.NOBLE) {
-			Army army = closestHostileArmy();
-			// if Noble with faction containing only one city
-			if (type == ArmyType.NOBLE) {
-//				if (this.getFaction().cities.size <= 1) {
-					// only eject for special reasons
-					if (army != null && shouldAttack(army) && !isRunning())  {
-						setTarget(army);
-
-						if (isGarrisoned())
-							eject();
-					} else {
-//						System.out.println("Unique acting: " + this.getName());
-						clearCurrentTarget();
-						// Just unique act for christ's sake. get out and do something!
-						uniqueAct();
-					}
-
-
-//				}
-			}
+		else if (hasTarget()) {
 			//			else if (army == null || !shouldRunFrom(army)) {
+
+			// Handle the case where this guy is no longer running.
 			if (this.isRunning() && shouldStopRunning() && safeToEject()) {
 //				System.out.println("player should stop running...");
 				runFrom = null;
 				eject();
-				clearCurrentTarget();
+//				clearCurrentTarget();
 				//					System.out.println("ejecting " + this.getName() + " with no target");
 			}
-			if (!isRunning()) {
+			// Handle the case where this guy should eject anyways.
+			else if (safeToEject()) {
+				eject();
+				System.out.println(this.getName() + " just got ejected");
 				this.clearCurrentTarget();
 	    		uniqueAct();
+	    		if (getTarget() != null)
+		    		System.out.println("new target: " + getTarget().getName());
+	    		else System.out.println("new target null!");
 			}
 		}
 	}
@@ -1047,9 +1036,12 @@ public class Army extends Group implements Destination {
 		return false;
 	}
 
-	private boolean safeToEject() {
+	boolean safeToEject() {
 		for (Army army : closeArmies) {
-			if (shouldRunFrom(army)) return false;
+			if (shouldRunFrom(army)) {
+//				if (isNoble()) System.out.println(this.getName() + " should run from: " + army.getName());
+				return false;
+			}
 		}
 		return true;
 	}
@@ -1065,9 +1057,11 @@ public class Army extends Group implements Destination {
 	}
 
 	public void eject() {
-		
-		if (isGarrisoned())
+		if (!canEject()) throw new AssertionError();
+		if (isGarrisoned()) {
+			System.out.println("Ejecting: " + this.getName());
 			garrisonedIn.eject(this);
+		}
 		else {
 			throw new AssertionError("trying to eject from nothing");
 		}
@@ -1090,7 +1084,7 @@ public class Army extends Group implements Destination {
 				//				System.out.println(this.getName() + " starting to setAppropriateRunTarget from " + army.getName());
 				return 1;
 			}
-			else if (!passive && shouldAttack(army) && (!hasTarget() || target != army)) {
+			else if (!passive && shouldAttack(army.party) && (!hasTarget() || target != army)) {
 				runFrom = null;
 				if (this.isInSiege()) this.leaveSiege();
 				setTarget(army);
@@ -1143,14 +1137,16 @@ public class Army extends Group implements Destination {
 
 			for (int index: closeCenters){ 
 				Center containing2 = getKingdom().getMap().getCenter(index);
-				if (containing2.armies != null) closeArmies.addAll(containing2.armies);
+				if (containing2.armies != null) closeArmies.addAllFromStrictArray(containing2.armies);
 				closeArmies.removeValue(this, true);
+				if (closeArmies.contains(this, true)) throw new AssertionError();
 			}
 
 			//			System.out.println("Total Armies length: " + getKingdom().getArmies().size);
 			//			if (this.type == ArmyType.PATROL) System.out.println(getName() + " CloseArmies Length: " + closeArmies.size);
 
 			for (Army army : closeArmies) {
+				if (army == this) throw new AssertionError();
 				if (!hasVisibilityOf(army)) continue;
 				double distToCenter = this.distToCenter(army);
 				// hostile troop
@@ -1214,6 +1210,9 @@ public class Army extends Group implements Destination {
 		if (getKingdom().clock() >= waitUntil) {
 			//			if (type == ArmyType.MERCHANT) System.out.println(getName() + "stopping wait");
 //			System.out.println("stopping wait");
+			if (this.isHuntingParty()) {
+//				System.out.println("finished waiting as hunting party");
+			}
 			normalWaiting = false;
 			waitUntil = 0;
 			if (forceWait) { 
@@ -1233,21 +1232,28 @@ public class Army extends Group implements Destination {
 		this.waitFor(seconds);
 	}
 	// should this army attack that army?
-	public boolean shouldAttack(Army that) {
+	public boolean shouldAttack(Party that) {
+//		if (this.isBandit()) return true;
 //		if ((this.getTroopCount() - that.getTroopCount() >= 1) && (this.getTroopCount() <= that.getTroopCount()*4) && (that.getBattle() == null || that.getBattle().shouldJoin(this) != 0))
 //			return true;
 
+		float partyMinDifferenceFactor = 1.2f; // Party's level must be at least this times bigger than party we're attacking.
 		float partyMaxDifferenceFactor = 2; // if a party is less than this fraction of the other one, won't attack.
+		if (isBandit()) partyMaxDifferenceFactor = 5; // Attack any fucking party if you're a bandit.
 		// TODO take into account nearby parties
-		if ((this.getParty().getAtk() - that.getParty().getAtk() >= 1)
-				&& (this.getTroopCount() <= that.getTroopCount() * partyMaxDifferenceFactor || this.isBandit())
-				&& (that.getBattle() == null || that.getBattle().shouldJoinAttackers(this)))
-			return true; 
-		return false;
+		return ((
+				this.party.getTotalLevel() > that.getTotalLevel() * partyMinDifferenceFactor
+				&& this.party.getTotalLevel() <= that.getTotalLevel() * partyMaxDifferenceFactor)
+				// TODO this handles armies already in a battle, but not garrisons (locations)
+				&& ((that.army == null || that.army.getBattle() == null ||
+				that.army.getBattle().shouldJoinAttackers(this))));
 	}
 
 	public boolean shouldRunFrom(Army that) {
+		if (!this.isAtWar(that)) return false;
 		if (that.isGarrison) return false;
+		if (that.isGarrisoned()) return false;
+		if (that.distToCenter(this) > this.getLineOfSight()) return false;
 		//		if (this.type == ArmyType.PATROL)System.out.println(getName() + " in shouldRun method"); 
 
 		if (this.getTroopCount() < that.getTroopCount())
@@ -1266,6 +1272,8 @@ public class Army extends Group implements Destination {
 		}
 	}
 	public boolean targetLost() {
+		if (this.isInBattle()) return false;
+
 		if (target != null && target.getType() == Destination.DestType.ARMY) {
 			Army targetArmy = (Army) target;
 			if (!hasVisibilityOf(targetArmy) || !targetArmy.hasParent() || targetArmy.isGarrisonedSafely())
@@ -1379,6 +1387,7 @@ public class Army extends Group implements Destination {
         // NOTE: this is only cities! not villages...
 			Location goTo = detectNearbyFriendlyLocationForRunning();
 			if (goTo != null) {
+				if (isAtWar(goTo)) throw new AssertionError(this.getName() +" of " + getFactionName() + " is somehow at war with: " + goTo.getName() + " " + goTo.getFactionName());
 //                System.out.println(getName() + " should go to " + goTo.getName());
                 if (goTo == this.getTarget()) {
 //                    System.out.println(getName() + " already has target,  " + goTo.getName() + " ...");
@@ -1432,7 +1441,20 @@ public class Army extends Group implements Destination {
 	public Location detectNearbyFriendlyLocationForRunning() {
 		for (City city : getKingdom().getCities()) {
 			if (!isAtWar(city) && this.distToCenter(city) < getLineOfSight() && this.distToCenter(city) < runFrom.distToCenter(city)) {
+				if (isAtWar(city)) {
+					throw new AssertionError();
+				}
 				return city;
+			}
+		}
+		if (this.canHideInVillage()) {
+			for (Village village : getKingdom().villages) {
+				if (!isAtWar(village) && this.distToCenter(village) < getLineOfSight() && this.distToCenter(village) < runFrom.distToCenter(village)) {
+					if (isAtWar(village)) {
+						throw new AssertionError();
+					}
+					return village;
+				}
 			}
 		}
 		return null;
@@ -1610,6 +1632,9 @@ public class Army extends Group implements Destination {
 			((Army) getTarget()).targetOf.removeValue(this, true);
 		}
 
+		if (!player && newTarget.getType() == DestType.LOCATION && this.isAtWar(newTarget) && !this.shouldRaidOrBesiege((Location) newTarget))
+			throw new AssertionError(this.getName() + " should not be going to " + newTarget.getName());
+
 		//		if (this.type == ArmyType.FARMER)System.out.println("farmer in setTarget"); 
 		// don't add same target twice in a row... this is a problem.
 		//		if (newTarget.getType() == 2 && ((Army) newTarget).isGarrisonedSafely()) System.out.println("***** TARGET GARRISONED! *****");
@@ -1712,7 +1737,7 @@ public class Army extends Group implements Destination {
 //            return true;
         }
 	}
-	private boolean canEject() {
+	boolean canEject() {
 		if (this.garrisonedIn == null) throw new AssertionError();
 
 		// For now, don't allow ejecting if under siege.
@@ -1731,6 +1756,36 @@ public class Army extends Group implements Destination {
 	public Destination getTarget() {
 		return target;
 	}
+
+	boolean shouldRaidOrBesiege(Location location) {
+		if (this.isAtWar(location) && !this.passive) {
+			if (location.siege == null) {
+				return this.shouldAttack(location.getParty());
+			}
+			// If location alraedy has a siege present, make sure we can join it.
+			else {
+				if (location.siege.shouldJoin(this)) {
+					return this.shouldAttack(location.getParty());
+				}
+			}
+		}
+		return false;
+	}
+
+	// Should we clear an old target
+	private boolean shouldClearOldTarget(Destination target) {
+		if (target.getType() == DestType.LOCATION) {
+			if (this.isAtWar(target) && (!this.shouldRaidOrBesiege((Location) target))) {
+				return true;
+			}
+		} else if (target.getType() == DestType.ARMY) {
+			if (this.isAtWar(target) && !this.shouldAttack(((Army) target).party)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/* fix this */
 	public void nextTarget() {
 		this.target = null;
@@ -1754,14 +1809,24 @@ public class Army extends Group implements Destination {
 			}
 
 			if (!targetStack.isEmpty() && targetStack.peek() != null) {
-				System.out.println(this.getName() + " setting target: " + targetStack.peek());
+//				System.out.println(this.getName() + " setting target: " + targetStack.peek().getName());
+				// Pop off targets until we get a valid one.
 				Destination d = targetStack.pop();
-				if (!setTarget(d)) throw new AssertionError(d.getName() + " cant be set as target for " + getName());
-
-				if (!hasTarget()) {
-					nextTarget();
-					return;
+				while (d != null && shouldClearOldTarget(d)) {
+					if (!targetStack.empty())
+						d = targetStack.pop();
+					else
+						d = null;
 				}
+				if (d != null) {
+					if (!setTarget(d))
+						throw new AssertionError(d.getName() + " cant be set as target for " + getName());
+
+					if (!hasTarget()) {
+						nextTarget();
+						return;
+					}
+				} else findTarget();
 			}
 			else findTarget();
 		}
@@ -1853,22 +1918,31 @@ public class Army extends Group implements Destination {
 	//		else this.money = money;
 	//	}
 	public boolean isAtWar(Destination destination) {
+		if (this == destination) throw new AssertionError();
+		// For now, say you're at war with ruins to prevent garrisoning.
+		if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) {
+//			System.out.println(this.getName() + " is not at war with (ruin):  " + destination.getName());
+			return false;
+		}
+//		    System.out.println(this.getName() + " is at war with " + destination.getName());
+
 		if (destination.getFaction() == null || this.faction == null) {
 		    if (destination.getFaction() == null && this.faction == null) {
 //				System.out.println(this.getName() + " is not at war with " + destination.getName());
+				// if we're both independent, then we're not at war
 				return false;
 			}
-			// For now, say you're at war with ruins to prevent garrisoning.
-			if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
-//		    System.out.println(this.getName() + " is at war with " + destination.getName());
-		    return true;
-        }
+//			System.out.println(this.getName() + " is at war with " + destination.getName());
+
+			// If only one of us is independent, then we're at war
+			return true;
+		}
 //		System.out.println(this.getName() + " not at war with " + destination.getName());
 
-		// For now, say you're at war with ruins to prevent garrisoning.
-		if (destination.getType() == DestType.LOCATION && ((Location) destination).isRuin()) return false;
-//
 //		System.out.println(this.getName() + " depends on faction " + destination.getName());
+		if (faction.atWar(destination.getFaction()) != destination.getFaction().atWar(this.getFaction())) throw new AssertionError();
+
+//		System.out.println(this.getName() + " normal case, maybe at war with " + destination.getName());
 		return faction.atWar(destination.getFaction());
 	}
 
@@ -1886,6 +1960,10 @@ public class Army extends Group implements Destination {
 	
 	public boolean isPlayer() {
 		return player;
+	}
+
+	public boolean canHideInVillage() {
+		return false;
 	}
 
 	//	@Override

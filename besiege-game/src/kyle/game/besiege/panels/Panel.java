@@ -42,7 +42,7 @@ public class Panel extends Group {
 	private final String PAUSED = "Paused";
 	//	private final String SAVING = "Saving...";
 
-	protected SidePanel sidePanel;
+	public SidePanel sidePanel;
 
 	private Kingdom kingdom;
 	private int day;

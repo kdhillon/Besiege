@@ -15,8 +15,8 @@ import kyle.game.besiege.voronoi.Center;
 // A hunting party leaves its village and heads to a hunting destination at a nearby center. It basically wanders around
 // that center for a few days, then comes back home.
 public class HuntingParty extends Army {
-	private final float WAIT_MIN = 0f;
-	private final float WAIT_MAX = 4.5f;
+	private final float WAIT_MIN = 2f;
+	private final float WAIT_MAX = 15f;
 	private final static float WANDER_DISTANCE = 75;
 	private final static int HUNT_STOPS_MIN = 10;
 	private final static int HUNT_STOPS_MAX = 20;
@@ -89,7 +89,7 @@ public class HuntingParty extends Army {
 	public void hunt() {
 		if (shouldKeepHunting()) {
 			if (this.isGarrisoned()) eject();
-			if (this.path.isEmpty()) {
+			if (!hasTarget()) {
 				if (waitToggle) {
 					startAmbush();
 					this.waitFor(Random.getRandomInRange(WAIT_MIN, WAIT_MAX));
@@ -99,7 +99,6 @@ public class HuntingParty extends Army {
 				}
 				else {
 					setNewHuntDest();
-					waitToggle = true;
 				}
 			}
 			else {
@@ -130,7 +129,10 @@ public class HuntingParty extends Army {
 			setTarget(location);
 			System.out.println("hunter just searched for 10 targets and couldn't find valid");
 		}
-		else setTarget(newTarget);
+		else {
+			waitToggle = true;
+			setTarget(newTarget);
+		}
 //		if (!hasTarget()) throw new AssertionError();
 	}
 	
@@ -144,30 +146,35 @@ public class HuntingParty extends Army {
 		this.centerToHuntIn = center;
 	}
 	
-	// farmers can garrison in villages
-	@Override
-	public Location detectNearbyFriendlyLocationForRunning() {
-		for (City city : getKingdom().getCities()) {
-			if (!isAtWar(city)) {
-				double dist = this.distToCenter(city);
-				if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(city)) {
-					return city;
-				}
-			}
-		} 
-		for (Village village : getKingdom().villages) {
-			double dist = this.distToCenter(village);
-			if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(village)) {
-				return village;
-			}
-		}
-		return null;
-	}
+//	// farmers can garrison in villages
+//	@Override
+//	public Location detectNearbyFriendlyLocationForRunning() {
+//		for (City city : getKingdom().getCities()) {
+//			if (!isAtWar(city)) {
+//				double dist = this.distToCenter(city);
+//				if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(city)) {
+//					return city;
+//				}
+//			}
+//		}
+//		for (Village village : getKingdom().villages) {
+//			double dist = this.distToCenter(village);
+//			if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(village)) {
+//				return village;
+//			}
+//		}
+//		return null;
+//	}
 	
 	public Location getLocation() {
 		return location;
 	}
-	
+
+	@Override
+	public boolean canHideInVillage() {
+		return true;
+	}
+
 	@Override
 	public void destroy() {
 		getKingdom().removeArmy(this);

@@ -163,6 +163,9 @@ public class General extends Soldier {
 	}
 
 	public Equipment getHead() {
+		// Only have headdress if a garrison or a noble.
+		if ((this.party.army != null && !this.party.army.isNoble())) return null;
+
 		int bigHeadLimit = 100;
 		int medHeadLimit = 50;
 		if (this.getCulture().name.equals("Desert")) {

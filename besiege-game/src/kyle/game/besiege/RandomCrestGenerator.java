@@ -38,7 +38,7 @@ public class RandomCrestGenerator extends Actor {
 	int DETAILS = 19;
 
 
-	HashMap<String, Array<String>> cultureToCrests = new HashMap();
+	HashMap<String, StrictArray<String>> cultureToCrests = new HashMap();
 	String[] forestCrests = {"bearclaw", "arrowhead", "twinarrows", "tomahawk", "bow", "necklace", "wolf", "bird"};
 	String[] plainsCrests = {"eagle", "buffalo", "raven", "sun", "sun2", "sun3", "fist", "rain", "water", "thunderbird"};
 	String[] mesoCrests = {"snake", "pyramid", "flower", "pyramid2", "geometric", "skull", "stonehead", "spiral", "spiral2", "flower"};
@@ -51,11 +51,11 @@ public class RandomCrestGenerator extends Actor {
 	public RandomCrestGenerator() {
 		int coloursToGenerate = 50;
 
-        cultureToCrests.put("Tundra", new Array<>(forestCrests));
-        cultureToCrests.put("Forest", new Array<>(forestCrests));
-        cultureToCrests.put("Desert", new Array<>(mesoCrests));
-		cultureToCrests.put("Jungle", new Array<>(mesoCrests));
-        cultureToCrests.put("Plains", new Array<>(plainsCrests));
+        cultureToCrests.put("Tundra", new StrictArray<>(forestCrests));
+        cultureToCrests.put("Forest", new StrictArray<>(forestCrests));
+        cultureToCrests.put("Desert", new StrictArray<>(mesoCrests));
+		cultureToCrests.put("Jungle", new StrictArray<>(mesoCrests));
+        cultureToCrests.put("Plains", new StrictArray<>(plainsCrests));
 
 		// The colours at the start that you don't want (White and Black are the
 		// first 2)

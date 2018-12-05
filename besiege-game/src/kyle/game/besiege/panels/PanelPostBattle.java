@@ -52,8 +52,8 @@ public class PanelPostBattle extends Panel {
         StrictArray<Party> defendingParties = battle.getDefendingParties();
 
         // TODO differentiate rewards between retreated parties and non-retreated.
-        attackingParties.addAll(battle.getAttackingPartiesRetreated());
-        defendingParties.addAll(battle.getDefendingPartiesRetreated());
+        attackingParties.addAllFromStrictArray(battle.getAttackingPartiesRetreated());
+        defendingParties.addAllFromStrictArray(battle.getDefendingPartiesRetreated());
 
         populateTopTable(topTableAttackers, attackingParties, battle.didAttackersWin(), battle);
         topTableDefenders = new TopTable();

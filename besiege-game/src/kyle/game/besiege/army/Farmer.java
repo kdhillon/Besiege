@@ -80,7 +80,7 @@ public class Farmer extends Army {
 		if (isRunning()) throw new AssertionError();
 		if (farmTime()) {
 			if (this.isGarrisoned()) eject();
-			if (this.path.isEmpty()) {
+			if (!this.hasTarget()) {
 				if (waitToggle) {
 					this.waitFor(FARMER_WAIT);
 //					System.out.println("waiting for " + FARMER_WAIT);
@@ -130,29 +130,34 @@ public class Farmer extends Army {
 	}
 	
 	// farmers can garrison in villages
-	@Override
-	public Location detectNearbyFriendlyLocationForRunning() {
-		for (City city : getKingdom().getCities()) {
-			if (!isAtWar(city)) {
-				double dist = this.distToCenter(city);
-				if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(city)) {
-					return city;
-				}
-			}
-		}
-		for (Village village : getKingdom().villages) {
-			double dist = this.distToCenter(village);
-			if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(village)) {
-				return village;
-			}
-		}
-		return null;
-	}
+//	@Override
+//	public Location detectNearbyFriendlyLocationForRunning() {
+//		for (City city : getKingdom().getCities()) {
+//			if (!isAtWar(city)) {
+//				double dist = this.distToCenter(city);
+//				if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(city)) {
+//					return city;
+//				}
+//			}
+//		}
+//		for (Village village : getKingdom().villages) {
+//			double dist = this.distToCenter(village);
+//			if (dist < getLineOfSight() && dist < getRunFrom().distToCenter(village)) {
+//				return village;
+//			}
+//		}
+//		return null;
+//	}
 	
 	public Location getLocation() {
 		return location;
 	}
-	
+
+	@Override
+	public boolean canHideInVillage() {
+		return true;
+	}
+
 	@Override
 	public void destroy() {
 		getKingdom().removeArmy(this);

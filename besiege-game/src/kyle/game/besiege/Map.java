@@ -87,7 +87,7 @@ public class Map extends Actor {
 
 	private MyRandom r;
 	/** Borders between faction territory */
-	public Array<Edge> factionBorderEdges; 
+	public StrictArray<Edge> factionBorderEdges;
 
 	transient private ShaderProgram shader;
 	private float[] batchColor;
@@ -171,7 +171,7 @@ public class Map extends Actor {
 		calcReference();
 		calcReferencePoint();
 
-		factionBorderEdges = new Array<Edge>();
+		factionBorderEdges = new StrictArray<Edge>();
 		calcConnected(reference, connected);
 		System.out.println("Num connected polygons: " + connected.size());
 
@@ -260,7 +260,7 @@ public class Map extends Actor {
 	private void addPolygons() {
 		for (Center center : connected) {
 			int indexInit = 0;
-			Array<Corner> used = new Array<Corner>(); // stores corners that have been used;
+			StrictArray<Corner> used = new StrictArray<Corner>(); // stores corners that have been used;
 			float[] vertices = new float[center.corners.size()*2];
 
 			getNextVertex(center.corners.get(0), center, used, vertices, indexInit);
@@ -272,7 +272,7 @@ public class Map extends Actor {
 	}
 
 	// recursively find and add adjacent vertex to vertices
-	private void getNextVertex(Corner corner, Center center, Array<Corner> used, float[] vertices, int index) {
+	private void getNextVertex(Corner corner, Center center, StrictArray<Corner> used, float[] vertices, int index) {
 		for (Corner next : corner.adjacent) {
 			if (center.corners.contains(next) && !used.contains(next, true)) {
 				used.add(next);

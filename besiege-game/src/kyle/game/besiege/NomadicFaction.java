@@ -55,7 +55,7 @@ public class NomadicFaction extends Faction {
     }
 
     public void manageBandits() {
-        if (banditCount <= TOTAL_BANDITS) {
+        if (banditCount < TOTAL_BANDITS) {
 //			if (Math.random() < 1.0/BANDIT_FREQ) {
 //				City originCity = cities.random();
             //					if (originCity.getVillages().size == 0)
