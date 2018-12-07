@@ -38,4 +38,8 @@ public class Random {
     public static boolean coinflip() {
         return getRandom(1.0) < 0.5;
     }
+
+    public static boolean randomChance(double probability) {
+        return Math.random() < probability;
+    }
 }

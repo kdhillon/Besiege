@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
@@ -25,6 +26,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Ruin;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.title.Candle;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.Center;
 import kyle.game.besiege.voronoi.Corner;
@@ -655,6 +657,17 @@ public class Kingdom extends Group {
 			c.drawText(batch);
 		for (Ruin r : ruins) 
 			r.drawText(batch);
+	}
+
+	// TODO do we want to do this for other armies as well (to highlight them?)
+	public static void drawTorchlightUnder(Kingdom kingdom, Army army, SpriteBatch batch, float alpha) {
+		if (army != null && !army.isGarrisoned() && !army.isInBattle() && army.isVisible()) {
+			if (kingdom.night) {
+				// Remember LOS is a radius and this function takes a diameter ;)
+				Candle.drawFlickeringLight(batch,  army.getCenterX(), army.getCenterY(), 80, 80, true, kingdom.night);
+			}
+		}
+		kingdom.updateColor(batch);
 	}
 	
 

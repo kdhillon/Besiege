@@ -188,6 +188,7 @@ public class ArmyPlayer extends Army {
 			sr.end();
 			batch.begin();
 		}
+		Kingdom.drawTorchlightUnder( getKingdom(), this, batch, parentAlpha);
 		super.draw(batch, parentAlpha);
 		//if (mousedOver()) drawInfo(batch, parentAlpha);
 	}

@@ -105,8 +105,8 @@ public class MainMenuScreen implements Screen {
 		private float rainDrawOffsetX;
 		private float rainDrawOffsetY;
 		private TextureRegion white = new TextureRegion(new Texture("whitepixel.png"));
-		private float X_SPEED = Random.getRandomInRange(1.f, 2.5f);
-		private float Y_SPEED = Random.getRandomInRange(2f, 3f);
+		private float X_SNOW_SPEED = Random.getRandomInRange(1.f, 2.5f);
+		private float Y_SNOW_SPEED = Random.getRandomInRange(1.5f, 2f);
 		private boolean X_RIGHT = Random.coinflip();
 
 		// colors of rectangles, top to bottom
@@ -270,8 +270,8 @@ public class MainMenuScreen implements Screen {
 					if (isSnowing()) {
 						mycolor = SNOW_COLOR;
 
-						rainDrawOffsetX += X_SPEED;
-						rainDrawOffsetY += Y_SPEED;
+						rainDrawOffsetX += X_SNOW_SPEED;
+						rainDrawOffsetY += Y_SNOW_SPEED;
 
 						alpha_minus = 0.0f; // makes snow last longer
 

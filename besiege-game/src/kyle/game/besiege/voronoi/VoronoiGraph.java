@@ -912,21 +912,24 @@ public class VoronoiGraph {
         return null;
     }
 
+    // TODO to smooth out map, have the four corners of the map impact the moisture of each corner.
     private void assignCornerMoisture() {
+        float MAX_MOISTURE = 3f; // originally 3
         Array<Corner> queue = new Array<Corner>();
         for (Corner c : corners) {
             if ((c.water || c.river > 0) && !c.ocean) {
-                c.moisture = c.river > 0 ? Math.min(3.0, (0.2 * c.river)) : 1.0;
+                c.moisture = c.river > 0 ? Math.min(MAX_MOISTURE, (0.2 * c.river)) : 1.0;
                 queue.add(c); // formerly push
             } else {
                 c.moisture = 0.0;
             }
         }
 
+        float MOISTURE_IMPACT_ON_NEIGHBORS = 0.9f; // originally 9
         while (queue.size > 0) {
             Corner c = queue.pop();
             for (Corner a : c.adjacent) {
-                double newM = .9 * c.moisture;
+                double newM = MOISTURE_IMPACT_ON_NEIGHBORS * c.moisture;
                 if (newM > a.moisture) {
                     a.moisture = newM;
                     queue.add(a);
@@ -970,6 +973,8 @@ public class VoronoiGraph {
     }
 
     private Biomes getBiomeFromTemp(Center p) {
+        boolean USE_BEACH = true;
+
         if (p.ocean) {
             return Biomes.OCEAN;
         }
@@ -982,7 +987,8 @@ public class VoronoiGraph {
 //                return Biomes.ICE;
 //            }
             return Biomes.LAKE;
-        } else if (p.coast && p.temperature < 0.6 && (p.elevation / maxElevation) < 0.2) {
+        }
+        else if (USE_BEACH && p.coast && p.temperature < 0.6 && (p.elevation / maxElevation) < 0.1) {
 //            for (Center adj : p.neighbors) {
 //                if (!adj.water && adj.biome != null && adj.biome != Biomes.BEACH && Math.random() < 0.5) return adj.biome;
 //            }
@@ -1205,8 +1211,20 @@ public class VoronoiGraph {
         for (Center center : centers) {
 //            System.out.println(getBiomeFromTemp(center).name());
         	center.setBiome(getBiomeFromTemp(center));
-        	center.setBiomeTexture(biomeMap.get(getBiomeFromTemp(center)));
+        	center.setBiomeTexture(biomeMap.get(Biomes.values()[center.getBiomeIndex()]));
         }
+
+        // Smooth out biomes, change depending on neighbors.
+        for (Center center : centers) {
+            center.smoothBiome();
+            center.setBiomeTexture(biomeMap.get(Biomes.values()[center.getBiomeIndex()]));
+        }
+
+//        // Smooth out biomes, change depending on neighbors.
+//        for (Center center : centers) {
+//            center.smoothBiome();
+//            center.setBiomeTexture(biomeMap.get(Biomes.values()[center.getBiomeIndex()]));
+//        }
     }
 
     private void assignCultures() {

@@ -994,8 +994,14 @@ public class BattleMap extends Group {
 		int end_x = Random.getRandomInRange(stage.size_x - max_house_size - limit_max,  stage.size_x - max_house_size - limit_min);
 
 //		int start_y = stage.MIN_PLACE_Y_1 + Random.getRandomInRange(-5, 5);
+		int gap = 10;
 		int start_y = 0;
-		int end_y = stage.size_y / 2 - 10;
+		int end_y = stage.size_y / 2 - max_house_size;
+
+		if (stage.playerAttacking()) {
+			start_y = stage.size_y / 2;
+			end_y = stage.size_y - max_house_size - 1;
+		}
 
 //		int end_y = Random.getRandomInRange(stage.size_y - max_house_size - limit_max,  stage.size_y - max_house_size - limit_min);
 

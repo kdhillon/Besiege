@@ -118,6 +118,28 @@ public class Center {
 		this.wealth = calculateInitWealth();
 	}
 
+	public void smoothBiome() {
+		if (water) return;
+		// Determine if should change biome based on neighbors
+		Biomes neighborBiome = null;
+		boolean shouldChangeToNeighborBiome = true;
+		for (Center c : neighbors) {
+			if (c.water) continue;
+
+			// TODO make this based on culture type, not biome.
+			// We check if this is surrounded by only a single type of non-water biome. if so, change to it.
+			if (neighborBiome == null) neighborBiome = c.biome;
+			else if (c.biome != neighborBiome) {
+				shouldChangeToNeighborBiome = false;
+				break;
+			}
+		}
+		if (neighborBiome != null && shouldChangeToNeighborBiome) {
+			System.out.println("smoothing biome to: " + neighborBiome.toString());
+			setBiome(neighborBiome);
+		}
+	}
+
     public void setCultureType(CultureType cultureType) {
         this.cultureType = cultureType;
     }

@@ -1177,15 +1177,17 @@ public class Army extends Group implements Destination {
 
 	// Is the given army visible to this guy
 	private boolean hasVisibilityOf(Army that) {
-		double distToCenter = this.distToCenter(that);
 		if (that.isNonFriendlyAmbush(this)) return false;
 		if (that.isGarrisonedSafely()) return false;
 		if (that.isDestroyed()) return false;
-		if (this.player && !losOn()) return true; // Hack for debugging.
+		if (this.player && !losOn()) {
+			return true; // Hack for debugging.
+		}
 
 		// This makes it so poor villagers who leave the acting range around the player won't get attacked by armies who aren't affected by that.
 		// Need to make sure the acting range is large enough that the player won't see any weird effects this may cause.
 		if (OPTIMIZED_MODE && !that.withinActingRange()) return false;
+		double distToCenter = this.distToCenter(that);
 		return distToCenter < lineOfSight;
 	}
 

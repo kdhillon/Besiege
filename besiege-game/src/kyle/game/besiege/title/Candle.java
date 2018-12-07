@@ -2,10 +2,12 @@ package kyle.game.besiege.title;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
+import kyle.game.besiege.Random;
 
 public class Candle extends Actor {
 	private static TextureRegion circle = new TextureRegion(new Texture("whitecircle.png"));
@@ -31,13 +33,15 @@ public class Candle extends Actor {
 	public static float wind_x = 0;
 	
 	// circle
-	float circleWidth = 20;
-	float circleHeight = 10;
-	float flickerMin = 0.1f;
-	float flickerMax = 0.3f;
-	float flickerChangeProb = 0.075f;
-	float flicker = 0.5f;
-	
+	final float circleWidth = 60;
+	final float circleHeight = 30;
+	static final float flickerMin = 0.35f;
+	static final float flickerMax = 0.5f;
+	static final float flickerChangeProb = 0.175f;
+	float flicker = flickerMin + (flickerMax - flickerMin)/2;
+	// flicker pulses
+	float flickerGrowth = 0.f;
+
 	int _x;
 	int _y;
 
@@ -50,6 +54,9 @@ public class Candle extends Actor {
 
 	float current_flicker;
 	float scale;
+
+	// This is global!
+	static float flicker_rot;
 
 	public Candle(int _x, int _y, float _width, float _height, float scale) {
 		this.region = new TextureRegion(new Texture("whitepixel.png"));
@@ -233,24 +240,63 @@ public class Candle extends Actor {
 		}
 	}
 
+	// map parameter is whether or not we're drawing this on the map (false if on the mainmenu)
+	// width is actual width of outer circle
+	public static void drawFlickeringLight(SpriteBatch batch, float _x, float _y, float circleWidth, float circleHeight, boolean map, boolean night) {
+		// draw the light circle
+		batch.setColor(0, 0, 0f, 1f);
+
+		// we want the speed of flickering to be maximized when we're furthest away from the edges.
+		// Sounds like a sin wave.
+		float PULSE_SPEED = 0.06f;
+		flicker_rot += PULSE_SPEED; // arbitrary speed
+		if (flicker_rot >= 2 * Math.PI) flicker_rot = 0;
+		float flicker = (float) (Math.sin(flicker_rot) * (flickerMax - flickerMin) + flickerMin);
+
+		// Draw fixed black circle
+		if (!map)
+			batch.draw(circle, _x - circleWidth/12 , -_y - circleHeight/12f, circleWidth / 6f, circleHeight / 6f );
+
+		float base_alpha = 0.2f;
+		if (!night) base_alpha = 0.15f; // dim during the day.
+		float base_r = 1;
+		float base_g = 0.9f;
+		float base_b = 0.8f;
+
+		if (night) {
+			float firstCircleScale = 0.5f;
+			float flickerSizeEffect1 = (flicker + 0.5f);
+			float width1 = circleWidth * firstCircleScale * flickerSizeEffect1;
+			float height1 = circleHeight * firstCircleScale * flickerSizeEffect1;
+
+			float x1 = _x - width1 / 2; // - 1*firstCircleScale;
+			float y1 = -_y - height1 / 2; //  13 * firstCircleScale / 2 +
+			if (map)
+				y1 = _y - height1 / 2;
+			batch.setColor(base_r, base_g, base_b, base_alpha);
+			batch.draw(circle, x1, y1, width1, height1);
+		}
+
+		float width2 = circleWidth;
+		float height2 = circleHeight;
+		float x2 = _x - width2/2;
+		float y2 = -_y - height2 / 2;
+		if (map)
+			y2 = _y - height2 / 2;
+		batch.setColor(base_r, base_g, base_b, base_alpha * 0.5f);
+		batch.draw(circle, x2, y2, width2, height2);
+		batch.setColor(1, 1, 1f, 1f);
+	}
+
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		// draw the light circle
-		if (Math.random() < flickerChangeProb) {
-			flicker = (float) Math.random() * (flickerMax - flickerMin) + flickerMin;
-		}
-		batch.setColor(0, 0, 0f, 1f);
-		// Draw fixed black circle
-		batch.draw(circle, _x - circleWidth/3f * scale - 3, 14 + -_y - circleHeight/3f * scale, circleWidth * scale / 1.5f, circleHeight * scale / 1.5f );
-		batch.setColor(1, 0.95f, 0.9f, 0.2f);
-		batch.setColor(1, 0.95f, 0.9f, flicker/4 + 0.1f);
-		float firstCircleScale = 2;
-//		float flickerSizeEffect = (flicker + 0.5f);
-		float flickerSizeEffect = 0.75f;
-		batch.draw(circle, _x - circleWidth/2f * scale * firstCircleScale * flickerSizeEffect - 1*firstCircleScale, 13 * firstCircleScale / 2 + -_y - circleHeight/2f * flickerSizeEffect * scale * firstCircleScale, circleWidth * scale * firstCircleScale *flickerSizeEffect, circleHeight *firstCircleScale * scale * flickerSizeEffect);
-//		batch.draw(circle, _x - circleWidth/2f * scale * (flicker + 0.5f) - 3, 17 + -_y - circleHeight/2f * (flicker + 0.5f) * scale, circleWidth * scale * (flicker + 0.5f), circleHeight * scale * (flicker + 0.5f));
-		float secondCircleScale = 4;
-		batch.draw(circle, _x - circleWidth/2f * scale * secondCircleScale * flickerSizeEffect - 1*secondCircleScale, 17 * secondCircleScale / 4 + -_y - circleHeight/2f * flickerSizeEffect * scale * secondCircleScale, circleWidth * scale * secondCircleScale * flickerSizeEffect, circleHeight *secondCircleScale * scale * flickerSizeEffect);
+		// we want the speed of flickering to be maximized when we're furthest away from the edges.
+		// Sounds like a sin wave.
+//		float PULSE_SPEED = 0.06f;
+//		flicker_rot += PULSE_SPEED; // arbitrary speed
+//		if (flicker_rot >= 2 * Math.PI) flicker_rot = 0;
+//		flicker = (float) (Math.sin(flicker_rot) * (flickerMax - flickerMin) + flickerMin);
+		drawFlickeringLight(batch, _x - 1.3f * scale, _y - 4 * scale, circleWidth * 3, circleHeight * 3, false, true);
 
 //		System.out.println("drawing");
 		for (Particle p : particles) {

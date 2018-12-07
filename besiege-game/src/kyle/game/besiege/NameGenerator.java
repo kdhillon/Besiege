@@ -3,9 +3,13 @@ package kyle.game.besiege;
 import kyle.game.besiege.utils.TextGenerator;
 
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 
 public class NameGenerator {
-//	private static final String citiesFile = "data/namegen/cities15000.txt";
+    HashSet<String> allGeneratedPersonNames = new HashSet<>();
+    HashSet<String> allGeneratedLocationNames = new HashSet<>();
+
+    //	private static final String citiesFile = "data/namegen/cities15000.txt";
 //	private static final String castlesFile = "data/namegen/cities15000.txt";
 //	private static final String villagesFile = "data/namegen/cities15000.txt";
 //
@@ -83,7 +87,13 @@ public class NameGenerator {
 	}
 
     public String generateCity() {
-        return lowercase(cityGen.gen(6, 12, 4));
+	    // Some chance of generating 2 names:
+        if (Random.randomChance(0.2)) {
+            String name = lowercase(cityGen.gen(2, 4, 4));
+            name += " " + lowercase(cityGen.gen(2, 4, 4));
+            return name;
+        }
+        return generateUniqueLocationLowercase(6, 12, 4);
     }
 
     public String generateCastle() {
@@ -98,16 +108,37 @@ public class NameGenerator {
     }
 
     public String generateRuins() {
-        String base = lowercase(castleGen.gen(6, 8, 4));
+        String base = generateUniqueLocationLowercase(6, 8, 4);
         return base + " Ruins";
     }
 
     public String generateVillage() {
-        return lowercase(villageGen.gen(6, 8, 4));
+        return generateUniqueLocationLowercase(6, 8, 4);
+    }
+
+    // Generates a unique name formatted correctly not for locations!
+    private String generateUniquePersonLowercase(int minLength, int maxLength, int minWordLength) {
+        String name;
+        do {
+            name = lowercase(lastGen.gen(minLength, maxLength, minWordLength));
+        }
+        while (allGeneratedPersonNames.contains(name));
+        allGeneratedPersonNames.add(name);
+        return name;
+    }
+
+    // Generates a unique name formatted correctly not for locations!
+    private String generateUniqueLocationLowercase(int minLength, int maxLength, int minWordLength) {
+        String name;
+        do {
+            name = lowercase(villageGen.gen(minLength, maxLength, minWordLength));
+        }
+        while (allGeneratedLocationNames.contains(name));
+        allGeneratedLocationNames.add(name);
+        return name;
     }
 
     public String generateFirstNameMale() {
-
 	    return "";
 	    // prev 5 10 5
 //        return  lowercase(firstMaleGen.gen(4, 8, 4));
@@ -120,12 +151,12 @@ public class NameGenerator {
     }
 
     public String generateLastName() {
-        return  lowercase(lastGen.gen(4, 8, 4));
+	    return generateUniquePersonLowercase(4, 8, 4);
     }
 
     public String generateFactionName() {
-        return  lowercase(lastGen.gen(5, 8, 5));
-    }
+        return generateUniquePersonLowercase(5, 8, 5);
+	}
 	
 //	public static String generateCity() {
 //		return lowercase(tgCities.gen(6, 12, 4));
