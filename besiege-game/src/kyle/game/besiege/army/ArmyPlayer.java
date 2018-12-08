@@ -20,6 +20,7 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 
 public class ArmyPlayer extends Army {
+	private final static int START_WEALTH = 300;
 //	private final String TEXTURE_REGION = "Player";
 		
 	// debugging
@@ -55,7 +56,7 @@ public class ArmyPlayer extends Army {
 		
 		// debugging
 //		this.getParty().distributeExp(100000);
-		this.getParty().wealth = 0;
+		this.getParty().wealth = START_WEALTH;
 		
 		this.getParty().getGeneral().setName(getCharacter().name);
 		kingdom.updateArmyPolygon(this);

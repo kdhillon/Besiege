@@ -168,7 +168,8 @@ public class PanelLocation extends Panel {
         }
         // friendly player touches
         else if (location.playerIn && !playerIn) {
-            if (location.toHire != null && location.toHire.getHealthySize() > 0)
+			setButton(1, "Rest");
+            if (location.toHire != null ) // && location.toHire.getHealthySize() > 0
                 setButton(2, "Hire");
             playerIn = true;
 			if (this.panelHire == null && !this.location.isRuin())

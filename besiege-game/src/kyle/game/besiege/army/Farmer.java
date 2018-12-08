@@ -57,7 +57,7 @@ public class Farmer extends Army {
 	public void garrisonAct(float delta) {
 //		shouldStopRunning();
 		detectNearby();
-		if (farmTime() && shouldStopRunning()) {
+		if (farmTime() && shouldStopRunning() && canEject()) {
 			//System.out.println("ejecting " + this.getName());
 			// double check to see if fixes problem
 //			detectNearby();

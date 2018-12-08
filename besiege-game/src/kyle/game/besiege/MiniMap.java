@@ -141,7 +141,12 @@ public class MiniMap extends Actor {
 //				drawInFront = false;
 			}
 
-			if (weapon.getTexture() == null) throw new AssertionError(toPreview.unitType.melee.name + " not found");
+			if (weapon.getTexture() == null) {
+				if (drawingRangedWeapon)
+					throw new AssertionError(toPreview.unitType.ranged.name + " not found");
+				else
+					throw new AssertionError(toPreview.unitType.melee.name + " not found");
+			}
 
 			if (!drawWeaponInFront)
                 drawWeapon(batch, weapon, x_boost, y, rotation);

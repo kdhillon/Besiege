@@ -30,8 +30,6 @@ Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
 
 S   Death_Shaman        Staff               Clothes             none
 
-
-// TODO replace names with mayan name textfile
 Class:	Jungle	    LT_GREEN   GREEN  maya.txt
 1	Hunter			Unarmed/Atlatl(Oak)	Loincloth		Warrior
 1   Villager        Knife(Obsidian)/Rocks  Loincloth        Warrior

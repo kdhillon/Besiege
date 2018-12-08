@@ -273,7 +273,9 @@ public class Party {
 				this.army.destroy();
 				System.out.println("Destroying party");
 			} else {
-				System.out.println(location.getName() + " garrison completely destroyed");
+				// Location will be null for "hire" party... Maybe don't use a party to represent hire party
+				if (location != null)
+					System.out.println(location.getName() + " garrison completely destroyed");
 			}
 		}
 	}
