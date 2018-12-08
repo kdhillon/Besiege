@@ -13,6 +13,7 @@ public class HireSoldierTable extends SoldierTable {
         selectable = true;
         this.panelHire = panelHire;
 
+        noTroopsC.setText(HIRE_EMPTY_TEXT);
         if (party.subparties.size > 0 && party.subparties.get(0)
                 .getConsolHealthy().size > 0 && party.subparties.get(0)
                 .getConsolHealthy().get(0).size > 0)
@@ -23,7 +24,6 @@ public class HireSoldierTable extends SoldierTable {
     public void select(Soldier soldier) {
         super.select(soldier);
         panelHire.notifySelect(soldier);
-        noTroopsC.setText(HIRE_EMPTY_TEXT);
     }
 
     private void selectFirstSoldier() {

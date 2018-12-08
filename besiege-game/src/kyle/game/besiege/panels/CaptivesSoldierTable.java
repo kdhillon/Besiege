@@ -12,16 +12,17 @@ public class CaptivesSoldierTable extends SoldierTable {
         captivesPanel = true;
         selectable = true;
         this.panelCaptives = panelCaptives;
+        noTroopsC.setText(HIRE_EMPTY_TEXT);
 
         if (party.getPrisoners().size > 0)
             this.selectFirstSoldier();
+        update();
     }
 
     @Override
     public void select(Soldier soldier) {
         super.select(soldier);
         panelCaptives.notifySelect(soldier);
-        noTroopsC.setText(HIRE_EMPTY_TEXT);
     }
 
     private void selectFirstSoldier() {

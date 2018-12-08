@@ -60,7 +60,7 @@ public class PanelHire extends Panel {
         lsG.fontColor = Color.GRAY;
 
         topTable = new TopTable();
-        topTable.updateTitle("Warrior Volunteers", new InputListener() {
+        topTable.updateTitle("Volunteers", new InputListener() {
             public boolean touchDown(InputEvent event, float x,
                                      float y, int pointer, int button) {
                 return true;

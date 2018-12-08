@@ -15,6 +15,8 @@ import kyle.game.besiege.Character;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.PanelCaptives;
+import kyle.game.besiege.panels.PanelHire;
 import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
@@ -22,7 +24,10 @@ import kyle.game.besiege.party.PartyType;
 public class ArmyPlayer extends Army {
 	private final static int START_WEALTH = 300;
 //	private final String TEXTURE_REGION = "Player";
-		
+
+	// Special panel for prisoner management.
+	private PanelCaptives panelCaptives;
+
 	// debugging
 	transient private final ShapeRenderer sr;
 	public float losSquared;
@@ -292,6 +297,12 @@ public class ArmyPlayer extends Army {
 			}
 		}
 		return false;
+	}
+
+	public PanelCaptives getPanelCaptives() {
+		if (party.getPrisoners() == null) throw new AssertionError();
+		if (panelCaptives == null) panelCaptives = new PanelCaptives(SidePanel.sidePanel, this.party);
+		return panelCaptives;
 	}
 	
 	public void attack(Army army) {

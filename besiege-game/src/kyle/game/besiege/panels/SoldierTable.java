@@ -162,6 +162,7 @@ public class SoldierTable extends Table {
 //		soldierTable.padLeft(MINI_PAD).padRight(MINI_PAD);
 //		soldierTable.add(garrisonC).colspan(2);
 		soldierTable.row();
+//		System.out.println("updating soldierTable");
 		if (party == null) {
 		    if (consolidatedKilled != null || consolidatedWounded != null) {
                 updateForPostBattle(consolidatedWounded, consolidatedKilled, ls);
@@ -171,14 +172,17 @@ public class SoldierTable extends Table {
 
                 soldierTable.row();
             }
-		}
-		else if (party.getTotalSize() == 0) {
+//            System.out.println("party is null");
+        }
+		else if ((!captivesPanel && party.getTotalSize() == 0) || (captivesPanel && party.getPrisoners().size == 0)) {
 			noTroopsC.setAlignment(Align.center);
 			soldierTable.add(noTroopsC).colspan(2).center().width(SidePanel.WIDTH - PAD*2);
 			soldierTable.row();
-		}
+//            System.out.println("using notroopsC");
+        }
 		else {
-			updateWithParty(party, ls, lsG);
+//            System.out.println("updating for party");
+            updateWithParty(party, ls, lsG);
         }
 	}
 

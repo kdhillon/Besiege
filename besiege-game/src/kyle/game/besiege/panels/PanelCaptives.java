@@ -18,6 +18,7 @@ import com.esotericsoftware.tablelayout.Cell;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.location.Location;
+import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.SoldierLabel;
 
@@ -30,7 +31,7 @@ public class PanelCaptives extends Panel {
     private final float MINI_PAD = 5;
     private final float DESC_HEIGHT = 300;
     private SidePanel panel;
-    public Location location;
+    public Party party;
 
     private TopTable topTable;
 
@@ -45,9 +46,9 @@ public class PanelCaptives extends Panel {
 
 //    private Soldier selected;
 
-    public PanelCaptives(SidePanel panel, Location location) {
+    public PanelCaptives(SidePanel panel, Party party) {
         this.panel = panel;
-        this.location = location;
+        this.party = party;
         this.addParentPanel(panel);
 
         LabelStyle lsBig = new LabelStyle();
@@ -64,18 +65,7 @@ public class PanelCaptives extends Panel {
         lsG.fontColor = Color.GRAY;
 
         topTable = new TopTable();
-        topTable.updateTitle("Warrior Volunteers", new InputListener() {
-            public boolean touchDown(InputEvent event, float x,
-                                     float y, int pointer, int button) {
-                return true;
-            }
-
-            public void touchUp(InputEvent event, float x, float y,
-                                int pointer, int button) {
-                centerCamera();
-            }
-        });
-        topTable.addSubtitle("locationname", location.getName(), new InputListener() {
+        topTable.updateTitle("Captives", new InputListener() {
             public boolean touchDown(InputEvent event, float x,
                                      float y, int pointer, int button) {
                 return true;
@@ -90,7 +80,7 @@ public class PanelCaptives extends Panel {
         topTable.addBigLabel("PartySize", "Party Size:");
         topTable.addBigLabel("PartyWealth", "Party Wealth:");
 
-        soldierTable = new CaptivesSoldierTable(location.toHire, this);
+        soldierTable = new CaptivesSoldierTable(party, this);
 
         topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
         updateSoldierTable();
@@ -100,12 +90,12 @@ public class PanelCaptives extends Panel {
         topTable.padLeft(MINI_PAD);
         this.addTopTable(topTable);
 
-        this.setButton(1, "Hire");
+        this.setButton(1, "Sell");
         hideButton(1);
 
-        this.setButton(2, "Hire All");
-        getButton(2).setTouchable(Touchable.disabled);
-        getButton(2).setVisible(false);
+        this.setButton(2, "Sacrifice");
+        hideButton(2);
+
 
         this.setButton(4, "Back");
 
@@ -160,8 +150,9 @@ public class PanelCaptives extends Panel {
 
     private void centerCamera() {
         Camera camera = panel.getKingdom().getMapScreen().getCamera();
+        panel.getKingdom().getMapScreen().center();
 //		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
-        camera.translate(new Vector3(location.getCenterX() - camera.position.x, location.getCenterY() - camera.position.y, 0));
+//        camera.translate(new Vector3(.getCenterX() - camera.position.x, location.getCenterY() - camera.position.y, 0));
     }
 
     @Override
@@ -176,16 +167,17 @@ public class PanelCaptives extends Panel {
     }
 
     private void updateSoldierTable() {
-        if (location.getToHire() == null) {
-            System.out.println("To hire at : " + location.getName() + " is null");
+        if (party.getPrisoners() == null) {
+            System.out.println("Prisoners is null");
         }
-        System.out.println("people in location: " + location.getToHire().getTotalSize());
+        System.out.println("prisoners remaining: " + party.getPrisoners().size);
         soldierTable.update();
     }
 
     // This soldier was selected by the soldiertable
     public void notifySelect(Soldier s) {
         showButton(1);
+        showButton(2);
     }
 
 //    public void select(Soldier s) {
@@ -206,32 +198,32 @@ public class PanelCaptives extends Panel {
 //        updateSoldierTable();
 //    }
 
-    private void hire(Soldier s) {
-        if (location.hire(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
-            String name = s.getTypeName();
-            BottomPanel.log("Hired " + name);
-            hideButton(1);
-            soldierTable.notifySelectedSoldierRemoved();
-        } else if (panel.getKingdom().getPlayer().getParty().isFull()) {
-            BottomPanel.log("Can't hire " + s.getTypeName() + ". Party is full.");
-        } else {
-            BottomPanel.log("Can't afford " + s.getTypeName());
-        }
+    private void sell(Soldier s) {
+//        if (party.sell(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
+//            String name = s.getTypeName();
+//            BottomPanel.log("Hired " + name);
+//            hideButton(1);
+//            soldierTable.notifySelectedSoldierRemoved();
+//        } else if (panel.getKingdom().getPlayer().getParty().isFull()) {
+//            BottomPanel.log("Can't hire " + s.getTypeName() + ". Party is full.");
+//        } else {
+//            BottomPanel.log("Can't afford " + s.getTypeName());
+//        }
+        System.out.println("selling captive: " + s.getName());
     }
 
-    public void hireSelected() {
+    public void sellSelected() {
         if (soldierTable.selected != null) {
-            hire(soldierTable.selected);
+            sell(soldierTable.selected);
             updateSoldierTable();
         }
     }
 
-    public void hireAll() { //Fixed iterator problem
-        location.getToHire().getHealthy().shrink();
-        Array<Soldier> soldiers = location.getToHire().getHealthyCopy();
-        soldiers.reverse(); // cheapest first!
+    public void sellAll() { //Fixed iterator problem
+        party.getPrisoners().shrink();
+        Array<Soldier> soldiers = party.getPrisoners(); // TODO needs to be a copy?
         for (Soldier s : soldiers) {
-            hire(s);
+            sell(s);
         }
         updateSoldierTable();
     }
@@ -240,8 +232,8 @@ public class PanelCaptives extends Panel {
     public void resize() { // problem with getting scroll bar to appear...
         Cell cell = topTable.getCell(soldierTable);
         cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-        soldierTable = new CaptivesSoldierTable(location.getToHire(), this);
-        location.needsUpdate = true;
+        soldierTable = new CaptivesSoldierTable(party, this);
+//        party.needsUpdate = true;
         soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
         cell.setWidget(soldierTable);
         updateSoldierTable();
@@ -251,20 +243,21 @@ public class PanelCaptives extends Panel {
 
     @Override
     public void button1() {
-        if (getButton(1).isVisible())
-            hireSelected();
+        if (getButton(1).isVisible()) {
+            sellSelected();
+        }
     }
 
     @Override
     public void button2() {
         if (getButton(2).isVisible())
-            hireAll();
+            System.out.println("sacrificing captive");
     }
 
     @Override
     public Crest getCrest() {
         if (soldierTable.selected == null)
-            return location.getFaction().crest;
+            return party.getFaction().crest;
         else return null;
     }
 

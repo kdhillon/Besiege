@@ -138,7 +138,8 @@ public class PanelLocation extends Panel {
                 else setButton(1, "Besiege");
             }
             setButton(2, "Withdraw");
-            setButton(4, null);
+			setButton(3, null);
+			setButton(4, null);
             playerTouched = true;
         }
         // hostile player leaves
@@ -146,7 +147,8 @@ public class PanelLocation extends Panel {
         else if (!location.hostilePlayerTouched && playerTouched && !location.playerBesieging) {
             setButton(1, null);
             setButton(2, null);
-            setButton(4, "Back");
+			setButton(3, null);
+			setButton(4, "Back");
 			sidePanel.setHardStay(false);
 			sidePanel.setDefault(false);
             // Player just left, reset the buttons
@@ -155,13 +157,15 @@ public class PanelLocation extends Panel {
             // turn on siegeOrRaid panel
             setButton(1, "Charge!");
             setButton(2, "Wait");
-            setButton(4, "Withdraw");
+			setButton(3, null);
+			setButton(4, "Withdraw");
             playerBesieging = true;
 //			System.out.println("siegeOrRaid panel on");
         } else if (!location.playerBesieging && playerBesieging) {
             // turn off siegeOrRaid panel
             setButton(1, null);
             setButton(2, null);
+			setButton(3, null);
             setButton(4, "Back");
             playerBesieging = false;
 //			System.out.println("siegeOrRaid panel off");
@@ -174,13 +178,18 @@ public class PanelLocation extends Panel {
             playerIn = true;
 			if (this.panelHire == null && !this.location.isRuin())
 				this.panelHire = new PanelHire(panel, location);
+			if (location.getKingdom().getPlayer().getPanelCaptives() != null) {
+//				this.panelHire = new PanelHire(panel, location);
+				setButton(3, "Captives");
+			}
         }
         // friendly player leaves
         else if (!location.playerIn && playerIn) {
         	System.out.println("friendly player leavin, setting buttons to null");
             setButton(1, null);
             setButton(2, null);
-            playerIn = false;
+			setButton(3, null);
+			playerIn = false;
         }
         // if hostile player is waiting at a siegeOrRaid
         else if (location.playerBesieging && playerBesieging) {
@@ -188,7 +197,8 @@ public class PanelLocation extends Panel {
             if (location.playerWaiting && playerWaiting) {
                 setButton(1, null);
                 setButton(2, null);
-                setButton(4, "Stop");
+				setButton(3, null);
+				setButton(4, "Stop");
                 playerWaiting = false;
 //				System.out.println("setting to null");
             }
@@ -196,7 +206,8 @@ public class PanelLocation extends Panel {
             else if (!location.playerWaiting && !playerWaiting) {
                 setButton(1, "Charge!");
                 setButton(2, "Wait");
-                setButton(4, "Withdraw");
+				setButton(3, null);
+				setButton(4, "Withdraw");
                 playerWaiting = true;
 //				System.out.println("setting to rest");
             }
@@ -208,13 +219,13 @@ public class PanelLocation extends Panel {
 			//start Wait
             if (location.playerWaiting && playerWaiting) {
                 setButton(1, null);
-                setButton(4, "Stop");
+				setButton(4, "Stop");
                 playerWaiting = false;
             }
             //stop Wait
             else if (!location.playerWaiting && !playerWaiting) {
                 setButton(1, "Rest");
-                setButton(4, "Back");
+				setButton(4, "Back");
                 playerWaiting = true;
             }
         }
@@ -374,7 +385,11 @@ public class PanelLocation extends Panel {
 	}
 	@Override
 	public void button3() {
-		
+		if (this.getButton(3).isVisible()) {
+			if (playerIn) {
+				panel.setActive(location.getKingdom().getPlayer().getPanelCaptives());
+			} else throw new AssertionError();
+		}
 	}
 	@Override
 	public void button4() {
