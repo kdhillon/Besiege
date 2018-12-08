@@ -42,13 +42,13 @@ public class SoldierTable extends Table {
     private static final String EXPAND = " v";
     private static final String COLLAPSE = " ^";
 
-
     public Soldier selected;
     public Soldier nextToSelect; // everytime you select a soldier, figure out which one you should select next if the soldier is hired.
 
     private StrictArray<SoldierLabel> soldierLabels;
 
     public boolean hirePanel;
+    public boolean captivesPanel; // similar to hire panel, but slightly different.
     public boolean selectable;
 
     // Flip-flop logic
@@ -222,6 +222,12 @@ public class SoldierTable extends Table {
 
 	// Currently the vertical size is too big, maybe because height isn't properly set?
 	private void updateWithParty(Party party, LabelStyle style, LabelStyle wounded) {
+        // Special case for captive panel.
+        if (captivesPanel) {
+            updateTableWithTypes(party.getConsolPrisoners(), style);
+            return;
+        }
+
 //		System.out.println("starting panelparty update: " + party.getName() + " with " + party.subparties.size + " subparties");
 		for (final Subparty s : party.subparties) {
 		    BattleSubParty bsp = getBspForSubparty(s);
@@ -345,7 +351,7 @@ public class SoldierTable extends Table {
                 expand.row();
                 expand.padBottom(-PanelUnit.NEG);
 
-                if (hirePanel) {
+                if (hirePanel || captivesPanel) {
                     name.clearExpand();
                     name.createExpand();
                     name.expanded = true;
@@ -557,7 +563,7 @@ public class SoldierTable extends Table {
 
         soldierTable.row();
         float indent = DEFAULT_INDENT;
-        if (hirePanel) indent = 0;
+        if (hirePanel || captivesPanel) indent = 0;
 
         soldierTable.add(label.expand).expandX().left().padLeft(indent).colspan(2).fillX();
         soldierTable.row();
@@ -572,7 +578,7 @@ public class SoldierTable extends Table {
 		//		table.debug();
 		for (StrictArray<Soldier> type : types) {
             float indent = DEFAULT_INDENT;
-            if (hirePanel) indent = 0;
+            if (hirePanel || captivesPanel) indent = 0;
 
             Label count = new Label(type.size + "", style);
             count.setColor(type.first().unitType.cultureType.colorLite);
@@ -589,7 +595,7 @@ public class SoldierTable extends Table {
             soldierTable.row();
 			name.expand.padBottom(-PanelUnit.NEG);
 
-			if (hirePanel) {
+			if (hirePanel || captivesPanel) {
 			    name.clearExpand();
                 name.createExpand();
                 name.expanded = true;
