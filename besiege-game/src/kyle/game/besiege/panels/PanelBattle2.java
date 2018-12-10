@@ -195,6 +195,16 @@ public class PanelBattle2 extends Panel {
         if (battle.getDefendingParties() != null)
             actForPartyList(battle.getDefendingParties(), defenderSoldierTables, topTableDefenders);
 
+        if (battleStage != null) {
+            if (battleStage.playerAttacking() || battleStage.playerDefending()) {
+                if (!battleStage.placementPhase) {
+                    battleStage.updateRetreatButtons(this, null);
+                    battleStage.updateChargeButton(this);
+                }
+            }
+        }
+
+
         super.act(delta);
     }
 
@@ -214,6 +224,7 @@ public class PanelBattle2 extends Panel {
         for (int i = 0; i < attackerSoldierTables.size; i++) {
             Cell cell = topTableAttackers.getCell(attackerSoldierTables.get(i));
 //            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+            if (battle.getAttackingParties() == null) throw new AssertionError();
             SoldierTable newTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
             attackerSoldierTables.set(i, newTable);
             newTable.update();
@@ -237,23 +248,7 @@ public class PanelBattle2 extends Panel {
 
     @Override
     public void button1() {
-        if (getButton(1).isVisible()) {
-            // TODO make this the same as panel unit for retreating.
-            if (battleStage == null) {
-                // battle.retreat(sidePanel.getKingdom().getPlayer());
-                return;
-            }
-            else {
-                if (battleStage.placementPhase) {
-//					this.battleStage.toNextFormation();
-                }
-                else {
-                    battleStage.placementPhase = false;
-                    battleStage.tryToRetreatAll(true);
-                    getButton(1).setDisabled(true);
-                }
-            }
-        }
+        if (battleStage != null) battleStage.retreatButton(this);
     }
 
     @Override
@@ -277,11 +272,14 @@ public class PanelBattle2 extends Panel {
     }
     @Override
     public void button3() {
-//		if (this.getButton(3).isVisible()) {
+		if (this.getButton(3).isVisible()) {
 //			if (playerPartyPanel == panel.getKingdom().getPlayer().getParty()) {
 ////				panel.setActive(panel.character);
 //			}
-//		}
+            if (battleStage != null) {
+                battleStage.chargeAllButton(this);
+            }
+		}
     }
     @Override
     public void button4() {

@@ -8,7 +8,7 @@ public class CaptivesSoldierTable extends SoldierTable {
     private PanelCaptives panelCaptives;
 
     public CaptivesSoldierTable(Party party, PanelCaptives panelCaptives) {
-        super(party);
+        super(panelCaptives, party);
         captivesPanel = true;
         selectable = true;
         this.panelCaptives = panelCaptives;

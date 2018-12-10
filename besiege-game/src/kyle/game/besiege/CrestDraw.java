@@ -33,11 +33,16 @@ public class CrestDraw extends Actor {
 	public CrestDraw(Destination destination) {
 		this.destination = destination;
 //		if (destination.getFaction() != null)
-//			this.parentCrestForSidepanel = destination.getFaction().crest;
+//			this.parentCrestForSidepanel 	= destination.getFaction().crest;
 		calcSize();
 //		this.setPosition(destination.getCenterX() - this.getWidth()/2, 0.7f);
-		if (getLocation() != null || getArmy() != null)
-			this.addListener(getNewInputListener());
+		if (getLocation() != null) {
+			this.addListener(getLocation().getListeners().first());
+		} else if (getArmy() != null) {
+			this.addListener(getArmy().getListeners().first());
+		}
+//		getArmy() != null)
+//			this.addListener(getNewInputListener());
 		else throw new AssertionError();
 	}
 
@@ -138,47 +143,47 @@ public class CrestDraw extends Actor {
 		batch.setColor(orig);
 		super.draw(batch, parentAlpha);
 	}
-
-	public InputListener getNewInputListener() {
-		return new InputListener() {
-			@Override
-			public void touchUp(InputEvent event, float x, float y,
-								int pointer, int button) {
-				boolean touchdown = true;
-				//do your stuff
-				//it will work when finger is released..
-				System.out.println("Touched up " + getName());
-			}
-
-			@Override
-			public boolean touchDown(InputEvent event, float x, float y,
-									 int pointer, int button) {
-				boolean touchdown = false;
-				//do your stuff it will work when u touched your actor
-				return true;
-			}
-
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				System.out.println("Mousing over " + getName());
-				System.out.println("Setting panel crest! " + getName());
-				Army army = getArmy();
-				Location location = getLocation();
-				if (location != null) location.getKingdom().setPanelTo(location);
-				else if (army != null) army.getKingdom().setPanelTo(army);
-				else throw new AssertionError();
-			}
-
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				System.out.println("returning to previous (crest)");
-				Army army = getArmy();
-				if (army != null)
-					army.getKingdom().mouseOverCurrentPoint();
-				Location loc = getLocation();
-				if (loc != null)
-					loc.getKingdom().mouseOverCurrentPoint();
-			}
-		};
-	}
+//
+//	public InputListener getNewInputListener() {
+//		return new InputListener() {
+//			@Override
+//			public void touchUp(InputEvent event, float x, float y,
+//								int pointer, int button) {
+//				boolean touchdown = true;
+//				//do your stuff
+//				//it will work when finger is released..
+//				System.out.println("Touched up " + getName());
+//			}
+//
+//			@Override
+//			public boolean touchDown(InputEvent event, float x, float y,
+//									 int pointer, int button) {
+//				boolean touchdown = false;
+//				//do your stuff it will work when u touched your actor
+//				return true;
+//			}
+//
+//			@Override
+//			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+//				System.out.println("Mousing over " + getName());
+//				System.out.println("Setting panel crest! " + getName());
+//				Army army = getArmy();
+//				Location location = getLocation();
+//				if (location != null) location.getKingdom().setPanelTo(location);
+//				else if (army != null) army.getKingdom().setPanelTo(army);
+//				else throw new AssertionError();
+//			}
+//
+//			@Override
+//			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+//				System.out.println("returning to previous (crest)");
+//				Army army = getArmy();
+//				if (army != null)
+//					army.getKingdom().mouseOverCurrentPoint();
+//				Location loc = getLocation();
+//				if (loc != null)
+//					loc.getKingdom().mouseOverCurrentPoint();
+//			}
+//		};
+//	}
 }

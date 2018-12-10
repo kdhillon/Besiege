@@ -120,7 +120,10 @@ public class BattleParty {
     }
 
 	public void tryToRetreatAll() {
-	    if (!canRetreat()) return;
+	    if (!canRetreat()) {
+	    	System.out.println("player can't retreat!!");
+	    	return;
+		}
 
 		for (BattleSubParty s : subparties) {
 			s.retreat();

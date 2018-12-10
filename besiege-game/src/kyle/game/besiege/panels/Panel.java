@@ -65,10 +65,17 @@ public class Panel extends Group {
 
 	private Array<Button> buttonArray;
 
-	private Button b1;
-	private Button b2;
-	private Button b3;
-	private Button b4;
+	private MyButton b1;
+	private MyButton b2;
+	private MyButton b3;
+	private MyButton b4;
+
+	private class MyButton extends Button {
+		public Label label;
+		public MyButton(ButtonStyle ls) {
+			super(ls);
+		}
+	}
 
 	private LabelStyle ls17;
 	private LabelStyle ls12;
@@ -103,14 +110,14 @@ public class Panel extends Group {
 		buttons.setX(SidePanel.WIDTH / 2);
 		buttons.setY(BUTTONS_HEIGHT);
 		buttons.add().colspan(2).width((SidePanel.WIDTH - PAD * 2));
-		b1 = new Button(bs);
-		b2 = new Button(bs);
-		b3 = new Button(bs);
-		b4 = new Button(bs);
-		b1.setVisible(false);
-		b2.setVisible(false);
-		b3.setVisible(false);
-		b4.setVisible(false);
+		b1 = new MyButton(bs);
+		b2 = new MyButton(bs);
+		b3 = new MyButton(bs);
+		b4 = new MyButton(bs);
+		initializeButton(1);
+		initializeButton(2);
+		initializeButton(3);
+		initializeButton(4);
 		buttons.row();
 		buttons.add(b1);
 		buttons.add(b2);
@@ -140,81 +147,96 @@ public class Panel extends Group {
 	}
 
 	public void setButton(int bc, String name) {
-		Button b;
+		MyButton b;
+		if (bc == 1) b = b1;
+		else if (bc == 2) b = b2;
+		else if (bc == 3) b = b3;
+		else b = b4;
+
+		if (name == null) {
+//			b.clearChildren();
+			b.setVisible(false);
+			System.out.println("setting button " + bc + " to null");
+		}
+		else {
+			System.out.println("setting text of button " + bc + " to " + name);
+			b.setVisible(true);
+			b.label.setText(name);
+		}
+	}
+
+	public void initializeButton(int bc) {
+		MyButton b;
 		if (bc == 1) b = b1;
 		else if (bc == 2) b = b2; 
 		else if (bc == 3) b = b3;
 		else b = b4;
-		System.out.println("setting button: " + name);
 
-		if (name == null) {
-			b.clearChildren();
-			b.setVisible(false);
-		} 
-		else {
-			Label label = new Label(name, ls17);
-			b.clearChildren();
-			b.add(label);
-			b.setVisible(true);
+		Label label = new Label("", ls17);
+		b.clearChildren();
+		b.add(label);
+		b.label = label;
+		b.setVisible(false);
 //			System.out.println("setting button: " + name);
-			// can simplify if make button1() button2() etc into one method with int argument
-			if (bc == 1) {
-				b1.clearListeners();
-				b1.addListener(new InputListener() {
-					public boolean touchDown(InputEvent event, float x,
-							float y, int pointer, int button) {
-						System.out.println("touchdown b1");
-						return true;
-					}
-					public void touchUp(InputEvent event, float x, float y,
-							int pointer, int button) {
-						System.out.println("clicking b1");
-						sidePanel.press(1);
-					}
-				});
-			} 
-			else if (bc == 2) {
-				b2.clearListeners();
-				b2.addListener(new InputListener() {
-					public boolean touchDown(InputEvent event, float x,
-							float y, int pointer, int button) {
-						return true;
-					}
+		// can simplify if make button1() button2() etc into one method with
+		// int argument
+		if (bc == 1) {
+			b1.clearListeners();
+			b1.addListener(new InputListener() {
+				public boolean touchDown(InputEvent event, float x,
+										 float y, int pointer, int button) {
+					System.out.println("touchdown b1");
+					return true;
+				}
 
-					public void touchUp(InputEvent event, float x, float y,
-							int pointer, int button) {
-						sidePanel.press(2);
-					}
-				});
-			} else if (bc == 3) {
-				b3.clearListeners();
-				b3.addListener(new InputListener() {
-					public boolean touchDown(InputEvent event, float x,
-							float y, int pointer, int button) {
-						return true;
-					}
+				public void touchUp(InputEvent event, float x, float y,
+									int pointer, int button) {
+					System.out.println("clicking b1");
+					sidePanel.press(1);
+				}
+			});
+		} else if (bc == 2) {
+			b2.clearListeners();
+			b2.addListener(new InputListener() {
+				public boolean touchDown(InputEvent event, float x,
+										 float y, int pointer, int button) {
+					return true;
+				}
 
-					public void touchUp(InputEvent event, float x, float y,
-							int pointer, int button) {
-						sidePanel.press(3);
-					}
-				});
-			} else if (bc == 4) {
-				b4.clearListeners();
-				b4.addListener(new InputListener() {
-					public boolean touchDown(InputEvent event, float x,
-							float y, int pointer, int button) {
-						return true;
-					}
+				public void touchUp(InputEvent event, float x, float y,
+									int pointer, int button) {
+					sidePanel.press(2);
+				}
+			});
+		} else if (bc == 3) {
+			b3.clearListeners();
+			b3.addListener(new InputListener() {
+				public boolean touchDown(InputEvent event, float x,
+										 float y, int pointer, int button) {
+					return true;
+				}
 
-					public void touchUp(InputEvent event, float x, float y,
-							int pointer, int button) {
-						sidePanel.press(4);
-					}
-				});
-			} else
-				System.out.println("you done f***ed up");
-		}
+				public void touchUp(InputEvent event, float x, float y,
+									int pointer, int button) {
+					sidePanel.press(3);
+				}
+			});
+		} else if (bc == 4) {
+			b4.clearListeners();
+			b4.addListener(new InputListener() {
+				public boolean touchDown(InputEvent event, float x,
+										 float y, int pointer, int button) {
+					return true;
+				}
+
+				public void touchUp(InputEvent event, float x, float y,
+									int pointer, int button) {
+					sidePanel.press(4);
+				}
+			});
+		} else
+			System.out.println("you done f***ed up");
+
 	}
 
 	@Override

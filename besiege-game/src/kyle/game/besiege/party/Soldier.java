@@ -33,7 +33,8 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	private static final int INITIAL_NEXT = 20;
 	private static final float HEAL_TIME = 120; // seconds
 	public static final short MAX_LEVEL = 30;
-	private static final double COST_FACTOR = 2; // 
+	private static final double COST_FACTOR = 2; //
+	private static final double SELL_FACTOR = 3; // This * level is the sell price of this unit.
 	private static final double UPGRADE_FACTOR = 2;
 	private static final int BASE_HP = 15;
 	private static final int BASE_SPEED = 4;
@@ -689,7 +690,11 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		if (this.getTier() <= 2) return 0;
 		return (int) (this.level * UPGRADE_FACTOR);
 	}
-	
+
+	public int getSellPrice() {
+		return (int) (this.level * SELL_FACTOR);
+	}
+
 	public int getHireCost() {
 //		return 0;
 		// For now, allow free basic soldiers.

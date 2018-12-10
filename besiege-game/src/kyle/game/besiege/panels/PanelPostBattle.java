@@ -104,7 +104,7 @@ public class PanelPostBattle extends Panel {
         StrictArray<StrictArray<Soldier>> consolidatedKilled = Party.getConsol(vm.getKilledSoldiersIn(p), true);
         StrictArray<StrictArray<Soldier>> consolidatedKWounded = Party.getConsol(vm.getWoundedSoldiersIn(p), true);
 
-        SoldierTable soldierTable = new SoldierTable(null, true, battleStage, consolidatedKWounded, consolidatedKilled);
+        SoldierTable soldierTable = new SoldierTable(this, null, true, battleStage, consolidatedKWounded, consolidatedKilled);
         parties.first().updated = true;
         table.add(soldierTable).colspan(4).top().padTop(0).expandY();
         soldierTables.add(soldierTable);

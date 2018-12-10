@@ -212,8 +212,6 @@ public class Location extends Group implements Destination {
 		this.addActor(crestDraw);
 	}
 
-
-
 	private InputListener getNewInputListener() {
 		return new InputListener() {
 			@Override
@@ -235,9 +233,20 @@ public class Location extends Group implements Destination {
 
 			@Override
 			public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
-				System.out.println("Mousing over " + getName());
-				System.out.println("Setting panel! " + getName());
-				kingdom.setPanelTo((Location) event.getListenerActor());
+				Location location;
+				if (event.getListenerActor() instanceof Location) {
+					location = (Location) event.getListenerActor();
+				}
+				else {
+					location = (Location) (((CrestDraw) event.getListenerActor()).destination);
+				}
+
+				// This is also added to the CREST -- so we need to account for that.
+				if (location.inFog()) return;
+				System.out.println("Mousing over " + location.getName());
+				System.out.println("Setting panel! " + location.getName());
+				kingdom.setPanelTo(location);
+				kingdom.setMousedOver(location);
 			}
 			@Override
 			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -712,6 +721,7 @@ public class Location extends Group implements Destination {
 	}
 
 	public void setDiscovered() {
+		System.out.println("Discovering: " + this.getName());
         discovered = true;
     }
 
@@ -732,7 +742,9 @@ public class Location extends Group implements Destination {
 
 
 	public boolean inFog() {
-        if (!discovered && kingdom.getMapScreen().fogOn) return true;
+        if (!discovered && kingdom.getMapScreen().fogOn) {
+        	return true;
+		}
         return false;
     }
 	

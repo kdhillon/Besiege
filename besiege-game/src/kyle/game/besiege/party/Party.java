@@ -296,14 +296,31 @@ public class Party {
 
 		if (s.getTotalSize() == 0) throw new AssertionError();
 	}
-	
+
+	public void sellPrisoner(Soldier s) {
+		System.out.println("selling captive: " + s.getTypeName());
+		int sellPrice = s.getSellPrice();
+		BottomPanel.log("Sold " + s.getTypeName() + " for " + sellPrice);
+		removePrisoner(s);
+		this.army.changeWealth(sellPrice);
+	}
+
 	public void removeSoldier(Soldier soldier) {
 		for (Subparty p : subparties) {
 			p.removeSoldier(soldier);
 		}
 	}
 
+	public void removePrisoner(Soldier soldier) {
+		if (!prisoners.contains(soldier, true)) throw new AssertionError();
+		prisoners.removeValue(soldier, true);
+	}
+
 	public void addPrisoner(Soldier soldier) {
+		if (soldier.isShaman() || soldier.isGeneral()) {
+			return; // TODO should we allow you to capture shamans? I like the idea of shamans not being able to be captured.
+		}
+
 		updated = true;
 		soldier.timesCaptured++;
 		prisoners.add(soldier);

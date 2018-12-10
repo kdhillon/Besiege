@@ -897,6 +897,7 @@ public class Unit extends Group {
 		return false;
 	}
 
+	// Is the soldier a general or subcommander
 	public boolean isGeneral() {
 		return soldier.isGeneral();
 	}

@@ -268,7 +268,9 @@ public class SidePanel extends Group {
 			setActiveBattle(mapScreen.battle);
 		else {
             setActive(playerPartyPanel); // can change
+			playerPartyPanel.deselect();
             kingdom.currentPanel = getPlayer();
+            previousPanel = null;
         }
 	}
 

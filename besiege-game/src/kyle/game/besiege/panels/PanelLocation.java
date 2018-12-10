@@ -96,7 +96,7 @@ public class PanelLocation extends Panel {
 		topTable.addSmallLabel("Pop", "Pop:");
 		topTable.addSmallLabel("Wealth", "Wealth:");
 
-		SoldierTable soldierTable = new SoldierTable(location.getParty());
+		SoldierTable soldierTable = new SoldierTable(this, location.getParty());
 		topTable.row();
 		topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
 		topTable.row();
@@ -105,7 +105,7 @@ public class PanelLocation extends Panel {
 
 		for (Army a : location.getGarrisoned()) {
 			if (a.passive) continue;
-			SoldierTable st = new SoldierTable(a.getParty());
+			SoldierTable st = new SoldierTable(this, a.getParty());
 			topTable.add(st).colspan(4).top().padTop(MINI_PAD).expandY();
 			topTable.row();
 			garrisonedTables.put(a.getParty(), st);
@@ -133,7 +133,7 @@ public class PanelLocation extends Panel {
                     setButton(1, "Continue Raid");
                 else setButton(1, "Resume Siege");
             } else if (!location.underSiege()) {
-                if (location.isVillage())
+                if (location.isVillage() && !((Village) location).raided())
                     setButton(1, "Raid");
                 else setButton(1, "Besiege");
             }
@@ -315,7 +315,7 @@ public class PanelLocation extends Panel {
 
 			Cell cell = topTable.getCell(soldierTable);
 //			cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-			soldierTable = new SoldierTable(p);
+			soldierTable = new SoldierTable(this, p);
 //			soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
 			cell.setWidget(soldierTable);
 			garrisonedTables.put(p, soldierTable);
@@ -387,6 +387,7 @@ public class PanelLocation extends Panel {
 	public void button3() {
 		if (this.getButton(3).isVisible()) {
 			if (playerIn) {
+				location.getKingdom().getPlayer().getPanelCaptives().updateSoldierTable();
 				panel.setActive(location.getKingdom().getPlayer().getPanelCaptives());
 			} else throw new AssertionError();
 		}

@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import kyle.game.besiege.*;
 import kyle.game.besiege.Destination.DestType;
 import kyle.game.besiege.army.Army;
@@ -21,6 +23,46 @@ public class BattleActor extends Actor implements Destination {
 	private Kingdom kingdom;
 	private Siege siege; // only if a siegeOrRaid
 
+	private InputListener getNewInputListener() {
+		return new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y,
+								int pointer, int button) {
+				boolean touchdown=true;
+				//do your stuff
+				//it will work when finger is released..
+				System.out.println("Touched up " + getName());
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y,
+									 int pointer, int button) {
+				boolean touchdown=false;
+				//do your stuff it will work when u touched your actor
+				return true;
+			}
+
+			@Override
+			public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
+				BattleActor battle = (BattleActor) event.getListenerActor();
+				if (!kingdom.getPlayer().hasVisibilityOf(battle)) return;
+
+				System.out.println("Mousing over " + getName());
+				System.out.println("Setting panel! " + getName());
+				kingdom.setPanelTo(battle);
+				kingdom.setMousedOver(battle);
+			}
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				BattleActor battle = (BattleActor) event.getListenerActor();
+				if (!kingdom.getPlayer().hasVisibilityOf(battle)) return;
+
+				System.out.println("returning to previous (exit)");
+				getKingdom().mouseOverCurrentPoint();
+			}
+		};
+	}
+
 	// For Kryo
 	public BattleActor() {}
 	
@@ -37,6 +79,7 @@ public class BattleActor extends Actor implements Destination {
 		this.setWidth(region.getRegionWidth()*getScaleX());
 		this.setHeight(region.getRegionHeight()*getScaleY());
 		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
+		this.addListener(getNewInputListener());
 	}
 	
 	@Override
@@ -49,7 +92,7 @@ public class BattleActor extends Actor implements Destination {
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		
 		// draw crests too?
-		if (kingdom.getMapScreen().losOn && Kingdom.distBetween(this, kingdom.getPlayer()) > kingdom.getPlayer().getLineOfSight()) return;
+		if (!kingdom.getPlayer().hasVisibilityOf(this)) return;
 		
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 				getWidth(), getHeight(), 1, 1, getRotation());

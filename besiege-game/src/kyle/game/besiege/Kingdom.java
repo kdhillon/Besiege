@@ -99,6 +99,7 @@ public class Kingdom extends Group {
 	public Destination currentPanel;
 
 	private boolean mouseOver; // is mouse over Kingdom screen?
+	private Destination currentDestMousedOver;
 	private boolean paused;
 
 	private boolean leftClicked;
@@ -227,13 +228,17 @@ public class Kingdom extends Group {
 		initialized = true;
 	}
 
+	public void setMousedOver(Destination dest) {
+		this.currentDestMousedOver = dest;
+	}
+
 	@Override
 	public void act(float delta) {
 		SoundPlayer.updateSounds(delta);
 		if (mouseOver) {
 			if (leftClicked) leftClick(mouse);
 			else if (rightClicked) rightClick(mouse);
-			else if (BesiegeMain.appType != 1) mouseOver(mouse);
+//			else if (BesiegeMain.appType != 1) mouseOver(mouse);
 		}
 
 		if (!paused) {
@@ -427,25 +432,26 @@ public class Kingdom extends Group {
 	public void mouseOverCurrentPoint() {
 		Destination d = new Point(mouse.getCenterX(), mouse.getCenterY());
 //		if (d.getType() == Destination.DestType.POINT)
-			this.setPanelTo(d);
+		this.setPanelTo(d);
+		currentDestMousedOver = null;
 //		else {
 //			System.out.println("Not mousing over a point!!");
 //		}
 
 	}
 
-	private void mouseOver(Point mouse) {
+//	private void mouseOver(Point mouse) {
 		// TODO deprecate the old way of "getDestAt()" using fixed distance, want player
 		// to be able to click crest of enemy and go there.
-		Destination d = getDestAt(mouse);
+//		Destination d = getDestAt(mouse);
 		//		if (d.getType() != 0)
 
 
 		// TODO I think this is only for battles now?
-		if (d.getType() != Destination.DestType.LOCATION && d.getType() != Destination.DestType.POINT && d.getType() != Destination.DestType.ARMY)
-			this.setPanelTo(d);
-		//			d.setMouseOver(true);
-	}
+//		if (d.getType() != Destination.DestType.LOCATION && d.getType() != Destination.DestType.POINT && d.getType() != Destination.DestType.ARMY)
+//			this.setPanelTo(d);
+//		//			d.setMouseOver(true);
+//	}
 
 	public void setPanelTo(Destination newPanel) {
 //				if (currentPanel == null) System.out.println("currentPanel is null");
@@ -583,44 +589,44 @@ public class Kingdom extends Group {
 	}
 
 	private Destination getDestAt(Point mouse) {
-		Destination dest = new Point(mouse.getCenterX(), mouse.getCenterY());
-		for (City city : cities) {
-		    if (getMapScreen().fogOn && !city.isDiscovered()) continue;
-			if (Kingdom.distBetween(city, mouse) <= LOCATION_MOUSE_DISTANCE * Location.getAdjustedZoom(this))
-				dest = city;
-		}
-		for (Village village : villages) {
-            if (getMapScreen().fogOn && !village.isDiscovered()) continue;
-            if (Kingdom.distBetween(village, mouse) <= LOCATION_MOUSE_DISTANCE)
-				dest = village;
-		}
-		for (Castle castle : castles) {
-            if (getMapScreen().fogOn && !castle.isDiscovered()) continue;
-            if (Kingdom.distBetween(castle, mouse) <= LOCATION_MOUSE_DISTANCE) {
-                dest = castle;
-            }
-		}
-		for (Ruin ruin : ruins) {
-            if (getMapScreen().fogOn && !ruin.isDiscovered()) continue;
-            if (Kingdom.distBetween(ruin, mouse) <= LOCATION_MOUSE_DISTANCE)
-				dest = ruin;
-		}
-		for (Army army : armies) {
-			if (army.isVisible() && Kingdom.distBetween(army, mouse) <= MOUSE_DISTANCE)
-				if (getMapScreen().losOn) {
-					if (Kingdom.distBetween(army, player) <= player.getLineOfSight())
-						dest = army;
-				}
-				else
-					dest = army;
-		}
-		for (BattleActor battle : battles) {
-			if (battle.isVisible() && Kingdom.distBetween(battle, mouse) <= MOUSE_DISTANCE) {
-				dest = battle;
-			}
-		}
+		if (currentDestMousedOver != null) return currentDestMousedOver;
+		return new Point(mouse.getCenterX(), mouse.getCenterY());
 
-		return dest;
+//		for (City city : cities) {
+//		    if (getMapScreen().fogOn && !city.isDiscovered()) continue;
+//			if (Kingdom.distBetween(city, mouse) <= LOCATION_MOUSE_DISTANCE * Location.getAdjustedZoom(this))
+//				dest = city;
+//		}
+//		for (Village village : villages) {
+//            if (getMapScreen().fogOn && !village.isDiscovered()) continue;
+//            if (Kingdom.distBetween(village, mouse) <= LOCATION_MOUSE_DISTANCE)
+//				dest = village;
+//		}
+//		for (Castle castle : castles) {
+//            if (getMapScreen().fogOn && !castle.isDiscovered()) continue;
+//            if (Kingdom.distBetween(castle, mouse) <= LOCATION_MOUSE_DISTANCE) {
+//                dest = castle;
+//            }
+//		}
+//		for (Ruin ruin : ruins) {
+//            if (getMapScreen().fogOn && !ruin.isDiscovered()) continue;
+//            if (Kingdom.distBetween(ruin, mouse) <= LOCATION_MOUSE_DISTANCE)
+//				dest = ruin;
+//		}
+//		for (Army army : armies) {
+//			if (army.isVisible() && Kingdom.distBetween(army, mouse) <= MOUSE_DISTANCE)
+//				if (getMapScreen().losOn) {
+//					if (Kingdom.distBetween(army, player) <= player.getLineOfSight())
+//						dest = army;
+//				}
+//				else
+//					dest = army;
+//		}
+//		for (BattleActor battle : battles) {
+//			if (battle.isVisible() && Kingdom.distBetween(battle, mouse) <= MOUSE_DISTANCE) {
+//				dest = battle;
+//			}
+//		}
 	}
 
 	@Override

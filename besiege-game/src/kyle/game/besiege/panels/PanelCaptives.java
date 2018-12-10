@@ -96,7 +96,6 @@ public class PanelCaptives extends Panel {
         this.setButton(2, "Sacrifice");
         hideButton(2);
 
-
         this.setButton(4, "Back");
 
 //
@@ -166,7 +165,7 @@ public class PanelCaptives extends Panel {
         super.act(delta);
     }
 
-    private void updateSoldierTable() {
+    public void updateSoldierTable() {
         if (party.getPrisoners() == null) {
             System.out.println("Prisoners is null");
         }
@@ -199,22 +198,26 @@ public class PanelCaptives extends Panel {
 //    }
 
     private void sell(Soldier s) {
-//        if (party.sell(panel.getKingdom().getPlayer().getParty(), s)) { // only if successfully hires
-//            String name = s.getTypeName();
-//            BottomPanel.log("Hired " + name);
-//            hideButton(1);
-//            soldierTable.notifySelectedSoldierRemoved();
-//        } else if (panel.getKingdom().getPlayer().getParty().isFull()) {
-//            BottomPanel.log("Can't hire " + s.getTypeName() + ". Party is full.");
-//        } else {
-//            BottomPanel.log("Can't afford " + s.getTypeName());
-//        }
-        System.out.println("selling captive: " + s.getName());
+        party.sellPrisoner(s);
+        hideButton(1);
+        soldierTable.notifySelectedSoldierRemoved();
     }
 
     public void sellSelected() {
         if (soldierTable.selected != null) {
             sell(soldierTable.selected);
+            updateSoldierTable();
+        }
+    }
+
+    private void sacrifice(Soldier s) {
+        System.out.println("sacrificing captive");
+        // TODO only allow this at cities with temples, and figure out what bonus will be.
+    }
+
+    public void sacrificeSelected() {
+        if (soldierTable.selected != null) {
+            sacrifice(soldierTable.selected);
             updateSoldierTable();
         }
     }
@@ -250,8 +253,9 @@ public class PanelCaptives extends Panel {
 
     @Override
     public void button2() {
-        if (getButton(2).isVisible())
-            System.out.println("sacrificing captive");
+        if (getButton(2).isVisible()) {
+            sacrificeSelected();
+        }
     }
 
     @Override

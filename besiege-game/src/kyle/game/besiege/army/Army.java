@@ -275,13 +275,24 @@ public class Army extends Group implements Destination {
 
             @Override
             public void enter(InputEvent event,  float x, float y, int pointer, Actor fromActor) {
+				// Only enter if visible
+				Army army;
+				if (event.getListenerActor() instanceof Army) {
+					army = (Army) event.getListenerActor();
+				}
+				else {
+					army = (Army) (((CrestDraw) event.getListenerActor()).destination);
+				}
+				if (army.inFog() || !kingdom.getPlayer().hasVisibilityOf(army)) return;
+
                 System.out.println("Mousing over " + getName());
                 System.out.println("Setting panel! " + getName());
-                kingdom.setPanelTo((Army) event.getListenerActor());
+                kingdom.setPanelTo(army);
+                kingdom.setMousedOver(army);
             }
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                System.out.println("returning to previous (exit)");
+				System.out.println("returning to previous (exit)");
                 getKingdom().mouseOverCurrentPoint();
             }
         };
@@ -1175,8 +1186,13 @@ public class Army extends Group implements Destination {
 		}
 	}
 
+	// Is the given battle visible to this guy
+	public boolean hasVisibilityOf(BattleActor battleActor) {
+		return (!kingdom.getMapScreen().losOn || Kingdom.distBetween(this, battleActor) < this.getLineOfSight());
+	}
+
 	// Is the given army visible to this guy
-	private boolean hasVisibilityOf(Army that) {
+	boolean hasVisibilityOf(Army that) {
 		if (that.isNonFriendlyAmbush(this)) return false;
 		if (that.isGarrisonedSafely()) return false;
 		if (that.isDestroyed()) return false;
@@ -1252,6 +1268,8 @@ public class Army extends Group implements Destination {
 	}
 
 	public boolean shouldRunFrom(Army that) {
+		return false;
+		/* todo removem
 		if (!this.isAtWar(that)) return false;
 		if (that.isGarrison) return false;
 		if (that.isGarrisoned()) return false;
@@ -1261,6 +1279,7 @@ public class Army extends Group implements Destination {
 		if (this.getTroopCount() < that.getTroopCount())
 			return true;
 		return false;
+		*/
 	}
 
 	public boolean shouldRepair() {

@@ -5,30 +5,18 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.MapScreen;
-import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.SoldierLabel;
-import kyle.game.besiege.party.Subparty;
 
 public class PanelParty extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
@@ -40,7 +28,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	private TopTable topTable;
 
-    private SoldierTable soldierTabl;
+    private SoldierTable soldierTable;
 
 	private LabelStyle ls;
 	private LabelStyle lsG;	// wounded
@@ -120,8 +108,8 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		topTable.addSmallLabel("Wealth", "Wealth:");
 		topTable.addSmallLabel("Spd", "Spd:");
 
-        soldierTabl = new SoldierTable(party);
-        topTable.add(soldierTabl).colspan(4).top().padTop(0).expandY();
+        soldierTable = new SoldierTable(this, party);
+        topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
 
         topTable.row();
 		topTable.add().colspan(4).padBottom(PAD);
@@ -189,7 +177,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		if (army != null) {
 			// don't call this every frame.
 			if (party.updated) {
-                soldierTabl.update();
+                soldierTable.update();
 				if (!army.isInBattle())
 					party.updated = false;
 			}
@@ -222,15 +210,28 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		army.getKingdom().getMapScreen().centerOn(army);
 	}
 
+	public void notifySelect(Soldier s) {
+		// a soldier was just selected
+		// Want to replace this toptable with the unit's toptable
+	}
+
+	public void notifyDeselect() {
+	}
+
 	@Override
 	public void resize() {
-        Cell cell = topTable.getCell(soldierTabl);
+		// TODO move soldier table out of top table, make soldiertable and toptable PEERs. use a new master table that is inside of scrollpane that holds toptable + soldiertable.
+        Cell cell = topTable.getCell(soldierTable);
         cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-        soldierTabl = new SoldierTable(party);
+        soldierTable = new SoldierTable(this, party);
         party.updated = true;
-        soldierTabl.setHeight(panel.getHeight() - DESC_HEIGHT);
-        cell.setWidget(soldierTabl);
+        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+        cell.setWidget(soldierTable);
         super.resize();
+	}
+
+	public void deselect() {
+		soldierTable.deselect();
 	}
 
 	@Override
@@ -279,5 +280,13 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	public Crest getCrest() {
 		if (army == null || army.getFaction() == null) return null;
 		return army.getFaction().crest;
+	}
+
+	@Override
+	public Soldier getSoldierInsteadOfCrest() {
+		if (soldierTable.selected != null) {
+			return soldierTable.selected;
+		}
+		return null;
 	}
 }

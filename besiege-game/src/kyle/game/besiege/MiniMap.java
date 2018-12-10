@@ -48,7 +48,7 @@ public class MiniMap extends Actor {
 //		this.setOrigin(panel.getOriginX() - getX(), panel.getOriginY() - getY()); // Buggy
 		//this.setKingdomRotation(panel.getKingdomRotation());
 //		batch.draw(Assets.map.findRegion("smallMap"), getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getKingdomRotation());
-		if (panel.getActiveCrest() != null) {
+		if (panel.getSoldierInstead() == null && panel.getActiveCrest() != null) {
 		    // TODO use "crestDraw"
             panel.getActiveCrest().defaultCrestDraw.setPosition(getX(), getY());
 			panel.getActiveCrest().defaultCrestDraw.setSize(getWidth(), getHeight());
@@ -56,13 +56,13 @@ public class MiniMap extends Actor {
 
 //			batch.draw(panel.getActiveCrest().defaultCrestDraw, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getKingdomRotation());
 		}
-		if (panel.getSecondCrest() != null)  {
+		if (panel.getSoldierInstead() == null && panel.getSecondCrest() != null)  {
 			System.out.println("ignoring second crest");
 //			batch.draw(panel.getSecondCrest(), getX()+getWidth()/2, getY(), getOriginX(), getOriginY(), getWidth()/2, getHeight(), 1, 1, getKingdomRotation());
 		}
 
 		/* draw unit preview */
-		if (panel.getActiveCrest() == null && panel.getSoldierInstead() != null) {
+		if (panel.getSoldierInstead() != null) {
 			// first draw white background?
 			Soldier toPreview = panel.getSoldierInstead();
 			Unit unit = null; // Unit, in case the unit is actively in battle.

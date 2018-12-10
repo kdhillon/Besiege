@@ -21,7 +21,7 @@ import kyle.game.besiege.voronoi.Center;
 
 public class Village extends Location {
     private final static float VILLAGE_WEALTH_FACTOR = 0.5f; // arbitrary, this times pop = wealth
-	private static final float RAID_COUNTDOWN = 120;
+	private static final float RAID_HOURS = 10 * 24;
 //	private final int MED_WEALTH = 50;
 
 	private final String textureRegion = "Village";
@@ -29,7 +29,7 @@ public class Village extends Location {
 	private static final int MAX_FARMERS = 1;
 	private static final int MAX_HUNTERS = 1;
 
-	private float raidTimer = 0;
+	private float endRaidAtKingdomTime = 0;
 
 	public Village(){}
 	
@@ -101,22 +101,21 @@ public class Village extends Location {
 	}
 
 	public void handleRaidVictory(Army raider) {
-		this.raidTimer = RAID_COUNTDOWN;
+		this.endRaidAtKingdomTime = getKingdom().getTotalHour() + RAID_HOURS;
 		System.out.println("handling raid victory");
 		this.endSiege();
 		this.addSmoke();
 	}
 
 	public boolean raided() {
-		return raidTimer > 0;
+		return getKingdom().getTotalHour() < endRaidAtKingdomTime;
 	}
 	
 	@Override
 	public void act(float delta) {
 		super.act(delta);
-		if (this.raidTimer > 0) {
-			this.raidTimer -= delta;
-			if (this.raidTimer < 0) this.removeFire();
+		if (this.fire != null && !this.raided()) {
+			this.removeFire();
 		}
 	}
 	

@@ -92,7 +92,8 @@ public class PanelHire extends Panel {
         updateSoldierTable();
 
         topTable.row();
-        //stats.debug();
+//        topTable.debug();
+//        stats.debug();
         topTable.padLeft(MINI_PAD);
         this.addTopTable(topTable);
 

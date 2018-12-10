@@ -21,6 +21,7 @@ import kyle.game.besiege.Crest;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.battle.Unit.Stance;
+import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 
@@ -45,7 +46,7 @@ public class PanelUnit extends Panel {
 	private LabelStyle lsMed;
 	private LabelStyle lsG;
 
-	protected DecimalFormat df = new DecimalFormat("0.00");
+	public static DecimalFormat df = new DecimalFormat("0.00");
 
 	// can be used for soldier or unit
 	public PanelUnit(SidePanel panel, Unit unit, Soldier soldier) {
@@ -78,7 +79,20 @@ public class PanelUnit extends Panel {
 
         generalStats = new Table();
 
-		topTable = new TopTable();
+		topTable = getTopTable(soldier, unit, ls);
+
+		this.addTopTable(topTable);
+
+		if (soldier.availableForHire()) {
+		    this.setButton(3, "Hire");
+        }
+
+//		if (battleStage == null)
+			this.setButton(4, "Back");
+	}
+
+	public static TopTable getTopTable(Soldier soldier, Unit unit, LabelStyle ls) {
+		TopTable topTable = new TopTable();
 		topTable.updateTitle(soldier.getTypeName(), null, soldier.unitType.cultureType.colorLite);
 
 		String name = soldier.getName();
@@ -87,14 +101,16 @@ public class PanelUnit extends Panel {
 
 		topTable.addSubtitle("name", name, ls, null);
 
-		// TODO should we have a party name?
-		armyName = new Label("", ls);
-		if (party.army != null)
-			armyName.setText(party.army.getName());
-		armyName.setAlignment(0, 0);
+//		// TODO should we have a party name?
+//		armyName = new Label("", ls);
+//		if (party.army != null)
+//			armyName.setText(party.army.getName());
+//		armyName.setAlignment(0, 0);
 //		topTable.addSubtitle("party", armyName, ls, null);
 
-		topTable.addTable(generalStats);
+		if (soldier.isGeneral()) {
+			topTable.addTable(PanelGeneral.getGeneralStats((General) soldier, ls));
+		}
 
 		if (unit != null) {
 			topTable.addGreenBar();
@@ -128,15 +144,7 @@ public class PanelUnit extends Panel {
 		topTable.row();
 
 		topTable.row();
-
-		this.addTopTable(topTable);
-
-		if (soldier.availableForHire()) {
-		    this.setButton(3, "Hire");
-        }
-
-//		if (battleStage == null)
-			this.setButton(4, "Back");
+		return topTable;
 	}
 
 	// this is probably pretty slow if these strings are being constructed every frame
@@ -220,20 +228,7 @@ public class PanelUnit extends Panel {
 		if (battleStage != null) {
 			if (battleStage.playerAttacking() || battleStage.playerDefending()) {
 				if (!battleStage.placementPhase) {
-					if (!(battleStage.retreatTimerPlayer <= 0)) {
-						this.setButton(1, "Retreat (" + String.format("%.0f", battleStage.retreatTimerPlayer) + ")");
-						this.getButton(1).setDisabled(true);
-					} else if (!unit.bsp.retreating) {
-//						if (this.getButton(1) == null) {
-						this.setButton(1, "Retreat!");
-						this.getButton(1).setDisabled(false);
-//						}
-					} else {
-						this.setButton(1, "Retreat!");
-						this.getButton(1).setDisabled(true);
-						this.getButton(1).setVisible(true);
-						this.getButton(2).setDisabled(true);
-					}
+					battleStage.updateRetreatButtons(this, unit);
 				}
 				else {
 					this.setButton(1, unit.bsp.formation.name);
@@ -243,57 +238,22 @@ public class PanelUnit extends Panel {
 		}
 
 		if (battleStage != null && !battleStage.placementPhase) {
-			if (unit.bsp.stance == Stance.AGGRESSIVE)
+			if (unit.bsp.stance != Stance.DEFENSIVE) {
 				this.getButton(2).setDisabled(true);
-			else if (this.getButton(2) == null) {
+			} else {
 				this.setButton(2, "Charge!");
 			}
-//			else this.setButton(2, null);
+			battleStage.updateChargeButton(this);
 		}
-
+//			else this.setButton(2, null);
 
 		super.act(delta);
 	}
-
-	//	public void setStats(Soldier s) {
-	//		stats.setVisible(true);
-	//		nameS.setText(s.name + "");
-	//		levelS.setText(s.level + "");
-	//		expS.setText(s.exp + "");
-	//		nextS.setText(s.next + "");
-	//		if (s.bonusAtk >= 0)
-	//			atkS.setText(s.getAtk() + " (" + s.baseAtk + "+" + s.bonusAtk + ")");
-	//		else 
-	//			atkS.setText(s.getAtk() + " (" + s.baseAtk + s.bonusAtk + ")");
-	//		if (s.bonusDef >= 0)
-	//			defS.setText(s.getDef() + " (" + s.baseDef + "+" + s.bonusDef + ")");
-	//		else 
-	//			defS.setText(s.getDef() + " (" + s.baseDef + s.bonusDef + ")");
-	//		if (s.bonusSpd >= 0)
-	//			spdS.setText(s.getSpd() + " (" + s.baseSpd + "+" + s.bonusSpd + ")");
-	//		else 
-	//			spdS.setText(s.getSpd() + " (" + s.baseSpd + s.bonusSpd + ")");
-	//		weaponS.setText(s.weapon.name);
-	//	}
-
-	//	public void clearStats() {
-	//		stats.setVisible(false);
-	//	}
-	//	
-	//	public void setActiveFaction() {
-	//		panel.setActiveFaction(location.getFaction());
-	//	}
-	//	public void centerCamera() {
-	//		OrthographicCamera camera = panel.getKingdom().getMapScreen().getCamera();
-	//		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
-	//	}
-
 
 	@Override
 	public void button1() {
 		//retreat button
 		if (getButton(1).isVisible()) {
-
 			if (battleStage == null) {
 //				unit.bsp.retreat(sidePanel.getKingdom().getPlayer());
 				return;
@@ -303,8 +263,7 @@ public class PanelUnit extends Panel {
 					this.unit.bsp.toNextFormation();
 				}
 				else {
-					battleStage.tryToRetreatAll(true);
-					getButton(1).setDisabled(true);
+					battleStage.retreatButton(this);
 				}
 			}
 
@@ -334,7 +293,7 @@ public class PanelUnit extends Panel {
 	@Override
 	public void button3() {
 	    if (getButton(3).isVisible()) {
-            if (soldier.availableForHire()) {
+            if (battleStage == null && soldier.availableForHire()) {
                 // hire
                 if (sidePanel.previousPanel.getClass() == PanelHire.class) {
                     System.out.println("prev panel was panel hire");
@@ -342,6 +301,9 @@ public class PanelUnit extends Panel {
                     System.out.println("prev panel was: " + sidePanel.previousPanel.getClass().getName());
                 }
             }
+            if (battleStage != null) {
+				battleStage.chargeAllButton(this);
+			}
         }
 	}
 	@Override

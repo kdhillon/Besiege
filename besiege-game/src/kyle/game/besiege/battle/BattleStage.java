@@ -25,6 +25,7 @@ import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.panels.BottomPanel;
+import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.panels.PanelBattle2;
 import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
@@ -2023,6 +2024,64 @@ public class BattleStage extends Group implements Battle {
         } else {
             System.out.println("returning empty defenders");
             return new StrictArray<>();
+        }
+    }
+
+    public void updateRetreatButtons(Panel panel, Unit unit) {
+        if (!allies.canRetreat()) {
+            panel.setButton(1, "No Retreat!");
+            panel.getButton(1).setDisabled(true);
+        } else if (!(retreatTimerPlayer <= 0)) {
+            panel.setButton(1, "Retreat (" + String.format("%.0f", retreatTimerPlayer) + ")");
+            panel.getButton(1).setDisabled(true);
+        } else if (unit != null && !unit.bsp.retreating) {
+//						if (this.getButton(1) == null) {
+            panel.setButton(1, "Retreat!");
+            panel.getButton(1).setDisabled(false);
+//						}
+        } else {
+            panel.setButton(1, "Retreat!");
+            panel.getButton(1).setDisabled(true);
+            panel.getButton(1).setVisible(true);
+            panel.getButton(2).setDisabled(true);
+        }
+    }
+
+    public void retreatButton(Panel panel) {
+        if (panel.getButton(1).isVisible()) {
+            if (placementPhase) {
+//					this.battleStage.toNextFormation();
+            }
+            else {
+                tryToRetreatAll(true);
+                panel.getButton(1).setDisabled(true);
+            }
+        }
+    }
+
+    private boolean anyAllyBSPNotCharging() {
+        for (BattleSubParty bsp : allies.subparties) {
+            if (!bsp.retreating && bsp.stance == Stance.DEFENSIVE)
+                return true;
+        }
+        return false;
+    }
+
+    public void updateChargeButton(Panel panel) {
+        // Set button3 to be "All Charge!"
+        if (anyAllyBSPNotCharging()) {
+            panel.setButton(3, "All Charge!");
+            panel.getButton(3).setVisible(true);
+            panel.getButton(3).setDisabled(false);
+        } else {
+            panel.getButton(3).setVisible(false);
+            panel.getButton(3).setDisabled(true);
+        }
+    }
+
+    public void chargeAllButton(Panel panel) {
+        if (panel.getButton(3).isVisible()) {
+            chargeAll(true);
         }
     }
 

@@ -7,6 +7,7 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Soldier;
@@ -29,6 +30,10 @@ public class PanelGeneral extends PanelUnit {
 		// TODO set general rank using new table format
 //		title.setText(general.getRank());
 		topTable.updateTitle(general.getRank(), null);
+	}
+
+	public static Table getGeneralStats(General general, Label.LabelStyle ls) {
+		Table generalStats = new Table();
 
 		Label fameSC = new Label("Fame:",ls);
 		Label courageSC = new Label("Courage:", ls);
@@ -36,19 +41,19 @@ public class PanelGeneral extends PanelUnit {
 		Label prepSC = new Label("Prep:", ls);
 		Label infCmdSC = new Label("Inf Cmd:", ls);
 		Label rngCmdSC = new Label("Rng Cmd:", ls);
-		
-		fameS = new Label("" + general.getFame(), ls);
-		loyaltyS = new Label("" + general.loyalty, ls);
+
+		Label fameS = new Label("" + general.getFame(), ls);
+		Label loyaltyS = new Label("" + general.loyalty, ls);
 		loyaltyS.setColor(General.getColor(general.loyalty));
-		courageS = new Label("" + general.courage, ls);
+		Label courageS = new Label("" + general.courage, ls);
 		courageS.setColor(General.getColor(general.courage));
-		prepS = new Label("" + general.preparation, ls);
+		Label prepS = new Label("" + general.preparation, ls);
 		prepS.setColor(General.getColor(general.preparation));
-		infCmdS = new Label("" + general.infantryCommand, ls);
+		Label infCmdS = new Label("" + general.infantryCommand, ls);
 		infCmdS.setColor(General.getColor(general.infantryCommand));
-		rngCmdS = new Label("" + general.rangedCommand, ls);
+		Label rngCmdS = new Label("" + general.rangedCommand, ls);
 		rngCmdS.setColor(General.getColor(general.rangedCommand));
-		
+
 		generalStats.defaults().padTop(NEG).left();
 		generalStats.add(fameS).colspan(4).expandX();
 		generalStats.row();
@@ -67,8 +72,10 @@ public class PanelGeneral extends PanelUnit {
 		generalStats.add(rngCmdSC).padLeft(MINI_PAD);
 		generalStats.add(rngCmdS);
 		generalStats.row();
+
+		return generalStats;
 	}
-	
+
 	@Override
 	public void act(float delta) {
 		super.act(delta);

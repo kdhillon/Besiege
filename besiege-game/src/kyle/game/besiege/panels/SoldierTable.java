@@ -47,6 +47,7 @@ public class SoldierTable extends Table {
 
     private StrictArray<SoldierLabel> soldierLabels;
 
+    private Panel parent;
     public boolean hirePanel;
     public boolean captivesPanel; // similar to hire panel, but slightly different.
     public boolean selectable;
@@ -78,21 +79,22 @@ public class SoldierTable extends Table {
     // This is useful for displaying the current status of battlesubparties
     private BattleStage battleStage;
 
-    public SoldierTable(Party party) {
-        this(party, false, null, null, null);
+    public SoldierTable(Panel parent, Party party) {
+        this(parent, party, false, null, null, null);
     }
 
     public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle) {
-        this(party, startAllCollapsed, battle, null, null);
+        this(null, party, startAllCollapsed, battle, null, null);
 //        if (battle == null) throw new AssertionError();
     }
 
-	public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle, StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed) {
+	public SoldierTable(Panel parent, Party party, boolean startAllCollapsed, BattleStage battle, StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed) {
 		ls.font = Assets.pixel16;
 		lsG.font = Assets.pixel16;
 		lsBig.font = Assets.pixel18;
 
 		this.battleStage = battle;
+		this.parent = parent;
 
 		this.party = party;
 		this.consolidatedWounded = wounded;
@@ -120,10 +122,10 @@ public class SoldierTable extends Table {
 		soldierTable.defaults().padTop(NEG);
 		soldierTable.top();
 		soldierTable.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
-//		this.debug();
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);
+//		soldierTable.debug();
 
 		soldierLabels = new StrictArray<>();
 		
@@ -419,11 +421,13 @@ public class SoldierTable extends Table {
         Table expand;
         public boolean expanded = false;
         private BattleSubParty bsp;
+        private Label count;
 
         public TypeLabel(String name, LabelStyle ls, final Label count, BattleSubParty bsp) {
             super(name, ls);
             expand = new Table();
             this.bsp = bsp;
+            this.count = count;
             this.addListener(new ClickListener() {
                 public boolean touchDown(InputEvent event, float x,
                                          float y, int pointer, int button) {
@@ -433,17 +437,16 @@ public class SoldierTable extends Table {
                                     int pointer, int button) {
                     if (preventSoldierExpand) return;
                     if (expanded) {
-                        count.setText(type.size + EXPAND);
                         clearExpand();
                         expanded = false;
                     }
                     else {
-                        count.setText(type.size + COLLAPSE);
                         createExpand();
                         expanded = true;
                     }
                 }
             });
+            count.addListener(this.getListeners().first());
         }
 
         void createExpand() {
@@ -460,10 +463,12 @@ public class SoldierTable extends Table {
 
                 soldierLabels.add(soldierName);
             }
+            count.setText(type.size + COLLAPSE);
 
         }
         void clearExpand() {
             expand.clear();
+            count.setText(type.size + EXPAND);
         }
     }
 
@@ -648,6 +653,9 @@ public class SoldierTable extends Table {
         this.nextToSelect = getSoldierAfterSelectedOrBeforeIfNoneAfter();
         updateColors();
         justSelected = true;
+        if (parent instanceof PanelParty) {
+            ((PanelParty) parent).notifySelect(soldier);
+        }
     }
 
     public void deselect() {
@@ -655,6 +663,9 @@ public class SoldierTable extends Table {
         this.nextToSelect = null;
         System.out.println("Deselecting");
         updateColors();
+        if (parent instanceof PanelParty) {
+            ((PanelParty) parent).notifyDeselect();
+        }
     }
 
 //	public void select(Soldier soldier, Label label) {
@@ -673,23 +684,39 @@ public class SoldierTable extends Table {
 
         Soldier toSelect = null;
 
-        for (final Subparty s : party.subparties) {
-            StrictArray<StrictArray<Soldier>> lists = s.getConsolHealthy();
-            for (int j = 0; j < lists.size; j++) {
-                StrictArray<Soldier> soldiers = lists.get(j);
-                for (int i = 0; i < soldiers.size; i++) {
-                    // This gets the next soldier after the selected one has been found
-                    if (soldierJustFound) {
-                        toSelect = soldiers.get(i);
-                        break;
-                    }
-                    if (soldiers.get(i) == selected) {
-                        soldierJustFound = true;
-                    }
-                    else
-                        prevSoldier = soldiers.get(i);
+        if (captivesPanel) {
+            System.out.println("Prisoners remaining: " + party.getPrisoners().size);
+            for (int i = 0; i < party.getPrisoners().size; i++) {
+                // This gets the next soldier after the selected one has been
+                // found
+                if (soldierJustFound) {
+                    toSelect = party.getPrisoners().get(i);
+                    break;
                 }
-                if (toSelect != null) break;
+                if (party.getPrisoners().get(i) == selected) {
+                    soldierJustFound = true;
+                } else
+                    prevSoldier = party.getPrisoners().get(i);
+            }
+        } else {
+            for (final Subparty s : party.subparties) {
+                StrictArray<StrictArray<Soldier>> lists = s.getConsolHealthy();
+                for (int j = 0; j < lists.size; j++) {
+                    StrictArray<Soldier> soldiers = lists.get(j);
+                    for (int i = 0; i < soldiers.size; i++) {
+                        // This gets the next soldier after the selected one has been found
+
+                        if (soldierJustFound) {
+                            toSelect = soldiers.get(i);
+                            break;
+                        }
+                        if (soldiers.get(i) == selected) {
+                            soldierJustFound = true;
+                        } else
+                            prevSoldier = soldiers.get(i);
+                    }
+                    if (toSelect != null) break;
+                }
             }
         }
 
@@ -708,7 +735,7 @@ public class SoldierTable extends Table {
             select(nextToSelect);
         }
         else {
-            selected = null;
+	        deselect();
         }
         update();
     }
