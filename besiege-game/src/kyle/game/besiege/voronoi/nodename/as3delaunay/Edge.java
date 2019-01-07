@@ -91,20 +91,20 @@ public final class Edge {
      internal function makeDelaunayLineBmp():BitmapData
      {
      var p0:Point = leftSite.coord;
-     var p1:Point = rightSite.coord;
+     var alliesPartyType:Point = rightSite.coord;
 
      GRAPHICS.clear();
      // clear() resets line style back to undefined!
      GRAPHICS.lineStyle(0, 0, 1.0, false, LineScaleMode.NONE, CapsStyle.NONE);
      GRAPHICS.moveTo(p0.x, p0.y);
-     GRAPHICS.lineTo(p1.x, p1.y);
+     GRAPHICS.lineTo(alliesPartyType.x, alliesPartyType.y);
 
-     var w:int = int(Math.ceil(Math.max(p0.x, p1.x)));
+     var w:int = int(Math.ceil(Math.max(p0.x, alliesPartyType.x)));
      if (w < 1)
      {
      w = 1;
      }
-     var h:int = int(Math.ceil(Math.max(p0.y, p1.y)));
+     var h:int = int(Math.ceil(Math.max(p0.y, alliesPartyType.y)));
      if (h < 1)
      {
      h = 1;

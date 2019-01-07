@@ -31,6 +31,7 @@ public class TopTable extends Table {
 	private Table green;
 
 	private LabelStyle ls;
+	private LabelStyle lsTitle;
 	private LabelStyle lsSubtitle;
 	
 	private Label title;
@@ -49,25 +50,18 @@ public class TopTable extends Table {
 
 	// Subtitle count can be 0-3
 	public TopTable() {
-		LabelStyle lsBig = new LabelStyle();
-		lsBig.font = Assets.pixel24;
+		lsTitle = new LabelStyle();
+		lsTitle.font = Assets.pixel24;
 
 		lsSubtitle = new LabelStyle();
 		lsSubtitle.font = Assets.pixel18;
 		 ls = new LabelStyle();
 		ls.font = Assets.pixel16;
-		
-		title = new Label("", lsBig);
-		title.setAlignment(0,0);
-		title.setWrap(true);
-		title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
 
 		// previously padded with neg
 		this.defaults().padTop(NEG_MINI).left();
 //		this.debug();
-		
-		this.add(title).colspan(4).fillX().expandX().padBottom(NEG);
-		this.row();
+
 		this.width = SidePanel.WIDTH-PAD*2;
 		this.add().colspan(2).width(width/2);
 		this.add().colspan(2).width(width/2);
@@ -214,6 +208,14 @@ public class TopTable extends Table {
 	}
 	
 	public void updateTitle(String titleText, InputListener listener, Color color) {
+		if (title == null) {
+			title = new Label("", lsTitle);
+			title.setAlignment(0,0);
+			title.setWrap(true);
+			title.setWidth(SidePanel.WIDTH-PAD*2-MINI_PAD*2);
+			this.add(title).colspan(4).fillX().expandX().padBottom(NEG);
+			this.row();
+		}
 		title.setText(titleText);
 		if (color != null)
 			title.setColor(color);

@@ -48,7 +48,7 @@ public class Edge {
 		recursiveSubdivide(-1, subDivisions-1, subEdges);	
 	}
 
-	// take midpoint of p1, p2. "push" in random direction by random value between 0 and factor*distance(p1, p2).
+	// take midpoint of alliesPartyType, enemiesPartyType. "push" in random direction by random value between 0 and factor*distance(alliesPartyType, enemiesPartyType).
 	// recursively do this on this midpoint and start and end points.
 	public void recursiveSubdivide(int left, int right, PointH[] currentPoints) {
 		if (right-left <= 1) return;

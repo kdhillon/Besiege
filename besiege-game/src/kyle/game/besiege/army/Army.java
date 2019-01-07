@@ -1007,6 +1007,8 @@ public class Army extends Group implements Destination {
 	 * @param delta time elapsed since last frame
 	 */
 	public void garrisonAct(float delta) {
+		if (OPTIMIZED_MODE && !withinActingRange()) return;
+
 		party.checkUpgrades();
 		// if garrisoned and waiting, wait
 		if (isWaiting()) {
@@ -1028,11 +1030,13 @@ public class Army extends Group implements Destination {
 			else if (safeToEject()) {
 				eject();
 				System.out.println(this.getName() + " just got ejected");
-				this.clearCurrentTarget();
-	    		uniqueAct();
-	    		if (getTarget() != null)
-		    		System.out.println("new target: " + getTarget().getName());
-	    		else System.out.println("new target null!");
+
+				if (!hasTarget()) {
+					uniqueAct();
+					if (getTarget() != null)
+						System.out.println("new target: " + getTarget().getName());
+					else System.out.println("new target null!");
+				}
 			}
 		}
 	}
@@ -1070,7 +1074,7 @@ public class Army extends Group implements Destination {
 	public void eject() {
 		if (!canEject()) throw new AssertionError();
 		if (isGarrisoned()) {
-			System.out.println("Ejecting: " + this.getName());
+			System.out.println("Ejecting: " + this.getName() + " with target "+ this.target.getName());
 			garrisonedIn.eject(this);
 		}
 		else {
@@ -1268,8 +1272,6 @@ public class Army extends Group implements Destination {
 	}
 
 	public boolean shouldRunFrom(Army that) {
-		return false;
-		/* todo removem
 		if (!this.isAtWar(that)) return false;
 		if (that.isGarrison) return false;
 		if (that.isGarrisoned()) return false;
@@ -1279,7 +1281,6 @@ public class Army extends Group implements Destination {
 		if (this.getTroopCount() < that.getTroopCount())
 			return true;
 		return false;
-		*/
 	}
 
 	public boolean shouldRepair() {
@@ -1667,8 +1668,6 @@ public class Army extends Group implements Destination {
 		if (!isInWater && !(newTarget.getType() == Destination.DestType.ARMY && ((Army) newTarget).isGarrisoned())) {
 			lastPathCalc = 0; // HACK, inefficient.
 			if ((this.target != newTarget && this.lastPathCalc == 0) || this.isPlayer()) {
-				if (!this.isWaiting() && this.isGarrisoned() && canEject()) this.eject();
-				
 				// don't add a bunch of useless point and army targets
 				if (this.target != null && this.target.getType() != Destination.DestType.ARMY && this.target.getType() != Destination.DestType.POINT && targetStack.size() < MAX_STACK_SIZE) {
 					targetStack.push(this.target);
@@ -1691,6 +1690,11 @@ public class Army extends Group implements Destination {
 				if (this.target == null) throw new AssertionError();
 				if (path.isEmpty()) throw new AssertionError();
 				if (!hasTarget()) throw new AssertionError();
+
+				if (!this.isWaiting() && this.isGarrisoned() && canEject()) {
+					System.out.println(this.getName() + " setting target " + newTarget.getName() + ", ejecting");
+					this.eject();
+				}
 //				else if (newTarget == this.path.finalGoal) System.out.println("new goal is already in path");
 			}
 			else {
@@ -1780,6 +1784,7 @@ public class Army extends Group implements Destination {
 
 	boolean shouldRaidOrBesiege(Location location) {
 		if (this.isAtWar(location) && !this.passive) {
+			if (location.isVillage() && ((Village)location).raided()) return false;
 			if (location.siege == null) {
 				return this.shouldAttack(location.getParty());
 			}

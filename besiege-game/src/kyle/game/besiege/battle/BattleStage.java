@@ -24,12 +24,12 @@ import kyle.game.besiege.*;
 import kyle.game.besiege.army.Army;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.battle.Unit.Stance;
+import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.Panel;
 import kyle.game.besiege.panels.PanelBattle2;
 import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Subparty;
 import kyle.game.besiege.voronoi.Biomes;
@@ -41,15 +41,16 @@ public class BattleStage extends Group implements Battle {
     public Biomes biome;
     //	public OldBattle battle;
     private PanelBattle2 pb;
-    private PanelPostBattle postBattle;
+    public PanelPostBattle postBattle;
 
-    private static boolean FORCE_RAIN = false;
     public static final double RETREAT_THRESHOLD = 0.3; // if balance less
     // than this, army will retreat (btw 0 and 1, but obviously below 0.5)
     public static final int DEPRECATED_THRESHOLD = 2; // this field is now in
     // victory manager
 
     private static final float SPEED = 0.01f;
+
+    private BattleOptions options;
 
     //	public float scale = 1f;
     public float MIN_SIZE = 40;
@@ -58,7 +59,7 @@ public class BattleStage extends Group implements Battle {
     public Color currentColor;
     public float currentDarkness;
     public float targetDarkness;
-    public boolean raining;
+    public BattleOptions.WeatherEffect weatherEffect;
 
     // affect the size of battlefield?
 
@@ -137,8 +138,6 @@ public class BattleStage extends Group implements Battle {
     //	private Party player;
     public BattleMap battlemap;
 
-    private boolean snowing;
-
     public boolean alliesDefending;
 
     //	public Stance allies.stance;
@@ -177,6 +176,7 @@ public class BattleStage extends Group implements Battle {
 //	private int currentFormationHeight;
 
     // take in battle object containing arrays of armies and stuff
+    // TODO replace these constructors with BattleOptions
     public BattleStage(MapScreen mapScreen, Array<Party> allyArray,
                        Array<Party> enemyArray, boolean alliesDefending, Siege siege) {
         this.mapScreen = mapScreen;
@@ -211,9 +211,7 @@ public class BattleStage extends Group implements Battle {
         boolean forceSiege = false;
 
         if (siege != null || forceSiege) {
-            //			siegeDefense = alliesDefending;
-            //			siegeAttack = !siegeDefense;
-            //			//siegeAttack = true;
+            // TODO need to split this variable into two: one for siegeOrRaid (to handle victory effects and prevent retreating), one for walledSiege (to manage placement etc)
             siegeOrRaid = true;
             System.out.println("creating siege or raid battle");
 
@@ -270,14 +268,16 @@ public class BattleStage extends Group implements Battle {
         addUnits();
     }
 
-    // constructor for simulations
-    public BattleStage(MapScreen mapScreen, PartyType p1, PartyType p2, int
-            partiesEach) {
+    // constructor for Quick Battles
+    public BattleStage(MapScreen mapScreen, BattleOptions options) {
         this.mapScreen = mapScreen;
+        this.options = options;
 
-        Party allyParty1 = p1.generate();
+        if (options.mapType == null) throw new AssertionError();
+
+        Party allyParty1 = options.allyOptions.partyType.generate();
         allyParty1.player = true;
-        Party enemyParty1 = p2.generate();
+        Party enemyParty1 = options.enemyOptions.partyType.generate();
         allyParty1.setName("Your Party");
         enemyParty1.setName("Evil Party");
 
@@ -286,17 +286,20 @@ public class BattleStage extends Group implements Battle {
         this.enemies = new BattleParty(this, 1);
         this.enemies.player = false;
 
-        alliesDefending = true;
+        alliesDefending = options.alliesDefending;
 
         this.allies.addParty(allyParty1);
         this.enemies.addParty(enemyParty1);
 
-        for (int i = 1; i < partiesEach; i++) {
-            Party allyParty2 = p1.generate();
-            Party enemyParty2 = p2.generate();
+        for (int i = 1; i < options.allyOptions.partyCount; i++) {
+            Party allyParty2 = options.allyOptions.partyType.generate();
             allyParty2.setName("Friendly_" + (i + 1));
-            enemyParty2.setName("Evil_" + (i + 1));
             this.allies.addParty(allyParty2);
+        }
+
+        for (int i = 1; i < options.enemyOptions.partyCount; i++) {
+            Party enemyParty2 = options.enemyOptions.partyType.generate();
+            enemyParty2.setName("Evil_" + (i + 1));
             this.enemies.addParty(enemyParty2);
         }
 
@@ -307,8 +310,12 @@ public class BattleStage extends Group implements Battle {
         BottomPanel.log("Starting battle, probability of victory: " + (int)
                 (100 * getBalanceAllies()) + "%", "white");
 
-        // for testing
-        this.siegeOrRaid = true;
+        // TODO need to split this variable into two: one for siegeOrRaid (to handle victory effects and prevent retreating), one for walledSiege (to manage placement etc)
+        this.siegeOrRaid =
+                options.siegeType == Location.LocationType.VILLAGE ||
+                options.siegeType == Location.LocationType.CITY ||
+                options.siegeType == Location.LocationType.CASTLE;
+
         this.hasWall = false;
 
 //		// must modify battle so it can support a null kingdom
@@ -318,19 +325,21 @@ public class BattleStage extends Group implements Battle {
 //		else 
 //			this.battle = new OldBattle(null, allyParty1, enemyParty1);
 
-        int rand = (int) (Math.random() * Biomes.values().length);
-        this.biome = Biomes.values()[rand];
-        System.out.println("biome: " + this.biome.toString());
+        // Should we do unique biome instead of maptype?
+//        int rand = (int) (Math.random() * Biomes.values().length);
+//        this.biome = Biomes.values()[rand];
+//        System.out.println("biome: " + this.biome.toString());
+        this.biome = null;
 
         this.currentColor = new Color(Color.WHITE);
         currentDarkness = Kingdom.NIGHT_FLOAT;
-        biomeColor = currentColor;
-        biomeColor = new Color(1, 0.9f, 0.7f, 1); // orange
+
+//        biomeColor = currentColor;
+//        biomeColor = new Color(1, 0.9f, 0.7f, 1); // orange
 
         this.targetDarkness = 1;
 
-        boolean FORCE_RUIN = true;
-        if (Math.random() < 0.3f || FORCE_RUIN) {
+        if (options.siegeType == Location.LocationType.RUIN) {
             ruins = true;
         }
 
@@ -343,25 +352,32 @@ public class BattleStage extends Group implements Battle {
 
     public void setSnowingOrRaining() {
         System.out.println("setting snow or rain");
-        if (this.biome == Biomes.SNOW && Math.random() < .75) {
-            startSnow();
-        } else if (getMapScreen().getKingdom() != null) {
-            if (getMapScreen().getKingdom().raining) {
+       if (isSimulation()) {
+            if (Math.random() < 0.2f || options.weatherEffect == BattleOptions.WeatherEffect.RAINING) {
                 startRain();
+            } else if (options.weatherEffect == BattleOptions.WeatherEffect.SNOWING) {
+               startSnow();
             }
         } else {
-            if (Math.random() < 0.2f || FORCE_RAIN) {
+            // TODO use battleoptions for this
+            if (getMapScreen().getKingdom().raining) {
                 startRain();
+            } else if (this.biome == Biomes.SNOW && Math.random() < .75) {
+               startSnow();
             }
-        }
+       }
+    }
+
+    private boolean isSimulation() {
+        return getMapScreen().getKingdom() == null;
     }
 
     boolean isRaining() {
-        return raining;
+        return weatherEffect == BattleOptions.WeatherEffect.RAINING;
     }
 
     boolean isSnowing() {
-        return snowing;
+        return weatherEffect == BattleOptions.WeatherEffect.SNOWING;
     }
 
     public void init() {
@@ -408,7 +424,7 @@ public class BattleStage extends Group implements Battle {
 
         setSnowingOrRaining();
 
-        this.battlemap = new BattleMap(this);
+        this.battlemap = new BattleMap(this, options != null ? options.mapType : null);
         this.addActor(battlemap);
 
         //		if (availableFormations.size == 0) System.out.println("no
@@ -536,24 +552,25 @@ public class BattleStage extends Group implements Battle {
     }
 
     public void startSnow() {
-        if (snowing || raining) throw new AssertionError();
-        snowing = true;
+        if (isSnowing() || isRaining()) throw new AssertionError();
+        weatherEffect = BattleOptions.WeatherEffect.SNOWING;
 
         // TODO add snow sound effect
     }
 
     public void startRain() {
-        if (raining || snowing) throw new AssertionError();
+        if (isSnowing() || isRaining()) throw new AssertionError();
 
-        raining = true;
+        weatherEffect = BattleOptions.WeatherEffect.RAINING;
         SoundPlayer.startRain();
     }
 
-    public void stopRain() {
-        if (raining == false) return;
-        raining = false;
-        SoundPlayer.stopRain();
-    }
+//    public void stopRain() {
+//        if (!isRaining()) return;
+//        raining = false;
+//
+//        SoundPlayer.stopRain();
+//    }
 
     private void thunder() {
         //		this.currentDarkness = (float)((Math.random()/2+.5)*this
@@ -566,17 +583,18 @@ public class BattleStage extends Group implements Battle {
         //		System.out.println("target darkness: " + this.targetDarkness);
         if (this.currentDarkness != this.targetDarkness) adjustDarkness();
 
-        // This is a cool effect, but can be a bit obnoxious if it's a strong
-        // color.
-        // need to decide whether to add biome color to this.
-//		this.currentColor.r = this.currentDarkness * biomeColor.r;
-//		this.currentColor.g = this.currentDarkness * biomeColor.g;
-//		this.currentColor.b = this.currentDarkness * biomeColor.b;
-
         this.currentColor.r = this.currentDarkness;
         this.currentColor.g = this.currentDarkness;
         this.currentColor.b = this.currentDarkness;
         this.currentColor.a = 1;
+
+
+        // This is a cool effect, but can be a bit obnoxious if it's a strong
+        // color.
+        // need to decide whether to add biome color to this.
+//        this.currentColor.r = this.currentDarkness * biomeColor.r;
+//        this.currentColor.g = this.currentDarkness * biomeColor.g;
+//        this.currentColor.b = this.currentDarkness * biomeColor.b;
 
 //		System.out.println(currentColor.r + " " + currentColor.g + " " +
 // currentColor.b + " " + currentColor.a);
@@ -585,7 +603,7 @@ public class BattleStage extends Group implements Battle {
     }
 
     private void adjustDarkness() {
-        if (this.raining) {
+        if (this.isRaining()) {
             if (this.targetDarkness - this.currentDarkness > Kingdom
                     .LIGHT_ADJUST_SPEED)
                 this.currentDarkness += Kingdom.LIGHT_ADJUST_SPEED / 2;
@@ -1496,7 +1514,7 @@ public class BattleStage extends Group implements Battle {
         if (rightClicked)
             rightClicked = false;
 
-        if (raining) rain();
+        if (isRaining()) rain();
     }
 
     public void damageWallAt(int pos_x, int pos_y, float damage) {

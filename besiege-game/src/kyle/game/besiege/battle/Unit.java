@@ -185,13 +185,6 @@ public class Unit extends Group {
         }
     }
 
-	private boolean firingLoop;
-    public boolean drawAmmo;
-    public boolean drawAmmoReversed;
-
-	public Color armorTint;
-	public Color skinTint;
-
 	// shouldn't be used that much, mostly for drawing horses in battles
 	public Equipment horse;
 	public Equipment head;
@@ -517,14 +510,26 @@ public class Unit extends Group {
 	//  Not hiding, not attacking,
 	//  Defensive, or
 	// 	They can fire at the enemy (enough ammo, within range, no friendly units near enemy)
+
+	// TODO add a variable to BSP for "is under fire" -- only move to cover if under fire.
     private boolean shouldMoveToCover() {
 		// TODO add check that enemy is firing on us.
 		boolean should =
+				!retreating &&
 				!defendingButShouldAttackNearestEnemy() &&
 						!isHidden() &&
 						(this.stance == Stance.DEFENSIVE || (this
 								.rangedWeaponOut() && nearestTarget != null &&
 								unitSafelyAwayFromFriends(nearestTarget)));
+		// Make sure nearest cover is within firing range of enemy.
+		if (nearestCover != null && nearestTarget != null) {
+			if (rangedWeaponOut()) {
+				if (nearestCover.distanceTo(nearestTarget.getPoint()) >= this.getCurrentRange()) {
+					System.out.println("unit could move to cover, but it would be out of range of the enemy");
+					should = false;
+				}
+			}
+		}
 		if (!should) nearestCover = null;
 		return should;
 	}
@@ -591,7 +596,6 @@ public class Unit extends Group {
 		//		System.out.println(this.rangedWeapon.range + this.getFloorHeight()*HEIGHT_RANGE_FACTOR);
 		return this.getBaseRange() + this.getFloorHeight()*HEIGHT_RANGE_FACTOR;
 	}
-
 
 	public String getStatus() {
 		if (this.isDying) 				return "Fallen";
@@ -945,6 +949,7 @@ public class Unit extends Group {
 	//		this.faceAlt(nearest);
 	//	}
 
+	// New bug, why is this constantly changing even when cover is valid?
 	private boolean getNearestCover() {
 		if (nearestEnemy == null) {
 			this.nearestEnemy = getNearestEnemy();

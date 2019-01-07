@@ -86,16 +86,15 @@ public class PanelHire extends Panel {
         topTable.addBigLabel("PartySize", "Party Size:");
         topTable.addBigLabel("PartyWealth", "Party Wealth:");
 
-        soldierTable = new HireSoldierTable(location.toHire, this);
-
-        topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
-        updateSoldierTable();
-
         topTable.row();
 //        topTable.debug();
 //        stats.debug();
         topTable.padLeft(MINI_PAD);
         this.addTopTable(topTable);
+
+        soldierTable = new HireSoldierTable(location.toHire, this);
+        this.addSoldierTable(soldierTable);
+        updateSoldierTable();
 
         this.setButton(1, "Hire");
         hideButton(1);
@@ -235,12 +234,12 @@ public class PanelHire extends Panel {
 
     @Override
     public void resize() { // problem with getting scroll bar to appear...
-        Cell cell = topTable.getCell(soldierTable);
-        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-        soldierTable = new HireSoldierTable(location.getToHire(), this);
-        location.needsUpdate = true;
-        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-        cell.setWidget(soldierTable);
+//        Cell cell = topTable.getCell(soldierTable);
+//        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//        soldierTable = new HireSoldierTable(location.getToHire(), this);
+//        location.needsUpdate = true;
+//        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+//        cell.setWidget(soldierTable);
         updateSoldierTable();
 
         super.resize();

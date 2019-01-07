@@ -7,7 +7,6 @@ import kyle.game.besiege.NameGenerator;
 
 /* contains information about a specific unit type */
 public class CultureType {
-	// make this an object later 
 	public String name;
 	public HashMap<String, UnitType> units;
 
@@ -16,5 +15,7 @@ public class CultureType {
 	/* first read in strings for each */
 
 	public NameGenerator nameGenerator;
+
+	// TODO add things like specific textures for their general, base biomes, etc.
 }
 

@@ -23,7 +23,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 	public String name;
 	
 	private CultureType cultureType; // if this is null, use distribution
-	private UnitType unitType; // force one unit type
+	UnitType unitType; // force one unit type
 //	private float[] biomeWeights;
 
 	private int[] tiers;
@@ -377,5 +377,10 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //			break;
 		}
 		return pt;
+	}
+
+	public void forceUnitType(UnitType type) {
+		if (type == null) throw new AssertionError();
+		this.unitType = type;
 	}
 }

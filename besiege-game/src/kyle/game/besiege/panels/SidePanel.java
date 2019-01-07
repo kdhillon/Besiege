@@ -264,8 +264,11 @@ public class SidePanel extends Group {
 	public void setDefault(boolean force) {
 //		if (force) this.setHardStay(false);
 		System.out.println("setting default");
-		if (mapScreen.battle != null)
-			setActiveBattle(mapScreen.battle);
+		if (mapScreen.battle != null) {
+			if (mapScreen.battle.isOver()) {
+				setActive(mapScreen.battle.postBattle);
+			} else setActiveBattle(mapScreen.battle);
+		}
 		else {
             setActive(playerPartyPanel); // can change
 			playerPartyPanel.deselect();

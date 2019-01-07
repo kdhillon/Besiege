@@ -36,20 +36,20 @@ import static kyle.game.besiege.RandomCrestGenerator.COLOR_INDEX_WHITE;
 
 public class Kingdom extends Group {
     // Actual values
-//	public static int cityCount = 60;
-//	public static int castleCount = 0;
-//	public static int ruinCount = 5;
-//	public static int villageCount = 100;
-//	int FACTION_COUNT = 25;
-//	public static final int BANDIT_FACTIONS = 10;
+	public static int cityCount = 60;
+	public static int castleCount = 0;
+	public static int ruinCount = 5;
+	public static int villageCount = 100;
+	int FACTION_COUNT = 25;
+	public static final int BANDIT_FACTIONS = 10;
 
 	// Fast values
-    public static int cityCount = 15;
-    public static int castleCount = 0;
-    public static int ruinCount = 10;
-    public static int villageCount = 20;
-    int FACTION_COUNT = 15;
-	public static final int BANDIT_FACTIONS = 10;
+//    public static int cityCount = 15;
+//    public static int castleCount = 0;
+//    public static int ruinCount = 10;
+//    public static int villageCount = 20;
+//    int FACTION_COUNT = 15;
+//	public static final int BANDIT_FACTIONS = 10;
 
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;

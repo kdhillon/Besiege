@@ -56,7 +56,6 @@ public class BesiegeMain extends Game {
 		mapScreen = new MapScreen(false, "Default");
 	}
 	
-	
 	public void createMapScreen(String name) {
 		mapScreen = new MapScreen(true, name);
 //		mapScreen.getCharacter().name = name;

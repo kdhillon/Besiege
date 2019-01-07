@@ -75,10 +75,10 @@ public class BattleActor extends Actor implements Destination {
 		this.setScale(10);
 		
 		region = Assets.atlas.findRegion(REGION);
-		this.setPosition(initAttacker.getCenterX(), initAttacker.getCenterY());
-		this.setWidth(region.getRegionWidth()*getScaleX());
-		this.setHeight(region.getRegionHeight()*getScaleY());
-		this.setOrigin(region.getRegionWidth()*getScaleX()/2, region.getRegionWidth()*getScaleY()/2);
+		this.setWidth(region.getRegionWidth());
+		this.setHeight(region.getRegionHeight());
+		this.setOrigin(getWidth()/2,  getHeight()/2);
+		this.setPosition(initAttacker.getCenterX() - getWidth()/2, initAttacker.getCenterY() - getHeight()/2);
 		this.addListener(getNewInputListener());
 	}
 	

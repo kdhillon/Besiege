@@ -15,6 +15,8 @@ import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Orientation;
 import kyle.game.besiege.voronoi.Biomes;
 
+import static kyle.game.besiege.battle.BattleMap.GroundType.*;
+
 
 public class BattleMap extends Group {
 	private TextureRegion white;
@@ -41,10 +43,13 @@ public class BattleMap extends Group {
 
 	public Color bgColor = new Color();
 
-	private enum MapType {
-		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, SNOW, MEADOW, CRAG, RIVER, VILLAGE
+	public enum MapType {
+		FOREST, BEACH, GRASSLAND, SWAMP, DESERT, SNOW, TUNDRA, PRARIE, CRAG, JUNGLE, MOUNTAINS
 	}
 	private MapType maptype;
+	public static MapType getRandomMapType() {
+		return (MapType) Random.getRandomValue(MapType.values());
+	}
 
 	private BattleStage stage;
 
@@ -90,18 +95,18 @@ public class BattleMap extends Group {
 
 	// Also have a stealth bonus.
 	public enum GroundType {
-		GRASS(1.5),
-		DARKGRASS(2),
-		DIRT(1),
+		GRASS(1.2),
+		DARKGRASS(1.5),
+		DIRT(1.2),
 		SAND(1),
 		LIGHTSAND(1),
-		MUD(1),
+		MUD(1.2),
 		WATER(1),
 		LIGHTGRASS(1),
 		SNOW(1),
 		LIGHTSNOW(1),
-		ROCK(1),
-		DARKROCK(1),
+		ROCK(1.2),
+		DARKROCK(1.5),
 		FLOWERS(1),
 		FLOWERS2(1),
 		SWAMP(1.5),
@@ -125,7 +130,12 @@ public class BattleMap extends Group {
 	}
 
 	public enum Object { //CASTLE_WALL(.058f)
-		TREE(.5f), TREE_ON_FIRE(.5f), PALM(.5f), PALM_ON_FIRE(.5f), STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
+		TREE(.5f), TREE_ON_FIRE(.5f),
+		DARK_TREE(.5f), DARK_TREE_ON_FIRE(.5f),
+		SNOW_TREE(.5f), SNOW_TREE_ON_FIRE(.5f),
+		PALM(.5f), PALM_ON_FIRE(.5f),
+		PALM_DARK(.5f), PALM_DARK_ON_FIRE(.5f),
+		STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -148,6 +158,7 @@ public class BattleMap extends Group {
 
 	public Array<BPoint> cover; // points with protection
 	private GroundType[][] ground;
+	private StrictArray<GroundType> groundTypes = new StrictArray<>();
 
 	// try this, more memory intensive but less gpu intensive
 	private TextureRegion[][] groundTexture;
@@ -161,17 +172,20 @@ public class BattleMap extends Group {
 	private StrictArray<FireContainer> fc;
 
 	//	private Pixmap grass, flowers, flowers2, dirt, sand, swamp, swamp2, darkgrass, mud, water, lightgrass, rock, darkrock, snow, lightsnow, lightsand;
-	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, stump, palm, treeShadow, palmShadow;
+	private TextureRegion wallV, wallH, castleWall, castleWallFloor, ladder, tree, snowDarkTree, darkTree, stump, palm, palmDark, treeShadow, palmShadow;
 
 	private int min_x;
 	private int max_x;
 
-	public BattleMap(BattleStage mainmap) {
+	public BattleMap(BattleStage mainmap, MapType mapType) {
 		this.stage = mainmap;
 
 		//		this.maptype = randomMapType();
-		this.maptype = getMapTypeForBiome(mainmap.biome);
-//        this.maptype = MapType.BEACH;
+		if (mapType == null) {
+			this.maptype = getMapTypeForBiome(mainmap.biome);
+		} else {
+			this.maptype = mapType;
+		}
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -187,9 +201,13 @@ public class BattleMap extends Group {
 		walls = new Array<Wall>();
 
 		tree = 		Assets.map.findRegion("tree2");
-        palm =   	Assets.map.findRegion("palm");
+		darkTree = 	Assets.map.findRegion("tree dark");
+		snowDarkTree = 	Assets.map.findRegion("tree snow dark");
+		palm =   	Assets.map.findRegion("palm");
         palmShadow = Assets.map.findRegion("palmShadow");
-        treeShadow = Assets.map.findRegion("treeShadow");
+		palmDark =   	Assets.map.findRegion("palm red");
+
+		treeShadow = Assets.map.findRegion("treeShadow");
         stump = 	Assets.map.findRegion("stump");
 		wallV = 	Assets.map.findRegion("stone fence v");
 		wallH = 	Assets.map.findRegion("stone fence");
@@ -256,54 +274,28 @@ public class BattleMap extends Group {
 
 		// generate random map
 		if (maptype == MapType.FOREST) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < 0.33) ground[i][j] = GroundType.GRASS;
-					else if (random < .80) ground[i][j] = GroundType.DARKGRASS;
-					else ground[i][j] = GroundType.DIRT;
-				}
-			}
-			// add walls
+			setGroundTypesWithProbabilities(new GroundType[]{GRASS, DARKGRASS, DIRT}, new double[]{0.33, 0.80});
 
 			addAppropriateLocationFeatures();
 
 			addFences(5);
-			addTrees(.03*Math.random() + .01);
+			addTrees(.03*Math.random() + .01, new Object[]{Object.DARK_TREE, Object.TREE});
 			obscurity_factor = 1.5f;
 			bgColor = new Color(20/256f, 70/256f, 20/256f, 1);
 		}
 		if (maptype == MapType.GRASSLAND) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < .5) ground[i][j] = GroundType.LIGHTGRASS;
-					else if (random < 0.94) ground[i][j] = GroundType.GRASS;
-					else ground[i][j] = GroundType.DIRT;
-				}
-			}
-
+			setGroundTypesWithProbabilities(new GroundType[]{LIGHTGRASS, GRASS, DIRT}, new double[]{0.5, 0.94});
 			addAppropriateLocationFeatures();
 
-			addTrees(.001);
+			addTrees(.001, Object.TREE);
 			addFences(1);
 			bgColor = new Color(91f/256, 164/256f, 63/256f, 1);
 		}
-		if (maptype == MapType.MEADOW) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < .7) ground[i][j] = GroundType.GRASS;
-					else if (random < 0.90) ground[i][j] = GroundType.LIGHTGRASS;
-					else if (random < .95) ground[i][j] = GroundType.FLOWERS2;
-					else if (random < 1) ground[i][j] = GroundType.FLOWERS;
-					else ground[i][j] = GroundType.DIRT;
-				}
-			}
-
+		if (maptype == MapType.PRARIE) {
+			setGroundTypesWithProbabilities(new GroundType[]{GRASS, LIGHTGRASS, FLOWERS2, FLOWERS}, new double[]{0.7, 0.9, 0.95});
 			addAppropriateLocationFeatures();
 
-			addTrees(.01);
+			addTrees(.01, Object.TREE);
 			addFences(15);
 			bgColor = new Color(91f/256, 164/256f, 63/256f, 1);
 		}
@@ -313,7 +305,6 @@ public class BattleMap extends Group {
 			double slope2 = Math.random()*1;
 			double thresh = Random.getRandomInRange(BLOCK_SIZE * 1f, BLOCK_SIZE * 5f);
 
-			// TODO mirror this step.
 			int maxWaterX = 0;
 			boolean left = Random.coinflip();
 			for (int i = 0; i < ground.length; i++) {
@@ -325,17 +316,17 @@ public class BattleMap extends Group {
 					}
 
 					ground[i1][j1] = GroundType.SAND;
-					if (Math.random() < .01) ground[i1][j1] = GroundType.MUD;
+					if (Math.random() < .01) setGround(i1, j1, GroundType.MUD);
 					double leftSide = slope*i + slope2*j;
 
 					if (leftSide < thresh || (leftSide - thresh < 4 && Math.random() < .5)) {
-						ground[i1][j1] = GroundType.WATER;
+						setGround(i1, j1, WATER);
 						if (i > maxWaterX)
 							maxWaterX = i;
 						// set as closed
 						closeGround(j1, i1);
 					}
-					else if (leftSide > thresh + Random.getRandomInRange(100/ BLOCK_SIZE, 150/ BLOCK_SIZE)) ground[i1][j1] = GroundType.LIGHTGRASS;
+					else if (leftSide > thresh + Random.getRandomInRange(100/ BLOCK_SIZE, 150/ BLOCK_SIZE)) setGround(i1, j1, GroundType.LIGHTGRASS);
 				} 
 			}
 			if (left) {
@@ -346,49 +337,57 @@ public class BattleMap extends Group {
 
 			addAppropriateLocationFeatures();
 
-			addPalms(.005);
+			addTrees(.005, Object.PALM);
 
             bgColor = new Color(143f/256, 202/256f, 85/256f, 1);
 		}
 		if (maptype == MapType.DESERT) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < .6) ground[i][j] = GroundType.SAND;
-					else if (random < 1) ground[i][j] = GroundType.LIGHTSAND;
-					else if (random < 0.99) ground[i][j] = GroundType.DIRT;
-					else ground[i][j] = GroundType.MUD;
-				}
-			}
+			setGroundTypesWithProbabilities(new GroundType[]{SAND, LIGHTSAND, DIRT, MUD}, new double[]{0.6, 0.98, 0.99});
+
 			this.addFences(20);
 			addAppropriateLocationFeatures();
 
-			addPalms(Math.random() * 0.005);
+			addTrees(Math.random() * 0.005, Object.PALM);
 
 			bgColor = new Color(204/256f, 188/256f, 74/256f, 1);
 		}
-		if (maptype == MapType.SNOW) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < .7) ground[i][j] = GroundType.LIGHTSNOW;
-					else if (random < 1) ground[i][j] = GroundType.SNOW;
-					else if (random < 0.99) ground[i][j] = GroundType.DIRT;
-					else ground[i][j] = GroundType.MUD;
-				}
-			}
+		if (maptype == MapType.MOUNTAINS) {
+			setGroundTypesWithProbabilities(new GroundType[]{ROCK, SNOW, DARKROCK}, new double[]{0.6, 0.95});
+
 			addAppropriateLocationFeatures();
+			addStumps(.01);
+
+			bgColor = new Color(150/256f, 150/256f, 150/256f, 1);
+		}
+		if (maptype == MapType.JUNGLE) {
+			setGroundTypesWithProbabilities(new GroundType[]{SWAMP2, DARKGRASS, MUD}, new double[]{0.1, 0.8});
+
+//			this.addFences(20);
+			addAppropriateLocationFeatures();
+
+			addTrees(0.03, new Object[]{Object.PALM_DARK, Object.PALM, Object.TREE, Object.DARK_TREE});
+
+			bgColor = new Color(50/256f, 120/256f, 40/256f, 1);
+		}
+		if (maptype == MapType.SNOW) {
+			setGroundTypesWithProbabilities(new GroundType[]{LIGHTSNOW, SNOW, DIRT, MUD}, new double[]{0.7, 1, 0.99});
+			addAppropriateLocationFeatures();
+
+			bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
+		}
+		if (maptype == MapType.TUNDRA) {
+			setGroundTypesWithProbabilities(new GroundType[]{LIGHTSNOW, SNOW, SWAMP, SWAMP2}, new double[]{0.3, 0.7, 0.9});
+			addAppropriateLocationFeatures();
+
+//			addTrees(.03*Math.random() + .01, new Object[]{Object.DARK_TREE, Object.TREE});
+			addTrees(Random.getRandomInRange(0.005, 0.05), new Object[]{Object.DARK_TREE, Object.SNOW_TREE});
+			addStumps(.01);
+
+
 			bgColor = new Color(0.95f, 0.95f, 0.95f, 1);
 		}
 		if (maptype == MapType.CRAG) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < .7) ground[i][j] = GroundType.DARKROCK;
-					else if (random < .9) ground[i][j] = GroundType.MUD;
-					else if (random < 1) ground[i][j] = GroundType.ROCK;
-				}
-			}
+			setGroundTypesWithProbabilities(new GroundType[]{DARKROCK, MUD, ROCK}, new double[]{0.7, 0.9});
 			stage.targetDarkness = .5f;
 
 			addAppropriateLocationFeatures();
@@ -398,15 +397,9 @@ public class BattleMap extends Group {
 			bgColor = new Color(58/256f, 47/256f, 45/256f, 1);
 		}
 		if (maptype == MapType.SWAMP) {
-			for (int i = 0; i < ground.length; i++) {
-				for (int j = 0; j < ground[0].length; j++) {
-					double random = Math.random();
-					if (random < .5) ground[i][j] = GroundType.SWAMP;
-					else if (random < .95) ground[i][j] = GroundType.SWAMP2;
-					else if (random < 1) ground[i][j] = GroundType.DIRT;
-				}
-			}
+			setGroundTypesWithProbabilities(new GroundType[]{SWAMP, SWAMP2, DIRT}, new double[]{0.5, 0.95});
 			addAppropriateLocationFeatures();
+
 			bgColor = new Color(65/256f, 138/256f, 92/256f, 1);
 		}
 
@@ -427,6 +420,30 @@ public class BattleMap extends Group {
 		rainDrawOffsetY = 0;
 
 		initializeGround();
+	}
+
+
+	// Example: {GRASS, DARKGRASS, DIRT}, {0.33, 0.83}
+	// That means theres's a 33% chance of grass, 0.5 chance for darkgrass, and a 0.17 chance of dirt.
+	private void setGroundTypesWithProbabilities(GroundType[] types, double[] probs) {
+		for (int i = 0; i < ground.length; i++) {
+			for (int j = 0; j < ground[0].length; j++) {
+				double random = Math.random();
+
+				for (int k = 0; k < types.length; k++) {
+					// Use default if no ground set yet.
+					if (k >= probs.length || random < probs[k]) {
+						setGround(i, j, types[k]);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	private void setGround(int i, int j, GroundType groundType) {
+		ground[i][j] = groundType;
+		if (!groundTypes.contains(groundType, true)) groundTypes.add(groundType);
 	}
 
 	// Takes into account water, etc.
@@ -472,67 +489,146 @@ public class BattleMap extends Group {
 
 		// apply pixmap layers
 
+		// TODO this blending and the need to store so many textures might be the most expensive part of battle map. can test by having a small battle on a huge map.
 		// then add blend textures (shift down and right 1)
 		for (int i = 0; i < ground[0].length; i++) {
 			for (int j = 0; j < ground.length; j++) {
 				Pixmap current = getTexture(ground[j][i]);
 				//					current.
 
+				// DON'T mess with this, the algo is really good now.
 				boolean blend = true;
 				if (blend) {
-					// now for each of the 8 (9) adjacent textures, blend them with appropriate corners of this guy 
-					for (int x = -1; x <= 1; x++) {
-						for (int y = -1; y <=1 ; y++) {
-							if (x+j < 0 || x+j >= ground.length || y+i < 0 || y+i >= ground[0].length) continue;
-							Pixmap mask = this.getTexture(ground[j+x][i+y]);
+					// now for each of the 8 (9) adjacent textures, blend them with appropriate corners of this guy
+
+					// Option 1: draw one ground type at a time. e.g., draw the most popular ground type first, then accents on top of that. or vice versa for smoothing.
+//					for (GroundType currentType : groundTypes) {
+					// TODO randomize this a little bit
+					int deltaX = 1;
+					int deltaY = 1;
+
+					int xStart = -1;
+					int xEnd = 2;
+
+					int yStart = -1;
+					int yEnd = 2;
+
+					// This doesn't work as intended because order does matter for two adjacent squares I think.
+					// Not high priority.
+//					if (Random.coinflip()) {
+//						deltaX = -1;
+//						xStart = 1;
+//						xEnd = -2;
+//					}
+//					if (Random.coinflip()) {
+//						deltaY = -1;
+//						yStart = 1;
+//						yEnd = -2;
+//					}
+
+					for (int x = xStart; x != xEnd; x += deltaX) {
+						for (int y = yStart; y != yEnd; y += deltaY) {
+							if (x + j < 0 || x + j >= ground.length || y + i <
+									0 || y + i >= ground[0].length)
+								continue;
+//								if (ground[j + x][i + y] != currentType)
+// continue;
+
+							Pixmap mask = this.getTexture(ground[j + x][i +
+									y]);
 
 							Color c;
 
-							float MAX_ALPHA = 0.45f;
-							//							float MAX_ALPHA = 0.6f;
+							float MAX_ALPHA = 0.6f;
 
-							// apply larger alpha if closer to neighbor
-							// eg, if x == -1 and y == 0, lower values of x_pix are weighted more
-							// (-1, 0): x_pix = 0 should have MAX_ALPHA and x_pix = current.getWidth() should be 0
-							// eg, if x == 1 and y == 1, higher values of x_pix and y_pix are weighted more
-							// x_percent = x_pix / (current.getWidth())
-							// alpha = xpercent * MAX_ALPHA
+							// Current blending algo --
+							// for every square
+							//    go through all 8 adjacent squares
+							// 		go through every pixel in this guy
+							// 		  blend this pixel's color with a random
+							// pixel from the adjacent square
+							// 	      blending is based on distance away from
+							// that square.
+							//
+							// 	problems: every pixel in this light square
+							// might be darkened by a dark square to the right, but a square to the left of this one won't be
+							// affected by the dark one (because it's nonadjacent). so the border of this one and
+							//  the neighbor won't be blended. simple fix: only let pixels that are actually
+							// close to the dark square be affected (so the far edge won't see any darkening).
+							// complex fix: have multiple passes for blending (using already blended textures for blending)
 
+							// How to implement simple fix:
+							// 	 the alpha calculation should be 0 for pixels that are width pixels away from the opposite
+							// side, and 1 for pixels that are adjacent. alpha calculation should be based on distance
+							// to the center of the adjacent square? or, based on distance to center of this square?
 							for (int x_pix = 0; x_pix < current.getWidth(); x_pix++) {
 								for (int y_pix = 0; y_pix < current.getHeight(); y_pix++) {
-									//									if (Math.random() < 0.25) continue; // just try
-									// add some randomness
+									// add some randomness for which pixel in
+									// adjacent square we're talking about.
 									int random_x = (int) (Math.random() * current.getWidth());
 									int random_y = (int) (Math.random() * current.getHeight());
 
 									int maskColor = mask.getPixel(random_x, random_y);
 									c = new Color(maskColor);
 
-									// calculate appropriate alpha for smooth blending
-									float x_percent = (float) x_pix / current.getWidth();
-									float y_percent = (float) y_pix / current.getHeight();
+									// position is relative to current boxs
+									// bottom left corner (x_pix = 0, y_pix
+									// = 0)
+									float adjacentCenterX = x * current.getWidth() + current.getWidth() / 2;
+									float adjacentCenterY = -y * current.getHeight() + current.getHeight() / 2;
 
-									// invert for negative
-									if (x < 0) x_percent = 1-x_percent;
-									if (y > 0) y_percent = 1-y_percent;
+									boolean useRandomInsteadOfCenter = false;
+									if (useRandomInsteadOfCenter) {
+										adjacentCenterX = x * current.getWidth() + random_x;
+										adjacentCenterY = -y * current.getHeight() + random_y;
+									}
 
-									float alpha_x = x_percent * MAX_ALPHA;
-									float alpha_y = y_percent * MAX_ALPHA;
+									// First, calculate distance to center of adjacent square.
+									float distanceToCenterOfAdjacent = (float)
+											Math.sqrt((x_pix - adjacentCenterX) * (x_pix - adjacentCenterX)
+													+ (y_pix - adjacentCenterY) * (y_pix - adjacentCenterY));
 
-									if (x == 0) alpha_x = MAX_ALPHA;
-									if (y == 0) alpha_y = MAX_ALPHA;
+									// Distance to center of adjacent is proportional to the affect on alpha
+									// Picture a square, and then draw a circle that's just small enough to fit
+									// the square. That circle has radius = hypotenuse of the square.
+									// Everything within that distance will have a high alpha impact. beyond that
+									// will have diminishing alpha impact.
+									float hypotenuse = (float) Math.sqrt((current.getWidth() / 2) * (current.getWidth
+											() / 2) + (current.getHeight() / 2) * (current.getHeight() / 2));
 
-									// try taking the minimum for smoothness?
-									c.a = Math.min(alpha_x, alpha_y);
-									//									c.a = .f;
-									//									System.out.println(alpha_x + alpha_y);
+									// Now that we have the minimum impact distance (the hypotenuse), we need the
+									// maximum impact distance. Let's go as far as possible without
+									// affecting non-adjacent squares. The distance from the center of this
+									// square will simply be 1.5 * square width.
+									float maxImpactDistance = 1.5f * current.getWidth();
 
-									current.setColor(c);						
+									// Now, to calculate the distance impact.
+									// Might be greater than one, but should never be less than 0.
+									// if distance < hypotenuse, impact = 1;
+									// if distance > maxImpactDistance, impact
+									// = 0;
+
+
+									//           |0       1|
+									//   ----- -- --- -----
+									//  o     |  )   o     |
+
+									float distanceImpactInverted = (distanceToCenterOfAdjacent - hypotenuse) /
+											(maxImpactDistance - hypotenuse);
+									float distanceImpact = 1 - distanceImpactInverted;
+
+
+									if (distanceImpact > 1) distanceImpact = 1;
+									if (distanceImpact < 0) distanceImpact = 0;
+									c.a = distanceImpact * MAX_ALPHA;
+
+									current.setColor(c);
 									current.drawPixel(x_pix, y_pix);
 								}
-							}	
+							}
 						}
 					}
+//					}
 				}
 				groundTexture[j][i] = new TextureRegion(new Texture(current));
 			}
@@ -551,20 +647,20 @@ public class BattleMap extends Group {
 		switch(biome) {
 		case BEACH : 			            return MapType.BEACH;
 		case SNOW : 		               	return MapType.SNOW;
-		case TUNDRA : 			            return MapType.SNOW;
-		case MOUNTAINS: 			        return MapType.CRAG;
+		case TUNDRA : 			            return MapType.TUNDRA;
+		case MOUNTAINS: 			        return MapType.MOUNTAINS;
 		case SCORCHED :			            return MapType.CRAG;
-		case TAIGA :			            return MapType.FOREST;
-		case PLATEAU :                      return MapType.DESERT;
+		case TAIGA :			            return MapType.TUNDRA;
+		case PLATEAU :                      return MapType.GRASSLAND;
 		case SWAMP : 			            return MapType.SWAMP;
 		case TEMPERATE_DECIDUOUS_FOREST : 	return MapType.FOREST;
-		case GRASSLAND : 					return MapType.MEADOW;
+		case GRASSLAND : 					return MapType.PRARIE;
 		case SUBTROPICAL_DESERT : 			return MapType.DESERT;
 		case SHRUBLAND: 					return MapType.GRASSLAND;
 		case ICE : 							return MapType.SNOW;
 		case MARSH : 						return MapType.SWAMP;
-		case TROPICAL_RAIN_FOREST : 		return MapType.SWAMP;
-		case TROPICAL_SEASONAL_FOREST : 	return MapType.SWAMP;
+		case TROPICAL_RAIN_FOREST : 		return MapType.JUNGLE;
+		case TROPICAL_SEASONAL_FOREST : 	return MapType.JUNGLE;
 		case LAKESHORE: 					return MapType.BEACH;
 		default : 							return MapType.GRASSLAND;
 		}
@@ -747,20 +843,45 @@ public class BattleMap extends Group {
         return obstructed;
     }
 
-	private void addTrees(double probability) {
-        for (int i = 0; i < stage.size_x; i++) {
-            for (int j = 0; j < stage.size_y; j++) {
-            	// TODO get the ground type and add trees probabilistically according to what it is.
+	private void addSnowTrees(double probability) {
+		for (int i = 0; i < stage.size_x; i++) {
+			for (int j = 0; j < stage.size_y; j++) {
 				GroundType g = getGroundAt(i, j);
 				double prob = probability * getTreeProb(g);
-                if (Math.random() < prob && objects[j][i] == null && !insideWalls(i, j) && stage.canPlaceUnit(i, j) && !adjacentObstructed(i, j)) {
-                    objects[j][i] = Object.TREE;
-                    stage.closed[j][i] = true;
-                    //					mainmap.closed[i][j] = true;
+				if (Math.random() < prob && objects[j][i] == null && !insideWalls(i, j) && stage.canPlaceUnit(i, j) && !adjacentObstructed(i, j)) {
+					objects[j][i] = Object.SNOW_TREE;
+					stage.closed[j][i] = true;
+					//					mainmap.closed[i][j] = true;
 
-                }
-            }
-        }
+				}
+			}
+		}
+	}
+
+	private void addTrees(double probability, Object[] array) {
+		for (int i = 0; i < stage.size_x; i++) {
+			for (int j = 0; j < stage.size_y; j++) {
+				GroundType g = getGroundAt(i, j);
+				double prob = probability * getTreeProb(g);
+				if (this.maptype == MapType.BEACH) {
+					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && ground[i / BLOCK_SIZE][j / BLOCK_SIZE] == GroundType.LIGHTGRASS && !adjacentObstructed(i, j)) {
+						objects[j][i] = (Object) Random.getRandomValue(array);
+						stage.closed[j][i] = true;
+					}
+				} else if (Math.random() < prob && objects[j][i] == null && !insideWalls(i, j) && stage.canPlaceUnit(i, j) && !adjacentObstructed(i, j)) {
+					objects[j][i] = (Object) Random.getRandomValue(array);
+					stage.closed[j][i] = true;
+					//					mainmap.closed[i][j] = true;
+
+				}
+			}
+		}
+	}
+
+	private void addTrees(double probability, Object treeType) {
+		Object[] array = new Object[1];
+		array[0] = treeType;
+		addTrees(probability, array);
     }
 
     private float getTreeProb(GroundType ground) {
@@ -778,29 +899,29 @@ public class BattleMap extends Group {
 		}
 	}
 
-    private void addPalms(double probability) {
-        for (int i = 0; i < stage.size_x; i++) {
-            for (int j = 0; j < stage.size_y; j++) {
-                // Only add palms on the grassy part of the map (not the sand)
-				if (this.maptype == MapType.BEACH) {
-					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && ground[i / BLOCK_SIZE][j / BLOCK_SIZE] == GroundType.LIGHTGRASS && !adjacentObstructed(i, j)) {
-						objects[j][i] = Object.PALM;
-						stage.closed[j][i] = true;
-					}
-				}
-				else {
-					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && !adjacentObstructed(i, j)) {
-						objects[j][i] = Object.PALM;
-						stage.closed[j][i] = true;
-					}
-				}
-            }
-        }
-    }
+//    private void addPalms(double probability) {
+//        for (int i = 0; i < stage.size_x; i++) {
+//            for (int j = 0; j < stage.size_y; j++) {
+//                // Only add palms on the grassy part of the map (not the sand)
+//				if (this.maptype == MapType.BEACH) {
+//					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && ground[i / BLOCK_SIZE][j / BLOCK_SIZE] == GroundType.LIGHTGRASS && !adjacentObstructed(i, j)) {
+//						objects[j][i] = Object.PALM;
+//						stage.closed[j][i] = true;
+//					}
+//				}
+//				else {
+//					if (Math.random() < probability && objects[j][i] == null && !insideWalls(i, j) && !adjacentObstructed(i, j)) {
+//						objects[j][i] = Object.PALM;
+//						stage.closed[j][i] = true;
+//					}
+//				}
+//            }
+//        }
+//    }
 
     private boolean fireAt(int posX, int posY) {
         Object o  = objects[posY][posX];
-        if (o == Object.TREE_ON_FIRE || o == Object.PALM_ON_FIRE || o == Object.FIRE_SMALL) return true;
+        if (o == Object.TREE_ON_FIRE || o == Object.PALM_ON_FIRE || o == Object.PALM_DARK_ON_FIRE || o == Object.FIRE_SMALL || o == Object.DARK_TREE_ON_FIRE ||  o == Object.SNOW_TREE_ON_FIRE) return true;
         return false;
     }
 
@@ -813,8 +934,14 @@ public class BattleMap extends Group {
         boolean shouldGrow = true;
         if (objects[posY][posX] == Object.TREE)
             objects[posY][posX] = Object.TREE_ON_FIRE;
+		else if (objects[posY][posX] == Object.DARK_TREE)
+			objects[posY][posX] = Object.DARK_TREE_ON_FIRE;
+		else if (objects[posY][posX] == Object.SNOW_TREE)
+			objects[posY][posX] = Object.SNOW_TREE_ON_FIRE;
         else if (objects[posY][posX] == Object.PALM)
             objects[posY][posX] = Object.PALM_ON_FIRE;
+		else if (objects[posY][posX] == Object.PALM_DARK)
+			objects[posY][posX] = Object.PALM_DARK_ON_FIRE;
         else {
             objects[posY][posX] = Object.FIRE_SMALL;
             shouldGrow = false;
@@ -825,8 +952,8 @@ public class BattleMap extends Group {
         Fire fire = new Fire(800, 1000, stage.getMapScreen(), null, shouldGrow, false);
         fireContainer.addFire(fire);
         float y = posY * stage.unit_height + stage.unit_height * 0.5f;
-        if (objects[posY][posX] == Object.TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.5f; // note we move it a bit down (for aesthetics)
-        if (objects[posY][posX] == Object.PALM_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.5f; // note we move it a bit down (for aesthetics)
+        if (objects[posY][posX] == Object.TREE_ON_FIRE || objects[posY][posX] == Object.DARK_TREE_ON_FIRE || objects[posY][posX] == Object.SNOW_TREE_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.5f; // note we move it a bit down (for aesthetics)
+        if (objects[posY][posX] == Object.PALM_ON_FIRE || objects[posY][posX] == Object.PALM_DARK_ON_FIRE) y = posY * stage.unit_height + stage.unit_height * 0.5f; // note we move it a bit down (for aesthetics)
         fireContainer.setPosition(posX * stage.unit_width + stage.unit_width * 0.5f, y); // we shift it a bit to the left to account for size.
         fc.add(fireContainer);
         //					fire.setPosition(0, 0);
@@ -1040,7 +1167,7 @@ public class BattleMap extends Group {
 				int x = (i + BLOCK_SIZE / 2) / BLOCK_SIZE;
 				int y = (j+ BLOCK_SIZE / 2) / BLOCK_SIZE;
 				if (ground[x][y] != GroundType.WATER) {
-					ground[x][y] = toUse;
+					setGround(x, y, toUse);
 				}
 			}
 		}
@@ -1165,30 +1292,32 @@ public class BattleMap extends Group {
 		//		System.out.println(ground.length);
 		//		System.out.println(stage.size_x);
 		//		// draw base layer textures
-		for (int i = 0; i < ground[0].length; i++) {
-			for (int j = 0; j < ground.length; j++) {
-				texture = groundTexture[j][i];
 
-				boolean offMap = false;
-				if (i < ground[0].length * this.edge_size_percent - 1 || i >= ground[0].length - ground[0].length * this.edge_size_percent)
+			for (int i = 0; i < ground[0].length; i++) {
+				for (int j = 0; j < ground.length; j++) {
+					texture = groundTexture[j][i];
 
-					offMap = true;
-				if (j < ground.length * this.edge_size_percent - 1 || j >= ground.length - ground.length * this.edge_size_percent)
-					offMap = true;
+					boolean offMap = false;
+					if (i < ground[0].length * this.edge_size_percent - 1 || i >= ground[0].length - ground[0].length * this.edge_size_percent)
 
-				Color c = batch.getColor();
-				groundcolor.set(c);
+
+						offMap = true;
+					if (j < ground.length * this.edge_size_percent - 1 || j >= ground.length - ground.length * this.edge_size_percent)
+						offMap = true;
+
+					Color c = batch.getColor();
+					groundcolor.set(c);
 //
-				if (offMap) {
-					groundcolor.a = c.a * 0.6f;
-					batch.setColor(groundcolor);
-				}
-				batch.draw(texture, getDrawX(j), getDrawY(i), getDrawWidth(), getDrawHeight());
-				if (offMap) {
-					batch.setColor(c);
+					if (offMap) {
+						groundcolor.a = c.a * 0.6f;
+						batch.setColor(groundcolor);
+					}
+					batch.draw(texture, getDrawX(j), getDrawY(i), getDrawWidth(), getDrawHeight());
+					if (offMap) {
+						batch.setColor(c);
+					}
 				}
 			}
-		}
 
 
 		for (FireContainer f : fc) {
@@ -1506,11 +1635,11 @@ public class BattleMap extends Group {
 		for (int i = 0; i < stage.size_y; i++) {
 			for (int j = 0; j < stage.size_x; j++) {
 				texture = null;
-				if (objects[i][j] == Object.TREE || objects[i][j] == Object.TREE_ON_FIRE) {
+				if (objects[i][j] == Object.TREE || objects[i][j] == Object.TREE_ON_FIRE || objects[i][j] == Object.DARK_TREE || objects[i][j] == Object.DARK_TREE_ON_FIRE || objects[i][j] == Object.SNOW_TREE || objects[i][j] == Object.SNOW_TREE_ON_FIRE) {
 					//					System.out.println("drawing trees");
                     // TODO add tree shadow
 					texture = treeShadow;
-				} else if (objects[i][j] == Object.PALM || objects[i][j] == Object.PALM_ON_FIRE) {
+				} else if (objects[i][j] == Object.PALM || objects[i][j] == Object.PALM_DARK|| objects[i][j] == Object.PALM_ON_FIRE || objects[i][j] == Object.PALM_DARK_ON_FIRE ) {
 				    texture = palmShadow;
                 }
 				if (texture != null) drawShadow(batch, texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
@@ -1523,9 +1652,17 @@ public class BattleMap extends Group {
 				texture = null;
 				if (objects[i][j] == Object.TREE || objects[i][j] == Object.TREE_ON_FIRE) {
 					texture = tree;
-				} else if (objects[i][j] == Object.PALM ||  objects[i][j] == Object.PALM_ON_FIRE) {
+				} else if (objects[i][j] == Object.DARK_TREE ||  objects[i][j] == Object.DARK_TREE_ON_FIRE) {
+					texture = darkTree;
+				} else if (objects[i][j] == Object.SNOW_TREE ||  objects[i][j] == Object.SNOW_TREE_ON_FIRE) {
+					texture = snowDarkTree;
+				}
+				else if (objects[i][j] == Object.PALM ||  objects[i][j] == Object.PALM_ON_FIRE) {
                     texture = palm;
                 }
+				else if (objects[i][j] == Object.PALM_DARK ||  objects[i][j] == Object.PALM_DARK_ON_FIRE) {
+					texture = palmDark;
+				}
 				if (texture != null) batch.draw(texture, ((j-TREE_X_OFFSET)*stage.unit_width), ((i-TREE_Y_OFFSET)*stage.unit_height), TREE_WIDTH*stage.unit_width, TREE_HEIGHT*stage.unit_height);
 			}
 		}

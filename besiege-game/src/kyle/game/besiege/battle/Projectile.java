@@ -69,8 +69,8 @@ public class Projectile extends Group {
 	public float distanceToTravel;
 
 //	public float SPEED = 10f;
-	public float SPEED = 40f;
-    public float THROWN_SPEED = 20f;
+	public float SPEED = 30f;
+    public float THROWN_SPEED = 22f;
     public float FIREARM_SPEED = 100f;
 //			public float SPEED = 200f; // basically gunfire
 
@@ -118,8 +118,8 @@ public class Projectile extends Group {
 		dest_y = target.pos_y + .5f;
 
 		distanceToTravel = (float) firing.distanceTo(target);
-		
-		SPEED += (float) (Math.random()*SPEED/5f);
+
+//		SPEED += (float) (Math.random()*SPEED/5f);
 		
 		if (firing.rangedWeapon.type == Type.FIREARM) {
 			SPEED = FIREARM_SPEED;

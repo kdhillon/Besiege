@@ -23,6 +23,7 @@ import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.party.Party;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,9 +35,7 @@ public class PanelLocation extends Panel {
 	public Location location;
 	
 	private TopTable topTable;
-	
-//	private SoldierTable soldierTable;
-	
+
 	private LabelStyle ls;
 	private LabelStyle lsMed;
 	private LabelStyle lsG;
@@ -46,6 +45,8 @@ public class PanelLocation extends Panel {
 	private boolean playerTouched;
 	private boolean playerWaiting;
 	private boolean playerBesieging;
+
+	SoldierTable garrisonSoldierTable;
 
 	private HashMap<Party, SoldierTable> garrisonedTables = new HashMap<>();
 
@@ -95,26 +96,15 @@ public class PanelLocation extends Panel {
 		topTable.addBigLabel("Garrison", "Garrison:");
 		topTable.addSmallLabel("Pop", "Pop:");
 		topTable.addSmallLabel("Wealth", "Wealth:");
-
-		SoldierTable soldierTable = new SoldierTable(this, location.getParty());
 		topTable.row();
-		topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
-		topTable.row();
-//		if (location.getParty() != null)
-		garrisonedTables.put(location.getParty(), soldierTable);
-
-		for (Army a : location.getGarrisoned()) {
-			if (a.passive) continue;
-			SoldierTable st = new SoldierTable(this, a.getParty());
-			topTable.add(st).colspan(4).top().padTop(MINI_PAD).expandY();
-			topTable.row();
-			garrisonedTables.put(a.getParty(), st);
-		}
 
 		//stats.debug();
 		topTable.padLeft(MINI_PAD);
 		this.addTopTable(topTable);
 
+		garrisonSoldierTable = new SoldierTable(this, location.getParty());
+		addSoldierTable(garrisonSoldierTable);
+		updateSoldierTables();
 		playerIn = false;
 //		this.hireMode = false;
 
@@ -133,8 +123,10 @@ public class PanelLocation extends Panel {
                     setButton(1, "Continue Raid");
                 else setButton(1, "Resume Siege");
             } else if (!location.underSiege()) {
-                if (location.isVillage() && !((Village) location).raided())
-                    setButton(1, "Raid");
+                if (location.isVillage()) {
+					if (!((Village) location).raided())
+						setButton(1, "Raid");
+				}
                 else setButton(1, "Besiege");
             }
             setButton(2, "Withdraw");
@@ -281,16 +273,43 @@ public class PanelLocation extends Panel {
 			topTable.update("locationtype", location.getTypeStr(),  null);
 			location.needsUpdate = false;
 		}
-        Set<Party> parties = garrisonedTables.keySet();
-        for (Party p : parties) {
-        	if (p == null) continue;
-        	if (p.updated) {
-        		garrisonedTables.get(p).update();
-        		p.updated = false;
+
+		if (garrisonedTables.size() != location.getGarrisonedAndGarrison().size) {
+        	System.out.println("updating soldier tables for location: " + location.getName());
+        	updateSoldierTables();
+		}
+
+		Set<Party> parties = garrisonedTables.keySet();
+		for (Party p : parties) {
+			if (p == null) continue;
+			if (p.updated) {
+				garrisonedTables.get(p).update();
+				p.updated = false;
 			}
 		}
-        super.act(delta);
+
+		super.act(delta);
     }
+
+    // TODO This should rn keep around sts for parties that have left the garrison.
+    private void updateSoldierTables() {
+		System.out.println("updating soldier tables");
+		Collection<SoldierTable> c = garrisonedTables.values();
+		c.remove(garrisonSoldierTable);
+		this.clearSoldierTables(c);
+
+		garrisonedTables.clear();
+		garrisonedTables.put(location.getParty(), garrisonSoldierTable);
+
+		for (Army a : location.getGarrisoned()) {
+			if (a.passive) continue;
+			SoldierTable st = new SoldierTable(this, a.getParty());
+			addSoldierTable(st);
+//			topTable.add(st).colspan(4).top().padTop(MINI_PAD).expandY();
+//			topTable.row();
+			garrisonedTables.put(a.getParty(), st);
+		}
+	}
 	
 	public Party getParty() {
 		return this.location.getParty();
@@ -307,22 +326,22 @@ public class PanelLocation extends Panel {
 	
 	@Override
 	public void resize() { // problem with getting scroll bar to appear...
-		Set<Party> set = new HashSet<>(garrisonedTables.keySet());
-		// p may be null (for ruins)
-		for (Party p : set) {
-			SoldierTable soldierTable = garrisonedTables.get(p);
-			garrisonedTables.remove(p);
-
-			Cell cell = topTable.getCell(soldierTable);
-//			cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-			soldierTable = new SoldierTable(this, p);
-//			soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-			cell.setWidget(soldierTable);
-			garrisonedTables.put(p, soldierTable);
-			soldierTable.update();
-			// may be unnecessary
-//			p.updated = true;
-		}
+//		Set<Party> set = new HashSet<>(garrisonedTables.keySet());
+//		// p may be null (for ruins)
+//		for (Party p : set) {
+//			SoldierTable soldierTable = garrisonedTables.get(p);
+//			garrisonedTables.remove(p);
+//
+//			Cell cell = topTable.getCell(soldierTable);
+////			cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//			soldierTable = new SoldierTable(this, p);
+////			soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+//			cell.setWidget(soldierTable);
+//			garrisonedTables.put(p, soldierTable);
+//			soldierTable.update();
+//			// may be unnecessary
+////			p.updated = true;
+//		}
 		location.needsUpdate = true;
 		super.resize();
 	}

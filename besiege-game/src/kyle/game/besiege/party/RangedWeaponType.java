@@ -40,6 +40,28 @@ public class RangedWeaponType {
 		if (type == null) throw new AssertionError("Type not found: " + typeString);
 	}
 
+	public boolean shouldDrawAmmo() {
+		switch (type) {
+			case SLING:
+			case THROWN:
+			case THROWN_AXE:
+			case THROWN_FIRE:
+			case ATLATL:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public boolean drawAmmoReversed() {
+		switch (type) {
+			case THROWN_AXE:
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public String getDefaultTexture() {
 		switch (type) {
 			case BOW:

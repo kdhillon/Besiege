@@ -21,10 +21,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
 
+import com.esotericsoftware.tablelayout.Cell;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.party.Soldier;
+
+import java.util.Collection;
 
 public class Panel extends Group {
 	private final float PAD = 5;
@@ -48,18 +51,18 @@ public class Panel extends Group {
 	private int day;
 	private int time;
 
-	private ScrollPane topPane;
-	private ScrollPane topPane2;
+//	private ScrollPane topPane2;
 	private ScrollPane.ScrollPaneStyle spStyle;
 
 	private Label timeLabel;
 	private Label pausedLabel;
 	private Table buttons;
-	private Table topTable;
-	private Table topTable2;
+
+	private ScrollPane masterPane;
+	private Table master; // this is the table inside it's own scrollpane. topTables and soldiertables are children of this.
+	private float masterHeight;
 
 	private float topTableY;
-	private float topTableHeight;
 	private float HALF_Y;
 	private float HALF_HEIGHT;
 
@@ -85,6 +88,7 @@ public class Panel extends Group {
 
 	public Panel() {
 		this.setPosition(0, 0);
+
 		buttons = new Table();
 		//buttons.debug();
 		buttons.bottom();
@@ -139,11 +143,14 @@ public class Panel extends Group {
 		this.sidePanel = panel;
 		this.kingdom = panel.getMapScreen().getKingdom();
 
-		topTableY = PAD + BUTTONHEIGHT;
-		topTableHeight = sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2;
+		masterHeight = sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2;
 
-		HALF_HEIGHT = topTableHeight / 2;
+		topTableY = PAD + BUTTONHEIGHT;
+
+		HALF_HEIGHT = masterHeight / 2;
 		HALF_Y = PAD + sidePanel.getHeight() - SidePanel.WIDTH - HALF_HEIGHT;
+
+		initializeMasterTable();
 	}
 
 	public void setButton(int bc, String name) {
@@ -156,10 +163,10 @@ public class Panel extends Group {
 		if (name == null) {
 //			b.clearChildren();
 			b.setVisible(false);
-			System.out.println("setting button " + bc + " to null");
+//			System.out.println("setting button " + bc + " to null");
 		}
 		else {
-			System.out.println("setting text of button " + bc + " to " + name);
+//			System.out.println("setting text of button " + bc + " to " + name);
 			b.setVisible(true);
 			b.label.setText(name);
 		}
@@ -241,7 +248,7 @@ public class Panel extends Group {
 
 	@Override
 	public void act(float delta) {	
-		if (topPane.getHeight() != topTableHeight) {
+		if (masterPane.getHeight() != masterHeight) {
 			resize();
 		}
 
@@ -258,65 +265,72 @@ public class Panel extends Group {
 	}
 
 	public void resize() {
-		this.removeActor(topPane);
-		topPane = new ScrollPane(topTable, spStyle);
-		topPane.setScrollingDisabled(true, true);
-		topPane.setFadeScrollBars(false);
-		topPane.setBounds(PAD, topTableY, SidePanel.WIDTH - PAD*2, topTableHeight);
+		// TODO make this adjust soldiertables?
+		this.removeActor(masterPane);
+		masterPane = new ScrollPane(master, spStyle);
+		masterPane.setScrollingDisabled(true, true);
+		masterPane.setFadeScrollBars(false);
+		masterPane.setBounds(PAD, topTableY, SidePanel.WIDTH - PAD*2, masterHeight);
 
-		this.addActor(topPane);
-
-		if (topPane2 != null) {
-			this.removeActor(topPane2);
-			topPane2 = new ScrollPane(topTable2, spStyle);
-			topPane2.setScrollingDisabled(true, true);
-			topPane2.setFadeScrollBars(false);
-			topPane2.setBounds(PAD, BUTTONHEIGHT + PAD, SidePanel.WIDTH - PAD * 2, HALF_HEIGHT);
-
-			this.addActor(topPane2);
-		}
+		this.addActor(masterPane);
 	}
 
 	public void addTopTable2(Table topTable2) {
-		this.topTableY = HALF_Y;
-		this.topTableHeight = HALF_HEIGHT;
+		addTopTable(topTable2);
+	}
 
-		this.topTable2 = topTable2;
-		topTable2.top();
+	public void initializeMasterTable() {
+		this.master = new Table();
+		master.top();
 		spStyle = new ScrollPane.ScrollPaneStyle();
 
 		spStyle.vScroll = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(barTexture), r,r,r,r));
 		spStyle.vScrollKnob = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(knobTexture), r,r,r,r));
 
-		topPane2 = new ScrollPane(topTable2, spStyle);
-		topPane2.setY(sidePanel.getHeight() - SidePanel.WIDTH);
-		topPane2.setX(0);
-		topPane2.setWidth(SidePanel.WIDTH-PAD*2);
-		topPane2.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
+		masterPane = new ScrollPane(master, spStyle);
+		masterPane.setY(sidePanel.getHeight() - SidePanel.WIDTH);
+		masterPane.setX(0);
+		masterPane.setWidth(SidePanel.WIDTH-PAD*2);
+		masterPane.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
 
-		topPane2.setScrollingDisabled(true, true);
+		masterPane.setScrollingDisabled(true, true);
 
-		this.addActor(topPane2);
+		this.addActor(masterPane);
 	}
 
 	public void addTopTable(Table topTable) {
-		this.topTable = topTable;
-		//topTable.debug();
-		topTable.top();
-		spStyle = new ScrollPane.ScrollPaneStyle();
+		// Just add toptable to mastertable.
+		master.add(topTable).top().padBottom(PAD/2);
+		master.row();
+	}
 
-		spStyle.vScroll = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(barTexture), r,r,r,r));
-		spStyle.vScrollKnob = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(knobTexture), r,r,r,r));
+	public void updateTopTable(Table prevTable, Table newTable) {
+		Cell cell = master.getCell(prevTable);
+		cell.setWidget(newTable);
 
-		topPane = new ScrollPane(topTable, spStyle);
-		topPane.setY(sidePanel.getHeight() - SidePanel.WIDTH);
-		topPane.setX(0);
-		topPane.setWidth(SidePanel.WIDTH-PAD*2);
-		topPane.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
+//			Cell cell = topTable.getCell(soldierTable);
+////			cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//			soldierTable = new SoldierTable(this, p);
+////			soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+//			cell.setWidget(soldierTable);
+//			garrisonedTables.put(p, soldierTable);
+//			soldierTable.update();
+		// Just add toptable to mastertable.
+//		master.add(topTable).top().padBottom(PAD/2);
+//		master.row();
+	}
 
-		topPane.setScrollingDisabled(true, true);
 
-		this.addActor(topPane);
+	public void addSoldierTable(SoldierTable table) {
+		master.add(table).top().expandY().padTop(0).fillY();
+		master.row();
+	}
+
+	// this doesn't seem to work?
+	public void clearSoldierTables(Collection<SoldierTable> tables) {
+		for (SoldierTable s : tables) {
+			master.removeActor(s);
+		}
 	}
 
 	// All overridden

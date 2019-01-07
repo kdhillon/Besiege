@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.StrictArray;
+import kyle.game.besiege.battle.Projectile;
 import kyle.game.besiege.battle.Unit;
 
 // Class for drawing the body of the Unit
@@ -22,6 +23,9 @@ public class UnitDraw extends Actor {
 
     public Color armorTint;
     public Color skinTint;
+
+    public Color armorTintDead;
+    public Color skinTintDead;
 
     public Soldier soldier;
     public RangedWeaponType rangedWeapon;
@@ -108,7 +112,7 @@ public class UnitDraw extends Actor {
             // For now, don't draw equipment.
 //             TODO fix headdress drawing
 //            System.out.println("drawing dying unit: " + unit.timeSinceDeath + " " + (dieArmor == null) + (dieSkin == null) + " " +  armorTint.toString() + " " + skinTint.toString());
-            drawUnit(this, batch, dieArmor, dieSkin, armorTint, skinTint, unit.timeSinceDeath, false, unit.equipment);
+            drawUnit(this, batch, dieArmor, dieSkin, armorTintDead, skinTintDead, unit.timeSinceDeath, false, unit.equipment);
         } else {
 
             if (unit.isHit)
@@ -121,6 +125,7 @@ public class UnitDraw extends Actor {
                 drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, unit.stateTime, unit.equipment);
             } else if (unit.isFiring()) {
                 drawUnit(this, batch, firingArmor, firingSkin, armorTint, skinTint, unit.firingStateTime, firingLoop, unit.equipment);
+                drawAmmoIfNecessary(batch);
             } else {
                 drawUnit(this, batch, walkArmor, walkSkin, armorTint, skinTint, 0, false, unit.equipment);
             }
@@ -132,9 +137,43 @@ public class UnitDraw extends Actor {
         batch.setColor(c);
     }
 
+    // Draws ammo on top of firing animation (for atlatls and tomahawks for example)
+    private void drawAmmoIfNecessary(SpriteBatch batch) {
+        if (unit.rangedWeaponOut()) { //  || unit.isFiring()
+            if (unit.isFiring()) {
+                // Draw  ammo on top
+                if (unit.rangedWeapon.shouldDrawAmmo() && unit.unitDraw.isDrawingRangedLoadedAnimation()) {
+                    float ammoRotation = getRotation();
+                    float y = getY() + unit.getHeight() * 2 / 8;
+                    float x = getX() + unit.getWidth() * 6 / 8;
+                    if (unit.rangedWeapon.drawAmmoReversed()) {
+                        ammoRotation = ammoRotation + 180;
+                        x = getX() + unit.getWidth() * 7 / 8;
+                        y = getY();
+                    }
+                    batch.draw(
+                            unit.ammoType.getRegion(),
+                            x,
+                            y,
+                            unit.ammoType.getRegion().getRegionWidth() / 2,
+                            unit.ammoType.getRegion().getRegionHeight() / 2,
+                            unit.ammoType.getRegion().getRegionWidth(),
+                            unit.ammoType.getRegion().getRegionHeight(),
+                            Projectile.getDefaultSmallScale() * 4,
+                            Projectile.getDefaultSmallScale() * 4,
+                            ammoRotation);
+
+                }
+            }
+        }
+    }
+
     private void assignColor() {
         this.armorTint = soldier.getArmor().getColorTopDown();
         this.skinTint = soldier.getColor();
+
+        this.armorTintDead = new Color(0.8f, 0.8f, 0.8f, 1).mul(armorTint);
+        this.skinTintDead = new Color(0.8f, 0.8f, 0.8f, 1).mul(skinTint);
     }
 
     // create animation with speed .25f assuming one row, loops by default

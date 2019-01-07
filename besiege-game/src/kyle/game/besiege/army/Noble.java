@@ -163,18 +163,15 @@ public class Noble extends Army {
 
 			//			System.out.println(getName() + " managing special target " + this.specialTarget.getName());
 			// go to city to besiege/raid
-			if (this.isGarrisoned() && canEject()) {
-				this.eject();
-			}
+
 			manageSpecialTarget();
 			if (!hasTarget()) throw new AssertionError();
 		}
 		else if (getFaction().cities.size > 1) {
 			if (getKingdom().currentPanel == this) System.out.println(getName() + " wandering between cities");
 
-			if (isGarrisoned() && canEject()) eject();
-
 			wanderBetweenCities();
+
 			if (!hasTarget()) throw new AssertionError();
 		}
 		else {
@@ -316,23 +313,24 @@ public class Noble extends Army {
 	}
 
 	public void goToNewTarget() {
-		Location newTarget = this.getFaction().getRandomLocation();
-		if (this.getGarrisonedIn() != newTarget) {
-			if (newTarget != null) {
-				if (setTarget(newTarget)) {
-					if (!hasTarget()) throw new AssertionError();
-				}
-			}
-			else {
-				System.out.println(getName() + " wanderBetweenCities target is null");
+		Location newTarget;
+		do {
+			newTarget = this.getFaction().getRandomLocation();
+		}
+		while (this.getGarrisonedIn() == newTarget);
+
+		if (newTarget != null) {
+			if (setTarget(newTarget)) {
 				if (!hasTarget()) throw new AssertionError();
 			}
 		} else {
-			System.out.println(this.getName() + " is already garrisoned in new target: " + newTarget.getName());
+			System.out.println(getName() + " wanderBetweenCities target is " +
+					"null");
 			if (!hasTarget()) throw new AssertionError();
 		}
-//		else System.out.println("new target is garrisoned in");
 	}
+//		else System.out.println("new target is garrisoned in");
+
 
 	@Override
 	public String getUniqueAction() {

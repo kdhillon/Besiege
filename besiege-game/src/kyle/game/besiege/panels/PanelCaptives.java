@@ -77,18 +77,20 @@ public class PanelCaptives extends Panel {
             }
         });
 
-        topTable.addBigLabel("PartySize", "Party Size:");
+        topTable.addBigLabel("CaptivesToSell", "Captives:");
+        topTable.addBigLabel("TotalValue", "Total Value:");
         topTable.addBigLabel("PartyWealth", "Party Wealth:");
-
-        soldierTable = new CaptivesSoldierTable(party, this);
-
-        topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
-        updateSoldierTable();
 
         topTable.row();
         //stats.debug();
         topTable.padLeft(MINI_PAD);
         this.addTopTable(topTable);
+
+        soldierTable = new CaptivesSoldierTable(party, this);
+
+        this.addSoldierTable(soldierTable);
+        updateSoldierTable();
+
 
         this.setButton(1, "Sell");
         hideButton(1);
@@ -157,12 +159,21 @@ public class PanelCaptives extends Panel {
     @Override
     public void act(float delta) {
         topTable.update("PartyWealth", "" + panel.getKingdom().getPlayer().getParty().wealth);
-        topTable.update("PartySize", "" + panel.getKingdom().getPlayer().getPartyInfo());
+        topTable.update("CaptivesToSell", "" + panel.getKingdom().getPlayer().getParty().getPrisoners().size);
+        topTable.update("TotalValue", "" + getTotalCaptivePrice());
 
 //		if (location.getToHire() != null && location.getToHire().getHealthySize() == 0) getButton(2).setDisabled(true);
 //		else getButton(2).setDisabled(false);
 
         super.act(delta);
+    }
+
+    private int getTotalCaptivePrice() {
+        int sum = 0;
+        for (Soldier s : panel.getKingdom().getPlayer().getParty().getPrisoners()) {
+            sum += s.getSellPrice();
+        }
+        return sum;
     }
 
     public void updateSoldierTable() {
@@ -233,12 +244,12 @@ public class PanelCaptives extends Panel {
 
     @Override
     public void resize() { // problem with getting scroll bar to appear...
-        Cell cell = topTable.getCell(soldierTable);
-        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-        soldierTable = new CaptivesSoldierTable(party, this);
-//        party.needsUpdate = true;
-        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-        cell.setWidget(soldierTable);
+//        Cell cell = topTable.getCell(soldierTable);
+//        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//        soldierTable = new CaptivesSoldierTable(party, this);
+////        party.needsUpdate = true;
+//        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+//        cell.setWidget(soldierTable);
         updateSoldierTable();
 
         super.resize();

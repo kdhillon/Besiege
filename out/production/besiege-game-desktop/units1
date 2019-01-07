@@ -192,23 +192,30 @@ preview-chest-armor-2
   orig: 8, 8
   offset: 0, 0
   index: -1
-skin-preview-2
+preview-clothes-armor
   rotate: false
   xy: 20, 56
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-skin-preview-3
+skin-preview-2
   rotate: false
   xy: 20, 66
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
-preview-basic-armor
+skin-preview-3
   rotate: false
   xy: 20, 76
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-basic-armor
+  rotate: false
+  xy: 20, 86
   size: 8, 8
   orig: 8, 8
   offset: 0, 0

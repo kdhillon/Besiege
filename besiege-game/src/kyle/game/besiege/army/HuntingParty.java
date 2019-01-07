@@ -69,7 +69,6 @@ public class HuntingParty extends Army {
 			// double check to see if fixes problem
 //			detectNearby();
 //			if (shouldStopRunning())
-				eject();
 				setNewHuntDest();
 				this.huntStopsLeft = Random.getRandomInRange(HUNT_STOPS_MIN, HUNT_STOPS_MAX);
 				this.lastPos = null;

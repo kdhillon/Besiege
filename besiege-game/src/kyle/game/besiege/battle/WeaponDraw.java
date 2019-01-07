@@ -238,24 +238,6 @@ public class WeaponDraw extends Group { // can have arrows.
             // TODO this needs to be drawn at the same time as Unit (not WeaponDraw)
 			// don't draw if firing
 			if (unit.isFiring()) {
-                // Draw  ammo on top
-                if (unit.drawAmmo && unit.unitDraw.isDrawingRangedLoadedAnimation()) {
-                    float ammoRotation = getRotation();
-                    if (unit.drawAmmoReversed)
-                        ammoRotation = ammoRotation + 180;
-                    batch.draw(
-                            unit.ammoType.getRegion(),
-                            getX() + unit.getWidth() * 6 / 8,
-                            getY() + unit.getHeight() * 2 / 8,
-                            unit.ammoType.getRegion().getRegionWidth() / 2,
-                            unit.ammoType.getRegion().getRegionHeight() / 2,
-                            unit.ammoType.getRegion().getRegionWidth(),
-                            unit.ammoType.getRegion().getRegionHeight(),
-                            Projectile.getDefaultSmallScale() * 4,
-                            Projectile.getDefaultSmallScale() * 4,
-                            ammoRotation);
-
-                }
 			    return;
             }
 		}

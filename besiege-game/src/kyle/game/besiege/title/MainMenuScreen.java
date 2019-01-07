@@ -37,12 +37,14 @@ import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.Random;
 import kyle.game.besiege.battle.BPoint;
 import kyle.game.besiege.battle.BattleMap;
+import kyle.game.besiege.battle.Simulation;
 
 import static kyle.game.besiege.battle.BattleMap.RAINDROP_COLOR;
 import static kyle.game.besiege.battle.BattleMap.SNOW_COLOR;
 
 //import com.esotericsoftware.kryo.io.Input;
 
+// TODO separate MainMenuScreen from background.
 public class MainMenuScreen implements Screen {
 //	private static final String TITLE = "CHIEFTAIN";
 	private static final String TITLE_1 = "C H I E F T A I N";
@@ -78,6 +80,7 @@ public class MainMenuScreen implements Screen {
 	private Label labelTitle;
 	private Label labelNew;
 	private Label labelLoad;
+	private Label quickBattle;
 	
 	private LabelStyle styleTitle;
 	private LabelStyle styleButtons;
@@ -411,6 +414,9 @@ public class MainMenuScreen implements Screen {
 		labelNew.addAction(Actions.sequence(Actions.alpha(0), Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
 		labelLoad.addAction(Actions.sequence(Actions.alpha(0),  Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
 
+		quickBattle = new Label("Q U I C K   B A T T L E", styleButtons);
+		quickBattle.addAction(Actions.sequence(Actions.alpha(0), Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
+
 		mainTable.add(labelTitle).padBottom(PAD_BELOW_TITLE).padTop(PAD_ABOVE_TITLE);
 		mainTable.row();
 		mainTable.add(lowerTable).height(FIXED_SIZE_BOTTOM);
@@ -452,9 +458,28 @@ public class MainMenuScreen implements Screen {
 				setLoadOff();
 			}
 		});
+		quickBattle.addListener(new ClickListener() {
+			public boolean touchDown(InputEvent event, float x,
+									 float y, int pointer, int button) { return true; }
+			public void touchUp(InputEvent event, float x, float y,
+								int pointer, int button) {
+				clickBattleLaunch();
+			}
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				setQuickBattleOn();
+			}
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				setQuickBattleOff();
+			}
+		});
+
 		lowerTable.add(labelNew).right().padRight(SEPARATE);
 		lowerTable.add(labelLoad).left().padLeft(SEPARATE);
-		
+		lowerTable.row();
+		lowerTable.add(quickBattle).left().colspan(2).expandX().padTop(25);
+
 		Label placeholder = new Label(" ", styleButtons);
 		lowerTable.row();
 		lowerTable.add(placeholder).colspan(2);
@@ -484,6 +509,14 @@ public class MainMenuScreen implements Screen {
 	
 	private void setLoadOff() {
 		labelLoad.setColor(Color.WHITE);
+	}
+
+	private void setQuickBattleOn() {
+		quickBattle.setColor(Color.LIGHT_GRAY);
+	}
+
+	private void setQuickBattleOff() {
+		quickBattle.setColor(Color.WHITE);
 	}
 	
 	@Override
@@ -605,11 +638,18 @@ public class MainMenuScreen implements Screen {
 	private void expand() {
 		this.tf.setWidth(50000);
 	}
-	
+
+	// TODO more complex battle simulator UI:
+	// 	 add it to the main menu. player can choose either quick battle or campaign. more expensive?
+	// 			requires adding a complex menu to main screen. Instead, make the menu (table) a separate class, replace the "Warchief" title with that table.
+	private void clickBattleLaunch() {
+		// Launch a new battle, with specified options.
+		Simulation simulation = new Simulation();
+		main.setScreen(simulation.getMapScreen()); // eventually make mainMenu
+	}
+
 	private void clickLoad() {
 		// check if null
-		
-		
 		System.out.println("clicked load");
 		main.loadMapScreen();
 		main.setScreen(main.mapScreen);

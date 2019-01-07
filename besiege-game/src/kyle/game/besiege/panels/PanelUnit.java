@@ -99,7 +99,7 @@ public class PanelUnit extends Panel {
 		if (soldier.female) name += " (f)";
 		else name += " (m)";
 
-		topTable.addSubtitle("name", name, ls, null);
+		topTable.addSubtitle("name", name, null);
 
 //		// TODO should we have a party name?
 //		armyName = new Label("", ls);
@@ -118,18 +118,26 @@ public class PanelUnit extends Panel {
 		}
 
 		// TODO add subpanels for weapons and armor detailing their stats
-		topTable.addSubtitle("weapon", soldier.unitType.melee.name, ls, null);
 
-		if (soldier.unitType.ranged != null)
-			topTable.addSubtitle("ranged", soldier.unitType.ranged.name, ls, null);
+		// If not in battle, use a special minimized format.
+		if (unit == null)
+			topTable.addSubtitle("weapon", soldier.unitType.getWeaponSummary(), null);
+		else
+			topTable.addSubtitle("weapon", soldier.unitType.melee.name, ls, null);
 
-		if (soldier.unitType.shieldType != null)
-			topTable.addSubtitle("shield", soldier.unitType.shieldType.name, ls, null);
+		// Only do detialed ranged weapon if in a battle.
+		if (unit != null) {
+			if (soldier.unitType.ranged != null)
+				topTable.addSubtitle("ranged", soldier.unitType.ranged.name, ls, null);
 
-		String armor = soldier.unitType.armor.name;
-		if (armor.equals("None")) armor = "Naked";
+			if (soldier.unitType.shieldType != null)
+				topTable.addSubtitle("shield", soldier.unitType.shieldType.name, ls, null);
 
-		topTable.addSubtitle("armor", armor, ls, null);
+			String armor = soldier.unitType.armor.name;
+			if (armor.equals("None")) armor = "Naked";
+
+			topTable.addSubtitle("armor", armor, ls, null);
+		}
 
 		topTable.addSmallLabel("level", "Level:");
 		topTable.addSmallLabel("attack", "Atk:");
@@ -138,10 +146,6 @@ public class PanelUnit extends Panel {
 		topTable.addSmallLabel("defense", "Def:");
 		topTable.addSmallLabel("morale", "Morale:");
 		topTable.addSmallLabel("speed", "Spd:");
-
-		topTable.row();
-		topTable.add().colspan(4).padBottom(PAD);
-		topTable.row();
 
 		topTable.row();
 		return topTable;

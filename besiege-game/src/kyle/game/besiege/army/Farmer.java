@@ -62,7 +62,6 @@ public class Farmer extends Army {
 			// double check to see if fixes problem
 //			detectNearby();
 //			if (shouldStopRunning())
-				eject();
 				setNewFarmDest();
 		}
 //		else System.out.println(runFrom.getName());

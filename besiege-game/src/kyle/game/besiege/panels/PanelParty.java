@@ -29,6 +29,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	private TopTable topTable;
 
     private SoldierTable soldierTable;
+    private TopTable mainTopTable;
 
 	private LabelStyle ls;
 	private LabelStyle lsG;	// wounded
@@ -108,16 +109,13 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 		topTable.addSmallLabel("Wealth", "Wealth:");
 		topTable.addSmallLabel("Spd", "Spd:");
 
-        soldierTable = new SoldierTable(this, party);
-        topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
-
-        topTable.row();
-		topTable.add().colspan(4).padBottom(PAD);
-		topTable.row();
-
-		topTable.row();
+//        topTable.add(soldierTable).colspan(4).top().padTop(0).expandY();
 
 		this.addTopTable(topTable);
+		this.mainTopTable = topTable;
+
+		soldierTable = new SoldierTable(this, party);
+		this.addSoldierTable(soldierTable);
 //		text.debug();
 
 		if (this.army != null && this.army == panel.getPlayer()) {
@@ -150,27 +148,27 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 				playerTouched = false;
 			}
 			if (party.player) {
-				topTable.update("factionname", army.getFactionName(), null);
-				topTable.updateTitle(army.getName(), null);
+				mainTopTable.update("factionname", army.getFactionName(), null);
+				mainTopTable.updateTitle(army.getName(), null);
 			}
 
 			if (!army.player && army.getKingdom().getPlayer().isAtWar(army))
-				topTable.update("factionname", army.getFactionName() + " (at war)", null);
+				mainTopTable.update("factionname", army.getFactionName() + " (at war)", null);
 			else
-				topTable.update("factionname", army.getFactionName(), null);
+				mainTopTable.update("factionname", army.getFactionName(), null);
 
-			topTable.update("action", army.getAction(), null);
-            topTable.update("Morale", army.getMoraleString() + "");
-			topTable.update("Wealth", "" + army.getParty().wealth);
+			mainTopTable.update("action", army.getAction(), null);
+            mainTopTable.update("Morale", army.getMoraleString() + "");
+			mainTopTable.update("Wealth", "" + army.getParty().wealth);
 
 			// set speed to be current travel speed, not playerPartyPanel speed
-			topTable.update("Spd", Panel.format("" + army.getSpeed() * Army.SPEED_DISPLAY_FACTOR, 2));
+			mainTopTable.update("Spd", Panel.format("" + army.getSpeed() * Army.SPEED_DISPLAY_FACTOR, 2));
 		}
-		topTable.update("Size", getSizeString()); //+"/"+playerPartyPanel.getMaxSize());
-//		topTable.update("Captives", party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+playerPartyPanel.getMaxSize());
+		mainTopTable.update("Size", getSizeString()); //+"/"+playerPartyPanel.getMaxSize());
+//		mainTopTable.update("Captives", party.getHealthySize()+"/"+party.getTotalSize()); //+"/"+playerPartyPanel.getMaxSize());
 
-		topTable.update("Atk", ""+ party.getAtk());
-		topTable.update("Def", Panel.format(""+party.getAvgDef(), 2));
+		mainTopTable.update("Atk", ""+ party.getAtk());
+		mainTopTable.update("Def", Panel.format(""+party.getAvgDef(), 2));
 		
 		//spd.setText(Panel.format(""+playerPartyPanel.getAvgSpd(), 2));
 
@@ -213,20 +211,29 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 	public void notifySelect(Soldier s) {
 		// a soldier was just selected
 		// Want to replace this toptable with the unit's toptable
+		if (topTable == mainTopTable) {
+			topTable = PanelUnit.getTopTable(s, null, ls);
+			updateTopTable(mainTopTable, topTable);
+		}
 	}
 
 	public void notifyDeselect() {
+		if (topTable != mainTopTable) {
+			updateTopTable(topTable, mainTopTable);
+			topTable = mainTopTable;
+		}
 	}
 
 	@Override
 	public void resize() {
 		// TODO move soldier table out of top table, make soldiertable and toptable PEERs. use a new master table that is inside of scrollpane that holds toptable + soldiertable.
-        Cell cell = topTable.getCell(soldierTable);
-        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-        soldierTable = new SoldierTable(this, party);
-        party.updated = true;
-        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-        cell.setWidget(soldierTable);
+//        Cell cell = topTable.getCell(soldierTable);
+//        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//        soldierTable = new SoldierTable(this, party);
+//        party.updated = true;
+//        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+//        cell.setWidget(soldierTable);
+        // TODO is this necessary?
         super.resize();
 	}
 

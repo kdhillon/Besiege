@@ -30,8 +30,6 @@ public class SoldierTable extends Table {
 	private static final float NEG = -5;
 	private static final float DESC_HEIGHT = 300;
 	private static final float DEFAULT_INDENT = 15;
-	private static final int r = 3;
-	private static final String tablePatch = "grey-d9";
 	private static final String LOCATION_EMPTY_TEXT = "No troops garrisoned!";
     private static Color SOLDIER_NAME_COLOR = Color.LIGHT_GRAY;
 	private static Color SELECTED_COLOR = Color.YELLOW;
@@ -121,7 +119,7 @@ public class SoldierTable extends Table {
 		soldierTable = new Table();
 		soldierTable.defaults().padTop(NEG);
 		soldierTable.top();
-		soldierTable.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
+		soldierTable.setBackground(Assets.ninepatchBackground);
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);

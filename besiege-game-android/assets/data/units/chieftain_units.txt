@@ -38,13 +38,13 @@ Class:	Jungle	    LT_GREEN   GREEN  maya.txt
 
 3   Swordsman       Shortsword(Obsidian)/Atlatl(Oak)    Loincloth/Round_Cotton  Swordsman_(Vet)/Stealth_Swordsman
 3   Spearman        Spear(Obsidian)                     Cotton_Armwrap/Round_Cotton   Spearman_(Vet)/Fire_Spearman
-3   Atlatlist       Knife(Obsidian)/Atlatl(Oak)         Loincloth   Atlatlist_(Vet)
+3   Atlatlist       Knife(Obsidian)/Atlatl(Locust)         Loincloth   Atlatlist_(Vet)
 
 4   Swordsman_(Vet) Shortsword(Obsidian)/Atlatl(Oak)    Cotton_Armwrap/Round_Cotton  Nagual(J)
 4   Stealth_Swordsman Shortsword(Obsidian)/Atlatl(Oak)  Loincloth/Round_Cotton      Nagual(J)
 4   Spearman_(Vet)  Spear(Obsidian)                     Cotton_Armor/Large_Round   Nagual(J)
 4   Fire_Spearman   Spear(Obsidian)/Spear(Fire)         Cotton_Armwrap/Round_Cotton  Nagual(J)
-4   Atlatlist_(Vet) Knife(Obsidian)/Atlatl(Oak)         Loincloth                   Nagual(J)
+4   Atlatlist_(Vet) Knife(Obsidian)/Atlatl(Locust)         Loincloth                   Nagual(J)
 
 // TODO add legendary mayan units -- there is evidence of warrior societies but not a lot
 5   Nagual(J)       Shortsword(Obsidian)/Atlatl(Oak)    Cotton_Armor/Round_Cotton   none

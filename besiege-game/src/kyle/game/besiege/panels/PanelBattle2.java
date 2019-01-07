@@ -68,17 +68,6 @@ public class PanelBattle2 extends Panel {
         topTableAttackers.addSubtitle("factionname", attackingFactionName);
         topTableAttackers.addBigLabel("size", "Size:");
 
-        attackerSoldierTables = new StrictArray<>();
-        attackerSoldierTables.size = attackingParties.size;
-        for (int i = 0 ; i < attackingParties.size; i++) {
-            Party p = attackingParties.get(i);
-            SoldierTable attacker = new SoldierTable(p, true, battleStage);
-            attackerSoldierTables.set(i, attacker);
-            topTableAttackers.add(attacker).colspan(4).top().padTop(0).expandY();
-            topTableAttackers.row();
-            p.updated = true;
-        }
-
         topTableAttackers.row();
         topTableAttackers.add().colspan(4).padBottom(PAD);
         topTableAttackers.row();
@@ -87,7 +76,22 @@ public class PanelBattle2 extends Panel {
 
         this.addTopTable(topTableAttackers);
 
+        attackerSoldierTables = new StrictArray<>();
+        attackerSoldierTables.size = attackingParties.size;
+        for (int i = 0 ; i < attackingParties.size; i++) {
+            Party p = attackingParties.get(i);
+            SoldierTable attacker = new SoldierTable(p, true, battleStage);
+            attackerSoldierTables.set(i, attacker);
+            addSoldierTable(attacker);
+//            topTableAttackers.add(attacker).colspan(4).top().padTop(0).expandY();
+//            topTableAttackers.row();
+            p.updated = true;
+        }
+
         topTableDefenders = new TopTable();
+
+        // Put the balancebar in the middle
+        topTableDefenders.addGreenBar();
 
         topTableDefenders.updateTitle("Defenders", null);
 
@@ -107,23 +111,24 @@ public class PanelBattle2 extends Panel {
         topTableDefenders.addSubtitle("factionname", defendingFactionName);
         topTableDefenders.addBigLabel("size", "Size:");
 
-        defenderSoldierTables = new StrictArray<>();
-        defenderSoldierTables.size = defendingParties.size;
-        for (int i = 0; i < defendingParties.size; i++) {
-            Party p = defendingParties.get(i);
-            SoldierTable defender = new SoldierTable(p, true, battleStage);
-            defenderSoldierTables.set(i, defender);
-            topTableDefenders.add(defender).colspan(4).top().padTop(0).expandY();
-            topTableDefenders.row();
-            p.updated = true;
-        }
-
         topTableDefenders.add().colspan(4).padBottom(PAD);
         topTableDefenders.row();
 
         topTableDefenders.row();
 
         this.addTopTable2(topTableDefenders);
+
+        defenderSoldierTables = new StrictArray<>();
+        defenderSoldierTables.size = defendingParties.size;
+        for (int i = 0; i < defendingParties.size; i++) {
+            Party p = defendingParties.get(i);
+            SoldierTable defender = new SoldierTable(p, true, battleStage);
+            defenderSoldierTables.set(i, defender);
+//            topTableDefenders.add(defender).colspan(4).top().padTop(0).expandY();
+            addSoldierTable(defender);
+//            topTableDefenders.row();
+            p.updated = true;
+        }
 
         if (getButton(2) == null) {
             if (battleStage != null && !battleStage.placementPhase) {
@@ -148,9 +153,8 @@ public class PanelBattle2 extends Panel {
                 }
             }
         }
-
-        // Put the balancebar in the middle
-        topTableDefenders.addGreenBar();
+        actForPartyList(attackingParties, attackerSoldierTables, topTableAttackers);
+        actForPartyList(defendingParties, defenderSoldierTables, topTableDefenders);
     }
 
     private void actForPartyList(StrictArray<Party> parties, StrictArray<SoldierTable> soldierTables, TopTable topTable) {
@@ -221,28 +225,28 @@ public class PanelBattle2 extends Panel {
     @Override
     public void resize() {
         // TODO when you update these, make sure it preserves which subparties were expanded or not.
-        for (int i = 0; i < attackerSoldierTables.size; i++) {
-            Cell cell = topTableAttackers.getCell(attackerSoldierTables.get(i));
-//            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-            if (battle.getAttackingParties() == null) throw new AssertionError();
-            SoldierTable newTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
-            attackerSoldierTables.set(i, newTable);
-            newTable.update();
-            battle.getAttackingParties().get(i).updated = true;
-            newTable.setHeight((panel.getHeight() - DESC_HEIGHT));
-            cell.setWidget(newTable);
-        }
-
-        for (int i = 0; i < defenderSoldierTables.size; i++) {
-            Cell cell = topTableDefenders.getCell(defenderSoldierTables.get(i));
-//            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-            SoldierTable newTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
-            defenderSoldierTables.set(i, newTable);
-            newTable.update();
-            battle.getDefendingParties().get(i).updated = true;
-            newTable.setHeight((panel.getHeight() - DESC_HEIGHT));
-            cell.setWidget(newTable);
-        }
+//        for (int i = 0; i < attackerSoldierTables.size; i++) {
+//            Cell cell = topTableAttackers.getCell(attackerSoldierTables.get(i));
+////            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//            if (battle.getAttackingParties() == null) throw new AssertionError();
+//            SoldierTable newTable = new SoldierTable(battle.getAttackingParties().get(i), true, battleStage);
+//            attackerSoldierTables.set(i, newTable);
+//            newTable.update();
+//            battle.getAttackingParties().get(i).updated = true;
+//            newTable.setHeight((panel.getHeight() - DESC_HEIGHT));
+//            cell.setWidget(newTable);
+//        }
+//
+//        for (int i = 0; i < defenderSoldierTables.size; i++) {
+//            Cell cell = topTableDefenders.getCell(defenderSoldierTables.get(i));
+////            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+//            SoldierTable newTable = new SoldierTable(battle.getDefendingParties().get(i), true, battleStage);
+//            defenderSoldierTables.set(i, newTable);
+//            newTable.update();
+//            battle.getDefendingParties().get(i).updated = true;
+//            newTable.setHeight((panel.getHeight() - DESC_HEIGHT));
+//            cell.setWidget(newTable);
+//        }
         super.resize();
     }
 

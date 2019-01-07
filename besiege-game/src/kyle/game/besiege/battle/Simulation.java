@@ -6,45 +6,57 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.location.Location;
 import kyle.game.besiege.party.CultureType;
 import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.party.PartyType.Type;
 import kyle.game.besiege.party.UnitLoader;
 
-public class Simulation extends Game {
+import static kyle.game.besiege.battle.BattleMap.MapType.BEACH;
+
+// TODO don't make this a game, but rather, a screen.
+// that way, battle simulation can be a part of the main menu.
+public class Simulation {
 	SpriteBatch batch;
 	private MapScreen mapScreen;
 	private BattleStage bs;
 
-	@Override
-	public void create () {
-		Texture.setEnforcePotImages(false);
-		
-		Assets.load();
+	public Simulation() {
 		// don't generate a new kingdom
 		mapScreen = new MapScreen();
 
-        // NOTE that the test parties may have forced culture types.
-        CultureType type1 = UnitLoader.cultureTypes.get("Forest");
-        if (Math.random() < 0.5) {
-            type1 = UnitLoader.cultureTypes.get("Plains");
-        }
-        CultureType type2 = UnitLoader.cultureTypes.get("Tundra");
-        if (Math.random() < 0.5) {
-            type2 = UnitLoader.cultureTypes.get("Desert");
-        }
-        type1 = UnitLoader.cultureTypes.get("Tundra");
-		type2 = UnitLoader.cultureTypes.get("Jungle");
+		ArmyTable alliesTable = new ArmyTable();
+		ArmyTable enemiesTable = new ArmyTable();
 
-		if (type1 == null || type2 == null) throw new AssertionError();
+		// TODO this should be specified by the user in some dropdowns.
+		alliesTable.setCultureType("Plains");
+		enemiesTable.setCultureType("Forest");
+		alliesTable.setPartyCount(1);
+		enemiesTable.setPartyCount(1);
+		alliesTable.setPartyTypeType(Type.NOBLE);
+		enemiesTable.setPartyTypeType(Type.TEST_ALL);
 
-		bs = new BattleStage(mapScreen, PartyType.generatePartyType(Type.NOBLE, type1),
-										PartyType.generatePartyType(Type.BANDIT, type2), 2);
-		
+//		pt1.forceUnitType(type1.units.get("Spearman (Vet)4"));
+//		pt1.forceUnitType(type1.units.get("Archer3"));
+//		pt2.forceUnitType(type1.units.get("Archer3"));
+
+		BattleOptions options = new BattleOptions();
+		options.allyOptions = alliesTable.getPartyOptions();
+		options.enemyOptions = enemiesTable.getPartyOptions();
+
+		bs = new BattleStage(mapScreen, options);
+
 		mapScreen.getSidePanel().initializePanels(bs.allies.parties.get(0));
-		
+
+		// Options:
+			// Map
+
+
+		// TODO make this replayable for infinite simulation fun.
 		mapScreen.switchToBattleView(bs);
-		
-		setScreen(mapScreen); // eventually make mainMenu
+	}
+
+	public MapScreen getMapScreen() {
+		return mapScreen;
 	}
 }

@@ -31,23 +31,37 @@ tree2
   orig: 12, 12
   offset: 0, 0
   index: -1
-treeShadow
+tree dark
   rotate: false
   xy: 78, 2
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+tree snow dark
+  rotate: false
+  xy: 92, 2
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+treeShadow
+  rotate: false
+  xy: 106, 2
   size: 11, 12
   orig: 11, 12
   offset: 0, 0
   index: -1
 palmShadow
   rotate: false
-  xy: 91, 2
+  xy: 2, 28
   size: 11, 12
   orig: 11, 12
   offset: 0, 0
   index: -1
 catapult firing
   rotate: false
-  xy: 2, 28
+  xy: 15, 28
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
@@ -59,65 +73,79 @@ castle wall floor
   orig: 8, 8
   offset: 0, 0
   index: -1
-stone fence v
+palm red
   rotate: false
   xy: 78, 16
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
+palm dark
+  rotate: false
+  xy: 92, 16
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+stone fence v
+  rotate: false
+  xy: 106, 16
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
 castle wall floor wood
   rotate: false
-  xy: 91, 16
+  xy: 116, 16
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 stone fence
   rotate: false
-  xy: 104, 2
+  xy: 2, 42
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 catapult
   rotate: false
-  xy: 114, 2
+  xy: 2, 52
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 tree
   rotate: false
-  xy: 104, 12
+  xy: 2, 62
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 palm
   rotate: false
-  xy: 114, 12
+  xy: 2, 72
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 castle wall wood
   rotate: false
-  xy: 2, 38
+  xy: 2, 82
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 stump
   rotate: false
-  xy: 12, 38
+  xy: 2, 92
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 castle wall
   rotate: false
-  xy: 22, 38
+  xy: 2, 102
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
@@ -145,35 +173,35 @@ half axe2
   index: -1
 axe
   rotate: false
-  xy: 2, 48
+  xy: 119, 2
   size: 3, 5
   orig: 3, 5
   offset: 0, 0
   index: -1
 half axe
   rotate: false
-  xy: 7, 48
+  xy: 119, 9
   size: 3, 5
   orig: 3, 5
   offset: 0, 0
   index: -1
 roof thatch
   rotate: false
-  xy: 104, 22
+  xy: 2, 112
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
 half rock
   rotate: false
-  xy: 114, 22
+  xy: 8, 112
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
 rock
   rotate: false
-  xy: 120, 22
+  xy: 2, 118
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
@@ -194,14 +222,14 @@ arrow
   index: -1
 half arrow
   rotate: false
-  xy: 101, 16
+  xy: 102, 16
   size: 1, 4
   orig: 1, 4
   offset: 0, 0
   index: -1
 slingstone
   rotate: false
-  xy: 124, 2
+  xy: 102, 22
   size: 2, 2
   orig: 2, 2
   offset: 0, 0

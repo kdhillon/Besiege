@@ -18,4 +18,21 @@ public class UnitType {
 	
 	public String[]		upgradeStrings;
 	public UnitType[]	upgrades;
+
+	public String weaponSummary;
+
+	public String getWeaponSummary() {
+		if (weaponSummary == null) {
+			if (ranged != null)
+				weaponSummary = removeParens(melee.name) + ", " +  removeParens(ranged.name);
+			else
+				weaponSummary = removeParens(melee.name);
+		}
+		return weaponSummary;
+	}
+
+	private String removeParens(String string) {
+		String[] split = string.split("\\(");
+		return split[0];
+	}
 }

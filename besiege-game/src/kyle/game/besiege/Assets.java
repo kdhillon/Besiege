@@ -12,10 +12,13 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import kyle.game.besiege.party.UnitLoader;
 
 public class Assets {
@@ -61,6 +64,10 @@ public class Assets {
 	
 	public static TextureRegion white;
 
+	private static final int r = 3;
+	private static final String tablePatch = "grey-d9";
+	public static Drawable ninepatchBackground;
+
 	public static void load() {
 		atlas = new TextureAtlas(Gdx.files.internal("atlas1"));
 		weapons = new TextureAtlas(Gdx.files.internal("weapons1"));
@@ -71,6 +78,8 @@ public class Assets {
 
         white = new TextureRegion(new Texture("whitepixel.png"));
 		black = new Texture("black.png");
+
+		ninepatchBackground = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r));
 
 		// load units
 		UnitLoader.load("chieftain");
