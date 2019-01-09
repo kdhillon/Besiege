@@ -40,7 +40,7 @@ public class QuickBattleTable extends Table {
     private ArmyTable enemiesTable;
 
 
-    public class TextWithDropdown<T> extends Table {
+    public static class TextWithDropdown<T> extends Table {
         private Label label;
         private SelectBox options;
         private ScrollPane.ScrollPaneStyle spStyle;
@@ -128,12 +128,12 @@ public class QuickBattleTable extends Table {
         battleOptions.weatherEffect = weatherEffect.getSelected();
 
         // TODO this should be specified by the user in some dropdowns.
-        alliesTable.setCultureType("Plains");
-        enemiesTable.setCultureType("Forest");
-        alliesTable.setPartyCount(1);
-        enemiesTable.setPartyCount(1);
-        alliesTable.setPartyTypeType(PartyType.Type.NOBLE);
-        enemiesTable.setPartyTypeType(PartyType.Type.TEST_ALL);
+//        alliesTable.setCultureType("Plains");
+//        enemiesTable.setCultureType("Forest");
+//        alliesTable.setPartyCount(1);
+//        enemiesTable.setPartyCount(1);
+//        alliesTable.setPartyTypeType(PartyType.Type.NOBLE);
+//        enemiesTable.setPartyTypeType(PartyType.Type.TEST_ALL);
 
 //		pt1.forceUnitType(type1.units.get("Spearman (Vet)4"));
 //		pt1.forceUnitType(type1.units.get("Archer3"));
