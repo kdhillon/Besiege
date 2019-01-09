@@ -240,7 +240,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 		//soldierTable.debug();
 
 		soldierTable.top();
-		soldierTable.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
+		soldierTable.setBackground(Assets.ninepatchBackgroundDarkGray);
 		soldierTable.add().width(SidePanel.WIDTH-2*PAD).colspan(2);
 		soldierTable.row();
 		soldierTable.add(leftTable).top();

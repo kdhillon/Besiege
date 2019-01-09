@@ -1,7 +1,6 @@
 package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -9,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.MapScreen;
@@ -119,7 +117,7 @@ public class SoldierTable extends Table {
 		soldierTable = new Table();
 		soldierTable.defaults().padTop(NEG);
 		soldierTable.top();
-		soldierTable.setBackground(Assets.ninepatchBackground);
+		soldierTable.setBackground(Assets.ninepatchBackgroundDarkGray);
 		soldierPane = new ScrollPane(soldierTable);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);

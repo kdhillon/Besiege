@@ -11,7 +11,10 @@ public class QuickBattleGame extends Game {
 
         Assets.load();
 
-        Simulation simulation = new Simulation();
+        // TODO make this real.
+        BattleOptions options = new BattleOptions();
+
+        Simulation simulation = new Simulation(options);
 
         setScreen(simulation.getMapScreen()); // eventually make mainMenu
     }

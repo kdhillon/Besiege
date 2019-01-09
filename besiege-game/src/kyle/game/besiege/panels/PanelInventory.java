@@ -6,12 +6,10 @@
 package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Faction;
@@ -123,7 +121,7 @@ public class PanelInventory extends Panel {
 		//		locations.debug();
 		weapons.top();
 		weapons.defaults().padTop(NEG).left();
-		weapons.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
+		weapons.setBackground(Assets.ninepatchBackgroundDarkGray);
 		weapons.add().width((SidePanel.WIDTH-PAD*2));
 		weapons.row();
 //		weapons.add(cities).width((SidePanel.WIDTH-PAD*2)/2);
@@ -143,7 +141,7 @@ public class PanelInventory extends Panel {
 		rangedWeaponsPane = new ScrollPane(rangedWeapons);
 		rangedWeaponsPane.setScrollbarsOnTop(true);
 		rangedWeaponsPane.setFadeScrollBars(false);
-		rangedWeapons.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));		
+		rangedWeapons.setBackground(Assets.ninepatchBackgroundDarkGray);
 
 		text.add(rangedWeaponsPane).expandY().fillY();
 		text.row();
@@ -156,7 +154,7 @@ public class PanelInventory extends Panel {
 		armorsPane = new ScrollPane(armors);
 		armorsPane.setScrollbarsOnTop(true);
 		armorsPane.setFadeScrollBars(false);
-		armors.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));		
+		armors.setBackground(Assets.ninepatchBackgroundDarkGray);
 
 		text.add(armorsPane).expandY().fillY();		
 		

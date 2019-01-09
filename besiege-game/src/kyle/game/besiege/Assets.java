@@ -66,7 +66,9 @@ public class Assets {
 
 	private static final int r = 3;
 	private static final String tablePatch = "grey-d9";
-	public static Drawable ninepatchBackground;
+	public static Drawable ninepatchBackgroundDarkGray;
+	public static Drawable ninepatchBackgroundGray;
+	public static Drawable ninepatchBackgroundLightGray;
 
 	public static void load() {
 		atlas = new TextureAtlas(Gdx.files.internal("atlas1"));
@@ -79,7 +81,10 @@ public class Assets {
         white = new TextureRegion(new Texture("whitepixel.png"));
 		black = new Texture("black.png");
 
-		ninepatchBackground = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r));
+		ninepatchBackgroundDarkGray = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-d9"), r,r,r,r));
+		ninepatchBackgroundGray = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-dm9"), r,r,r,r));
+		ninepatchBackgroundLightGray = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-lm9"), r,r,r,r));
+
 
 		// load units
 		UnitLoader.load("chieftain");

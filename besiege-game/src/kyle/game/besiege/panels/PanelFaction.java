@@ -6,14 +6,12 @@
 package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.tablelayout.Cell;
 
 import kyle.game.besiege.Assets;
@@ -183,7 +181,7 @@ public class PanelFaction extends Panel {
 		//		locations.debug();
 		locations.top();
 		locations.defaults().left().top();
-		locations.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
+		locations.setBackground(Assets.ninepatchBackgroundDarkGray);
 		locations.add().width((SidePanel.WIDTH-PAD*2)/2);
 		locations.add().width((SidePanel.WIDTH-PAD*2)/2);
 		locations.row();
@@ -208,7 +206,7 @@ public class PanelFaction extends Panel {
 		noblesPane = new ScrollPane(nobles);
 		noblesPane.setScrollbarsOnTop(true);
 		noblesPane.setFadeScrollBars(false);
-		nobles.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));		
+		nobles.setBackground(Assets.ninepatchBackgroundDarkGray);
 		nobles.add().width((SidePanel.WIDTH-PAD*2)/2);
 		nobles.add().width((SidePanel.WIDTH-PAD*2)/2);
 		nobles.row();
@@ -224,7 +222,7 @@ public class PanelFaction extends Panel {
 		relationsPane = new ScrollPane(relations);
 		relationsPane.setScrollbarsOnTop(true);
 		relationsPane.setFadeScrollBars(false);
-		relations.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));		
+		relations.setBackground(Assets.ninepatchBackgroundDarkGray);
 
 		text.add(relationsPane).colspan(2);
 		text.row();

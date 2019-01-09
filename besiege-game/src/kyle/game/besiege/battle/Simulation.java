@@ -21,28 +21,9 @@ public class Simulation {
 	private MapScreen mapScreen;
 	private BattleStage bs;
 
-	public Simulation() {
+	public Simulation(BattleOptions options) {
 		// don't generate a new kingdom
 		mapScreen = new MapScreen();
-
-		ArmyTable alliesTable = new ArmyTable();
-		ArmyTable enemiesTable = new ArmyTable();
-
-		// TODO this should be specified by the user in some dropdowns.
-		alliesTable.setCultureType("Plains");
-		enemiesTable.setCultureType("Forest");
-		alliesTable.setPartyCount(1);
-		enemiesTable.setPartyCount(1);
-		alliesTable.setPartyTypeType(Type.NOBLE);
-		enemiesTable.setPartyTypeType(Type.TEST_ALL);
-
-//		pt1.forceUnitType(type1.units.get("Spearman (Vet)4"));
-//		pt1.forceUnitType(type1.units.get("Archer3"));
-//		pt2.forceUnitType(type1.units.get("Archer3"));
-
-		BattleOptions options = new BattleOptions();
-		options.allyOptions = alliesTable.getPartyOptions();
-		options.enemyOptions = enemiesTable.getPartyOptions();
 
 		bs = new BattleStage(mapScreen, options);
 

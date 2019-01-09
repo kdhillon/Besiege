@@ -160,7 +160,7 @@ public class PanelUpgrades extends Panel { // TODO incorporate "list.java" into 
 		//soldierTable.debug();
 		soldierTable.defaults().padTop(NEG);
 		soldierTable.top();
-		soldierTable.setBackground(new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(tablePatch), r,r,r,r)));
+		soldierTable.setBackground(Assets.ninepatchBackgroundDarkGray);
 		text.row();
 		text.add().colspan(4).padBottom(PAD);
 		text.row();
