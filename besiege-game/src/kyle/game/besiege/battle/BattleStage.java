@@ -32,42 +32,14 @@ import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Subparty;
+import kyle.game.besiege.party.UnitDraw;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.VoronoiGraph;
 
 import static kyle.game.besiege.Kingdom.RAIN_FLOAT;
 
 public class BattleStage extends Group implements Battle {
-    public Biomes biome;
-    //	public OldBattle battle;
-    private PanelBattle2 pb;
-    public PanelPostBattle postBattle;
-
-    public static final double RETREAT_THRESHOLD = 0.3; // if balance less
-    // than this, army will retreat (btw 0 and 1, but obviously below 0.5)
-    public static final int DEPRECATED_THRESHOLD = 2; // this field is now in
-    // victory manager
-
-    private static final float SPEED = 0.01f;
-
-    private BattleOptions options;
-
-    //	public float scale = 1f;
-    public float MIN_SIZE = 40;
-    public float SIZE_FACTOR = .3f; // how much does the size of the parties
-    public Color biomeColor;
-    public Color currentColor;
-    public float currentDarkness;
-    public float targetDarkness;
-    public BattleOptions.WeatherEffect weatherEffect;
-
-    // affect the size of battlefield?
-
-    public static boolean drawCrests = true;
-
-    private final float MOUSE_DISTANCE = 15; // distance destination must be
-
-    private final double CHARGE_THRESHOLD = .5;
+    static boolean DRAW_CRESTS = true;
 
     public static int SIDE_PAD = 5;
     public static int BOTTOM_PAD = 5;
@@ -75,10 +47,35 @@ public class BattleStage extends Group implements Battle {
     // TODO this should scale with party size.
     public static int PLACE_HEIGHT = 20;
 
-    public static double RETREAT_TIME_BASE = 10; // have to wait 5 secs
-    // before can retreat
+    public static double RETREAT_TIME_BASE = 10; // have to wait 5 secs before can retreat
     static final float RAIN_SLOW = .8f;
     static final float SNOW_SLOW = .7f;
+
+    public static final double RETREAT_THRESHOLD = 0.3; // if balance less than this, army will retreat (btw 0 and 1, but obviously below 0.5)
+//    static final int DEPRECATED_THRESHOLD = 2; // this field is now in victory manager
+
+    private static final float SPEED = 0.01f;
+
+    private final double CHARGE_THRESHOLD = .5;
+
+    public Biomes biome;
+    //	public OldBattle battle;
+    private PanelBattle2 pb;
+    public PanelPostBattle postBattle;
+
+    BattleOptions options;
+
+    //	public float scale = 1f;
+    public float MIN_SIZE = 40;
+    public float SIZE_FACTOR = .3f; // how much does the size of the parties affect the size of battlefield?
+    public Color biomeColor;
+
+    // This is only used for thunder/lightning I think.
+    public Color currentColor;
+
+    public float currentDarkness;
+    public float targetDarkness;
+    public BattleOptions.WeatherEffect weatherEffect;
 
     public int MIN_PLACE_X; // This is modified by Battlemap (if there's
     // water on the left side, for example)
@@ -230,6 +227,7 @@ public class BattleStage extends Group implements Battle {
 
         this.currentColor = VoronoiGraph.getColor(allies.first().army
                 .getContaining());
+
         biomeColor = currentColor;
         this.targetDarkness = kingdom.currentDarkness;
         currentDarkness = kingdom.currentDarkness;
@@ -310,6 +308,7 @@ public class BattleStage extends Group implements Battle {
         BottomPanel.log("Starting battle, probability of victory: " + (int)
                 (100 * getBalanceAllies()) + "%", "white");
 
+
         // TODO need to split this variable into two: one for siegeOrRaid (to handle victory effects and prevent retreating), one for walledSiege (to manage placement etc)
         this.siegeOrRaid =
                 options.siegeType == Location.LocationType.VILLAGE ||
@@ -353,7 +352,7 @@ public class BattleStage extends Group implements Battle {
     public void setSnowingOrRaining() {
         System.out.println("setting snow or rain");
        if (isSimulation()) {
-            if (Math.random() < 0.2f || options.weatherEffect == BattleOptions.WeatherEffect.RAINING) {
+            if (options.weatherEffect == BattleOptions.WeatherEffect.RAINING) {
                 startRain();
             } else if (options.weatherEffect == BattleOptions.WeatherEffect.SNOWING) {
                startSnow();
@@ -442,9 +441,9 @@ public class BattleStage extends Group implements Battle {
 //			allies.setGlobalFormation(Formation.SQUARE);
         }
 
-        if (siegeOrRaid && alliesDefending)
+        if (hasWall && alliesDefending)
             allies.setGlobalFormation(Formation.WALL_LINE);
-        else if (siegeOrRaid && !alliesDefending)
+        else if (hasWall && !alliesDefending)
             enemies.setGlobalFormation(Formation.WALL_LINE);
 
 
@@ -579,7 +578,8 @@ public class BattleStage extends Group implements Battle {
         SoundPlayer.playThunder();
     }
 
-    public void updateColor(SpriteBatch batch) {
+
+    public void updateDarkness(SpriteBatch batch) {
         //		System.out.println("target darkness: " + this.targetDarkness);
         if (this.currentDarkness != this.targetDarkness) adjustDarkness();
 
@@ -587,7 +587,6 @@ public class BattleStage extends Group implements Battle {
         this.currentColor.g = this.currentDarkness;
         this.currentColor.b = this.currentDarkness;
         this.currentColor.a = 1;
-
 
         // This is a cool effect, but can be a bit obnoxious if it's a strong
         // color.
@@ -803,7 +802,7 @@ public class BattleStage extends Group implements Battle {
 //						Unit unit = new Unit(this, base_x + j, base_y + i,
 // team, toAdd, bsp);
                         toAdd.setStance(partyStance);
-                        if (bsp.isPlayer() && siegeOrRaid || toAdd.onWall())
+                        if (bsp.isPlayer() && hasWall || toAdd.onWall())
                             toAdd.dismount();
                         addUnitToField(toAdd, base_x + j, base_y + i);
                     } else {
@@ -814,7 +813,7 @@ public class BattleStage extends Group implements Battle {
                                  k--) {
                                 if (canPlaceUnit(base_x + j, k)) {
                                     toAdd.setStance(partyStance);
-                                    if (bsp.isPlayer() && siegeOrRaid ||
+                                    if (bsp.isPlayer() && hasWall ||
                                             toAdd.onWall())
                                         toAdd.dismount();
                                     addUnitToField(toAdd, base_x + j, k);
@@ -828,7 +827,7 @@ public class BattleStage extends Group implements Battle {
                                         .MAX_PLACE_Y_1; k++) {
                                     if (canPlaceUnit(base_x + j, k)) {
                                         toAdd.setStance(partyStance);
-                                        if (bsp.isPlayer() && siegeOrRaid ||
+                                        if (bsp.isPlayer() && hasWall ||
                                                 toAdd.onWall())
                                             toAdd.dismount();
                                         addUnitToField(toAdd, base_x + j, k);
@@ -842,7 +841,7 @@ public class BattleStage extends Group implements Battle {
                                  k++) {
                                 if (canPlaceUnit(base_x + j, k)) {
                                     toAdd.setStance(partyStance);
-                                    if (bsp.isPlayer() && siegeOrRaid ||
+                                    if (bsp.isPlayer() && hasWall ||
                                             toAdd.onWall())
                                         toAdd.dismount();
                                     addUnitToField(toAdd, base_x + j, k);
@@ -856,7 +855,7 @@ public class BattleStage extends Group implements Battle {
                                         .MIN_PLACE_Y_2; k--) {
                                     if (canPlaceUnit(base_x + j, k)) {
                                         toAdd.setStance(partyStance);
-                                        if (bsp.isPlayer() && siegeOrRaid ||
+                                        if (bsp.isPlayer() && hasWall ||
                                                 toAdd.onWall())
                                             toAdd.dismount();
                                         addUnitToField(toAdd, base_x + j, k);
@@ -1834,17 +1833,27 @@ public class BattleStage extends Group implements Battle {
 
     @Override
     public void draw(SpriteBatch batch, float parentAlpha) {
-        updateColor(batch);
+        updateDarkness(batch);
         super.draw(batch, parentAlpha);
 
         // gotta update again in case it's still set to some bad value.
-        updateColor(batch);
+        updateDarkness(batch);
         battlemap.drawTrees(batch); // will probably be above arrows for now
 
-        if (drawCrests) {
+        if (DRAW_CRESTS) {
 
         }
 
+        // Draw time-of-day effect.
+        if (options != null)
+            drawTimeOfDayEffect(batch);
+    }
+
+    private void drawTimeOfDayEffect(SpriteBatch batch) {
+        batch.setColor(options.timeOfDay.tint);
+        batch.draw(Assets.white, 0, 0, size_x * unit_width, size_y * unit_height);
+
+        batch.setColor(Color.WHITE);
     }
 
     public void addSiegeUnit(SiegeUnit unit) {

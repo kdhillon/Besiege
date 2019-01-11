@@ -47,10 +47,10 @@ public class QuickBattleScreen implements Screen {
         // TODO add options table with fixed height.
         quickBattleTable = new QuickBattleTable();
 
-        mainTable.add(quickBattleTable).padBottom(40).colspan(2);
+        mainTable.add(quickBattleTable).padBottom(60).colspan(2);
         mainTable.row();
 
-        mainTable.debug();
+//        mainTable.debug();
 
         // TODO add back button, standardize
 //        backButton = new Button();
@@ -75,7 +75,7 @@ public class QuickBattleScreen implements Screen {
                 setStartOff();
             }
         });
-        mainTable.add(start).padRight(40);
+        mainTable.add(start).padRight(60);
 
         back = new Label("B A C K", MainMenuScreen.styleButtons);
         back.addListener(new ClickListener() {
@@ -136,7 +136,18 @@ public class QuickBattleScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        BesiegeMain.HEIGHT = height;
+        BesiegeMain.WIDTH = width;
+        mainTable.setWidth(width);
+        mainTable.setHeight(height);
+//		lowerTable.setWidth(width);
+//		lowerTable.setHeight(height/2);
+
         menuBackground.resize(width, height);
+
+//		topTable.getCells().get(1).padLeft(width-WIDTH).padRight(SEPARATE);
+//		topTable.getCells().get(2).padRight(width-WIDTH).padLeft(SEPARATE);
+        stage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
     }
 
     @Override

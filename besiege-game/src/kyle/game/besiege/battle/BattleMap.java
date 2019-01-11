@@ -13,6 +13,7 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.Random;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Orientation;
+import kyle.game.besiege.party.UnitDraw;
 import kyle.game.besiege.voronoi.Biomes;
 
 import static kyle.game.besiege.battle.BattleMap.GroundType.*;
@@ -41,6 +42,7 @@ public class BattleMap extends Group {
 	private static final int TREE_HEIGHT = 3;
 	public static final float CASTLE_WALL_HEIGHT_DEFAULT = .5f;
 
+	// This is the background color
 	public Color bgColor = new Color();
 
 	public enum MapType {
@@ -367,7 +369,7 @@ public class BattleMap extends Group {
 
 			addTrees(0.03, new Object[]{Object.PALM_DARK, Object.PALM, Object.TREE, Object.DARK_TREE});
 
-			bgColor = new Color(50/256f, 120/256f, 40/256f, 1);
+			bgColor = new Color(30/256f, 80/256f, 20/256f, 1);
 		}
 		if (maptype == MapType.SNOW) {
 			setGroundTypesWithProbabilities(new GroundType[]{LIGHTSNOW, SNOW, DIRT, MUD}, new double[]{0.7, 1, 0.99});
@@ -403,6 +405,10 @@ public class BattleMap extends Group {
 			bgColor = new Color(65/256f, 138/256f, 92/256f, 1);
 		}
 
+		// Manipulate background color based on time of day:
+		if (stage.options != null)
+			bgColor = blend(bgColor, stage.options.timeOfDay.tint);
+
 		// remove cover on top of objects
 		for (BPoint p : cover) {
 			if (objects[p.pos_y][p.pos_x] != null || stage.closed[p.pos_y][p.pos_x]) {
@@ -420,6 +426,20 @@ public class BattleMap extends Group {
 		rainDrawOffsetY = 0;
 
 		initializeGround();
+	}
+
+	private Color blend(Color c1, Color c0) {
+		c0 = new Color(c0);
+		c1 = new Color(c1);
+
+		// r0 over 1 = (1 - a0)·r1 + a0·r0
+		Color c3 = new Color();
+		c3.r = (1 - c0.a) * c1.r + c0.a * c0.r;
+		c3.g = (1 - c0.a) * c1.g + c0.a * c0.r;
+		c3.b = (1 - c0.a) * c1.b + c0.a * c0.r;
+
+		c3.a = 1;
+		return c3;
 	}
 
 

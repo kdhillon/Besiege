@@ -67,7 +67,7 @@ public class UnitDraw extends Actor {
                 drawAmmo = false;
             }
             else if (this.rangedWeapon.type == RangedWeaponType.Type.ATLATL) {
-                firingArmor	=    createAnimation(type.armor.getFiringAnimation(), 2, 2);
+                firingArmor	=    createAnimation(type.armor.getAtlatlArmor(), 2, 2);
                 firingSkin 	= createAnimation("atlatl-skin", 2, 2);
                 firingArmor.setPlayMode(Animation.REVERSED);
                 firingSkin.setPlayMode(Animation.REVERSED);
@@ -173,7 +173,9 @@ public class UnitDraw extends Actor {
         this.skinTint = soldier.getColor();
 
         this.armorTintDead = new Color(0.8f, 0.8f, 0.8f, 1).mul(armorTint);
-        this.skinTintDead = new Color(0.8f, 0.8f, 0.8f, 1).mul(skinTint);
+        if (armorTint == Color.CLEAR) armorTintDead = Color.CLEAR;
+//        this.skinTintDead = skinTint;
+        this.skinTintDead = new Color(0.6f, 0.6f, 0.6f, 1).mul(skinTint);
     }
 
     // create animation with speed .25f assuming one row, loops by default
@@ -219,11 +221,11 @@ public class UnitDraw extends Actor {
         if (skinColor == null || armorColor == null) throw new AssertionError();
         drawAnimationTint(batch, skin, stateTime, loop, skinColor, actor);
 
-        if (armor != null) {
+        if (armor != null && armorColor != Color.CLEAR) {
             drawAnimationTint(batch, armor, stateTime, loop, armorColor, actor);
         }
 
-        if (equipment != null){
+        if (equipment != null) {
             for (Equipment equip : equipment) {
                 // TODO draw additional items
                 if (equip.getRegion() == null) throw new AssertionError("Can't find equipment: " + equip.textureName);
@@ -236,7 +238,11 @@ public class UnitDraw extends Actor {
     }
 
     public static Color blend(Color c1, Color c2) {
-        c1.a = 1-c1.a;
+        c1 = new Color(c1);
+        c2 = new Color(c2);
+
+        // jst changed this to c2;
+        c1.a = 1-c2.a;
         c1.premultiplyAlpha();
         c2.premultiplyAlpha();
         Color c3 = c1.add(c2);

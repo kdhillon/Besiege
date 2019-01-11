@@ -17,7 +17,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 	public static Array<PartyType> types;
 	
 	public enum Type {FARMERS, PATROL, MERCHANT, TOWN_GARRISON, CITY_GARRISON, LARGE_CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
-						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, TEST, TEST_1, TEST_2, TEST_ALL};
+						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE,  TEST_ALL}; // TEST, TEST_1, TEST_2,
 	
 	//	private final Weapon[] troopTypes;
 	public String name;
@@ -334,35 +334,35 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.tiers = new int[]{1, 2, 3};
 			pt.hire = true;
 			break;
-		case TEST:
-			pt.name = "Test";
-			pt.maxCount = 100;
-			pt.minCount = 50;
-			pt.tiers = new int[]{2, 3};
-			break;
+//		case TEST:
+//			pt.name = "Test";
+//			pt.maxCount = 100;
+//			pt.minCount = 50;
+//			pt.tiers = new int[]{2, 3};
+//			break;
 			// NOTE that the test parties may have forced culture types.
-		case TEST_1:
-			pt.name = "Test1";
-			pt.maxCount = 10;
-			pt.minCount = 10;
-			pt.cultureType =  UnitLoader.cultureTypes.get("Desert");
-			// Don't forget number at the end of this!
-			pt.unitType = pt.cultureType.units.get("Eagle Warrior4");
-			if (pt.unitType == null) {
-			    throw new AssertionError();
-            }
-			break;
-		case TEST_2:
-			pt.name = "Test2";
-			pt.maxCount = 60;
-			pt.minCount = 60;
-			pt.tiers = new int[]{3};
-            pt.cultureType =  UnitLoader.cultureTypes.get("Forest");
-            pt.unitType = pt.cultureType.units.get("Eagle Bowman4");
-            if (pt.unitType == null) {
-                throw new AssertionError();
-            }
-			break;
+//		case TEST_1:
+//			pt.name = "Test1";
+//			pt.maxCount = 10;
+//			pt.minCount = 10;
+//			pt.cultureType =  UnitLoader.cultureTypes.get("Desert");
+//			// Don't forget number at the end of this!
+////			pt.unitType = pt.cultureType.units.get("Eagle Warrior4");
+//			if (pt.unitType == null) {
+//			    throw new AssertionError();
+//            }
+//			break;
+//		case TEST_2:
+//			pt.name = "Test2";
+//			pt.maxCount = 60;
+//			pt.minCount = 60;
+//			pt.tiers = new int[]{3};
+//            pt.cultureType =  UnitLoader.cultureTypes.get("Forest");
+////            pt.unitType = pt.cultureType.units.get("Eagle Bowman4");
+//            if (pt.unitType == null) {
+//                throw new AssertionError();
+//            }
+//			break;
 		case TEST_ALL:
 			pt.name = "Testall";
 			pt.maxCount = 30;

@@ -475,7 +475,7 @@ public class MapScreen implements Screen {
 
 		if (kingdom != null) 
 			if (kingdom.raining) kingdom.rain();
-		if (battle != null) battle.updateColor(currentStage.getSpriteBatch());
+		if (battle != null) battle.updateDarkness(currentStage.getSpriteBatch());
 		else if (kingdom != null) kingdom.updateColor(currentStage.getSpriteBatch());
 
 		updateWind(delta);

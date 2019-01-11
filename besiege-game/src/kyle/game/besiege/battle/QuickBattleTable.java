@@ -7,12 +7,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.location.Location;
-import kyle.game.besiege.party.PartyType;
 import kyle.game.besiege.title.MainMenuScreen;
+import kyle.game.besiege.title.SelectOption;
+
+import static kyle.game.besiege.battle.ArmyTable.formatForList;
 
 public class QuickBattleTable extends Table {
-    private final static BitmapFont fontForEverything = Assets.pixel16;
+    final static int SM_PAD = 3;
+
+    final static int DISTANCE_BETWEEN_BOXES = 200;
+
+    private final static BitmapFont fontForEverything = Assets.pixel18;
 
     public static Label.LabelStyle ls = new Label.LabelStyle(fontForEverything, Color.WHITE);
 
@@ -30,15 +37,15 @@ public class QuickBattleTable extends Table {
     //              (see army table)
 
     private Table mapOptions;
-    private TextWithDropdown<BattleMap.MapType> mapType;
-    private TextWithDropdown<Location.LocationType> locationType;
-    private TextWithDropdown<BattleOptions.WeatherEffect> weatherEffect;
+    private TextWithDropdown<SelectOption<BattleMap.MapType>> mapType;
+    private TextWithDropdown<SelectOption<Location.LocationType>> locationType;
+    private TextWithDropdown<SelectOption<BattleOptions.WeatherEffect>> weatherEffect;
+    private TextWithDropdown<SelectOption<BattleOptions.TimeOfDay>> timeOfDay;
 
     private Table armyTables;
 
     private ArmyTable alliesTable;
     private ArmyTable enemiesTable;
-
 
     public static class TextWithDropdown<T> extends Table {
         private Label label;
@@ -82,27 +89,81 @@ public class QuickBattleTable extends Table {
 //        mapOptions.debug();
         mapOptions.setWidth(BesiegeMain.WIDTH/2);
 
-        mapOptions.defaults().padTop(3);
+        mapOptions.defaults().padTop(SM_PAD);
 
         Label mapTitle = new Label("Map Options", MainMenuScreen.styleButtons);
         mapOptions.add(mapTitle).center().expandX();
         mapOptions.row();
 
-        // Add stuff to the table
-        mapType = new TextWithDropdown("Map", BattleMap.MapType.values());
-        mapOptions.add(mapType).expandX().fillX();
-        mapOptions.row();
+        initializeMapTypes();
 
-        locationType = new TextWithDropdown("Siege Type", Location.LocationType.values());
-        mapOptions.add(locationType).expandX().fillX();
-        mapOptions.row();
+        initializeWeatherTypes();
 
-        weatherEffect = new TextWithDropdown("Weather", BattleOptions.WeatherEffect.values());
+        initializeTimeOfDay();
+
+        initializeLocationTypes();
+
+        this.add(mapOptions).left().expandX().padRight(DISTANCE_BETWEEN_BOXES);
+    }
+
+    private void initializeWeatherTypes() {
+        StrictArray<SelectOption<BattleOptions.WeatherEffect>> options = new StrictArray();
+
+        // TODO add "Auto" effect, that automatically selects a weather effect accordingly.
+        for (BattleOptions.WeatherEffect weatherEffect : BattleOptions.WeatherEffect.values()) {
+            String name = formatForList(weatherEffect.toString());
+            if (weatherEffect == BattleOptions.WeatherEffect.NONE) name = "Clear";
+            options.add(new SelectOption<>(weatherEffect, name));
+        }
+
+        weatherEffect = new TextWithDropdown<>("Weather", options.toArray());
         mapOptions.add(weatherEffect).fillX();
         mapOptions.row();
-
-        this.add(mapOptions).left().expandX().padRight(100);
     }
+
+    private void initializeTimeOfDay() {
+        StrictArray<SelectOption<BattleOptions.TimeOfDay>> options = new StrictArray();
+
+        for (BattleOptions.TimeOfDay timeOfDay : BattleOptions.TimeOfDay.values()) {
+            options.add(new SelectOption<>(timeOfDay, formatForList(timeOfDay.toString())));
+        }
+
+        timeOfDay = new TextWithDropdown<>("Time of Day", options.toArray());
+        mapOptions.add(timeOfDay).fillX();
+        mapOptions.row();
+    }
+
+    private void initializeLocationTypes() {
+        StrictArray<SelectOption<Location.LocationType>> options = new StrictArray();
+
+        options.add(new SelectOption<Location.LocationType>("No Siege"));
+        options.add(new SelectOption<>(Location.LocationType.values(), "Random"));
+
+        for (Location.LocationType type : Location.LocationType.values()) {
+            options.add(new SelectOption<>(type, formatForList(type.toString())));
+        }
+
+        locationType = new TextWithDropdown<>("Siege Type", options.toArray());
+        mapOptions.add(locationType).expandX().fillX();
+        mapOptions.row();
+    }
+
+    private void initializeMapTypes() {
+        StrictArray<SelectOption> options = new StrictArray<>();
+
+        // TODO add some other options.
+        options.add(new SelectOption<>( BattleMap.MapType.values(), "Random"));
+
+        for (BattleMap.MapType type : BattleMap.MapType.values()) {
+            options.add(new SelectOption<>(type, formatForList(type.toString())));
+        }
+
+        // Add stuff to the table
+        mapType = new TextWithDropdown("Map", options.toArray());
+        mapOptions.add(mapType).expandX().fillX();
+        mapOptions.row();
+    }
+
 
     private void addArmyTables() {
         armyTables = new Table();
@@ -123,21 +184,10 @@ public class QuickBattleTable extends Table {
         // TODO add checkbox for this
         battleOptions.alliesDefending = true;
 
-        battleOptions.mapType = mapType.getSelected();
-        battleOptions.siegeType = locationType.getSelected();
-        battleOptions.weatherEffect = weatherEffect.getSelected();
+        battleOptions.mapType = mapType.getSelected().getObject();
+        battleOptions.siegeType = locationType.getSelected().getObject();
+        battleOptions.weatherEffect = weatherEffect.getSelected().getObject();
 
-        // TODO this should be specified by the user in some dropdowns.
-//        alliesTable.setCultureType("Plains");
-//        enemiesTable.setCultureType("Forest");
-//        alliesTable.setPartyCount(1);
-//        enemiesTable.setPartyCount(1);
-//        alliesTable.setPartyTypeType(PartyType.Type.NOBLE);
-//        enemiesTable.setPartyTypeType(PartyType.Type.TEST_ALL);
-
-//		pt1.forceUnitType(type1.units.get("Spearman (Vet)4"));
-//		pt1.forceUnitType(type1.units.get("Archer3"));
-//		pt2.forceUnitType(type1.units.get("Archer3"));
         battleOptions.allyOptions = alliesTable.getPartyOptions();
         battleOptions.enemyOptions = enemiesTable.getPartyOptions();
 

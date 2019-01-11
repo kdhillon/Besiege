@@ -48,31 +48,37 @@ public class ArmorType {
 
     public String getWalkAnimation() {
 	    if (type == Type.CHEST) return "walk-chest-armor";
-	    return "walk-armor";
+//		if (type == Type.HOODED) return "walk-armor-hood";
+		return "walk-armor";
     }
 
     public String getFiringAnimation() {
         if (type == Type.CHEST) return "firing-chest-armor";
-        return "firing-armor";
+//		if (type == Type.HOODED) return "firing-armor-hood";
+		return "firing-armor";
     }
 
     public String getFirearmAnimation() {
         if (type == Type.CHEST) return "firearm-chest-armor";
-        return "firearm-armor";
+//		if (type == Type.HOODED) return "firearm-armor-hood";
+		return "firearm-armor";
     }
 
     public String getThrownAnimation() {
 	    if (type == Type.CHEST) return "thrown-chest-armor";
-	    return "thrown-armor";
+//		if (type == Type.HOODED) return "thrown-armor-hood";
+		return "thrown-armor";
     }
 
     public String getDyingAnimation() {
 	    if (type == Type.CHEST) return "die1-chest-armor";
-	    return "die1-armor";
+		if (type == Type.HOODED) return "die1-armor-hood";
+		return "die1-armor";
     }
 
     public String getAtlatlArmor() {
 	    if (type == Type.CHEST) return "atlatl-chest-armor";
+//		if (type == Type.HOODED) return "atlatl-armor-hood";
 	    return "atlatl-armor";
     }
 
