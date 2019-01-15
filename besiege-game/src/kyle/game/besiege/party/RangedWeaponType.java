@@ -42,7 +42,6 @@ public class RangedWeaponType {
 
 	public boolean shouldDrawAmmo() {
 		switch (type) {
-			case SLING:
 			case THROWN:
 			case THROWN_AXE:
 			case THROWN_FIRE:

@@ -17,9 +17,9 @@ Bear_Rawhide		    SADDLEBROWN	    2	0	basic
 
 // Meso armors
 Loincloth               ANTIQUEWHITE    0   0   loincloth
-Maguey_Clothes          BEIGE      0   0  clothes
+Maguey_Clothes          BURLYWOOD      0   0  clothes
 Cotton_Armor            ANTIQUEWHITE   2   -1   chest
-Warrior_Suit(Jaguar)    NAVAJOWHITE         3   -1   basic
+Warrior_Suit(Jaguar)    GOLDENROD         3   -1   basic
 Warrior_Suit(Eagle)     FIREBRICK       3   -1   basic
 
 // Jungle armors

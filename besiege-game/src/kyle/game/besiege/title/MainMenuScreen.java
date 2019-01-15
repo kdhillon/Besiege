@@ -12,11 +12,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -167,7 +163,7 @@ public class MainMenuScreen implements Screen {
 									 float y, int pointer, int button) { return true; }
 			public void touchUp(InputEvent event, float x, float y,
 								int pointer, int button) {
-				clickBattleLaunch();
+				clickQuickBattle();
 			}
 			@Override
 			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -198,11 +194,11 @@ public class MainMenuScreen implements Screen {
 		}
 	}
 
-	public void returnFromOtherPanel() {
+	public void returnFromOtherPanel(boolean tint) {
 		stage.clear();
 		stage.addActor(menuBackground);
 		stage.addActor(mainTable);
-		menuBackground.drawWithTint(false);
+		menuBackground.drawWithTint(tint);
 	}
 
 	private void setNewOff() {
@@ -330,10 +326,7 @@ public class MainMenuScreen implements Screen {
 		this.tf.setWidth(50000);
 	}
 
-	// TODO more complex battle simulator UI:
-	// 	 add it to the main menu. player can choose either quick battle or campaign. more expensive?
-	// 			requires adding a complex menu to main screen. Instead, make the menu (table) a separate class, replace the "Warchief" title with that table.
-	private void clickBattleLaunch() {
+	public void clickQuickBattle() {
 		QuickBattleScreen qbs = new QuickBattleScreen(main, this, menuBackground);
 		main.setScreen(qbs);
 		menuBackground.drawWithTint(true);

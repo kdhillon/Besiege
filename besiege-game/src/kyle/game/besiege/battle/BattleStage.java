@@ -32,7 +32,7 @@ import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Subparty;
-import kyle.game.besiege.party.UnitDraw;
+import kyle.game.besiege.title.MainMenuScreen;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.VoronoiGraph;
 
@@ -163,6 +163,9 @@ public class BattleStage extends Group implements Battle {
 
     private Label victoryText;
 
+    // Only for simulation.
+    private MainMenuScreen originalScreen;
+
     //	public Formation playerFormationChoice;
     //	public Formation enemyFormationChoice;
 //	public Formation currentFormation; // I need this for some reason for
@@ -267,9 +270,10 @@ public class BattleStage extends Group implements Battle {
     }
 
     // constructor for Quick Battles
-    public BattleStage(MapScreen mapScreen, BattleOptions options) {
+    public BattleStage(MapScreen mapScreen, BattleOptions options, MainMenuScreen originalScreen) {
         this.mapScreen = mapScreen;
         this.options = options;
+        this.originalScreen = originalScreen;
 
         if (options.mapType == null) throw new AssertionError();
 
@@ -316,6 +320,7 @@ public class BattleStage extends Group implements Battle {
                 options.siegeType == Location.LocationType.CASTLE;
 
         this.hasWall = false;
+        if (options.siegeType == Location.LocationType.CITY) hasWall = true;
 
 //		// must modify battle so it can support a null kingdom
 //		// attacker, defender
@@ -1774,7 +1779,16 @@ public class BattleStage extends Group implements Battle {
         this.postBattle = null;
         clearVictoryText();
 
-        mapScreen.switchToKingdomView();
+        if (isSimulation()) {
+            returnToBattleSelectScreen();
+        } else {
+            mapScreen.switchToKingdomView();
+        }
+    }
+
+    private void returnToBattleSelectScreen() {
+        if (originalScreen != null)
+            originalScreen.clickQuickBattle();
     }
 
     //	public void writeUnit() {

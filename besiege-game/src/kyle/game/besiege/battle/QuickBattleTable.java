@@ -41,6 +41,7 @@ public class QuickBattleTable extends Table {
     private TextWithDropdown<SelectOption<Location.LocationType>> locationType;
     private TextWithDropdown<SelectOption<BattleOptions.WeatherEffect>> weatherEffect;
     private TextWithDropdown<SelectOption<BattleOptions.TimeOfDay>> timeOfDay;
+    private TextWithDropdown<SelectOption<Boolean>> defending;
 
     private Table armyTables;
 
@@ -91,7 +92,7 @@ public class QuickBattleTable extends Table {
 
         mapOptions.defaults().padTop(SM_PAD);
 
-        Label mapTitle = new Label("Map Options", MainMenuScreen.styleButtons);
+        Label mapTitle = new Label("Battle Options", MainMenuScreen.styleButtons);
         mapOptions.add(mapTitle).center().expandX();
         mapOptions.row();
 
@@ -102,6 +103,8 @@ public class QuickBattleTable extends Table {
         initializeTimeOfDay();
 
         initializeLocationTypes();
+
+        initializeDefending();
 
         this.add(mapOptions).left().expandX().padRight(DISTANCE_BETWEEN_BOXES);
     }
@@ -140,6 +143,7 @@ public class QuickBattleTable extends Table {
         options.add(new SelectOption<>(Location.LocationType.values(), "Random"));
 
         for (Location.LocationType type : Location.LocationType.values()) {
+            if (type == Location.LocationType.VILLAGE || type == Location.LocationType.CASTLE) continue;
             options.add(new SelectOption<>(type, formatForList(type.toString())));
         }
 
@@ -164,6 +168,18 @@ public class QuickBattleTable extends Table {
         mapOptions.row();
     }
 
+    private void initializeDefending() {
+        StrictArray<SelectOption> options = new StrictArray<>();
+
+        // TODO add some other options.
+        options.add(new SelectOption<>(true, "Defending"));
+        options.add(new SelectOption<>(false, "Attacking"));
+
+        // Add stuff to the table
+        defending = new TextWithDropdown("Allies", options.toArray());
+        mapOptions.add(defending).expandX().fillX();
+        mapOptions.row();
+    }
 
     private void addArmyTables() {
         armyTables = new Table();
@@ -181,8 +197,7 @@ public class QuickBattleTable extends Table {
         // Create options for all current settings
         BattleOptions battleOptions = new BattleOptions();
 
-        // TODO add checkbox for this
-        battleOptions.alliesDefending = true;
+        battleOptions.alliesDefending = defending.getSelected().getObject();
 
         battleOptions.mapType = mapType.getSelected().getObject();
         battleOptions.siegeType = locationType.getSelected().getObject();

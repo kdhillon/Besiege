@@ -33,8 +33,6 @@ public class BattleOptions {
 
     WeatherEffect weatherEffect = WeatherEffect.NONE;
 
-//    boolean nightTime;
-
     boolean alliesDefending;
 
     public static class PartyOptions {

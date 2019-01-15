@@ -259,9 +259,6 @@ public class Unit extends Group {
 		//		if (rangedWeapon != null)
 		//			this.stance = Stance.DEFENSIVE;
 
-		// check if in cover
-		checkIfInCover();
-
 		calcStats();
 
         if (this.spd == 0) System.out.println("speed is 0");
@@ -518,6 +515,7 @@ public class Unit extends Group {
 				!retreating &&
 				!defendingButShouldAttackNearestEnemy() &&
 						!isHidden() &&
+						!alreadyInCover() &&
 						(this.stance == Stance.DEFENSIVE || (this
 								.rangedWeaponOut() && nearestTarget != null &&
 								unitSafelyAwayFromFriends(nearestTarget)));
@@ -556,13 +554,19 @@ public class Unit extends Group {
 		}
 	}
 
-	public void checkIfInCover() {
-		//		for (BPoint p : stage.battlemap.cover) {
-		//			if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
-		//				if (p.orientation == this.orientation)
-		//					this.nearestCover = p;
-		//			}
-		//		}
+	public boolean alreadyInCover() {
+		checkIfAlreadyInCover();
+		if (nearestCover != null) return true;
+		return false;
+	}
+
+	public void checkIfAlreadyInCover() {
+				for (BPoint p : stage.battlemap.cover) {
+					if (p.pos_x == this.pos_x && p.pos_y == this.pos_y) {
+						if (p.orientation == this.orientation)
+							this.nearestCover = p;
+					}
+				}
 	}
 
 	public boolean inCover() {
@@ -570,6 +574,7 @@ public class Unit extends Group {
 ////			// Not sure why we need to do this double check...
 ////			nearestCover = getNearestCover();
 ////		}
+//		checkIf
 		if (nearestCover == null) return false;
 		if (this.pos_x == nearestCover.pos_x && this.pos_y == nearestCover.pos_y) return true;
 		// Could do a check here to see if we're in a cover spot that's not the one we initially set...
@@ -811,6 +816,7 @@ public class Unit extends Group {
 
 		if (stage.selectedUnit == this) if (stage.entranceAt(point.pos_x, point.pos_y)) System.out.println("target is entrance");
 
+		// TODO easy fix for spastic movement: dont face if can't move there.
 		this.face(point, true);
 
 		Orientation original = this.orientation;

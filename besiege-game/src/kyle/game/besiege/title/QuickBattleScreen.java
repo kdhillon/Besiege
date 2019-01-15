@@ -120,8 +120,9 @@ public class QuickBattleScreen implements Screen {
     }
 
     public void startBattle() {
+        System.out.println("starting bqttle");
         // Launch a new battle, with specified options.
-        Simulation simulation = new Simulation(quickBattleTable.getCurrentOptions());
+        Simulation simulation = new Simulation(quickBattleTable.getCurrentOptions(), mainMenuScreen);
         main.setScreen(simulation.getMapScreen()); // eventually make mainMenu
     }
 
@@ -175,8 +176,13 @@ public class QuickBattleScreen implements Screen {
 
     }
 
+    public void returnToThis() {
+        main.setScreen(this);
+        mainMenuScreen.returnFromOtherPanel(true);
+    }
+
     public void returnToMain() {
         main.setScreen(mainMenuScreen);
-        mainMenuScreen.returnFromOtherPanel();
+        mainMenuScreen.returnFromOtherPanel(false);
     }
 }

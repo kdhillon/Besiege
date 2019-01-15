@@ -29,7 +29,7 @@
     <output-test url="file://$PARENT-1-PROJECT_LOC$/out/test/besiege-game-desktop" />
     <exclude-output />
     <content url="file://$PARENT-1-PROJECT_LOC$/besiege-game-android/assets">
-      <sourceFolder url="file://$PARENT-1-PROJECT_LOC$/besiege-game-android/assets" isTestSource="false" />
+      <sourceFolder url="file://$PARENT-1-PROJECT_LOC$/besiege-game-android/assets" type="java-resource" />
     </content>
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />

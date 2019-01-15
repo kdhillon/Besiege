@@ -137,7 +137,7 @@ public class BattleMap extends Group {
 		SNOW_TREE(.5f), SNOW_TREE_ON_FIRE(.5f),
 		PALM(.5f), PALM_ON_FIRE(.5f),
 		PALM_DARK(.5f), PALM_DARK_ON_FIRE(.5f),
-		STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.06f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
+		STUMP(.1f), SMALL_WALL_V(.099f), SMALL_WALL_H(.099f), CASTLE_WALL(.04f, 20), CASTLE_WALL_FLOOR(0f, 20), COTTAGE_LOW(.1f), COTTAGE_MID(.12f), COTTAGE_HIGH(.14f), FIRE_SMALL(0.0f);
 		float height;
 		Orientation orientation; // for ladders
 		int hp; // for walls
@@ -260,11 +260,15 @@ public class BattleMap extends Group {
 
 		//		wallTop = 60;
 		//		wallLeft = 10;
-		//		wallBottom = 10;
+		//		wallBottom = 10;c
 		//		wallRight = 60;
 
 		if (stage.hasWall() && !stage.alliesDefending)
 			wallBottom = stage.size_y * 2/ 3;
+
+		if (stage.hasWall() && stage.alliesDefending)
+			wallTop = stage.size_y * 1/ 3;
+
 
 		// create castle
 		//		if (stage.siegeDefense)
@@ -754,6 +758,7 @@ public class BattleMap extends Group {
 
 	private void addAppropriateLocationFeatures() {
 		if (stage.hasWall()) {
+			System.out.println("adding wall");
 			addWall();
 		}
 		else if (stage.isVillage()) {

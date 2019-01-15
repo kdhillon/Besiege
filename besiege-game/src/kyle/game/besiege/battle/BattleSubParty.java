@@ -459,6 +459,15 @@ public class BattleSubParty {
 		int x = currentPosX;
 		int y = currentPosY;
 
+		// TODO does this work for big parties?
+		if (stage.hasWall()) {
+			if (stage.playerDefending()) {
+				if (this.isPlayer()) y = stage.battlemap.wallTop - 2;
+			} else {
+				if (!this.isPlayer()) y = stage.battlemap.wallBottom + 2;
+			}
+		}
+
 		int index = 0;
 		while (!stage.addUnitsFromSubparty(this, x, y) && index < MAX_INDEX) {
 //			throw new AssertionError();

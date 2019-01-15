@@ -10,6 +10,7 @@ package kyle.game.besiege;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -69,6 +70,13 @@ public class Assets {
 	public static Drawable ninepatchBackgroundDarkGray;
 	public static Drawable ninepatchBackgroundGray;
 	public static Drawable ninepatchBackgroundLightGray;
+
+	// TODO move everything into a subfolder for cleanliness
+	public static final String subfolderName = "data/";
+
+	public static FileHandle getInternal() {
+
+	}
 
 	public static void load() {
 		atlas = new TextureAtlas(Gdx.files.internal("atlas1"));
