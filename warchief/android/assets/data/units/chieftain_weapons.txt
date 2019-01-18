@@ -1,0 +1,35 @@
+name			atk	spd type        texture
+// Types are: unarmed, 1h (sword, axe, etc), club (blunt 1h), polearm
+Unarmed			1	0	unarmed     unarmed
+
+Staff			2	-1	polearm     staff
+Dagger			1	0	1h          dagger
+
+Spear			3	-1	polearm     spear
+War_Axe			3	1	1h          axe
+Mace			3	1	club        mace
+
+// Forest weapons
+Knife(Flint)  		2	0   1h      dagger
+Spear(Flint)		4	-1  polearm spear
+War_Club(Wood)    	4	0   club    club
+Tomahawk(Flint)		4	0   1h      axe
+
+// Plains weapons
+Hoe(Bone)           2   0   polearm   hoe-bone
+War_Club(Stone)     4   0   club      warclubstone
+Lance(Flint)        5   -2  polearm   lance
+Battle_Axe(Stone)   4   -1  club      battleaxe
+Flail(Stone)        5   -1   club     morningstar
+
+// Desert weapons
+Spear(Obsidian)		 5	-1  polearm spear
+Broadsword(Obsidian) 5	0   1h      broadsword
+// Also warclub, stone and wood.
+Knife(Obsidian)      2  0   1h      dagger
+
+// Jungle weapons
+Shortsword(Obsidian) 4	0   1h      shortsword
+
+// Tundra weapons
+Club(Whalebone)     4   0   club    warclubstone

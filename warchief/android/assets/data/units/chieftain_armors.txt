@@ -1,0 +1,40 @@
+name			    	color_name	def	spd	type
+
+None			    	MAGENTA		0	0	naked
+
+Clothes		    		PERU   0	0   clothes
+
+// Tunic			    BROWN_G		2	0	clothes
+// War_Suit		    	BROWN_R		3	-1	basic
+
+// Forest armors
+Furs                    SIENNA          1   0   chest
+Breastplate(Wood_Rods)	CHOCOLATE       2	-1	chest
+Breastplate(Wood_Slats) CHOCOLATE  	    3	-1	chest
+Wicker_Mail(Reeds)	    GOLDENROD       4	-1	basic
+Wolf_Rawhide		    LIGHTSLATEGRAY	2	0	basic
+Bear_Rawhide		    SADDLEBROWN	    2	0	basic
+
+// Meso armors
+Loincloth               ANTIQUEWHITE    0   0   loincloth
+Maguey_Clothes          BURLYWOOD      0   0  clothes
+Cotton_Armor            ANTIQUEWHITE   2   -1   chest
+Warrior_Suit(Jaguar)    GOLDENROD         3   -1   basic
+Warrior_Suit(Eagle)     FIREBRICK       3   -1   basic
+
+// Jungle armors
+Cotton_Armwrap          ANTIQUEWHITE   1   0   armwrap
+
+// Tundra armors
+Light_Furs              BURLYWOOD      1    0   hooded
+Walrus_Furs             SADDLEBROWN      2    0   hooded
+Bear_Furs               DK_BROWN     3    0   hooded
+
+// A few more armors.
+
+// Plains armors
+Elk_Hide                TAN  2    0   basic
+Moose_Hide              PERU      3    0   basic
+Bison_Hide              SIENNA     4    0   basic
+// Bear hide
+// Rod armor

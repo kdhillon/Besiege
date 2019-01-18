@@ -1,0 +1,32 @@
+name			dmg	  type
+
+// Temporary defaults
+Stone           2     rock
+Dart            2     dart
+Arrow             2     arrow
+
+Rocks          2     rock
+
+Stone           2     rock
+
+Dart(Flint)     3     dart
+Dart(Bone)      3     dart
+
+Arrow(Flint)    3     arrow
+
+// Forest ammo
+Hunting(Flint)      3   arrow
+
+Broadhead(Flint)    5   arrow
+Broadhead(Bone)     6   arrow
+Broadhead(Copper)   7   arrow
+
+Poisoned(Root)      5   arrow_poison
+Fire_Arrow          5   arrow_fire
+
+Tomahawk(Flint)	 5     thrown_axe
+Spear(Flint)	 6     spear
+Spear(Fire)	     8     spear_fire
+
+// Plains ammo
+Firebomb            8   thrown_fire

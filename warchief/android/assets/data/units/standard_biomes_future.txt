@@ -1,0 +1,21 @@
+biome				class
+		
+Beach				Coast
+Snow				Snow
+Tundra				Snow
+Bare				Desert
+Scorched			Desert
+Taiga				Taiga
+Shrubland			Valley
+Temperate Desert	Shrubs
+Coniferous Forest	Forest
+Deciduous Forest	Forest
+Grassland			Valley
+Desert				Desert
+Shrubland			Valley
+Ice					Snow
+Marsh				Marsh
+Tropical Rainforest	Marsh
+Seasonal Forest		Forest
+Coast				Coast
+Lakeshore			Coast

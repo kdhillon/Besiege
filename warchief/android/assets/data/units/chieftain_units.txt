@@ -1,0 +1,134 @@
+tier name 			weapon				armor		upgrades_to
+
+Class:	Desert	    LT_ORANGE   ORANGE  mexica.txt
+1	Hunter			Unarmed/Sling(Maguey)	Loincloth		Slinger/Clubman
+1	Farmer			Staff       		Maguey_Clothes	    Spearman/Clubman
+1   Villager        Knife(Obsidian)/Rocks  Loincloth        Spearman/Slinger
+
+// Ranged tree
+2	Slinger			Knife(Obsidian)/Sling(Maguey)       Loincloth   Slinger_(Vet)/Archer
+3   Slinger_(Vet)   Knife(Obsidian)/Sling(Maguey)       Loincloth   none
+3   Archer          Knife(Obsidian)/War_Bow(Oak)        Loincloth   Archer_(Vet)
+4   Archer_(Vet)    Knife(Obsidian)/War_Bow(Tepozan)    Loincloth   none
+
+// Shock tree
+2	Spearman		Spear(Obsidian)		        Maguey_Clothes      Spearman_(Vet)/Swordsman
+3	Spearman_(Vet)	Spear(Obsidian)/Atlatl(Oak)	Cotton_Armor/Round_Leather    none
+
+2	Clubman 		War_Club(Wood)		Maguey_Clothes  Clubman_(Vet)
+3	Clubman_(Vet)	War_Club(Stone)		Maguey_Clothes  none
+
+// TODO Make clubmen stealthy!
+
+3	Swordsman		Broadsword(Obsidian)/Atlatl(Oak)	Maguey_Clothes/Round_Leather    Swordsman_(Vet)
+4	Swordsman_(Vet)	Broadsword(Obsidian)/Atlatl(Oak)	Cotton_Armor/Round_Cotton    none
+
+5   Jaguar_Warrior  Broadsword(Obsidian)/Atlatl(Tepozan)    Warrior_Suit(Jaguar)/Round_Cotton  none
+5   Eagle_Archer    Spear(Obsidian)/War_Bow(Tepozan)        Warrior_Suit(Eagle)/Round_Leather  none
+
+// TODO add shorn ones and otomies.
+
+S   Death_Shaman        Staff               Clothes             none
+
+Class:	Jungle	    LT_GREEN   GREEN  maya.txt
+1	Hunter			Unarmed/Atlatl(Oak)	Loincloth		Warrior
+1   Villager        Knife(Obsidian)/Rocks  Loincloth        Warrior
+
+2   Warrior         Shortsword(Obsidian)/Atlatl(Oak)    Loincloth   Swordsman/Spearman/Atlatlist
+
+3   Swordsman       Shortsword(Obsidian)/Atlatl(Oak)    Loincloth/Round_Cotton  Swordsman_(Vet)/Stealth_Swordsman
+3   Spearman        Spear(Obsidian)                     Cotton_Armwrap/Round_Cotton   Spearman_(Vet)/Fire_Spearman
+3   Atlatlist       Knife(Obsidian)/Atlatl(Locust)         Loincloth   Atlatlist_(Vet)
+
+4   Swordsman_(Vet) Shortsword(Obsidian)/Atlatl(Oak)    Cotton_Armwrap/Round_Cotton  Nagual(J)
+4   Stealth_Swordsman Shortsword(Obsidian)/Atlatl(Oak)  Loincloth/Round_Cotton      Nagual(J)
+4   Spearman_(Vet)  Spear(Obsidian)                     Cotton_Armor/Large_Round   Nagual(J)
+4   Fire_Spearman   Spear(Obsidian)/Spear(Fire)         Cotton_Armwrap/Round_Cotton  Nagual(J)
+4   Atlatlist_(Vet) Knife(Obsidian)/Atlatl(Locust)         Loincloth                   Nagual(J)
+
+// TODO add legendary mayan units -- there is evidence of warrior societies but not a lot
+5   Nagual(J)       Shortsword(Obsidian)/Atlatl(Oak)    Cotton_Armor/Round_Cotton   none
+
+S   Jaguar_Shaman   Staff               Clothes             none
+
+Class:	Forest		LT_RED    RED   oneida-no-weird.txt
+1	Villager		Knife(Flint)/Rocks	               	   None			Warrior_(Nov)/Axeman/Archer/Spearman
+1	Hunter			Unarmed/Bow(Ash)/Hunting(Flint)        None			Warrior_(Nov)/Axeman/Archer
+1   Fisher          Spear(Flint)                           None            Warrior_(Nov)/Axeman/Spearman
+
+2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     Furs            Warrior
+
+3   Warrior         War_Club(Wood)/Bow(Hickory)/Broadhead(Flint) None            Warrior_(Vet)
+4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)
+
+// Heavy Infantry
+3   Spearman        Spear(Flint)                          Breastplate(Wood_Rods)/Round_Elkskin     Spearman_(Vet)
+4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)
+
+// Light Infantry
+3	Axeman  		Tomahawk(Flint)/Tomahawk(Flint)	       Clothes			Axeman_(Vet)
+4	Axeman_(Vet)	Tomahawk(Flint)/Tomahawk(Flint)        Clothes			Nagual(W)
+
+// Archer (based on Southeast culture?)
+3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)
+4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)
+
+// Legendary Units?
+5	Peacemaker		Staff				None            none
+
+5	Nagual(W)		War_Axe				Clothes			none
+5	Nagual(B)		War_Axe				Clothes			none
+
+
+
+
+Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
+1	Villager		Knife(Flint)/Rocks			           None Warrior_(Nov)
+1	Farmer			Hoe(Bone)					           None Warrior_(Nov)
+1	Hunter			Knife(Flint)/Bow(Ash)/Hunting(Flint)   None Warrior_(Nov)
+
+2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     None            Warrior
+
+3   Warrior         War_Club(Wood)/Bow(Hickory)/Broadhead(Flint) None            Warrior_(Vet)
+4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)
+
+// Heavy Infantry
+3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin      Spearman_(Vet)
+4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)
+
+// Light Infantry
+3	Axeman  		Tomahawk(Flint)/Tomahawk(Flint)	       Clothes			Axeman_(Vet)
+4	Axeman_(Vet)	Tomahawk(Flint)/Tomahawk(Flint)        Clothes			Nagual(W)
+
+// Archer (based on Southeast culture?)
+3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)
+4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)
+
+// Legendary Units?
+5	Nagual(W)		War_Axe				Clothes			none
+5	Nagual(B)		War_Axe				Clothes			none
+
+
+// TODO Make this not generic
+Class:	Tundra		LT_PURPLE   PURPLE  inuit.txt
+1	Hunter			Unarmed/Bow(Ash)/Arrow	Light_Furs			Bowman
+1	Fisher			Spear				Light_Furs			Spearman
+1   Villager        Knife(Flint)        Light_Furs         Bowman/Spearman
+
+2	Bowman			Dagger/Bow(Ash)		Light_Furs			Axeman(W)/Bowman(H)/Clubman(B)
+2	Spearman		Spear				Light_Furs			Axeman(W)/Bowman(H)/Clubman(B)
+
+3	Axeman(W)		War_Axe				Walrus_Furs			Axeman(W)/Spearman(W)
+4	Axeman(W)		War_Axe         	Walrus_Furs			Nagual(W)
+4	Spearman(W)		Spear		        Walrus_Furs			Nagual(W)
+5	Nagual(W)		War_Axe				Walrus_Furs			none
+
+3	Bowman(H)		Dagger/Bow(Ash)/Arrow	Walrus_Furs			Bowman(H)/Warrior(H)
+4	Bowman(H)		Dagger/Bow(Ash)/Arrow	Walrus_Furs			Nagual(H)
+4	Warrior(H)		Dagger	        	Walrus_Furs			Nagual(H)
+5	Nagual(H)		War_Axe				Walrus_Furs			none
+
+3	Clubman(B)		Club(Whalebone)			Bear_Furs			Clubman(B)/Spearman(B)
+4	Clubman(B)		Club(Whalebone)    		Bear_Furs			Nagual(B)
+4	Spearman(B)		Spear	        	Bear_Furs			Nagual(B)
+5	Nagual(B)		War_Axe				Bear_Furs			none
