@@ -12,15 +12,15 @@ import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Soldier.SoldierType;
-import kyle.game.besiege.party.Subparty;
+import kyle.game.besiege.party.Squad;
 
 
-// make BattleSubParty - for controlling individual parties.
-public class BattleSubParty {
+// make BattleSquad - for controlling individual parties.
+public class BattleSquad {
 	public static float BASE_MORALE = 0.4f;
 	public static float MAX_MORALE = 0.9f;
 	
-	public Subparty subparty;
+	public Squad squad;
 	BattleParty parent;
 	BattleStage stage;
 
@@ -65,8 +65,8 @@ public class BattleSubParty {
 	
 	boolean charging;
 
-	public BattleSubParty(BattleParty parent, Subparty subparty, int team) {
-		this.subparty = subparty;
+	public BattleSquad(BattleParty parent, Squad squad, int team) {
+		this.squad = squad;
 		this.parent = parent;
 		this.units = new StrictArray<Unit>();
 		this.stage = parent.stage;
@@ -82,13 +82,13 @@ public class BattleSubParty {
         // this isn't ideal, should be changed.
         this.formation = availableFormations.random();
 
-		startingCount = subparty.getHealthySize() + 1;
+		startingCount = squad.getHealthySize() + 1;
 		currentCount = startingCount;
 
-		if (subparty.getGeneral() == null) {
-		    System.out.println("Subparty of " + parent.parties.first().getName() + " is null");
+		if (squad.getGeneral() == null) {
+		    System.out.println("Squad of " + parent.parties.first().getName() + " is null");
         }
-		else battleMoraleThreshold = BASE_MORALE + subparty.getGeneral().getMoraleBonus();
+		else battleMoraleThreshold = BASE_MORALE + squad.getGeneral().getMoraleBonus();
 		
 		archers = new StrictArray<Unit>();
 		cavalry = new StrictArray<Unit>();
@@ -99,7 +99,7 @@ public class BattleSubParty {
 		c = new Color();
 
 
-		if (subparty.getGeneral() == null) {
+		if (squad.getGeneral() == null) {
 		    System.out.println("General is null");
 		    generalOut = true;
         }
@@ -110,7 +110,7 @@ public class BattleSubParty {
 	
 	public void createAllUnits() {
 	    int count = 0;
-		for (Soldier s : subparty.healthy) {
+		for (Soldier s : squad.healthy) {
 		    if (s.isGeneral()) continue;
 
 			Unit unit = new Unit(stage, team, s, this);
@@ -121,11 +121,11 @@ public class BattleSubParty {
 		}
 		addUnitsToArrays();
 
-		if (subparty.getGeneral() == null) {
+		if (squad.getGeneral() == null) {
 		    System.out.println("A party that isn't supposed to fight (hire party?) is fighting...");
 		    throw new AssertionError();
         }
-		this.general = new Unit(stage, team, subparty.getGeneral(), this);
+		this.general = new Unit(stage, team, squad.getGeneral(), this);
         if (team == 1) System.out.println("Enemy general being added");
 
 		this.units.add(general);
@@ -133,8 +133,8 @@ public class BattleSubParty {
 
 		general.setStance(stance);
 
-		if (subparty.shaman != null) {
-			this.shaman = new Unit(stage, team, subparty.shaman, this);
+		if (squad.shaman != null) {
+			this.shaman = new Unit(stage, team, squad.shaman, this);
 			this.units.add(shaman);
 			this.parent.units.add(shaman);
 			shaman.setStance(stance);
@@ -249,18 +249,18 @@ public class BattleSubParty {
 	}
 
 	public int getHealthySize() {
-		return subparty.getHealthySize();
+		return squad.getHealthySize();
 	}
 
 	public StrictArray<Soldier> getHealthyInfantry() {
-		return subparty.getHealthyInfantry();
+		return squad.getHealthyInfantry();
 	}
 	public double getHealthyLevelSum() {
-		return subparty.getHealthyLevelSum();
+		return squad.getHealthyLevelSum();
 	}
 	//
     public boolean isRoot() {
-	    return subparty.getRank() == 0;
+	    return squad.getRank() == 0;
     }
 
 	public StrictArray<Soldier> getHealthyArchers() {
@@ -269,7 +269,7 @@ public class BattleSubParty {
 		//			healthyArchers.addAll(p.root.getHealthyArchers());
 		//		}
 		//		return healthyArchers;
-		return subparty.getHealthyArchers();
+		return squad.getHealthyArchers();
 	}
 
 	public StrictArray<Soldier> getHealthyCavalry() {
@@ -278,7 +278,7 @@ public class BattleSubParty {
 		//			healthyCavalry.addAll(p.root.getHealthyCavalry());
 		//		}
 		//		return healthyCavalry;
-		return subparty.getHealthyCavalry();
+		return squad.getHealthyCavalry();
 	}
 	
 	public void drawPlacement(Batch batch) {
@@ -454,7 +454,7 @@ public class BattleSubParty {
 		return availableFormations.get(index);
 	}
 
-	public void tryPlaceSubParty() {
+	public void tryPlaceSquad() {
 		int MAX_INDEX = 300;
 		int x = currentPosX;
 		int y = currentPosY;
@@ -469,7 +469,7 @@ public class BattleSubParty {
 		}
 
 		int index = 0;
-		while (!stage.addUnitsFromSubparty(this, x, y) && index < MAX_INDEX) {
+		while (!stage.addUnitsFromSquad(this, x, y) && index < MAX_INDEX) {
 //			throw new AssertionError();
 //			System.out.println("Moving right: " + index);
 			index++;
@@ -479,7 +479,7 @@ public class BattleSubParty {
 				x = currentPosX + index / 2 + 1;
 			}
 			System.out.println("x is " + x);
-			stage.removeSubParty(this);
+			stage.removeSquad(this);
 		}
 		if (index == MAX_INDEX) throw new AssertionError("couldn't place bsp, not enough tries");
 	}
@@ -487,9 +487,9 @@ public class BattleSubParty {
 	// TODO for efficiency, don't remove it fully, just remove it from the stage and change positions. Keep the guys alive in units array here.
 	// create three arrays of UNITS, inf, cav, archers, and keep them alive for redistribution.
 	public void updateFormation() {
-		stage.removeSubParty(this);
+		stage.removeSquad(this);
 
-		tryPlaceSubParty();
+		tryPlaceSquad();
 //		stage.add(this, this.parent.subparties.indexOf(this, true));
 	}
 	
