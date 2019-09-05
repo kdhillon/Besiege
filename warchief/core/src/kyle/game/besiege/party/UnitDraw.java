@@ -35,6 +35,9 @@ public class UnitDraw extends Actor {
     private Unit unit;
     private UnitType type;
 
+    // so we don't reallocate a new color every time.
+    private static Color tintOrig = new Color();
+
     public UnitDraw(Unit unit) {
         this.unit = unit;
         this.soldier = unit.soldier;
@@ -140,6 +143,8 @@ public class UnitDraw extends Actor {
 
     // Draws ammo on top of firing animation (for atlatls and tomahawks for example)
     private void drawAmmoIfNecessary(Batch batch) {
+        batch.setColor(Color.WHITE);
+
         if (unit.rangedWeaponOut()) { //  || unit.isFiring()
             if (unit.isFiring()) {
                 // Draw  ammo on top
@@ -184,7 +189,7 @@ public class UnitDraw extends Actor {
         TextureRegion walkSheet = Assets.units.findRegion(filename);
         if (walkSheet == null) throw new AssertionError(filename + " not found");
         TextureRegion[][] textureArray = walkSheet.split(walkSheet.getRegionWidth()/columns, walkSheet.getRegionHeight()/1);
-        Animation<TextureRegion> animation = new Animation(time, textureArray[0]);
+        Animation<TextureRegion> animation = new Animation<TextureRegion>(time, textureArray[0]);
         animation.setPlayMode(Animation.PlayMode.LOOP);
         return animation;
     }
@@ -198,9 +203,9 @@ public class UnitDraw extends Actor {
         drawItemTint(batch, region, tint, actor, alpha);
     }
 
-    /** TODO this is inefficient*/
     public static void drawItemTint(Batch batch, TextureRegion region, Color tint, Actor actor, float alpha) {
         Color c = batch.getColor();
+        tintOrig.set(c);
 //        batch.setColor(tint);
         // Should we try multiplying by the current color to darken?
 //        System.out.println(c.toString());
@@ -211,7 +216,7 @@ public class UnitDraw extends Actor {
 
 //        System.out.println(batch.getColor().toString());
         drawItem(batch, region, actor);
-        batch.setColor(c);
+        batch.setColor(tintOrig);
     }
 
     public static void drawUnit(Actor actor, Batch batch, Animation armor, Animation skin, Color armorColor, Color skinColor, float stateTime) {
@@ -241,6 +246,7 @@ public class UnitDraw extends Actor {
 
         if (equipment != null) {
             for (Equipment equip : equipment) {
+
                 // TODO draw additional items
                 if (equip.getRegion() == null) throw new AssertionError("Can't find equipment: " + equip.textureName);
 

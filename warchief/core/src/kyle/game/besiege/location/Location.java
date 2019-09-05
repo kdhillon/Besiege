@@ -1132,7 +1132,7 @@ public class Location extends Group implements Destination {
 			if (party.wealth - s.getHireCost() >= party.minWealth) {
 				party.wealth -= s.getHireCost();
 				toHire.removeSoldier(s);
-				s.subparty = null;
+				s.squad = null;
 				party.addSoldier(s, false);
 				s.party = party;
 				return true;

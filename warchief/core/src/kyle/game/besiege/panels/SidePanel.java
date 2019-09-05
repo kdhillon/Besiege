@@ -8,6 +8,7 @@ package kyle.game.besiege.panels;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import kyle.game.besiege.*;
 import kyle.game.besiege.Character;
@@ -21,10 +22,10 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.voronoi.Center;
 
-public class SidePanel extends Group {
+public class SidePanel extends Group implements PanelHolder {
 	public static final int WIDTH = 190; // 180 works well
 	public final float MINI_ZOOM = 12;
-	public static float HEIGHT = BesiegeMain.HEIGHT;
+	public static float HEIGHT = WarchiefGame.HEIGHT;
 	public static SidePanel sidePanel;
 
 	private final String textureRegion = "panelBG";
@@ -35,6 +36,8 @@ public class SidePanel extends Group {
 	
 	private MiniMap minimap;
 	private BottomPanel bottom;
+	private SquadManagementScreen squadManagementScreen;
+	boolean squadScreenUp; // Is the squad screen active?
 	
 	private transient Panel activePanel;
 	public transient Panel previousPanel;
@@ -43,6 +46,8 @@ public class SidePanel extends Group {
 	public PanelParty playerPartyPanel;
 	public PanelUpgrades upgrades;
 	public PanelInventory inventory;
+
+	private ShapeRenderer debugSR;
 		
 	private boolean hardStay; // stay on current panel until player clicks a button
 	private boolean softStay; // prevents automatically returning to previous panel when user mouses off of a panel.
@@ -62,9 +67,23 @@ public class SidePanel extends Group {
 		
 		minimap = new MiniMap(this);
 		this.addActor(minimap);
-		
+
+//		this.debugAll();
+		debugSR = new ShapeRenderer();
+		debugSR.setAutoShapeType(true);
+
 		this.setHeight(camera.viewportHeight);
 		hardStay = false;
+	}
+
+	public void showSquadScreen() {
+		addActor(squadManagementScreen);
+		squadScreenUp = true;
+	}
+
+	public void hideSquadScreen() {
+		removeActor(squadManagementScreen);
+		squadScreenUp = false;
 	}
 
 	public void initializePanels() {
@@ -74,25 +93,39 @@ public class SidePanel extends Group {
 		upgrades = new PanelUpgrades(this, kingdom.getPlayer());
 		this.setActive(playerPartyPanel);
 		kingdom.currentPanel = getPlayer();
+
+		squadManagementScreen = new SquadManagementScreen(this);
+		// TODO don't add until we need it.
+		showSquadScreen();
+		squadManagementScreen.initialize(kingdom.getPlayer().party);
 	}
 	
 	// For battlestage
-	public void initializePanels(Party partyType) {
+	public void initializePanels(Party party) {
 		if (Soldier.WEAPON_NEEDED)
 			inventory = new PanelInventory(this);
-		playerPartyPanel = new PanelParty(this, partyType);
+		playerPartyPanel = new PanelParty(this, party);
 		this.setActive(playerPartyPanel);
 		if (kingdom != null) {
             kingdom.currentPanel = getPlayer();
         }
+
+		squadManagementScreen = new SquadManagementScreen(this);
+		// TODO don't add until we need it.
+		showSquadScreen();
+		squadManagementScreen.initialize(party);
     }
+
+    public boolean isFullScreenVisible() {
+		return squadScreenUp;
+	}
 	
 	@Override
 	public void act(float delta) {
 		this.setWidth(WIDTH);
 		this.setHeight(camera.viewportHeight);
 		this.setPosition(camera.viewportWidth-WIDTH, 0);
-		this.setOrigin(getCamera().position.x - getX(), getCamera().position.y - getY());
+//		this.setOrigin(getCamera().position.x - getX(), getCamera().position.y - getY());
 
 		// the second leak is here! it's in one of the children.
 		super.act(delta);
@@ -102,7 +135,9 @@ public class SidePanel extends Group {
 	public void draw(Batch batch, float parentAlpha) {
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());	
 		super.draw(batch, parentAlpha);
-//		Table.drawDebug(getMapScreen().getUIStage());
+		debugSR.begin();
+		drawDebug(debugSR);
+		debugSR.end();
 	}
 	
 	public void clean() {
@@ -173,7 +208,6 @@ public class SidePanel extends Group {
 
 
 		this.activePanel = newActivePanel;
-
         this.addActor(activePanel);
 //		}s
     }
@@ -252,7 +286,7 @@ public class SidePanel extends Group {
 		setActive(inventory);
 	}
 	
-	public void setDefault(boolean force) {
+	public void setDefault() {
 //		if (force) this.setHardStay(false);
 		System.out.println("setting default");
 		if (mapScreen.battle != null) {

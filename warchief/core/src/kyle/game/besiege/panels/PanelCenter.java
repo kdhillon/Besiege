@@ -102,7 +102,7 @@ public class PanelCenter extends Panel {
 
 	@Override
 	public void button4() {
-		panel.setDefault(true);
+		panel.setDefault();
 	}
 	
 	@Override

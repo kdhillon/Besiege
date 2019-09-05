@@ -1,0 +1,398 @@
+
+atlas1.png
+size: 512,64
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+Bandit
+  rotate: false
+  xy: 128, 2
+  size: 9, 9
+  orig: 9, 9
+  offset: 0, 0
+  index: -1
+Farmer
+  rotate: false
+  xy: 139, 2
+  size: 9, 9
+  orig: 9, 9
+  offset: 0, 0
+  index: -1
+Player
+  rotate: false
+  xy: 366, 54
+  size: 25, 8
+  orig: 25, 8
+  offset: 0, 0
+  index: -1
+Raider
+  rotate: false
+  xy: 393, 54
+  size: 25, 8
+  orig: 25, 8
+  offset: 0, 0
+  index: -1
+battle
+  rotate: false
+  xy: 134, 13
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+black9
+  rotate: false
+  xy: 206, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+fog
+  rotate: false
+  xy: 206, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+desert-village
+  rotate: false
+  xy: 152, 8
+  size: 16, 11
+  orig: 16, 11
+  offset: 0, 0
+  index: -1
+desertvillage2
+  rotate: false
+  xy: 223, 39
+  size: 13, 5
+  orig: 13, 5
+  offset: 0, 0
+  index: -1
+green9
+  rotate: false
+  xy: 206, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-d9
+  rotate: false
+  xy: 206, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-dm9
+  rotate: false
+  xy: 223, 29
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-light
+  rotate: false
+  xy: 233, 34
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-lm
+  rotate: false
+  xy: 2, 3
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-lm9
+  rotate: false
+  xy: 238, 36
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-md9
+  rotate: false
+  xy: 248, 36
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-med
+  rotate: false
+  xy: 144, 42
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-med-trans
+  rotate: false
+  xy: 141, 37
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+grey-med9
+  rotate: false
+  xy: 258, 39
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-mmd9
+  rotate: false
+  xy: 268, 39
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+grey-xl
+  rotate: false
+  xy: 216, 27
+  size: 3, 3
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+icon-temple
+  rotate: false
+  xy: 79, 30
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+inuit2
+  rotate: false
+  xy: 69, 2
+  size: 20, 10
+  orig: 20, 10
+  offset: 0, 0
+  index: -1
+inuitcity
+  rotate: false
+  xy: 113, 31
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitcityruin
+  rotate: false
+  xy: 282, 53
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitcityruinwhite
+  rotate: false
+  xy: 310, 53
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitcitywhite
+  rotate: false
+  xy: 338, 53
+  size: 26, 9
+  orig: 26, 9
+  offset: 0, 0
+  index: -1
+inuitgreen
+  rotate: false
+  xy: 420, 51
+  size: 20, 11
+  orig: 20, 11
+  offset: 0, 0
+  index: -1
+inuithouse
+  rotate: false
+  xy: 170, 3
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+inuithousesnow
+  rotate: false
+  xy: 188, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+inuitvillage
+  rotate: false
+  xy: 206, 39
+  size: 15, 5
+  orig: 15, 5
+  offset: 0, 0
+  index: -1
+inuitvillagewhite
+  rotate: false
+  xy: 206, 32
+  size: 15, 5
+  orig: 15, 5
+  offset: 0, 0
+  index: -1
+lightFog
+  rotate: false
+  xy: 282, 43
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+longhouse
+  rotate: false
+  xy: 442, 51
+  size: 20, 11
+  orig: 20, 11
+  offset: 0, 0
+  index: -1
+longhouse-fort
+  rotate: false
+  xy: 2, 8
+  size: 34, 20
+  orig: 34, 20
+  offset: 0, 0
+  index: -1
+longhouse-fort2
+  rotate: false
+  xy: 2, 30
+  size: 40, 32
+  orig: 40, 32
+  offset: 0, 0
+  index: -1
+longhouse2
+  rotate: false
+  xy: 99, 16
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+longhouse3
+  rotate: false
+  xy: 91, 2
+  size: 18, 10
+  orig: 18, 10
+  offset: 0, 0
+  index: -1
+longhouse4
+  rotate: false
+  xy: 69, 14
+  size: 28, 14
+  orig: 28, 14
+  offset: 0, 0
+  index: -1
+longhouseruin
+  rotate: false
+  xy: 175, 49
+  size: 28, 13
+  orig: 28, 13
+  offset: 0, 0
+  index: -1
+over11
+  rotate: false
+  xy: 152, 21
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over12
+  rotate: false
+  xy: 170, 21
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+over13
+  rotate: false
+  xy: 188, 20
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+panelBG
+  rotate: false
+  xy: 149, 44
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+red9
+  rotate: false
+  xy: 292, 43
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+temple
+  rotate: false
+  xy: 205, 46
+  size: 24, 16
+  orig: 24, 16
+  offset: 0, 0
+  index: -1
+temple-fort
+  rotate: false
+  xy: 231, 46
+  size: 24, 16
+  orig: 24, 16
+  offset: 0, 0
+  index: -1
+temple2
+  rotate: false
+  xy: 464, 50
+  size: 20, 12
+  orig: 20, 12
+  offset: 0, 0
+  index: -1
+templeruin
+  rotate: false
+  xy: 486, 50
+  size: 20, 12
+  orig: 20, 12
+  offset: 0, 0
+  index: -1
+tipi
+  rotate: false
+  xy: 113, 13
+  size: 19, 16
+  orig: 19, 16
+  offset: 0, 0
+  index: -1
+tipi-large
+  rotate: false
+  xy: 44, 30
+  size: 33, 32
+  orig: 33, 32
+  offset: 0, 0
+  index: -1
+tipi2
+  rotate: false
+  xy: 113, 42
+  size: 29, 20
+  orig: 29, 20
+  offset: 0, 0
+  index: -1
+tipi3
+  rotate: false
+  xy: 257, 49
+  size: 23, 13
+  orig: 23, 13
+  offset: 0, 0
+  index: -1
+tipi4
+  rotate: false
+  xy: 38, 11
+  size: 29, 17
+  orig: 29, 17
+  offset: 0, 0
+  index: -1
+tipiruin
+  rotate: false
+  xy: 144, 47
+  size: 29, 15
+  orig: 29, 15
+  offset: 0, 0
+  index: -1
+tipivillage
+  rotate: false
+  xy: 111, 2
+  size: 15, 9
+  orig: 15, 9
+  offset: 0, 0
+  index: -1

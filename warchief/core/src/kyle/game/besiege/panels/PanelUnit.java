@@ -5,17 +5,10 @@
  ******************************************************************************/
 package kyle.game.besiege.panels;
 
-import java.text.DecimalFormat;
-
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.battle.BattleStage;
@@ -25,13 +18,15 @@ import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 
+import java.text.DecimalFormat;
+
 public class PanelUnit extends Panel { 
 	protected static final float PAD = 10;
 	protected static final float MINI_PAD = 5;
 	public static final float NEG = -5;
 	private final float DESC_HEIGHT = 530;
 	private BattleStage battleStage;
-	private SidePanel panel;
+	private SidePanel sidePanel;
 	private Unit unit;
 	protected Soldier soldier;
 	private float max_hp;
@@ -50,7 +45,7 @@ public class PanelUnit extends Panel {
 
 	// can be used for soldier or unit
 	public PanelUnit(SidePanel panel, Unit unit, Soldier soldier) {
-        this.panel = panel;
+        this.sidePanel = panel;
 
         this.unit = unit;
 
@@ -156,7 +151,6 @@ public class PanelUnit extends Panel {
 	@Override
 	public void act(float delta) {	
 		//		if (!unit.isGeneral()) {
-
 //		levelS.setText("" + soldier.level);
 		topTable.update("level", ""+soldier.level);
 
@@ -207,7 +201,7 @@ public class PanelUnit extends Panel {
 //			rangedWeaponS.setText(toPut);
 //
 //		}
-		if (soldier.unitType.ranged != null) {
+		if (unit != null && soldier.unitType.ranged != null) {
 			String toPut = soldier.unitType.ranged.name;
 			if (unit != null) toPut += " (" + unit.quiver + ")"; // + soldier.unitType.ammoType.name;
 

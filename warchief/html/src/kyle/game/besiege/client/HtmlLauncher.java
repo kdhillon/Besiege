@@ -3,7 +3,6 @@ package kyle.game.besiege.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import kyle.game.besiege.WarchiefGame;
 
 public class HtmlLauncher extends GwtApplication {
 

@@ -29,10 +29,10 @@ public class Party {
 
 	public PartyType pt;
 	
-	public Subparty root;
+	public Squad root;
 
 	private StrictArray<Soldier> prisoners;
-	public StrictArray<Subparty> subparties;
+	public StrictArray<Squad> squads;
 
 	private int atkTotal;
 	private int defTotal;
@@ -43,10 +43,10 @@ public class Party {
 	public Party() {
 		player = false;
 
-		root = new Subparty(this);
+		root = new Squad(this);
 
-		subparties = new StrictArray<Subparty>();
-		subparties.add(root);
+		squads = new StrictArray<Squad>();
+		squads.add(root);
 
 		prisoners = new StrictArray<Soldier>();
 
@@ -77,17 +77,17 @@ public class Party {
 		}
 	}
 
-	// 1) make all subparties have equal size. Pre-calculate the max number of subparties this party can have based on its current (or max) size.
-	// 2) put certain units into certain subparties. Either put best units in one subparty (root), separate by class (archers, infantry, etc), or evenly distribute (random)
+	// 1) make all squads have equal size. Pre-calculate the max number of squads this party can have based on its current (or max) size.
+	// 2) put certain units into certain squads. Either put best units in one squad (root), separate by class (archers, infantry, etc), or evenly distribute (random)
 	public boolean addSoldier(Soldier soldier, boolean force, boolean toSmallest) {
 		if (isFull() && !force) {
 			System.out.println("trying to add more than max size");
 			return false;
 		}
 		else {
-//			System.out.println("current subs: " + subparties.size);
-			// TODO when a garrison is destroyed, all subparties are removed.
-			Subparty p;
+//			System.out.println("current subs: " + squads.size);
+			// TODO when a garrison is destroyed, all squads are removed.
+			Squad p;
 			if (toSmallest)
 				p = getSmallestSub();
 			else
@@ -113,19 +113,19 @@ public class Party {
 		}
 	}
 
-	// Initialize this subparty with the given soldier list.
+	// Initialize this squad with the given soldier list.
 	// Basic algo:
-	// 		decide how many subparties we need (say, 3)
-	// 		Pick the best 3 soldiers and create subparties with them as generals.
+	// 		decide how many squads we need (say, 3)
+	// 		Pick the best 3 soldiers and create squads with them as generals.
 	// 		Using one of several party-organization systems, allocate the remaining soldiers.
 	void initializeWith(StrictArray<Soldier> soldiers) {
-		// Figure out the smallest number of subparties we can generate.
-		// ie, if there  22 units and general can command 19 under him (20 total), we need to have 2 subparties
+		// Figure out the smallest number of squads we can generate.
+		// ie, if there  22 units and general can command 19 under him (20 total), we need to have 2 squads
 
-		int subpartyCount = soldiers.size / getGeneral().getMaxSubPartySize() + 1;
+		int squadCount = soldiers.size / getGeneral().getMaxSquadSize() + 1;
 
-		// Note we skip the first subparty, as it was already created when the general was added.
-		for (int i = 1; i < subpartyCount; i++) {
+		// Note we skip the first squad, as it was already created when the general was added.
+		for (int i = 1; i < squadCount; i++) {
 			Soldier best = getBestSoldier(soldiers);
 			createNewSubWithGeneral(best);
 			soldiers.removeValue(best, true);
@@ -151,7 +151,7 @@ public class Party {
 	public Soldier getBestSoldier() {
 		// not efficient, but consistent with above.
 		StrictArray<Soldier> soldiers = new StrictArray<Soldier>();
-		for (Subparty sub : subparties) {
+		for (Squad sub : squads) {
 			soldiers.addAllFromStrictArray(sub.healthy);
 		}
 		return getBestSoldier(soldiers);
@@ -167,20 +167,20 @@ public class Party {
 	    else return pt.getMaxSize();
 	}
 	
-	public Subparty getNonEmptySub() {
-		for (int i = 0; i < subparties.size; i++) {
-			Subparty s = subparties.get(i);
+	public Squad getNonEmptySub() {
+		for (int i = 0; i < squads.size; i++) {
+			Squad s = squads.get(i);
 			if (s.isFull()) continue;
 			return s;
 		}
 		return null;
 	}
 
-	Subparty getSmallestSub() {
+	Squad getSmallestSub() {
 		int smallestSize = 99999;
-		Subparty smallest = null;
-		for (int i = 0; i < subparties.size; i++) {
-			Subparty s = subparties.get(i);
+		Squad smallest = null;
+		for (int i = 0; i < squads.size; i++) {
+			Squad s = squads.get(i);
 			if (s.getTotalSize() < smallestSize) {
 				smallest = s;
 				smallestSize = s.getTotalSize();
@@ -189,30 +189,30 @@ public class Party {
 		return smallest;
 	}
 	
-	// promote an existing soldier from another party to be general of a new subparty
+	// promote an existing soldier from another party to be general of a new squad
     public void createNewSubWithExistingGeneral() {
 	    Soldier s = this.getBestSoldier();
-	    s.subparty.removeSoldier(s);
+	    s.squad.removeSoldier(s);
 	    createNewSubWithGeneral(s);
     }
 
-    // create new subparty with the given soldier as general (should be a fresh soldier in no other subparty)
+    // create new squad with the given soldier as general (should be a fresh soldier in no other squad)
 	// Return true on success, false otherwise.
     public boolean createNewSubWithGeneral(Soldier soldier) {
-        Subparty newSub = new Subparty(this);
+        Squad newSub = new Squad(this);
 
         if (root == null || root.getTotalSize() == 0) {
-        	subparties.removeValue(root, true);
+        	squads.removeValue(root, true);
         	root = newSub;
 		} else {
 			root.addSub(newSub);
 		}
-        subparties.add(newSub);
+        squads.add(newSub);
 
         // promote best soldier to general
         if (newSub.getGeneral() == null && !pt.hire) {
-            if (soldier.subparty != null) {
-				soldier.subparty.removeSoldier(soldier);
+            if (soldier.squad != null) {
+				soldier.squad.removeSoldier(soldier);
 			}
             newSub.promoteToGeneral(soldier);
 
@@ -225,30 +225,30 @@ public class Party {
         return false;
     }
 //	
-//	// root is probably dead, move a subparty to be root and kill root.
+//	// root is probably dead, move a squad to be root and kill root.
 //	public void rearrangeSubs() {
 //		
 //	}
 	
-	public void destroySub(Subparty toDestroy) {
-		// first check if any subparties has this as its parent
-		// for now, everything is a child of the root subparties.
+	public void destroySub(Squad toDestroy) {
+		// first check if any squads has this as its parent
+		// for now, everything is a child of the root squads.
 		// so this should only happen if s is a root.
-		System.out.println("Destroying subparty of " + this.getName() + " with rank " + toDestroy.getRank());
+		System.out.println("Destroying squad of " + this.getName() + " with rank " + toDestroy.getRank());
 
 		if (toDestroy == root) {
 //			throw new AssertionError(); // this is actually ok. just for testing.
 		}
 
-		StrictArray<Subparty> children = new StrictArray<Subparty>();
+		StrictArray<Squad> children = new StrictArray<Squad>();
 		
-		for (Subparty s : subparties) {
+		for (Squad s : squads) {
 			if (s.parent == s) continue;
 
-			// special case, clean up empty children subparties
+			// special case, clean up empty children squads
 			if (s.getTotalSize() == 0 && s.getRank() != 0) {
 				continue;
-				// TODO actually remove this subparty from subparties list, it shouldn't be there.
+				// TODO actually remove this squad from squads list, it shouldn't be there.
 			}
 
 			if (s.parent == toDestroy) {
@@ -258,17 +258,17 @@ public class Party {
 		
 		// if we're removing a root
 		if (children.size > 0) {
-			Subparty newRoot = children.first();
+			Squad newRoot = children.first();
 			promoteToRoot(newRoot);
 			children.removeValue(newRoot, true);
 
-			for (Subparty s : children) {
+			for (Squad s : children) {
 				s.parent = newRoot;
 			}
 		}
 
-		subparties.removeValue(toDestroy, true);
-		if (subparties.size == 0) {
+		squads.removeValue(toDestroy, true);
+		if (squads.size == 0) {
 			if (this.army != null) {
 				this.army.destroy();
 				System.out.println("Destroying party");
@@ -280,11 +280,11 @@ public class Party {
 		}
 	}
 	
-	public void promoteToRoot(Subparty s) {
+	public void promoteToRoot(Squad s) {
 		s.parent = null;
 		
 		// verify
-		for (Subparty that : subparties) {
+		for (Squad that : squads) {
 			if (root == that) {
 				if (that.parent != null) throw new java.lang.AssertionError();
 			}
@@ -306,7 +306,8 @@ public class Party {
 	}
 
 	public void removeSoldier(Soldier soldier) {
-		for (Subparty p : subparties) {
+		for (int i = 0; i < squads.size; i++) {
+			Squad p = squads.get(i);
 			p.removeSoldier(soldier);
 		}
 	}
@@ -325,14 +326,14 @@ public class Party {
 		soldier.timesCaptured++;
 		prisoners.add(soldier);
 		prisoners.sort();
-		soldier.subparty = null;
+		soldier.squad = null;
 	}
 
 
 	public StrictArray<Soldier> getUpgradable() {
 		StrictArray<Soldier> total = new StrictArray<Soldier>();
-		//		StrictArray<Subparty> subparties = getAllSub();
-		for (Subparty p : subparties)
+		//		StrictArray<Squad> squads = getAllSub();
+		for (Squad p : squads)
 			total.addAllFromStrictArray(p.getUpgradable());
 		return total;
 	}
@@ -341,8 +342,8 @@ public class Party {
 		atkTotal = 0;
 		defTotal = 0;
 		spdTotal = 0;
-		//		StrictArray<Subparty> subparties = getAllSub();
-		for (Subparty s : subparties) {
+		//		StrictArray<Squad> squads = getAllSub();
+		for (Squad s : squads) {
 			atkTotal += s.atkTotal;
 			defTotal += s.defTotal;
 			spdTotal += s.spdTotal;
@@ -352,16 +353,16 @@ public class Party {
 //		System.out.println("total size: " + getTotalSize() + " min wealth: " + minWealth);
 	}
 
-	//	public StrictArray<Subparty> getAllSub() {
-	//		StrictArray<Subparty> p =  new StrictArray<Subparty>();
+	//	public StrictArray<Squad> getAllSub() {
+	//		StrictArray<Squad> p =  new StrictArray<Squad>();
 	//		p.add(root);
 	//		return p;
 	//	}
 
 	public void givePrisonerFromThis(Soldier prisoner, Party recipient) {
 		boolean removed = false;
-		for (int i = 0; i < subparties.size; i++) {
-			Subparty s = subparties.get(i);
+		for (int i = 0; i < squads.size; i++) {
+			Squad s = squads.get(i);
 			// TODO wounded/healthy still contain general, so we need to handle that.
 			if (s.wounded.contains(prisoner, true)) {
 				s.wounded.removeValue(prisoner, true);
@@ -415,14 +416,14 @@ public class Party {
 
 	public int getHealthySize() {
 		int total = 0; 
-		for (Subparty s : subparties) {
+		for (Squad s : squads) {
 			total += s.getHealthySize();
 		}
 		return total;
 	}
 	public int getWoundedSize() {
 		int total = 0; 
-		for (Subparty s : subparties) {
+		for (Squad s : squads) {
 			total += s.getWoundedSize();
 		}
 		return total;	
@@ -434,7 +435,7 @@ public class Party {
 
 	public int getTotalLevel() {
         int total = 0;
-	    for (Subparty s : subparties) {
+	    for (Squad s : squads) {
             total += s.getHealthyLevelSum();
         }
         return total;
@@ -442,7 +443,7 @@ public class Party {
 
 	public StrictArray<Soldier> getHealthy() {
 		StrictArray<Soldier> healthy = new StrictArray<Soldier>();
-		for (Subparty s : subparties) {
+		for (Squad s : squads) {
 			healthy.addAllFromStrictArray(s.healthy);
 		}		
 		return healthy;
@@ -450,7 +451,7 @@ public class Party {
 
 	public StrictArray<Soldier> getWounded() {
 		StrictArray<Soldier> wounded = new StrictArray<Soldier>();
-		for (Subparty s : subparties) {
+		for (Squad s : squads) {
 			wounded.addAllFromStrictArray(s.wounded);
 		}		
 		return wounded;
@@ -530,8 +531,8 @@ public class Party {
 
         // promote best soldier to general
         if (root.getGeneral() == null && !pt.hire) {
-            if (general.subparty != null)
-                general.subparty.removeSoldier(general);
+            if (general.squad != null)
+                general.squad.removeSoldier(general);
             root.promoteToGeneral(general);
         }
 
@@ -554,10 +555,10 @@ public class Party {
 		return root.getGeneral() != null;
 	}
 
-	// TODO promote other subparty to root when general subparty has 0.
+	// TODO promote other squad to root when general squad has 0.
 	public General getGeneral() {
 	    if (root.getGeneral() == null) {
-	        System.out.println( "a party of type " + this.army.type + " has no general, subparty size: " + root.getTotalSize() + " other subparties " + (subparties.size - 1));
+	        System.out.println( "a party of type " + this.army.type + " has no general, squad size: " + root.getTotalSize() + " other squads " + (squads.size - 1));
 	        throw new AssertionError();
         }
 		return root.getGeneral();
@@ -617,8 +618,8 @@ public class Party {
 	}
 
 	public void registerBattleVictory() {
-		for (int i = 0; i < subparties.size; i++) {
-			Subparty p = subparties.get(i);
+		for (int i = 0; i < squads.size; i++) {
+			Squad p = squads.get(i);
 			for (Soldier s : p.healthy) {
 				s.registerBattleVictory();
 			}
@@ -630,7 +631,7 @@ public class Party {
 	}
 
 	public void registerBattleLoss() {
-		for (Subparty p : subparties) {
+		for (Squad p : squads) {
 			for (Soldier s : p.healthy) {
 				s.registerBattleLoss();
 			}

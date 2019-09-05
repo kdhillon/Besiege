@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.WarchiefGame;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.title.MainMenuScreen;
@@ -87,7 +87,7 @@ public class QuickBattleTable extends Table {
     private void addMapOptions() {
         mapOptions = new Table();
 //        mapOptions.debug();
-        mapOptions.setWidth(BesiegeMain.WIDTH/2);
+        mapOptions.setWidth(WarchiefGame.WIDTH/2);
 
         mapOptions.defaults().padTop(SM_PAD);
 
@@ -201,6 +201,7 @@ public class QuickBattleTable extends Table {
         battleOptions.mapType = mapType.getSelected().getObject();
         battleOptions.siegeType = locationType.getSelected().getObject();
         battleOptions.weatherEffect = weatherEffect.getSelected().getObject();
+        battleOptions.timeOfDay = timeOfDay.getSelected().getObject();
 
         battleOptions.allyOptions = alliesTable.getPartyOptions();
         battleOptions.enemyOptions = enemiesTable.getPartyOptions();

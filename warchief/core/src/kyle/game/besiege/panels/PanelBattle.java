@@ -22,7 +22,7 @@ import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.Subparty;
+import kyle.game.besiege.party.Squad;
 
 public class PanelBattle extends Panel { // TODO organize soldier display to consolidate same-type soldiers
 	private final float PAD = 10;
@@ -35,6 +35,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 	private final String redPatch = "red9";
 	private final String greenPatch = "green9";
 	public Battle battle;
+	private SidePanel sidePanel;
 
 	public BattleStage battleStage;
 
@@ -574,7 +575,7 @@ public class PanelBattle extends Panel { // TODO organize soldier display to con
 			//				table.add(count).right();
 			//				table.row();
 			//			}
-			for (Subparty s : party.subparties) {
+			for (Squad s : party.squads) {
 				StrictArray<StrictArray<Soldier>> consolHealthy = s.getConsolHealthy();
 
 				for (StrictArray<Soldier> as : consolHealthy) {

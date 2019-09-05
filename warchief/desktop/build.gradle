@@ -3,10 +3,10 @@ apply plugin: "java"
 sourceCompatibility = 1.6
 sourceSets.main.java.srcDirs = [ "src/" ]
 
-project.ext.mainClassName = "kyle.game.besiege.desktop.DesktopLauncher"
+project.ext.mainClassName = "kyle.game.besiege.desktop.Main"
 project.ext.assetsDir = new File("../android/assets");
 
-task run(dependsOn: classes, type: JavaExec) {
+task run2(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in

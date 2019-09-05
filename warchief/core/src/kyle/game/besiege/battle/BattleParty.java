@@ -3,7 +3,7 @@ package kyle.game.besiege.battle;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.Party;
-import kyle.game.besiege.party.Subparty;
+import kyle.game.besiege.party.Squad;
 
 public class BattleParty {
 	public boolean besieging;
@@ -11,9 +11,9 @@ public class BattleParty {
 
 	public boolean retreating;
 
-	public StrictArray<BattleSubParty> subparties;
+	public StrictArray<BattleSquad> squads;
 	StrictArray<Party> parties;
-	StrictArray<Unit> units; // reflects subparties' units
+	StrictArray<Unit> units; // reflects squads' units
 
 	public BattleStage stage;
 	
@@ -22,7 +22,7 @@ public class BattleParty {
 	public BattleParty(BattleStage stage, int team) {
 		this.stage = stage;
 		this.parties = new StrictArray<Party>();
-		this.subparties = new StrictArray<BattleSubParty>();
+		this.squads = new StrictArray<BattleSquad>();
 		this.units = new StrictArray<Unit>();
 		this.team = team;
 	}
@@ -31,9 +31,9 @@ public class BattleParty {
 		if (party == null) return;
 		this.parties.add(party);
 //		System.out.println("adding " + playerPartyPanel.army.getName());
-		for (Subparty s : party.subparties) {
-			System.out.println("adding subparty of " + party.getName());
-			this.subparties.add(new BattleSubParty(this, s, team));
+		for (Squad s : party.squads) {
+			System.out.println("adding squad of " + party.getName());
+			this.squads.add(new BattleSquad(this, s, team));
 		}
 	}
 
@@ -53,7 +53,7 @@ public class BattleParty {
 	
 	public int getLevelSum() {
 		int total = 0;
-		for (BattleSubParty p : subparties) {
+		for (BattleSquad p : squads) {
 			if (!p.retreating) {
 				total += p.getHealthyLevelSum();
 			}
@@ -63,7 +63,7 @@ public class BattleParty {
 	
 	public int getAtk() {
 		int total = 0;
-		for (BattleSubParty p : subparties) {
+		for (BattleSquad p : squads) {
 			if (!p.retreating) {
 				total += p.getHealthySize();
 			}
@@ -73,7 +73,7 @@ public class BattleParty {
 	
 	public int getHealthySize() {
 		int total = 0;
-		for (BattleSubParty p : subparties) {
+		for (BattleSquad p : squads) {
 			if (!p.retreating) {
 				total += p.getHealthySize();
 			}
@@ -97,13 +97,13 @@ public class BattleParty {
 	}
 	
 	public void setStance(Stance stance) {
-		for (BattleSubParty s : subparties) {
+		for (BattleSquad s : squads) {
 			s.stance = stance;
 		}
 	}
 	
 	public void setGlobalFormation(Formation f) {
-		for (BattleSubParty s : subparties) {
+		for (BattleSquad s : squads) {
 			s.formation = f;
 		}
 	}
@@ -125,19 +125,19 @@ public class BattleParty {
 	    	return;
 		}
 
-		for (BattleSubParty s : subparties) {
+		for (BattleSquad s : squads) {
 			s.retreat();
 		}
 	}
 	
 	public void updateHiddenAll() {
-		for (BattleSubParty s : subparties) {
+		for (BattleSquad s : squads) {
 			s.updateHiddenAll();
 		}	
 	}
 	
 	public boolean noUnits() {
-		for (BattleSubParty b : subparties) {
+		for (BattleSquad b : squads) {
 			if (!b.noUnits()) return false;
 		}
 		System.out.println("no units!!!");
@@ -158,7 +158,7 @@ public class BattleParty {
 //	
 //	public StrictArray<Soldier> getHealthyInfantry() {
 //		int total = 0;
-//		for (BattleSubParty p : subparties) {
+//		for (BattleSquad p : squads) {
 //			if (!p.retreated) {
 //				total += p.getHealthyInfantry();
 //			}

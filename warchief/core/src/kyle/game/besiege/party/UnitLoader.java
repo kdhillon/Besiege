@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import kyle.game.besiege.NameGenerator;
 import kyle.game.besiege.voronoi.Biomes;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -48,12 +47,8 @@ public class UnitLoader {
 		}
 
 //		Scanner in = null;
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_biomes.txt").reader());
+
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine();
 
@@ -90,12 +85,7 @@ public class UnitLoader {
 
 	public static void loadColors() {
 		colors = new HashMap<String, Color>();
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_colors.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_colors.txt").reader());
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine(); // skip first line
 
@@ -120,12 +110,7 @@ public class UnitLoader {
 
 	public static void loadArmors() {
 		armorTypes = new HashMap<String, ArmorType>();
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_armors.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_armors.txt").reader());
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine();
 
@@ -153,12 +138,8 @@ public class UnitLoader {
 
 	public static void loadWeapons() {
 		weaponTypes = new HashMap<String, WeaponType>();
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_weapons.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_weapons.txt").reader());
+
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine();
 
@@ -206,12 +187,8 @@ public class UnitLoader {
 
 	public static void loadRangedWeapons() {
 		rangedWeaponTypes = new HashMap<String, RangedWeaponType>();
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_ranged_weapons.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_ranged_weapons.txt").reader());
+
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine();		in.nextLine(); // skip first line
 
@@ -247,12 +224,8 @@ public class UnitLoader {
 
 	private static void loadAmmo() {
 		ammoTypes = new HashMap<String, AmmoType>();
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_ammo.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_ammo.txt").reader());
+
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine();		in.nextLine(); // skip first line
 
@@ -277,12 +250,8 @@ public class UnitLoader {
 
     public static void loadShields() {
         shieldTypes = new HashMap<String, ShieldType>();
-        Scanner in = null;
-        try {
-            in = new Scanner(Gdx.files.internal(PATH + rootName + "_shields.txt").file());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_shields.txt").reader());
+
         if (!in.hasNext()) throw new AssertionError();
         in.nextLine();		in.nextLine(); // skip first line
 
@@ -309,12 +278,8 @@ public class UnitLoader {
 
 	private static void loadUnits() {
 //		unitTypes = new HashMap<String, NewUnitType>();
-		Scanner in = null;
-		try {
-			in = new Scanner(Gdx.files.internal(PATH + rootName + "_units.txt").file());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Scanner in = new Scanner(Gdx.files.internal(PATH + rootName + "_units.txt").reader());
+
 		if (!in.hasNext()) throw new AssertionError();
 		in.nextLine();
 

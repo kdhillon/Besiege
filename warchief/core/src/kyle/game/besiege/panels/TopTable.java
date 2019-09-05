@@ -171,7 +171,7 @@ public class TopTable extends Table {
 
 	public void update(String key, String newValue, InputListener listener) {
 		if (!labels.containsKey(key)) {
-			throw new java.lang.AssertionError();
+			throw new java.lang.AssertionError("No key found for ui element: " + key);
 		}
 		Label value = labels.get(key);
 		value.setText(newValue);

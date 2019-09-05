@@ -4,10 +4,8 @@ import kyle.game.besiege.Kingdom;
 import kyle.game.besiege.Siege;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.army.Army;
-import kyle.game.besiege.location.Location;
 import kyle.game.besiege.location.Village;
 import kyle.game.besiege.panels.BottomPanel;
-import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.*;
 
 import java.util.HashMap;
@@ -266,16 +264,16 @@ public class VictoryManager {
             }
         }
 
-        // Check all subparties and see if any generals died, if so, try to replace them
+        // Check all squads and see if any generals died, if so, try to replace them
         for (Party p : victor) {
-            for (int i = 0; i < p.subparties.size; i++) {
-                Subparty s = p.subparties.get(i);
+            for (int i = 0; i < p.squads.size; i++) {
+                Squad s = p.squads.get(i);
                 s.checkIfGeneralDied();
             }
         }
         for (Party p : loser) {
-            for (int i = 0; i < p.subparties.size; i++) {
-                Subparty s = p.subparties.get(i);
+            for (int i = 0; i < p.squads.size; i++) {
+                Squad s = p.squads.get(i);
                 s.checkIfGeneralDied();
             }
         }

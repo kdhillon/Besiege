@@ -12,7 +12,7 @@ public enum Formation {
 		this.name = name;
 	}
 
-	public Soldier.SoldierType[][] getFormation(BattleSubParty party) {
+	public Soldier.SoldierType[][] getFormation(BattleSquad party) {
 		Soldier.SoldierType[][] formation;
 
 		int iCount = party.infantrySizeWithoutGeneral();

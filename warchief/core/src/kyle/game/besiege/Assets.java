@@ -68,19 +68,20 @@ public class Assets {
 	public static Drawable ninepatchBackgroundDarkGray;
 	public static Drawable ninepatchBackgroundGray;
 	public static Drawable ninepatchBackgroundLightGray;
+	public static Drawable ninepatchBackgroundGrayTrans;
 
 	// TODO move everything into a subfolder for cleanliness
 	public static final String subfolderName = "data/";
 
 	public static void load() {
-		atlas = new TextureAtlas(Gdx.files.internal("atlas1"));
-		weapons = new TextureAtlas(Gdx.files.internal("weapons1"));
+		atlas = new TextureAtlas(Gdx.files.internal("atlas1.atlas"));
+		weapons = new TextureAtlas(Gdx.files.internal("weapons1.atlas"));
 
 
-		units = new TextureAtlas(Gdx.files.internal("units1"));
-		map = new TextureAtlas(Gdx.files.internal("map1"));
-		equipment = new TextureAtlas(Gdx.files.internal("equipment1"));
-        crests = new TextureAtlas(Gdx.files.internal("crests1"));
+		units = new TextureAtlas(Gdx.files.internal("units1.atlas"));
+		map = new TextureAtlas(Gdx.files.internal("map1.atlas"));
+		equipment = new TextureAtlas(Gdx.files.internal("equipment1.atlas"));
+        crests = new TextureAtlas(Gdx.files.internal("crests1.atlas"));
 
         white = new TextureRegion(new Texture("whitepixel.png"));
 		black = new Texture("black.png");
@@ -88,7 +89,7 @@ public class Assets {
 		ninepatchBackgroundDarkGray = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-d9"), r,r,r,r));
 		ninepatchBackgroundGray = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-dm9"), r,r,r,r));
 		ninepatchBackgroundLightGray = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-lm9"), r,r,r,r));
-
+		ninepatchBackgroundGrayTrans = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion("grey-med-trans"), 1,1,1,1));
 
 		// load units
 		UnitLoader.load("chieftain");

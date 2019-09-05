@@ -9,14 +9,12 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
-
-import kyle.game.besiege.*;
 import kyle.game.besiege.Character;
+import kyle.game.besiege.*;
 import kyle.game.besiege.battle.BattleStage;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.PanelCaptives;
-import kyle.game.besiege.panels.PanelHire;
 import kyle.game.besiege.panels.SidePanel;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
@@ -42,7 +40,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, "", faction, posX, posY, PartyType.Type.NOBLE, true);
+		super(kingdom, "", faction, posX, posY, PartyType.Type.SCOUT, true);
 		this.player = true;
 		this.setScale(calcScale());
 //		Location loc = this.detectNearbyFriendlyCity();
@@ -139,7 +137,7 @@ public class ArmyPlayer extends Army {
 
 						setTarget(null);
 						getKingdom().setPaused(true);
-						getKingdom().getMapScreen().getSidePanel().setDefault(false);
+						getKingdom().getMapScreen().getSidePanel().setDefault();
 					}
 					else {
 						path.travel();

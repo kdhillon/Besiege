@@ -71,13 +71,6 @@ public class Assets {
 	public static Drawable ninepatchBackgroundGray;
 	public static Drawable ninepatchBackgroundLightGray;
 
-	// TODO move everything into a subfolder for cleanliness
-	public static final String subfolderName = "data/";
-
-	public static FileHandle getInternal() {
-
-	}
-
 	public static void load() {
 		atlas = new TextureAtlas(Gdx.files.internal("atlas1"));
 		weapons = new TextureAtlas(Gdx.files.internal("weapons1"));

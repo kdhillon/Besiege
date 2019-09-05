@@ -1481,7 +1481,7 @@ public class BattleMap extends Group {
 				drawHideRadius(unit.bsp, batch);
 
 				// Also draw LOS radius around enemies.
-				for (BattleSubParty bsp : unit.enemyParty.subparties) {
+				for (BattleSquad bsp : unit.enemyParty.squads) {
 					drawLOS(bsp, batch);
 				}
 
@@ -1493,7 +1493,7 @@ public class BattleMap extends Group {
 		if (debugDrawLosSelected && stage.currentPanel != null && !stage.isOver()) {
 			Unit unit = stage.currentPanel;
 			boolean allEnemiesHidden = true;
-			for (BattleSubParty bsp : unit.enemyParty.subparties) {
+			for (BattleSquad bsp : unit.enemyParty.squads) {
 				if (bsp.isRevealed()) allEnemiesHidden = false;
 			}
 			if (allEnemiesHidden)
@@ -1502,7 +1502,7 @@ public class BattleMap extends Group {
 
 		boolean drawAllLOS = false;
 		if (drawAllLOS) {
-			for (BattleSubParty bsp : stage.enemies.subparties) {
+			for (BattleSquad bsp : stage.enemies.squads) {
 				drawLOS(bsp, batch);
 			}
 		}
@@ -1713,7 +1713,7 @@ public class BattleMap extends Group {
 		batch.setColor(Color.WHITE);
 	}
 
-	private StrictArray<BPoint> getAllHidePoints(BattleSubParty bsp) {
+	private StrictArray<BPoint> getAllHidePoints(BattleSquad bsp) {
 		StrictArray<BPoint> allPoints = new StrictArray<BPoint>();
 		for (Unit unit : bsp.units) {
 			if (unit.team == 1) throw new AssertionError();
@@ -1732,7 +1732,7 @@ public class BattleMap extends Group {
 		return allPoints;
 	}
 
-	private StrictArray<BPoint> getAllLOSPoints(BattleSubParty bsp) {
+	private StrictArray<BPoint> getAllLOSPoints(BattleSquad bsp) {
 		StrictArray<BPoint> allPoints = new StrictArray<BPoint>();
 		for (Unit unit : bsp.units) {
 			if (!unit.inMap()) continue;
@@ -1814,7 +1814,7 @@ public class BattleMap extends Group {
 			}
 			batch.setColor(c);
 	}
-	private void drawHideRadius(BattleSubParty bsp, Batch batch) {
+	private void drawHideRadius(BattleSquad bsp, Batch batch) {
 		Color c = batch.getColor();
 
 		StrictArray<BPoint> points = getAllHidePoints(bsp);
@@ -1827,7 +1827,7 @@ public class BattleMap extends Group {
 		batch.setColor(c);
 	}
 
-	private void drawLOS(BattleSubParty bsp, Batch batch) {
+	private void drawLOS(BattleSquad bsp, Batch batch) {
 		Color c = batch.getColor();
 
 		StrictArray<BPoint> points = getAllLOSPoints(bsp);

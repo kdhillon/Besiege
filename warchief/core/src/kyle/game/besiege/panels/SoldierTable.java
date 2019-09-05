@@ -12,7 +12,7 @@ import kyle.game.besiege.Assets;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.battle.BattleSubParty;
+import kyle.game.besiege.battle.BattleSquad;
 import kyle.game.besiege.party.*;
 
 /**
@@ -32,7 +32,7 @@ public class SoldierTable extends Table {
     private static Color SOLDIER_NAME_COLOR = Color.LIGHT_GRAY;
 	private static Color SELECTED_COLOR = Color.YELLOW;
 
-	private Table soldierTable;
+	Table soldierTable;
     private ScrollPane soldierPane;
 
     private static final String EXPAND = " v";
@@ -43,19 +43,26 @@ public class SoldierTable extends Table {
 
     private StrictArray<SoldierLabel> soldierLabels;
 
+    // TODO make squad tables panels.
     private Panel parent;
     public boolean hirePanel;
     public boolean captivesPanel; // similar to hire panel, but slightly different.
+    public boolean squadSoldierTable;
     public boolean selectable;
 
     // Flip-flop logic
     private boolean justSelected;
 
     protected final Party party;
+
+    // These are present for post-battle
     private final StrictArray<StrictArray<Soldier>> consolidatedWounded;
     private final StrictArray<StrictArray<Soldier>> consolidatedKilled;
     private int woundedCount;
     private int killedCount;
+
+    // This is present only for squadsoldiertables
+    private final Squad squad;
 
 	private final LabelStyle ls = new LabelStyle();
     private final LabelStyle lsG = new LabelStyle();
@@ -67,24 +74,24 @@ public class SoldierTable extends Table {
 	private final Label prisonersC;
 	private final Label emptyC;
 
-    private boolean allowSubpartyCollapse = true;
+    private boolean allowSquadCollapse = true;
     private boolean preventSoldierExpand = false;
 
     private boolean startAllCollapsed;
 
-    // This is useful for displaying the current status of battlesubparties
+    // This is useful for displaying the current status of battlesquads
     private BattleStage battleStage;
 
     public SoldierTable(Panel parent, Party party) {
-        this(parent, party, false, null, null, null);
+        this(parent, party, false, null, null, null, null);
     }
 
     public SoldierTable(Party party, boolean startAllCollapsed, BattleStage battle) {
-        this(null, party, startAllCollapsed, battle, null, null);
+        this(null, party, startAllCollapsed, battle, null, null, null);
 //        if (battle == null) throw new AssertionError();
     }
 
-	public SoldierTable(Panel parent, Party party, boolean startAllCollapsed, BattleStage battle, StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed) {
+	public SoldierTable(Panel parent, Party party, boolean startAllCollapsed, BattleStage battle, StrictArray<StrictArray<Soldier>> wounded, StrictArray<StrictArray<Soldier>> killed, Squad squad) {
 		ls.font = Assets.pixel16;
 		lsG.font = Assets.pixel16;
 		lsBig.font = Assets.pixel18;
@@ -105,6 +112,8 @@ public class SoldierTable extends Table {
                 killedCount += arr.size;
             }
         }
+        this.squad = squad;
+        if (squad != null) allowSquadCollapse = false;
 
         this.startAllCollapsed = startAllCollapsed;
 
@@ -129,11 +138,11 @@ public class SoldierTable extends Table {
 		this.selectable = true;
 	}
 
-	public void setAllowSubpartyCollapse(boolean allowSubpartyCollapse) {
-	    this.allowSubpartyCollapse = allowSubpartyCollapse;
+	public void setAllowSquadCollapse(boolean allowSquadCollapse) {
+	    this.allowSquadCollapse = allowSquadCollapse;
     }
 
-    public void setPreventSoldierExpand(boolean preventSoldierExpand) {
+    public void setLockSoldierExpand(boolean preventSoldierExpand) {
 	    this.preventSoldierExpand = preventSoldierExpand;
     }
 
@@ -162,7 +171,10 @@ public class SoldierTable extends Table {
 		soldierTable.row();
 //		System.out.println("updating soldierTable");
 		if (party == null) {
-		    if (consolidatedKilled != null || consolidatedWounded != null) {
+		    if (squad != null) {
+		        updateForSquad(squad, ls, lsG);
+            }
+		    else if (consolidatedKilled != null || consolidatedWounded != null) {
                 updateForPostBattle(consolidatedWounded, consolidatedKilled, ls);
             } else {
                 noTroopsC.setAlignment(Align.center);
@@ -184,17 +196,17 @@ public class SoldierTable extends Table {
         }
 	}
 
-	private BattleSubParty getBspForSubparty(Subparty s) {
+	private BattleSquad getBspForSquad(Squad s) {
         if (battleStage != null) {
-            BattleSubParty bsp = null;
-            for (BattleSubParty b : battleStage.getDefending().subparties) {
-                if (b.subparty == s) {
+            BattleSquad bsp = null;
+            for (BattleSquad b : battleStage.getDefending().squads) {
+                if (b.squad == s) {
                     bsp = b;
                     break;
                 }
             }
-            for (BattleSubParty b : battleStage.getAttacking().subparties) {
-                if (b.subparty == s) {
+            for (BattleSquad b : battleStage.getAttacking().squads) {
+                if (b.squad == s) {
                     bsp = b;
                     break;
                 }
@@ -222,6 +234,24 @@ public class SoldierTable extends Table {
         System.out.println("updating for post battle");
     }
 
+    private void updateForSquad(Squad squad, LabelStyle style, LabelStyle woundedStyle) {
+        SoldierLabel general = new SoldierLabel(squad.getGeneral().getOfficialName(), style, squad.getGeneral());
+        general.addListener(createSoldierClickListener(squad.getGeneral(), null));
+        soldierTable.add(general).center().expandX();
+        general.setColor(squad.getGeneral().unitType.cultureType.colorDark);
+
+        soldierTable.row();
+        updateTableWithTypes(squad.getConsolHealthy(), style);
+
+//        Label killedLabel = new Label("Killed", woundedStyle);
+//        Label killedCount = new Label(this.killedCount + "", woundedStyle);
+//        soldierTable.add(killedLabel).left().padLeft(0);
+//        soldierTable.add(killedCount).right();
+        soldierTable.row();
+        updateTableWithTypes(squad.getConsolWounded(), woundedStyle);
+        System.out.println("updating for squad");
+    }
+
 	// Currently the vertical size is too big, maybe because height isn't properly set?
 	private void updateWithParty(Party party, LabelStyle style, LabelStyle wounded) {
         // Special case for captive panel.
@@ -230,14 +260,14 @@ public class SoldierTable extends Table {
             return;
         }
 
-//		System.out.println("starting panelparty update: " + party.getName() + " with " + party.subparties.size + " subparties");
-		for (final Subparty s : party.subparties) {
-		    BattleSubParty bsp = getBspForSubparty(s);
+//		System.out.println("starting panelparty update: " + party.getName() + " with " + party.squads.size + " squads");
+		for (final Squad s : party.squads) {
+		    BattleSquad bsp = getBspForSquad(s);
 //		    if (bsp == null) throw new AssertionError();
 
             final SoldierLabel general;
 //            if (organizeByType) {
-            if (allowSubpartyCollapse && !hirePanel) {
+            if (allowSquadCollapse && !hirePanel) {
                 updateTableWithTypesNew(s, style, bsp);
 //                updateTableWithTypesNew(s.getGeneral(), s.getConsolWounded(), wounded);
             } else {
@@ -280,39 +310,40 @@ public class SoldierTable extends Table {
     }
 
     // This is a label of a general that includes a table of all subtypes below it
-    public class SubpartyLabel extends Label {
-	    Subparty subparty;
+    public class SquadLabel extends Label {
+	    Squad squad;
 	    StrictArray<StrictArray<Soldier>> soldierLists;
         Table expand;
         public boolean expanded = false;
-        private BattleSubParty bsp;
+        private BattleSquad bsp;
 
-        public SubpartyLabel(Subparty subparty, LabelStyle ls, final BattleSubParty bsp) {
+        public SquadLabel(Squad squad, LabelStyle ls, final BattleSquad bsp) {
             super("", ls);
-            final General general = subparty.getGeneral();
+            final General general = squad.getGeneral();
             if (general != null) {
                 setText(general.getRank() + " " + general.getLastName());
             } else {
                 // This happens when the general was wounded or killed recently.
-                // TODO -- do we want to always have a general for a subparty?
-                // I think yes. Even if the general is wounded, the subparty is still technically under the general.
-                // If he dies, force the player to find a replacement or disband the subparty after the battle.
+                // TODO -- do we want to always have a general for a squad?
+                // I think yes. Even if the general is wounded, the squad is still technically under the general.
+                // If he dies, force the player to find a replacement or disband the squad after the battle.
                 // For now, automatically assign.
                 throw new AssertionError();
             }
             this.bsp = bsp;
-            this.subparty = subparty;
+            this.squad = squad;
             this.setColor(general.unitType.cultureType.colorDark);
-            this.soldierLists = subparty.getConsolHealthy();
+            this.soldierLists = squad.getConsolHealthy();
             expand = new Table();
             this.addListener(new ClickListener() {
                 public boolean touchDown(InputEvent event, float x,
                                          float y, int pointer, int button) {
                     System.out.println("Dragging general: " + general.getName());
+                    parent.notifyDragStart(general);
                     if (battleStage != null) {
                         battleStage.selectUnit(bsp.general);
                     }
-                    else if (allowSubpartyCollapse) {
+                    else if (allowSquadCollapse) {
                         if (expanded) {
                             clearExpand();
                         } else {
@@ -327,6 +358,7 @@ public class SoldierTable extends Table {
                 public void touchUp(InputEvent event, float x, float y,
                                     int pointer, int button) {
                     System.out.println("Releasing general: " + general.getName());
+                    parent.notifyDragRelease(general);
                 }
             });
         }
@@ -353,7 +385,7 @@ public class SoldierTable extends Table {
                 expand.row();
                 expand.padBottom(-PanelUnit.NEG);
 
-                if (hirePanel || captivesPanel) {
+                if (hirePanel || captivesPanel || squadSoldierTable) {
                     name.clearExpand();
                     name.createExpand();
                     name.expanded = true;
@@ -361,16 +393,16 @@ public class SoldierTable extends Table {
             }
 
             // Also add Shaman if necessary
-            if (subparty.shaman != null) {
-                final SoldierLabel shamanLabel = new SoldierLabel(subparty.shaman.unitType.name, getStyle(), subparty.shaman);
+            if (squad.shaman != null) {
+                final SoldierLabel shamanLabel = new SoldierLabel(squad.shaman.unitType.name, getStyle(), squad.shaman);
                 expand.add(shamanLabel).left().expandX().padBottom(1*PanelUnit.NEG).colspan(2);
-                shamanLabel.setColor(subparty.shaman.getCulture().colorLite);
-                if (subparty.shaman == selected) {
+                shamanLabel.setColor(squad.shaman.getCulture().colorLite);
+                if (squad.shaman == selected) {
                     shamanLabel.setColor(SELECTED_COLOR);
                 }
                 soldierLabels.add(shamanLabel);
 
-                shamanLabel.addListener(createSoldierClickListener(subparty.shaman, bsp));
+                shamanLabel.addListener(createSoldierClickListener(squad.shaman, bsp));
                 expand.row();
             }
         }
@@ -380,11 +412,13 @@ public class SoldierTable extends Table {
         }
     }
 
-    private ClickListener createSoldierClickListener(final Soldier soldier, /**Optional*/ final BattleSubParty bsp) {
+    private ClickListener createSoldierClickListener(final Soldier soldier, /**Optional*/ final BattleSquad bsp) {
+        if (soldier == null) throw new AssertionError();
         return new ClickListener() {
             public boolean touchDown(InputEvent event, float x,
                                      float y, int pointer, int button) {
                 System.out.println("Dragging soldier: " + soldier.getName());
+                parent.notifyDragStart(soldier);
                 if (selectable) {
                     if (selected == soldier) {
                         // Deselect happens in touchup
@@ -402,6 +436,7 @@ public class SoldierTable extends Table {
             public void touchUp(InputEvent event, float x, float y,
                                 int pointer, int button) {
                 System.out.println("Releasing soldier: " + soldier.getName());
+                parent.notifyDragRelease(soldier);
                 if (selectable && !justSelected) {
                     if (selected == soldier) {
                         deselect();
@@ -416,10 +451,10 @@ public class SoldierTable extends Table {
         StrictArray<Soldier> type;
         Table expand;
         public boolean expanded = false;
-        private BattleSubParty bsp;
+        private BattleSquad bsp;
         private Label count;
 
-        public TypeLabel(String name, LabelStyle ls, final Label count, BattleSubParty bsp) {
+        public TypeLabel(String name, LabelStyle ls, final Label count, BattleSquad bsp) {
             super(name, ls);
             expand = new Table();
             this.bsp = bsp;
@@ -459,12 +494,16 @@ public class SoldierTable extends Table {
 
                 soldierLabels.add(soldierName);
             }
-            count.setText(type.size + COLLAPSE);
+            String toUse = type.size + COLLAPSE;
+            if (preventSoldierExpand) toUse = type.size + "";
+            count.setText(toUse);
 
         }
         void clearExpand() {
             expand.clear();
-            count.setText(type.size + EXPAND);
+            String toUse = type.size + EXPAND;
+            if (preventSoldierExpand) toUse = type.size + "";
+            count.setText(type.size + toUse);
         }
     }
 
@@ -474,11 +513,11 @@ public class SoldierTable extends Table {
 
     /**
      *
-     * @param s Subparty to update
+     * @param s Squad to update
      * @param style Style to use for this table
      * @param bsp Optional, only present if this is in a battle
      */
-    public void updateTableWithTypesNew(final Subparty s, LabelStyle style, final BattleSubParty bsp) {
+    public void updateTableWithTypesNew(final Squad s, LabelStyle style, final BattleSquad bsp) {
         // Add title of the party:
         if (s.getRank() == 0) {
             Label label = new Label(s.getPartyName(), ls);
@@ -500,7 +539,7 @@ public class SoldierTable extends Table {
             soldierTable.row();
         }
 
-        final SubpartyLabel label = new SubpartyLabel(s, style, bsp);
+        final SquadLabel label = new SquadLabel(s, style, bsp);
         Table generalTable = new Table();
         generalTable.add(label).left().expandX();
 //        soldierTable.add(label).left().expandX();
@@ -517,7 +556,7 @@ public class SoldierTable extends Table {
             public void touchUp(InputEvent event, float x, float y,
                                 int pointer, int button) {
                 // Force table to be expanded the whole time.
-                if (allowSubpartyCollapse) {
+                if (allowSquadCollapse) {
                     if (label.expanded) {
                         label.clearExpand();
                         generalCount.setText(s.getHealthySize() + EXPAND);
@@ -568,7 +607,7 @@ public class SoldierTable extends Table {
 
         soldierTable.row();
         float indent = DEFAULT_INDENT;
-        if (hirePanel || captivesPanel) indent = 0;
+        if (hirePanel || captivesPanel || squadSoldierTable) indent = 0;
 
         soldierTable.add(label.expand).expandX().left().padLeft(indent).colspan(2).fillX();
         soldierTable.row();
@@ -578,12 +617,12 @@ public class SoldierTable extends Table {
     }
 
 
-    // only used for panel hire, TODO deprecate.
+    // only used for panel hire, and special panels (post battle, squad table)
 	public void updateTableWithTypes(StrictArray<StrictArray<Soldier>> types, LabelStyle style) {
 		//		table.debug();
 		for (StrictArray<Soldier> type : types) {
             float indent = DEFAULT_INDENT;
-            if (hirePanel || captivesPanel) indent = 0;
+            if (hirePanel || captivesPanel || squadSoldierTable) indent = 0;
 
             Label count = new Label(type.size + "", style);
             count.setColor(type.first().unitType.cultureType.colorLite);
@@ -595,12 +634,13 @@ public class SoldierTable extends Table {
             soldierTable.row();
 
 			float indentSub = DEFAULT_INDENT;
+			if (hirePanel || captivesPanel || squadSoldierTable) indentSub = DEFAULT_INDENT/2;
 
 			soldierTable.add(name.expand).expandX().left().padLeft(indent + indentSub).colspan(2);
             soldierTable.row();
 			name.expand.padBottom(-PanelUnit.NEG);
 
-			if (hirePanel || captivesPanel) {
+			if (hirePanel || captivesPanel || squadSoldierTable) {
 			    name.clearExpand();
                 name.createExpand();
                 name.expanded = true;
@@ -617,15 +657,15 @@ public class SoldierTable extends Table {
 		}
 	}
 
-//    public void updateTableWithSubparty(Subparty subparty, LabelStyle style) {
+//    public void updateTableWithSquad(Squad squad, LabelStyle style) {
 //        //		table.debug();
 //        // TODO don't add General to this list (they're already listed above
 //        // the other units)
-//        SubpartyLabel name = new SubpartyLabel(subparty.general.getName(), style);
-//        name.types = subparty.getTypeListHealthy();
-//        name.setColor(subparty.getGeneral().unitType.cultureType.colorLite);
+//        SquadLabel name = new SquadLabel(squad.general.getName(), style);
+//        name.types = squad.getTypeListHealthy();
+//        name.setColor(squad.getGeneral().unitType.cultureType.colorLite);
 //        soldierTable.add(name).left();
-//        Label count = new Label(subparty.getHealthySize() + "", style);
+//        Label count = new Label(squad.getHealthySize() + "", style);
 //        soldierTable.add(count).right();
 //        soldierTable.row();
 //
@@ -674,48 +714,65 @@ public class SoldierTable extends Table {
 
     // For selecting a soldier after one has been hired.
     private Soldier getSoldierAfterSelectedOrBeforeIfNoneAfter() {
-        // Select next available soldier
-        Soldier prevSoldier = null;
-        boolean soldierJustFound = false;
-
-        Soldier toSelect = null;
-
         if (captivesPanel) {
-            System.out.println("Prisoners remaining: " + party.getPrisoners().size);
-            for (int i = 0; i < party.getPrisoners().size; i++) {
-                // This gets the next soldier after the selected one has been
-                // found
+            return selectNextInList(party.getPrisoners());
+        } else if (squad != null) {
+            StrictArray<StrictArray<Soldier>> lists = squad.getConsolHealthy();
+            Soldier next = selectNextInLists(lists);
+            if (next == null) {
+                next = selectNextInLists(squad.getConsolWounded());
+            }
+            return next;
+        } else {
+            for (final Squad s : party.squads) {
+                Soldier toReturn = selectNextInLists(s.getConsolHealthy());
+                if (toReturn != null) return toReturn;
+            }
+            return null;
+        }
+    }
+
+    private Soldier selectNextInList(StrictArray<Soldier> list) {
+        boolean soldierJustFound = false;
+        Soldier toSelect = null;
+        Soldier prevSoldier = null;
+        for (int i = 0; i < party.getPrisoners().size; i++) {
+            // This gets the next soldier after the selected one has been
+            // found
+            if (soldierJustFound) {
+                toSelect = party.getPrisoners().get(i);
+                break;
+            }
+            if (party.getPrisoners().get(i) == selected) {
+                soldierJustFound = true;
+            } else
+                prevSoldier = party.getPrisoners().get(i);
+        }
+        if (toSelect != null) return toSelect;
+        if (prevSoldier != null) return prevSoldier;
+        return null;
+    }
+
+    private Soldier selectNextInLists(StrictArray<StrictArray<Soldier>> lists) {
+        boolean soldierJustFound = false;
+        Soldier toSelect = null;
+        Soldier prevSoldier = null;
+        for (int j = 0; j < lists.size; j++) {
+            StrictArray<Soldier> soldiers = lists.get(j);
+            for (int i = 0; i < soldiers.size; i++) {
+                // This gets the next soldier after the selected one has been found
+
                 if (soldierJustFound) {
-                    toSelect = party.getPrisoners().get(i);
+                    toSelect = soldiers.get(i);
                     break;
                 }
-                if (party.getPrisoners().get(i) == selected) {
+                if (soldiers.get(i) == selected) {
                     soldierJustFound = true;
                 } else
-                    prevSoldier = party.getPrisoners().get(i);
+                    prevSoldier = soldiers.get(i);
             }
-        } else {
-            for (final Subparty s : party.subparties) {
-                StrictArray<StrictArray<Soldier>> lists = s.getConsolHealthy();
-                for (int j = 0; j < lists.size; j++) {
-                    StrictArray<Soldier> soldiers = lists.get(j);
-                    for (int i = 0; i < soldiers.size; i++) {
-                        // This gets the next soldier after the selected one has been found
-
-                        if (soldierJustFound) {
-                            toSelect = soldiers.get(i);
-                            break;
-                        }
-                        if (soldiers.get(i) == selected) {
-                            soldierJustFound = true;
-                        } else
-                            prevSoldier = soldiers.get(i);
-                    }
-                    if (toSelect != null) break;
-                }
-            }
+            if (toSelect != null) break;
         }
-
         if (toSelect != null) return toSelect;
         if (prevSoldier != null) return prevSoldier;
         return null;

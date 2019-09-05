@@ -13,9 +13,9 @@ public enum Equipment {
     HEADDRESS_MESO_1 ("Desert Headdress", "mesoHeaddress3", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_MESO_2 ("Desert Headdress", "mesoHeaddress2", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_MESO_3 ("Desert Headdress", "mesoHeaddress", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_PLAINS_1 ("Plains Headdress", "plainsHeaddress3", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_PLAINS_2 ("Plain Headdress", "plainsHeaddress2", Type.HEAD, 0, 1, 0, 20),
-    HEADDRESS_PLAINS_3 ("Plain Headdress", "plainsHeaddress", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_1 ("Plains Headdress", "bison-mask-long", "bison-helmet-long", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_2 ("Plain Headdress", "bison-mask", "bison-helmet", Type.HEAD, 0, 1, 0, 20),
+    HEADDRESS_PLAINS_3 ("Plain Headdress", "bison-mask", "bison-helmet", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_FOREST_1 ("Forest Headdress", "forestHeaddress3", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_FOREST_2 ("Forest Headdress", "forestHeaddress2", Type.HEAD, 0, 1, 0, 20),
     HEADDRESS_FOREST_3 ("Forest Headdress", "forestHeaddress", Type.HEAD, 0, 1, 0, 20),
@@ -38,6 +38,7 @@ public enum Equipment {
 	
 	public final String name;
 	public final String textureName;
+	public final String texturePreview;
 	public final Type type;
 	public final int hp;
 	public final int atkMod;
@@ -46,11 +47,24 @@ public enum Equipment {
 	public enum Type {
 		CHEST, HEAD, LEGS, ARMS, HORSE
 	}
-	
-	private Equipment(String name, String textureName, Type type, int atkMod, int defMod, int spdMod, int hp) {
+
+
+	Equipment(String name, String textureName, String texturePreview, Type type, int atkMod, int defMod, int spdMod, int hp) {
 		this.hp = hp;
 		this.name = name;
 		this.textureName= textureName;
+		this.texturePreview= texturePreview;
+		this.type = type;
+		this.atkMod = atkMod;
+		this.defMod = defMod;
+		this.spdMod = spdMod;
+	}
+	
+	Equipment(String name, String textureName, Type type, int atkMod, int defMod, int spdMod, int hp) {
+		this.hp = hp;
+		this.name = name;
+		this.textureName= textureName;
+		this.texturePreview= textureName;
 		this.type = type;
 		this.atkMod = atkMod;
 		this.defMod = defMod;

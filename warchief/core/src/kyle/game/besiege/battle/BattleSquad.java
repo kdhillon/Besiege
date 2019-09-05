@@ -490,7 +490,7 @@ public class BattleSquad {
 		stage.removeSquad(this);
 
 		tryPlaceSquad();
-//		stage.add(this, this.parent.subparties.indexOf(this, true));
+//		stage.add(this, this.parent.squads.indexOf(this, true));
 	}
 	
 	public void clearAllUnitsFromStage() {

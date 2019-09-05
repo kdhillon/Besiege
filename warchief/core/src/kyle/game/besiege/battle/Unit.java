@@ -51,7 +51,7 @@ public class Unit extends Group {
 	public Unit attacking;
 	public SiegeUnit attackingSiege;
 
-	public BattleSubParty bsp;
+	public BattleSquad bsp;
 	public Party party;
 	public Soldier soldier;
 	public WeaponType weapon;
@@ -201,10 +201,10 @@ public class Unit extends Group {
 	//	Animation swordWalk;
 	//	Animation swordAttack;
 
-	public Unit(BattleStage parent, int team, Soldier soldier, BattleSubParty bp) {
+	public Unit(BattleStage parent, int team, Soldier soldier, BattleSquad bp) {
 		stage = parent;
 
-		if (soldier.subparty == null) throw new AssertionError();
+		if (soldier.squad == null) throw new AssertionError();
 		//		texture = new TextureRegion(new Texture("red.png"));
 		this.bsp = bp;
 		this.party = soldier.party;
@@ -679,7 +679,7 @@ public class Unit extends Group {
 //	public int calcHP() {
 //		//		if (this.soldier.getType() == Soldier.SoldierType.ARCHER) return 10 + this.def*2;
 //		//		else
-//		return (int) (15 + this.def*3 + soldier.subparty.getGeneral().getHPBonus());
+//		return (int) (15 + this.def*3 + soldier.squad.getGeneral().getHPBonus());
 //	}
 
 	private Unit getNearbyFriendlyGeneral() {
@@ -689,8 +689,8 @@ public class Unit extends Group {
 		for (Unit that : friendlyParty.units) {
 			if (that.team != this.team) System.out.println("TEAM ERROR!!!");
 			if (!that.isGeneral()) continue;
-			// Immediately select the general from this subparty, if still alive.
-			if (that.soldier.subparty == this.soldier.subparty) return that;
+			// Immediately select the general from this squad, if still alive.
+			if (that.soldier.squad == this.soldier.squad) return that;
 			if (notAccessible(that)) continue;
 			if (that.pos_x <= 0 || that.pos_y <= 0) continue;
 			double dist = this.distanceTo(that);
@@ -867,7 +867,7 @@ public class Unit extends Group {
 		// effectively wound soldier until after battle
 		if (this.pos_x <= 0 || this.pos_y <= 0 || this.pos_x >= stage.size_x-1 || this.pos_y >= stage.size_y-1) {
 			//			leaveField();
-			soldier.subparty.wound(soldier);
+			soldier.squad.wound(soldier);
 			retreatDone();
 			//			System.out.println("Safe");
 		}
@@ -2037,7 +2037,7 @@ public class Unit extends Group {
 
 	public float getBaseRange() {
 		if (!this.isRanged()) return 0;
-		return this.rangedWeapon.range + soldier.subparty.getBonusGeneralRange();
+		return this.rangedWeapon.range + soldier.squad.getBonusGeneralRange();
 	}
 
 	public float getRangeDmg() {

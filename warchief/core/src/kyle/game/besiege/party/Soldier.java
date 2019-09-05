@@ -42,7 +42,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 //	private static final String VETERAN = "Vet."; // "Veteran" or maybe invisible
 
 	public Party party; // containing playerPartyPanel
-	public Subparty subparty;
+	public Squad squad;
 	
 	// personal attributes
 	public Color skinColor;
@@ -97,7 +97,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	// copy constructor (for making generals)
 	public Soldier(Soldier that) {
 		this.party = that.party;
-		this.subparty = that.subparty;
+		this.squad = that.squad;
 		this.skinColor = that.skinColor;
 		this.female = that.female;
 		this.age = that.age; // fixed for now, later should change based on year
@@ -532,7 +532,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	// Returns true if the unit was killed, false if they were injured.
 	public boolean casualty(boolean wasInAttackers, Soldier killer, boolean playerInA, boolean playerInD) {
-		boolean killed = subparty.casualty(this);
+		boolean killed = squad.casualty(this);
 		
 		// randomize who gets the kill
 		if (killedOrWoundedBy == null) {

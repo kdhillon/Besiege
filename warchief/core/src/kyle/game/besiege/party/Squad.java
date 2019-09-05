@@ -1,20 +1,20 @@
 package kyle.game.besiege.party;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Soldier.SoldierType;
 
-// contains a general and her bodyguard, as well as any subparties under her control
-public class Subparty {
-	public static int HARD_MAX = 20;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+
+// contains a general and her bodyguard, as well as any squads under her control
+public class Squad {
+	public static int HARD_MAX = 10;
 	
 	public Party party;
-	Subparty parent; // this is the boss, null usually.
+	Squad parent; // this is the boss, null usually.
 	
-	private StrictArray<Subparty> children;
+	private StrictArray<Squad> children;
 	
 	private General general; // who commands the playerPartyPanel! May not be null. May be wounde
 	private boolean generalDiedInBattle; // This is true if the general just died in battle. We don't want to null out the general (aka kill him) until after the battle.
@@ -38,14 +38,14 @@ public class Subparty {
 //	public boolean expandedForUI; // used to create consistency, even when soldiertables are updated...
 	
 	// for kryo
-	public Subparty() {} ;
+	public Squad() {} ;
 	
-	public Subparty(Party party) {
+	public Squad(Party party) {
 		this.party = party;
 		healthy = new StrictArray<Soldier>();
 		wounded = new StrictArray<Soldier>();
 		upgradable = new StrictArray<Soldier>();
-		children = new StrictArray<Subparty>();
+		children = new StrictArray<Squad>();
 		
 		randomGreen = (float) Math.random() / 2;
 		randomBlue = (float) Math.random() / 2;
@@ -80,7 +80,7 @@ public class Subparty {
 			demoteGeneral(general);
 		}
 		this.general = g;
-		g.subparty = this;
+		g.squad = this;
 		for (Soldier s : healthy) {
 			s.updateGeneral(g);
 		}
@@ -96,7 +96,7 @@ public class Subparty {
 		this.removeSoldier(general);
 		
 		this.general = null;
-		general.subparty = null;
+		general.squad = null;
 	}
 
 	// This
@@ -156,7 +156,7 @@ public class Subparty {
 		healthy.sort();
 		
 		// TODO this isn't getting called enough or something
-		// subparties aren't being destroyed and still aren't being displayed in panel
+		// squads aren't being destroyed and still aren't being displayed in panel
 		// check if the playerPartyPanel is dead
 		if (wounded.size == 0 & healthy.size == 0 && general == null) {
 			this.destroy();
@@ -167,11 +167,11 @@ public class Subparty {
 //		}
 	}
 
-	// May need to delete this subparty if everyone is dead...
+	// May need to delete this squad if everyone is dead...
 	public void handleBattleEnded() {
 		if (healthy.size == 0 && wounded.size == 0) {
-			System.out.println("Destroying subparty of " + this.party.getName() + " with rank " + this.getRank());
-			// TODO make sure this works by deleting all subparties in the correct order.
+			System.out.println("Destroying squad of " + this.party.getName() + " with rank " + this.getRank());
+			// TODO make sure this works by deleting all squads in the correct order.
 			this.destroy();
 			return;
 		}
@@ -179,9 +179,9 @@ public class Subparty {
 		if (general == null) throw new java.lang.AssertionError();
 	}
 	
-	// kill this subparty
+	// kill this squad
 	public void destroy() {	
-		System.out.println("destroying subparty");
+		System.out.println("destroying squad");
 		this.party.destroySub(this);
 	}
 	
@@ -231,7 +231,7 @@ public class Subparty {
 	
 	public boolean addSoldier(Soldier soldier) {
 		if (general != null && isFull()) {
-			System.out.println("trying to add more than max size to subparty. total size: " + getTotalSize() + " max size: " + general.getMaxSubPartySize());
+			System.out.println("trying to add more than max size to squad. total size: " + getTotalSize() + " max size: " + general.getMaxSquadSize());
 			return false;
 		}
 		else {
@@ -249,7 +249,7 @@ public class Subparty {
 					healthy.add(soldier);
 				healthy.sort();
 			}
-			soldier.subparty = this;
+			soldier.squad = this;
 			soldier.party = this.party;
 			if (general != null) soldier.updateGeneral(this.general);
 			calcStats();
@@ -381,26 +381,26 @@ public class Subparty {
 //	public int getSpotsRemaining() {
 //	    return HARD_MAX - this.getTotalSize();
 ////	    if (this.general != null)
-////		    return this.general.getMaxSubPartySize() - this.getTotalSize();
+////		    return this.general.getMaxSquadSize() - this.getTotalSize();
 ////	    else return HARD_MAX - this.getTotalSize(); // Gotta subtract 1 for general?
 //	}
 	
 	public boolean isFull() {
 		if (general == null) return this.getTotalSize() >= HARD_MAX;
-		return this.getTotalSize() >= general.getMaxSubPartySize();
+		return this.getTotalSize() >= general.getMaxSquadSize();
 	}
 	
-	public void addSub(Subparty s) {
+	public void addSub(Squad s) {
 		this.children.add(s);
 		s.parent = this;
 	}
 
-	// Returns rank of this subparty
+	// Returns rank of this squad
     // 0 is root.
     // 1 is first level
     // etc.
 	public int getRank() {
-		Subparty p = parent;
+		Squad p = parent;
 		int count = 0;
 		
 		while (p != null) {

@@ -1,7 +1,7 @@
 //package kyle.game.besiege.battle;
 //
 //import kyle.game.besiege.Assets;
-//import kyle.game.besiege.BesiegeMain;
+//import kyle.game.besiege.WarchiefGame;
 //import kyle.game.besiege.MapScreen;
 //
 //import com.badlogic.gdx.ApplicationAdapter;
@@ -28,7 +28,7 @@
 //		bs = new BattleStage(null, null, null); 
 //		
 //		mainstage = new Stage();
-//		OrthographicCamera battleCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+//		OrthographicCamera battleCamera = new OrthographicCamera(WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 //		mainstage.setCamera(battleCamera);
 //		battleCamera.zoom = 1;
 //		battleCamera.translate(0, 0);

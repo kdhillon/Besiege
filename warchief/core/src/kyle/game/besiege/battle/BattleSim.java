@@ -283,7 +283,7 @@ public class BattleSim implements Battle {
         // wait for x seconds (battle hasn't actually started yet)
         //
         // flip a weighted coin, kill/wound random unit from losing party (including generals)
-        // calculate morale of all subparties. if subparty morale < 0, all units in subparty retreat.
+        // calculate morale of all squads. if squad morale < 0, all units in squad retreat.
         // repeat until no soldiers in party
 
         // Easy way to decide who to kill:
@@ -346,7 +346,7 @@ public class BattleSim implements Battle {
                 army.setStopped(false);
                 army.forceWait(army.getForceWait());
                 if (army.getParty().player) {
-                    kingdom.getMapScreen().getSidePanel().setDefault(true);
+                    kingdom.getMapScreen().getSidePanel().setDefault();
                 }
 
                 //	log(army.getName() + " has won a battle", "cyan");
@@ -429,7 +429,7 @@ public class BattleSim implements Battle {
             if (party.army == kingdom.getPlayer()) {
                 playerInA = false;
                 playerInD = false;
-                kingdom.getMapScreen().getSidePanel().setDefault(true);
+                kingdom.getMapScreen().getSidePanel().setDefault();
                 this.simulate(.001f);// arbitrary time
             }
 
@@ -470,7 +470,7 @@ public class BattleSim implements Battle {
             return null;
         }
         // TODO eventually make this weighted by level.
-        // Also, this isn't really random (weighted towards units in smaller subparties)
+        // Also, this isn't really random (weighted towards units in smaller squads)
         Object randomObj = Random.getRandomValue(parties.toArray());
         Party randomParty = (Party) randomObj;
         if (randomParty == null) {
@@ -481,7 +481,7 @@ public class BattleSim implements Battle {
         Soldier s = null;
         int tries = 0;
         while (s == null && tries < 50) {
-            Subparty randomSub = (Subparty) Random.getRandomValue(randomParty.subparties.toArray());
+            Squad randomSub = (Squad) Random.getRandomValue(randomParty.squads.toArray());
             s = (Soldier) Random.getRandomValue(randomSub.healthy
                     .toArray());
             tries++;

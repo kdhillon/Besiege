@@ -7,12 +7,10 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.Crest;
 import kyle.game.besiege.CrestDraw;
@@ -28,7 +26,7 @@ import java.util.Set;
 public class PanelLocation extends Panel {
 	private final float MINI_PAD = 5;
 	private final float DESC_HEIGHT = 300;
-	private SidePanel panel;
+	private SidePanel sidePanel;
 	public Location location;
 	
 	private TopTable topTable;
@@ -48,7 +46,7 @@ public class PanelLocation extends Panel {
 	private HashMap<Party, SoldierTable> garrisonedTables = new HashMap<Party, SoldierTable>();
 
 	public PanelLocation(SidePanel panel, Location location) {
-		this.panel = panel;
+		this.sidePanel = panel;
 		this.location = location;
 		
 		this.addParentPanel(panel);
@@ -139,7 +137,7 @@ public class PanelLocation extends Panel {
 			setButton(3, null);
 			setButton(4, "Back");
 			sidePanel.setHardStay(false);
-			sidePanel.setDefault(false);
+			sidePanel.setDefault();
             // Player just left, reset the buttons
             playerTouched = false;
         } else if (location.playerBesieging && !playerBesieging) {
@@ -166,7 +164,7 @@ public class PanelLocation extends Panel {
                 setButton(2, "Hire");
             playerIn = true;
 			if (this.panelHire == null && !this.location.isRuin())
-				this.panelHire = new PanelHire(panel, location);
+				this.panelHire = new PanelHire(sidePanel, location);
 			if (location.getKingdom().getPlayer().getPanelCaptives() != null) {
 //				this.panelHire = new PanelHire(panel, location);
 				setButton(3, "Captives");
@@ -313,10 +311,10 @@ public class PanelLocation extends Panel {
 	}
 	
 	public void setActiveFaction() {
-		panel.setActiveFaction(location.getFaction());
+		sidePanel.setActiveFaction(location.getFaction());
 	}
 	private void centerCamera() {
-		Camera camera = panel.getKingdom().getMapScreen().getCamera();
+		Camera camera = sidePanel.getKingdom().getMapScreen().getCamera();
 //		camera.translate(new Vector2(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y));
 		camera.translate(new Vector3(location.getCenterX()-camera.position.x, location.getCenterY()-camera.position.y, 0));
 	}
@@ -330,9 +328,9 @@ public class PanelLocation extends Panel {
 //			garrisonedTables.remove(p);
 //
 //			Cell cell = topTable.getCell(soldierTable);
-////			cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
+////			cell.height(sidePanel.getHeight() - DESC_HEIGHT).setWidget(null);
 //			soldierTable = new SoldierTable(this, p);
-////			soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
+////			soldierTable.setHeight(sidePanel.getHeight() - DESC_HEIGHT);
 //			cell.setWidget(soldierTable);
 //			garrisonedTables.put(p, soldierTable);
 //			soldierTable.update();
@@ -361,23 +359,23 @@ public class PanelLocation extends Panel {
 				System.out.println("ATTACKING ");
 			}
 			else { // besiege/raid
-				panel.setHardStay(false);
+				sidePanel.setHardStay(false);
 				if (!location.underSiege()) {
 					if (location.isVillage()) {
-						panel.getKingdom().getPlayer().raid((Village) location);
+						sidePanel.getKingdom().getPlayer().raid((Village) location);
 					}
 					else {
 						BottomPanel.log("Besieging " + location.getName());
-						panel.getKingdom().getPlayer().besiege(location);
+						sidePanel.getKingdom().getPlayer().besiege(location);
 					}
 				}
 				else {
 //					if (location.isVillage()) {
-//						panel.getKingdom().getPlayer().raid((Village) location);
+//						sidePanel.getKingdom().getPlayer().raid((Village) location);
 //					}
 //					else {
 						BottomPanel.log("Resuming siegeOrRaid of" + location.getName());
-						location.getSiege().add(panel.getKingdom().getPlayer());
+						location.getSiege().add(sidePanel.getKingdom().getPlayer());
 //					}
 				}
 			}
@@ -387,15 +385,15 @@ public class PanelLocation extends Panel {
 	public void button2() {
 		if (this.getButton(2).isVisible()) {
 			if (playerIn) {
-				panel.setActive(this.panelHire);
+				sidePanel.setActive(this.panelHire);
 			}
 			else if (playerBesieging) {
 				BottomPanel.log("waiting");
 				location.startWait();
 			}
 			else {
-				panel.setHardStay(false);
-				panel.setDefault(true);		
+				sidePanel.setHardStay(false);
+				sidePanel.setDefault();
 			}
 		}
 	}
@@ -404,7 +402,7 @@ public class PanelLocation extends Panel {
 		if (this.getButton(3).isVisible()) {
 			if (playerIn) {
 				location.getKingdom().getPlayer().getPanelCaptives().updateSoldierTable();
-				panel.setActive(location.getKingdom().getPlayer().getPanelCaptives());
+				sidePanel.setActive(location.getKingdom().getPlayer().getPanelCaptives());
 			} else throw new AssertionError();
 		}
 	}
@@ -419,7 +417,7 @@ public class PanelLocation extends Panel {
 			BottomPanel.log("Withdraw!");
 		}
 		else {
-			panel.setDefault(true);
+			sidePanel.setDefault();
 		}
 	}
 	

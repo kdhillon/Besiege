@@ -12,7 +12,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,11 +22,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.WarchiefGame;
 import kyle.game.besiege.MapScreen;
+import kyle.game.besiege.party.ClickListenerWithHover;
 
 // TODO separate MainMenuScreen from background.
 public class MainMenuScreen implements Screen {
@@ -46,7 +45,7 @@ public class MainMenuScreen implements Screen {
 	
 	ScreenState state;
 	
-	private BesiegeMain main;
+	private WarchiefGame main;
 	private Stage stage;
 	private Table mainTable;
 	private Table lowerTable;
@@ -56,6 +55,7 @@ public class MainMenuScreen implements Screen {
 	private Label labelNew;
 	private Label labelLoad;
 	private Label quickBattle;
+	private Label about;
 	
 	private LabelStyle styleTitle;
 	public static LabelStyle styleButtons = new LabelStyle(Assets.pixel40, Color.WHITE);
@@ -68,7 +68,7 @@ public class MainMenuScreen implements Screen {
 
 //	private ButtonStyle bs;
 
-	public MainMenuScreen(BesiegeMain main) {
+	public MainMenuScreen(WarchiefGame main) {
 		this.main = main;
 		
 		state = ScreenState.Title;
@@ -87,13 +87,13 @@ public class MainMenuScreen implements Screen {
 		mainTable.setX(0);
 		mainTable.setY(0);
 		mainTable.setWidth(WIDTH);
-		mainTable.setHeight(BesiegeMain.HEIGHT);
+		mainTable.setHeight(WarchiefGame.HEIGHT);
 		
 		lowerTable.defaults().expandX().center();
 		lowerTable.setX(0);
 		lowerTable.setY(0);
 		lowerTable.setWidth(WIDTH);
-		lowerTable.setHeight(BesiegeMain.HEIGHT / 2);
+		lowerTable.setHeight(WarchiefGame.HEIGHT / 2);
 		
 		styleTitle = new LabelStyle();
 		styleTitle.font = Assets.pixel150;
@@ -115,71 +115,49 @@ public class MainMenuScreen implements Screen {
 		quickBattle = new Label("Q U I C K   B A T T L E", styleButtons);
 		quickBattle.addAction(Actions.sequence(Actions.alpha(0), Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
 
+		about = new Label("A B O U T", styleButtons);
+		about.addAction(Actions.sequence(Actions.alpha(0), Actions.delay(buttonDelay), Actions.fadeIn(buttonFade)));
+
 		mainTable.add(labelTitle).padBottom(PAD_BELOW_TITLE).padTop(PAD_ABOVE_TITLE);
 		mainTable.row();
 		mainTable.add(lowerTable).height(FIXED_SIZE_BOTTOM);
 //		mainTable.debug();
 
-		labelNew.addListener(new ClickListener() {
-//			public boolean touchDown(InputEvent event, float x,
-//					float y, int pointer, int button) {
-//				return true;
-//			}
+		labelNew.addListener(new ClickListenerWithHover(labelNew) {
 			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				clickNew();
 			}
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				setNewOn();
-			}
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-				setNewOff();
-			}
 		});
-		labelLoad.addListener(new ClickListener() {
-			public boolean touchDown(InputEvent event, float x,
-					float y, int pointer, int button) {
-				return true;
-			}
+		labelLoad.addListener(new ClickListenerWithHover(labelLoad) {
+			@Override
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				clickLoad();
 			}
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				setLoadOn();
-			}
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-				setLoadOff();
-			}
 		});
-		quickBattle.addListener(new ClickListener() {
-			public boolean touchDown(InputEvent event, float x,
-									 float y, int pointer, int button) { return true; }
-			public void touchUp(InputEvent event, float x, float y,
-								int pointer, int button) {
+		quickBattle.addListener(new ClickListenerWithHover(quickBattle) {
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				clickQuickBattle();
 			}
+		});
+		about.addListener(new ClickListenerWithHover(about) {
 			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				setQuickBattleOn();
-			}
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-				setQuickBattleOff();
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				clickAbout();
 			}
 		});
-
 //		lowerTable.debug();
 
 		lowerTable.add(labelNew).right().padRight(SEPARATE);
 		lowerTable.add(labelLoad).left().padLeft(SEPARATE);
 		lowerTable.row();
 		lowerTable.add(quickBattle).left().colspan(2).expandX().padTop(25);
+		lowerTable.row();
+		// TODO add about screen later
+//		lowerTable.add(about).left().colspan(2).expandX().padTop(25);
 
 		stage.addActor(mainTable);
 		
@@ -198,36 +176,6 @@ public class MainMenuScreen implements Screen {
 		stage.addActor(menuBackground);
 		stage.addActor(mainTable);
 		menuBackground.drawWithTint(tint);
-	}
-
-	private void setNewOff() {
-		if (labelNew.getActions().size == 0) {
-			labelNew.setColor(Color.WHITE);
-		}
-	}
-
-	private void setLoadOn() {
-		if (labelLoad.getActions().size == 0) {
-			labelLoad.setColor(Color.LIGHT_GRAY);
-		}
-	}
-	
-	private void setLoadOff() {
-		if (labelLoad.getActions().size == 0) {
-			labelLoad.setColor(Color.WHITE);
-		}
-	}
-
-	private void setQuickBattleOn() {
-		if (quickBattle.getActions().size == 0) {
-			quickBattle.setColor(Color.LIGHT_GRAY);
-		}
-	}
-
-	private void setQuickBattleOff() {
-		if (quickBattle.getActions().size == 0) {
-			quickBattle.setColor(Color.WHITE);
-		}
 	}
 	
 	@Override
@@ -269,25 +217,25 @@ public class MainMenuScreen implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		BesiegeMain.HEIGHT = height;
-		BesiegeMain.WIDTH = width;
+		WarchiefGame.HEIGHT = height;
+		WarchiefGame.WIDTH = width;
 		mainTable.setWidth(width);
 		mainTable.setHeight(height);
 //		lowerTable.setWidth(width);
 //		lowerTable.setHeight(height/2);
 
 		menuBackground.resize(width, height);
-		
+		// TODO fix resizing here by using a viewport
 //		topTable.getCells().get(1).padLeft(width-WIDTH).padRight(SEPARATE);
 //		topTable.getCells().get(2).padRight(width-WIDTH).padLeft(SEPARATE);
 //		stage
 		// TODO do we need to update this manually still?
-//		stage.set(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
+//		stage.set(WarchiefGame.WIDTH, WarchiefGame.HEIGHT, false);
 	}
 	
 	private void clickNew() {
 		this.state = ScreenState.InputName;
-		
+
 		lowerTable.clear();
 		Label prompt = new Label("Who are you?", styleButtons);
 		lowerTable.add(prompt).expandX();
@@ -325,6 +273,12 @@ public class MainMenuScreen implements Screen {
 	
 	private void expand() {
 		this.tf.setWidth(50000);
+	}
+
+	public void clickAbout() {
+		AboutScreen as = new AboutScreen(main, this, menuBackground);
+		main.setScreen(as);
+		menuBackground.drawWithTint(true);
 	}
 
 	public void clickQuickBattle() {

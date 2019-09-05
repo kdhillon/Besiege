@@ -1,8 +1,5 @@
 package kyle.game.besiege.party;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Array;
-import kyle.game.besiege.Assets;
 import kyle.game.besiege.MultiValue;
 import kyle.game.besiege.Random;
 
@@ -15,8 +12,8 @@ public class Shaman extends Soldier {
     private MultiValue power; // represents a Shaman or priest's spiritual power. in reality, it's an AOE.
     private Type type;
 
-    // These types of shamans give different powers to their subparties during battle.
-    // They also increase the healing rate of all units in the subparty.
+    // These types of shamans give different powers to their squads during battle.
+    // They also increase the healing rate of all units in the squad.
     // They march into battle behind their BSPs, like their general
     enum Type {
         // Forest
@@ -46,12 +43,12 @@ public class Shaman extends Soldier {
 
     // Instead of attack, Shamans have a "power" level, which corresponds to their healing and AOE
     // Generates a random type for this party.
-    public Shaman(Party party, Subparty subparty) {
+    public Shaman(Party party, Squad squad) {
         this.party = party;
-        this.subparty = subparty;
+        this.squad = squad;
 
         // For now, just make the culture accoring to the general. TODO make this more flexible.
-        this.type = getRandomType(subparty.getGeneral().unitType.cultureType);
+        this.type = getRandomType(squad.getGeneral().unitType.cultureType);
         this.unitType = type.unitType;
 
         this.assignBaseStats();

@@ -6,7 +6,7 @@
 package kyle.game.besiege.panels;
 
 import kyle.game.besiege.Assets;
-import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.WarchiefGame;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -51,7 +51,7 @@ public class BottomPanel extends Group {
 		this.panel = panel;
 
 		this.setHeight(HEIGHT);
-		this.setWidth(BesiegeMain.WIDTH - SidePanel.WIDTH);
+		this.setWidth(WarchiefGame.WIDTH - SidePanel.WIDTH);
 		this.setX(-this.getWidth());
 		this.setY(0);
 

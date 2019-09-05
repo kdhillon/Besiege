@@ -181,8 +181,8 @@ public class MiniMap extends Actor {
 			    if (e.type == Equipment.Type.HEAD) {
 			        batch.setColor(Color.WHITE);
 			        // draw headgear upside down
-					if (Assets.equipment.findRegion(e.textureName) == null) throw new AssertionError("cant find equipment: " + e.textureName);
-                    batch.draw(Assets.equipment.findRegion(e.textureName), getX() + x_boost, getY() + getWidth()*3/8f, getWidth() / 2, getWidth() / 2, getWidth(), getWidth(), 1, 1, getRotation() - 180);
+					if (Assets.equipment.findRegion(e.texturePreview) == null) throw new AssertionError("cant find equipment: " + e.texturePreview);
+                    batch.draw(Assets.equipment.findRegion(e.texturePreview), getX() + x_boost, getY() + getWidth()*3/8f, getWidth() / 2, getWidth() / 2, getWidth(), getWidth(), 1, 1, getRotation() - 180);
                 }
             }
 

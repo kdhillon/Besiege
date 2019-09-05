@@ -15,12 +15,12 @@ import kyle.game.besiege.party.WeaponType;
 public class WeaponDraw extends Group { // can have arrows.
     private static final float TINT_ALPHA = 0.2f;
     private static final Color redTint = new Color(1, 0.3f, 0, TINT_ALPHA);
-    private static final Color redRootSubpartyTint = new Color(    1, 0.7f, 0, TINT_ALPHA);
+    private static final Color redRootSquadTint = new Color(    1, 0.7f, 0, TINT_ALPHA);
 
     private static final Color redAllyTint = new Color(1, .5f, .5f, TINT_ALPHA);
     private static final Color redGeneralTint = new Color(1, 0.7f, 0, TINT_ALPHA);
     private static final Color blueTint = new Color(    .3f, .3f, 1, TINT_ALPHA);
-    private static final Color blueRootSubpartyTint = new Color(    .3f, .7f, 1, TINT_ALPHA);
+    private static final Color blueRootSquadTint = new Color(    .3f, .7f, 1, TINT_ALPHA);
     private static final Color blueGeneralTint = new Color(0, 0.7f, 1, TINT_ALPHA);
 
 	private static final float DEFAULT_OFFSET = 0;
@@ -155,14 +155,14 @@ public class WeaponDraw extends Group { // can have arrows.
 		if (unit.team == 0) {
 			if (unit.party == unit.stage.allies.first()) {
                 if (unit.bsp.isRoot()) {
-                    batch.setColor(blueRootSubpartyTint);
+                    batch.setColor(blueRootSquadTint);
                 } else batch.setColor(blueTint);
 			}
 			else batch.setColor(blueTint);
 		}
 		else {
 		    if (unit.bsp.isRoot()) {
-		        batch.setColor(redRootSubpartyTint);
+		        batch.setColor(redRootSquadTint);
             } else
 		        batch.setColor(redTint);
         }

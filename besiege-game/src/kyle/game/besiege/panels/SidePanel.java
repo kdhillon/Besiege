@@ -101,7 +101,7 @@ public class SidePanel extends Group {
 		this.setWidth(WIDTH);
 		this.setHeight(camera.viewportHeight);
 		this.setPosition(camera.viewportWidth-WIDTH, 0);
-		this.setOrigin(getCamera().position.x - getX(), getCamera().position.y - getY());
+//		this.setOrigin(getCamera().position.x - getX(), getCamera().position.y - getY());
 
 		// the second leak is here! it's in one of the children.
 		super.act(delta);

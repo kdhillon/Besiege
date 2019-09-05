@@ -9,15 +9,13 @@ package kyle.game.besiege;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-
 import kyle.game.besiege.title.MainMenuScreen;
 	
-public class BesiegeMain extends Game {
-	public static final String GAME_NAME = "Warchieasdff";
+public class WarchiefGame extends Game {
+	public static final String GAME_NAME = "Warchief";
 
-	public static int WIDTH = 400;
-	public static int HEIGHT = 512;
+	public static int WIDTH = 0;
+	public static int HEIGHT = 0;
 	public static int appType; // 0: desktop, 1: android, 2: Html5, 3: iOS
 	public MapScreen mapScreen;
 	public MainMenuScreen mainMenuScreen;

@@ -40,7 +40,8 @@ public class Panel extends Group {
 	private final String PAUSED = "Paused";
 	//	private final String SAVING = "Saving...";
 
-	public SidePanel sidePanel;
+	// Either one should be used?
+	public PanelHolder panelHolder;
 
 	private Kingdom kingdom;
 	private int day;
@@ -124,8 +125,11 @@ public class Panel extends Group {
 		buttons.add(b3);
 		buttons.add(b4);
 		buttons.row();
-		buttons.add(timeLabel).padTop(PAD).padLeft(PAD).expand(false,false).fill(false).width((SidePanel.WIDTH - PAD * 2)/2-PAD);
-		buttons.add(pausedLabel).padTop(PAD).padRight(PAD).expand(false,false).fill(false).width((SidePanel.WIDTH - PAD * 2)/2-PAD);
+		if (shouldAddTimeAndPaused()) {
+			buttons.add(timeLabel).padTop(PAD).padLeft(PAD).expand(false, false).fill(false).width((SidePanel.WIDTH - PAD * 2) / 2 - PAD);
+
+			buttons.add(pausedLabel).padTop(PAD).padRight(PAD).expand(false, false).fill(false).width((SidePanel.WIDTH - PAD * 2) / 2 - PAD);
+		}
 		//buttons.debug();
 
 		// TODO remove
@@ -134,16 +138,32 @@ public class Panel extends Group {
 		//buttonArray = new Array<Button>();
 	}
 
-	public void addParentPanel(SidePanel panel) {
-		this.sidePanel = panel;
-		this.kingdom = panel.getMapScreen().getKingdom();
+	// Figure out if we're mousing over any other soldier table and highlight it.
+	protected void notifyDragStart(Soldier soldier) {
+		// Handled in subclasses
+	}
 
-		masterHeight = sidePanel.getHeight() - SidePanel.WIDTH - BUTTONHEIGHT - PAD*2;
+	// Figure out if we're mousing over any other soldier table and highlight it.
+	protected void notifyDragRelease(Soldier soldier) {
+		// Handled in subclasses
+	}
+
+	protected boolean shouldAddTimeAndPaused() {
+		return true;
+	}
+
+	public void addParentPanel(PanelHolder panelHolder) {
+		this.panelHolder = panelHolder;
+		this.kingdom = panelHolder.getMapScreen().getKingdom();
+
+		float height = getFullHeight();
+
+		masterHeight = height - BUTTONHEIGHT - PAD*2;
 
 		topTableY = PAD + BUTTONHEIGHT;
 
 		HALF_HEIGHT = masterHeight / 2;
-		HALF_Y = PAD + sidePanel.getHeight() - SidePanel.WIDTH - HALF_HEIGHT;
+		HALF_Y = PAD + height - HALF_HEIGHT;
 
 		initializeMasterTable();
 	}
@@ -184,6 +204,7 @@ public class Panel extends Group {
 		// int argument
 		if (bc == 1) {
 			b1.clearListeners();
+			// TODO don't have universal buttons, this is kinda stupid.
 			b1.addListener(new InputListener() {
 				public boolean touchDown(InputEvent event, float x,
 										 float y, int pointer, int button) {
@@ -194,7 +215,7 @@ public class Panel extends Group {
 				public void touchUp(InputEvent event, float x, float y,
 									int pointer, int button) {
 					System.out.println("clicking b1");
-					sidePanel.press(1);
+					panelHolder.press(1);
 				}
 			});
 		} else if (bc == 2) {
@@ -207,7 +228,7 @@ public class Panel extends Group {
 
 				public void touchUp(InputEvent event, float x, float y,
 									int pointer, int button) {
-					sidePanel.press(2);
+					panelHolder.press(2);
 				}
 			});
 		} else if (bc == 3) {
@@ -220,7 +241,7 @@ public class Panel extends Group {
 
 				public void touchUp(InputEvent event, float x, float y,
 									int pointer, int button) {
-					sidePanel.press(3);
+					panelHolder.press(3);
 				}
 			});
 		} else if (bc == 4) {
@@ -233,7 +254,7 @@ public class Panel extends Group {
 
 				public void touchUp(InputEvent event, float x, float y,
 									int pointer, int button) {
-					sidePanel.press(4);
+					panelHolder.press(4);
 				}
 			});
 		} else
@@ -242,7 +263,9 @@ public class Panel extends Group {
 	}
 
 	@Override
-	public void act(float delta) {	
+	public void act(float delta) {
+
+		masterHeight = getFullHeight() - BUTTONHEIGHT - PAD*2;
 		if (masterPane.getHeight() != masterHeight) {
 			resize();
 		}
@@ -260,6 +283,7 @@ public class Panel extends Group {
 	}
 
 	public void resize() {
+		System.out.println("resizing panel");
 		// TODO make this adjust soldiertables?
 		this.removeActor(masterPane);
 		masterPane = new ScrollPane(master, spStyle);
@@ -274,6 +298,16 @@ public class Panel extends Group {
 		addTopTable(topTable2);
 	}
 
+
+	boolean leaveSpaceForMinimap() {
+		return true;
+	}
+
+	float getFullHeight() {
+		if (leaveSpaceForMinimap()) return panelHolder.getHeight() - SidePanel.WIDTH;
+		return panelHolder.getHeight();
+	}
+
 	public void initializeMasterTable() {
 		this.master = new Table();
 		master.top();
@@ -283,10 +317,11 @@ public class Panel extends Group {
 		spStyle.vScrollKnob = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(knobTexture), r,r,r,r));
 
 		masterPane = new ScrollPane(master, spStyle);
-		masterPane.setY(sidePanel.getHeight() - SidePanel.WIDTH);
+		float height = getFullHeight();
+		masterPane.setY(height);
 		masterPane.setX(0);
 		masterPane.setWidth(SidePanel.WIDTH-PAD*2);
-		masterPane.setHeight(sidePanel.getHeight()-SidePanel.WIDTH);
+		masterPane.setHeight(height);
 
 		masterPane.setScrollingDisabled(true, true);
 
@@ -339,7 +374,7 @@ public class Panel extends Group {
 	}
 	// Back button
 	public void button4() {
-		sidePanel.returnToPrevious(true);
+		panelHolder.returnToPrevious(true);
 	}
 	public Button getButton(int button) {
 		if (button == 1)

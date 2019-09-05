@@ -1,0 +1,237 @@
+
+map1.png
+size: 256,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+arrow
+  rotate: false
+  xy: 66, 2
+  size: 1, 4
+  orig: 1, 4
+  offset: 0, 0
+  index: -1
+axe
+  rotate: false
+  xy: 248, 25
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+castle wall
+  rotate: false
+  xy: 138, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+castle wall floor
+  rotate: false
+  xy: 148, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+castle wall floor wood
+  rotate: false
+  xy: 158, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+castle wall wood
+  rotate: false
+  xy: 168, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+catapult
+  rotate: false
+  xy: 178, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+catapult firing
+  rotate: false
+  xy: 54, 22
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+dart
+  rotate: false
+  xy: 253, 23
+  size: 1, 7
+  orig: 1, 7
+  offset: 0, 0
+  index: -1
+half arrow
+  rotate: false
+  xy: 69, 2
+  size: 1, 4
+  orig: 1, 4
+  offset: 0, 0
+  index: -1
+half axe
+  rotate: false
+  xy: 148, 15
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+half axe2
+  rotate: false
+  xy: 82, 9
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+half axe3
+  rotate: false
+  xy: 153, 15
+  size: 3, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+half dart
+  rotate: false
+  xy: 72, 2
+  size: 1, 4
+  orig: 1, 4
+  offset: 0, 0
+  index: -1
+half rock
+  rotate: false
+  xy: 82, 16
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+ladder
+  rotate: false
+  xy: 128, 14
+  size: 8, 16
+  orig: 8, 16
+  offset: 0, 0
+  index: -1
+palm
+  rotate: false
+  xy: 188, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+palm dark
+  rotate: false
+  xy: 198, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+palm red
+  rotate: false
+  xy: 208, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+palmShadow
+  rotate: false
+  xy: 102, 18
+  size: 11, 12
+  orig: 11, 12
+  offset: 0, 0
+  index: -1
+rock
+  rotate: false
+  xy: 54, 2
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+roof thatch
+  rotate: false
+  xy: 60, 2
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+slingstone
+  rotate: false
+  xy: 2, 2
+  size: 2, 2
+  orig: 2, 2
+  offset: 0, 0
+  index: -1
+stone fence
+  rotate: false
+  xy: 218, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+stone fence v
+  rotate: false
+  xy: 228, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+stump
+  rotate: false
+  xy: 238, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+tree
+  rotate: false
+  xy: 138, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+tree 3 3
+  rotate: false
+  xy: 2, 6
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+tree 3 3 alt
+  rotate: false
+  xy: 28, 6
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+tree dark
+  rotate: false
+  xy: 68, 8
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+tree snow dark
+  rotate: false
+  xy: 88, 18
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+tree2
+  rotate: false
+  xy: 54, 8
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+treeShadow
+  rotate: false
+  xy: 115, 18
+  size: 11, 12
+  orig: 11, 12
+  offset: 0, 0
+  index: -1

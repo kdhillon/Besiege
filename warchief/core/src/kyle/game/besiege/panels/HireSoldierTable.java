@@ -14,8 +14,8 @@ public class HireSoldierTable extends SoldierTable {
         this.panelHire = panelHire;
 
         noTroopsC.setText(HIRE_EMPTY_TEXT);
-        if (party.subparties.size > 0 && party.subparties.get(0)
-                .getConsolHealthy().size > 0 && party.subparties.get(0)
+        if (party.squads.size > 0 && party.squads.get(0)
+                .getConsolHealthy().size > 0 && party.squads.get(0)
                 .getConsolHealthy().get(0).size > 0)
             this.selectFirstSoldier();
     }
@@ -27,6 +27,6 @@ public class HireSoldierTable extends SoldierTable {
     }
 
     private void selectFirstSoldier() {
-        select(party.subparties.get(0).getConsolHealthy().get(0).get(0));
+        select(party.squads.get(0).getConsolHealthy().get(0).get(0));
     }
 }

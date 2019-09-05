@@ -7,7 +7,7 @@ import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.Battle;
 import kyle.game.besiege.battle.BattleStage;
-import kyle.game.besiege.battle.BattleSubParty;
+import kyle.game.besiege.battle.BattleSquad;
 import kyle.game.besiege.battle.Unit;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
@@ -126,14 +126,14 @@ public class PanelBattle2 extends Panel {
             if (battleStage != null && !battleStage.placementPhase) {
                 boolean charging = true;
                 if (battle.playerDefending()) {
-                    for (BattleSubParty bsp : battleStage.getDefending().subparties) {
+                    for (BattleSquad bsp : battleStage.getDefending().squads) {
                         if (bsp.stance != Unit.Stance.AGGRESSIVE) {
                             charging = false;
                         }
                     }
                 }
                 if (battle.playerAttacking()) {
-                    for (BattleSubParty bsp : battleStage.getAttacking().subparties) {
+                    for (BattleSquad bsp : battleStage.getAttacking().squads) {
                         if (bsp.stance != Unit.Stance.AGGRESSIVE) {
                             charging = false;
                         }
@@ -216,7 +216,7 @@ public class PanelBattle2 extends Panel {
 
     @Override
     public void resize() {
-        // TODO when you update these, make sure it preserves which subparties were expanded or not.
+        // TODO when you update these, make sure it preserves which squads were expanded or not.
 //        for (int i = 0; i < attackerSoldierTables.size; i++) {
 //            Cell cell = topTableAttackers.getCell(attackerSoldierTables.get(i));
 ////            cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);

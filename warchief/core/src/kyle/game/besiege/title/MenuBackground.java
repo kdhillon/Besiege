@@ -2,12 +2,11 @@ package kyle.game.besiege.title;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.utils.Array;
-import kyle.game.besiege.BesiegeMain;
+import kyle.game.besiege.WarchiefGame;
 import kyle.game.besiege.Random;
 import kyle.game.besiege.battle.BPoint;
 
@@ -107,7 +106,7 @@ public class MenuBackground extends Group {
         Color c = batch.getColor();
         batch.setColor(TINT);
         // Draw a dark rect over the whole screen...
-        batch.draw(region, 0, 0, BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+        batch.draw(region, 0, 0, WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
         batch.setColor(c);
     }
 
@@ -226,31 +225,31 @@ public class MenuBackground extends Group {
         @Override
         public void draw(Batch batch, float parentAlpha) {
             Color prev = batch.getColor();
-            int stripeHeight = BesiegeMain.HEIGHT / colors.length;
+            int stripeHeight = WarchiefGame.HEIGHT / colors.length;
             for (int i = 0; i < colors.length; i++) {
                 Color color = colors[i];
                 batch.setColor(color);
-                batch.draw(region, 0,  BesiegeMain.HEIGHT - (i + 1) * stripeHeight, BesiegeMain.WIDTH, stripeHeight);
+                batch.draw(region, 0,  WarchiefGame.HEIGHT - (i + 1) * stripeHeight, WarchiefGame.WIDTH, stripeHeight);
             }
             batch.setColor(prev);
 
             for (Star star : stars) {
                 batch.setColor(1, 1, 1, 0.6f);
                 if (Math.random() < 0.3) batch.setColor(1, 1, 1, 0.5f);
-                batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT, star.size, star.size);
+                batch.draw(region, star.x * WarchiefGame.WIDTH, WarchiefGame.HEIGHT - star.y  * WarchiefGame.HEIGHT, star.size, star.size);
             }
             for (Star star : starsFewer) {
                 // Add flickering effect
                 batch.setColor(1, 1, 1, 0.8f);
                 if (Math.random() < 0.3) batch.setColor(1, 1, 1, 0.5f);
-                batch.draw(region, star.x * BesiegeMain.WIDTH, BesiegeMain.HEIGHT - star.y  * BesiegeMain.HEIGHT - BesiegeMain.HEIGHT *1/colors.length, star.size, star.size);
+                batch.draw(region, star.x * WarchiefGame.WIDTH, WarchiefGame.HEIGHT - star.y  * WarchiefGame.HEIGHT - WarchiefGame.HEIGHT *1/colors.length, star.size, star.size);
             }
             // draw trees
             int treeHeight = (int) (stripeHeight * (1 + 1.2f/16));
             int treeWidth = treeHeight;
-            for (int i = 0; i * treeWidth < BesiegeMain.WIDTH; i++) {
+            for (int i = 0; i * treeWidth < WarchiefGame.WIDTH; i++) {
                 batch.setColor(1, 1, 1, 1f);
-                batch.draw(tree, i * treeWidth, BesiegeMain.HEIGHT - stripeHeight * 3 - stripeHeight * 1.1f /16, treeWidth, treeHeight);
+                batch.draw(tree, i * treeWidth, WarchiefGame.HEIGHT - stripeHeight * 3 - stripeHeight * 1.1f /16, treeWidth, treeHeight);
             }
 
 
@@ -263,9 +262,9 @@ public class MenuBackground extends Group {
                     // recycle drops
                     if (currentRainIndex < raindrops.length) {
                         for (int i = 0; i < raindropsPerFrame; i++) {
-                            raindrops[currentRainIndex].pos_x = (int) (Math.random() * BesiegeMain.WIDTH);
+                            raindrops[currentRainIndex].pos_x = (int) (Math.random() * WarchiefGame.WIDTH);
 
-                            raindrops[currentRainIndex].pos_y = (int) (Math.random() * BesiegeMain.HEIGHT);
+                            raindrops[currentRainIndex].pos_y = (int) (Math.random() * WarchiefGame.HEIGHT);
                             // increment current rain index proportionally to the number of drops, otherwise the speed of drops
                             // will be too low.
                             currentRainIndex++;
@@ -301,11 +300,11 @@ public class MenuBackground extends Group {
                         if (indexDiff < 0) indexDiff += raindrops.length;
 
                         // Add a bit of variation based on the index
-                        float drawAtY = (p.pos_y + rainDrawOffsetY) % (BesiegeMain.HEIGHT);
+                        float drawAtY = (p.pos_y + rainDrawOffsetY) % (WarchiefGame.HEIGHT);
                         // IN this case, we make color based on height.
-                        mycolor.a = 1 - (drawAtY / BesiegeMain.HEIGHT);
+                        mycolor.a = 1 - (drawAtY / WarchiefGame.HEIGHT);
 
-                        float drawAtX = (p.pos_x + rainDrawOffsetX + (mycolor.a * 200 * (i - raindrops.length/2f)/raindrops.length)) % (BesiegeMain.WIDTH);
+                        float drawAtX = (p.pos_x + rainDrawOffsetX + (mycolor.a * 200 * (i - raindrops.length/2f)/raindrops.length)) % (WarchiefGame.WIDTH);
 
                         // This makes some drops disappear early for an interesting effect
                         mycolor.a *= (i * 1.f / raindrops.length);
@@ -314,9 +313,9 @@ public class MenuBackground extends Group {
                         batch.setColor(mycolor);
 
                         if (X_RIGHT)
-                            batch.draw(white, (drawAtX), BesiegeMain.HEIGHT - (drawAtY), 5, 5);
+                            batch.draw(white, (drawAtX), WarchiefGame.HEIGHT - (drawAtY), 5, 5);
                         else
-                            batch.draw(white, (BesiegeMain.WIDTH - drawAtX), BesiegeMain.HEIGHT - (drawAtY), 5, 5);
+                            batch.draw(white, (WarchiefGame.WIDTH - drawAtX), WarchiefGame.HEIGHT - (drawAtY), 5, 5);
                     }
 
                     batch.setColor(c);

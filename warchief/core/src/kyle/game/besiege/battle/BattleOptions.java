@@ -23,7 +23,7 @@ public class BattleOptions {
         }
     }
 
-    TimeOfDay timeOfDay = TimeOfDay.EVENING;
+    TimeOfDay timeOfDay = TimeOfDay.DAY;
 
     public enum WeatherEffect {
         NONE,

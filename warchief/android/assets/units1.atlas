@@ -1,380 +1,382 @@
 
 units1.png
+size: 256,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-mock
+atlatl-armor
   rotate: false
-  xy: 2, 2
-  size: 12, 12
-  orig: 12, 12
-  offset: 0, 0
-  index: -1
-preview-hood-armor
-  rotate: false
-  xy: 16, 2
-  size: 8, 9
-  orig: 8, 9
-  offset: 0, 0
-  index: -1
-die1-chest-armor
-  rotate: false
-  xy: 26, 2
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-die1-armor-hood
-  rotate: false
-  xy: 60, 2
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-die1-skin
-  rotate: false
-  xy: 94, 2
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-die1-armor
-  rotate: false
-  xy: 2, 16
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-thrown-skin
-  rotate: false
-  xy: 36, 16
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-firearm-armor
-  rotate: false
-  xy: 54, 16
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-thrown-chest-armor
-  rotate: false
-  xy: 72, 16
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-firing-skin
-  rotate: false
-  xy: 90, 16
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-atlatl-chest-armor
-  rotate: false
-  xy: 108, 16
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-firearm-skin
-  rotate: false
-  xy: 2, 26
+  xy: 36, 13
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
 atlatl-armor-hood
   rotate: false
-  xy: 2, 36
+  xy: 128, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firing-armor
+atlatl-chest-armor
   rotate: false
-  xy: 2, 46
+  xy: 146, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-firing-armor-hood
+thrown-chest-armor
   rotate: false
-  xy: 2, 56
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-firing-chest-armor
-  rotate: false
-  xy: 2, 66
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-thrown-armor-hood
-  rotate: false
-  xy: 2, 76
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-walk-armor
-  rotate: false
-  xy: 2, 86
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-atlatl-armor
-  rotate: false
-  xy: 2, 96
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-walk-armor-hood
-  rotate: false
-  xy: 2, 106
+  xy: 146, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
 atlatl-skin
   rotate: false
-  xy: 2, 116
+  xy: 164, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-thrown-armor
+die1-armor
   rotate: false
-  xy: 20, 26
+  xy: 2, 13
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+die1-armor-hood
+  rotate: false
+  xy: 2, 3
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+die1-chest-armor
+  rotate: false
+  xy: 60, 22
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+die1-skin
+  rotate: false
+  xy: 94, 22
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+firearm-armor
+  rotate: false
+  xy: 182, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-walk-skin
+firearm-skin
   rotate: false
-  xy: 38, 26
+  xy: 200, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-walk-chest-armor
+firing-armor
   rotate: false
-  xy: 56, 26
+  xy: 218, 22
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-shadow
+firing-armor-hood
   rotate: false
-  xy: 74, 26
-  size: 8, 8
-  orig: 8, 8
+  xy: 236, 22
+  size: 16, 8
+  orig: 16, 8
   offset: 0, 0
   index: -1
-preview-skin
+firing-chest-armor
   rotate: false
-  xy: 84, 26
-  size: 8, 8
-  orig: 8, 8
+  xy: 54, 12
+  size: 16, 8
+  orig: 16, 8
   offset: 0, 0
   index: -1
-preview-loincloth-armor
+firing-skin
   rotate: false
-  xy: 94, 26
-  size: 8, 8
-  orig: 8, 8
+  xy: 46, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+mock
+  rotate: false
+  xy: 136, 8
+  size: 12, 12
+  orig: 12, 12
   offset: 0, 0
   index: -1
 preview-armor
   rotate: false
-  xy: 104, 26
+  xy: 126, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-armor-2
   rotate: false
-  xy: 114, 26
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-preview-chest-armor
-  rotate: false
-  xy: 20, 36
+  xy: 150, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-armwrap-armor
   rotate: false
-  xy: 20, 46
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-preview-chest-armor-2
-  rotate: false
-  xy: 20, 56
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-preview-clothes-armor
-  rotate: false
-  xy: 20, 66
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-skin-preview-2
-  rotate: false
-  xy: 20, 76
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-skin-preview-3
-  rotate: false
-  xy: 20, 86
+  xy: 150, 2
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 preview-basic-armor
   rotate: false
-  xy: 20, 96
+  xy: 160, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-chest-armor
+  rotate: false
+  xy: 160, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-chest-armor-2
+  rotate: false
+  xy: 170, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-clothes-armor
+  rotate: false
+  xy: 170, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-hood-armor
+  rotate: false
+  xy: 36, 2
+  size: 8, 9
+  orig: 8, 9
+  offset: 0, 0
+  index: -1
+preview-loincloth-armor
+  rotate: false
+  xy: 180, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+preview-skin
+  rotate: false
+  xy: 180, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+shadow
+  rotate: false
+  xy: 190, 12
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+skin-preview-2
+  rotate: false
+  xy: 190, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+skin-preview-3
+  rotate: false
+  xy: 200, 12
   size: 8, 8
   orig: 8, 8
   offset: 0, 0
   index: -1
 sling
   rotate: false
-  xy: 30, 36
+  xy: 2, 23
   size: 56, 7
   orig: 56, 7
   offset: 0, 0
   index: -1
+thrown-armor
+  rotate: false
+  xy: 64, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+thrown-armor-hood
+  rotate: false
+  xy: 72, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+thrown-skin
+  rotate: false
+  xy: 82, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+walk-armor
+  rotate: false
+  xy: 90, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+walk-armor-hood
+  rotate: false
+  xy: 100, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+walk-chest-armor
+  rotate: false
+  xy: 108, 12
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+walk-skin
+  rotate: false
+  xy: 118, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
 
-old1.png
+units12.png
+size: 128,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-bandit
+old/bandit_base
   rotate: false
-  xy: 2, 2
+  xy: 90, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+old/bandit_die
+  rotate: false
+  xy: 2, 22
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
   index: -1
-farmer
-  rotate: false
-  xy: 36, 2
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-knight
-  rotate: false
-  xy: 70, 2
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-knight
+old/bandit_die2
   rotate: false
   xy: 2, 12
   size: 32, 8
   orig: 32, 8
   offset: 0, 0
   index: -1
-bandit
+old/bandit_firing
   rotate: false
-  xy: 36, 12
-  size: 32, 8
-  orig: 32, 8
-  offset: 0, 0
-  index: -1
-bandit
-  rotate: false
-  xy: 104, 2
+  xy: 36, 2
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-bandit
+old/bandit_firing2
+  rotate: false
+  xy: 54, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+old/bandit_walk
+  rotate: false
+  xy: 70, 22
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+old/bandit_walk2
   rotate: false
   xy: 70, 12
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-bandit
+old/farmer_base
+  rotate: false
+  xy: 100, 2
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+old/farmer_die
+  rotate: false
+  xy: 2, 2
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+old/farmer_walk
+  rotate: false
+  xy: 72, 2
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+old/knight_base
+  rotate: false
+  xy: 106, 22
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+old/knight_die
+  rotate: false
+  xy: 36, 22
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+old/knight_die2
+  rotate: false
+  xy: 36, 12
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+old/knight_walk
+  rotate: false
+  xy: 88, 22
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
+old/knight_walk2
   rotate: false
   xy: 88, 12
   size: 16, 8
   orig: 16, 8
   offset: 0, 0
   index: -1
-farmer
+old/marshman_base
   rotate: false
   xy: 106, 12
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-knight
-  rotate: false
-  xy: 2, 22
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-knight
-  rotate: false
-  xy: 2, 32
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-bandit
-  rotate: false
-  xy: 2, 42
-  size: 16, 8
-  orig: 16, 8
-  offset: 0, 0
-  index: -1
-bandit
-  rotate: false
-  xy: 2, 52
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-farmer
-  rotate: false
-  xy: 2, 62
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-marshman
-  rotate: false
-  xy: 2, 72
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-knight
-  rotate: false
-  xy: 2, 82
   size: 8, 8
   orig: 8, 8
   offset: 0, 0

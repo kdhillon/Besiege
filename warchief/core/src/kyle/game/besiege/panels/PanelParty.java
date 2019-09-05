@@ -262,7 +262,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			}
 			else {
 				panel.setHardStay(false); // withdraw
-				panel.setDefault(true);
+				panel.setDefault();
 			}
 		}
 	}

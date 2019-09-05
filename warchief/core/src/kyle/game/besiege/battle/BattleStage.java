@@ -21,7 +21,7 @@ import kyle.game.besiege.panels.PanelBattle2;
 import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
-import kyle.game.besiege.party.Subparty;
+import kyle.game.besiege.party.Squad;
 import kyle.game.besiege.title.MainMenuScreen;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.VoronoiGraph;
@@ -439,7 +439,7 @@ public class BattleStage extends Group implements Battle {
             allies.setGlobalFormation(Formation.DEFENSIVE_LINE);
         } else {
             // Should randomize this
-            enemies.setGlobalFormation(enemies.subparties.first()
+            enemies.setGlobalFormation(enemies.squads.first()
                     .availableFormations.random());
 //			enemies.setGlobalFormation(Formation.DEFENSIVE_LINE);
 //			allies.setGlobalFormation(Formation.SQUARE);
@@ -625,8 +625,8 @@ public class BattleStage extends Group implements Battle {
 
     // for now, put them randomly on the field
     public void addUnits() {
-        addAllSubparties(allies.subparties);
-        addAllSubparties(enemies.subparties);
+        addAllSquads(allies.squads);
+        addAllSquads(enemies.squads);
 
         if (siegeOrRaid) {
             if (alliesDefending) {
@@ -640,7 +640,7 @@ public class BattleStage extends Group implements Battle {
     // Start with a few hard coded values
     // for example, deploy in rows of 3.
     // Place the root (generals bodyguard) in the back middle
-    public void addAllSubparties(StrictArray<BattleSubParty> bspList) {
+    public void addAllSquads(StrictArray<BattleSquad> bspList) {
         // These keep track of how far left/right to place units.
         // They correspond to the outer edges of the bsps that have been
         // placed so far
@@ -648,7 +648,7 @@ public class BattleStage extends Group implements Battle {
         int spacesToRightOfCenter = 0;
 
         for (int i = 0; i < bspList.size; i++) {
-            BattleSubParty bsp = bspList.get(i);
+            BattleSquad bsp = bspList.get(i);
             Formation formationType = bsp.formation;
 
             Soldier.SoldierType[][] formation = formationType.getFormation(bsp);
@@ -667,7 +667,7 @@ public class BattleStage extends Group implements Battle {
             // first row, etc.
 
             // Let's put everything 20 places apart for simplicity (max 20
-            // units in subparty)
+            // units in squad)
             int FIXED_SPACING_X = 20;
 
             // We need to put everything above a certain distance from the
@@ -732,7 +732,7 @@ public class BattleStage extends Group implements Battle {
             bsp.currentPosY = base_y;
             bsp.currentRegHeight = region_height;
             bsp.currentRegWidth = region_width;
-            bsp.tryPlaceSubParty();
+            bsp.tryPlaceSquad();
 
             this.allies.updateHiddenAll();
             this.enemies.updateHiddenAll();
@@ -754,7 +754,7 @@ public class BattleStage extends Group implements Battle {
 
     // TODO put units on wall if a siege
     // returns true if success, false if couldn't place a unit.
-    public boolean addUnitsFromSubparty(BattleSubParty bsp, int base_x, int
+    public boolean addUnitsFromSquad(BattleSquad bsp, int base_x, int
             base_y) {
         if (base_x< 0 || base_x > size_x) return false;
 
@@ -879,7 +879,7 @@ public class BattleStage extends Group implements Battle {
             }
         }
 
-        if (!generalAdded && bsp.subparty.getGeneral() != null) {
+        if (!generalAdded && bsp.squad.getGeneral() != null) {
             System.out.println("formation: " + formationType.toString() + " " +
                     "has no spot for general");
             throw new AssertionError();
@@ -901,7 +901,7 @@ public class BattleStage extends Group implements Battle {
 //	// add on wall if there is a wall
 //	// online alg, start in middle and move
 //    // left/right
-//	public void addSubparty(BattleSubParty bsp, int index) {
+//	public void addSquad(BattleSquad bsp, int index) {
 //		Formation choice;
 //		choice = bsp.formation;
 ////		if (playerPartyPanel.isPlayer()) {
@@ -964,7 +964,7 @@ public class BattleStage extends Group implements Battle {
 //			}
 //			canPlaceHere = true;
 //
-//			// This determines where the subparty rectangle will be placed
+//			// This determines where the squad rectangle will be placed
 //            // This is currently biased towards the center of the map?
 //            // Idk but it's pretty messed up.
 //            // Could be the part below.
@@ -976,8 +976,8 @@ public class BattleStage extends Group implements Battle {
 //            // Now, we have an algo that ensures that it'll fit no matter
 // where you place it.
 //            // Good solution:
-//            //   pre-calculate the width of all subparties
-//            //   place "root" subparty at the middle of the map
+//            //   pre-calculate the width of all squads
+//            //   place "root" squad at the middle of the map
 //            //   place other parties around it, at a small distance away
 // from the center one and others.
 //
@@ -1001,7 +1001,7 @@ public class BattleStage extends Group implements Battle {
 //
 //                // Try a simpler way, place all parties at once?
 //
-//                for (BattleSubParty other : bsp.parent.subparties) {
+//                for (BattleSquad other : bsp.parent.squads) {
 //                    if (other.currentPosX != 0 || other.currentPosY != 0) {
 //                        totalSubCount++;
 //                        // Add first party as a special count added later
@@ -1208,7 +1208,7 @@ public class BattleStage extends Group implements Battle {
         unit.updateCover();
     }
 
-    public void removeSubParty(BattleSubParty s) {
+    public void removeSquad(BattleSquad s) {
         s.clearAllUnitsFromStage();
         for (Unit u : s.units) {
             removeActor(u);
@@ -1405,10 +1405,10 @@ public class BattleStage extends Group implements Battle {
 
     public void chargeAll(boolean player) {
         if (player) {
-            for (BattleSubParty p : allies.subparties)
+            for (BattleSquad p : allies.squads)
                 p.charge();
         } else {
-            for (BattleSubParty p : enemies.subparties)
+            for (BattleSquad p : enemies.squads)
                 p.charge();
         }
     }
@@ -1444,7 +1444,7 @@ public class BattleStage extends Group implements Battle {
                 leftClick(mouse);
             else if (rightClicked)
                 rightClick(mouse);
-            else if (BesiegeMain.appType != 1)
+            else if (WarchiefGame.appType != 1)
                 mouseOver(mouse);
         }
         if (!placementPhase) {
@@ -1694,7 +1694,7 @@ public class BattleStage extends Group implements Battle {
 
         // heal retreated soldiers
         for (Unit u : retreated)
-            u.soldier.subparty.healNoMessage(u.soldier);
+            u.soldier.squad.healNoMessage(u.soldier);
 
         victoryManager.handleVictory(getAttackingParties(),
                 getDefendingParties(), getAttackingPartiesRetreated(),
@@ -1722,7 +1722,7 @@ public class BattleStage extends Group implements Battle {
             if (p.army != null) {
                 p.army.endBattle();
             }
-            for (Subparty s : p.subparties) {
+            for (Squad s : p.squads) {
                 s.handleBattleEnded();
             }
         }
@@ -1735,7 +1735,7 @@ public class BattleStage extends Group implements Battle {
 //                p.army.setStopped(false);
 //                p.army.setTarget(null);
             }
-            for (Subparty s : p.subparties) {
+            for (Squad s : p.squads) {
                 s.handleBattleEnded();
             }
         }
@@ -1982,7 +1982,7 @@ public class BattleStage extends Group implements Battle {
         victoryText = new Label(text, ls);
         victoryText.addAction(Actions.fadeIn(2000, Interpolation.sine));
         victoryText.setFillParent(true);
-        victoryText.setX(BesiegeMain.WIDTH * 0.4f);
+        victoryText.setX(WarchiefGame.WIDTH * 0.4f);
         victoryText.setTouchable(Touchable.disabled);
         mapScreen.getUIStage().addActor(victoryText);
     }
@@ -2100,7 +2100,7 @@ public class BattleStage extends Group implements Battle {
     }
 
     private boolean anyAllyBSPNotCharging() {
-        for (BattleSubParty bsp : allies.subparties) {
+        for (BattleSquad bsp : allies.squads) {
             if (!bsp.retreating && bsp.stance == Stance.DEFENSIVE)
                 return true;
         }

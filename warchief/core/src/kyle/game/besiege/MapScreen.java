@@ -28,6 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
@@ -39,7 +40,7 @@ import kyle.game.besiege.location.Castle;
 import kyle.game.besiege.location.Location;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.panels.SidePanel;
-import kyle.game.besiege.party.Subparty;
+import kyle.game.besiege.party.Squad;
 
 import java.util.Date;
 
@@ -156,18 +157,18 @@ public class MapScreen implements Screen {
 		});
 		// for some reason have to register Castle 
 		kryo.register(Castle.class);
-		kryo.register(Subparty.class);
+		kryo.register(Squad.class);
 
 		System.out.println("initializing mapscreen");
 		
 		character = new Character(name);
 		setStaticCharacter(character);
 
-		kingdomCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		kingdomCamera = new OrthographicCamera(WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 
 		// part of the problem is we can't pass the perspective matrix through the Batch, because it's meant for
 		// 2D rendering only.
-		//		kingdomPerspectiveCamera = new PerspectiveCamera(60, BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		//		kingdomPerspectiveCamera = new PerspectiveCamera(60, WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 		//		kingdomPerspectiveCamera.
 
 		//		kingdomPerspectiveCamera.update();
@@ -177,31 +178,30 @@ public class MapScreen implements Screen {
 		//		kingdomCamera.
 
 		// I don't know why but have to set this to 2*Width
-		battleCamera = new OrthographicCamera(2*BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		battleCamera = new OrthographicCamera(2*WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 
 		Batch kingdomBatch = new SpriteBatch(5460); // optimizes swapBuffers
 		//kingdomStage = new Stage();
 
 		// TODO change to ScreenViewport
-		kingdomViewport = new FillViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		kingdomViewport = new ScreenViewport();
 		kingdomStage = new Stage(kingdomViewport, kingdomBatch);
 		kingdomViewport.setCamera(kingdomCamera);
 		//		kingdomStage.setCamera(kingdomPerspectiveCamera);
 		currentStage = kingdomStage;
 
-		battleViewport = new FillViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		battleViewport = new ScreenViewport();
 		battleStage = new Stage(battleViewport, kingdomBatch);
 		battleViewport.setCamera(battleCamera);
 
 		this.currentCamera = kingdomCamera;
 		
 		// will this draw blank before kingdom loads?
-//		kingdomStage.setViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);	
+//		kingdomStage.setViewport(WarchiefGame.WIDTH, WarchiefGame.HEIGHT, false);
 //		kingdomStage.act();
 //		kingdomStage.draw();
 
-
-		uiViewport = new FillViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		uiViewport = new ScreenViewport();
 		uiStage = new Stage(uiViewport);
 		uiStage.addListener(new InputListener());
 
@@ -222,17 +222,17 @@ public class MapScreen implements Screen {
 		setStaticCharacter(character);
 
 		// I don't know why but have to set this to 2*Width
-		battleCamera = new OrthographicCamera(2*BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		battleCamera = new OrthographicCamera(2*WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 
 		Batch kingdomBatch = new SpriteBatch(5460); // optimizes swapBuffers
 
-		battleViewport = new FillViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		battleViewport = new FillViewport(WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 		battleStage = new Stage(battleViewport, kingdomBatch);
 		battleViewport.setCamera(battleCamera);
 
 		this.currentCamera = battleCamera;
 
-		uiViewport = new FillViewport(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		uiViewport = new FillViewport(WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 		uiStage = new Stage();
 		uiStage.addListener(new InputListener());
 		
@@ -242,7 +242,6 @@ public class MapScreen implements Screen {
 
 		currentStage = battleStage;
 
-		startLog();
 
 		worldInitialized = true;
 		
@@ -260,10 +259,11 @@ public class MapScreen implements Screen {
 		mouseOverPanel = false;
 		keydown = 0;
 
-		startLog();
+		startLogBattle();
 	}
-	
-	
+
+	// TODO let's make this synchronized so we can be watching the development in parallel.
+	// do this on a different thread
 	public void initializeWorldStep() {
 //		System.out.println("initializeWorldStep");
 		// just to make sure the kingdom is getting drawn
@@ -348,11 +348,12 @@ public class MapScreen implements Screen {
 		worldInitialized = true;
 		kingdom.setPaused(true);
 		center();
-		if (!VIEW_GENESIS) {
-			kingdomCamera.zoom = 0.5f;
-			fogOn = true;
-			
-		}
+
+//		if (!VIEW_GENESIS) {
+//			kingdomCamera.zoom = 0.5f;
+//			fogOn = true;
+//
+//		}
 	}
 	
 	public static void storeStaticSidePanel(SidePanel sp) {
@@ -364,24 +365,41 @@ public class MapScreen implements Screen {
 	}
 	
 	private void startLog() {
-		BottomPanel.log("Welcome to " + BesiegeMain.GAME_NAME + " This is the alpha release. Enjoy!", "green");
+		BottomPanel.log("Welcome to " + WarchiefGame.GAME_NAME + ". This is the alpha release. Enjoy!", "green");
 		BottomPanel.log("Controls: ", "orange");
-		BottomPanel.log("Move: right-click       Pan camera: WASD       Rotate camera: Q,E       Zoom: mouse wheel       Wait: hold space", "orange");
-		BottomPanel.log("View map info: g       View factions: t         8x Speed: hold f          Toggle Line of Sight: l", "orange");
+		BottomPanel.log("Move: right-click       Pan camera: WASD       Rotate camera: Q,E		  Center camera: c       Zoom: m/n/mouse wheel", "orange");
+		BottomPanel.log("Reveal/hide map: o      View factions: t       8x Speed: hold f         Line of Sight: l       Wait: hold space", "orange");
+
+		BottomPanel.log("Instructions: ", "cyan");
+		BottomPanel.log("You control a small warparty. Travel to a friendly city to recruit some new warriors!", "cyan");
+// BottomPanel.log("Check out the source code at github.com/kdhillon/besiege", "yellow");
+	}
+
+	private void startLogBattle() {
+		BottomPanel.log("Welcome to " + WarchiefGame.GAME_NAME + ". This is the quick battle launcher. Enjoy!", "green");
+		BottomPanel.log("Controls: ", "orange");
+		BottomPanel.log("Pan camera: WASD        Rotate camera: Q,E       Zoom: m/n/mouse wheel", "orange");
+		BottomPanel.log("Start battle: SPACE     8x Speed: hold f", "orange");
+
+		BottomPanel.log("Instructions: ", "cyan");
+		BottomPanel.log("Select and move your squads by right clicking them. The red radius is the range of ranged units.", "cyan");
+		BottomPanel.log("If you are defending, your units will start hidden. The blue area around a squad is its detection radius.", "cyan");
 //		BottomPanel.log("Check out the source code at github.com/kdhillon/besiege", "yellow");
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		BesiegeMain.HEIGHT = height;
-		BesiegeMain.WIDTH = width;
+		WarchiefGame.HEIGHT = height;
+		WarchiefGame.WIDTH = width;
 
-		if (kingdomViewport != null) kingdomViewport.update(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
-		if (battleViewport != null) battleViewport.update(BesiegeMain.WIDTH, BesiegeMain.HEIGHT, false);
+		if (kingdomViewport != null) kingdomViewport.update(WarchiefGame.WIDTH, WarchiefGame.HEIGHT, false);
+		if (battleViewport != null) battleViewport.update(WarchiefGame.WIDTH, WarchiefGame.HEIGHT, false);
 
-		uiViewport.update(width, height, false);
-//		uiViewport.setScreenSize(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
-		//		kingdomPerspectiveCamera = new PerspectiveCamera(60, BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		uiViewport.update(width, height, true);
+
+		System.out.println("resizing");
+//		uiViewport.setScreenSize(WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
+		//		kingdomPerspectiveCamera = new PerspectiveCamera(60, WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 		//		kingdomPerspectiveCamera.position.set(2000, 3000, 2000);
 		//		kingdomPerspectiveCamera.lookAt(2000, 0, 0);
 		//		// it starts up
@@ -504,6 +522,7 @@ public class MapScreen implements Screen {
 		if (shouldCenter) center(); // maybe should be in kingdom
 		
 		if (!worldInitialized) {
+			// TODO do this on a different thread from drawing
 			initializeWorldStep();
 		}
 		if (kingdomCamera != null) kingdomCamera.update();
@@ -697,7 +716,8 @@ public class MapScreen implements Screen {
 		mousePos.y = Gdx.input.getY();
 //				BottomPanel.log("mouse at " + mousePos.x + ", " + mousePos.y);
 
-		if (mousePos.x > BesiegeMain.WIDTH-SidePanel.WIDTH || mousePos.y > BesiegeMain.HEIGHT - BottomPanel.HEIGHT) {
+		if (mousePos.x > WarchiefGame.WIDTH-SidePanel.WIDTH || mousePos.y > WarchiefGame.HEIGHT - BottomPanel.HEIGHT
+				|| sidePanel.isFullScreenVisible()) {
 			mouseOverPanel = true;
 			//			System.out.println("mousing over stage");
 			Gdx.input.setInputProcessor(uiStage);
@@ -729,39 +749,37 @@ public class MapScreen implements Screen {
 			battle.setMouse(mousePos);
 
 		if (Gdx.app.getType() == ApplicationType.Desktop || Gdx.app.getType() == ApplicationType.WebGL) {
-			// this will update camera position on desktop!
-			if (Gdx.input.isKeyPressed(Keys.W)) {
-				moveUp();
-				shouldCenter = false;
-			}
-			if (Gdx.input.isKeyPressed(Keys.S)) {
-				moveDown();
-				shouldCenter = false;
-			}
-			if (Gdx.input.isKeyPressed(Keys.D)) {
-				moveRight();
-				shouldCenter = false;
-			}
-			if (Gdx.input.isKeyPressed(Keys.A)) {
-				moveLeft();
-				shouldCenter = false;
-			}
-			
-			if (Gdx.input.isKeyPressed(Keys.Q)) 
-				rotate(.5f);
-			if (Gdx.input.isKeyPressed(Keys.E)) 
-				rotate(-.5f);
+			if (!sidePanel.isFullScreenVisible()) {
+				// this will update camera position on desktop!
+				if (Gdx.input.isKeyPressed(Keys.W)) {
+					moveUp();
+					shouldCenter = false;
+				}
+				if (Gdx.input.isKeyPressed(Keys.S)) {
+					moveDown();
+					shouldCenter = false;
+				}
+				if (Gdx.input.isKeyPressed(Keys.D)) {
+					moveRight();
+					shouldCenter = false;
+				}
+				if (Gdx.input.isKeyPressed(Keys.A)) {
+					moveLeft();
+					shouldCenter = false;
+				}
 
-			if (Gdx.input.isKeyPressed(Keys.N))   
-				zoom(.03f);
-			if (Gdx.input.isKeyPressed(Keys.M))
-				zoom(-.03f);
+				if (Gdx.input.isKeyPressed(Keys.Q)) rotate(.5f);
+				if (Gdx.input.isKeyPressed(Keys.E)) rotate(-.5f);
+
+				if (Gdx.input.isKeyPressed(Keys.N)) zoom(.03f);
+				if (Gdx.input.isKeyPressed(Keys.M)) zoom(-.03f);
+			}
 
 			if (FORCERUN) {
 				shouldSuperFastForward = true;
 				letRun();
 			}
-			else {
+			else if (!sidePanel.isFullScreenVisible()) {
 				if (SIMULATE || Gdx.input.isKeyPressed(Keys.SPACE) || (kingdom != null && kingdom.getPlayer().isWaiting() && kingdom.getPlayer().forceWait) || kingdom != null && kingdom.getPlayer().isInBattle() || (shouldLetRun && (kingdom != null && kingdom.getPlayer().isGarrisoned() || (kingdom != null && kingdom.getPlayer().isInSiege())))) {
 					letRun();
 					if (battle != null && Gdx.input.isKeyPressed(Keys.SPACE)) battle.placementPhase = false;
@@ -891,7 +909,12 @@ public class MapScreen implements Screen {
 			}
 
 			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-				sidePanel.setDefault(true);
+
+				if (sidePanel.isFullScreenVisible()) {
+					sidePanel.hideSquadScreen();
+				}
+
+				sidePanel.setDefault();
 				if (battle != null) battle.selectedUnit = null;
 			}
 			//			if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
@@ -956,7 +979,7 @@ public class MapScreen implements Screen {
 	public void switchToBattleView(BattleStage bs) {
 		this.battle = bs;
 		this.battleStage.addActor(battle);
-		this.battleCamera = new OrthographicCamera(BesiegeMain.WIDTH, BesiegeMain.HEIGHT);
+		this.battleCamera = new OrthographicCamera(WarchiefGame.WIDTH, WarchiefGame.HEIGHT);
 		this.battleViewport.setCamera(battleCamera);
 //		this.va.setCamera(battleCamera);
 		this.currentCamera = battleCamera;
@@ -982,7 +1005,7 @@ public class MapScreen implements Screen {
         hardCenter();
 
 		this.sidePanel.clean();
-		this.sidePanel.setDefault(true);
+		this.sidePanel.setDefault();
 		kingdom.currentDarkness = kingdom.targetDarkness;
 
 		System.out.println("switching to kingdom view");

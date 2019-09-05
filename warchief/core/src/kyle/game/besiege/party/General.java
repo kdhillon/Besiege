@@ -2,10 +2,8 @@ package kyle.game.besiege.party;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
-
 import kyle.game.besiege.Faction;
-import kyle.game.besiege.army.Noble;
-import kyle.game.besiege.battle.BattleSubParty;
+import kyle.game.besiege.battle.BattleSquad;
 
 public class General extends Soldier {
 	private final static float BONUS_MAX = 2;
@@ -16,7 +14,7 @@ public class General extends Soldier {
 	
 	// change for testing
 	private static final int BASE_PC = 1; // base playerPartyPanel count
-	private static final int BASE_SUBPARTY = 5; // base playerPartyPanel count
+	private static final int BASE_SQUAD = 5; // base playerPartyPanel count
 
 //		private static final int BASE_PC = 35; // base playerPartyPanel count
 	private static final float FAME_PC_FACTOR = 1f;
@@ -124,7 +122,7 @@ public class General extends Soldier {
 	}
 	
 	public float getMoraleBonus() {
-		return courage/100.0f * (1-BattleSubParty.BASE_MORALE - (1-BattleSubParty.MAX_MORALE));
+		return courage/100.0f * (1-BattleSquad.BASE_MORALE - (1-BattleSquad.MAX_MORALE));
 	}
 	
 	public void increaseFame(int fame) {
@@ -218,8 +216,8 @@ public class General extends Soldier {
 //		return Math.min(absoluteMaxSize, getTroopsForFame(fame));
 	}
 	
-	public int getMaxSubPartySize() {
-		return Math.min(Subparty.HARD_MAX, getBodyguardForFame(fame));
+	public int getMaxSquadSize() {
+		return Math.min(Squad.HARD_MAX, getBodyguardForFame(fame));
 	}
 	
 	public int getTroopsForFame(int fame) {
@@ -228,26 +226,30 @@ public class General extends Soldier {
 	
 	public int getBodyguardForFame(int fame) {
 		// TODO make this real
-//		return (int) (getFame() * FAME_PC_FACTOR + BASE_SUBPARTY);
+//		return (int) (getFame() * FAME_PC_FACTOR + BASE_SQUAD);
 
 		return 20;
 	}
 
 	//
 	public boolean isPlayerUnit() {
-		return this.subparty.getRank() == 0 && this.party.player;
+		return this.squad.getRank() == 0 && this.party.player;
 	}
 
 	public String getRank() {
 		if (this.isFactionLeader()) {
+			if (this.getFaction().type == null) {
+				System.out.println(this.getFaction().getName() + " ain't got no type");
+				return "";
+			}
 			return this.getFaction().type.leaderTitle;
 		}
 
-		if (subparty == null) {
-			return "TitleForNoSubparty";
+		if (squad == null) {
+			return "TitleForNoSquad";
 		}
 
-		if (this.subparty.getRank() == 0) {
+		if (this.squad.getRank() == 0) {
 //			if (this.party.army != null && this.party.army.isNoble()) return ((Noble)this.party.army).getTitle();
 			if (party != null && party.army != null && party.army.isNoble()) {
 				return "Warchief";
@@ -256,7 +258,7 @@ public class General extends Soldier {
 //			if (this.fame > GENERAL_THRESHOLD)
 //				return "General";
 					
-			if (this.party.subparties.size > 1) {
+			if (this.party.squads.size > 1) {
 				if (this.party.army != null && this.party.army.isBandit())
 					return "Warlord";
 				return "General";
@@ -264,12 +266,12 @@ public class General extends Soldier {
 			
 			return "Commander";
 		}
-		if (this.subparty.getRank() == 1) {
+		if (this.squad.getRank() == 1) {
 			return "Captain";
 		}
 		
 		// not active yet
-		if (this.subparty.getRank() == 2) {
+		if (this.squad.getRank() == 2) {
 			return "Platoon Leader";
 		}
 		return "None";

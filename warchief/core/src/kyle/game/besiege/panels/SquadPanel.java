@@ -2,9 +2,10 @@ package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
 import kyle.game.besiege.WarchiefGame;
+import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Squad;
 
-public class SquadTable extends Panel {
+public class SquadPanel extends Panel {
 
     // Represents a table for a single squad.
     // Drawn with fixed width and rounded corner background (same color as SidePanel on right?)
@@ -28,9 +29,12 @@ public class SquadTable extends Panel {
     private Squad squad;
     private SquadSoldierTable soldierTable;
 
-    public SquadTable(SquadManagementScreen squadManagementScreen, Squad squad) {
+    public SquadPanel(SquadManagementScreen squadManagementScreen, SquadSidePanel squadSidePanel, Squad squad) {
         this.squadManagementScreen = squadManagementScreen;
         this.squad = squad;
+        this.addParentPanel(squadSidePanel);
+        this.resize();
+
         BackgroundColor backgroundColor = new BackgroundColor("whitepixel.png");
         int gray = 45;
         backgroundColor.setColor(gray,gray,gray,255);
@@ -43,14 +47,42 @@ public class SquadTable extends Panel {
         this.addTopTable(topTable);
         topTable.updateTitle(squad.getGeneral().getOfficialName(), null, Color.WHITE);
 
-        soldierTable = new SquadSoldierTable(squadManagementScreen, squad);
+        soldierTable = new SquadSoldierTable(squadManagementScreen, this, squad);
         this.addSoldierTable(soldierTable);
 //        this.add(soldierTable).top().expandY();
     }
 
-    public void resize() {
-        this.setHeight(WarchiefGame.HEIGHT/2);
+
+    @Override
+    protected void notifyDragStart(Soldier soldier) {
+        // Handled in subclasses
+        squadManagementScreen.notifyDragStart(soldier);
     }
+
+    // This goes up the chain
+    @Override
+    protected void notifyDragRelease(Soldier soldier) {
+        squadManagementScreen.notifyDragRelease(soldier);
+    }
+
+    public SquadSoldierTable getSquadSoldierTable() {
+        return soldierTable;
+    }
+
+    @Override
+    protected boolean shouldAddTimeAndPaused() {
+        return false;
+    }
+
+    @Override
+    boolean leaveSpaceForMinimap() {
+        return false;
+    }
+//
+//    public void resize() {
+////        this.setHeight(WarchiefGame.HEIGHT/2);
+//        super.resize();
+//    }
     public SquadSoldierTable getSoldierTable() {
         return soldierTable;
     }

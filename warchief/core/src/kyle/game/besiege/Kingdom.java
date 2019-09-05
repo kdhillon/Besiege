@@ -232,7 +232,7 @@ public class Kingdom extends Group {
 		if (mouseOver) {
 			if (leftClicked) leftClick(mouse);
 			else if (rightClicked) rightClick(mouse);
-//			else if (BesiegeMain.appType != 1) mouseOver(mouse);
+//			else if (WarchiefGame.appType != 1) mouseOver(mouse);
 		}
 
 		if (!paused) {
@@ -497,7 +497,7 @@ public class Kingdom extends Group {
 			
 			
 			if (d.getType() == Destination.DestType.POINT) {
-				getMapScreen().getSidePanel().setDefault(false);
+				getMapScreen().getSidePanel().setDefault();
 			}
 			//if (player.getTarget() != null) System.out.println("target = " + player.getTarget().getName());
 		}
@@ -554,7 +554,7 @@ public class Kingdom extends Group {
 				
 //				System.out.println("containing is null");
 //				else 
-				getMapScreen().getSidePanel().setDefault(true);
+				getMapScreen().getSidePanel().setDefault();
 				
 				// deselect 
 			}
@@ -716,6 +716,7 @@ public class Kingdom extends Group {
 	public void addBanditFactions() {
 		for (int i = 0; i < BANDIT_FACTIONS; i++) {
 			Center center = getRandomCenterWithNoLocations(getMap().connected);
+			// TODO don't add two bandit factions with the same biome (same name)
 			String name = Biomes.values()[center.getBiomeIndex()].toString() + " Bandits";
 			NomadicFaction banditFaction = new NomadicFaction(this, name, Color.BLACK, center);
 			factions.add(banditFaction);
