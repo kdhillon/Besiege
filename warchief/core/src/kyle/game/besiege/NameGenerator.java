@@ -48,12 +48,16 @@ public class NameGenerator {
             System.out.println("Creating namegen for: " + firstMaleFileName);
 
             firstMaleGen = new TextGenerator(3, relativePath,PATH + firstMaleFileName);
-            firstFemaleGen = new TextGenerator(3, relativePath, PATH + firstFemaleFileName);
-            lastGen = new TextGenerator(3, relativePath, PATH + lastFileName);
+//            firstFemaleGen = new TextGenerator(3, relativePath, PATH + firstFemaleFileName);
+//            lastGen = new TextGenerator(3, relativePath, PATH + lastFileName);
+            firstFemaleGen = firstMaleGen;
+            lastGen = firstMaleGen;
 
             cityGen = new TextGenerator(4, relativePath, PATH + cityFileName);
-            castleGen = new TextGenerator(4, relativePath, PATH + cityFileName);
-            villageGen = new TextGenerator(4, relativePath,PATH + cityFileName);
+//            castleGen = new TextGenerator(4, relativePath, PATH + cityFileName);
+//            villageGen = new TextGenerator(4, relativePath,PATH + cityFileName);
+            castleGen = cityGen;
+            villageGen = cityGen;
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
