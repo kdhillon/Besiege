@@ -91,10 +91,6 @@ public class PanelHire extends Panel {
         topTable.padLeft(MINI_PAD);
         this.addTopTable(topTable);
 
-        soldierTable = new HireSoldierTable(location.toHire, this);
-        this.addSoldierTable(soldierTable);
-        updateSoldierTable();
-
         this.setButton(1, "Hire");
         hideButton(1);
 
@@ -103,6 +99,11 @@ public class PanelHire extends Panel {
         getButton(2).setVisible(false);
 
         this.setButton(4, "Back");
+
+        soldierTable = new HireSoldierTable(location.toHire, this);
+        this.addSoldierTable(soldierTable);
+
+        updateSoldierTable();
 
 //
 //		stats.defaults().left().padTop(NEG);

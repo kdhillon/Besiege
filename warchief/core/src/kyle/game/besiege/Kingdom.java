@@ -44,6 +44,8 @@ public class Kingdom extends Group {
     int FACTION_COUNT = 15;
 	public static final int BANDIT_FACTIONS = 10;
 
+	public static final boolean DEBUG_MODE = true;
+
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
 	public static final int BANDIT_FREQ = 1000;
@@ -128,7 +130,7 @@ public class Kingdom extends Group {
             clock = 12 * HOUR_TIME; // set initial time as noon
 			night = false;
 			day = 0;
-			startRain();
+//			startRain();
 			//		raining = false;
 
 			this.time(0);
@@ -220,6 +222,7 @@ public class Kingdom extends Group {
 		currentPanel = new Point(0,0);
 		
 		initialized = true;
+//		SoundPlayer.startMusic();
 	}
 
 	public void setMousedOver(Destination dest) {

@@ -24,8 +24,10 @@ task debug(dependsOn: classes, type: JavaExec) {
 }
 
 task dist(type: Jar) {
+// updated for Gradle 5
+    from files(sourceSets.main.output.classesDirs)
+    from {configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }}
     from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
     from files(project.assetsDir);
  
     manifest {

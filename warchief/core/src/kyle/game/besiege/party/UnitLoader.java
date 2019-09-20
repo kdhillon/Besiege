@@ -286,6 +286,10 @@ public class UnitLoader {
 		String currentClass = "NO CLASS";
 		CultureType culture = null;
 
+        NameGenerator gen = null;
+//        if (Kingdom.DEBUG_MODE)
+//            gen = new NameGenerator("mexica.txt");
+
 		// read one line of input from the 
 		while(in.hasNextLine()) {
             String first = in.next();
@@ -293,6 +297,7 @@ public class UnitLoader {
                 in.nextLine();
                 continue;
             }
+
             if (first.equals("Class:")) {
                 currentClass = in.next();
                 culture = new CultureType();
@@ -301,7 +306,13 @@ public class UnitLoader {
                 culture.colorLite = colors.get(in.next());
                 culture.colorDark = colors.get(in.next());
 
-                culture.nameGenerator = new NameGenerator(in.next());
+                if (gen != null) {
+                    culture.nameGenerator = gen;
+                    in.next();
+                } else {
+                    culture.nameGenerator = new NameGenerator(in.next());
+                }
+
 //				System.out.println("Color: " + culture.name);
                 if (culture.colorLite == null || culture.colorDark == null) {
                     throw new java.lang.NullPointerException();
@@ -316,8 +327,10 @@ public class UnitLoader {
             UnitType unit = new UnitType();
 
             // This is a shaman!
+			boolean shaman = false;
             if (first.equals("S")) {
 				unit.tier = 0;
+				shaman = true;
 			} else {
 				unit.tier = Integer.parseInt(first);
 			}
@@ -386,6 +399,16 @@ public class UnitLoader {
             if (!upgradeString.equals("none")) {
                 unit.upgradeStrings = upgradeString.split("/");
             }
+
+            if (!shaman) {
+            	String typeString = in.next();
+            	if (typeString.equals("HVY_INF")) unit.unitClass = UnitType.UnitClass.HEAVY_INF;
+				else if (typeString.equals("LGT_INF")) unit.unitClass = UnitType.UnitClass.LIGHT_INF;
+				else if (typeString.equals("RNG_INF")) unit.unitClass = UnitType.UnitClass.RANGED_INF;
+				else if (typeString.equals("RNG")) unit.unitClass = UnitType.UnitClass.RANGED;
+				else if (typeString.equals("STEALTH")) unit.unitClass = UnitType.UnitClass.STEALTH;
+				else throw new AssertionError("no class found: " + typeString);
+			}
         }
 		in.close();
 	}

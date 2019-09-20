@@ -319,9 +319,10 @@ public class Projectile extends Group {
 			}
 		}
 
+		// Check if should collide with ground
 		if (inMap() && (wallHeightCheck()) &&
 				(height < stage.heights[pos_y_int][pos_x_int]) && stage.battlemap.objects[pos_y_int][pos_x_int] == null) {
-			
+			System.out.println("with ground: height: " + height + " height of ground: " + stage.heights[pos_y_int][pos_x_int]);
 			if (this.isSmallProjectile() || this.bounceCount <= 0 || this.stage.battlemap.objects[pos_y_int][pos_x_int] != null) {
 				this.stopped = true;
 				
@@ -342,9 +343,9 @@ public class Projectile extends Group {
 			}
 		}
 		// collide with object
-		else if (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null && !goingUp() && 
+		else if (inMap() && stage.battlemap.objects[pos_y_int][pos_x_int] != null  && wallHeightCheck() && firing.distanceTo(new BPoint(pos_x_int, pos_y_int)) > 4 &&
 				height < stage.battlemap.objects[pos_y_int][pos_x_int].height + stage.heights[pos_y_int][pos_x_int]) {
-			
+
 			BattleMap.Object object = stage.battlemap.objects[pos_y_int][pos_x_int];
 			if (!this.isSmallProjectile()) {
 				if (object == BattleMap.Object.CASTLE_WALL || object == BattleMap.Object.CASTLE_WALL_FLOOR) {
@@ -517,7 +518,7 @@ public class Projectile extends Group {
 //				this.destroy();
 			}
 			else {
-				that.hurt(Math.max(0, damage - that.def*Math.random()), firing);
+				that.hurt(Math.max(0, damage / that.def), firing);
 
 				// get a bit of EXP for hitting someone based on distance
 				firing.soldier.addExp((int) (distanceToTravel * DISTANCE_EXP_FACTOR));

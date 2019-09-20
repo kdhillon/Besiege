@@ -77,9 +77,11 @@ public class Party {
 		}
 	}
 
+	public enum SquadOrganization {EQUAL_SIZE, RANDOM, BY_TYPE}
+
 	// 1) make all squads have equal size. Pre-calculate the max number of squads this party can have based on its current (or max) size.
 	// 2) put certain units into certain squads. Either put best units in one squad (root), separate by class (archers, infantry, etc), or evenly distribute (random)
-	public boolean addSoldier(Soldier soldier, boolean force, boolean toSmallest) {
+	public boolean addSoldier(Soldier soldier, boolean force, SquadOrganization squadOrganization) {
 		if (isFull() && !force) {
 			System.out.println("trying to add more than max size");
 			return false;
@@ -88,13 +90,17 @@ public class Party {
 //			System.out.println("current subs: " + squads.size);
 			// TODO when a garrison is destroyed, all squads are removed.
 			Squad p;
-			if (toSmallest)
+			if (squadOrganization == SquadOrganization.EQUAL_SIZE) {
 				p = getSmallestSub();
-			else
+			}
+			else if (squadOrganization == SquadOrganization.BY_TYPE) {
+				p = getBestFittingNonEmptySub(soldier);
+			} else {
 				p = getNonEmptySub();
+			}
 
 			if (p == null) {
-				if (toSmallest) throw new AssertionError();
+				if (squadOrganization == SquadOrganization.EQUAL_SIZE) throw new AssertionError();
 				return createNewSubWithGeneral(soldier);
 			} else {
                 // Some soldiers are being added, but not getting counted in total size... suspicious. generals?
@@ -104,7 +110,7 @@ public class Party {
 	}
 
 	public boolean addSoldier(Soldier soldier, boolean force) {
-		return addSoldier(soldier, force, false);
+		return addSoldier(soldier, force, SquadOrganization.RANDOM);
 	}
 
 	void initializeForToHire(StrictArray<Soldier> soldiers) {
@@ -132,7 +138,7 @@ public class Party {
 		}
 
 		for (Soldier s : soldiers) {
-			addSoldier(s, false, true);
+			addSoldier(s, false, SquadOrganization.BY_TYPE);
 		}
 	}
 
@@ -167,7 +173,7 @@ public class Party {
 	    else return pt.getMaxSize();
 	}
 	
-	public Squad getNonEmptySub() {
+	private Squad getNonEmptySub() {
 		for (int i = 0; i < squads.size; i++) {
 			Squad s = squads.get(i);
 			if (s.isFull()) continue;
@@ -176,7 +182,7 @@ public class Party {
 		return null;
 	}
 
-	Squad getSmallestSub() {
+	private Squad getSmallestSub() {
 		int smallestSize = 99999;
 		Squad smallest = null;
 		for (int i = 0; i < squads.size; i++) {
@@ -188,7 +194,51 @@ public class Party {
 		}
 		return smallest;
 	}
-	
+
+	private Squad getBestFittingNonEmptySub(Soldier soldier) {
+		return getSmallestSquadWithMost(soldier.unitType.unitClass);
+	}
+
+	// Returns the non-full squad with the highest percentage of troops of this type,
+	// if there are multiple squads with that percentage, returns the smallest existing one.
+	// TODO this works, but it isn't optimal, because the last unit added may overflow into a new squad and we'll
+	// have to make a new squad for him with him as the general.
+	// Basically, we need an algo that does this before generating the generals.
+	private Squad getSmallestSquadWithMost(UnitType.UnitClass unitClass) {
+		float bestRatio = 0;
+		int mostWithThatRatio = 0;
+		Squad best = null;
+		System.out.println("getting smallest squad for: " + unitClass);
+
+		for (int i = 0; i < squads.size; i++) {
+			Squad s = squads.get(i);
+			if (s.isFull()) continue;
+			int classForThis = 0;
+			System.out.println(" total squad size: " + s.getTotalSize());
+			for (Soldier soldier : s.getHealthy()) {
+				if (soldier.unitType.unitClass == unitClass) classForThis++;
+			}
+			for (Soldier soldier : s.getWounded()) {
+				if (soldier.unitType.unitClass == unitClass) classForThis++;
+			}
+			float ratio = (float) classForThis / (float) s.getTotalSize();
+			System.out.println(" total of this class: " + classForThis);
+			System.out.println(" ratio: " + ratio);
+
+			if (ratio > bestRatio) {
+				bestRatio = ratio;
+				mostWithThatRatio = classForThis;
+				best = s;
+				System.out.println("setting as new best, better ratio");
+			} else if (ratio == bestRatio && classForThis < mostWithThatRatio) {
+				mostWithThatRatio = classForThis;
+				best = s;
+				System.out.println("setting as new best, smaller party");
+			}
+		}
+		return best;
+	}
+
 	// promote an existing soldier from another party to be general of a new squad
     public void createNewSubWithExistingGeneral() {
 	    Soldier s = this.getBestSoldier();
@@ -401,10 +451,12 @@ public class Party {
 				removed = true;
 			}
 		}
-		if (!removed) {
-			throw new AssertionError();
-		}
+//		if (!removed) {
+//			throw new AssertionError();
+//		}
 		recipient.addPrisoner(prisoner);
+
+		prisoner.party = recipient;
 	}
 
 	public void returnPrisoner(Soldier prisoner, Party recipient) {

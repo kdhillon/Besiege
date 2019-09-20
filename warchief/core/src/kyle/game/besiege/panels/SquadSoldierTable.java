@@ -64,6 +64,7 @@ public class SquadSoldierTable extends SoldierTable {
                 this.squad.addSoldier(soldier);
                 exit();
                 this.update();
+                // TODO update squads on the battle map if they've already been placed.
                 return true;
             }
         }

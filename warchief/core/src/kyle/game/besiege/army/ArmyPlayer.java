@@ -20,6 +20,8 @@ import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.PartyType;
 
 public class ArmyPlayer extends Army {
+
+	private static final boolean DEBUGMODE = true;
 	private final static int START_WEALTH = 300;
 //	private final String TEXTURE_REGION = "Player";
 
@@ -40,7 +42,7 @@ public class ArmyPlayer extends Army {
 //		super(kingdom, character.name, Faction.PLAYER_FACTION, posX, posY, PartyType.PATROL);
 //		super(kingdom, character.name, Faction.BANDITS_FACTION, posX, posY, PartyType.RAIDING_PARTY);
 		//super(kingdom, character.name, Faction.factions.get(3), posX, posY, PartyType.PATROL);
-		super(kingdom, "", faction, posX, posY, PartyType.Type.SCOUT, true);
+		super(kingdom, "", faction, posX, posY, DEBUGMODE ? PartyType.Type.NOBLE : PartyType.Type.SCOUT, true);
 		this.player = true;
 		this.setScale(calcScale());
 //		Location loc = this.detectNearbyFriendlyCity();
@@ -111,6 +113,10 @@ public class ArmyPlayer extends Army {
 //			getKingdom().getMapScreen().getSidePanel().setStay(false);
 			
 		this.speedFactor = (float) (this.ORIGINAL_SPEED_FACTOR * getCharacter().getAttributeFactor("Marching"));
+
+		if (DEBUGMODE) {
+			this.speedFactor *= 10;
+		}
 		setLOS(calcLOS());
 //		getKingdom().getMapScreen().getFog().updateFog((int) this.getCenterX(), (int) this.getCenterY(), (int) this.getLineOfSight());
 

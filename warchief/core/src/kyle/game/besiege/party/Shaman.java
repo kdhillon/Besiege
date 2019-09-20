@@ -79,6 +79,6 @@ public class Shaman extends Soldier {
 
     @Override
     public float getAtk() {
-        return 0;
+        return 1;
     }
 }

@@ -35,7 +35,7 @@ public class BattleOptions {
 
     boolean alliesDefending;
 
-    public static class PartyOptions {
+    static class PartyOptions {
         PartyType partyType;
         int partyCount;
     }

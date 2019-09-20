@@ -18,10 +18,8 @@ import static kyle.game.besiege.panels.SquadSidePanel.SQUAD_TABLE_HEIGHT;
 
 /**
  * Screen allowing player to manage squads. Can be drawn on top of either tactical or strategic map.
- * // Note that in the future this gives us a hacky but effective way of tinting the entire screen (for lightning, etc)
+ * Note that in the future this gives us a hacky but effective way of tinting the entire screen (for lightning, etc)
  */
-// TODO if being drawn, intercept all input (how?)
-    // TODO make a mini panel holder for each Squad.
 public class SquadManagementScreen extends Group {
 
     public static final Label.LabelStyle mediumLs = new Label.LabelStyle(Assets.pixel20forCities, Color.WHITE);
@@ -61,6 +59,7 @@ public class SquadManagementScreen extends Group {
         squadScrollPaneTable = new Table(); // This should have a fixed height, but expand left/right to fit all the squads.
 //        squadTable.setHeight(SQUAD_TABLE_HEIGHT);
         squadScrollPane = new ScrollPane(squadScrollPaneTable);
+        squadScrollPane.setScrollBarTouch(false);
         squadScrollPane.setScrollbarsOnTop(true);
         squadScrollPane.setFadeScrollBars(false);
         main.add(squadScrollPane).height(SQUAD_TABLE_HEIGHT).width(this.getWidth() - 100);
@@ -78,10 +77,12 @@ public class SquadManagementScreen extends Group {
 
     void notifyDragStart(Soldier soldier) {
         soldierBeingDragged = soldier;
+        squadScrollPane.cancel();
     }
 
     void notifyDragRelease(Soldier soldier) {
         boolean released = false;
+//        squadScrollPane.setScrollBarTouch(true);
         Squad originalSquad = soldier.squad;
         for (SquadSidePanel sidePanel : squadTables) {
              if (sidePanel.squadPanel.getSquadSoldierTable().notifySoldierReleased(soldier))
@@ -127,6 +128,9 @@ public class SquadManagementScreen extends Group {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        if (soldierBeingDragged != null) System.out.println("Dragging: " + soldierBeingDragged.getName());
+        if (soldierBeingDragged != null) {
+            squadScrollPane.cancel();
+            System.out.println("Dragging: " + soldierBeingDragged.getName());
+        }
     }
 }

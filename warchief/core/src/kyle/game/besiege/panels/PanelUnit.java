@@ -176,10 +176,10 @@ public class PanelUnit extends Panel {
 			// TODO allow updating labels in addition to label values.
 //			topTable.update("power", );
 			topTable.updateLabel("attack", "Pow:");
-			topTable.updateLabel("defense", "Rng:");
+			topTable.updateLabel("defense", "Def:");
 
 			topTable.update("attack",  df.format(unit.getRangeDmg()));
-			topTable.update("defense",  df.format(unit.getBaseRange()));
+			topTable.update("defense",  df.format(soldier.getDef()));
 		}
 		else {
 //			atkSC.setText("Atk:");

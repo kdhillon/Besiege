@@ -24,9 +24,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.utils.Align;
 import kyle.game.besiege.Assets;
+import kyle.game.besiege.SoundPlayer;
 import kyle.game.besiege.WarchiefGame;
 import kyle.game.besiege.MapScreen;
 import kyle.game.besiege.party.ClickListenerWithHover;
+import kyle.game.besiege.party.UnitLoader;
 
 // TODO separate MainMenuScreen from background.
 public class MainMenuScreen implements Screen {
@@ -37,7 +39,7 @@ public class MainMenuScreen implements Screen {
 	private final int PAD_BELOW_TITLE = 100;
 	private final int PAD_ABOVE_TITLE = -20;
 	private final int WIDTH = 500;
-	private final int SEPARATE = 120;
+	private final int SEPARATE = 260;
 	private final int MAX_NAME = 15;
 	private final int FIXED_SIZE_BOTTOM = 100;
 
@@ -56,6 +58,8 @@ public class MainMenuScreen implements Screen {
 	private Label labelLoad;
 	private Label quickBattle;
 	private Label about;
+
+	private QuickBattleScreen qbs;
 	
 	private LabelStyle styleTitle;
 	public static LabelStyle styleButtons = new LabelStyle(Assets.pixel40, Color.WHITE);
@@ -160,7 +164,8 @@ public class MainMenuScreen implements Screen {
 //		lowerTable.add(about).left().colspan(2).expandX().padTop(25);
 
 		stage.addActor(mainTable);
-		
+		SoundPlayer.startMusic(UnitLoader.cultureTypes.get("Forest"));
+
 		count = 0f;
 		this.checkForFile();
 	}
@@ -184,6 +189,7 @@ public class MainMenuScreen implements Screen {
 		Gdx.gl.glClearColor(.1f,.1f,.1f,0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		stage.draw();
+		SoundPlayer.updateSounds(delta);
 
 		mainTable.act(delta);
 
@@ -282,9 +288,12 @@ public class MainMenuScreen implements Screen {
 	}
 
 	public void clickQuickBattle() {
-		QuickBattleScreen qbs = new QuickBattleScreen(main, this, menuBackground);
-		main.setScreen(qbs);
-		menuBackground.drawWithTint(true);
+		if (qbs != null) {
+			qbs.returnToThis();
+		} else {
+			qbs = new QuickBattleScreen(main, this, menuBackground);
+			main.setScreen(qbs);
+		}
 	}
 
 	private void clickLoad() {

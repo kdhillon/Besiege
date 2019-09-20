@@ -42,7 +42,7 @@ public class MenuBackground extends Group {
 
     public MenuBackground() {
         backgroundType = randomBackgroundType();
-		backgroundType = BackgroundType.Jungle;
+		backgroundType = BackgroundType.Tundra;
 
         tree = getTreeRegion(backgroundType);
 

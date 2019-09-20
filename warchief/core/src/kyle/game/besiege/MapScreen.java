@@ -438,7 +438,7 @@ public class MapScreen implements Screen {
 			//		if (currentCamera == kingdomPerspectiveCamera)
 			Gdx.gl.glClearColor(background.r*kingdom.currentDarkness, background.g*kingdom.currentDarkness, 
 					background.b*kingdom.currentDarkness, background.a);
-		else if (battle != null) {
+		else if (battle != null && battle.battlemap != null) {
 			Gdx.gl.glClearColor(battle.battlemap.bgColor.r*battle.currentDarkness, battle.battlemap.bgColor.g*battle.currentDarkness, 
 					battle.battlemap.bgColor.b*battle.currentDarkness, battle.battlemap.bgColor.a);
 		}
@@ -578,8 +578,6 @@ public class MapScreen implements Screen {
 	}
 	
 	public void moveUp() {
-		if (currentCamera == battleCamera) System.out.println("camera is battleCam");
-		if (currentCamera == kingdomCamera) System.out.println("camera is kingdomCam");
 		currentCamera.translate(currentCamera.up.scl(getSpeed(), getSpeed(), 0));
 		currentCamera.up.scl(1/(getSpeed()), 1/(getSpeed()), 0);
 	}

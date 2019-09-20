@@ -22,7 +22,7 @@ import kyle.game.besiege.panels.PanelPostBattle;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Squad;
-import kyle.game.besiege.title.MainMenuScreen;
+import kyle.game.besiege.title.QuickBattleScreen;
 import kyle.game.besiege.voronoi.Biomes;
 import kyle.game.besiege.voronoi.VoronoiGraph;
 
@@ -163,7 +163,7 @@ public class BattleStage extends Group implements Battle {
     private Label victoryText;
 
     // Only for simulation.
-    private MainMenuScreen originalScreen;
+    private QuickBattleScreen quickBattleScreen;
 
     //	public Formation playerFormationChoice;
     //	public Formation enemyFormationChoice;
@@ -269,10 +269,10 @@ public class BattleStage extends Group implements Battle {
     }
 
     // constructor for Quick Battles
-    public BattleStage(MapScreen mapScreen, BattleOptions options, MainMenuScreen originalScreen) {
+    public BattleStage(MapScreen mapScreen, BattleOptions options, QuickBattleScreen quickBattleScreen) {
         this.mapScreen = mapScreen;
         this.options = options;
-        this.originalScreen = originalScreen;
+        this.quickBattleScreen = quickBattleScreen;
 
         if (options.mapType == null) throw new AssertionError();
 
@@ -1438,6 +1438,8 @@ public class BattleStage extends Group implements Battle {
             delta = 0.005f;
         }
 
+        if (battlemap == null) return;
+
         battlemap.actSpecial(delta);
         if (mouseOver) {
             if (leftClicked)
@@ -1773,21 +1775,24 @@ public class BattleStage extends Group implements Battle {
     }
 
     public void exitBattle() {
-        // free up some memory
-        this.battlemap = null;
-        this.postBattle = null;
         clearVictoryText();
+        this.clearChildren();
+        this.remove();
 
         if (isSimulation()) {
             returnToBattleSelectScreen();
         } else {
             mapScreen.switchToKingdomView();
         }
+        // free up some memory
+        this.battlemap = null;
+        this.postBattle = null;
     }
 
     private void returnToBattleSelectScreen() {
-        if (originalScreen != null)
-            originalScreen.clickQuickBattle();
+        if (quickBattleScreen != null) {
+            quickBattleScreen.returnToThis();
+        }
     }
 
     //	public void writeUnit() {
@@ -2088,7 +2093,7 @@ public class BattleStage extends Group implements Battle {
     }
 
     public void retreatButton(Panel panel) {
-        if (panel.getButton(1).isVisible()) {
+        if (panel.getButton(1).isVisible() && !panel.getButton(1).isDisabled()) {
             if (placementPhase) {
 //					this.battleStage.toNextFormation();
             }

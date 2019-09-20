@@ -2,15 +2,15 @@ name			dmg	  type
 
 // Temporary defaults
 Stone           2     rock
-Dart            2     dart
+Dart            3     dart
 Arrow             2     arrow
 
 Rocks          2     rock
 
 Stone           2     rock
 
-Dart(Flint)     3     dart
-Dart(Bone)      3     dart
+Dart(Flint)     4     dart
+Dart(Bone)      4     dart
 
 Arrow(Flint)    3     arrow
 

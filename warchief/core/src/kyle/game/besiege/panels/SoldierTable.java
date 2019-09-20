@@ -339,7 +339,9 @@ public class SoldierTable extends Table {
                 public boolean touchDown(InputEvent event, float x,
                                          float y, int pointer, int button) {
                     System.out.println("Dragging general: " + general.getName());
-                    parent.notifyDragStart(general);
+                    if (parent != null) {
+                        parent.notifyDragStart(general);
+                    }
                     if (battleStage != null) {
                         battleStage.selectUnit(bsp.general);
                     }
@@ -358,7 +360,9 @@ public class SoldierTable extends Table {
                 public void touchUp(InputEvent event, float x, float y,
                                     int pointer, int button) {
                     System.out.println("Releasing general: " + general.getName());
-                    parent.notifyDragRelease(general);
+                    if (parent != null) {
+                        parent.notifyDragRelease(general);
+                    }
                 }
             });
         }
@@ -503,7 +507,7 @@ public class SoldierTable extends Table {
             expand.clear();
             String toUse = type.size + EXPAND;
             if (preventSoldierExpand) toUse = type.size + "";
-            count.setText(type.size + toUse);
+            count.setText(toUse);
         }
     }
 

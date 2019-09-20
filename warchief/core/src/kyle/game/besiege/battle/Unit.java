@@ -7,12 +7,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-
 import kyle.game.besiege.Assets;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.battle.BattleMap.Ladder;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+
+import static kyle.game.besiege.battle.Unit.Orientation.*;
 
 public class Unit extends Group {
 	private static final int DEFENSE_DISTANCE = 5;
@@ -35,7 +39,7 @@ public class Unit extends Group {
 	static public int RETREAT_POS = 10000;
 
 	private static final float DEATH_TIME = 300;
-	private static final float BASE_SPEED = .2f;
+	private static final float BASE_SPEED = .15f;
 
 	static final float UNIT_HEIGHT_GROUND = .1f;
 	private static final float UNIT_HEIGHT_HORSE = .2f;
@@ -116,7 +120,7 @@ public class Unit extends Group {
 
 	public float percentComplete; // between 0 and 1, used for moving?
 
-	public enum Orientation {LEFT, UP, RIGHT, DOWN};
+	public enum Orientation {LEFT, UP, RIGHT, DOWN, TOP_RIGHT, TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT};
 
 	public enum Stance {
 		AGGRESSIVE("Aggressive"), DEFENSIVE("Defensive"), INLINE("In-Line");
@@ -242,7 +246,7 @@ public class Unit extends Group {
 		ladder_height = 0;
 
 		// TODO check if position already occupied before creating
-		this.orientation = Orientation.DOWN;
+		this.orientation = DOWN;
 		if (this.team == 0) this.orientation = Orientation.UP;
 		this.stance = Stance.DEFENSIVE;
 
@@ -404,8 +408,8 @@ public class Unit extends Group {
 			checkIfShouldManSiege();
 			//						System.out.println("moving2");
 			//			getRandomDirection(delta);
-			if (this.soldier.isShaman()) {
-				// if Shaman, move towards friendly general
+			if (this.soldier.isShaman() && (stance != Stance.DEFENSIVE || !isHidden())) {
+				// if Shaman, and not hidden move towards friendly general
 				moveToFriendlyGeneral();
 			}
 			else if (this.shouldMoveToCover() && !this.inCover() && getNearestCover()) {
@@ -430,7 +434,6 @@ public class Unit extends Group {
 
 				// if enemy is within one unit and fighting, can move to them.
 				if (defendingButShouldAttackNearestEnemy()) {
-					System.out.println("defending but should attack nearby");
 					nearestCover = null;
 					moveToEnemy();
 				}
@@ -653,7 +656,6 @@ public class Unit extends Group {
 		this.setScale(1 + this.getFloorHeight() / 5f);
         super.draw(batch, parentAlpha);
 
-
 		// Debug only -- draw nearest cover
 		if (this.nearestCover != null && this.isSelected()) {
 			Color c = batch.getColor();
@@ -815,30 +817,14 @@ public class Unit extends Group {
 
 		if (stage.selectedUnit == this) if (stage.entranceAt(point.pos_x, point.pos_y)) System.out.println("target is entrance");
 
-		// TODO easy fix for spastic movement: dont face if can't move there.
-		this.face(point, true);
+		// Sorted list of optimal orientations to try to face and travel.
+		ArrayList<Orientation> sortedOrientations = getSortedOrientationListFromVector(point.pos_x - pos_x,
+				point.pos_y - pos_y);
 
-		Orientation original = this.orientation;
-
-		if (!this.moveForward() && !this.unitMovingOutOfWay()) {
-
-			if (Math.random() > .5) this.forceTwoMoves = true;
-
-			this.faceAlt(point);
-
-			// this happens way more than it should for some reason
-			// changed from "or" to "and" to be stricter
-			if (Math.random() < .01 && (!this.moveForward() && !this.unitMovingOutOfWay())) {
-				//				System.out.println("desperate move");
-				// try the last two directions as a last resort
-				this.orientation = getOppositeOrientation(this.orientation);
-				if (Math.random() < .1 || !this.moveForward()) {
-					this.orientation = getOppositeOrientation(original);
-					if (!this.moveForward()) {
-						// this actually seems to work!
-						//System.out.println("stuck!");
-					}
-				}
+		for (Orientation o : sortedOrientations) {
+			this.face(o);
+			if (this.moveForward()) {
+				break;
 			}
 		}
 	}
@@ -915,12 +901,20 @@ public class Unit extends Group {
 		BPoint point = null;
 		if (this.orientation == Orientation.LEFT)
 			point = new BPoint(this.pos_x-1, this.pos_y);
-		if (this.orientation == Orientation.RIGHT)
+		if (this.orientation == RIGHT)
 			point = new BPoint(this.pos_x+1, this.pos_y);
 		if (this.orientation == Orientation.UP)
 			point = new BPoint(this.pos_x, this.pos_y+1);
-		if (this.orientation == Orientation.DOWN)
+		if (this.orientation == DOWN)
 			point = new BPoint(this.pos_x, this.pos_y-1);
+		if (this.orientation == Orientation.TOP_RIGHT)
+			point = new BPoint(this.pos_x+1, this.pos_y+1);
+		if (this.orientation == Orientation.TOP_LEFT)
+			point = new BPoint(this.pos_x-1, this.pos_y+1);
+		if (this.orientation == Orientation.BOTTOM_RIGHT)
+			point = new BPoint(this.pos_x+1, this.pos_y-1);
+		if (this.orientation == Orientation.BOTTOM_LEFT)
+			point = new BPoint(this.pos_x-1, this.pos_y-1);
 		if (point.pos_x < 0 || point.pos_x >= stage.size_x || point.pos_y < 0 || point.pos_y >= stage.size_y) point = null;
 		return point;
 	}
@@ -947,12 +941,6 @@ public class Unit extends Group {
 			if (nearest == null) return;
 			this.faceStrict(nearest);
 		}
-
-	//	private void faceEnemyAlt() {
-	//		Unit nearest = this.getNearestEnemy();
-	//		if (nearest == null) return;
-	//		this.faceAlt(nearest);
-	//	}
 
 	// New bug, why is this constantly changing even when cover is valid?
 	private boolean getNearestCover() {
@@ -1336,13 +1324,21 @@ public class Unit extends Group {
 	private void attack() {
 		if (!this.attacking.isAdjacent(this) || this.attacking.hp <= 0){
 			this.attacking = null;
+			System.out.println(soldier.getName() + " setting attacking to null");
 			return;
 		}
 		//System.out.println("attack phase: " + attacking.hp);
 		this.face(attacking, true);
-		attacking.face(this, false);
 
-		double damage = this.atk-Math.random()*attacking.def;
+//		if (!attacking.isRetreating())
+		// Force enemy to face you like a man! but only if they're not already fighting someone.
+//		if (this.attacking.attacking == null) {
+			// this doesn't do anything.
+//			attacking.face(this, false);
+//			attacking.faceStrict(this);
+//		}
+
+		double damage = this.atk / attacking.def * 2;
 
 		// calculate bonus damage
 		double bonusDamage = 0;
@@ -1351,12 +1347,11 @@ public class Unit extends Group {
 		if (weapon.isPolearm() && attacking.horse != null) {
 			bonusDamage += CAVALRY_BONUS;
 		}
-
 		attacking.hurt(damage + bonusDamage, this);
 	}
 
 	public void hurt(double damage, Unit attacker) {
-		if (damage <= 0) return;
+		if (damage <= 0) throw new AssertionError();
 
 		// shield splits damage in half
 		if (this.shieldUp() && attacker != null && this.orientation == attacker.getOppositeOrientation()) {
@@ -1454,17 +1449,22 @@ public class Unit extends Group {
 		else if (random < .5)
 			return Orientation.UP;
 		else if (random < .75)
-			return Orientation.RIGHT;
+			return RIGHT;
 		else
-			return Orientation.DOWN;
+			return DOWN;
 	}
 
 
 	public void updateRotation() {
 		rotation = 0;
-		if (orientation == Orientation.DOWN) rotation = 180;
+		if (orientation == DOWN) rotation = 180;
 		if (orientation == Orientation.LEFT) rotation = 90;
-		if (orientation == Orientation.RIGHT) rotation = 270;
+		if (orientation == RIGHT) rotation = 270;
+
+		if (orientation == Orientation.TOP_RIGHT) rotation = 315;
+		if (orientation == Orientation.TOP_LEFT) rotation = 45;
+		if (orientation == Orientation.BOTTOM_RIGHT) rotation = 225;
+		if (orientation == Orientation.BOTTOM_LEFT) rotation = 135;
 
 		if (this.nearestTarget != null && this.rangedWeaponOut() && !this.moveSmooth) {
 			rotation = angleToEnemy(this.nearestTarget);
@@ -1475,12 +1475,19 @@ public class Unit extends Group {
 	}
 
 	private Orientation getOrientationForRotation(float rotation) {
+		// up is 0, going left.
+
 		while (rotation < 0) rotation += 360;
 		while (rotation >= 360) rotation -= 360;
-		if (rotation <= 45 || rotation > 315) return Orientation.UP;
-		if (rotation < 135) return Orientation.LEFT;
-		if (rotation < 225) return Orientation.DOWN;
-		return Orientation.RIGHT;
+
+		if (rotation <= 22.5 || rotation > 337.5) return Orientation.UP;
+		if (rotation <= 22.5 + 45) return Orientation.TOP_LEFT;
+		if (rotation <= 22.5 + 45 * 2) return Orientation.LEFT;
+		if (rotation <= 22.5 + 45 * 3) return Orientation.BOTTOM_LEFT;
+		if (rotation <= 22.5 + 45 * 4) return DOWN;
+		if (rotation <= 22.5 + 45 * 5) return Orientation.BOTTOM_RIGHT;
+		if (rotation <= 22.5 + 45 * 6) return RIGHT;
+		return Orientation.TOP_RIGHT;
 	}
 
 	public float angleToEnemy(Unit nearestTarget) {
@@ -1490,10 +1497,14 @@ public class Unit extends Group {
 	}
 
 	public static Orientation getOppositeOrientation(Orientation orientation) {
-		if (orientation == Orientation.UP) return Orientation.DOWN;
-		if (orientation == Orientation.DOWN) return Orientation.UP;
-		if (orientation == Orientation.LEFT) return Orientation.RIGHT;
-		else return Orientation.LEFT;
+		if (orientation == Orientation.UP) return DOWN;
+		if (orientation == DOWN) return Orientation.UP;
+		if (orientation == Orientation.LEFT) return RIGHT;
+		if (orientation == RIGHT) return Orientation.LEFT;
+		if (orientation == Orientation.TOP_RIGHT) return Orientation.BOTTOM_LEFT;
+		if (orientation == Orientation.BOTTOM_LEFT) return Orientation.TOP_RIGHT;
+		if (orientation == Orientation.TOP_LEFT) return Orientation.BOTTOM_RIGHT;
+		return Orientation.TOP_LEFT;
 	}
 
 	public Orientation getOppositeOrientation() {
@@ -1556,7 +1567,7 @@ public class Unit extends Group {
 		this.orientation = direction;
 
 		int moveResult = -1;
-		if (direction == Orientation.DOWN) {
+		if (direction == DOWN) {
 			moveResult = tryMoveTo(pos_x, pos_y-1);
 		}
 		else if (direction == Orientation.UP) {
@@ -1565,8 +1576,20 @@ public class Unit extends Group {
 		else if (direction == Orientation.LEFT) {
 			moveResult = tryMoveTo(pos_x-1, pos_y);
 		}
-		else if (direction == Orientation.RIGHT) {
+		else if (direction == RIGHT) {
 			moveResult = tryMoveTo(pos_x+1, pos_y);
+		}
+		else if (direction == Orientation.TOP_RIGHT) {
+			moveResult = tryMoveTo(pos_x+1, pos_y+1);
+		}
+		else if (direction == Orientation.TOP_LEFT) {
+			moveResult = tryMoveTo(pos_x-1, pos_y+1);
+		}
+		else if (direction == Orientation.BOTTOM_RIGHT) {
+			moveResult = tryMoveTo(pos_x+1, pos_y-1);
+		}
+		else if (direction == Orientation.BOTTOM_LEFT) {
+			moveResult = tryMoveTo(pos_x-1, pos_y-1);
 		}
 		if (moveResult == -1) return false;
 		if (moveResult == 1) return true;
@@ -1582,14 +1605,17 @@ public class Unit extends Group {
 		else if (this.team == 1) stage.allies.updateHiddenAll();
 		this.updateHidden();
 
-		if (prev_y != pos_y && prev_x != pos_x) System.out.println("error!");
-
 		return true;
 	}
 
 	private void calcSpeed() {
 		this.currentSpeed = (UNIT_BASE_SPEED) * (float)(1-stage.slow[pos_y][pos_x]);
 		this.currentSpeed *= stage.getStageSlow();
+
+		if (this.orientation == Orientation.BOTTOM_LEFT || this.orientation == Orientation.BOTTOM_RIGHT || this.orientation == Orientation.TOP_LEFT || this.orientation == Orientation.TOP_RIGHT) {
+			this.currentSpeed /= Math.sqrt(2);
+			// slow this puppy down if it's going diagonal
+		}
 
 		// better yet, move as a unit. don't keep moving until everyone is in their right place!
 		// either use this speed or everyone's speed
@@ -1602,7 +1628,7 @@ public class Unit extends Group {
 	public boolean canMoveForward() {
 		int next_x = this.pos_x;
 		int next_y = this.pos_y;
-		if (this.orientation == Orientation.DOWN) {
+		if (this.orientation == DOWN) {
 			next_y--;
 		}
 		else if (this.orientation == Orientation.UP) {
@@ -1611,8 +1637,24 @@ public class Unit extends Group {
 		else if (this.orientation == Orientation.LEFT) {
 			next_x--;
 		}
-		else if (this.orientation == Orientation.RIGHT) {
+		else if (this.orientation == RIGHT) {
 			next_x++;
+		}
+		else if (this.orientation == Orientation.TOP_RIGHT) {
+			next_x++;
+			next_y++;
+		}
+		else if (this.orientation == Orientation.TOP_LEFT) {
+			next_x--;
+			next_y++;
+		}
+		else if (this.orientation == Orientation.BOTTOM_RIGHT) {
+			next_x++;
+			next_y--;
+		}
+		else if (this.orientation == Orientation.BOTTOM_LEFT) {
+			next_x--;
+			next_y--;
 		}
 		if (!stage.inMap(next_x, next_y)) return false;
 		if (stage.units[next_y][next_x] != null) return false;
@@ -1698,7 +1740,8 @@ public class Unit extends Group {
 		int distance_y = Math.abs(that.pos_y - this.pos_y);
 
 		if (distance_x > 1 || distance_y > 1) return false;
-		if (distance_x == 1 && distance_y == 1) return false;
+		// Allow units to attack diagonally.
+//		if (distance_x == 1 && distance_y == 1) return false;
 		return true;
 	}
 
@@ -1758,20 +1801,6 @@ public class Unit extends Group {
 
 	public void face(Unit that, boolean forceInstant) {
 	    if (!that.inMap()) return;
-
-		//		int x_dif = that.pos_x - this.pos_x;
-		//		int y_dif = that.pos_y - this.pos_y;
-		//
-		//		if (Math.abs(x_dif) > Math.abs(y_dif)) {
-		//			if (x_dif > 0) this.orientation = Orientation.RIGHT;
-		//			else this.orientation = Orientation.LEFT;
-		//		}
-		//		else if (Math.abs(x_dif) < Math.abs(y_dif)) {
-		//			if (y_dif > 0) this.orientation = Orientation.UP;
-		//			else this.orientation = Orientation.DOWN;
-		//		}
-		//		else if (y_dif > 0) this.orientation = Orientation.UP;
-		//		else this.orientation = Orientation.DOWN;
 		this.face(that.getPoint(), forceInstant);
 	}
 
@@ -1779,30 +1808,215 @@ public class Unit extends Group {
 		return getOrientationTo(that.pos_x, that.pos_y);
 	}
 
-	private Orientation getOrientationTo(BPoint that) {
+	private Orientation getOptimalOrientationTo(BPoint that) {
 		return getOrientationTo(that.pos_x, that.pos_y);
 	}
 
 	private Orientation getOrientationTo(int pos_x, int pos_y) {
+		return getOptimalOrientationFromVector(pos_x - this.pos_x, pos_y - this.pos_y);
+	}
+
+	// Alt level 0 is the optimal orientation, 1 is the second most optimal, etc.
+	// TODO we'll be doing this theta calculation multiple times, there's a more efficient way to do this.
+	private Orientation getAltOrientationTo(int pos_x, int pos_y, int altLevel) {
 		int x_dif = pos_x - this.pos_x;
 		int y_dif = pos_y - this.pos_y;
 
-		// Prioritize x direction.
-		if (Math.abs(x_dif) > Math.abs(y_dif)) {
-			if (x_dif > 0) return Orientation.RIGHT;
-			return Orientation.LEFT;
+		// here's how to do this efficiently:
+		// need to get the orientation from the vector.
+		// first, figure out which quadrant we're in.
+		//  have four tables, one for each quadrant, with ratio mins and maxes:
+		// calculate ratio, of x to y:
+
+		if (altLevel == 0) {
+			return getOptimalOrientationFromVector(x_dif, y_dif);
 		}
-		// Prioritize y direction
-		else {
-			if (y_dif > 0) return Orientation.UP;
-			if (y_dif == 0) throw new AssertionError();
-			return Orientation.DOWN;
+
+		// get angle to enemy.
+		// theta = tan–1(y/x)
+		double theta = Math.toDegrees(Math.atan2(y_dif, x_dif));
+
+		// if other unit is top left, theta will be 135.
+		// we want it to be 45
+		theta -= 90; // subtract 90 to get it aligned with our grid (pos y axis is 0).
+
+		Orientation optimal = getOrientationForRotation((float) theta);
+
+		if (altLevel == 0) {
+			return optimal;
 		}
+
+		// For every new alt level, figure out the next most optimal path to get to the enemy.
+		float thetaLeft;
+		float thetaRight;
+		Orientation left;
+		Orientation right;
+
+		HashSet<Orientation> allOptimalOrientations = new HashSet<Orientation>();
+		allOptimalOrientations.add(optimal);
+
+		for (int i = 1; i <= altLevel; i++) {
+			thetaLeft = (float) theta + 22.5f * i;
+			left = getOrientationForRotation(thetaLeft);
+			if (!allOptimalOrientations.contains(left) && i == altLevel) return left;
+
+			thetaRight = (float) theta - 22.5f * i;
+			right = getOrientationForRotation(thetaRight);
+			if (!allOptimalOrientations.contains(right) && i == altLevel) return right;
+
+			allOptimalOrientations.add(left);
+			allOptimalOrientations.add(right);
+		}
+		throw new AssertionError();
+	}
+
+	private Orientation getOptimalOrientationFromVector(float x_dif, float y_dif) {
+		if (x_dif > 0) {
+			float ratio = y_dif / x_dif;
+			if (ratio < -2.4142) {
+				return DOWN;
+			} else if (ratio < -0.4142) {
+				return BOTTOM_RIGHT;
+			} else if (ratio < 0.4142) {
+				return RIGHT;
+			} else if (ratio < 2.4142) {
+				return TOP_RIGHT;
+			}
+		} else if (x_dif < 0) {
+			float ratio = y_dif / -x_dif;
+			if (ratio < -2.4142) {
+				return DOWN;
+			} else if (ratio < -0.4142) {
+				return BOTTOM_LEFT;
+			} else if (ratio < 0.4142) {
+				return LEFT;
+			} else if (ratio < 2.4142) {
+				return TOP_LEFT;
+			}
+		} else if (x_dif == 0) {
+			if (y_dif < 0) {
+				return DOWN;
+			}
+		}
+		return UP;
+	}
+
+	// TODO for more optimality, save each of these beforehand so we don't have to calculate them every time.
+	// How can we return a sorted list of orientations? easy:
+	// just figure out which *half* of the sector we're in (16 total). from there, just alternate bouncing back and forth.
+	private ArrayList<Orientation> getSortedOrientationListFromVector(float x_dif, float y_dif) {
+		ArrayList<Orientation> sortedOrientations = new ArrayList<Orientation>();
+		if (x_dif > 0) {
+			float ratio = y_dif / x_dif;
+			if (ratio < -2.4142) {
+				sortedOrientations.add(DOWN);
+				sortedOrientations.add(BOTTOM_RIGHT);
+				sortedOrientations.add(BOTTOM_LEFT);
+				sortedOrientations.add(RIGHT);
+			} else if (ratio < -0.4142) {
+				sortedOrientations.add(BOTTOM_RIGHT);
+				if (ratio < -1) {
+					sortedOrientations.add(DOWN);
+					sortedOrientations.add(RIGHT);
+					sortedOrientations.add(BOTTOM_LEFT);
+				} else {
+					sortedOrientations.add(RIGHT);
+					sortedOrientations.add(DOWN);
+					sortedOrientations.add(TOP_RIGHT);
+				}
+			} else if (ratio < 0.4142) {
+				sortedOrientations.add(RIGHT);
+				if (y_dif < 0) {
+					sortedOrientations.add(BOTTOM_RIGHT);
+					sortedOrientations.add(TOP_RIGHT);
+					sortedOrientations.add(DOWN);
+				} else {
+					sortedOrientations.add(TOP_RIGHT);
+					sortedOrientations.add(BOTTOM_RIGHT);
+					sortedOrientations.add(UP);
+				}
+			} else if (ratio < 2.4142) {
+				sortedOrientations.add(TOP_RIGHT);
+				if (ratio < 1) {
+					sortedOrientations.add(RIGHT);
+					sortedOrientations.add(UP);
+					sortedOrientations.add(BOTTOM_RIGHT);
+				} else {
+					sortedOrientations.add(UP);
+					sortedOrientations.add(RIGHT);
+					sortedOrientations.add(TOP_LEFT);
+				}
+			} else {
+				sortedOrientations.add(UP);
+				sortedOrientations.add(TOP_RIGHT);
+				sortedOrientations.add(TOP_LEFT);
+				sortedOrientations.add(RIGHT);
+			}
+		} else if (x_dif < 0) {
+			float ratio = y_dif / -x_dif;
+			if (ratio < -2.4142) {
+				sortedOrientations.add(DOWN);
+				sortedOrientations.add(BOTTOM_LEFT);
+				sortedOrientations.add(BOTTOM_RIGHT);
+				sortedOrientations.add(LEFT);
+			} else if (ratio < -0.4142) {
+				sortedOrientations.add(BOTTOM_LEFT);
+				if (ratio < -1) {
+					sortedOrientations.add(DOWN);
+					sortedOrientations.add(LEFT);
+					sortedOrientations.add(BOTTOM_RIGHT);
+				} else {
+					sortedOrientations.add(LEFT);
+					sortedOrientations.add(DOWN);
+					sortedOrientations.add(TOP_LEFT);
+				}
+			} else if (ratio < 0.4142) {
+				sortedOrientations.add(LEFT);
+				if (y_dif < 0) {
+					sortedOrientations.add(BOTTOM_LEFT);
+					sortedOrientations.add(TOP_LEFT);
+					sortedOrientations.add(DOWN);
+				} else {
+					sortedOrientations.add(TOP_LEFT);
+					sortedOrientations.add(BOTTOM_LEFT);
+					sortedOrientations.add(UP);
+				}
+			} else if (ratio < 2.4142) {
+				sortedOrientations.add(TOP_LEFT);
+				if (ratio < 1) {
+					sortedOrientations.add(LEFT);
+					sortedOrientations.add(UP);
+					sortedOrientations.add(BOTTOM_LEFT);
+				} else {
+					sortedOrientations.add(UP);
+					sortedOrientations.add(LEFT);
+					sortedOrientations.add(TOP_RIGHT);
+				}
+			} else {
+				sortedOrientations.add(UP);
+				sortedOrientations.add(TOP_LEFT);
+				sortedOrientations.add(TOP_RIGHT);
+				sortedOrientations.add(LEFT);
+			}
+		} else if (x_dif == 0) {
+			if (y_dif < 0) {
+				sortedOrientations.add(DOWN);
+				sortedOrientations.add(BOTTOM_LEFT);
+				sortedOrientations.add(BOTTOM_RIGHT);
+				sortedOrientations.add(LEFT);
+			} else {
+				sortedOrientations.add(UP);
+				sortedOrientations.add(TOP_RIGHT);
+				sortedOrientations.add(TOP_LEFT);
+				sortedOrientations.add(RIGHT);
+			}
+		}
+		return sortedOrientations;
 	}
 
 	// This always faces the given point, doesn't do any horizontal adjustment
 	public void faceStrict(BPoint that) {
-		this.orientation = getOrientationTo(that);
+		this.orientation = getOptimalOrientationTo(that);
 	}
 	public void faceStrict(Unit that) {
 		if (that == null) return;
@@ -1811,105 +2025,26 @@ public class Unit extends Group {
 		this.orientation = getOrientationTo(that);
 	}
 
-	// same as above but with point
-	public void face(BPoint that, boolean forceInstant) {
+	public void face(Orientation orientation) {
 		if (stage.placementPhase) throw new AssertionError();
 		if (stage.isOver()) throw new AssertionError();
 		// For now, just return
-	    if (!forceInstant) return;
-
-		int x_dif = that.pos_x - this.pos_x;
-		int y_dif = that.pos_y - this.pos_y;
-
-		double move_hor_prob = Math.abs(x_dif) / (double) (Math.abs(x_dif) + Math.abs(y_dif));
-		if (move_hor_prob < 0.5) move_hor_prob = move_hor_prob/10;
-		else if (move_hor_prob >= 0.5) move_hor_prob = move_hor_prob * 1.5;
-
-//		if (this.stance == Stance.INLINE)
-//			move_hor_prob = .01;
-
-		// should move right
-		if (x_dif > 0) {
-			// up
-			if (y_dif > 0) {
-				// up or right
-				if (Math.random() < (move_hor_prob)) {
-					this.orientation = Orientation.RIGHT;
-				}
-				else {
-					this.orientation = Orientation.UP;
-				}
-			}
-			else {
-				// down or right
-				if (Math.random() < move_hor_prob) {
-					this.orientation = Orientation.RIGHT;
-				}
-				else {
-					this.orientation = Orientation.DOWN;
-				}
-			}
-		}
-		// should move left
-		else {
-			if (y_dif > 0) {
-				// up or left
-				if (Math.random() < move_hor_prob && x_dif != 0) {
-					this.orientation = Orientation.LEFT;
-				}
-				else {
-					this.orientation = Orientation.UP;
-				}
-			}
-			else {
-				// down or left
-				if (Math.random() < move_hor_prob && x_dif != 0) {
-					this.orientation = Orientation.LEFT;
-				}
-				else {
-					this.orientation = Orientation.DOWN;
-				}
-			}
-		}
-
-		//		if (Math.abs(x_dif) > Math.abs(y_dif)) {
-		//			if (x_dif > 0) this.orientation = Orientation.RIGHT;
-		//			else this.orientation = Orientation.LEFT;
-		//		}
-		//		else if (Math.abs(x_dif) < Math.abs(y_dif)) {
-		//			if (y_dif > 0) this.orientation = Orientation.UP;
-		//			else this.orientation = Orientation.DOWN;
-		//		}
-		//		else if (y_dif > 0) this.orientation = Orientation.UP;
-		//		else this.orientation = Orientation.DOWN;
+		this.orientation = orientation;
 	}
 
-
-	// still tries to face the enemy, but in none of the same ways as the other face method
-	public void faceAlt(Unit that) {
-		this.faceAlt(that.getPoint());
-	}
-
-	public void faceAlt(BPoint that) {
+	// Alt level specifies which alternate orientation to get. 0 is the best. 1 is the second best. 2 is third best.
+	public void face(BPoint that, boolean forceInstant, int altLevel) {
+		if (stage.placementPhase) throw new AssertionError();
 		if (stage.isOver()) throw new AssertionError();
+		// For now, just return
+		if (!forceInstant) return;
 
-		int x_dif = that.pos_x - this.pos_x;
-		int y_dif = that.pos_y - this.pos_y;
+		this.orientation = getAltOrientationTo(that.pos_x, that.pos_y, altLevel);
+	}
 
-		if (Math.abs(x_dif) < Math.abs(y_dif)) {
-			if (x_dif > 0) this.orientation = Orientation.RIGHT;
-			else if (x_dif < 0) this.orientation = Orientation.LEFT;
-			else if (Math.random() < .5) this.orientation = Orientation.RIGHT;
-			else this.orientation = Orientation.LEFT;
-		}
-		else if (Math.abs(x_dif) > Math.abs(y_dif)) {
-			if (y_dif > 0) this.orientation = Orientation.UP;
-			else if (y_dif < 0) this.orientation = Orientation.DOWN;
-			else if (Math.random() < .5) this.orientation = Orientation.UP;
-			else this.orientation = Orientation.UP;
-		}
-		else if (x_dif > 0) this.orientation = Orientation.RIGHT;
-		else this.orientation = Orientation.LEFT;
+	// same as above but with point
+	public void face(BPoint that, boolean forceInstant) {
+		face(that, forceInstant, 0);
 	}
 
 	public float getZHeight() {

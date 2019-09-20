@@ -209,8 +209,14 @@ public class VictoryManager {
         if (loser.size != 0) throw new AssertionError();
         for (int i = 0; i < loserRetreated.size; i++) {
             Party party = loserRetreated.get(i);
-            party.registerBattleLoss();
             System.out.println("Healthy troops: " + party.getHealthySize());
+
+            // Give the main winner all the prisoners of the losing party.
+            int freed = releaseLosersPrisoners(victor.get(0), party);
+            if (freed > 0 && victor.get(0).player)
+              BottomPanel.log(freed + " freed prisoners have joined your party!", "green");
+
+            party.registerBattleLoss();
 
             // Kick losers out of siege
             if (siege != null) {
@@ -288,6 +294,22 @@ public class VictoryManager {
                 s.handleCapturedBy(party);
             }
         }
+    }
+
+
+    // Give all the captives that were wounded during the battle as soldiers for the winner
+    // returns number of prisoners freed
+    private int releaseLosersPrisoners(Party winner, Party loser) {
+        int total = 0;
+        StrictArray<Soldier> prisoners = loser.getPrisoners();
+        if (prisoners != null) {
+            for (Soldier s : prisoners) {
+                System.out.println("Prisoner freed: " + s.getName() + " by " + winner.getName());
+                s.handleFreedBy(winner, loser);
+                total++;
+            }
+        }
+        return total;
     }
 
     private void distributeRewards(Party party, double contribution, boolean attackVictory) {

@@ -1,8 +1,8 @@
 name			range	acc		reload	quiver  type    texture
 // Atlatls
-Atlatl(Oak)		15		8		3		2       atlatl  spear
-Atlatl(Tepozan)	20		8		3		2       atlatl  spear
-Atlatl(Locust)	15		8		3		8       atlatl  spear
+Atlatl(Oak)		20		8		3		2       atlatl  spear
+Atlatl(Tepozan)	25		8		3		2       atlatl  spear
+Atlatl(Locust)	30		8		3		8       atlatl  spear
 
 // Slings
 Sling(Sinew)    60		4		4		5       sling   sling

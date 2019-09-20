@@ -94,7 +94,7 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 			}
 		});
 		
-		if (!party.player) {
+		if (!party.player && army.isNoble()) {
 			topTable.addSubtitle("subtitle", subTitle, null);
 		}
 

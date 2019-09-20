@@ -96,7 +96,7 @@ public class SidePanel extends Group implements PanelHolder {
 
 		squadManagementScreen = new SquadManagementScreen(this);
 		// TODO don't add until we need it.
-		showSquadScreen();
+//		showSquadScreen();
 		squadManagementScreen.initialize(kingdom.getPlayer().party);
 	}
 	

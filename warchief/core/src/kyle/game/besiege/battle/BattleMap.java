@@ -22,7 +22,6 @@ public class BattleMap extends Group {
 	private static final float SIZE_FACTOR = 1f; //  change this to increase the drawn area around the battlefield. Cannot exceed 2
 	private static final float WALL_SLOW = .5f;
 	private static final float LADDER_SLOW = .75f;
-    private static final double RAIN_INTENSITY = 2f;
     public static final Color SHADOW_COLOR = new Color(0, 0, 0, .13f);
 	public static final Color RAINDROP_COLOR = new Color(0, 0, .8f, 1f); // ALPHA is replaced later of course.
 	public static final Color SNOW_COLOR = new Color(.7f, .7f, .8f, 1f);
@@ -186,6 +185,7 @@ public class BattleMap extends Group {
 		} else {
 			this.maptype = mapType;
 		}
+		System.out.println("creating battlemap");
 
 		// total height is twice as big as normal size, for a massive map
 		this.total_size_x = (int) (mainmap.size_x * SIZE_FACTOR);
@@ -427,7 +427,10 @@ public class BattleMap extends Group {
 		rainDrawOffsetX = 0;
 		rainDrawOffsetY = 0;
 
+		System.out.println("creating ground");
+
 		initializeGround();
+		System.out.println("done with ground");
 	}
 
 	private Color blend(Color c1, Color c0) {
@@ -517,6 +520,7 @@ public class BattleMap extends Group {
 			for (int j = 0; j < ground.length; j++) {
 				Pixmap current = getTexture(ground[j][i]);
 				//					current.
+				System.out.println("creating ground " + j);
 
 				// DON'T mess with this, the algo is really good now.
 				boolean blend = true;
@@ -655,6 +659,7 @@ public class BattleMap extends Group {
 				groundTexture[j][i] = new TextureRegion(new Texture(current));
 			}
 		}
+		System.out.println("done w  ground ");
 
 
 		//		// convert to textureRegions

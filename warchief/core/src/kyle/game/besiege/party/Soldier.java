@@ -17,10 +17,13 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		
 	//testing
 	static int namesGenerated = 0;
-	
-	public static enum SoldierType {
+
+
+	// Expand this:
+	public enum SoldierType {
 		INFANTRY, ARCHER, CAVALRY, GENERAL, SHAMAN
 	}
+
 
 	// getTier()  0, 1, 2, 3,  4,  5,  6,  7,  8, 9, max}
 	private final static short[] LEVEL_TIER = {1, 3, 5, 7, 10, 12, 15, 18, 22, 25, 31};
@@ -485,6 +488,17 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public void handleCapturedBy(Party capturedBy) {
 		this.party.givePrisonerFromThis(this, capturedBy);
 	}
+
+	// Note when we free a soldier we're allowed to exceed max party size, because you earned it.
+	public void handleFreedBy(Party freedBy, Party prisonerOf) {
+		// IF this is a prisoner, this guy's party is null.
+		if (this.party != prisonerOf) {
+			throw new AssertionError();
+		}
+		prisonerOf.removePrisoner(this);
+		freedBy.addSoldier(this, true);
+	}
+
 
 	// Old upgrade method, maybe delete this.
 	public boolean upgrade(UnitType unitType) { // returns true if upgraded, false otherwise	

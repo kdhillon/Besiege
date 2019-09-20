@@ -32,6 +32,7 @@ public class QuickBattleScreen implements Screen {
         this.menuBackground = menuBackground;
         stage = new Stage();
         stage.addActor(menuBackground);
+        menuBackground.drawWithTint(true);
 
         mainTable = new Table();
         stage.addActor(mainTable);
@@ -67,7 +68,7 @@ public class QuickBattleScreen implements Screen {
     public void startBattle() {
         System.out.println("starting bqttle");
         // Launch a new battle, with specified options.
-        Simulation simulation = new Simulation(quickBattleTable.getCurrentOptions(), mainMenuScreen);
+        Simulation simulation = new Simulation(quickBattleTable.getCurrentOptions(), this);
         main.setScreen(simulation.getMapScreen()); // eventually make mainMenu
     }
 
@@ -123,7 +124,10 @@ public class QuickBattleScreen implements Screen {
 
     public void returnToThis() {
         main.setScreen(this);
-        mainMenuScreen.returnFromOtherPanel(true);
+        stage.clear();
+        stage.addActor(menuBackground);
+        stage.addActor(mainTable);
+        menuBackground.drawWithTint(true);
     }
 
     public void returnToMain() {

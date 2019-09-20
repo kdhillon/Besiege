@@ -57,7 +57,7 @@ public class PanelCenter extends Panel {
 		title.setAlignment(0,0);
 		height = new Label(""+center.getAvgElevation(), ls24);
 		wealth = new Label(""+(int)(100*center.wealth), ls24);
-        temp = new Label(""+((int)(100*(1-center.temperature))), ls24);
+        temp = new Label(""+((int)(100*(1-center.temperature)) + 20), ls24);
 
         text.add(title).colspan(2).width(SidePanel.WIDTH-PAD*2).fillX().expandX().center();
 		title.setWrap(true);
