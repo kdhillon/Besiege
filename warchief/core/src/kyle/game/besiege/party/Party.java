@@ -63,7 +63,9 @@ public class Party {
 	public void act(float delta) {
 		if (player && army != null) woundChance = BASE_CHANCE * army.getCharacter().getAttributeFactor("Reviving");
 		if (this.army != null && !this.army.isInBattle()) {
-			root.checkHeal();
+			for (Squad s : squads) {
+				s.checkHeal();
+			}
 		}
 		calcStats();
 	}
@@ -213,14 +215,7 @@ public class Party {
 		for (int i = 0; i < squads.size; i++) {
 			Squad s = squads.get(i);
 			if (s.isFull()) continue;
-			int classForThis = 0;
-			System.out.println(" total squad size: " + s.getTotalSize());
-			for (Soldier soldier : s.getHealthy()) {
-				if (soldier.unitType.unitClass == unitClass) classForThis++;
-			}
-			for (Soldier soldier : s.getWounded()) {
-				if (soldier.unitType.unitClass == unitClass) classForThis++;
-			}
+			int classForThis = s.getClassCounts().get(unitClass);
 			float ratio = (float) classForThis / (float) s.getTotalSize();
 			System.out.println(" total of this class: " + classForThis);
 			System.out.println(" ratio: " + ratio);
@@ -267,7 +262,8 @@ public class Party {
             newSub.promoteToGeneral(soldier);
 
             System.out.println("adding random shaman");
-			newSub.addRandomShaman();
+            if (Math.random() < 0.1)
+				newSub.addRandomShaman();
             // Testing
 
             return true;

@@ -1,7 +1,6 @@
 package kyle.game.besiege.panels;
 
 import com.badlogic.gdx.graphics.Color;
-import kyle.game.besiege.WarchiefGame;
 import kyle.game.besiege.party.Soldier;
 import kyle.game.besiege.party.Squad;
 
@@ -19,7 +18,7 @@ public class SquadPanel extends Panel {
     // general at top
     // soldier list, name on left, troop type on right
     //
-    // special buttons for removing troops
+    // Note: buttons for removing troops, upgrading, promoting, etc are in the side panel as usual.
     //
 
     static final int WIDTH = SidePanel.WIDTH - 5; // sidepanel width is 190
@@ -30,6 +29,8 @@ public class SquadPanel extends Panel {
     private SquadSoldierTable soldierTable;
 
     public SquadPanel(SquadManagementScreen squadManagementScreen, SquadSidePanel squadSidePanel, Squad squad) {
+        super(false);
+
         this.squadManagementScreen = squadManagementScreen;
         this.squad = squad;
         this.addParentPanel(squadSidePanel);
@@ -40,18 +41,29 @@ public class SquadPanel extends Panel {
         backgroundColor.setColor(gray,gray,gray,255);
 //        this.setBackground(backgroundColor);
         this.setWidth(WIDTH);
-        this.setHeight(WarchiefGame.HEIGHT/2);
+//        this.setHeight(WarchiefGame.HEIGHT/2);
 
         topTable = new TopTable();
 //        Label generalName = new Label(squad.getGeneral().getOfficialName(), SquadManagementScreen.mediumLs);
         this.addTopTable(topTable);
         topTable.updateTitle(squad.getGeneral().getOfficialName(), null, Color.WHITE);
+        topTable.addSubtitle("class", "");
+        topTable.addSmallLabel("size", "Size:");
+        topTable.addSmallLabel("remaining", "Remaining:");
 
         soldierTable = new SquadSoldierTable(squadManagementScreen, this, squad);
         this.addSoldierTable(soldierTable);
 //        this.add(soldierTable).top().expandY();
+        this.update();
     }
 
+    // Update this panel with any new information
+    public void update() {
+        soldierTable.update();
+        topTable.update("size", squad.getHealthySize() + "/" + squad.getTotalSize());
+        topTable.update("remaining", (squad.getGeneral().getMaxSquadSize() - squad.getTotalSize()) + "");
+        topTable.update("class", squad.getMaxClass().name);
+    }
 
     @Override
     protected void notifyDragStart(Soldier soldier) {

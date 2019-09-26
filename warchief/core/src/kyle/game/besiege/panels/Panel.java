@@ -28,7 +28,7 @@ public class Panel extends Group {
 	private final float PAD = 5;
 	private final float B_PAD = 2;
 	private final float BUTTONS_HEIGHT = 5;
-	private final float BUTTONHEIGHT = 90;
+	private float BUTTONHEIGHT = 90; // might be 0 if no buttons added
 	private final float OFFSET = 1;
 	private final String upTexture = "grey-lm9";
 	private final String downTexture = "grey-med9";
@@ -83,6 +83,10 @@ public class Panel extends Group {
 	boolean saving = false;
 
 	public Panel() {
+		this(true);
+	}
+
+	public Panel(boolean addButtons) {
 		this.setPosition(0, 0);
 
 		buttons = new Table();
@@ -96,9 +100,9 @@ public class Panel extends Group {
 		ls12.font = Assets.pixel12;
 
 		bs = new ButtonStyle();
-		bs.up = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(upTexture), r,r,r,r));
-		bs.down = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(downTexture), r,r,r,r));
-		bs.disabled = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(disabledTexture), r,r,r,r));
+		bs.up = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(upTexture), r, r, r, r));
+		bs.down = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(downTexture), r, r, r, r));
+		bs.disabled = new NinePatchDrawable(new NinePatch(Assets.atlas.findRegion(disabledTexture), r, r, r, r));
 		bs.pressedOffsetX = OFFSET;
 		bs.pressedOffsetY = -OFFSET;
 
@@ -107,33 +111,37 @@ public class Panel extends Group {
 		pausedLabel = new Label("", ls17);
 		pausedLabel.setAlignment(Align.center);
 
-		buttons.setX(SidePanel.WIDTH / 2);
-		buttons.setY(BUTTONS_HEIGHT);
-		buttons.add().colspan(2).width((SidePanel.WIDTH - PAD * 2));
-		b1 = new MyButton(bs);
-		b2 = new MyButton(bs);
-		b3 = new MyButton(bs);
-		b4 = new MyButton(bs);
-		initializeButton(1);
-		initializeButton(2);
-		initializeButton(3);
-		initializeButton(4);
-		buttons.row();
-		buttons.add(b1);
-		buttons.add(b2);
-		buttons.row();
-		buttons.add(b3);
-		buttons.add(b4);
-		buttons.row();
-		if (shouldAddTimeAndPaused()) {
-			buttons.add(timeLabel).padTop(PAD).padLeft(PAD).expand(false, false).fill(false).width((SidePanel.WIDTH - PAD * 2) / 2 - PAD);
+		if (addButtons) {
+			buttons.setX(SidePanel.WIDTH / 2);
+			buttons.setY(BUTTONS_HEIGHT);
+			buttons.add().colspan(2).width((SidePanel.WIDTH - PAD * 2));
+			b1 = new MyButton(bs);
+			b2 = new MyButton(bs);
+			b3 = new MyButton(bs);
+			b4 = new MyButton(bs);
+			initializeButton(1);
+			initializeButton(2);
+			initializeButton(3);
+			initializeButton(4);
+			buttons.row();
+			buttons.add(b1);
+			buttons.add(b2);
+			buttons.row();
+			buttons.add(b3);
+			buttons.add(b4);
+			buttons.row();
+			if (shouldAddTimeAndPaused()) {
+				buttons.add(timeLabel).padTop(PAD).padLeft(PAD).expand(false, false).fill(false).width((SidePanel.WIDTH - PAD * 2) / 2 - PAD);
 
-			buttons.add(pausedLabel).padTop(PAD).padRight(PAD).expand(false, false).fill(false).width((SidePanel.WIDTH - PAD * 2) / 2 - PAD);
+				buttons.add(pausedLabel).padTop(PAD).padRight(PAD).expand(false, false).fill(false).width((SidePanel.WIDTH - PAD * 2) / 2 - PAD);
+			}
+			//buttons.debug();
+
+			// don't add space for buttons if a Squad panel on Squad management screen
+			this.addActor(buttons);
+		} else {
+			BUTTONHEIGHT = 0;
 		}
-		//buttons.debug();
-
-		// TODO remove
-		this.addActor(buttons);
 
 		//buttonArray = new Array<Button>();
 	}
@@ -159,7 +167,6 @@ public class Panel extends Group {
 		float height = getFullHeight();
 
 		masterHeight = height - BUTTONHEIGHT - PAD*2;
-
 		topTableY = PAD + BUTTONHEIGHT;
 
 		HALF_HEIGHT = masterHeight / 2;

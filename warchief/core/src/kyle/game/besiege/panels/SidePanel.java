@@ -95,8 +95,9 @@ public class SidePanel extends Group implements PanelHolder {
 		kingdom.currentPanel = getPlayer();
 
 		squadManagementScreen = new SquadManagementScreen(this);
+
 		// TODO don't add until we need it.
-//		showSquadScreen();
+		showSquadScreen();
 		squadManagementScreen.initialize(kingdom.getPlayer().party);
 	}
 	
@@ -300,6 +301,14 @@ public class SidePanel extends Group implements PanelHolder {
             kingdom.currentPanel = getPlayer();
             previousPanel = null;
         }
+	}
+
+	public static void createTooltip(String string) {
+		System.out.println(string);
+	}
+
+	public static void clearTooltip() {
+
 	}
 
 	public void press(int button) {

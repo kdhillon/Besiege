@@ -332,7 +332,8 @@ public class MapScreen implements Screen {
 			shouldFastForward = false;
 			shouldLetRun = false;
 
-			fogOn = false;
+			if (Kingdom.DEBUG_MODE) fogOn = false;
+			else fogOn = true;
 			losOn = false;
 			fogToggle = false;
 			losToggle = true;
@@ -348,6 +349,10 @@ public class MapScreen implements Screen {
 		worldInitialized = true;
 		kingdom.setPaused(true);
 		center();
+
+		if (!Kingdom.DEBUG_MODE) {
+			kingdomCamera.zoom = 0.5f;
+		}
 
 //		if (!VIEW_GENESIS) {
 //			kingdomCamera.zoom = 0.5f;

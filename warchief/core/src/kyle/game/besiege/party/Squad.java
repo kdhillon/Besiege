@@ -4,6 +4,7 @@ import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.panels.BottomPanel;
 import kyle.game.besiege.party.Soldier.SoldierType;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -82,11 +83,12 @@ public class Squad {
 		this.general = g;
 		g.squad = this;
 		for (Soldier s : healthy) {
-			s.updateGeneral(g);
+			s.updateSquadOrGeneral();
 		}
 		for (Soldier s : wounded) {
-			s.updateGeneral(g);
+			s.updateSquadOrGeneral();
 		}
+		g.updateSquadOrGeneral();
 
 		if (general == null) throw new AssertionError();
 	}
@@ -251,7 +253,7 @@ public class Squad {
 			}
 			soldier.squad = this;
 			soldier.party = this.party;
-			if (general != null) soldier.updateGeneral(this.general);
+			soldier.updateSquadOrGeneral();
 			calcStats();
 			return true;
 		}
@@ -409,6 +411,36 @@ public class Squad {
 		}
 		
 		return count;
+	}
+
+	public HashMap<UnitType.UnitClass, Integer> getClassCounts() {
+		HashMap<UnitType.UnitClass, Integer> classes = new HashMap<UnitType.UnitClass, Integer>();
+		// init to 0
+		for (UnitType.UnitClass val : UnitType.UnitClass.values()) {
+			classes.put(val, 0);
+		}
+
+		for (Soldier soldier : healthy) {
+			classes.put(soldier.unitType.unitClass, classes.get(soldier.unitType.unitClass) + 1);
+		}
+		for (Soldier soldier : wounded) {
+			classes.put(soldier.unitType.unitClass, classes.get(soldier.unitType.unitClass) + 1);
+		}
+		return classes;
+	}
+
+	public UnitType.UnitClass getMaxClass() {
+		HashMap<UnitType.UnitClass, Integer> classCounts = getClassCounts();
+		int maxCount = 0;
+		UnitType.UnitClass maxClass = null;
+
+		for (UnitType.UnitClass key : UnitType.UnitClass.values()) {
+			if (classCounts.get(key) > maxCount) {
+				maxCount = classCounts.get(key);
+				maxClass = key;
+			}
+		}
+		return maxClass;
 	}
 	
 	public float getBonusGeneralAtk() {

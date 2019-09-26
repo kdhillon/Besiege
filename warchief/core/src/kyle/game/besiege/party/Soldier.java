@@ -82,9 +82,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	
 	public UnitType unitType; // determines weapon and armor for now.
 
-	// TODO remove this, just have "timeWounded"
+	// TODO remove this, just have "timeWoundedSeconds"
 	private boolean wounded;
-	private float timeWounded;
+	private float timeWoundedSeconds;
 	public float healTime; // time it takes to heal (not needed to store)
 
     // This doesn't need to be saved.
@@ -136,7 +136,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.unitType = that.unitType; // determines weapon and armor for now.
 
 		this.wounded = that.wounded;		
-		this.timeWounded= that.timeWounded;
+		this.timeWoundedSeconds = that.timeWoundedSeconds;
 
 		this.healTime = that.healTime;
 	}
@@ -152,24 +152,22 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		//		if (Math.random() > 0.5)
 		//			getTier() = weapon.getTier();
 		//		else getTier() = weapon.getTier() + 1;
+		this.atk = new MultiValue("Attack");
+		this.def = new MultiValue("Defense");
+		this.spd = new MultiValue("Speed");
 		assignBaseStats();
 		init();
 	}
 
 	void assignBaseStats() {
-		this.atk = new MultiValue("Attack");
 		atk.addSubValue(TypeInfo.S_BASE_ATK);
 		atk.addSubValue(TypeInfo.S_WEAPON);
 		atk.addSubValue(TypeInfo.S_GENERAL);
 
-		this.def = new MultiValue("Defense");
 		def.addSubValue(TypeInfo.S_BASE_DEF);
-//		def.addSubValue(TypeInfo.S_WEAPON);
 		def.addSubValue(TypeInfo.S_ARMOR);
 		def.addSubValue(TypeInfo.S_GENERAL);
-		def.addSubValue(TypeInfo.S_SHIELD);
 
-		this.spd = new MultiValue("Speed");
 		spd.addSubValue(TypeInfo.S_BASE_SPD);
 		spd.addSubValue(TypeInfo.S_WEAPON);
 		spd.addSubValue(TypeInfo.S_ARMOR);
@@ -201,6 +199,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 		hp.updateValue(TypeInfo.S_BASE_HP, BASE_HP);
 		hp.updateValue(TypeInfo.S_HP_DEF, def);
+		if (squad != null) {
+			hp.updateValue(TypeInfo.S_GENERAL, squad.getHPBonus());
+		}
 
 		if (tier <= 0) this.level = 0;
 		else this.level = (short) (LEVEL_TIER[tier] + (short) (Math.random()*(LEVEL_TIER[tier + 1]-LEVEL_TIER[tier])));
@@ -213,8 +214,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.next = (short) (Math.pow(LEVEL_FACTOR, level)*INITIAL_NEXT);
 
 		wounded = false;
-		this.healTime = (float) (HEAL_TIME + Math.random() * HEAL_TIME - HEAL_TIME/2); //different for all units
-		timeWounded = 0;
+//		this.healTime = (float) (HEAL_TIME + Math.random() * HEAL_TIME - HEAL_TIME/2); //different for all units
+		this.healTime = HEAL_TIME;
+		timeWoundedSeconds = 0;
 
 		//		this.equipment = new Array<Equipment>();
 		//		while (equipment.size > 0)
@@ -335,7 +337,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	//		}
 	//		
 	//		wounded = false;
-	//		timeWounded = 0;
+	//		timeWoundedSeconds = 0;
 	//		
 	////		this.equipment = new Array<Equipment>();
 	////		while (equipment.size > 0)
@@ -357,7 +359,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	//		this.baseSpd = template.baseSpd;
 	//		
 	//		wounded = false;
-	//		timeWounded = 0;
+	//		timeWoundedSeconds = 0;
 	//		
 	//		this.weapon = template.weapon;
 	//		this.equipment = new Array<Equipment>();
@@ -400,10 +402,20 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 		this.spd.updateValue(TypeInfo.S_SHIELD, shield.spdMod);
 	}
 
-	public void updateGeneral(General general) {
-		if (this.atk != null)
-			this.atk.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralAtk());
-		this.def.updateValue(TypeInfo.S_GENERAL, general.getBonusGeneralDef());	
+	public void updateSquadOrGeneral() {
+		if (this.squad != null) {
+			// General's stats should not be affected by his own bonus...
+			if (squad.getGeneral() == this) {
+				this.atk.updateValue(TypeInfo.S_GENERAL, 0);
+				this.def.updateValue(TypeInfo.S_GENERAL, 0);
+				this.hp.updateValue(TypeInfo.S_GENERAL, 0);
+			} else {
+				if (this.atk != null) this.atk.updateValue(TypeInfo.S_GENERAL, squad.getBonusGeneralAtk());
+				this.def.updateValue(TypeInfo.S_GENERAL, squad.getBonusGeneralDef());
+				this.hp.updateValue(TypeInfo.S_GENERAL, squad.getHPBonus());
+			}
+		}
+		else throw new AssertionError();
 	}
 
 //	public float getBonusSpd() {
@@ -625,7 +637,9 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	}
 
 	public boolean isHealed() {
-		if (party.army.getKingdom().clock - timeWounded >= healTime)
+		if (party.player)
+			System.out.println("Checking healed: " + party.army.getKingdom().clockSeconds + " vs " + healTime);
+		if (party.army.getKingdom().clockSeconds - timeWoundedSeconds >= healTime)
 			return true;
 		return false;
 	}
@@ -635,7 +649,7 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 		wounded = true;
 		if (party.army != null)
-			timeWounded = party.army.getKingdom().clock; // seconds elapsed when wounded
+			timeWoundedSeconds = party.army.getKingdom().clockSeconds; // seconds elapsed when wounded
 	}
 	public void heal() {
 		wounded = false;
@@ -649,13 +663,20 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public boolean isWounded() {
 		return wounded;
 	}
-	
+	public MultiValue getHpMulti() {
+		return hp;
+	}
 	public float getHp() {
 		return hp.getValue();
 	}
-	
+	public MultiValue getAtkMulti() {
+		return atk;
+	}
 	public float getAtk() {
 		return atk.getValue();
+	}
+	public MultiValue getDefMulti() {
+		return def;
 	}
 	public float getDef() {
 		return def.getValue();	
@@ -663,6 +684,10 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 	public float getSpd() {
 		return spd.getValue();	
 	}
+	public MultiValue getSpdMulti() {
+		return spd;
+	}
+
 
 	public Equipment getHorse() {
 //		for (Equipment e : equipment) {

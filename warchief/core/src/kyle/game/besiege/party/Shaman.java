@@ -51,10 +51,14 @@ public class Shaman extends Soldier {
         this.type = getRandomType(squad.getGeneral().unitType.cultureType);
         this.unitType = type.unitType;
 
+        this.atk = new MultiValue();
+        this.def = new MultiValue();
+        this.spd = new MultiValue();
+        this.hp = new MultiValue();
+
         this.assignBaseStats();
         this.init();
 
-        this.atk = null;
         this.power = new MultiValue();
     }
 

@@ -790,13 +790,18 @@ public class Army extends Group implements Destination {
 			nearEnemies.add(targetParty);
 
 			// TODO: this is O(N)
+			// try using closeArmies
 			for (Army a : kingdom.getArmies()) {
 				if (a == targetArmy || a == this || a.distToCenter(this) > this.lineOfSight || (a.isGarrisonedSafely() && siegeOf == null) ||
 						nearEnemies.contains(a.party, true) || nearAllies.contains(a.party, true) || a.passive) continue;
-				if (a.isAtWar(targetParty.getFaction()) && !a.isAtWar(this) && !a.passive)
+				if (a.isAtWar(targetParty.getFaction()) && !a.isAtWar(this) && !a.passive) {
+					System.out.println("adding " + a.getName() + " to allies");
 					nearAllies.add(a.party);
-				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this) && !a.passive)
+				}
+				else if (!a.isAtWar(targetParty.getFaction()) && a.isAtWar(this) && !a.passive) {
+					System.out.println("adding " + a.getName() + " to enemies, " + a.getFaction() + " is not at war with " + targetParty.getFaction());
 					nearEnemies.add(a.party);
+				}
 			}
 
 			getKingdom().getPlayer().createPlayerBattleWith(nearAllies, nearEnemies, false, siegeOf);
@@ -1968,13 +1973,13 @@ public class Army extends Group implements Destination {
 		if (faction.atWar(destination.getFaction()) != destination.getFaction().atWar(this.getFaction())) throw new AssertionError();
 
 //		System.out.println(this.getName() + " normal case, maybe at war with " + destination.getName());
-		return faction.atWar(destination.getFaction());
+		return isAtWar(destination.getFaction());
 	}
 
     public boolean isAtWar(Faction faction) {
         if (faction == null) return true;
         if (this.faction == null) return true;
-        return faction.atWar(faction);
+        return this.faction.atWar(faction);
     }
 
 	// laziness sake

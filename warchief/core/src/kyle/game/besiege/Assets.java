@@ -99,8 +99,6 @@ public class Assets {
 		UnitLoader.load("chieftain");
 
 		rain = Gdx.audio.newMusic(Gdx.files.internal("sound/rain1.mp3"));
-		music1 = Gdx.audio.newMusic(Gdx.files.internal("sound/music1.wav"));
-		music2 = Gdx.audio.newMusic(Gdx.files.internal("sound/music2.wav"));
 		forestMusic = Gdx.audio.newMusic(Gdx.files.internal("sound/forest.wav"));
 
 		thunder1 = Gdx.audio.newSound(Gdx.files.internal("sound/thunder1.wav"));

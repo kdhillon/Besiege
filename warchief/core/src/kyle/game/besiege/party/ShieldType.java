@@ -1,10 +1,8 @@
 package kyle.game.besiege.party;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import kyle.game.besiege.Assets;
-import org.w3c.dom.Text;
 
 /* contains information about a specific weapon type */
 public class ShieldType {
@@ -18,6 +16,10 @@ public class ShieldType {
     public int hp;
     public int spdMod;
     public Type type;
+
+    public String getStatsSummary() {
+        return name + "\n " + type.name() + "\n " + hp + " Shield HP\n " + UnitType.formatStat(spdMod) + " Speed";
+    }
 
     // TODO replace with a getter for the appropriate textureregion
     public void setType(String typeString) {

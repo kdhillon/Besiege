@@ -94,27 +94,38 @@ public class TopTable extends Table {
 	public void addSubtitle(String key, String label) {
 		addSubtitle(key, label, null);
 	}
-	// Big label has a fixed label and a value (e.g. "Troops: 20". It fits two rows across.
-	public void addSmallLabel(String key, String label) {
+
+	public void addSmallLabel(String key, String label, InputListener listener) {
 		Label constantLabel = new Label(label, ls);
 		Label value = new Label("", ls);
 		float padTop = 0;
 		if (wasLastSmallLabel) padTop = NEG;
 		if (nextIsLeft) {
-			this.add(constantLabel).padLeft(MINI_PAD).left().padTop(padTop);
+			this.add(constantLabel).padLeft(MINI_PAD).left().padTop(padTop).fill(true, false);
 		} else {
-			this.add(constantLabel).padLeft(PAD).left().padTop(padTop);
+			this.add(constantLabel).padLeft(PAD).left().padTop(padTop).fill(true, false);
 			wasLastSmallLabel = true;
 		}
-		this.add(value).padTop(padTop);
+		this.add(value).padTop(padTop).fill(true, false);
 		labels.put(key+"LABEL", constantLabel);
 		labels.put(key, value);
+
 		if (nextIsLeft) {
 			nextIsLeft = false;
 		} else {
 			nextIsLeft = true;
 			this.row();
 		}
+		if (listener != null) {
+			// TODO somehow have these listeners "overlap"
+			// could use a container table for these two guys. only problem is it means the parent table boxes might not be lined up perfectly.
+			constantLabel.addListener(listener);
+			value.addListener(listener);
+		}
+	}
+	// Big label has a fixed label and a value (e.g. "Troops: 20". It fits two rows across.
+	public void addSmallLabel(String key, String label) {
+		addSmallLabel(key, label, null);
 	}
 
 	// Big label has a fixed label and a value (e.g. "Troops: 20". It fits one row across.

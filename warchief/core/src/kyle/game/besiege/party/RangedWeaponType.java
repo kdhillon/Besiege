@@ -16,6 +16,11 @@ public class RangedWeaponType {
 	public Type type;
 	public String texture;
 
+	public String getStatsSummary() {
+		return type.name() + "\n " + range + " Range\n " + accuracy + " Accuracy\n " + rate + " " +
+				"Fire Rate";
+	}
+
 	public void setType(String typeString) {
 		if (typeString.equals("bow"))
 			type = Type.BOW;

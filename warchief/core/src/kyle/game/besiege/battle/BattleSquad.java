@@ -204,7 +204,8 @@ public class BattleSquad {
 
 		if (currentMorale < 0) retreat();
 	}
-	
+
+	// TODO make this a multivalue.
 	public void updateCurrentMorale() {
 		currentMorale = (currentCount * 1.0f + killCount) / startingCount - (1-battleMoraleThreshold);
 		updateMoraleString();

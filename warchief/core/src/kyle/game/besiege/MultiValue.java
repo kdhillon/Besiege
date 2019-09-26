@@ -5,11 +5,18 @@ package kyle.game.besiege;
 // can print information about how this was calculated
 // for example, a soldiers' attack might be calculated from base attack, weapon, general.
 
+import kyle.game.besiege.party.UnitType;
+
+import java.text.DecimalFormat;
+
 // main issue is storage space, this kinda thing takes up a lot of unnecessary space.
+// Don't calculate this for every single unit, you dingus. only when they enter a battle.
 public class MultiValue implements Value {
 	String multiName;
 	String multiDesc;
-	
+
+	public static DecimalFormat df = new DecimalFormat("0.00");
+
 	// hopefully will save some space?
 	public enum TypeInfo {
 		S_BASE_ATK("Base", "Base Attack"), 
@@ -30,7 +37,6 @@ public class MultiValue implements Value {
 		}
 	}
 	
-	
 	public static class SubValue {
 		TypeInfo typeInfo;
 		
@@ -40,7 +46,7 @@ public class MultiValue implements Value {
 		Value value;
 		
 		/**  */
-		float factor; 
+		float factor = 1;
 		
 		// for kryo
 		public SubValue() {
@@ -68,7 +74,7 @@ public class MultiValue implements Value {
 		}
 	}
 	
-	private StrictArray<SubValue> values; 
+	private StrictArray<SubValue> values = new StrictArray<SubValue>();
 	
 	// for kryo
 	public MultiValue() {
@@ -78,7 +84,20 @@ public class MultiValue implements Value {
 	public MultiValue(String name) {
 		super();
 		this.multiName = name;
-		values = new StrictArray<SubValue>();
+	}
+
+	public String getStringSummary() {
+		String summary = df.format(this.getValue()) + " " + this.multiName;
+		if (values.size > 0) summary += " =";
+		for (SubValue s : values) {
+			summary += "\n " + UnitType.formatStat(s.value.getValue()) + " " + s.typeInfo.name;
+
+//			summary +=  "\n  " + df.format(s.value.getValue() * s.factor) + " (" + s.typeInfo.name + ")";
+//			if (s != values.get(values.size - 1)) {
+//				summary += " +";
+//			}
+		}
+		return summary;
 	}
 	
 	public SubValue getValue(TypeInfo type) {

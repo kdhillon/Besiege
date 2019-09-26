@@ -11,7 +11,7 @@ import kyle.game.besiege.party.Squad;
 // presses, etc.
 // It's not actually a side panel... only called that because it behaves in a similar way
 public class SquadSidePanel extends Group implements PanelHolder {
-    public static final int SQUAD_TABLE_HEIGHT = 500;
+    public static final int SQUAD_TABLE_HEIGHT = 300;
     private final String textureRegion = "panelBG";
     private TextureRegion region;
 
@@ -40,6 +40,10 @@ public class SquadSidePanel extends Group implements PanelHolder {
     public void draw(Batch batch, float parentAlpha) {
         batch.draw(region, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), 1, 1, getRotation());
         super.draw(batch, parentAlpha);
+    }
+
+    public void update() {
+        squadPanel.update();
     }
 
     @Override

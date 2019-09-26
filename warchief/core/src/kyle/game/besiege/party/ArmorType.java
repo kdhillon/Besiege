@@ -22,6 +22,10 @@ public class ArmorType {
 	public Type type;
 	public boolean clothes;
 
+	public String getStatsSummary() {
+		return name + "\n " + UnitType.formatStat(defMod) + " Defense\n " + UnitType.formatStat(spdMod) + " Speed\n";
+	}
+
 	// TODO replace with a getter for the appropriate textureregion
 	public boolean isNaked() {
 		return type == Type.NAKED;

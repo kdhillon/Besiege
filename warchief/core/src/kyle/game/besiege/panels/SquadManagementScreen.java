@@ -19,9 +19,14 @@ import static kyle.game.besiege.panels.SquadSidePanel.SQUAD_TABLE_HEIGHT;
 /**
  * Screen allowing player to manage squads. Can be drawn on top of either tactical or strategic map.
  * Note that in the future this gives us a hacky but effective way of tinting the entire screen (for lightning, etc)
+ *
+ * Layout looks like:
+ *  - up to 5 panels horizontally across
+ *  - as many rows as is necessary. Should only need
  */
 public class SquadManagementScreen extends Group {
-
+    private static final int PAD_BETWEEN = 15;
+    private static final int OUTSIDE_PAD = 35;
     public static final Label.LabelStyle mediumLs = new Label.LabelStyle(Assets.pixel20forCities, Color.WHITE);
 
     SidePanel sidePanel;
@@ -62,12 +67,12 @@ public class SquadManagementScreen extends Group {
         squadScrollPane.setScrollBarTouch(false);
         squadScrollPane.setScrollbarsOnTop(true);
         squadScrollPane.setFadeScrollBars(false);
-        main.add(squadScrollPane).height(SQUAD_TABLE_HEIGHT).width(this.getWidth() - 100);
+        main.add(squadScrollPane).height(SQUAD_TABLE_HEIGHT).width(this.getWidth() - OUTSIDE_PAD * 2);
 
         for (Squad s : party.squads) {
             SquadSidePanel squadSidePanel = new SquadSidePanel(this, s);
             squadTables.add(squadSidePanel);
-            squadScrollPaneTable.add(squadSidePanel).padRight(25).height(SQUAD_TABLE_HEIGHT).width(SquadPanel.WIDTH);
+            squadScrollPaneTable.add(squadSidePanel).padRight(PAD_BETWEEN).height(SQUAD_TABLE_HEIGHT).width(SquadPanel.WIDTH);
         }
     }
 
@@ -85,13 +90,14 @@ public class SquadManagementScreen extends Group {
 //        squadScrollPane.setScrollBarTouch(true);
         Squad originalSquad = soldier.squad;
         for (SquadSidePanel sidePanel : squadTables) {
-             if (sidePanel.squadPanel.getSquadSoldierTable().notifySoldierReleased(soldier))
+            sidePanel.squadPanel.update();
+            if (sidePanel.squadPanel.getSquadSoldierTable().notifySoldierReleased(soldier))
                  released = true;
         }
         if (released && originalSquad != null) {
             for (SquadSidePanel sidePanel : squadTables) {
                 if (sidePanel.getSquad() == originalSquad) {
-                    sidePanel.squadPanel.getSquadSoldierTable().update();
+                    sidePanel.squadPanel.update();
                 }
             }
         }

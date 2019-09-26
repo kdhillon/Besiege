@@ -55,7 +55,9 @@ public class SoundPlayer {
         /** Start playing music. Music will repeat when it's done. */
         public void start(CultureType cultureType) {
             isPlaying = true;
-//            start(forest);
+
+            if (!Kingdom.DEBUG_MODE)
+                start(forest);
 
 //            switchSongs();
             System.out.println("starting fade in of music");
@@ -176,7 +178,7 @@ public class SoundPlayer {
                     if (timeSinceStart <= fadeTime) {
                         timeSinceStart += delta;
 
-                        System.out.println("Setting volume to: " + sound.getVolume());
+//                        System.out.println("Setting volume to: " + sound.getVolume());
                         sound.setVolume(MASTER_VOLUME * volumeFactor * Math.min(timeSinceStart / fadeTime, 1));
                     }
                 }

@@ -1,15 +1,23 @@
 package kyle.game.besiege.party;
 
+import java.text.DecimalFormat;
+
 /* contains information about a specific unit type */
 public class UnitType {
 
 	public enum UnitClass {
-		HEAVY_INF,	// 	heavy infantry (infantry with shield, spearman)
-		LIGHT_INF,	//  light infantry (clubman, axeman)
-		RANGED_INF,	//  ranged infantry (any infantry with a bow or atlatl)
-		RANGED,		//  ranged (slinger, atlatlist, archer)
-		STEALTH,	// stealth focused units
+		HEAVY_INF("Heavy Infantry"),	// 	heavy infantry (infantry with shield, spearman)
+		LIGHT_INF("Light Infantry"),	//  light infantry (clubman, axeman)
+		RANGED_INF("Ranged Infantry"),	//  ranged infantry (any infantry with a bow or atlatl)
+		RANGED("Ranged"),		//  ranged (slinger, atlatlist, archer)
+		STEALTH("Stealth");  // stealth focused units
+
+		public String name;
+		UnitClass(String name) {
+			this.name = name;
+		}
 	}
+
 
 	// make this an object later 
 	public String name;
@@ -44,5 +52,13 @@ public class UnitType {
 	private String removeParens(String string) {
 		String[] split = string.split("\\(");
 		return split[0];
+	}
+
+	public static DecimalFormat df = new DecimalFormat("0.00");
+	public static String formatStat(float statFormatted) {
+		if (statFormatted < 0) {
+			return df.format(statFormatted);
+		}
+		return "+" + df.format(statFormatted);
 	}
 }

@@ -128,6 +128,8 @@ public class SoldierTable extends Table {
 		soldierTable.top();
 		soldierTable.setBackground(Assets.ninepatchBackgroundDarkGray);
 		soldierPane = new ScrollPane(soldierTable);
+		soldierPane.setScrollingDisabled(true, false);
+		soldierPane.setOverscroll(false, false);
 		soldierPane.setScrollbarsOnTop(true);
 		soldierPane.setFadeScrollBars(false);
 //		soldierTable.debug();

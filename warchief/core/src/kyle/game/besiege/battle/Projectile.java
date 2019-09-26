@@ -46,7 +46,7 @@ public class Projectile extends Group {
 	private static final float SPEED_SCALE_SIEGE = .4f; // how much does speed decrease when unit is hit.
 	
 	private static int MAX_BOUNCES = 5;
-	private final float DAMAGE_FACTOR = 3f;
+	private final float DAMAGE_FACTOR = 5f;
 	private final float STUCK_Y = -6f;
 
 	float BOUNCE_DEPRECIATION = .4f; // can randomize for more fun

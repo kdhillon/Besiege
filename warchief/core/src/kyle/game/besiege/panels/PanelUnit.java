@@ -17,6 +17,7 @@ import kyle.game.besiege.battle.Unit.Stance;
 import kyle.game.besiege.party.General;
 import kyle.game.besiege.party.Party;
 import kyle.game.besiege.party.Soldier;
+import kyle.game.besiege.tooltip.TextTooltip;
 
 import java.text.DecimalFormat;
 
@@ -86,7 +87,7 @@ public class PanelUnit extends Panel {
 			this.setButton(4, "Back");
 	}
 
-	public static TopTable getTopTable(Soldier soldier, Unit unit, LabelStyle ls) {
+	public static TopTable getTopTable(final Soldier soldier, Unit unit, LabelStyle ls) {
 		TopTable topTable = new TopTable();
 		topTable.updateTitle(soldier.getTypeName(), null, soldier.unitType.cultureType.colorLite);
 
@@ -115,32 +116,52 @@ public class PanelUnit extends Panel {
 		// TODO add subpanels for weapons and armor detailing their stats
 
 		// If not in battle, use a special minimized format.
-		if (unit == null)
-			topTable.addSubtitle("weapon", soldier.unitType.getWeaponSummary(), null);
-		else
-			topTable.addSubtitle("weapon", soldier.unitType.melee.name, ls, null);
+		if (unit == null) {
+			TextTooltip textTooltip = null;
+			if (soldier.unitType.melee != null) textTooltip = new TextTooltip(soldier.unitType.melee.getStatsSummary());
+			else if (soldier.unitType.ranged != null) textTooltip = new TextTooltip(soldier.unitType.ranged.getStatsSummary());
+			topTable.addSubtitle("weapon", soldier.unitType.getWeaponSummary(), textTooltip);
+		}
+		else {
+			TextTooltip textTooltip = new TextTooltip(soldier.unitType.melee.getStatsSummary());
+			topTable.addSubtitle("weapon", soldier.unitType.melee.name, ls, textTooltip);
+		}
 
 		// Only do detialed ranged weapon if in a battle.
 		if (unit != null) {
-			if (soldier.unitType.ranged != null)
-				topTable.addSubtitle("ranged", soldier.unitType.ranged.name, ls, null);
+			if (soldier.unitType.ranged != null) {
+				TextTooltip textTooltip = new TextTooltip(soldier.unitType.ranged.getStatsSummary());
+				topTable.addSubtitle("ranged", soldier.unitType.ranged.name, ls, textTooltip);
+			}
 
-			if (soldier.unitType.shieldType != null)
-				topTable.addSubtitle("shield", soldier.unitType.shieldType.name, ls, null);
+			if (soldier.unitType.shieldType != null) {
+				TextTooltip textTooltip = new TextTooltip(soldier.unitType.shieldType.getStatsSummary());
+				topTable.addSubtitle("shield", soldier.unitType.shieldType.name, ls, textTooltip);
+			}
 
 			String armor = soldier.unitType.armor.name;
 			if (armor.equals("None")) armor = "Naked";
 
-			topTable.addSubtitle("armor", armor, ls, null);
+			TextTooltip textTooltip = new TextTooltip(soldier.unitType.armor.getStatsSummary());
+			topTable.addSubtitle("armor", armor, ls, textTooltip);
 		}
 
 		topTable.addSmallLabel("level", "Level:");
-		topTable.addSmallLabel("attack", "Atk:");
-		topTable.addSmallLabel("hp", "Max HP:");
+		TextTooltip textTooltipAtk = new TextTooltip(soldier.getAtkMulti().getStringSummary());
+		topTable.addSmallLabel("attack", "Atk:", textTooltipAtk);
+
+		TextTooltip textTooltipHp = new TextTooltip(soldier.getHpMulti().getStringSummary());
+		topTable.addSmallLabel("hp", "Max HP:", textTooltipHp);
 		topTable.update("hp", ""+ df.format(soldier.getHp()));
-		topTable.addSmallLabel("defense", "Def:");
+
+		TextTooltip textTooltipDef = new TextTooltip(soldier.getDefMulti().getStringSummary());
+		topTable.addSmallLabel("defense", "Def:", textTooltipDef);
+
+		TextTooltip textTooltipSpd = new TextTooltip(soldier.getSpdMulti().getStringSummary());
+		topTable.addSmallLabel("speed", "Spd:", textTooltipSpd);
+
+		// TODO dispaly a summary string for morale
 		topTable.addSmallLabel("morale", "Morale:");
-		topTable.addSmallLabel("speed", "Spd:");
 
 		topTable.row();
 		return topTable;
@@ -149,69 +170,36 @@ public class PanelUnit extends Panel {
 	// this is probably pretty slow if these strings are being constructed every frame
 	// TODO: an update system.
 	@Override
-	public void act(float delta) {	
-		//		if (!unit.isGeneral()) {
-//		levelS.setText("" + soldier.level);
+	public void act(float delta) {
 		topTable.update("level", ""+soldier.level);
 
-//		hpS.setText(df.format(soldier.hp.getValue()));
 		if (unit != null) {
-//			moraleS.setText(unit.bsp.getCurrentMoraleString());
-//			moraleS.setColor(unit.bsp.moraleColor);
 			if (unit.isDying) {
 				topTable.update("morale","Fallen", null, Color.RED);
 			} else {
 				topTable.update("morale", unit.bsp.getCurrentMoraleString(), null, unit.bsp.moraleColor);
 			}
 		}
-		
-//		expS.setText("" + (int) (unit.getFloorHeight()*10) / 10.0);
 
+		// TODO do this efficiently instead of redoing every time.
 		if (unit != null && unit.rangedWeaponOut()) {
-//			atkSC.setText("Pow:");
-//			defSC.setText("Rng:");
-//			atkS.setText("" + df.format(unit.getRangeDmg()));
-//			defS.setText("" + df.format(unit.getBaseRange()));
-
-			// TODO allow updating labels in addition to label values.
-//			topTable.update("power", );
-			topTable.updateLabel("attack", "Pow:");
-			topTable.updateLabel("defense", "Def:");
-
-			topTable.update("attack",  df.format(unit.getRangeDmg()));
-			topTable.update("defense",  df.format(soldier.getDef()));
+			// TODO allow update tooltip when unit changes weapons
+			topTable.updateLabel("attack", "Rng:");
+			topTable.update("attack",  df.format(unit.getCurrentRange()) );
 		}
 		else {
-//			atkSC.setText("Atk:");
-//			defSC.setText("Def:");
-//			atkS.setText("" + df.format(soldier.getAtk()));
-//			defS.setText("" + df.format(soldier.getDef()));
-
 			topTable.update("attack",  df.format(soldier.getAtk()));
-			topTable.update("defense",  df.format(soldier.getDef()));
 		}
-//		spdS.setText(df.format(soldier.getSpd()));
+		topTable.update("defense",  df.format(soldier.getDef()));
 		topTable.update("speed", df.format(soldier.getSpd()));
-		//		}
 
-//		if (rangedWeaponS != null) {
-//			String toPut = soldier.unitType.ranged.name;
-//			if (unit != null) toPut += " (" + unit.quiver + ")"; // + soldier.unitType.ammoType.name;
-//
-//			rangedWeaponS.setText(toPut);
-//
-//		}
 		if (unit != null && soldier.unitType.ranged != null) {
 			String toPut = soldier.unitType.ranged.name;
-			if (unit != null) toPut += " (" + unit.quiver + ")"; // + soldier.unitType.ammoType.name;
-
+			toPut += " (" + unit.quiver + ")"; // + soldier.unitType.ammoType.name;
 			topTable.update("ranged", toPut);
 		}
 
-//		weaponS.setText(soldier.unitType.melee.name);
-
 		if (unit != null && unit.isShieldBroken()) {
-//            shieldS.setText(unit.shield.name + " (Broken)");
             topTable.update("shield", unit.shield.name + " (Broken)");
         }
 

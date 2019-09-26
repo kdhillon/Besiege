@@ -28,23 +28,26 @@ import static kyle.game.besiege.RandomCrestGenerator.COLOR_INDEX_BLACK;
 import static kyle.game.besiege.RandomCrestGenerator.COLOR_INDEX_WHITE;
 
 public class Kingdom extends Group {
-    // Actual values
-//	public static int cityCount = 60;
-//	public static int castleCount = 0;
-//	public static int ruinCount = 5;
-//	public static int villageCount = 100;
-//	int FACTION_COUNT = 25;
-//	public static final int BANDIT_FACTIONS = 10;
+	public static final boolean DEBUG_MODE = true;
 
-	// Fast values
-    public static int cityCount = 15;
-    public static int castleCount = 0;
-    public static int ruinCount = 10;
-    public static int villageCount = 20;
-    int FACTION_COUNT = 15;
+	// Actual values
+	public static int cityCount = 60;
+	public static int castleCount = 0;
+	public static int ruinCount = 5;
+	public static int villageCount = 100;
+	public static int FACTION_COUNT = 25;
 	public static final int BANDIT_FACTIONS = 10;
 
-	public static final boolean DEBUG_MODE = true;
+	// Fast values
+	static {
+		if (DEBUG_MODE) {
+			cityCount = 15;
+			castleCount = 0;
+			ruinCount = 10;
+			villageCount = 20;
+			FACTION_COUNT = 15;
+		}
+	}
 
 	public static final double DECAY = .1;
 	public static final float HOUR_TIME = 2.5f;
@@ -65,7 +68,7 @@ public class Kingdom extends Group {
     public static final double THUNDER_CHANCE = 1.0/2000;
 
 
-    public float clock;
+    public float clockSeconds;
 	private int timeOfDay; // 24 hour day is 60 seconds, each hour is 2.5 seconds
 	private int day;
 	public boolean night; // is nighttime?
@@ -127,7 +130,7 @@ public class Kingdom extends Group {
 		if (initCount < 0) {
 			map = new Map(this, true);
 
-            clock = 12 * HOUR_TIME; // set initial time as noon
+            clockSeconds = 12 * HOUR_TIME; // set initial time as noon
 			night = false;
 			day = 0;
 //			startRain();
@@ -319,8 +322,8 @@ public class Kingdom extends Group {
 	
 	// update time
 	public void time(float delta) {
-		clock += delta;
-		timeOfDay = (int) ((clock - day*60) / HOUR_TIME);
+		clockSeconds += delta;
+		timeOfDay = (int) ((clockSeconds - day*60) / HOUR_TIME);
 		if (timeOfDay >= 24) {
 			dailyRoutine();
 			day++;
@@ -1305,7 +1308,7 @@ public class Kingdom extends Group {
 	}
 
 	public float clock() {
-		return clock;
+		return clockSeconds;
 	}
 	public void toggleNight() {
 		night = !night;
@@ -1321,7 +1324,7 @@ public class Kingdom extends Group {
 		return timeOfDay;
 	}
 	public int getTotalHour() {
-		return (int) (clock/HOUR_TIME);
+		return (int) (clockSeconds /HOUR_TIME);
 	}
 	public int getDay() {
 		return day;
