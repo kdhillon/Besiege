@@ -119,18 +119,19 @@ public class UnitLoader {
 			ArmorType armor = new ArmorType();
 			if (!in.hasNext()) return;
 			String first = in.next();
+			System.out.println("kyle armor: " +first);
 			if (first.equals("//")) {
 				in.nextLine();
 				continue;
 			}
-			armor.name		= addSpaces(first);
+			armor.name		= rearrangeWithMaterial(addSpaces(first));
 			String colorToGet = in.next();
 			armor.color 	= colors.get(colorToGet);
 			if (armor.color == null) throw new java.lang.NullPointerException("Can't find color: " + colorToGet);
 			armor.defMod 	= in.nextInt();
 			armor.spdMod	= in.nextInt();
 			armor.type 	= ArmorType.toArmorType(in.next());
-			armorTypes.put(armor.name, armor);
+			armorTypes.put(first, armor);
 //				printArmor(armor);
 		}
 		in.close();
@@ -154,7 +155,7 @@ public class UnitLoader {
 				continue;
 			}
 
-			weapon.name		= addSpaces(first);
+			weapon.name = rearrangeWithMaterial(addSpaces(first));
 			weapon.atkMod 	= line.nextInt();
 			weapon.spdMod	= line.nextInt();
 			weapon.type	= toWeaponType(line.next());
@@ -165,7 +166,7 @@ public class UnitLoader {
 				weapon.texture = weapon.getDefaultTexture();
 			}
 
-			weaponTypes.put(weapon.name, weapon);
+			weaponTypes.put(first, weapon);
 						printWeapon(weapon);
 		}
 		in.close();
@@ -179,6 +180,15 @@ public class UnitLoader {
 
 		System.out.println("Weapon type not found: " + name);
 		return null;
+	}
+
+	private static String rearrangeWithMaterial(String input) {
+		String[] split = input.split("\\(");
+		if (split.length == 1) {
+			return input;
+		}
+
+		return split[1].replace(")", "") + " " + split[0];
 	}
 	
 	private static String addSpaces(String input) {
@@ -203,7 +213,7 @@ public class UnitLoader {
 				continue;
 			}
 
-			weapon.name		= addSpaces(first);
+			weapon.name		= rearrangeWithMaterial(addSpaces(first));
 			weapon.range 	= line.nextInt();
 			weapon.accuracy	= line.nextInt();
 			weapon.rate 	= line.nextInt();
@@ -216,7 +226,7 @@ public class UnitLoader {
 			    weapon.texture = weapon.getDefaultTexture();
             }
 
-			rangedWeaponTypes.put(weapon.name, weapon);
+			rangedWeaponTypes.put(first, weapon);
 //			printRangedWeapon(weapon);
 		}
 		in.close();
@@ -239,7 +249,7 @@ public class UnitLoader {
 				continue;
 			}
 
-			ammoType.name		= addSpaces(first);
+			ammoType.name = rearrangeWithMaterial(addSpaces(first));
 			ammoType.dmg  = in.nextInt();
 			ammoType.setType(in.next());
 			ammoTypes.put(ammoType.name, ammoType);
@@ -270,7 +280,7 @@ public class UnitLoader {
             shieldType.hp       = in.nextInt();
             shieldType.spdMod   = in.nextInt();
             shieldType.setType(in.next());
-            shieldTypes.put(shieldType.name, shieldType);
+            shieldTypes.put(first, shieldType);
 //			printRangedWeapon(weapon);
         }
         in.close();
@@ -336,11 +346,11 @@ public class UnitLoader {
 			}
             // remove numbers from name
             unit.name = addSpaces(in.next());
-//			System.out.println(unit.name);
+
             unit.cultureType = culture;
             culture.units.put(unit.name + unit.tier, unit);
 
-            String weaponString = addSpaces(in.next());
+            String weaponString = in.next();
             String[] weapons = weaponString.split("/");
 
             // supports only two weapons (1 ranged 1 not) for now.
@@ -354,41 +364,32 @@ public class UnitLoader {
                     unit.ranged = rangedWeaponTypes.get(weapons[i]);
 
                     // If thrown, default to same ammo as weapon name
-
                     i++;
-                    if (i < weapons.length)
-                        unit.ammoType = ammoTypes.get(weapons[i]);
+                    if (i < weapons.length) {
+						unit.ammoType = ammoTypes.get(rearrangeWithMaterial(addSpaces(weapons[i])));
+						if (unit.ammoType == null) throw new AssertionError("can't find ammo: " + weapons[i]);
+					}
                     else {
-                        if (unit.ranged.type == RangedWeaponType.Type.THROWN ||
-                                unit.ranged.type == RangedWeaponType.Type.THROWN_AXE ||
-                                unit.ranged.type == RangedWeaponType.Type.THROWN_FIRE) {
-                            unit.ammoType = ammoTypes.get(unit.ranged.name);
-                        } else if (unit.ranged.type == RangedWeaponType.Type.SLING) {
-                            unit.ammoType = ammoTypes.get("Stone");
-                        } else if (unit.ranged.type == RangedWeaponType.Type.ATLATL) {
-                            unit.ammoType = ammoTypes.get("Dart");
-                        } else if (unit.ranged.type == RangedWeaponType.Type.BOW) {
-                            unit.ammoType = ammoTypes.get("Arrow");
-                        } else {
-                            throw new AssertionError("can't find ammo type for: " + unit.ranged.name);
-                        }
+                    	unit.ammoType = AmmoType.getDefaultFor(unit.ranged);
                     }
 
                     if (unit.ranged == null) {
                         throw new java.lang.NullPointerException(weapons[i] + " can't be found");
                     }
-                } else {
+					if (unit.ammoType == null) throw new AssertionError("can't find ammo for weapon: " + weapons[i-1]);
+				} else {
                     System.out.println("CAN'T FIND WEAPON: " + weapons[i]);
                     throw new java.lang.NullPointerException();
                 }
             }
 
-            String armorShieldString = addSpaces(in.next());
+            String armorShieldString = in.next();
             String[] armorShield = armorShieldString.split("/");
 
             String armorString = armorShield[0];
-            unit.armor = armorTypes.get(addSpaces(armorString));
+            unit.armor = armorTypes.get(armorString);
             if (unit.armor == null) {
+            	throw new AssertionError(unit.name + " doesn't have armor " + armorString);
             }
 
             if (armorShield.length == 2) {

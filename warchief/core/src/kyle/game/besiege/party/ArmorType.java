@@ -23,7 +23,7 @@ public class ArmorType {
 	public boolean clothes;
 
 	public String getStatsSummary() {
-		return name + "\n " + UnitType.formatStat(defMod) + " Defense\n " + UnitType.formatStat(spdMod) + " Speed\n";
+		return name + "\n " + UnitType.formatStat(defMod) + " Defense\n " + UnitType.formatStat(spdMod) + " Speed";
 	}
 
 	// TODO replace with a getter for the appropriate textureregion

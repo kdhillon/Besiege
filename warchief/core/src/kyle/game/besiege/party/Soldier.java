@@ -404,16 +404,16 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	public void updateSquadOrGeneral() {
 		if (this.squad != null) {
-			// General's stats should not be affected by his own bonus...
-			if (squad.getGeneral() == this) {
-				this.atk.updateValue(TypeInfo.S_GENERAL, 0);
-				this.def.updateValue(TypeInfo.S_GENERAL, 0);
-				this.hp.updateValue(TypeInfo.S_GENERAL, 0);
-			} else {
-				if (this.atk != null) this.atk.updateValue(TypeInfo.S_GENERAL, squad.getBonusGeneralAtk());
+//			if (squad.getGeneral() == this) {
+//				this.atk.updateValue(TypeInfo.S_GENERAL, 0);
+//				this.def.updateValue(TypeInfo.S_GENERAL, 0);
+//				this.hp.updateValue(TypeInfo.S_GENERAL, 0);
+//			} else {
+			// General's stats are affected by his/her own bonus
+			if (this.atk != null) this.atk.updateValue(TypeInfo.S_GENERAL, squad.getBonusGeneralAtk());
 				this.def.updateValue(TypeInfo.S_GENERAL, squad.getBonusGeneralDef());
 				this.hp.updateValue(TypeInfo.S_GENERAL, squad.getHPBonus());
-			}
+//			}
 		}
 		else throw new AssertionError();
 	}
@@ -800,5 +800,22 @@ public class Soldier implements Comparable<Soldier> { // should create a heal-fa
 
 	public boolean isShaman() {
 		return false;
+	}
+
+	public String getLevelSummaryString() {
+		int baseAtk = 0;
+		int baseDef = 0;
+		int baseSpd = BASE_SPEED;
+		for (int i = 0; i <= getTier(); i++) {
+			if (ATK_TIER[i]) baseAtk++;
+			if (DEF_TIER[i]) baseDef++;
+			if (SPD_TIER[i]) baseSpd++;
+		}
+
+		String summary =  "Level " + this.level;
+		summary += "\n " + UnitType.formatStat(baseAtk) + " Base Attack";
+		summary += "\n " + UnitType.formatStat(baseDef) + " Base Defense";
+		summary += "\n " + UnitType.formatStat(baseSpd) + " Base Spd";
+		return summary;
 	}
 }

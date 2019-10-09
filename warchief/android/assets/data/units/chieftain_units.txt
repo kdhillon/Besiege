@@ -55,25 +55,26 @@ Class:	Jungle	    LT_GREEN   GREEN  maya.txt
 S   Jaguar_Shaman   Staff               Clothes             none
 
 Class:	Forest		LT_RED    RED   oneida-no-weird.txt
-1	Villager		Knife(Flint)/Rocks	               	   None			Warrior_(Nov)/Axeman/Archer/Spearman    RNG_INF
-1	Hunter			Unarmed/Bow(Ash)/Hunting(Flint)        None			Warrior_(Nov)/Axeman/Archer             RNG
-1   Fisher          Spear(Flint)                           None            Warrior_(Nov)/Axeman/Spearman        HVY_INF
+1	Villager		Knife(Flint)/Rocks	               	   None			Warrior_(Nov)/Archer_(Nov)    RNG_INF
+1	Hunter			Unarmed/Bow(Ash)/Hunting(Flint)        None			Warrior_(Nov)/Archer_(Nov)    RNG
+1   Fisher          Spear(Flint)                           None         Warrior_(Nov)/Archer_(Nov)    HVY_INF
 
-2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     Furs            Warrior    RNG_INF
+2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     None            Warrior/Spearman/Axeman   RNG_INF
 3   Warrior         War_Club(Wood)/Bow(Hickory)/Broadhead(Flint) None            Warrior_(Vet)  RNG_INF
 4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)   RNG_INF
 
+// Archer (based on Southeast culture?)
+2   Archer_(Nov)    Knife(Flint)/Bow(Locust)/Broadhead(Bone)        Clothes   Archer        RNG
+3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)  RNG
+4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)     RNG
+
 // Heavy Infantry
-3   Spearman        Spear(Flint)                          Breastplate(Wood_Rods)/Round_Elkskin     Spearman_(Vet)   HVY_INF
+3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin     Spearman_(Vet)   HVY_INF
 4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)       HVY_INF
 
 // Light Infantry
 3	Axeman  		Tomahawk(Flint)/Tomahawk(Flint)	       Clothes			Axeman_(Vet)    LGT_INF
 4	Axeman_(Vet)	Tomahawk(Flint)/Tomahawk(Flint)        Clothes			Nagual(W)       LGT_INF
-
-// Archer (based on Southeast culture?)
-3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)  RNG
-4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)     RNG
 
 // Legendary Units?
 5	Peacemaker		Staff				None            none    HVY_INF
@@ -85,29 +86,32 @@ Class:	Forest		LT_RED    RED   oneida-no-weird.txt
 
 // TODO make the plains have more heavy infantry
 Class:	Plains		LT_YELLOW    YELLOW   cheyenne-no-weird.txt
-1	Villager		Knife(Flint)/Rocks			           None Warrior_(Nov)       RNG_INF
-1	Farmer			Hoe(Bone)					           None Warrior_(Nov)       HVY_INF
-1	Hunter			Knife(Flint)/Bow(Ash)/Hunting(Flint)   None Warrior_(Nov)       RNG
+1	Villager		Knife(Flint)/Rocks			           None Warrior_(Nov)/Archer_(Nov)       RNG_INF
+1	Farmer			Hoe(Bone)					           None Warrior_(Nov)/Archer_(Nov)       HVY_INF
+1	Hunter			Knife(Flint)/Bow(Ash)/Hunting(Flint)   None Warrior_(Nov)/Archer_(Nov)       RNG
 
-2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     None            Warrior        RNG_INF
+2   Warrior_(Nov)   War_Club(Wood)/Bow(Ash)/Broadhead(Flint)     None            Warrior/Spearman/Axeman   RNG_INF
 3   Warrior         War_Club(Wood)/Bow(Hickory)/Broadhead(Flint) None            Warrior_(Vet)  RNG_INF
 4   Warrior_(Vet)   War_Club(Wood)/Bow(Locust)/Broadhead(Flint)  Breastplate(Wood_Rods)/Round_Deerskin  Nagual(W)   RNG_INF
 
+// Archer (based on Southeast culture?)
+2   Archer_(Nov)    Knife(Flint)/Bow(Locust)/Broadhead(Bone)        Clothes   Archer        RNG
+3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)  RNG
+4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)     RNG
+
 // Heavy Infantry
-3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin     Spearman_(Vet)  HVY_INF
+3   Spearman        Spear(Flint)                           Breastplate(Wood_Rods)/Round_Elkskin     Spearman_(Vet)   HVY_INF
 4	Spearman_(Vet)	Spear(Flint)/Spear(Flint)		       Breastplate(Wood_Slats)/Large_Bark		Nagual(W)       HVY_INF
 
 // Light Infantry
 3	Axeman  		Tomahawk(Flint)/Tomahawk(Flint)	       Clothes			Axeman_(Vet)    LGT_INF
 4	Axeman_(Vet)	Tomahawk(Flint)/Tomahawk(Flint)        Clothes			Nagual(W)       LGT_INF
 
-// Archer (based on Southeast culture?)
-3   Archer          Knife(Flint)/Strongbow(Maple)/Broadhead(Bone)   Clothes   Archer_(Vet)  RNG
-4   Archer_(Vet)    Knife(Flint)/Strongbow(Cedar)/Fire_Arrow        Clothes   Nagual(B)     RNG
-
 // Legendary Units?
-5	Nagual(W)		War_Axe				Clothes			none        LGT_INF
-5	Nagual(B)		War_Axe				Clothes			none        LGT_INF
+5	Peacemaker		Staff				None            none    HVY_INF
+
+5	Nagual(W)		War_Axe				Clothes			none    LGT_INF
+5	Nagual(B)		War_Axe				Clothes			none    LGT_INF
 
 
 // TODO review this

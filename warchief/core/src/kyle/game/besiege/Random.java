@@ -3,6 +3,34 @@ package kyle.game.besiege;
 /** Random utils */
 public class Random {
 
+    /**
+     * Returns an randomly chosen index, weighted by its value in the distribution. Normalizes the weights first.
+     * @param probabilities
+     * @return
+     */
+    public static int getRandomIndexFromDistribution(float[] probabilities) {
+        float total = 0;
+        for (int i = 0; i < probabilities.length; i++) {
+            total += probabilities[i];
+        }
+        if (total <= 0) throw new AssertionError();
+        for (int i = 0; i < probabilities.length; i++) {
+            probabilities[i] /= total;
+        }
+
+        // Now, all probabilities sum to 1. Step thru the array.
+        double random = Math.random();
+        double current = 0;
+        int currentIndex = -1;
+
+        while (current < random) {
+            currentIndex++;
+            current += probabilities[currentIndex];
+        }
+
+        return currentIndex;
+    }
+
     public static int getRandomIndex(Object[] array) {
         return (int) (Math.random() * array.length);
     }

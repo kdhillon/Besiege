@@ -598,10 +598,19 @@ public class Unit extends Group {
 		return currentSpeed;
 	}
 
+	// TODO convert to multivalue?
 	public float getCurrentRange() {
 		if (this.rangedWeapon == null) return -1;
 		//		System.out.println(this.rangedWeapon.range + this.getFloorHeight()*HEIGHT_RANGE_FACTOR);
 		return this.getBaseRange() + this.getFloorHeight()*HEIGHT_RANGE_FACTOR;
+	}
+
+	public String getCurrentRangeString() {
+		String summary = UnitType.formatStat(this.getCurrentRange()) + " Range =";
+		summary += "\n " + UnitType.formatStat(rangedWeapon.range) + " Base";
+		if (soldier.squad.getBonusGeneralRange() != 0) summary += "\n " + UnitType.formatStat(soldier.squad.getBonusGeneralRange()) + " General";
+		if (this.getFloorHeight() != 0) summary += "\n " + UnitType.formatStat(this.getFloorHeight() * HEIGHT_RANGE_FACTOR) + " Floor Height";
+		return summary;
 	}
 
 	public String getStatus() {
@@ -822,6 +831,9 @@ public class Unit extends Group {
 				point.pos_y - pos_y);
 
 		for (Orientation o : sortedOrientations) {
+			// Add a small amount of randomness, so units don't get permanently stuck
+			if (Math.random() < 0.05) continue;
+
 			this.face(o);
 			if (this.moveForward()) {
 				break;
@@ -1179,19 +1191,19 @@ public class Unit extends Group {
 		boolean done = false;
 
 		// right
-		if (dist_to_right < dist_to_left && dist_to_right < dist_to_top && dist_to_right < dist_to_bottom) {
+		if (dist_to_right <= dist_to_left && dist_to_right <= dist_to_top && dist_to_right <= dist_to_bottom) {
 			point_x = stage.size_x-1;
 			point_y = pos_y;
 			if (canMove(point_x, point_y)) done = true;
 		}
 		// left
-		if (!done && dist_to_left < dist_to_right && dist_to_left < dist_to_top && dist_to_left < dist_to_bottom) {
+		if (!done && dist_to_left <= dist_to_right && dist_to_left <= dist_to_top && dist_to_left <= dist_to_bottom) {
 			point_x = 0;
 			point_y = pos_y;
 			if (canMove(point_x, point_y)) done = true;
 		}
 		// top
-		if (!done && dist_to_top < dist_to_left && dist_to_top < dist_to_right && dist_to_top < dist_to_bottom) {
+		if (!done && dist_to_top <= dist_to_left && dist_to_top <= dist_to_right && dist_to_top <= dist_to_bottom) {
 			point_x = pos_x;
 			point_y = stage.size_y-1;
 			if (canMove(point_x, point_y)) done = true;

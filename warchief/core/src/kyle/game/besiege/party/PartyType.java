@@ -4,9 +4,9 @@
  * Source Code available under a read-only license. Do not copy, modify, or distribute.
  ******************************************************************************/
 package kyle.game.besiege.party;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-
 import kyle.game.besiege.Random;
 import kyle.game.besiege.StrictArray;
 import kyle.game.besiege.location.Location;
@@ -17,7 +17,7 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 	public static Array<PartyType> types;
 	
 	public enum Type {FARMERS, PATROL, MERCHANT, TOWN_GARRISON, CITY_GARRISON, LARGE_CITY_GARRISON, CASTLE_GARRISON, VILLAGE_GARRISON, BANDIT,
-						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE,  TEST_ALL}; // TEST, TEST_1, TEST_2,
+						SCOUT, NOBLE, RAIDING_PARTY, ELITE, CITY_HIRE, CASTLE_HIRE, VILLAGE_HIRE, RANGED_ONLY, TEST_ALL}; // TEST, TEST_1, TEST_2,
 	
 	//	private final Weapon[] troopTypes;
 	public String name;
@@ -30,6 +30,8 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 //	private NewUnitType[] unitTypes;
 
     private String[] unitNames; // If present, only allow units with these words in their names
+
+	private float[] classDistributions; // If present, distribute UnitClasses using these probabilities (will be normalized).
 
 	private int minCount;
 	private int maxCount;
@@ -105,32 +107,15 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 		
 		// use rejection sampling because why not
 		
-		CultureType classToUse;
-		if (cultureType != null)
-			classToUse = cultureType;
+		CultureType cultureType;
+		if (this.cultureType != null)
+			cultureType = this.cultureType;
 		else {
-//			// choose probablistically
-//			double random = Math.random();
-//			double current = 0;
-//			int currentIndex = -1;
-//			Biomes biome;
-//
-//			if (biomeWeights != null) {
-//				while (current < random) {
-//					currentIndex++;
-//					current += biomeWeights[currentIndex];
-//					//				System.out.println(biomeWeights[currentIndex]);
-//				}
-//				biome = Biomes.values()[currentIndex];
-//			}
-//			else biome = Biomes.GRASSLAND;
-//
-//			//			System.out.println(biome.name());
-////			classToUse = UnitLoader.biomeCultures.get(biome);
-//			if (classToUse == null) {
-				System.out.println(name + " has null culture type!");
-				throw new AssertionError();
-//			}
+//			int biomeIndex = Random.getRandomIndexFromDistribution(biomeWeights);
+//			Biome biome = Biomes.values()[currentIndex];
+			// choose probablistically, use Random.getRandomIndexFromDistribution
+			System.out.println(name + " has null culture type!");
+			throw new AssertionError();
 		}
 				
 		int randomIndex;
@@ -140,32 +125,38 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 		int tierIndex = (int) (Math.random() * tiers.length);
 		int tierToUse = tiers[tierIndex];
 
-		Object[] types = (classToUse.units.values().toArray());
+		Object[] types = (cultureType.units.values().toArray());
+
+		UnitType.UnitClass classToUse = null;
+		if (classDistributions != null) {
+			classToUse = UnitType.UnitClass.values()[Random.getRandomIndexFromDistribution(classDistributions)];
+		}
 
 		boolean valid = false;
 //		// make sure class actually has a unit in the right tier
-		for (UnitType unit : classToUse.units.values()) {
+		for (UnitType unit : cultureType.units.values()) {
 			if (unit.tier == tierToUse) {
 			    // If forcing from a list of units (ie farmers only) select that.
 			    if (unitNames != null) {
 			        for (String s : unitNames) {
 			            if (unit.name.contains(s)) valid = true;
                     }
-                } else {
+                } else if (classToUse != null) {
+					 if (unit.unitClass == classToUse) valid = true;
+				} else {
                     valid = true;
                 }
             }
 		}
 		if (!valid) {
-			System.out.println("Missing tier " + tierToUse + " for " + classToUse.name);
+			System.out.println("Missing tier " + tierToUse + " for " + cultureType.name);
 			throw new java.lang.NullPointerException();
 		}
 		
-		// Random sample from all units at this tier level.
+		// Random sample from all units at this tier level. Random sampling.
         valid = false;
 		do {
-			randomIndex = MathUtils.random(0, types.length-1);
-			unitType = (UnitType) types[randomIndex];
+			unitType = (UnitType) Random.getRandomValue(types);
 
             if (unitType.tier == tierToUse) {
                 // If forcing from a list of units (ie farmers only) select that.
@@ -173,7 +164,10 @@ public class PartyType { // todo add ability for max playerPartyPanel size
                     for (String s : unitNames) {
                         if (unitType.name.contains(s)) valid = true;
                     }
-                } else {
+                } else if (classToUse != null) {
+                	if (unitType.unitClass == classToUse) valid = true;
+				}
+                else {
                     valid = true;
                 }
             }
@@ -333,6 +327,15 @@ public class PartyType { // todo add ability for max playerPartyPanel size
 			pt.minCount = 1;
 			pt.tiers = new int[]{1, 2, 3};
 			pt.hire = true;
+			break;
+		case RANGED_ONLY:
+			pt.name = "Ranged (20)";
+			pt.maxCount = 50;
+			pt.minCount = 50;
+			pt.tiers = new int[]{2, 3, 4};
+			pt.hire = false;
+			pt.classDistributions = new float[UnitType.UnitClass.values().length];
+			pt.classDistributions[UnitType.UnitClass.RANGED.ordinal()] = 1;
 			break;
 //		case TEST:
 //			pt.name = "Test";

@@ -44,6 +44,8 @@ public class PanelUnit extends Panel {
 
 	public static DecimalFormat df = new DecimalFormat("0.00");
 
+	boolean attackDisplayedInsteadOfRange = true; // start with attack displayed by default.
+
 	// can be used for soldier or unit
 	public PanelUnit(SidePanel panel, Unit unit, Soldier soldier) {
         this.sidePanel = panel;
@@ -85,6 +87,8 @@ public class PanelUnit extends Panel {
 
 //		if (battleStage == null)
 			this.setButton(4, "Back");
+
+		TextTooltip attackTooltip = new TextTooltip(soldier.getAtkMulti().getStringSummary());
 	}
 
 	public static TopTable getTopTable(final Soldier soldier, Unit unit, LabelStyle ls) {
@@ -97,23 +101,14 @@ public class PanelUnit extends Panel {
 
 		topTable.addSubtitle("name", name, null);
 
-//		// TODO should we have a party name?
-//		armyName = new Label("", ls);
-//		if (party.army != null)
-//			armyName.setText(party.army.getName());
-//		armyName.setAlignment(0, 0);
-//		topTable.addSubtitle("party", armyName, ls, null);
-
 		if (soldier.isGeneral()) {
 			topTable.addTable(PanelGeneral.getGeneralStats((General) soldier, ls));
 		}
 
 		if (unit != null) {
 			topTable.addGreenBar();
-			topTable.addSubtitle("action", unit.getStatus(), ls, null);
+			topTable.addSubtitle("action", unit.getStatus() + isHiddenString(unit), ls, null);
 		}
-
-		// TODO add subpanels for weapons and armor detailing their stats
 
 		// If not in battle, use a special minimized format.
 		if (unit == null) {
@@ -146,9 +141,12 @@ public class PanelUnit extends Panel {
 			topTable.addSubtitle("armor", armor, ls, textTooltip);
 		}
 
-		topTable.addSmallLabel("level", "Level:");
-		TextTooltip textTooltipAtk = new TextTooltip(soldier.getAtkMulti().getStringSummary());
-		topTable.addSmallLabel("attack", "Atk:", textTooltipAtk);
+		TextTooltip levelTooltip = new TextTooltip(soldier.getLevelSummaryString());
+		topTable.addSmallLabel("level", "Level:", levelTooltip);
+
+		topTable.addSmallLabel("attackrange", "Atk:");
+		topTable.update("attackrange", soldier.getAtkMulti().getValue() + "",
+				new TextTooltip(soldier.getAtkMulti().getStringSummary()));
 
 		TextTooltip textTooltipHp = new TextTooltip(soldier.getHpMulti().getStringSummary());
 		topTable.addSmallLabel("hp", "Max HP:", textTooltipHp);
@@ -167,6 +165,11 @@ public class PanelUnit extends Panel {
 		return topTable;
 	}
 
+	private static String isHiddenString(Unit unit) {
+		if (unit.isHidden()) return " (Hidden)";
+		return "";
+	}
+
 	// this is probably pretty slow if these strings are being constructed every frame
 	// TODO: an update system.
 	@Override
@@ -181,15 +184,20 @@ public class PanelUnit extends Panel {
 			}
 		}
 
-		// TODO do this efficiently instead of redoing every time.
-		if (unit != null && unit.rangedWeaponOut()) {
-			// TODO allow update tooltip when unit changes weapons
-			topTable.updateLabel("attack", "Rng:");
-			topTable.update("attack",  df.format(unit.getCurrentRange()) );
+		// Set to ranged, if we need to update
+		if (unit != null && unit.rangedWeaponOut() && attackDisplayedInsteadOfRange) {
+			topTable.updateLabel("attackrange", "Rng:");
+			topTable.update("attackrange", unit.getCurrentRange() + "", new TextTooltip(unit.getCurrentRangeString()));
+			attackDisplayedInsteadOfRange = false;
 		}
-		else {
-			topTable.update("attack",  df.format(soldier.getAtk()));
+		// Set to attack, if we need to update it
+		if ((unit == null || !unit.rangedWeaponOut()) && !attackDisplayedInsteadOfRange) {
+			topTable.updateLabel("attackrange", "Atk:");
+			topTable.update("attackrange", soldier.getAtkMulti().getValue() + "",
+					new TextTooltip(soldier.getAtkMulti().getStringSummary()));
+			attackDisplayedInsteadOfRange = true;
 		}
+
 		topTable.update("defense",  df.format(soldier.getDef()));
 		topTable.update("speed", df.format(soldier.getSpd()));
 
@@ -203,11 +211,8 @@ public class PanelUnit extends Panel {
             topTable.update("shield", unit.shield.name + " (Broken)");
         }
 
-		String mounted = "";
 		if (unit != null) {
-			if (unit.isMounted()) mounted = " (Mounted)";
-
-			topTable.update("action",unit.getStatus() + mounted);
+			topTable.update("action",unit.getStatus() + isHiddenString(unit));
 			topTable.updateGreenBar(unit.hp*1.0/max_hp);
 		}
 

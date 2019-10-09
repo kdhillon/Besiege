@@ -134,4 +134,18 @@ public class AmmoType {
         return false;
     }
 
+    public static AmmoType getDefaultFor(RangedWeaponType rangedWeaponType) {
+        RangedWeaponType.Type type = rangedWeaponType.type;
+        if (type == RangedWeaponType.Type.THROWN || type == RangedWeaponType.Type.THROWN_AXE || type == RangedWeaponType.Type.THROWN_FIRE) {
+            return UnitLoader.ammoTypes.get(rangedWeaponType.name);
+        } else if (type == RangedWeaponType.Type.SLING) {
+            return UnitLoader.ammoTypes.get("Stone");
+        } else if (type == RangedWeaponType.Type.ATLATL) {
+            return UnitLoader.ammoTypes.get("Dart");
+        } else if (type == RangedWeaponType.Type.BOW) {
+            return UnitLoader.ammoTypes.get("Arrow");
+        } else {
+            throw new AssertionError("can't find ammo type for: " + rangedWeaponType.name);
+        }
+    }
 }

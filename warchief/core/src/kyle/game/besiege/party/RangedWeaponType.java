@@ -17,7 +17,7 @@ public class RangedWeaponType {
 	public String texture;
 
 	public String getStatsSummary() {
-		return type.name() + "\n " + range + " Range\n " + accuracy + " Accuracy\n " + rate + " " +
+		return name + "\n " + range + " Range\n " + accuracy + " Accuracy\n " + rate + " " +
 				"Fire Rate";
 	}
 

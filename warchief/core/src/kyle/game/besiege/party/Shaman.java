@@ -12,6 +12,7 @@ public class Shaman extends Soldier {
     private MultiValue power; // represents a Shaman or priest's spiritual power. in reality, it's an AOE.
     private Type type;
 
+    // TODO assign most of this stuff in "units"
     // These types of shamans give different powers to their squads during battle.
     // They also increase the healing rate of all units in the squad.
     // They march into battle behind their BSPs, like their general
@@ -19,7 +20,7 @@ public class Shaman extends Soldier {
         // Forest
         WOLF("Wolf Shaman", "Forest", "Staff", "None", MASK_WOLF),
         // Tundra
-        BEAR("Bear Shaman", "Tundra", "Staff", "Light Furs", MASK_BEAR),
+        BEAR("Bear Shaman", "Tundra", "Staff", "Light_Furs", MASK_BEAR),
         // Plains
         HAWK("Hawk Shaman", "Plains", "Staff", "None", MASK_HAWK),
         BUFFALO("Buffalo Shaman", "Plains", "Staff", "None", MASK_BUFFALO),

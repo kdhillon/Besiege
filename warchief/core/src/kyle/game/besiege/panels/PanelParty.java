@@ -225,14 +225,6 @@ public class PanelParty extends Panel { // TODO organize soldier display to cons
 
 	@Override
 	public void resize() {
-		// TODO move soldier table out of top table, make soldiertable and toptable PEERs. use a new master table that is inside of scrollpane that holds toptable + soldiertable.
-//        Cell cell = topTable.getCell(soldierTable);
-//        cell.height(panel.getHeight() - DESC_HEIGHT).setWidget(null);
-//        soldierTable = new SoldierTable(this, party);
-//        party.updated = true;
-//        soldierTable.setHeight(panel.getHeight() - DESC_HEIGHT);
-//        cell.setWidget(soldierTable);
-        // TODO is this necessary?
         super.resize();
 	}
 

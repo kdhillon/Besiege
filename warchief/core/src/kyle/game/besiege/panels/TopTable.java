@@ -215,7 +215,7 @@ public class TopTable extends Table {
 		Label value = labels.get(key);
 		value.setText(newLabel);
 	}
-	
+
 	public void updateTitle(String titleText, InputListener listener, Color color) {
 		if (title == null) {
 			title = new Label("", lsTitle);

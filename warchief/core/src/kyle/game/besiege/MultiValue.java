@@ -90,12 +90,9 @@ public class MultiValue implements Value {
 		String summary = df.format(this.getValue()) + " " + this.multiName;
 		if (values.size > 0) summary += " =";
 		for (SubValue s : values) {
-			summary += "\n " + UnitType.formatStat(s.value.getValue()) + " " + s.typeInfo.name;
+			if (s.value.getValue() == 0) continue;
 
-//			summary +=  "\n  " + df.format(s.value.getValue() * s.factor) + " (" + s.typeInfo.name + ")";
-//			if (s != values.get(values.size - 1)) {
-//				summary += " +";
-//			}
+			summary += "\n " + UnitType.formatStat(s.value.getValue()) + " " + s.typeInfo.name;
 		}
 		return summary;
 	}
